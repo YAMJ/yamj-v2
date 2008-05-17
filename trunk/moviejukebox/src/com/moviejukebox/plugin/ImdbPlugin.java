@@ -15,7 +15,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
 
-import com.moviejukebox.MovieLibTools;
+import com.moviejukebox.MovieJukeboxTools;
 import com.moviejukebox.model.Movie;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
@@ -197,7 +197,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		for (int i = 0; i < skip; i++)
 			st.nextToken();
 		
-		String value = MovieLibTools.decodeHtml(st.nextToken().trim());
+		String value = MovieJukeboxTools.decodeHtml(st.nextToken().trim());
 		if (   (value.indexOf("uiv=\"content-ty")!= -1) 
 		    || (value.indexOf("cast>")!= -1)) {
 			value = "Unknown";

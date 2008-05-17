@@ -13,7 +13,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 
-public class MovieLibScanner {
+public class MovieJukeboxScanner {
 	
 	private static final String[] skipKeywords = {
 		"LIMITED", "CAM", "XviD", "DiAMOND", "AXXO", "PUKKA", "BDRiP", "iDHD", "DivX5", "R5", "DvDRip", "PROPER", "REPACK"

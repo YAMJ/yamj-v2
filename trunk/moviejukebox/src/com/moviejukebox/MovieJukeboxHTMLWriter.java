@@ -15,11 +15,11 @@ import javax.xml.transform.stream.StreamSource;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 
-public class MovieLibHTMLWriter {
+public class MovieJukeboxHTMLWriter {
 
 	private boolean forceHTMLOverwrite;
 
-	public MovieLibHTMLWriter(boolean forceHTMLOverwrite) {
+	public MovieJukeboxHTMLWriter(boolean forceHTMLOverwrite) {
 		this.forceHTMLOverwrite = forceHTMLOverwrite;
 	}
 	
