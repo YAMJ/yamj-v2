@@ -22,12 +22,12 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 
-public class MovieLibXMLWriter {
+public class MovieJukeboxXMLWriter {
 
 	private boolean forceXMLOverwrite;
 	private String nmtRootPath;
 
-	public MovieLibXMLWriter(String nmtRootPath, boolean forceXMLOverwrite) {
+	public MovieJukeboxXMLWriter(String nmtRootPath, boolean forceXMLOverwrite) {
 		this.forceXMLOverwrite = forceXMLOverwrite;
 		this.nmtRootPath = nmtRootPath;
 	}

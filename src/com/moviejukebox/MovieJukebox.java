@@ -10,7 +10,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 
-public class MovieLib {
+public class MovieJukebox {
 
 	private String movieLibraryRoot;
 	private String jukeboxRoot;
@@ -77,7 +77,7 @@ public class MovieLib {
 			return;
 		}
 		
-		MovieLib ml = new MovieLib(movieLibraryRoot, jukeboxRoot, detailsDirName, 
+		MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot, detailsDirName, 
 				forceXMLOverwrite, forceHTMLOverwrite, nmtRootPath, thumbWidth, thumbHeight);
 		
 		ml.generateLibrary();
@@ -122,7 +122,7 @@ public class MovieLib {
 		System.out.println("                          Default is: false");
 	}
 
-	private MovieLib(String movieLibraryRoot, String jukeboxRoot, String detailsDirName, 
+	private MovieJukebox(String movieLibraryRoot, String jukeboxRoot, String detailsDirName, 
 			boolean forceXMLOverwrite, boolean forceHTMLOverwrite, String nmtRootPath, int thumbWidth, int thumbHeight) {
 		this.movieLibraryRoot = movieLibraryRoot;
 		this.jukeboxRoot = jukeboxRoot;
@@ -146,9 +146,9 @@ public class MovieLib {
 	}
 
 	private void generateLibrary() throws FileNotFoundException, XMLStreamException {
-		MovieLibScanner ms = new MovieLibScanner();
-		MovieLibXMLWriter xmlWriter = new MovieLibXMLWriter(nmtRootPath, forceXMLOverwrite);
-		MovieLibHTMLWriter htmlWriter = new MovieLibHTMLWriter(forceHTMLOverwrite);
+		MovieJukeboxScanner ms = new MovieJukeboxScanner();
+		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(nmtRootPath, forceXMLOverwrite);
+		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(forceHTMLOverwrite);
 		MovieDatabasePlugin movieDB = new ImdbPlugin();
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
@@ -170,7 +170,7 @@ public class MovieLib {
 			
 			// Download poster file only if this file doesn't exist... never overwrite an existing file...
 			movieDB.downloadPoster(jukeboxDetailsRoot, movie);
-			MovieLibTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
+			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
 			System.out.println(movie);
 		}
 		
@@ -188,8 +188,8 @@ public class MovieLib {
 		xmlWriter.writeIndexXML(jukeboxRoot, detailsDirName, library);
 		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, library);		
 		
-		MovieLibTools.copyResource("exportdetails_item_popcorn.css", jukeboxDetailsRoot);
-		MovieLibTools.copyResource("exportindex_item_pch.css", jukeboxRoot);
+		MovieJukeboxTools.copyResource("exportdetails_item_popcorn.css", jukeboxDetailsRoot);
+		MovieJukeboxTools.copyResource("exportindex_item_pch.css", jukeboxRoot);
 		
 		System.out.println("Process terminated.");
 	}
