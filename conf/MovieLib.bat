@@ -1,4 +1,4 @@
 @echo off
 
-java -classpath ./movieLib.jar;./resources com.movielib.MovieLib %1 %2 %3 %4 %5 %6
+java -classpath ./movieLib.jar;./resources com.moviejukebox.MovieJukebox %1 %2 %3 %4 %5 %6
 
