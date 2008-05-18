@@ -126,11 +126,11 @@ public class MovieJukebox {
 		System.out.println("");
 		System.out.println("    -fx                 : OPTIONAL");
 		System.out.println("                          force the jukeboxe's XML files to be overwritten");
-		System.out.println("                          Default is: false");
+		System.out.println("                          Default is: true");
 		System.out.println("");
 		System.out.println("    -fh                 : OPTIONAL");
 		System.out.println("                          force the jukeboxe's HTML files");
-		System.out.println("                          Default is: false");
+		System.out.println("                          Default is: true");
 	}
 
 	private MovieJukebox(String movieLibraryRoot, String jukeboxRoot, String detailsDirName, 
