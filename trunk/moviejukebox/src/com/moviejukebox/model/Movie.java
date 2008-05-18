@@ -367,9 +367,6 @@ public class Movie implements Comparable<Movie> {
 
 	@Override
 	public int compareTo(Movie anotherMovie) {
-/*		String a = this.getTitleSort().equalsIgnoreCase("UNKNOWN")?this.getTitle():this.getTitleSort();
-		String b = anotherMovie.getTitleSort().equalsIgnoreCase("UNKNOWN")?anotherMovie.getTitle():anotherMovie.getTitleSort();
-		return a.compareTo(b); */
 		return this.getTitle().compareTo(anotherMovie.getTitle());
 	}
 }

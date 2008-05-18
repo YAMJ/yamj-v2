@@ -27,8 +27,8 @@ public class MovieJukebox {
 		String jukeboxRoot = null;
 		String detailsDirName = "Jukebox";
 		String nmtRootPath = "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/";
-		boolean forceXMLOverwrite = false;
-		boolean forceHTMLOverwrite = false;
+		boolean forceXMLOverwrite = true;
+		boolean forceHTMLOverwrite = true;
 		int thumbWidth = 140;
 		int thumbHeight = 200;
 

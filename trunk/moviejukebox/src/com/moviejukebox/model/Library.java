@@ -63,21 +63,18 @@ public class Library implements Map<String, Movie> {
 				movie.setLast(last.getBaseName());
 			}
 	
-			for (Movie movie : moviesList) {
-				String title = movie.getTitleSort().equalsIgnoreCase("UNKNOWN") ? movie.getTitle() : movie.getTitleSort();
+			for (Movie movie : moviesList) {				
+				String title = movie.getTitle();
 				if (title.length()>0) {
-					String t = movie.getTitleSort().equalsIgnoreCase("UNKNOWN")?movie.getTitle():movie.getTitleSort();
-					Character c = Character.toUpperCase(t.charAt(0));
+					Character c = Character.toUpperCase(title.charAt(0));
 				
-					if (!Character.isLetter(c) || (c>'A' && c<'F')) {
+					if (!Character.isLetter(c) || (c>='A' && c<='F')) {
 						addMovie("09AF", movie);
-					} else if (c>'G' && c<'L') {
+					} else if (c>='G' && c<='L') {
 						addMovie("GL", movie);
-					} else if (c>'G' && c<'L') {
-						addMovie("GL", movie);
-					} else if (c>'M' && c<'R') {
+					} else if (c>='M' && c<='R') {
 						addMovie("MR", movie);
-					} else if (c>'S' && c<'Z') {
+					} else if (c>='S' && c<='Z') {
 						addMovie("SZ", movie);
 					}
 				}
