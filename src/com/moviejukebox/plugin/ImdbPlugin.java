@@ -246,9 +246,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	 * imdb site. This method uses the actual posterURL of the movie.
 	 */
 	public void downloadPoster(String jukeboxDetailsRoot, Movie mediaFile) {
+		String posterFilename = jukeboxDetailsRoot + File.separator + mediaFile.getBaseName() + ".jpg";
+
+		File posterFile = new File(posterFilename);
+		posterFile.getParentFile().mkdirs();
 
 		if (mediaFile.getPosterURL() == null || mediaFile.getPosterURL().equalsIgnoreCase("Unknown")) {
-			copyResource("dummy.jpg", jukeboxDetailsRoot + File.separator + mediaFile.getBaseName() + ".jpg");
+			copyResource("dummy.jpg", posterFilename);
 			return;
 		}
 
@@ -256,10 +260,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		OutputStream out = null;
 
 		try {
-			File posterFile = new File(jukeboxDetailsRoot + File.separator + mediaFile.getBaseName() + ".jpg");
 			if (!posterFile.exists()) {
-
-				posterFile.getParentFile().mkdirs();
 
 				URL url = new URL(mediaFile.getPosterURL());
 				URLConnection cnx = url.openConnection();
@@ -294,7 +295,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			}
 		} catch (Exception e) {
 			System.err.println("Failed downloading movie poster : " + mediaFile.getPosterURL());
-			copyResource("dummy.jpg", jukeboxDetailsRoot + File.separator + mediaFile.getBaseName() + ".jpg");
+			copyResource("dummy.jpg", posterFilename);
 		}
 	}
 
