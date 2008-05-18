@@ -26,12 +26,12 @@ public class MovieJukeboxScanner {
 	public Library scan(File directory) {
 
 		if (directory.isFile())
-			mediaLibraryRoot = directory.getParent();
+			mediaLibraryRoot = directory.getParentFile().getAbsolutePath();
 		else {
 			mediaLibraryRoot = directory.getAbsolutePath();
 		}
 		
-		mediaLibraryRootPathIndex = mediaLibraryRoot.length()+1;
+		mediaLibraryRootPathIndex = mediaLibraryRoot.length();
 		
 		Library library = new Library();
 		this.scanDirectory(directory, library);
@@ -67,6 +67,11 @@ public class MovieJukeboxScanner {
 
 	protected Movie scanFilename(File fileToScan) {
 		String relativeFilename = fileToScan.getAbsolutePath().substring(mediaLibraryRootPathIndex);
+		
+		if ( relativeFilename.startsWith(File.separator) ) {
+			 relativeFilename = relativeFilename.substring(1); 
+		}
+		
 		String filename = fileToScan.getName();
 		
 		firstKeywordIndex = filename.indexOf("[");
