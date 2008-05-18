@@ -129,6 +129,6 @@ Important notes
                    by Michaal T. (michael1t), Thanx!
                    (http://www.networkedmediatank.com/viewtopic.php?p=22825&sid=5feac8722f0aed6c6691c7a7a353b45b)
 
-    Please report bugs, comments, feature requests to: jjulien@hotmail.fr
+    Please report bugs, comments, feature requests to: jjulien71@gmail.com
 
                    
