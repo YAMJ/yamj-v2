@@ -37,43 +37,54 @@ public class MovieJukebox {
 			return;
 		} 
 		
-		for (int i = 0; i < args.length; i++) {
-			String arg = (String) args[i];
-			if ("-o".equalsIgnoreCase(arg)) {
-				jukeboxRoot = args[i++]; 
-			} else if ("-d".equalsIgnoreCase(arg)) {
-				detailsDirName = args[i++]; 
-			} else if ("-nr".equalsIgnoreCase(arg)) {
-				nmtRootPath = args[i++]; 
-			} else if ("-tw".equalsIgnoreCase(arg)) {
-				try {
-					thumbWidth = Integer.parseInt(args[i++]); 
-				} catch (NumberFormatException e) {
-					thumbWidth = 140;
-				}
-			} else if ("-th".equalsIgnoreCase(arg)) {
-				try {
-					thumbHeight = Integer.parseInt(args[i++]); 
-				} catch (NumberFormatException e) {
-					thumbHeight = 200;
-				}
-			} else if ("-fx".equalsIgnoreCase(arg)) {
-				forceXMLOverwrite = true;
-			} else if ("-fh".equalsIgnoreCase(arg)) {
-				forceHTMLOverwrite = true;
-			} else if (arg.startsWith("-")) {
-				help();
-				return;
-			} else {
-				movieLibraryRoot = args[i];
-				if (jukeboxRoot == null) {
-					jukeboxRoot = movieLibraryRoot;
+		try {
+			for (int i = 0; i < args.length; i++) {
+				String arg = (String) args[i];
+				if ("-o".equalsIgnoreCase(arg)) {
+					jukeboxRoot = args[++i]; 
+				} else if ("-d".equalsIgnoreCase(arg)) {
+					detailsDirName = args[++i]; 
+				} else if ("-nr".equalsIgnoreCase(arg)) {
+					nmtRootPath = args[++i]; 
+				} else if ("-tw".equalsIgnoreCase(arg)) {
+					try {
+						thumbWidth = Integer.parseInt(args[++i]); 
+					} catch (NumberFormatException e) {
+						thumbWidth = 140;
+					}
+				} else if ("-th".equalsIgnoreCase(arg)) {
+					try {
+						thumbHeight = Integer.parseInt(args[i]); 
+					} catch (NumberFormatException e) {
+						thumbHeight = 200;
+					}
+				} else if ("-fx".equalsIgnoreCase(arg)) {
+					forceXMLOverwrite = true;
+				} else if ("-fh".equalsIgnoreCase(arg)) {
+					forceHTMLOverwrite = true;
+				} else if (arg.startsWith("-")) {
+					help();
+					return;
+				} else {
+					movieLibraryRoot = args[i];
+					if (jukeboxRoot == null) {
+						jukeboxRoot = movieLibraryRoot;
+					}
 				}
 			}
+		} catch (Exception e) {
+			System.err.println("Wrong arguments specified");
+			help();
+			return;
 		}
 		
 		if (movieLibraryRoot == null) {
 			help();
+			return;
+		}
+		
+		if (!new File(movieLibraryRoot).exists()) {
+			System.err.println("Directory not found : " + movieLibraryRoot);
 			return;
 		}
 		
