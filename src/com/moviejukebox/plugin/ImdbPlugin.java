@@ -199,7 +199,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		
 		String value = MovieJukeboxTools.decodeHtml(st.nextToken().trim());
 		if (   (value.indexOf("uiv=\"content-ty")!= -1) 
-		    || (value.indexOf("cast>")!= -1)) {
+		    || (value.indexOf("cast")!= -1)) {
 			value = "Unknown";
 		}
 		
