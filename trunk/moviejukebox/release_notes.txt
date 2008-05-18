@@ -1,0 +1,12 @@
+**************************************************************
+** MovieJukebox Release note
+***************************************************************
+
+MovieJukebox 1.0.3 beta
+-----------------------
+	- Fixed command line argument parsing
+	- Fixed movies indexes
+
+1.0 beta
+--------
+	- First delivery
