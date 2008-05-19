@@ -2,6 +2,13 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.0.4 beta
+-----------------------
+	- Improved IMDb search
+	- Improved filenames scanner
+	- Fixed defect #1 IOException when Jukebox directory is not created
+	- Fixed defect #3 Adding new movie to the library is not taken into account into the prev/next sequence
+
 MovieJukebox 1.0.3 beta
 -----------------------
 	- Fixed command line argument parsing
