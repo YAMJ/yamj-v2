@@ -193,7 +193,6 @@ public class MovieJukeboxXMLWriter {
 		
 		if (!xmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
 			
-			System.err.println(movie);
 			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
 	
