@@ -37,6 +37,8 @@ public class Library implements Map<String, Movie> {
 			key += " Season " + movie.getSeason();
 		}
 
+		key = key.toLowerCase();
+		
 		Movie existingMovie = library.get(key);
 			if (existingMovie == null) {
 				library.put(key, movie);
