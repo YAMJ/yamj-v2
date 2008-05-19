@@ -27,7 +27,7 @@ import com.sun.xml.internal.stream.events.CharacterEvent;
  * Parse/Write XML files for movie details and library indexes
  * @author Julien
  */
-public class MovieJukeboxXMLWriter implements parseCData {
+public class MovieJukeboxXMLWriter {
 	private boolean forceXMLOverwrite;
 	private String nmtRootPath;
 
