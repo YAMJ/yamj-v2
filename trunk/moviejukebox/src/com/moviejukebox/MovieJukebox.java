@@ -144,7 +144,7 @@ public class MovieJukebox {
 		this.thumbWidth = thumbWidth;
 		this.thumbHeight = thumbHeight;
 		
-		System.out.println("Starting Jukebox creation with parameters:");
+		System.out.println("Starting MovieJukebox v1.0.4 beta");
 		System.out.println("[movieLibraryRoot="+ movieLibraryRoot+"]");
 		System.out.println("[jukeboxRoot="+ jukeboxRoot+"]");
 		System.out.println("[detailsDirName="+ detailsDirName+"]");
