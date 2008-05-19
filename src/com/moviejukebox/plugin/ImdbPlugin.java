@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -79,36 +77,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			if (year != null && !year.equalsIgnoreCase("Unknown")) {
 				sb.append("+%28").append(year).append("%29");
 			}
+			sb.append(";s=tt;site=aka");
 			
 			String xml = request(new URL(sb.toString()));
-			int beginIndex = xml.indexOf("title/tt");
-			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 6), "/\"");
-			String imdbId = st.nextToken();
 
-			if (imdbId.startsWith("tt")) {
-				return imdbId;
-			} else {
-				return "Unknown";
-			}
-
-		} catch (Exception e) {
-			System.err.println("Failed retreiving imdb Id for movie : " + movieName);
-			System.err.println("Error : " + e.getMessage());
-			return getImdbIdAka(movieName, year);
-		}
-	}
-
-	private String getImdbIdAka(String movieName, String year) {
-		try {
-			StringBuffer sb = new StringBuffer("http://www.imdb.com/find?q=");
-			sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
-			
-			if (year != null && !year.equalsIgnoreCase("Unknown")) {
-				sb.append("+%28").append(year).append("%29;s=tt;site=aka");
+			int beginIndex = xml.indexOf("Popular Titles");
+			if (beginIndex != -1) {
+				xml = xml.substring(beginIndex);
 			}
 			
-			String xml = request(new URL(sb.toString()));
-			int beginIndex = xml.indexOf("title/tt");
+			beginIndex = xml.indexOf("Titles (Exact Matches)");
+			if (beginIndex != -1 && xml.indexOf(movieName) > beginIndex) {
+				xml = xml.substring(beginIndex);
+			}
+			
+			beginIndex = xml.indexOf("title/tt");
 			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 6), "/\"");
 			String imdbId = st.nextToken();
 
@@ -199,7 +182,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		
 		String value = MovieJukeboxTools.decodeHtml(st.nextToken().trim());
 		if (   (value.indexOf("uiv=\"content-ty")!= -1) 
-		    || (value.indexOf("cast")!= -1)) {
+			    || (value.indexOf("cast")!= -1)
+		    	|| (value.indexOf("title")!= -1)
+			    || (value.indexOf("<")!= -1)) {
 			value = "Unknown";
 		}
 		

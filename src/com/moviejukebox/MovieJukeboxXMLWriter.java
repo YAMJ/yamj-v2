@@ -21,9 +21,13 @@ import javax.xml.stream.events.XMLEvent;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.sun.xml.internal.stream.events.CharacterEvent;
 
-public class MovieJukeboxXMLWriter {
-
+/**
+ * Parse/Write XML files for movie details and library indexes
+ * @author Julien
+ */
+public class MovieJukeboxXMLWriter implements parseCData {
 	private boolean forceXMLOverwrite;
 	private String nmtRootPath;
 
@@ -33,64 +37,163 @@ public class MovieJukeboxXMLWriter {
 	}
 
 	/**
+	 * Parse a single movie detail xml file
+	 */
+	public void parseMovieXML(File xmlFile, Movie movie) {
+		try {
+			XMLInputFactory factory = XMLInputFactory.newInstance();    
+			XMLEventReader r = factory.createXMLEventReader(
+					new FileInputStream(xmlFile), "UTF-8");    
+			
+			if (movie.getTitle().startsWith("Florence Foresti fait des")) {
+				System.out.println("oiuoiu");
+			}
+			
+			while(r.hasNext()) {      
+				XMLEvent e = r.nextEvent();
+				String tag = e.toString();
+				
+				if (tag.equals("<id>")) { movie.setId(parseCData(r)); }
+				if (tag.equals("<title>")) { movie.setTitle(parseCData(r)); }
+				if (tag.equals("<titleSort>")) { movie.setTitleSort(parseCData(r)); }
+				if (tag.equals("<year>")) { movie.setYear(parseCData(r)); }
+				if (tag.equals("<releaseDate>")) { movie.setReleaseDate(parseCData(r)); }
+				if (tag.equals("<rating>")) { movie.setRating(parseCData(r)); }
+				if (tag.equals("<posterURL>")) { movie.setPosterURL(parseCData(r)); }
+				if (tag.equals("<plot>")) { movie.setPlot(parseCData(r)); }
+				if (tag.equals("<director>")) { movie.setDirector(parseCData(r)); }
+				if (tag.equals("<country>")) { movie.setCountry(parseCData(r)); }
+				if (tag.equals("<company>")) { movie.setCompany(parseCData(r)); }
+				if (tag.equals("<runtime>")) { movie.setRuntime(parseCData(r)); }
+				if (tag.equals("<season>")) { movie.setSeason(Integer.parseInt(parseCData(r))); }
+				if (tag.equals("<language>")) { movie.setLanguage(parseCData(r)); }
+				if (tag.equals("<subtitles>")) { movie.setSubtitles(parseCData(r).equalsIgnoreCase("YES")); }
+				if (tag.equals("<container>")) { movie.setContainer(parseCData(r)); }
+				if (tag.equals("<videoCodec>")) { movie.setVideoCodec(parseCData(r)); }
+				if (tag.equals("<audioCodec>")) { movie.setAudioCodec(parseCData(r)); }
+				if (tag.equals("<resolution>")) { movie.setResolution(parseCData(r)); }
+				if (tag.equals("<videoSource>")) { movie.setVideoSource(parseCData(r)); }
+				if (tag.equals("<videoOutput>")) { movie.setVideoOutput(parseCData(r)); }
+				if (tag.equals("<fps>")) { movie.setFps(Integer.parseInt(parseCData(r))); }
+				if (tag.equals("<first>")) { movie.setFirst(parseCData(r)); }
+				if (tag.equals("<previous>")) { movie.setPrevious(parseCData(r)); }
+				if (tag.equals("<next>")) { movie.setNext(parseCData(r)); }
+				if (tag.equals("<last>")) { movie.setLast(parseCData(r)); }
+				
+				if (tag.equals("<genres>")) { 
+					ArrayList<String> genres = new ArrayList<String>();
+					e=r.nextEvent(); 
+					if (!e.toString().equals("</genres>")) {
+						genres.add(e.toString());
+						movie.setGenres(genres); 
+					}
+				}
+				
+				if (tag.equals("<cast>")) { 
+					ArrayList<String> cast = new ArrayList<String>();
+					e=r.nextEvent(); 
+					if (!e.toString().equals("</cast>")) {
+						cast.add(e.toString());
+						movie.setCasting(cast); 
+					}
+				}
+				
+				if (tag.startsWith("<file ")) {
+					MovieFile mf = new MovieFile();
+	
+					StartElement start = e.asStartElement();
+					for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+	                    Attribute attr = i.next();
+	                    String ns = attr.getName().toString();
+	
+	                    if ("title".equals(ns)) {
+	                    	mf.setTitle(attr.getValue());
+	                        continue;
+					    }
+	                    
+	                    if ("part".equals(ns)) {
+	                  	  	mf.setPart(Integer.parseInt(attr.getValue()));
+	                        continue;
+	                    }
+					}
+					
+					mf.setFilename(parseCData(r));
+					movie.addMovieFile(mf);
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+		}
+	}
+
+	private String parseCData(XMLEventReader r) throws XMLStreamException {
+		StringBuffer sb = new StringBuffer();
+		XMLEvent e;
+		while( (e=r.nextEvent()) instanceof CharacterEvent) {
+			sb.append(e.toString());
+		}
+		return sb.toString();
+	}
+	
+	
+	/**
 	 * Write the set of index XML files for the library
 	 */
 	public void writeIndexXML(String rootPath, String detailsDirName, Library library) throws FileNotFoundException, XMLStreamException {
-		
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.addAll(library.getIndexes().keySet());
 		Collections.sort(keys);
 		
 		for (String key : keys) {
-			
 			File xmlFile = new File(rootPath + "/index_" + key + ".xml");
-			
-			if (!xmlFile.exists() || forceXMLOverwrite) {
-				xmlFile.getParentFile().mkdirs();
+			xmlFile.getParentFile().mkdirs();
 				
-				XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-				
-				XMLStreamWriter writer = 
-					outputFactory.createXMLStreamWriter(
-						new FileOutputStream(xmlFile), "UTF-8");
-	
-				writer.writeStartDocument();
-				writer.writeStartElement("library");
+			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(
+					new FileOutputStream(xmlFile), "UTF-8");
 
-				writer.writeStartElement("indexes");
-				for (String akey : keys) {
-					writer.writeStartElement("index"); 
-					writer.writeAttribute("name", akey);
-					writer.writeCharacters("index_" + akey); 
-					writer.writeEndElement();
-				}				
-				writer.writeEndElement();					
+			writer.writeStartDocument();
+			writer.writeStartElement("library");
 
-				writer.writeStartElement("movies");
-				List<Movie> movies = library.getIndexes().get(key);
-				for (Movie movie : movies) {
-					writer.writeStartElement("movie"); 
-					writer.writeStartElement("title"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
-					writer.writeStartElement("details"); writer.writeCharacters(detailsDirName + "/" + movie.getBaseName()); writer.writeEndElement();
-					writer.writeEndElement();
-				}
-				writer.writeEndElement();					
-				
-				writer.writeEndElement();					
-				writer.writeEndDocument();
-				writer.close();
+			writer.writeStartElement("indexes");
+			for (String akey : keys) {
+				writer.writeStartElement("index"); 
+				writer.writeAttribute("name", akey);
+				writer.writeCharacters("index_" + akey); 
+				writer.writeEndElement();
+			}				
+			writer.writeEndElement();					
+
+			writer.writeStartElement("movies");
+			List<Movie> movies = library.getIndexes().get(key);
+			for (Movie movie : movies) {
+				writer.writeStartElement("movie"); 
+				writer.writeStartElement("title"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
+				writer.writeStartElement("details"); writer.writeCharacters(detailsDirName + "/" + movie.getBaseName()); writer.writeEndElement();
+				writer.writeEndElement();
 			}
+			writer.writeEndElement();					
+			
+			writer.writeEndElement();					
+			writer.writeEndDocument();
+			writer.close();
 		}
 	}
 
 	/**
-	 * Write a single movie detail file
+	 * Persist a movie into an XML file.
+	 * Doesn't overwrite an already existing XML file for the specified movie
+	 * unless, movie's data has changed or forceXMLOverwrite is true.
 	 */
 	public void writeMovieXML(String rootPath, Movie movie) throws FileNotFoundException, XMLStreamException {
 		File xmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
 		xmlFile.getParentFile().mkdirs();
 		
-		if (!xmlFile.exists() || forceXMLOverwrite) {
+		if (!xmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
+			
+			System.err.println(movie);
 			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
 	
@@ -149,7 +252,17 @@ public class MovieJukeboxXMLWriter {
 				if (movie.isTVShow()) {
 					writer.writeAttribute("title", "Episode " + mf.getPart() + ((mf.getTitle().equalsIgnoreCase("UNKNOWN"))?(""): (" - " + mf.getTitle())));
 				} else {
-					writer.writeAttribute("title", movie.getFiles().size()==1? movie.getBaseName() :"Part " + mf.getPart() + " : " + movie.getBaseName());
+					if(movie.getFiles().size()==1) {
+						writer.writeAttribute("title", movie.getBaseName());
+					} else {
+						int index = mf.getFilename().lastIndexOf("/");
+						if (index != -1) {
+							String filename = mf.getFilename().substring(index+1);
+							writer.writeAttribute("title", filename);
+						} else {
+							writer.writeAttribute("title", "Part " + mf.getPart());
+						}
+					}
 				}
 				writer.writeCharacters(nmtRootPath + mf.getFilename()); 
 				writer.writeEndElement();
@@ -159,89 +272,6 @@ public class MovieJukeboxXMLWriter {
 			writer.writeEndElement();
 			writer.writeEndDocument();
 			writer.close();
-		}
-	}
-
-	/**
-	 * Parse a single movie detail xml file
-	 */
-	public void parseMovieXML(File xmlFile, Movie movie) {
-		try {
-		XMLInputFactory factory = XMLInputFactory.newInstance();    
-		XMLEventReader r = factory.createXMLEventReader(
-			new FileInputStream(xmlFile), "UTF-8");    
-			while(r.hasNext()) {      
-				XMLEvent e = r.nextEvent();
-				String tag = e.toString();
-				if (tag.equals("<id>")) { e=r.nextEvent(); movie.setId(e.toString()); }
-				if (tag.equals("<title>")) { e=r.nextEvent(); movie.setTitle(e.toString()); }
-				if (tag.equals("<titleSort>")) { e=r.nextEvent(); movie.setTitleSort(e.toString()); }
-				if (tag.equals("<year>")) { e=r.nextEvent(); movie.setYear(e.toString()); }
-				if (tag.equals("<releaseDate>")) { e=r.nextEvent(); movie.setReleaseDate(e.toString()); }
-				if (tag.equals("<rating>")) { e=r.nextEvent(); movie.setRating(e.toString()); }
-				if (tag.equals("<posterURL>")) { e=r.nextEvent(); movie.setPosterURL(e.toString()); }
-				if (tag.equals("<plot>")) { e=r.nextEvent(); movie.setPlot(e.toString()); }
-				if (tag.equals("<director>")) { e=r.nextEvent(); movie.setDirector(e.toString()); }
-				if (tag.equals("<country>")) { e=r.nextEvent(); movie.setCountry(e.toString()); }
-				if (tag.equals("<company>")) { e=r.nextEvent(); movie.setCompany(e.toString()); }
-				if (tag.equals("<runtime>")) { e=r.nextEvent(); movie.setRuntime(e.toString()); }
-				if (tag.equals("<season>")) { e=r.nextEvent(); movie.setSeason(Integer.parseInt(e.toString())); }
-				if (tag.equals("<language>")) { e=r.nextEvent(); movie.setLanguage(e.toString()); }
-				if (tag.equals("<subtitles>")) { e=r.nextEvent(); movie.setSubtitles(e.toString().equalsIgnoreCase("YES")); }
-				if (tag.equals("<container>")) { e=r.nextEvent(); movie.setContainer(e.toString()); }
-				if (tag.equals("<videoCodec>")) { e=r.nextEvent(); movie.setVideoCodec(e.toString()); }
-				if (tag.equals("<audioCodec>")) { e=r.nextEvent(); movie.setAudioCodec(e.toString()); }
-				if (tag.equals("<resolution>")) { e=r.nextEvent(); movie.setResolution(e.toString()); }
-				if (tag.equals("<videoSource>")) { e=r.nextEvent(); movie.setVideoSource(e.toString()); }
-				if (tag.equals("<videoOutput>")) { e=r.nextEvent(); movie.setVideoOutput(e.toString()); }
-				if (tag.equals("<fps>")) { e=r.nextEvent(); movie.setFps(Integer.parseInt(e.toString())); }
-				if (tag.equals("<first>")) { e=r.nextEvent(); movie.setFirst(e.toString()); }
-				if (tag.equals("<previous>")) { e=r.nextEvent(); movie.setPrevious(e.toString()); }
-				if (tag.equals("<next>")) { e=r.nextEvent(); movie.setNext(e.toString()); }
-				if (tag.equals("<last>")) { e=r.nextEvent(); movie.setLast(e.toString()); }
-				
-				if (tag.equals("<genres>")) { 
-					ArrayList<String> genres = new ArrayList<String>();
-					e=r.nextEvent(); 
-					genres.add(e.toString());
-					movie.setGenres(genres); 
-				}
-				
-				if (tag.equals("<cast>")) { 
-					ArrayList<String> cast = new ArrayList<String>();
-					e=r.nextEvent(); 
-					cast.add(e.toString());
-					movie.setGenres(cast); 
-				}
-				
-				if (tag.startsWith("<file ")) {
-					MovieFile mf = new MovieFile();
-	
-					StartElement start = e.asStartElement();
-					for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-	                    Attribute attr = i.next();
-	                    String ns = attr.getName().toString();
-	
-	                    if ("title".equals(ns)) {
-	                    	mf.setTitle(attr.getValue());
-	                        continue;
-					    }
-	                    
-	                    if ("part".equals(ns)) {
-	                  	  	mf.setPart(Integer.parseInt(attr.getValue()));
-	                        continue;
-	                    }
-					}
-	
-					e=r.nextEvent(); 
-					mf.setFilename(e.toString());
-					movie.addMovieFile(mf);
-					break;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Failed parsing " + xmlFile.getAbsolutePath() + "please fix it or remove it.");
 		}
 	}
 }

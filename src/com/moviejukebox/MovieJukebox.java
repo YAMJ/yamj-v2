@@ -27,8 +27,8 @@ public class MovieJukebox {
 		String jukeboxRoot = null;
 		String detailsDirName = "Jukebox";
 		String nmtRootPath = "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/";
-		boolean forceXMLOverwrite = true;
-		boolean forceHTMLOverwrite = true;
+		boolean forceXMLOverwrite = false;
+		boolean forceHTMLOverwrite = false;
 		int thumbWidth = 140;
 		int thumbHeight = 200;
 
@@ -175,6 +175,7 @@ public class MovieJukebox {
 			File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
 			if (xmlFile.exists()) {
 				xmlWriter.parseMovieXML(xmlFile, movie);
+				movie.setDirty(false);
 			} else {
 				movieDB.scan(mediaLibraryRoot.getAbsolutePath(), movie);
 			}

@@ -15,6 +15,10 @@ import javax.xml.transform.stream.StreamSource;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 
+/**
+ * Generate HTML pages from XML movies and indexes
+ * @author Julien
+ */
 public class MovieJukeboxHTMLWriter {
 
 	private boolean forceHTMLOverwrite;
@@ -29,7 +33,7 @@ public class MovieJukeboxHTMLWriter {
 			File xmlFile = new File(filename + ".xml");
 			File htmlFile = new File(filename + ".html");
 			
-			if (!htmlFile.exists() || forceHTMLOverwrite) {
+			if (!htmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
 			
 				htmlFile.getParentFile().mkdirs();
 				
@@ -59,20 +63,18 @@ public class MovieJukeboxHTMLWriter {
 				File xmlFile = new File(filename + ".xml");
 				File htmlFile = new File(filename + ".html");
 				
-				if (!htmlFile.exists() || forceHTMLOverwrite) {
-					htmlFile.getParentFile().mkdirs();
-					
-					TransformerFactory tranformerFactory = TransformerFactory.newInstance();
-					java.net.URL url = ClassLoader.getSystemResource("index.xsl");
-				 
-					Source xslSource = new StreamSource(url.openStream());
-					Transformer transformer = tranformerFactory.newTransformer(xslSource);
-				 
-					Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
-					Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
-				 
-					transformer.transform(xmlSource, xmlResult);
-				}
+				htmlFile.getParentFile().mkdirs();
+				
+				TransformerFactory tranformerFactory = TransformerFactory.newInstance();
+				java.net.URL url = ClassLoader.getSystemResource("index.xsl");
+			 
+				Source xslSource = new StreamSource(url.openStream());
+				Transformer transformer = tranformerFactory.newTransformer(xslSource);
+			 
+				Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
+				Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
+			 
+				transformer.transform(xmlSource, xmlResult);
 			} catch (Exception e) {
 				System.err.println("Failed generating HTML library index.");
 				e.printStackTrace();
