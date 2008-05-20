@@ -1,0 +1,37 @@
+<project name="moviejukebox" default="compile" basedir=".">
+
+	<target name="all" depends="clean, compile, test, delivery"/>
+
+	<target name="init">
+		<property name="version" value="v1.0.5b" />
+		
+		<property name="dir.build" value="build" />
+		<property name="dir.dist" value="dist" />
+		<property name="dir.src" value="src" />
+		<delete dir="dist"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dir.build}"/>
+		<delete dir="${dir.dist}"/>
+	</target>
+
+	<target name="prepare" depends="init">
+		<mkdir dir="${dir.build}"/>
+		<mkdir dir="${dir.dist}"/>
+	</target>
+
+	<target name="compile" depends="prepare">
+		<javac source="1.6" destdir="${dir.build}" srcdir="${dir.src}" classpath="${java.home}/jre/lib/rt.jar"/>
+	</target>
+	
+	<target name="test">
+	</target>
+
+	<target name="delivery">
+		<jar destfile="${dir.dist}/${ant.project.name}.jar" includes="${dir.build}" >
+		
+		</jar>
+	</target>
+
+</project>
