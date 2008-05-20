@@ -26,7 +26,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
 		String imdbId = mediaFile.getId();
 		if (imdbId == null || imdbId.equalsIgnoreCase("Unknown")) {
-			imdbId = getImdbIdFromYahoo(mediaFile.getTitle(), mediaFile.getYear());
+			imdbId = getImdbId(mediaFile.getTitle(), mediaFile.getYear());
 			mediaFile.setId(imdbId);
 		}
 
