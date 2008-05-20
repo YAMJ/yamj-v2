@@ -2,9 +2,10 @@
 ** MovieJukebox V1.0 (beta1)
 ***************************************************************
 
+WARNING: THIS BETA VERSION IS A PROTOTYPE, YOU MAY EXPERIENCE PROBLEMS
+
 Features
 --------
-
 	- Recursively scan your video library for video files (AVI, MKV, etc.)
 	- Analyze each video file filename to extract information like: year, language, subtitles, container, part, fps, audio and video codecs
 	- Analyze NFO files (for IMDb id)
@@ -16,15 +17,65 @@ Features
 	- Support for Popcorn Hour links in the movie details reports (clicking will launch the movie)
 	- Reports are generated outside your actual library (to avoid risks of altering your data)
 
+
 How does it work?
 -----------------
 
 	- Install Java Runtime Environment (JRE) 1.5
-	- Mount a network drive to your NMT internal hard disk
-	- Then Execute MovieJukebox command line tool. For instance on a windows environment:
-	
-				MovieJukebox Z:\Video
+	- Unrar the MovieJukebox archive
+	- In a command shell, Execute the MovieJukebox command. 
 				
+	  The syntax for the MovieJukebox command is the following:
+	  
+	  	    MOVIELIB movieLibraryRoot [-o jukeboxRoot][-d detailsDirName][-nr nmtRootPath][-fx][-fh]
+
+      Where parameters are:
+
+    			movieLibraryRoot    : MANDATORY
+                			          input directory (local or network directory)
+                          			  This is where your movie files are stored.
+
+			    -o jukeboxRoot      : OPTIONAL
+            			              output directory (local or network directory)
+                        			  This is where the jukebox file will be written to
+                          			  by default the is the same as the movieLibraryRoot
+
+			    -d detailsDirName   : OPTIONAL
+            			              name of the details directory of the jukebox
+                        			  Default is: "Jukebox"
+
+			    -nr nmtRootPath     : OPTIONAL
+			                          path of the media library root on your NMT
+            			              Default is: "file:///opt/sybhttpd/localhost.drives/HAR
+									  D_DISK/Video/"
+
+			    -tw                 : OPTIONAL
+            			              Generated thumbnails width
+			                          Default is: 140
+
+			    -th                 : OPTIONAL
+            			              Generated thumbnails height
+			                          Default is: 200
+
+			    -fx                 : OPTIONAL
+            			              force the jukeboxe's XML files to be overwritten
+			                          Default is: false
+
+			    -fh                 : OPTIONAL
+            			              force the jukeboxe's HTML files to be overwritten
+			                          Default is: false
+					  
+	  For instance, the following command will analyze video files from directory Z:\Video. The jukebox files
+	  will be stored into this directory as well. drive "Z:\" can be a local drive, a USB drive or a network drive. 
+	
+		        MovieJukebox Z:\Video
+				
+	  If you want the Jukebox files to be generated separately, you may use the following command:
+	  
+	  			MovieJukebox Z:\Video -o C:\MyJukebox
+				
+	  In this case, all generated file will go to the C:\MyJukebox directory
+		
 	- MovieJukebox uses the specified input directory as the root path of your video files library.
 	- MovieJukebox will create the following files:
 	
