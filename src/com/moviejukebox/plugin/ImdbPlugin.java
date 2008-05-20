@@ -232,8 +232,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	 */
 	public void downloadPoster(String jukeboxDetailsRoot, Movie mediaFile) {
 		String posterFilename = jukeboxDetailsRoot + File.separator + mediaFile.getBaseName() + ".jpg";
+		File posterFile = new File(posterFilename);		
 
-		File posterFile = new File(posterFilename);
+		// Do not overwrite existing posters
+		if (posterFile.exists())
+			return;
+
 		posterFile.getParentFile().mkdirs();
 
 		if (mediaFile.getPosterURL() == null || mediaFile.getPosterURL().equalsIgnoreCase("Unknown")) {
@@ -245,37 +249,34 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		OutputStream out = null;
 
 		try {
-			if (!posterFile.exists()) {
+			URL url = new URL(mediaFile.getPosterURL());
+			URLConnection cnx = url.openConnection();
 
-				URL url = new URL(mediaFile.getPosterURL());
-				URLConnection cnx = url.openConnection();
+			// Let's pretend we're Firefox...
+			cnx.setRequestProperty(
+				"User-Agent",
+				"Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.1.5) Gecko/20070719 Iceweasel/2.0.0.5 (Debian-2.0.0.5-0etch1)");
 
-				// Let's pretend we're Firefox...
-				cnx.setRequestProperty(
-					"User-Agent",
-					"Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.1.5) Gecko/20070719 Iceweasel/2.0.0.5 (Debian-2.0.0.5-0etch1)");
+			try {
+				in = cnx.getInputStream();
+				out = new FileOutputStream(posterFile);
 
-				try {
-					in = cnx.getInputStream();
-					out = new FileOutputStream(posterFile);
-
-					while (true) {
-						synchronized (buffer) {
-							int amountRead = in.read(buffer);
-							if (amountRead == -1) {
-								break;
-							}
-							out.write(buffer, 0, amountRead);
+				while (true) {
+					synchronized (buffer) {
+						int amountRead = in.read(buffer);
+						if (amountRead == -1) {
+							break;
 						}
+						out.write(buffer, 0, amountRead);
 					}
-				} finally {
-					if (in != null) {
-						in.close();
-					}
+				}
+			} finally {
+				if (in != null) {
+					in.close();
+				}
 
-					if (out != null) {
-						out.close();
-					}
+				if (out != null) {
+					out.close();
 				}
 			}
 		} catch (Exception e) {
