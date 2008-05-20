@@ -42,12 +42,7 @@ public class MovieJukeboxXMLWriter {
 	public void parseMovieXML(File xmlFile, Movie movie) {
 		try {
 			XMLInputFactory factory = XMLInputFactory.newInstance();    
-			XMLEventReader r = factory.createXMLEventReader(
-					new FileInputStream(xmlFile), "UTF-8");    
-			
-			if (movie.getTitle().startsWith("Florence Foresti fait des")) {
-				System.out.println("oiuoiu");
-			}
+			XMLEventReader r = factory.createXMLEventReader(new FileInputStream(xmlFile), "UTF-8");    
 			
 			while(r.hasNext()) {      
 				XMLEvent e = r.nextEvent();

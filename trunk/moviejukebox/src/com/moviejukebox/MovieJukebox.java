@@ -178,12 +178,12 @@ public class MovieJukebox {
 				movie.setDirty(false);
 			} else {
 				movieDB.scan(mediaLibraryRoot.getAbsolutePath(), movie);
+				System.out.println(movie);
 			}
 			
 			// Download poster file only if this file doesn't exist... never overwrite an existing file...
 			movieDB.downloadPoster(jukeboxDetailsRoot, movie);
 			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
-			System.out.println(movie);
 		}
 		
 		System.out.println("Building library indexes...");

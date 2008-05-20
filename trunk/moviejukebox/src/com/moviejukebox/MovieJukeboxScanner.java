@@ -17,7 +17,7 @@ import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 public class MovieJukeboxScanner {
 	
 	private static final String[] skipKeywords = {
-		"LIMITED","LiMiTED", "Linmited", "DiAMOND", "AXXO", "PUKKA", "iDHD", "PROPER", "REPACK", "DSR", "STV", "UNRATED", "RERIP"
+		"LIMITED","LiMiTED", "Limited", "DiAMOND", "AXXO", "PUKKA", "iDHD", "PROPER", "REPACK", "DSR", "STV", "UNRATED", "RERIP"
 	};
 	
 	static final int BUFF_SIZE = 100000;
@@ -204,62 +204,6 @@ public class MovieJukeboxScanner {
 		
 		String extension = fileToScan.getName().substring(index+1).toUpperCase();
 		if ("AVI DIVX MKV WMV M2TS TS RM QT ISO VOB".indexOf(extension) >= 0) {
-			/* NFO String img = "C" + fileToScan.getAbsolutePath().substring(1);
-			File f = new File(img);
-			f.getParentFile().mkdirs();
-			
-		   InputStream in = null;
-		   OutputStream out = null; 
-			
-			if (img.toUpperCase().endsWith("NFO")) {
-				   try {
-				      in = new FileInputStream(fileToScan);
-				      out = new FileOutputStream(f);
-				      while (true) {
-				         synchronized (buffer) {
-				            int amountRead = in.read(buffer);
-				            if (amountRead == -1) {
-				               break;
-				            }
-				            out.write(buffer, 0, amountRead); 
-				         }
-				      } 
-				   } catch (IOException e) {
-					  e.printStackTrace();
-				   } finally {
-					   try {
-					      if (in != null) {
-					         in.close();
-					      }
-					      if (out != null) {
-					         out.close();
-					      }
-					   } catch(IOException e) {
-						   
-					   }
-				   }
-			} else {
-				try {
-					out= new FileOutputStream(f);
-					out.write(1);
-					out.close();
-			   } catch (IOException e) {
-					  e.printStackTrace();
-			   } finally {
-				   try {
-				      if (in != null) {
-				         in.close();
-				      }
-				      if (out != null) {
-				         out.close();
-				      }
-				   } catch(IOException e) {
-					   
-				   }
-			   }
-			}
-			*/
-			
 			Movie movie = scanFilename(fileToScan);
 			scanNFO(fileToScan, movie);
 			library.addMovie(movie);

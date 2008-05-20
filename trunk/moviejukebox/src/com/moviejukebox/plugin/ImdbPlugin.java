@@ -26,7 +26,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
 		String imdbId = mediaFile.getId();
 		if (imdbId == null || imdbId.equalsIgnoreCase("Unknown")) {
-			imdbId = getImdbId(mediaFile.getTitle(), mediaFile.getYear());
+			imdbId = getImdbIdFromYahoo(mediaFile.getTitle(), mediaFile.getYear());
 			mediaFile.setId(imdbId);
 		}
 
@@ -40,13 +40,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	 * retrieve the imdb matching the specified movie name and year.
 	 * This routine is base on a yahoo request.
 	 */
-	/* private String getImdbId(String movieName, String year) {
+	private String getImdbIdFromYahoo(String movieName, String year) {
 		try {
 			StringBuffer sb = new StringBuffer("http://fr.search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
 			sb.append(URLEncoder.encode(movieName, "UTF-8"));
 			
 			if (year != null && !year.equalsIgnoreCase("Unknown")) {
-				sb.append("+").append(year);
+				sb.append("+%28").append(year).append("%29");
 			}
 			
 			sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
@@ -67,8 +67,45 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			System.err.println("Error : " + e.getMessage());
 			return "Unknown";
 		}
-	} */
+	}
 
+	/**
+	 * retrieve the imdb matching the specified movie name and year.
+	 * This routine is base on a google request.
+	 */
+	private String getImdbIdFromGoogle(String movieName, String year) {
+		try {
+			StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
+			sb.append(URLEncoder.encode(movieName, "UTF-8"));
+			
+			if (year != null && !year.equalsIgnoreCase("Unknown")) {
+				sb.append("+%28").append(year).append("%29");
+			}
+			
+			sb.append("+site%3Awww.imdb.com&meta=");
+
+			String xml = request(new URL(sb.toString()));
+			int beginIndex = xml.indexOf("/title/tt");
+			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
+			String imdbId = st.nextToken();
+
+			if (imdbId.startsWith("tt")) {
+				return imdbId;
+			} else {
+				return "Unknown";
+			}
+
+		} catch (Exception e) {
+			System.err.println("Failed retreiving imdb Id for movie : " + movieName);
+			System.err.println("Error : " + e.getMessage());
+			return "Unknown";
+		}
+	}
+
+	/**
+	 * retrieve the imdb matching the specified movie name and year.
+	 * This routine is base on a IMDb request.
+	 */
 	private String getImdbId(String movieName, String year) {
 		try {
 			StringBuffer sb = new StringBuffer("http://www.imdb.com/find?s=tt&q=");

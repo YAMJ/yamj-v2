@@ -46,8 +46,7 @@ How does it work?
 
 			    -nr nmtRootPath     : OPTIONAL
 			                          path of the media library root on your NMT
-            			              Default is: "file:///opt/sybhttpd/localhost.drives/HAR
-									  D_DISK/Video/"
+            			              Default is: "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"
 
 			    -tw                 : OPTIONAL
             			              Generated thumbnails width
