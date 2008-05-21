@@ -54,25 +54,34 @@ public class MovieJukeboxScanner {
 	}
 
 	protected String getLanguage(String filename) {
-		if (hasKeyword(filename, new String[] {"FRENCH", "French", "VF", "[FR]", "[fr]", "[Fr]", "[fR]", ".FR.", ".fr."})) 
-			return "French";
+        if (hasKeyword(filename, new String[] {"-fra-","-FRA-","-fr-","-FR-","-FRENCH-","-french-",".fra.",".FRA.",".fr.",".FR.",".FRENCH.",".french.","[fra]","[FRA]","[fr]","[FR]","[FRENCH]","[french]"}))
+            return "French";
 
-		if (hasKeyword(filename, new String[] {"GERMAN",})) 
-			return "German";
-
-		if (hasKeyword(filename, new String[] {"ITALIAN", "iTALiAN", "[ITA]"})) 
-			return "Italian";
-
-		if (hasKeyword(filename, new String[] {"SPANISH", "[SPA]"})) 
-			return "Spanish";
-
-		if (hasKeyword(filename, new String[] {"ENGLISH", "[ENG]"})) 
-			return "English";
-
-		if (hasKeyword(filename, new String[] {"VO"})) 
-			return "VO";
-		
-		return "Unknown";
+	    if (hasKeyword(filename, new String[] {"-ger-","-GER-","-de-","-DE-","-GERMAN-","-german-",".ger.",".GER.",".de.",".DE.",".GERMAN.",".german.","[ger]","[GER]","[de]","[DE]","[GERMAN]","[german]"}))
+	            return "German";
+	
+	    if (hasKeyword(filename, new String[] {"-ita-","-ITA-","-it-","-IT-","-ITALIAN-","-italian-",".ita.",".ITA.",".it.",".IT.",".ITALIAN.",".italian.","[ita]","[ITA]","[it]","[IT]","[ITALIAN]","[italian]"}))
+	            return "Italian";
+	
+	    if (hasKeyword(filename, new String[] {"-spa-","-SPA-","-es-","-ES-","-SPANISH-","-spanish-",".spa.",".SPA.",".es.",".ES.",".SPANISH.",".spanish.","[spa]","[SPA]","[es]","[ES]","[SPANISH]","[spanish]"}))
+	            return "Spanish";
+	
+	    if (hasKeyword(filename, new String[] {"-eng-","-ENG-","-en-","-EN-","-ENGLISH-","-english-",".eng.",".ENG.",".en.",".EN.",".ENGLISH.",".english.","[eng]","[ENG]","[en]","[EN]","[ENGLISH]","[english]"}))
+	            return "English";
+	
+	    if (hasKeyword(filename, new String[] {"-por-","-POR-","-pt-","-PT-","-PORTUGUESE-","-portuguese-",".por.",".POR.",".pt.",".PT.",".PORTUGUESE.",".portuguese.","[por]","[POR]","[pt]","[PT]","[PORTUGUESE]","[portuguese]"}))
+	            return "Portuguese";
+	
+	    if (hasKeyword(filename, new String[] {"-rus-","-RUS-","-ru-","-RU-","-RUSSIAN-","-russian-",".rus.",".RUS.",".ru.",".RU.",".RUSSIAN.",".russian.","[rus]","[RUS]","[ru]","[RU]","[RUSSIAN]","[russian]"}))
+	            return "Russian";
+	
+	    if (hasKeyword(filename, new String[] {"-vo-","-VO-",".vo.",".VO.","[vo]","[VO]"}))
+	            return "VO";
+	
+	    if (hasKeyword(filename, new String[] {"-dl-","-DL-",".dl.",".DL.","[dl]","[DL]"}))
+	            return "Dual Language";
+	   
+	    return "Unknown";
 	}
 	
 	private String getName(String filename) {
@@ -87,10 +96,11 @@ public class MovieJukeboxScanner {
 	}
 
 	private int getPart(String filename) {
-		if (hasKeyword(filename, new String[] { "CD1", "CD 1" } )) return 1;
-		if (hasKeyword(filename, new String[] { "CD2", "CD 2" } )) return 2;
-		if (hasKeyword(filename, new String[] { "CD3", "CD 3" } )) return 3;
-		if (hasKeyword(filename, new String[] { "CD4", "CD 4" } )) return 4;
+		String upperCaseFilename = filename.toUpperCase();
+		if (hasKeyword(upperCaseFilename, new String[] { "CD1", "CD 1" } )) return 1;
+		if (hasKeyword(upperCaseFilename, new String[] { "CD2", "CD 2" } )) return 2;
+		if (hasKeyword(upperCaseFilename, new String[] { "CD3", "CD 3" } )) return 3;
+		if (hasKeyword(upperCaseFilename, new String[] { "CD4", "CD 4" } )) return 4;
 		return 1;
 	}
 	
@@ -348,7 +358,14 @@ public class MovieJukeboxScanner {
 					updateFirstKeywordIndex(filename.indexOf(token));
 					movie.setSeason(Integer.parseInt(token.substring(1,3)));
 					movie.getFirstFile().setPart(Integer.parseInt(token.substring(4,6)));
-					movie.getFirstFile().setTitle("Unknown");
+					
+					int beginIndex = filename.lastIndexOf("-");
+					int endIndex = filename.lastIndexOf(".");
+					if ( beginIndex>=0 && endIndex>beginIndex ) {
+						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
+					} else {
+						movie.getFirstFile().setTitle("Unknown");
+					}
 				}
 				
 				// ?x?? format

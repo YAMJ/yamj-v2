@@ -121,7 +121,10 @@
             
             <tr valign="top">
               <td class="cellvalue" colspan="2">
-                <a class="link" vod="">
+               	<a class="link" vod="">
+              
+                		<xsl:attribute name="zcd">2</xsl:attribute>
+              
 	          		<xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute> 
 	          		<xsl:value-of select="@title" />
   				</a>
