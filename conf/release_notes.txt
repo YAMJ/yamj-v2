@@ -2,6 +2,15 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.0.6 beta
+-----------------------
+	- Fixed defect #9 multiple CD movies not detected properly
+	- Fixed defect #15 sXXeYY pattern for TVShows do not find episode titles
+
+MovieJukebox 1.0.5 beta
+-----------------------
+	- Fixed defect #6 Can't replace dummy posters
+
 MovieJukebox 1.0.4 beta
 -----------------------
 	- Improved IMDb search
