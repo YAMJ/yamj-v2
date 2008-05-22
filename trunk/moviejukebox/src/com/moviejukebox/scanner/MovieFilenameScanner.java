@@ -1,18 +1,11 @@
-package com.moviejukebox;
+package com.moviejukebox.scanner;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
-import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 
 /**
  * Simple movie filename scanner. 
@@ -29,18 +22,42 @@ import com.sun.xml.internal.ws.util.ByteArrayBuffer;
  * @author jjulien
  * @author quickfinga
  */
-public class MovieJukeboxScanner {
+public class MovieFilenameScanner {
 	
-	private static final String[] skipKeywords = {
+	protected static final String[] skipKeywords = {
 		"LIMITED","LiMiTED", "Limited", "DiAMOND", "AXXO", "PUKKA", "iDHD", "PROPER", "REPACK", "DSR", "STV", "UNRATED", "RERIP"
 	};
 	
-	static final int BUFF_SIZE = 100000;
-	static final byte[] buffer = new byte[BUFF_SIZE];
-	
-	private String mediaLibraryRoot;
-	private int mediaLibraryRootPathIndex;
-	private int firstKeywordIndex = 0;
+	protected int firstKeywordIndex = 0;
+
+	public void scan(Movie movie) {
+		File fileToScan = movie.getFile();
+		String filename = fileToScan.getName();
+		
+		firstKeywordIndex = filename.indexOf("[");
+		firstKeywordIndex = (firstKeywordIndex==-1)?filename.length():firstKeywordIndex;
+
+		Collection<MovieFile> movieFiles = movie.getFiles();
+		for (MovieFile movieFile : movieFiles) {
+			movieFile.setPart(getPart(filename));	
+		}
+
+		movie.setAudioCodec(getAudioCodec(filename));
+		movie.setContainer(getContainer(filename));
+		movie.setFps(getFPS(filename));
+		movie.setSubtitles(hasSubtitles(fileToScan));
+		movie.setVideoCodec(getVideoCodec(filename));
+		movie.setVideoOutput(getVideoOutput(filename));
+		movie.setVideoSource(getVideoSource(filename));
+		movie.setLanguage(getLanguage(filename));
+		
+		// Skip some keywords
+		findKeyword(filename, skipKeywords);
+		
+		// Update the movie file with interpreted movie data
+		updateTVShow(filename, movie);
+		updateMovie(filename, movie);
+	}
 
 	/**
 	 * Get the main audio track codec if any
@@ -130,7 +147,7 @@ public class MovieJukeboxScanner {
 	 * @return the specified movie file's title.
 	 * @param filename movie's filename to scan.
 	 */
-	private String getName(String filename) {
+	protected String getName(String filename) {
 		String name = filename.substring(0, firstKeywordIndex);
 		name = name.replace(".", " ");
 		name = name.replace("-", " ");
@@ -141,7 +158,7 @@ public class MovieJukeboxScanner {
 		return name.trim();
 	}
 
-	private int getPart(String filename) {
+	protected int getPart(String filename) {
 		String upperCaseFilename = filename.toUpperCase();
 		if (hasKeyword(upperCaseFilename, new String[] { "CD1", "CD 1" } )) return 1;
 		if (hasKeyword(upperCaseFilename, new String[] { "CD2", "CD 2" } )) return 2;
@@ -158,7 +175,7 @@ public class MovieJukeboxScanner {
 		return "Unknown";
 	}
 
-	private String getVideoOutput(String filename) {
+	protected String getVideoOutput(String filename) {
 		
 		String videoOutput = findKeyword(filename, new String[] { "720p", "1080i", "1080p" });
 		
@@ -199,7 +216,7 @@ public class MovieJukeboxScanner {
 	 * 
 	 * @author jjulien, quickfinga 
 	 */
-	private String getVideoSource(String filename) {
+	protected String getVideoSource(String filename) {
 		String f = filename.toUpperCase();
 		if (hasKeyword(f, "HDTV")) return "HDTV";
 		if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP" })) return "BDRiP";
@@ -230,143 +247,7 @@ public class MovieJukeboxScanner {
 		return false;
 	}
 
-	public Library scan(File directory) {
-
-		if (directory.isFile())
-			mediaLibraryRoot = directory.getParentFile().getAbsolutePath();
-		else {
-			mediaLibraryRoot = directory.getAbsolutePath();
-		}
-		
-		mediaLibraryRootPathIndex = mediaLibraryRoot.length();
-		
-		Library library = new Library();
-		this.scanDirectory(directory, library);
-		return library;
-	}
-
-	
-	protected void scanDirectory(File directory, Library collection) {
-		if (directory.isFile())
-			scanFile(directory, collection);
-		else {
-			List<File> files = Arrays.asList(directory.listFiles());
-			Collections.sort(files);
-			
-			for (File file : files) {
-				if (file.isDirectory()) {
-					scanDirectory(file, collection);
-				} else {
-					scanFile(file, collection);
-				}
-			}
-		}		
-	}
-	
-	protected void scanFile(File fileToScan, Library library) {
-		int index = fileToScan.getName().lastIndexOf(".");
-		if (index < 0) return;
-		
-		String extension = fileToScan.getName().substring(index+1).toUpperCase();
-		if ("AVI DIVX MKV WMV M2TS TS RM QT ISO VOB".indexOf(extension) >= 0) {
-			Movie movie = scanFilename(fileToScan);
-			scanNFO(fileToScan, movie);
-			library.addMovie(movie);
-	    }
-	}	
-
-	protected Movie scanFilename(File fileToScan) {
-		String relativeFilename = fileToScan.getAbsolutePath().substring(mediaLibraryRootPathIndex);
-		
-		if ( relativeFilename.startsWith(File.separator) ) {
-			 relativeFilename = relativeFilename.substring(1); 
-		}
-		
-		String filename = fileToScan.getName();
-		
-		firstKeywordIndex = filename.indexOf("[");
-		firstKeywordIndex = (firstKeywordIndex==-1)?filename.length():firstKeywordIndex;
-
-		Movie movie = new Movie();		
-		movie.setAudioCodec(getAudioCodec(filename));
-		movie.setContainer(getContainer(filename));
-		movie.setFps(getFPS(filename));
-		movie.setSubtitles(hasSubtitles(fileToScan));
-		movie.setVideoCodec(getVideoCodec(filename));
-		movie.setVideoOutput(getVideoOutput(filename));
-		movie.setVideoSource(getVideoSource(filename));
-		movie.setLanguage(getLanguage(filename));
-		
-		// Skip some keywords
-		findKeyword(filename, skipKeywords);
-		
-		movie.setBaseName(filename.substring(0, filename.lastIndexOf(".")));
-
-		MovieFile movieFile = new MovieFile();
-		relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
-		movieFile.setFilename(relativeFilename);
-		movieFile.setPart(getPart(filename));
-		movie.addMovieFile(movieFile);
-		
-		// Update the movie file with interpreted movie data
-		updateTVShow(filename, movie);
-		updateMovie(filename, movie);
-				
-		return movie;
-	}
-
-	private void scanNFO(File fileToScan, Movie movie){     
-		
-		String fn = fileToScan.getAbsolutePath();
-		int i = fn.lastIndexOf(".");
-		
-		File nfoFile = new File(fn.substring(0, i) + ".nfo");
-		
-		if (nfoFile.exists()) {
-		
-		   InputStream in = null;
-		   ByteArrayBuffer out = null; 
-		   try {
-		      in = new FileInputStream(nfoFile);
-		      out = new ByteArrayBuffer();
-		      while (true) {
-		         synchronized (buffer) {
-		            int amountRead = in.read(buffer);
-		            if (amountRead == -1) {
-		               break;
-		            }
-		            out.write(buffer, 0, amountRead); 
-		         }
-		      } 
-		      
-		      String nfo = new String(out.toByteArray());
-		      
-		      int beginIndex = nfo.indexOf("/tt");
-		      if ( beginIndex != -1) {
-		    	  StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex+1),"/ \n,:!&й\"'(--и_за)=$");
-		    	  movie.setId(st.nextToken());
-		      }
-		      
-		      
-		   } catch (IOException e) {
-			  System.err.println("Failed reading " + nfoFile.getName());
-			  e.printStackTrace();
-		   } finally {
-			   try {
-			      if (in != null) {
-			         in.close();
-			      }
-			      if (out != null) {
-			         out.close();
-			      }
-			   } catch(IOException e) {
-				   
-			   }
-		   }
-		} 
-	}
-	
-	private void updateFirstKeywordIndex(int index) {
+	protected void updateFirstKeywordIndex(int index) {
 		if (index>0) {
 			firstKeywordIndex = (firstKeywordIndex>index)?index:firstKeywordIndex;
 		}
@@ -444,7 +325,7 @@ public class MovieJukeboxScanner {
 		}
 	}
 	
-	private String findKeyword(String filename, String[] strings) {
+	protected String findKeyword(String filename, String[] strings) {
 		for (String keyword : strings) {
 			int index = filename.indexOf(keyword);
 			if (index>0) {
@@ -458,14 +339,14 @@ public class MovieJukeboxScanner {
 	/**
 	 * @return true when the specified keyword exist in the specified filename
 	 */
-	private boolean hasKeyword(String filename, String keyword) {
+	protected boolean hasKeyword(String filename, String keyword) {
 		return hasKeyword(filename, new String[] { keyword } );
 	}
 	
 	/**
 	 * @return true when one of the specified keywords exist in the specified filename
 	 */
-	private boolean hasKeyword(String filename, String[] keywords) {
+	protected boolean hasKeyword(String filename, String[] keywords) {
 		for (String keyword : keywords) {
 			int index = filename.indexOf(keyword);
 			if (index>0) {
@@ -479,7 +360,7 @@ public class MovieJukeboxScanner {
 	/**
 	 * @return true when one of the specified keywords exist in the specified filename
 	 */
-	private boolean hasKeywordAfterTitle(String filename, String[] keywords) {
+	protected boolean hasKeywordAfterTitle(String filename, String[] keywords) {
 		for (String keyword : keywords) {
 			int index = filename.indexOf(keyword);
 			if (index>=firstKeywordIndex) {

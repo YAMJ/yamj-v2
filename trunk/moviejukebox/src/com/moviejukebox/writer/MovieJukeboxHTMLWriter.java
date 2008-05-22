@@ -1,4 +1,4 @@
-package com.moviejukebox;
+package com.moviejukebox.writer;
 
 import java.io.File;
 import java.io.FileInputStream;

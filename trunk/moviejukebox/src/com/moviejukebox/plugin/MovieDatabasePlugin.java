@@ -4,7 +4,7 @@ import com.moviejukebox.model.Movie;
 
 public interface MovieDatabasePlugin {
 
-	void scan(String libraryRoot, Movie movie);
+	void scan(Movie movie);
 
 	void downloadPoster(String jukeboxRoot, Movie movie);
 
