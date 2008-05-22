@@ -14,6 +14,21 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 
+/**
+ * Simple movie filename scanner. 
+ * Scans a movie filename for keywords commonly used in scene released video files.
+ * 
+ * Main pattern for file scanner is the following: 
+ * 
+ *                <MovieTitle>[Keyword*].<container>
+ *         
+ *    * The movie title is in the first position of the filename.
+ *    * it is followed by zero or more keywords.
+ *    * the file extension match the container name.
+ * 
+ * @author jjulien
+ * @author quickfinga
+ */
 public class MovieJukeboxScanner {
 	
 	private static final String[] skipKeywords = {
@@ -27,20 +42,33 @@ public class MovieJukeboxScanner {
 	private int mediaLibraryRootPathIndex;
 	private int firstKeywordIndex = 0;
 
-
-
+	/**
+	 * Get the main audio track codec if any
+	 * @param filename movie's filename to scan
+	 * @return the audio codec name or Unknown if not found
+	 */
 	protected String getAudioCodec(String filename) {
 		return findKeyword(
 				filename.toUpperCase(), 
 				new String[] { "AC3", "DTS" });
 	}
 		
+	/**
+	 * Get the specified filenames video container. 
+	 * Simply return the movie file's extension.
+	 * @param filename movie's filename to scan
+	 * @return the container
+	 */
 	protected String getContainer(String filename) {
 		int lastDotIndex = filename.lastIndexOf(".");
 		updateFirstKeywordIndex(lastDotIndex);
 		return filename.substring(lastDotIndex+1).toUpperCase();
 	}
 
+	/**
+	 * @return the movie file frame rate when specified in the filename.
+	 * @param filename movie's filename to scan
+	 */
 	protected int getFPS(String filename) {
 		if (hasKeyword(filename, new String[] {"23p", "p23"})) return 23;
 		if (hasKeyword(filename, new String[] {"24p", "p24"})) return 24;
@@ -53,37 +81,55 @@ public class MovieJukeboxScanner {
 		return 60;
 	}
 
+	/**
+	 * @return the movie file language when specified in the filename.
+	 * @param filename movie's filename to scan.
+	 */
 	protected String getLanguage(String filename) {
-        if (hasKeyword(filename, new String[] {"-fra-","-FRA-","-fr-","-FR-","-FRENCH-","-french-",".fra.",".FRA.",".fr.",".FR.",".FRENCH.",".french.","[fra]","[FRA]","[fr]","[FR]","[FRENCH]","[french]"}))
-            return "French";
+		String f = filename.toUpperCase();
+        
+		f = f.replace(".", " ");
+		f = f.replace("-", " ");
+		f = f.replace("_", " ");
+		f = f.replace("[", " ");
+		f = f.replace("]", " ");
+		f = f.replace("(", " ");
+		f = f.replace(")", " ");
 
-	    if (hasKeyword(filename, new String[] {"-ger-","-GER-","-de-","-DE-","-GERMAN-","-german-",".ger.",".GER.",".de.",".DE.",".GERMAN.",".german.","[ger]","[GER]","[de]","[DE]","[GERMAN]","[german]"}))
-	            return "German";
+		if (hasKeyword(f, new String[] {" FRA "," FR "," FRENCH ", " VF ", }))
+			return "French";
+
+		if (hasKeyword(f, new String[] {" GER "," DE "," GERMAN "}))
+			return "German";
 	
-	    if (hasKeyword(filename, new String[] {"-ita-","-ITA-","-it-","-IT-","-ITALIAN-","-italian-",".ita.",".ITA.",".it.",".IT.",".ITALIAN.",".italian.","[ita]","[ITA]","[it]","[IT]","[ITALIAN]","[italian]"}))
-	            return "Italian";
+		if (hasKeyword(f, new String[] {" ITA "," IT "," ITALIAN "}))
+			return "Italian";
 	
-	    if (hasKeyword(filename, new String[] {"-spa-","-SPA-","-es-","-ES-","-SPANISH-","-spanish-",".spa.",".SPA.",".es.",".ES.",".SPANISH.",".spanish.","[spa]","[SPA]","[es]","[ES]","[SPANISH]","[spanish]"}))
-	            return "Spanish";
+		if (hasKeyword(f, new String[] {" SPA "," ES "," SPANISH "}))
+			return "Spanish";
 	
-	    if (hasKeyword(filename, new String[] {"-eng-","-ENG-","-en-","-EN-","-ENGLISH-","-english-",".eng.",".ENG.",".en.",".EN.",".ENGLISH.",".english.","[eng]","[ENG]","[en]","[EN]","[ENGLISH]","[english]"}))
-	            return "English";
+		if (hasKeyword(f, new String[] {" ENG "," EN "," ENGLISH "}))
+			return "English";
 	
-	    if (hasKeyword(filename, new String[] {"-por-","-POR-","-pt-","-PT-","-PORTUGUESE-","-portuguese-",".por.",".POR.",".pt.",".PT.",".PORTUGUESE.",".portuguese.","[por]","[POR]","[pt]","[PT]","[PORTUGUESE]","[portuguese]"}))
-	            return "Portuguese";
+		if (hasKeyword(f, new String[] {" POR "," PT "," PORTUGUESE "}))
+			return "Portuguese";
 	
-	    if (hasKeyword(filename, new String[] {"-rus-","-RUS-","-ru-","-RU-","-RUSSIAN-","-russian-",".rus.",".RUS.",".ru.",".RU.",".RUSSIAN.",".russian.","[rus]","[RUS]","[ru]","[RU]","[RUSSIAN]","[russian]"}))
-	            return "Russian";
+		if (hasKeyword(f, new String[] {" RUS "," RU "," RUSSIAN "}))
+			return "Russian";
 	
-	    if (hasKeyword(filename, new String[] {"-vo-","-VO-",".vo.",".VO.","[vo]","[VO]"}))
-	            return "VO";
-	
-	    if (hasKeyword(filename, new String[] {"-dl-","-DL-",".dl.",".DL.","[dl]","[DL]"}))
-	            return "Dual Language";
+		if (hasKeyword(f, new String[] {" VO "}))
+			return "VO";
+
+		if (hasKeyword(f, new String[] {" DL "}))
+			return "Dual Language";
 	   
-	    return "Unknown";
+		return "Unknown";
 	}
-	
+
+	/**
+	 * @return the specified movie file's title.
+	 * @param filename movie's filename to scan.
+	 */
 	private String getName(String filename) {
 		String name = filename.substring(0, firstKeywordIndex);
 		name = name.replace(".", " ");
@@ -146,10 +192,17 @@ public class MovieJukeboxScanner {
 		return videoOutput;
 	}
 	
+	/**
+	 * Get the file's video source as specified in the filename.
+	 * @param filename filename of the movie file.
+	 * @return the video source as a string
+	 * 
+	 * @author jjulien, quickfinga 
+	 */
 	private String getVideoSource(String filename) {
 		String f = filename.toUpperCase();
 		if (hasKeyword(f, "HDTV")) return "HDTV";
-		if (hasKeyword(f, new String[] { "BLURAY", "BDRIP" })) return "BDRiP";
+		if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP" })) return "BDRiP";
 		if (hasKeyword(f, "DVDRIP")) return "DVDRip";
 		if (hasKeyword(f, "DVDSCR")) return "DVDSCR";
 		if (hasKeyword(f, "DSRIP")) return "DSRip";
@@ -157,9 +210,11 @@ public class MovieJukeboxScanner {
 		if (hasKeyword(filename, "CAM")) return "CAM";
 		if (hasKeyword(filename, "R5")) return "R5";
 		if (hasKeyword(filename, "LINE")) return "LINE";
+		if (hasKeyword(filename, new String[] { "HDDVD", "HD-DVD", "HDDVDRIP"})) return "HDDVD";
+		if (hasKeyword(filename, "DTH")) return "D-THEATER";
 		return "Unknown";
 	}
-
+	
 	protected boolean hasSubtitles(File fileToScan) {
 		String path = fileToScan.getAbsolutePath();
 		int index = path.lastIndexOf(".");
