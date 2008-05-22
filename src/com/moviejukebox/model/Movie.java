@@ -1,5 +1,6 @@
 package com.moviejukebox.model;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -7,7 +8,7 @@ import java.util.TreeSet;
 
 /**
  * Movie bean
- * @author Julien
+ * @author jjulien
  */
 public class Movie implements Comparable<Movie> {
 	
@@ -52,6 +53,8 @@ public class Movie implements Comparable<Movie> {
 
 	// Caching
 	private boolean isDirty = false;
+
+	private File file;
 	
 	public void addGenre(String genre) {
 		this.isDirty = true;
@@ -457,5 +460,13 @@ public class Movie implements Comparable<Movie> {
 		sb.append("[fps=").append(fps).append("]");
 		sb.append("]");
 		return sb.toString();
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
 	}
 }

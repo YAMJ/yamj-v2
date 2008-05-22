@@ -11,7 +11,7 @@ public class AllocinePlugin implements MovieDatabasePlugin {
 	}
 
 	@Override
-	public void scan(String libraryRoot, Movie movie) {
+	public void scan(Movie movie) {
 		// TODO Auto-generated method stub
 		
 	}

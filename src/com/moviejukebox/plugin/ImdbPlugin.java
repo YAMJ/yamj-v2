@@ -18,11 +18,7 @@ import com.moviejukebox.model.Movie;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 	
-	public String mediaLibraryRoot;
-
-	public void scan(String mediaLibraryRoot, Movie mediaFile) {
-
-		this.mediaLibraryRoot = mediaLibraryRoot;
+	public void scan(Movie mediaFile) {
 
 		String imdbId = mediaFile.getId();
 		if (imdbId == null || imdbId.equalsIgnoreCase("Unknown")) {

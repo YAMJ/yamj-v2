@@ -9,6 +9,10 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
+import com.moviejukebox.scanner.MovieDirectoryScanner;
+import com.moviejukebox.scanner.MovieNFOScanner;
+import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
+import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
 public class MovieJukebox {
 
@@ -157,46 +161,57 @@ public class MovieJukebox {
 	}
 
 	private void generateLibrary() throws FileNotFoundException, XMLStreamException {
-		MovieJukeboxScanner ms = new MovieJukeboxScanner();
 		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(nmtRootPath, forceXMLOverwrite);
 		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(forceHTMLOverwrite);
 		MovieDatabasePlugin movieDB = new ImdbPlugin();
+		MovieDirectoryScanner mds = new MovieDirectoryScanner();
+		MovieNFOScanner nfoScanner = new MovieNFOScanner();
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
 
-		System.out.println("Scanning movies in directory " + mediaLibraryRoot);
-		Library library = ms.scan(mediaLibraryRoot);
+		System.out.println("Scanning movies directory " + mediaLibraryRoot);
+		Library library = mds.scan(mediaLibraryRoot);
 		System.out.println("Found " + library.size() + " movies in your media library");
 		
-		System.out.println("Searching Internet for library information...");
+		System.out.println("Searching for movies information...");
+		
 		// retreiving internet Data
 		for (Movie movie : library.values()) {
+			
+			// For each movie in the library, if an XML file for this 
+			// movie already exist, then no need to search for movie 
+			// information, just parse the XML data.
 			File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
 			if (xmlFile.exists()) {
+				// parse the movie XML file 
 				xmlWriter.parseMovieXML(xmlFile, movie);
-				movie.setDirty(false);
-			} else {
-				movieDB.scan(mediaLibraryRoot.getAbsolutePath(), movie);
-				System.out.println(movie);
+			} else {		
+				// No XML file for this movie. We've got to find movie
+				// information where we can (filename, IMDb, NFO, etc...)
+				// Add here extra scanners if needed.
+				nfoScanner.scan(movie);
+				movieDB.scan(movie);
+				System.out.println("Updating " + movie);
 			}
 			
-			// Download poster file only if this file doesn't exist... never overwrite an existing file...
+			// Download poster file only if this file doesn't exist... 
+			// never overwrite an existing file...
 			movieDB.downloadPoster(jukeboxDetailsRoot, movie);
-			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
 		}
-		
-		System.out.println("Building library indexes...");
+
+		// Finally generate indexes and HTML jukebox files
+		System.out.println("Generating Jukebox HTML files...");
+
+		// library indexing
 		library.buildIndex();
-		
-		// build reports
-		System.out.println("Generating movies HTML...");
+
 		for (Movie movie : library.values()) {
 			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
+			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
 		}
 		
-		System.out.println("Generating movies index HTML...");
 		xmlWriter.writeIndexXML(jukeboxRoot, detailsDirName, library);
 		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, library);		
 		
