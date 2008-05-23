@@ -121,13 +121,14 @@
             
             <tr valign="top">
               <td class="cellvalue" colspan="2">
-               	<a class="link" vod="">
-              
-                		<xsl:attribute name="zcd">2</xsl:attribute>
-              
+             	 <a class="link">
 	          		<xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute> 
+  					<xsl:if test="//movie/container = 'ISO'">
+	          		  <xsl:attribute name="zcd">2</xsl:attribute> 
+  					</xsl:if>
+	          		<xsl:attribute name="vod"/> 
 	          		<xsl:value-of select="@title" />
-  				</a>
+  				 </a>
               </td>
             </tr>
             
