@@ -4,8 +4,13 @@
 
 MovieJukebox 1.0.6 beta
 -----------------------
+	- Fixed defect #4 ISO files not supported
+	- Fixed defect #8 automatically start the index.html when you click on the share
 	- Fixed defect #9 multiple CD movies not detected properly
 	- Fixed defect #15 sXXeYY pattern for TVShows do not find episode titles
+	- Fixed defect #16 MPG file not taken into account
+	- Added new categories
+	- Integrated new MichaelT templates
 
 MovieJukebox 1.0.5 beta
 -----------------------
