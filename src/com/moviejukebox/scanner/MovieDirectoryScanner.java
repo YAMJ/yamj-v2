@@ -11,7 +11,7 @@ import com.moviejukebox.model.MovieFile;
 
 /**
  * DirectoryScanner. Build a library with files with extension 
- * AVI DIVX MKV WMV M2TS TS RM QT ISO VOB other files are excluded 
+ * AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG other files are excluded 
  * from the library
  * 
  * @author jjulien
@@ -64,7 +64,7 @@ public class MovieDirectoryScanner {
 		if (index < 0) return;
 		
 		String extension = file.getName().substring(index+1).toUpperCase();
-		if ("AVI DIVX MKV WMV M2TS TS RM QT ISO VOB".indexOf(extension) >= 0) {
+		if ("AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG".indexOf(extension) >= 0) {
 
 			String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
 			
