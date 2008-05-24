@@ -430,9 +430,9 @@ public abstract class MovieJukeboxTools {
 			bi = scaleToSize(thumbWidth, thumbHeight, bi);
 			bi = cropToSize(thumbWidth, thumbHeight, bi);
 			
-			if (!movie.getPosterURL().startsWith("http://")) {
+			/* if (!movie.getPosterURL().startsWith("http://")) {
 				bi.getGraphics().drawString(movie.getTitle(), 1, 10);
-			}
+			} */
 			
 			saveImageToDisk(bi,dst);
 		}

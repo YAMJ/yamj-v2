@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -140,8 +141,12 @@ public class MovieJukeboxXMLWriter {
 	 */
 	public void writeIndexXML(String rootPath, String detailsDirName, Library library) throws FileNotFoundException, XMLStreamException {
 		ArrayList<String> keys = new ArrayList<String>();
-		keys.addAll(library.getIndexes().keySet());
-		Collections.sort(keys);
+		for(HashMap<String, List<Movie>> index : library.getIndexes().values()) {
+			ArrayList<String> c = new ArrayList<String>();
+			c.addAll(index.keySet());
+			Collections.sort(c);
+			keys.addAll(c);
+		}
 		
 		for (String key : keys) {
 			File xmlFile = new File(rootPath + "/index_" + key + ".xml");
@@ -164,11 +169,11 @@ public class MovieJukeboxXMLWriter {
 			writer.writeEndElement();					
 
 			writer.writeStartElement("movies");
-			List<Movie> movies = library.getIndexes().get(key);
+			List<Movie> movies = library.getMoviesByIndexKey(key);
 			for (Movie movie : movies) {
 				writer.writeStartElement("movie"); 
-				writer.writeStartElement("title"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
-				writer.writeStartElement("details"); writer.writeCharacters(detailsDirName + "/" + movie.getBaseName()); writer.writeEndElement();
+				writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
+				writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()); writer.writeEndElement();
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();					

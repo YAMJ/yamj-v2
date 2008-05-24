@@ -3,8 +3,12 @@ package com.moviejukebox.writer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -54,12 +58,15 @@ public class MovieJukeboxHTMLWriter {
 		}
 	}
 	
-	public void generateMoviesIndexHTML(String rootPath, Library library) {
-		Collection<String> keys = library.getIndexes().keySet();
+	public void generateMoviesIndexHTML(String rootPath, String detailsDirName, Library library) {
+		ArrayList<String> keys = new ArrayList<String>();
+		for(HashMap<String, List<Movie>> index : library.getIndexes().values()) {
+			keys.addAll(index.keySet());
+		}
 
 		for (String key : keys) {
 			try {
-				String filename = rootPath + File.separator + "index_" + key;
+				String filename = rootPath + File.separator +  detailsDirName + File.separator + "index_" + key;
 				File xmlFile = new File(filename + ".xml");
 				File htmlFile = new File(filename + ".html");
 				
@@ -75,6 +82,37 @@ public class MovieJukeboxHTMLWriter {
 				Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
 			 
 				transformer.transform(xmlSource, xmlResult);
+			} catch (Exception e) {
+				System.err.println("Failed generating HTML library index.");
+				e.printStackTrace();
+			}
+		}
+		
+		if (keys.size()>0) {
+			try {
+				File htmlFile = new File(rootPath + File.separator + "index.html");
+				htmlFile.getParentFile().mkdirs();
+					
+				XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+				XMLStreamWriter writer = outputFactory.createXMLStreamWriter(
+						new FileOutputStream(htmlFile), "UTF-8");
+
+				writer.writeStartDocument();
+				writer.writeStartElement("html");
+				writer.writeStartElement("head");
+				
+				writer.writeStartElement("meta");
+				writer.writeAttribute("name", "Author");
+				writer.writeAttribute("content", "MovieJukebox");
+				writer.writeEndElement();
+				
+				writer.writeStartElement("meta");
+				writer.writeAttribute("HTTP-EQUIV", "REFRESH");
+				writer.writeAttribute("content", "0; url=" + detailsDirName+"/index_" + keys.get(0) + ".html");
+				writer.writeEndElement();
+
+				writer.writeEndElement();					
+				writer.writeEndElement();					
 			} catch (Exception e) {
 				System.err.println("Failed generating HTML library index.");
 				e.printStackTrace();
