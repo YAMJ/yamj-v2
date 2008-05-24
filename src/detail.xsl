@@ -15,7 +15,7 @@
           <div class="navlink">
                 <a><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
               - <a><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
-              - <a href="../index_09AF.html">Up</a>
+              - <a href="../index.html">Up</a>
               - <a><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
               - <a><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
           </div>
@@ -118,7 +118,7 @@
             </tr>
 
             <xsl:for-each select="files/file">
-            
+            <center></center>
             <tr valign="top">
               <td class="cellvalue" colspan="2">
              	 <a class="link">

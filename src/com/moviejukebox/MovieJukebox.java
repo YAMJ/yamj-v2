@@ -36,7 +36,7 @@ public class MovieJukebox {
 		int thumbWidth = 140;
 		int thumbHeight = 200;
 
-		if (args.length==0 || args.length>6) {
+		if (args.length==0) {
 			help();
 			return;
 		} 
@@ -58,7 +58,7 @@ public class MovieJukebox {
 					}
 				} else if ("-th".equalsIgnoreCase(arg)) {
 					try {
-						thumbHeight = Integer.parseInt(args[i]); 
+						thumbHeight = Integer.parseInt(args[++i]); 
 					} catch (NumberFormatException e) {
 						thumbHeight = 200;
 					}
@@ -212,11 +212,11 @@ public class MovieJukebox {
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
 		}
 		
-		xmlWriter.writeIndexXML(jukeboxRoot, detailsDirName, library);
-		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, library);		
+		xmlWriter.writeIndexXML(jukeboxDetailsRoot, detailsDirName, library);
+		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, detailsDirName, library);		
 		
 		MovieJukeboxTools.copyResource("exportdetails_item_popcorn.css", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("exportindex_item_pch.css", jukeboxRoot);
+		MovieJukeboxTools.copyResource("exportindex_item_pch.css", jukeboxDetailsRoot);
 		
 		System.out.println("Process terminated.");
 	}
