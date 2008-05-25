@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
 
@@ -119,8 +120,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 				xml = xml.substring(beginIndex);
 			}
 			
-			beginIndex = xml.indexOf("Titles (Exact Matches)");
-			if (beginIndex != -1 && xml.indexOf(movieName) > beginIndex) {
+			// Try to find an exact match first... 
+			// never know... that could be ok...
+			int movieIndex;
+			if (year != null && !year.equalsIgnoreCase("Unknown")) {
+				movieIndex = xml.indexOf(movieName +" </a> ("+year+")");
+			} else {
+				movieIndex = xml.indexOf(movieName);
+			}
+			
+			// Let's consider Exact Matches first
+			beginIndex = xml.indexOf("Titles (Exact Matches)");			
+			if (beginIndex != -1 && movieIndex > beginIndex) {
 				xml = xml.substring(beginIndex);
 			}
 			
@@ -144,33 +155,33 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	/**
 	 * Scan IMDB html page for the specified movie
 	 */
-	private void updateImdbMediaInfo(Movie movies) {
+	private void updateImdbMediaInfo(Movie movie) {
 		try {
-			String xml = request(new URL("http://www.imdb.com/title/" + movies.getId()));
+			String xml = request(new URL("http://www.imdb.com/title/" + movie.getId()));
 
-			movies.setTitleSort(extractTag(xml, "<title>", 0, "()><"));
-			movies.setRating(extractTag(xml, "<b>User Rating:</b>",2));
-			movies.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
-			movies.setDirector(extractTag(xml, "<h5>Director:</h5>", 1));
-			movies.setReleaseDate(extractTag(xml, "<h5>Release Date:</h5>"));
-			movies.setRuntime(extractTag(xml, "<h5>Runtime:</h5>"));
-			movies.setCountry(extractTag(xml, "<h5>Country:</h5>", 1));
-			movies.setCompany(extractTag(xml, "<h5>Company:</h5>", 1));
-			movies.addGenre(extractTag(xml, "<h5>Genre:</h5>", 1));
-			movies.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+			movie.setTitleSort(extractTag(xml, "<title>", 0, "()><"));
+			movie.setRating(extractTag(xml, "<b>User Rating:</b>",2));
+			movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+			movie.setDirector(extractTag(xml, "<h5>Director:</h5>", 1));
+			movie.setReleaseDate(extractTag(xml, "<h5>Release Date:</h5>"));
+			movie.setRuntime(extractTag(xml, "<h5>Runtime:</h5>"));
+			movie.setCountry(extractTag(xml, "<h5>Country:</h5>", 1));
+			movie.setCompany(extractTag(xml, "<h5>Company:</h5>", 1));
+			movie.addGenre(extractTag(xml, "<h5>Genre:</h5>", 1));
+			movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
 
-			if (movies.getPlot().startsWith("a class=\"tn15more")) {
-				movies.setPlot("None");
+			if (movie.getPlot().startsWith("a class=\"tn15more")) {
+				movie.setPlot("None");
 			}
 
-			if (movies.getYear() == null 
-			 || movies.getYear().isEmpty()
-			 || movies.getYear().equalsIgnoreCase("Unknown")) {
+			if (movie.getYear() == null 
+			 || movie.getYear().isEmpty()
+			 || movie.getYear().equalsIgnoreCase("Unknown")) {
 			
 				int beginIndex = xml.indexOf("<a href=\"/Sections/Years/");
 				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 25), "\"");
 				try {
-					movies.setYear(st.nextToken().trim());
+					movie.setYear(st.nextToken().trim());
 				} catch (NumberFormatException e) { }
 			}
 
@@ -187,12 +198,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 				if (index != -1) {
 					posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
 				}
-			} 
+			} else { 
+				// try searching yahoo
+				String yahooURL = getPosterURLFromGoogle(movie.getTitle());
+				if (!yahooURL.equalsIgnoreCase("Unknown")) {
+					posterURL = yahooURL;
+				}
+			}
 			
-			movies.setPosterURL(posterURL);
+			movie.setPosterURL(posterURL);
 
 		} catch (Exception e) {
-			System.err.println("Failed retreiving imdb rating for movie : " + movies.getId());
+			System.err.println("Failed retreiving imdb rating for movie : " + movie.getId());
 			e.printStackTrace();
 		}
 	}
@@ -274,7 +291,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		posterFile.getParentFile().mkdirs();
 
 		if (mediaFile.getPosterURL() == null || mediaFile.getPosterURL().equalsIgnoreCase("Unknown")) {
-			copyResource("dummy.jpg", posterFilename);
+			MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, mediaFile.getBaseName() + ".jpg");
 			return;
 		}
 
@@ -314,39 +331,60 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			}
 		} catch (Exception e) {
 			System.err.println("Failed downloading movie poster : " + mediaFile.getPosterURL());
-			copyResource("dummy.jpg", posterFilename);
+			MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, mediaFile.getBaseName() + ".jpg");
 		}
 	}
 
-	public void copyResource(String resource, String dstPath) {
-		InputStream in = null;
-		OutputStream out = null;
+	/**
+	 * retrieve the imdb matching the specified movie name and year.
+	 * This routine is base on a yahoo request.
+	 */
+	private String getPosterURLFromYahoo(String movieName) {
 		try {
-			in = ClassLoader.getSystemResourceAsStream(resource);
-			out = new FileOutputStream(dstPath);
-			while (true) {
-				synchronized (buffer) {
-					int amountRead = in.read(buffer);
-					if (amountRead == -1) {
-						break;
-					}
-					out.write(buffer, 0, amountRead);
-				}
-			}
-		} catch (IOException e) {
-			System.err.println("Failed copying " + resource + " to " + dstPath);
-			e.printStackTrace();
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException e) {
-			}
-		}
+			StringBuffer sb = new StringBuffer("	http://fr.images.search.yahoo.com/search/images?p=");
+			sb.append(URLEncoder.encode(movieName, "UTF-8"));			
+			sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
 
+			String xml = request(new URL(sb.toString()));
+			int beginIndex = xml.indexOf("imgurl=");
+			int endIndex = xml.indexOf("%26",beginIndex);
+
+			if (beginIndex != -1 && endIndex>beginIndex) {
+				return URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
+			} else {
+				return "Unknown";
+			}
+
+		} catch (Exception e) {
+			System.err.println("Failed retreiving poster URL from yahoo images : " + movieName);
+			System.err.println("Error : " + e.getMessage());
+			return "Unknown";
+		}
+	}
+
+	/**
+	 * retrieve the imdb matching the specified movie name and year.
+	 * This routine is base on a yahoo request.
+	 */
+	private String getPosterURLFromGoogle(String movieName) {
+		try {
+			StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
+			sb.append(URLEncoder.encode(movieName, "UTF-8"));			
+			sb.append("&gbv=2");
+
+			String xml = request(new URL(sb.toString()));
+			int beginIndex = xml.indexOf("imgurl=") + 7;
+
+			if (beginIndex != -1) {
+				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
+				return st.nextToken();
+			} else {
+				return "Unknown";
+			}
+		} catch (Exception e) {
+			System.err.println("Failed retreiving poster URL from yahoo images : " + movieName);
+			System.err.println("Error : " + e.getMessage());
+			return "Unknown";
+		}
 	}
 }

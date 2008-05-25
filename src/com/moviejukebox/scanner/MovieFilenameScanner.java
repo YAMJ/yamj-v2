@@ -105,39 +105,38 @@ public class MovieFilenameScanner {
 	protected String getLanguage(String filename) {
 		String f = filename.toUpperCase();
         
-		f = f.replace(".", " ");
-		f = f.replace("-", " ");
-		f = f.replace("_", " ");
-		f = f.replace("[", " ");
-		f = f.replace("]", " ");
-		f = f.replace("(", " ");
-		f = f.replace(")", " ");
+		f = f.replace("-", ".");
+		f = f.replace("_", ".");
+		f = f.replace("[", ".");
+		f = f.replace("]", ".");
+		f = f.replace("(", ".");
+		f = f.replace(")", ".");
 
-		if (hasKeyword(f, new String[] {" FRA "," FR "," FRENCH ", " VF ", }))
+		if (hasKeyword(f, new String[] {".FRA.",".FR.",".FRENCH.", ".VF.", }))
 			return "French";
 
-		if (hasKeyword(f, new String[] {" GER "," DE "," GERMAN "}))
+		if (hasKeyword(f, new String[] {".GER.",".DE.",".GERMAN."}))
 			return "German";
 	
-		if (hasKeyword(f, new String[] {" ITA "," IT "," ITALIAN "}))
+		if (hasKeyword(f, new String[] {".ITA.",".IT.",".ITALIAN."}))
 			return "Italian";
 	
-		if (hasKeyword(f, new String[] {" SPA "," ES "," SPANISH "}))
+		if (hasKeyword(f, new String[] {".SPA.",".ES.",".SPANISH."}))
 			return "Spanish";
 	
-		if (hasKeyword(f, new String[] {" ENG "," EN "," ENGLISH "}))
+		if (hasKeyword(f, new String[] {".ENG.",".EN.",".ENGLISH."}))
 			return "English";
 	
-		if (hasKeyword(f, new String[] {" POR "," PT "," PORTUGUESE "}))
+		if (hasKeyword(f, new String[] {".POR.",".PT.",".PORTUGUESE."}))
 			return "Portuguese";
 	
-		if (hasKeyword(f, new String[] {" RUS "," RU "," RUSSIAN "}))
+		if (hasKeyword(f, new String[] {".RUS.",".RU.",".RUSSIAN."}))
 			return "Russian";
 	
-		if (hasKeyword(f, new String[] {" VO "}))
+		if (hasKeyword(f, new String[] {".VO.", ".VOSTFR."}))
 			return "VO";
 
-		if (hasKeyword(f, new String[] {" DL "}))
+		if (hasKeyword(f, new String[] {".DL."}))
 			return "Dual Language";
 	   
 		return "Unknown";

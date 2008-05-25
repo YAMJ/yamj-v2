@@ -192,6 +192,7 @@ public class MovieJukebox {
 				// Add here extra scanners if needed.
 				nfoScanner.scan(movie);
 				movieDB.scan(movie);
+				xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
 				System.out.println("Updating " + movie);
 			}
 			

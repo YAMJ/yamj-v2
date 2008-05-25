@@ -5,6 +5,9 @@
  */
 package com.moviejukebox;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -390,51 +393,54 @@ public abstract class MovieJukeboxTools {
 	static final int BUFF_SIZE = 100000;
 	static final byte[] buffer = new byte[BUFF_SIZE];
 
-	public static void copyResource(String resource, String dstPath) {
+	public static void copyResource(String resource, String directory) {
+		copyResource(resource, directory, resource);
+	}
+	
+	public static void copyResource(String resource, String path, String dstFilename) {
 	   InputStream in = null;
 	   OutputStream out = null; 
+
 	   try {
 	      in = ClassLoader.getSystemResource(resource).openStream();
-	      out = new FileOutputStream(dstPath + File.separator + resource);
+	      out = new FileOutputStream(path + File.separator + dstFilename);
 	      while (true) {
 	         synchronized (buffer) {
 	            int amountRead = in.read(buffer);
-	            if (amountRead == -1) {
-	               break;
-	            }
+	            if (amountRead == -1) break;
 	            out.write(buffer, 0, amountRead); 
 	         }
 	      } 
+	   
 	   } catch (IOException e) {
-		  System.err.println("Failed copying " + resource + " to " + dstPath);
+		  System.err.println("Failed copying " + resource + " to " + path + File.separator + dstFilename);
 		  e.printStackTrace();
+
 	   } finally {
-		   try {
-		      if (in != null) {
-		         in.close();
-		      }
-		      if (out != null) {
-		         out.close();
-		      }
-		   } catch(IOException e) {
-			   
-		   }
+		   try { if (in != null) { in.close(); } } catch(IOException e) { }
+		   try { if (out != null) { out.close(); } } catch(IOException e) { }
 	   }
 	}
-	
+
 	public static void createThumbnail(String rootPath, Movie movie, int thumbWidth, int thumbHeight) {
-		String dst =  rootPath + File.separator + movie.getBaseName() + "_small.jpg";
-		
-		if (!(new File(dst).exists())) {
-			BufferedImage bi = loadBufferedImage(rootPath + File.separator + movie.getBaseName() + ".jpg");
-			bi = scaleToSize(thumbWidth, thumbHeight, bi);
-			bi = cropToSize(thumbWidth, thumbHeight, bi);
+		try {
+			String src = rootPath + File.separator + movie.getBaseName() + ".jpg";
+			String dst = rootPath + File.separator + movie.getBaseName() + "_small.jpg";
 			
-			/* if (!movie.getPosterURL().startsWith("http://")) {
-				bi.getGraphics().drawString(movie.getTitle(), 1, 10);
-			} */
-			
-			saveImageToDisk(bi,dst);
+			if (!(new File(dst).exists())) {
+				BufferedImage bi = loadBufferedImage(src);
+				if (bi == null) {
+					copyResource("dummy.jpg", rootPath, movie.getBaseName() + ".jpg");
+					bi = loadBufferedImage(src);
+				}
+				bi = scaleToSize(thumbWidth, thumbHeight, bi);
+				bi = cropToSize(thumbWidth, thumbHeight, bi);
+				
+				saveImageToDisk(bi,dst);
+			}
+		} catch (Exception e) {
+			System.err.println("Failed creating thumbnail for " + movie.getTitle());
+			e.printStackTrace();
 		}
 	}
 
@@ -483,41 +489,46 @@ public abstract class MovieJukeboxTools {
 		return op.filter(srcImg, null);
 	}
 
-	public static BufferedImage loadBufferedImage(String fileName) {
+	public static BufferedImage loadBufferedImage(String filename) {
 		// Create BufferedImage
 		BufferedImage bi = null;
+		FileInputStream fis = null;
 		try {
 			// load file from disk using Sun's JPEGIMageDecoder
-			FileInputStream fis = new FileInputStream(fileName);
+			fis = new FileInputStream(filename);
 			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(fis);
 			bi = decoder.decodeAsBufferedImage();
 			fis.close();
-
 		} catch (Exception e) {
+			System.err.println("Failed Loading poster file: " + filename);
+			e.printStackTrace();
+		} finally {
+			if (fis != null) {
+				try { fis.close(); } catch (Exception e) {}
+			}
 		}
 		return bi;
 	}
 
 	public static void saveImageToDisk(BufferedImage bi, String str) {
-		if (bi != null && str != null) {
+		if (bi == null || str == null) 
+			return;
 
-			// save image as Jpeg
-			FileOutputStream out = null;
-			try {
-				out = new FileOutputStream(str);
-			} catch (java.io.FileNotFoundException fnf) {
-				System.out.println("File Not Found");
-			}
-
+		// save image as Jpeg
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(str);
 			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bi);
 			param.setQuality(0.75f, false);
+			encoder.encode(bi);
 
-			try {
-				encoder.encode(bi);
-				out.close();
-			} catch (java.io.IOException io) {
-				System.out.println(io);
+		} catch (Exception e) {
+			System.err.println("Failed Saving thumbnail file: " + str);
+			e.printStackTrace();
+		} finally {
+			if (out != null) {
+				try { out.close(); } catch(Exception e) { }
 			}
 		}
 	}
