@@ -90,7 +90,7 @@ public class MovieJukeboxHTMLWriter {
 		
 		if (keys.size()>0) {
 			try {
-				File htmlFile = new File(rootPath + File.separator + "index.html");
+				File htmlFile = new File(rootPath + File.separator + "index.htm");
 				htmlFile.getParentFile().mkdirs();
 					
 				XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();

@@ -9,6 +9,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
+import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
@@ -166,6 +167,7 @@ public class MovieJukebox {
 		MovieDatabasePlugin movieDB = new ImdbPlugin();
 		MovieDirectoryScanner mds = new MovieDirectoryScanner();
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
+		MediaInfoScanner miScanner = new MediaInfoScanner();
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
@@ -192,6 +194,7 @@ public class MovieJukebox {
 				// Add here extra scanners if needed.
 				nfoScanner.scan(movie);
 				movieDB.scan(movie);
+				miScanner.scan(movie);
 				xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
 				System.out.println("Updating " + movie);
 			}

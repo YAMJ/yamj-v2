@@ -90,11 +90,8 @@ public class Library implements Map<String, Movie> {
 	private void indexByProperties() {
 		HashMap<String, List<Movie>> index = new HashMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {				
-			if (movie.getVideoOutput().indexOf("720") != -1) {
-				addMovie(index, "720p" , movie);
-			}
-			if (movie.getVideoOutput().indexOf("1080") != -1) {
-				addMovie(index, "1080p" , movie);
+			if (movie.getVideoOutput().indexOf("720") != -1  || movie.getVideoOutput().indexOf("1080") != -1) {
+				addMovie(index, "HD" , movie);
 			}
 		}
 		indexes.put("Other", index);

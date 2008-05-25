@@ -15,7 +15,7 @@
           <div class="navlink">
                 <a><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
               - <a><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
-              - <a href="../index.html">Up</a>
+              - <a href="../index.htm">Up</a>
               - <a><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
               - <a><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
           </div>
@@ -104,6 +104,32 @@
               <td width="15%" nowrap="1" class="celllabel">Subtitles</td>
               <td class="cellvalue"><xsl:value-of select="subtitles" /></td>
             </tr>
+            
+            <tr valign="top">
+              <td width="15%" nowrap="1" class="celllabel">Video codec</td>
+              <td class="cellvalue"><xsl:value-of select="videoCodec" /></td>
+            </tr>
+
+            <tr valign="top">
+              <td width="15%" nowrap="1" class="celllabel">Audio codec</td>
+              <td class="cellvalue"><xsl:value-of select="audioCodec" /></td>
+            </tr>
+
+            <tr valign="top">
+              <td width="15%" nowrap="1" class="celllabel">Resolution</td>
+              <td class="cellvalue"><xsl:value-of select="resolution" /></td>
+            </tr>
+            
+            <tr valign="top">
+              <td width="15%" nowrap="1" class="celllabel">Video source</td>
+              <td class="cellvalue"><xsl:value-of select="videoSource" /></td>
+            </tr>
+                        
+            <tr valign="top">
+              <td width="15%" nowrap="1" class="celllabel">FPS</td>
+              <td class="cellvalue"><xsl:value-of select="fps" /></td>
+            </tr>
+                        
             <tr valign="top">
               <td width="15%" nowrap="1" class="celllabel">Video output</td>
               <td class="cellvalue"><xsl:value-of select="videoOutput" /></td>
