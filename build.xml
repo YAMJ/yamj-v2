@@ -22,7 +22,7 @@
 	</target>
 
 	<target name="compile" depends="prepare">
-		<javac source="1.6" destdir="${dir.build}" srcdir="${dir.src}" classpath="${java.home}/jre/lib/rt.jar"/>
+		<javac nowarn="true" source="1.6" destdir="${dir.build}" srcdir="${dir.src}" classpath="${java.home}/jre/lib/rt.jar"/>
 	</target>
 	
 	<target name="test">
