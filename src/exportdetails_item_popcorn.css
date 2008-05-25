@@ -33,7 +33,7 @@ body {
 .celllabel {
 	color: #000000;
 	background-color: #e3e3e3;
-	font-size: 14pt;
+	font-size: 11pt;
 	font-weight : normal;
   padding-top: 2px;
   padding-left: 5px;
@@ -44,7 +44,7 @@ body {
 .cellvalue {
 	color: #056689;	
 	background-color: #e3e3e3;
-	font-size: 14pt;
+	font-size: 11pt;
 	font-weight : bold;
   padding-top: 2px;
   padding-left: 5px;
@@ -55,7 +55,7 @@ body {
 .cellalt {
 	color: #000000;
 	background-color: #e3e3e3;
-	font-size: 14pt;
+	font-size: 11pt;
 	font-weight : normal;
   padding-top: 2px;
   padding-left: 5px;
