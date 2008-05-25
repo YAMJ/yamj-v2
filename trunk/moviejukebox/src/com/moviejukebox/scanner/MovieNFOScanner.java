@@ -1,5 +1,6 @@
 package com.moviejukebox.scanner;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,7 +8,6 @@ import java.io.InputStream;
 import java.util.StringTokenizer;
 
 import com.moviejukebox.model.Movie;
-import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 
 /**
  * NFO file parser.
@@ -35,10 +35,10 @@ public class MovieNFOScanner {
 		if (nfoFile.exists()) {
 		
 		   InputStream in = null;
-		   ByteArrayBuffer out = null; 
+		   ByteArrayOutputStream out = null; 
 		   try {
 		      in = new FileInputStream(nfoFile);
-		      out = new ByteArrayBuffer();
+		      out = new ByteArrayOutputStream();
 		      while (true) {
 		         synchronized (buffer) {
 		            int amountRead = in.read(buffer);
@@ -49,7 +49,7 @@ public class MovieNFOScanner {
 		         }
 		      } 
 		      
-		      String nfo = new String(out.toByteArray());
+		      String nfo = out.toString();
 		      
 		      int beginIndex = nfo.indexOf("/tt");
 		      if ( beginIndex != -1) {

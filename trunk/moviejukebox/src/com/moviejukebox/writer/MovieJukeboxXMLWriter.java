@@ -16,13 +16,13 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.sun.xml.internal.stream.events.CharacterEvent;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -129,7 +129,7 @@ public class MovieJukeboxXMLWriter {
 	private String parseCData(XMLEventReader r) throws XMLStreamException {
 		StringBuffer sb = new StringBuffer();
 		XMLEvent e;
-		while( (e=r.nextEvent()) instanceof CharacterEvent) {
+		while( (e=r.nextEvent()) instanceof Characters) {
 			sb.append(e.toString());
 		}
 		return sb.toString();
@@ -172,7 +172,13 @@ public class MovieJukeboxXMLWriter {
 			List<Movie> movies = library.getMoviesByIndexKey(key);
 			for (Movie movie : movies) {
 				writer.writeStartElement("movie"); 
-				writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
+				writer.writeStartElement("title"); 
+				writer.writeCharacters(movie.getTitle()); 
+				if (movie.isTVShow() && movie.getSeason() != -1) {
+					writer.writeCharacters(" Season " + movie.getSeason());
+				} 
+				writer.writeEndElement();
+
 				writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()); writer.writeEndElement();
 				writer.writeEndElement();
 			}
