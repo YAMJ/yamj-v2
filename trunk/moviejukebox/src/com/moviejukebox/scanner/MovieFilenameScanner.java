@@ -1,7 +1,9 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import com.moviejukebox.model.Movie;
@@ -24,12 +26,18 @@ import com.moviejukebox.model.MovieFile;
  */
 public class MovieFilenameScanner {
 	
-	protected static final String[] skipKeywords = {
-		"LIMITED","LiMiTED", "Limited", "DiAMOND", "AXXO", "PUKKA", "iDHD", "PROPER", "REPACK", "DSR", "STV", "UNRATED", "RERIP"
-	};
-	
+	protected String[] skipKeywords;
 	protected int firstKeywordIndex = 0;
 
+	public MovieFilenameScanner(Properties props) {
+		StringTokenizer st = new StringTokenizer(props.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
+		Collection<String> keywords = new ArrayList<String>();
+		while (st.hasMoreTokens()) {
+			keywords.add(st.nextToken());
+		}
+		skipKeywords = keywords.toArray(new String[] {});
+	}
+	
 	public void scan(Movie movie) {
 		File fileToScan = movie.getFile();
 		String filename = fileToScan.getName();
