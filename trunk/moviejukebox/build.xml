@@ -3,7 +3,7 @@
 	<target name="all" depends="clean, compile, test, delivery"/>
 
 	<target name="init">
-		<property name="version" value="v1.0.5b" />
+		<property name="version" value="v1.0.7 beta" />
 		
 		<property name="dir.build" value="build" />
 		<property name="dir.dist" value="dist" />
@@ -30,6 +30,17 @@
 
 	<target name="delivery">
 		<jar destfile="${dir.dist}/${ant.project.name}.jar" basedir="${dir.build}" includes="**/*.class" />
+		<copydir dest="${dir.dist}" src="conf"></copydir>
+		<mkdir dir="${dir.dist}/resources"/>
+		<copy todir="${dir.dist}/resources">
+			<fileset dir="${dir.src}">
+			      <include name="*"/>
+			      <exclude name="com"/>
+		    </fileset>
+		</copy>
+		
+		<zip basedir="${dir.dist}" destfile="${dir.dist}/moviejukebox_${version}.zip"/>
+		
 	</target>
 
 </project>
