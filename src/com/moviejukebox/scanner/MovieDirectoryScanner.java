@@ -4,22 +4,29 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 
 /**
- * DirectoryScanner. Build a library with files with extension 
- * AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG other files are excluded 
- * from the library
+ * DirectoryScanner. 
  * 
  * @author jjulien
+ * @author gaelead
  */
 public class MovieDirectoryScanner {
 	
 	protected int mediaLibraryRootPathIndex;
 	private String mediaLibraryRoot;
+	private String supportedExtensions;
+	private Properties props;
+	
+	public MovieDirectoryScanner(Properties props) {
+		this.props = props;
+		supportedExtensions = props.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
+	}
 	
 	/**
 	 * Scan the specified directory for movies files. 
@@ -67,7 +74,7 @@ public class MovieDirectoryScanner {
 		if (index < 0) return;
 		
 		String extension = file.getName().substring(index+1).toUpperCase();
-		if ("AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG".indexOf(extension) >= 0) {
+		if (supportedExtensions.indexOf(extension) >= 0) {
 
 			String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
 			
@@ -85,7 +92,7 @@ public class MovieDirectoryScanner {
 			m.setFile(file);
 			m.setBaseName(filename.substring(0, index));
 			
-			MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
+			MovieFilenameScanner filenameScanner = new MovieFilenameScanner(props);
 			filenameScanner.scan(m);
 			
 			library.addMovie(m);
