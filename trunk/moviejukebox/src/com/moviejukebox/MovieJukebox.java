@@ -134,7 +134,7 @@ public class MovieJukebox {
 		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(nmtRootPath, forceXMLOverwrite);
 		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(forceHTMLOverwrite);
 		MovieDatabasePlugin movieDB = new ImdbPlugin(props);
-		MovieDirectoryScanner mds = new MovieDirectoryScanner();
+		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
 		MediaInfoScanner miScanner = new MediaInfoScanner(props);
 
