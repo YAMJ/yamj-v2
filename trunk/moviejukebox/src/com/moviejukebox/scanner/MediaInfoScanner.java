@@ -6,9 +6,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 
 import com.moviejukebox.model.Movie;
 
+/**
+ * @author Grael
+ */
 public class MediaInfoScanner {
 	//mediaInfo repository
 	private File mediaInfoPath;
@@ -28,11 +32,14 @@ public class MediaInfoScanner {
 	/**
 	 * @param mediaInfoPath
 	 */
-	public MediaInfoScanner() {
-		mediaInfoPath = new File("./mediaInfo/");
+	public MediaInfoScanner(Properties props) {
+		mediaInfoPath = new File(
+				props.getProperty("mediainfo.home", "./mediaInfo/"));
+		
 		System.out.println("OS name : " + OS_NAME);
 		System.out.println("OS version : " + OS_VERSION);
 		System.out.println("OS archi : " + OS_ARCH);
+
 		if (OS_NAME.startsWith("Linux")) {
 			mediaInfoExe = mediaInfoExeLinux;
 		} else {

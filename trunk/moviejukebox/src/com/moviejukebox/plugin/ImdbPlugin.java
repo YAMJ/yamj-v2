@@ -12,12 +12,24 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import com.moviejukebox.MovieJukeboxTools;
 import com.moviejukebox.model.Movie;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
+	
+	
+	private String preferredSearchEngine;
+	private String preferredPosterSearchEngine;
+	private boolean perfectMatch;
+
+	public ImdbPlugin(Properties props) {
+		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
+		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
+		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
+	}
 	
 	public void scan(Movie mediaFile) {
 
@@ -32,6 +44,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 	}
 
+	/**
+	 * retrieve the imdb matching the specified movie name and year.
+	 * This routine is base on a IMDb request.
+	 */
+	private String getImdbId(String movieName, String year) {
+		if ("google".equalsIgnoreCase(preferredSearchEngine)) {
+			return getImdbIdFromGoogle(movieName, year);
+		} else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
+			return getImdbIdFromYahoo(movieName, year);
+		} else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
+			return "Unknown";
+		} else {
+			return getImdbIdFromImdb(movieName, year);
+		}
+	}
 	
 	/**
 	 * retrieve the imdb matching the specified movie name and year.
@@ -103,7 +130,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	 * retrieve the imdb matching the specified movie name and year.
 	 * This routine is base on a IMDb request.
 	 */
-	private String getImdbId(String movieName, String year) {
+	private String getImdbIdFromImdb(String movieName, String year) {
 		try {
 			StringBuffer sb = new StringBuffer("http://www.imdb.com/find?s=tt&q=");
 			sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
@@ -115,27 +142,31 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			
 			String xml = request(new URL(sb.toString()));
 
-			int beginIndex = xml.indexOf("Popular Titles");
-			if (beginIndex != -1) {
-				xml = xml.substring(beginIndex);
+			// Try to have a more accurate search result
+			// by considering "exact matches" categories
+			if (perfectMatch) {
+				int beginIndex = xml.indexOf("Popular Titles");
+				if (beginIndex != -1) {
+					xml = xml.substring(beginIndex);
+				}
+				
+				// Try to find an exact match first... 
+				// never know... that could be ok...
+				int movieIndex;
+				if (year != null && !year.equalsIgnoreCase("Unknown")) {
+					movieIndex = xml.indexOf(movieName +" </a> ("+year+")");
+				} else {
+					movieIndex = xml.indexOf(movieName);
+				}
+				
+				// Let's consider Exact Matches first
+				beginIndex = xml.indexOf("Titles (Exact Matches)");			
+				if (beginIndex != -1 && movieIndex > beginIndex) {
+					xml = xml.substring(beginIndex);
+				}
 			}
 			
-			// Try to find an exact match first... 
-			// never know... that could be ok...
-			int movieIndex;
-			if (year != null && !year.equalsIgnoreCase("Unknown")) {
-				movieIndex = xml.indexOf(movieName +" </a> ("+year+")");
-			} else {
-				movieIndex = xml.indexOf(movieName);
-			}
-			
-			// Let's consider Exact Matches first
-			beginIndex = xml.indexOf("Titles (Exact Matches)");			
-			if (beginIndex != -1 && movieIndex > beginIndex) {
-				xml = xml.substring(beginIndex);
-			}
-			
-			beginIndex = xml.indexOf("title/tt");
+			int beginIndex = xml.indexOf("title/tt");
 			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 6), "/\"");
 			String imdbId = st.nextToken();
 
@@ -199,10 +230,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 					posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
 				}
 			} else { 
-				// try searching yahoo
-				String yahooURL = getPosterURLFromGoogle(movie.getTitle());
-				if (!yahooURL.equalsIgnoreCase("Unknown")) {
-					posterURL = yahooURL;
+				// try searching an alternate search engine
+				String alternateURL = "Unknown";
+				if ("google".equalsIgnoreCase(preferredPosterSearchEngine)) {
+					alternateURL = getPosterURLFromGoogle(movie.getTitle());
+				} else if ("yahoo".equalsIgnoreCase(preferredPosterSearchEngine)) {
+					alternateURL = getPosterURLFromYahoo(movie.getTitle());
+				} 
+				
+				if (!alternateURL.equalsIgnoreCase("Unknown")) {
+					posterURL = alternateURL;
 				}
 			}
 			
