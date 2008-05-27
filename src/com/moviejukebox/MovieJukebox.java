@@ -2,6 +2,9 @@ package com.moviejukebox;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -25,17 +28,13 @@ public class MovieJukebox {
 	private boolean forceHTMLOverwrite;
 	private int thumbWidth;
 	private int thumbHeight;
+	private Properties props;
 
 	public static void main(String[] args) throws FileNotFoundException, XMLStreamException {
 		
 		String movieLibraryRoot = null;
 		String jukeboxRoot = null;
-		String detailsDirName = "Jukebox";
 		String nmtRootPath = "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/";
-		boolean forceXMLOverwrite = false;
-		boolean forceHTMLOverwrite = false;
-		int thumbWidth = 140;
-		int thumbHeight = 200;
 
 		if (args.length==0) {
 			help();
@@ -47,26 +46,8 @@ public class MovieJukebox {
 				String arg = (String) args[i];
 				if ("-o".equalsIgnoreCase(arg)) {
 					jukeboxRoot = args[++i]; 
-				} else if ("-d".equalsIgnoreCase(arg)) {
-					detailsDirName = args[++i]; 
 				} else if ("-nr".equalsIgnoreCase(arg)) {
 					nmtRootPath = args[++i]; 
-				} else if ("-tw".equalsIgnoreCase(arg)) {
-					try {
-						thumbWidth = Integer.parseInt(args[++i]); 
-					} catch (NumberFormatException e) {
-						thumbWidth = 140;
-					}
-				} else if ("-th".equalsIgnoreCase(arg)) {
-					try {
-						thumbHeight = Integer.parseInt(args[++i]); 
-					} catch (NumberFormatException e) {
-						thumbHeight = 200;
-					}
-				} else if ("-fx".equalsIgnoreCase(arg)) {
-					forceXMLOverwrite = true;
-				} else if ("-fh".equalsIgnoreCase(arg)) {
-					forceHTMLOverwrite = true;
 				} else if (arg.startsWith("-")) {
 					help();
 					return;
@@ -93,8 +74,7 @@ public class MovieJukebox {
 			return;
 		}
 		
-		MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot, detailsDirName, 
-				forceXMLOverwrite, forceHTMLOverwrite, nmtRootPath, thumbWidth, thumbHeight);
+		MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot, nmtRootPath);
 		
 		ml.generateLibrary();
 	}
@@ -113,61 +93,50 @@ public class MovieJukebox {
 		System.out.println("                          This is where the jukebox file will be written to");
 		System.out.println("                          by default the is the same as the movieLibraryRoot");
 		System.out.println("");
-		System.out.println("    -d detailsDirName   : OPTIONAL");
-		System.out.println("                          name of the details directory of the jukebox");
-		System.out.println("                          Default is: \"Jukebox\"");
-		System.out.println("");
 		System.out.println("    -nr nmtRootPath     : OPTIONAL");
 		System.out.println("                          path of the media library root on your NMT");
 		System.out.println("                          Default is: \"file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/\"");
-		System.out.println("");
-		System.out.println("    -tw                 : OPTIONAL");
-		System.out.println("                          Generated thumbnails width ");
-		System.out.println("                          Default is: 140");
-		System.out.println("");
-		System.out.println("    -th                 : OPTIONAL");
-		System.out.println("                          Generated thumbnails height");
-		System.out.println("                          Default is: 200");
-		System.out.println("");
-		System.out.println("    -fx                 : OPTIONAL");
-		System.out.println("                          force the jukeboxe's XML files to be overwritten");
-		System.out.println("                          Default is: false");
-		System.out.println("");
-		System.out.println("    -fh                 : OPTIONAL");
-		System.out.println("                          force the jukeboxe's HTML files");
-		System.out.println("                          Default is: false");
 	}
 
-	private MovieJukebox(String movieLibraryRoot, String jukeboxRoot, String detailsDirName, 
-			boolean forceXMLOverwrite, boolean forceHTMLOverwrite, String nmtRootPath, int thumbWidth, int thumbHeight) {
+	private MovieJukebox(String movieLibraryRoot, String jukeboxRoot, String nmtRootPath) {
+	    // Load moviejukebox.properties form the classpath
+	    props = new java.util.Properties();
+	    URL url = ClassLoader.getSystemResource("moviejukebox.properties");
+	    try {
+			props.load(url.openStream());
+		} catch (IOException e) {
+			System.err.println("Failed loading file moviejukebox.properties: Please check your configuration. The moviejukebox.properties should be in the classpath.");
+			e.printStackTrace();
+		}
+	    System.out.println(props);
+		
 		this.movieLibraryRoot = movieLibraryRoot;
 		this.jukeboxRoot = jukeboxRoot;
-		this.detailsDirName = detailsDirName;
-		this.forceXMLOverwrite = forceXMLOverwrite;
-		this.forceHTMLOverwrite = forceHTMLOverwrite;
+		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
+		this.forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "true"));
+		this.forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "true"));
 		this.nmtRootPath = nmtRootPath;
-		this.thumbWidth = thumbWidth;
-		this.thumbHeight = thumbHeight;
 		
-		System.out.println("Starting MovieJukebox v1.0.6 beta");
-		System.out.println("[movieLibraryRoot="+ movieLibraryRoot+"]");
-		System.out.println("[jukeboxRoot="+ jukeboxRoot+"]");
-		System.out.println("[detailsDirName="+ detailsDirName+"]");
-		System.out.println("[forceXMLOverwrite="+ forceXMLOverwrite+"]");
-		System.out.println("[forceHTMLOverwrite="+ forceHTMLOverwrite+"]");
-		System.out.println("[nmtRootPath="+ nmtRootPath+"]");
-		System.out.println("[thumbWidth="+ thumbWidth+"]");
-		System.out.println("[thumbHeight="+ thumbHeight+"]");
-		System.out.println("");
+		try {
+			this.thumbWidth = Integer.parseInt(props.getProperty("mjb.thumbnails.width", "140"));
+		} catch (Exception e) {
+			this.thumbWidth = 140;
+		}
+		
+		try {
+			this.thumbHeight = Integer.parseInt(props.getProperty("mjb.thumbnails.height", "200"));
+		} catch (Exception e) {
+			this.thumbHeight = 200;
+		}
 	}
 
 	private void generateLibrary() throws FileNotFoundException, XMLStreamException {
 		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(nmtRootPath, forceXMLOverwrite);
 		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(forceHTMLOverwrite);
-		MovieDatabasePlugin movieDB = new ImdbPlugin();
+		MovieDatabasePlugin movieDB = new ImdbPlugin(props);
 		MovieDirectoryScanner mds = new MovieDirectoryScanner();
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
-		MediaInfoScanner miScanner = new MediaInfoScanner();
+		MediaInfoScanner miScanner = new MediaInfoScanner(props);
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;

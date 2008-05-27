@@ -1,4 +1,4 @@
-<project name="moviejukebox" default="compile" basedir=".">
+<project name="moviejukebox" default="all" basedir=".">
 
 	<target name="all" depends="clean, compile, test, delivery"/>
 
@@ -29,9 +29,7 @@
 	</target>
 
 	<target name="delivery">
-		<jar destfile="${dir.dist}/${ant.project.name}.jar" includes="${dir.build}" >
-		
-		</jar>
+		<jar destfile="${dir.dist}/${ant.project.name}.jar" basedir="${dir.build}" includes="**/*.class" />
 	</target>
 
 </project>
