@@ -45,14 +45,17 @@ public class MovieDirectoryScanner {
 		if (directory.isFile())
 			scanFile(directory, collection);
 		else {
-			List<File> files = Arrays.asList(directory.listFiles());
-			Collections.sort(files);
-			
-			for (File file : files) {
-				if (file.isDirectory()) {
-					scanDirectory(file, collection);
-				} else {
-					scanFile(file, collection);
+			File[] contentList = directory.listFiles();
+			if (contentList!=null) {
+				List<File> files = Arrays.asList(contentList);
+				Collections.sort(files);
+				
+				for (File file : files) {
+					if (file.isDirectory()) {
+						scanDirectory(file, collection);
+					} else {
+						scanFile(file, collection);
+					}
 				}
 			}
 		}		
