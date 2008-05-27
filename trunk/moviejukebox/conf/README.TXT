@@ -21,8 +21,9 @@ Features
 How does it work?
 -----------------
 
-	- Install Java Runtime Environment (JRE) 1.5
+	- Install Java Runtime Environment (JRE) 1.6
 	- Unrar the MovieJukebox archive
+	- Edit the file moviejukebox.properties 
 	- In a command shell, Execute the MovieJukebox command. 
 				
 	  The syntax for the MovieJukebox command is the following:
@@ -48,22 +49,6 @@ How does it work?
 			                          path of the media library root on your NMT
             			              Default is: "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"
 
-			    -tw                 : OPTIONAL
-            			              Generated thumbnails width
-			                          Default is: 140
-
-			    -th                 : OPTIONAL
-            			              Generated thumbnails height
-			                          Default is: 200
-
-			    -fx                 : OPTIONAL
-            			              force the jukeboxe's XML files to be overwritten
-			                          Default is: false
-
-			    -fh                 : OPTIONAL
-            			              force the jukeboxe's HTML files to be overwritten
-			                          Default is: false
-					  
 	  For instance, the following command will analyze video files from directory Z:\Video. The jukebox files
 	  will be stored into this directory as well. drive "Z:\" can be a local drive, a USB drive or a network drive. 
 	
