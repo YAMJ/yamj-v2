@@ -2,6 +2,10 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.0.7 beta
+-----------------------
+	- Fixed defect #19 	Requires Java 6
+
 MovieJukebox 1.0.6 beta
 -----------------------
 	- Fixed defect #4 ISO files not supported
