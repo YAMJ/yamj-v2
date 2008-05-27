@@ -11,7 +11,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 
 /**
- * DirectoryScanner. 
+ * DirectoryScanner
  * 
  * @author jjulien
  * @author gaelead
