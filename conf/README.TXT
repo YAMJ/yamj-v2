@@ -22,13 +22,19 @@ How does it work?
 -----------------
 
 	- Install Java Runtime Environment (JRE) 1.6
+	
 	- Unrar the MovieJukebox archive
-	- Edit the file moviejukebox.properties 
+	
+	- Install MediaInfo right into the movieJukebox directory (moviejukebox/mediaInfo)
+	      * Tested with MediaInfo version 0.7.7.0
+	      * You can download at: http://sourceforge.net/project/showfiles.php?group_id=86862&package_id=90612 version )
+	
+	- Edit the file moviejukebox.properties and setup according your needs
+	
 	- In a command shell, Execute the MovieJukebox command. 
-				
 	  The syntax for the MovieJukebox command is the following:
 	  
-	  	    MOVIELIB movieLibraryRoot [-o jukeboxRoot][-d detailsDirName][-nr nmtRootPath][-fx][-fh]
+	  	    MOVIELIB movieLibraryRoot [-o jukeboxRoot][-nr nmtRootPath]
 
       Where parameters are:
 
@@ -75,15 +81,7 @@ How does it work?
                                \Movie2.html					
 	                           ...
 	
-               Z:\Video\exportindex_item_pch.css
-                        index_09AF.xml              <-- index content
-                        index_09AF.html             <-- movies index for [0-9],[A-F]
-                        index_GL.xml
-                        index_GL.html               <-- movies index for [G-L]
-                        index_MR.xml
-                        index_MR.html               <-- movies index for [M-R]
-                        index_SZ.xml
-                        index_SZ.html               <-- movies index for [S-Z]
+               Z:\Video\index.htm					<-- movies index
                                                 
 	- On your PCH, go to "Video", then select one of the index files.
 
