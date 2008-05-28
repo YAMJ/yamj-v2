@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java -classpath ./moviejukebox.jar:./resources com.moviejukebox.MovieJukebox "$@"
+java -classpath ./resources:./moviejukebox.jar com.moviejukebox.MovieJukebox "$@"
