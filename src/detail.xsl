@@ -13,11 +13,11 @@
         <div class="navigationline">
         
           <div class="navlink">
-                <a><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
-              - <a><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
-              - <a href="../index.htm">Up</a>
-              - <a><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
-              - <a><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
+                <a><xsl:attribute name="TVID">RIGHT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
+              - <a><xsl:attribute name="TVID">LEFT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
+              - <a><xsl:attribute name="TVID">UP</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute>Up</a>
+              - <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
+              - <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
           </div>
         </div>
       </div>
@@ -148,12 +148,27 @@
             <tr valign="top">
               <td class="cellvalue" colspan="2">
              	 <a class="link">
-	          		<xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute> 
-  					<xsl:if test="//movie/container = 'ISO'">
+	          		<xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
+				<xsl:choose>                                
+				  <xsl:when test="position() = 1">
+                                  <xsl:attribute name="TVID">Play</xsl:attribute>
+                                  </xsl:when>
+				  <xsl:otherwise>
+				  <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute>
+				  </xsl:otherwise>
+				</xsl:choose> 
+  					<xsl:if test="//movie/container = 'ISO' or substring(.,string-length(.)-3,4) = '.ISO' or substring(.,string-length(.)-3,4) = '.iso'">
 	          		  <xsl:attribute name="zcd">2</xsl:attribute> 
   					</xsl:if>
-	          		<xsl:attribute name="vod"/> 
-	          		<xsl:value-of select="@title" />
+	          		<xsl:attribute name="vod"/>
+				<xsl:choose>
+				<xsl:when test="position() = 1"> 
+	          		<xsl:text>Play-&gt; </xsl:text><xsl:value-of select="@title" />
+				</xsl:when>
+				<xsl:otherwise>
+				<xsl:value-of select="position()"/><xsl:text>-&gt; </xsl:text><xsl:value-of select="@title" />
+				</xsl:otherwise>
+				</xsl:choose>
   				 </a>
               </td>
             </tr>
