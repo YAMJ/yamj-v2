@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -260,34 +259,37 @@ public class MovieJukebox {
 		Collection<MediaLibraryPath> movieLibraryPaths = 
 			new ArrayList<MediaLibraryPath>();
 		
-		// TODO
+		if (!f.exists() || f.isDirectory()) {
+			logger.severe("The moviejukebox library input file you specified is invalid: " + f.getName());
+			return movieLibraryPaths;
+		}
 		
-		/*XMLConfiguration c = new XMLConfiguration(f);
-		
-		List fields = c.configurationsAt("libraries.libray");
+		try {
+			XMLConfiguration c = new XMLConfiguration(f);
 			
-		for(Iterator it = fields.iterator(); it.hasNext();) {
-		    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
-		    // sub contains now all data about a single medialibrary node
-		    String path = sub.getString("path");
-		    String nmtpath = sub.getString("nmtpath");
-		    String excludesString = sub.getString("excludes");
-			    
-		    StringTokenizer st = new StringTokenizer(",");
-		    Collection<String> excludes = new ArrayList<String>();
-		    while (st.hasMoreTokens()) {
-		    	excludes.add(st.nextToken());
-		    }
-		    
-		    MediaLibraryPath medlib = new MediaLibraryPath();
-		    medlib.setPath(path);
-		    medlib.setNmtRootPath(nmtpath);
-		    medlib.setExcludes(excludes);
-		    movieLibraryPaths.add(medlib);
-			    
-		    logger.fine("Found media library: " + medlib);
-		}*/
-		
+			List fields = c.configurationsAt("library");
+			for(Iterator it = fields.iterator(); it.hasNext();) {
+			    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
+			    // sub contains now all data about a single medialibrary node
+			    String path = sub.getString("path");
+			    String nmtpath = sub.getString("nmtpath");
+			    List excludes = sub.getList("excludes[@names]");
+				    
+			    if (new File(path).exists()) {
+				    MediaLibraryPath medlib = new MediaLibraryPath();
+				    medlib.setPath(path);
+				    medlib.setNmtRootPath(nmtpath);
+				    medlib.setExcludes(excludes);
+				    movieLibraryPaths.add(medlib);
+				    logger.fine("Found media library: " + medlib);
+			    } else {
+				    logger.fine("Skipped invalid media library: " + path);
+			    }
+			}
+		} catch(Exception e) {
+			logger.severe("Failed parsing moviejukebox library input file: " + f.getName());
+			e.printStackTrace();
+		}
 		return movieLibraryPaths;
 	}
 }
