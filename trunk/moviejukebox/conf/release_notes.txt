@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.7 beta
 -----------------------
+    - Added multiple directories and xml configuration + logging (by jriihi)
 	- Added moviejukebox.properties
 	- Added support for MediaInfo (by gaelead)
 	- Fixed defect #12 add language detection for "ger", "eng", ".DL." (by quickfinga)
