@@ -259,8 +259,10 @@ public class MovieJukebox {
 	private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
 		Collection<MediaLibraryPath> movieLibraryPaths = 
 			new ArrayList<MediaLibraryPath>();
-			
-		XMLConfiguration c = new XMLConfiguration(f);
+		
+		// TODO
+		
+		/*XMLConfiguration c = new XMLConfiguration(f);
 		
 		List fields = c.configurationsAt("libraries.libray");
 			
@@ -284,6 +286,8 @@ public class MovieJukebox {
 		    movieLibraryPaths.add(medlib);
 			    
 		    logger.fine("Found media library: " + medlib);
-		}
+		}*/
+		
+		return movieLibraryPaths;
 	}
 }
