@@ -91,11 +91,10 @@ public class MovieDirectoryScanner {
 			
 			String baseFileName = filename.substring(0, index);
 
-			String[] filenameFilters = srcPath.getExcludes();
 			boolean allowedFileName = true;
-			for (String fileExclusionFilter : filenameFilters) {
+			for (String excluded : srcPath.getExcludes()) {
 				String baseFileNameLower = baseFileName.toLowerCase();
-				if(baseFileNameLower.indexOf(fileExclusionFilter) >= 0) {
+				if(baseFileNameLower.indexOf(excluded) >= 0) {
 					allowedFileName = false;
 					logger.info("File " + filename + " excluded.");
 					break;
