@@ -145,7 +145,7 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 
-		System.out.println(props);
+		logger.finer(props.toString());
 
 		this.movieLibraryRoot = source;
 		this.jukeboxRoot = jukeboxRoot;

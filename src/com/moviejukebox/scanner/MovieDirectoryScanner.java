@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;

@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 
@@ -18,6 +19,8 @@ import com.moviejukebox.model.Movie;
  */
 public class MovieNFOScanner {
 	
+	private static Logger logger = Logger.getLogger("moviejukebox");
+
 	static final int BUFF_SIZE = 100000;
 	static final byte[] buffer = new byte[BUFF_SIZE];
 
@@ -59,7 +62,7 @@ public class MovieNFOScanner {
 		      
 		      
 		   } catch (IOException e) {
-			  System.err.println("Failed reading " + nfoFile.getName());
+			  logger.severe("Failed reading " + nfoFile.getName());
 			  e.printStackTrace();
 		   } finally {
 			   try {
