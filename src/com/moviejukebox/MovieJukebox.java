@@ -6,12 +6,21 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamException;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
@@ -26,7 +35,7 @@ import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
 public class MovieJukebox {
 
-	private static Logger logger = Logger.getLogger("com.moviejukebox");
+	private static Logger logger = Logger.getLogger("moviejukebox");
 
 	Collection<MediaLibraryPath> movieLibraryPaths;
 	
@@ -41,8 +50,26 @@ public class MovieJukebox {
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException {
 		// Send logger output to our FileHandler.
-		logger.addHandler(new FileHandler("logs.txt"));
-		// Request that every detail gets logged.
+		
+		Formatter mjbFormatter = new Formatter() { 
+			public synchronized String format(LogRecord record) {
+				return record.getMessage() + 
+					(String) java.security.AccessController.doPrivileged(
+			               new sun.security.action.GetPropertyAction("line.separator"));
+			}
+		};
+
+		FileHandler fh = new FileHandler("moviejukebox.log");
+		fh.setFormatter(mjbFormatter);
+		fh.setLevel(Level.ALL);
+		
+		ConsoleHandler ch = new ConsoleHandler();
+		ch.setFormatter(mjbFormatter);
+		ch.setLevel(Level.FINE);
+		
+		logger.setUseParentHandlers(false);
+		logger.addHandler(fh);
+		logger.addHandler(ch);
 		logger.setLevel(Level.ALL);
 
 		String movieLibraryRoot = null;
@@ -148,7 +175,7 @@ public class MovieJukebox {
 			MediaLibraryPath mlp = new MediaLibraryPath();
 			mlp.setPath(source);
 			mlp.setNmtRootPath(props.getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"));
-			mlp.setExcludes(new String[0]);
+			mlp.setExcludes(new ArrayList<String>());
 			movieLibraryPaths.add(mlp);
 		}
 	}
@@ -164,21 +191,21 @@ public class MovieJukebox {
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
 
-		logger.info("Scanning movies directory " + mediaLibraryRoot);
+		logger.fine("Scanning movies directory " + mediaLibraryRoot);
 		Library library = new Library();
 		
 		for (MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
-			logger.info("Scanning media library " + mediaLibraryPath.getPath());
+			logger.finer("Scanning media library " + mediaLibraryPath.getPath());
 			mds.scan(mediaLibraryPath, library);
 		}
 
-		logger.info("Found " + library.size() + " movies in your media library");
+		logger.fine("Found " + library.size() + " movies in your media library");
 
-		logger.info("Searching for movies information...");
+		logger.fine("Searching for movies information...");
 
 		// retreiving internet Data
-		int processCount = 0;
 		for (Movie movie : library.values()) {
+			logger.fine("Processing movie: " + movie.getTitle());
 
 			// For each movie in the library, if an XML file for this
 			// movie already exist, then no need to search for movie
@@ -186,47 +213,77 @@ public class MovieJukebox {
 			File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
 			if (xmlFile.exists()) {
 				// parse the movie XML file
+				logger.finer("movie XML file found for movie:" + movie.getBaseName());
 				xmlWriter.parseMovieXML(xmlFile, movie);
 			} else {
 				// No XML file for this movie. We've got to find movie
 				// information where we can (filename, IMDb, NFO, etc...)
 				// Add here extra scanners if needed.
+				logger.finer("movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
 				nfoScanner.scan(movie);
 				movieDB.scan(movie);
 				miScanner.scan(movie);
 				xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
-				logger.info("Updating " + movie);
+				logger.finer("movie XML file created for movie:" + movie.getBaseName());
 			}
 
 			// Download poster file only if this file doesn't exist...
 			// never overwrite an existing file...
-			logger.info("Downloading poster file for movie " + processCount + "...");
+			logger.finer("Downloading poster file for movie " + movie.getTitle() + "...");
 			movieDB.downloadPoster(jukeboxDetailsRoot, movie);
 		}
 
-		// Finally generate indexes and HTML jukebox files
-		logger.info("Generating Jukebox HTML files...");
-
 		// library indexing
+		logger.fine("Indexing libraries...");
 		library.buildIndex();
 
+		logger.fine("Creating movie XML files...");
 		for (Movie movie : library.values()) {
 			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
+			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
 			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
 		}
 
+		logger.fine("Generating Indexes...");
 		xmlWriter.writeIndexXML(jukeboxDetailsRoot, detailsDirName, library);
 		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, detailsDirName, library);
 
+		logger.fine("Copying resources to Jukebox directory...");
 		MovieJukeboxTools.copyResource("exportdetails_item_popcorn.css", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("exportindex_item_pch.css", jukeboxDetailsRoot);
 
-		System.out.println("Process terminated.");
+		logger.fine("Process terminated.");
 	}
 
 	private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
-		// TODO Auto-generated method stub
-		return null;
+		Collection<MediaLibraryPath> movieLibraryPaths = 
+			new ArrayList<MediaLibraryPath>();
+			
+		XMLConfiguration c = new XMLConfiguration(f);
+		
+		List fields = c.configurationsAt("libraries.libray");
+			
+		for(Iterator it = fields.iterator(); it.hasNext();) {
+		    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
+		    // sub contains now all data about a single medialibrary node
+		    String path = sub.getString("path");
+		    String nmtpath = sub.getString("nmtpath");
+		    String excludesString = sub.getString("excludes");
+			    
+		    StringTokenizer st = new StringTokenizer(",");
+		    Collection<String> excludes = new ArrayList<String>();
+		    while (st.hasMoreTokens()) {
+		    	excludes.add(st.nextToken());
+		    }
+		    
+		    MediaLibraryPath medlib = new MediaLibraryPath();
+		    medlib.setPath(path);
+		    medlib.setNmtRootPath(nmtpath);
+		    medlib.setExcludes(excludes);
+		    movieLibraryPaths.add(medlib);
+			    
+		    logger.fine("Found media library: " + medlib);
+		}
 	}
 }
