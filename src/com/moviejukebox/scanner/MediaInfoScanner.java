@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 
@@ -14,6 +15,9 @@ import com.moviejukebox.model.Movie;
  * @author Grael
  */
 public class MediaInfoScanner {
+	
+	private static Logger logger = Logger.getLogger("moviejukebox");
+
 	//mediaInfo repository
 	private File mediaInfoPath;
 	
@@ -36,9 +40,13 @@ public class MediaInfoScanner {
 		mediaInfoPath = new File(
 				props.getProperty("mediainfo.home", "./mediaInfo/"));
 		
-		System.out.println("OS name : " + OS_NAME);
-		System.out.println("OS version : " + OS_VERSION);
-		System.out.println("OS archi : " + OS_ARCH);
+		if (!mediaInfoPath.exists()) {
+			logger.fine("Couldn't find mediaInfo tool : Video files data won't be extracted");
+		}
+		
+		logger.finer("OS name : " + OS_NAME);
+		logger.finer("OS version : " + OS_VERSION);
+		logger.finer("OS archi : " + OS_ARCH);
 
 		if (OS_NAME.startsWith("Linux")) {
 			mediaInfoExe = mediaInfoExeLinux;
