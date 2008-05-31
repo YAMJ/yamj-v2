@@ -27,12 +27,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	private String preferredPosterSearchEngine;
 	private boolean perfectMatch;
 
-	public ImdbPlugin(Properties props) {
-		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
-		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
-		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
-	}
-	
 	public void scan(Movie mediaFile) {
 
 		String imdbId = mediaFile.getId();
@@ -425,5 +419,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			logger.severe("Error : " + e.getMessage());
 			return "Unknown";
 		}
+	}
+
+	@Override
+	public void init(Properties props) {
+		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
+		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
+		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
 	}
 }

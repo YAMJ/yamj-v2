@@ -47,7 +47,7 @@ public class MovieJukebox {
 	private int thumbHeight;
 	private Properties props;
 
-	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException {
+	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
 		// Send logger output to our FileHandler.
 		
 		Formatter mjbFormatter = new Formatter() { 
@@ -179,10 +179,15 @@ public class MovieJukebox {
 		}
 	}
 
-	private void generateLibrary() throws FileNotFoundException, XMLStreamException {
+	private void generateLibrary() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
 		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(forceXMLOverwrite);
 		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(forceHTMLOverwrite);
-		MovieDatabasePlugin movieDB = new ImdbPlugin(props);
+
+		MovieDatabasePlugin movieDB = this.getMovieDatabasePlugin( 
+			props.getProperty(
+				"mjb.internet.plugin",
+		        "com.moviejukebox.plugin.ImdbPlugin"));
+		        
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
 		MediaInfoScanner miScanner = new MediaInfoScanner(props);
@@ -195,7 +200,7 @@ public class MovieJukebox {
 		
 		for (MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
 			logger.finer("Scanning media library " + mediaLibraryPath.getPath());
-			mds.scan(mediaLibraryPath, library);
+			library = mds.scan(mediaLibraryPath, library);
 		}
 
 		logger.fine("Found " + library.size() + " movies in your media library");
@@ -291,5 +296,26 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 		return movieLibraryPaths;
+	}
+	
+	public MovieDatabasePlugin getMovieDatabasePlugin(String className) {
+		MovieDatabasePlugin movieDB;
+			
+		try {
+			Thread t = Thread.currentThread();
+			ClassLoader cl = t.getContextClassLoader();
+			Class pluginClass = cl.loadClass(className);
+			Object plugin = pluginClass.newInstance();
+		
+			movieDB = (MovieDatabasePlugin) plugin;
+		} catch (Exception e) {
+			movieDB = new ImdbPlugin();
+			logger.severe("Failed instanciating MovieDatabasePlugin: " + className);
+			logger.severe("IMDb will be used instead.");
+			e.printStackTrace();
+		} 
+		
+		movieDB.init(props);
+		return movieDB;
 	}
 }

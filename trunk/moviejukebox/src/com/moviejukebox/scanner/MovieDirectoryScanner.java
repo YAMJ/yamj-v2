@@ -26,7 +26,7 @@ public class MovieDirectoryScanner {
 	private String supportedExtensions;
 	private Properties props;
 	
-	private static Logger logger = Logger.getLogger("com.moviejukebox");
+	private static Logger logger = Logger.getLogger("moviejukebox");
 	
 	public MovieDirectoryScanner(Properties props) {
 		this.props = props;
@@ -92,10 +92,12 @@ public class MovieDirectoryScanner {
 
 			boolean allowedFileName = true;
 			for (String excluded : srcPath.getExcludes()) {
-				String baseFileNameLower = baseFileName.toLowerCase();
-				if(baseFileNameLower.indexOf(excluded) >= 0) {
+				excluded = excluded.replace("/", File.separator);
+				excluded = excluded.replace("\\", File.separator);
+				String relativeFileNameLower = relativeFilename.toLowerCase();
+				if(relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
 					allowedFileName = false;
-					logger.info("File " + filename + " excluded.");
+					logger.fine("File " + filename + " excluded.");
 					break;
 				}
 			}
