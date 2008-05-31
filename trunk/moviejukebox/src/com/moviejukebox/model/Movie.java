@@ -63,9 +63,6 @@ public class Movie implements Comparable<Movie> {
 
 	public void addMovieFile(MovieFile movieFile) {
 		this.isDirty = true;
-		
-		if (this.movieFiles == null || movieFile==null)
-			System.out.print("");
 		this.movieFiles.add(movieFile);
 	}
 

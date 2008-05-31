@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.sun.image.codec.jpeg.JPEGCodec;
@@ -25,6 +26,8 @@ import com.sun.image.codec.jpeg.JPEGImageDecoder;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 public abstract class MovieJukeboxTools {
+
+	private static Logger logger = Logger.getLogger("moviejukebox");
 
 	private static final Map<Character, String> AGGRESSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
 	private static final Map<Character, String> DEFENSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
@@ -410,7 +413,7 @@ public abstract class MovieJukeboxTools {
 	      } 
 	   
 	   } catch (IOException e) {
-		  System.err.println("Failed copying " + resource + " to " + path + File.separator + dstFilename);
+		  logger.severe("Failed copying " + resource + " to " + path + File.separator + dstFilename);
 		  e.printStackTrace();
 
 	   } finally {
@@ -436,7 +439,7 @@ public abstract class MovieJukeboxTools {
 				saveImageToDisk(bi,dst);
 			}
 		} catch (Exception e) {
-			System.err.println("Failed creating thumbnail for " + movie.getTitle());
+			logger.severe("Failed creating thumbnail for " + movie.getTitle());
 			e.printStackTrace();
 		}
 	}
@@ -497,7 +500,7 @@ public abstract class MovieJukeboxTools {
 			bi = decoder.decodeAsBufferedImage();
 			fis.close();
 		} catch (Exception e) {
-			System.err.println("Failed Loading poster file: " + filename);
+			logger.severe("Failed Loading poster file: " + filename);
 			e.printStackTrace();
 		} finally {
 			if (fis != null) {
@@ -521,7 +524,7 @@ public abstract class MovieJukeboxTools {
 			encoder.encode(bi);
 
 		} catch (Exception e) {
-			System.err.println("Failed Saving thumbnail file: " + str);
+			logger.severe("Failed Saving thumbnail file: " + str);
 			e.printStackTrace();
 		} finally {
 			if (out != null) {

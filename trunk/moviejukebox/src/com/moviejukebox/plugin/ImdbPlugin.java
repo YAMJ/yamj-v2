@@ -14,12 +14,14 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import com.moviejukebox.MovieJukeboxTools;
 import com.moviejukebox.model.Movie;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 	
+	private static Logger logger = Logger.getLogger("moviejukebox");
 	
 	private String preferredSearchEngine;
 	private String preferredPosterSearchEngine;
@@ -87,8 +89,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			}
 
 		} catch (Exception e) {
-			System.err.println("Failed retreiving imdb Id for movie : " + movieName);
-			System.err.println("Error : " + e.getMessage());
+			logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+			logger.severe("Error : " + e.getMessage());
 			return "Unknown";
 		}
 	}
@@ -120,8 +122,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			}
 
 		} catch (Exception e) {
-			System.err.println("Failed retreiving imdb Id for movie : " + movieName);
-			System.err.println("Error : " + e.getMessage());
+			logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+			logger.severe("Error : " + e.getMessage());
 			return "Unknown";
 		}
 	}
@@ -177,8 +179,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			}
 
 		} catch (Exception e) {
-			System.err.println("Failed retreiving imdb Id for movie : " + movieName);
-			System.err.println("Error : " + e.getMessage());
+			logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+			logger.severe("Error : " + e.getMessage());
 			return "Unknown";
 		}
 	}
@@ -246,7 +248,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			movie.setPosterURL(posterURL);
 
 		} catch (Exception e) {
-			System.err.println("Failed retreiving imdb rating for movie : " + movie.getId());
+			logger.severe("Failed retreiving imdb rating for movie : " + movie.getId());
 			e.printStackTrace();
 		}
 	}
@@ -367,7 +369,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 				}
 			}
 		} catch (Exception e) {
-			System.err.println("Failed downloading movie poster : " + mediaFile.getPosterURL());
+			logger.severe("Failed downloading movie poster : " + mediaFile.getPosterURL());
 			MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, mediaFile.getBaseName() + ".jpg");
 		}
 	}
@@ -393,8 +395,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			}
 
 		} catch (Exception e) {
-			System.err.println("Failed retreiving poster URL from yahoo images : " + movieName);
-			System.err.println("Error : " + e.getMessage());
+			logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
+			logger.severe("Error : " + e.getMessage());
 			return "Unknown";
 		}
 	}
@@ -419,8 +421,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 				return "Unknown";
 			}
 		} catch (Exception e) {
-			System.err.println("Failed retreiving poster URL from yahoo images : " + movieName);
-			System.err.println("Error : " + e.getMessage());
+			logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
+			logger.severe("Error : " + e.getMessage());
 			return "Unknown";
 		}
 	}
