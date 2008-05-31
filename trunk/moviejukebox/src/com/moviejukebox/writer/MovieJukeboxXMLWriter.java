@@ -30,11 +30,9 @@ import com.moviejukebox.model.MovieFile;
  */
 public class MovieJukeboxXMLWriter {
 	private boolean forceXMLOverwrite;
-	private String nmtRootPath;
 
-	public MovieJukeboxXMLWriter(String nmtRootPath, boolean forceXMLOverwrite) {
+	public MovieJukeboxXMLWriter(boolean forceXMLOverwrite) {
 		this.forceXMLOverwrite = forceXMLOverwrite;
-		this.nmtRootPath = nmtRootPath;
 	}
 
 	/**
@@ -271,7 +269,7 @@ public class MovieJukeboxXMLWriter {
 						}
 					}
 				}
-				writer.writeCharacters(nmtRootPath + mf.getFilename()); 
+				writer.writeCharacters(mf.getNmtRootPath() + mf.getFilename()); 
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();

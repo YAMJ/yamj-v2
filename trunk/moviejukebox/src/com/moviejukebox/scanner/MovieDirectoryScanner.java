@@ -5,8 +5,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
+import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Library;
+import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 
@@ -15,6 +18,7 @@ import com.moviejukebox.model.MovieFile;
  * 
  * @author jjulien
  * @author gaelead
+ * @author jriihi
  */
 public class MovieDirectoryScanner {
 	
@@ -23,17 +27,21 @@ public class MovieDirectoryScanner {
 	private String supportedExtensions;
 	private Properties props;
 	
+	private static Logger logger = Logger.getLogger("com.moviejukebox");
+	
 	public MovieDirectoryScanner(Properties props) {
 		this.props = props;
 		supportedExtensions = props.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
 	}
-	
+
 	/**
 	 * Scan the specified directory for movies files. 
 	 * @param directory movie library rootfile
 	 * @return a new library
 	 */
-	public Library scan(File directory) {
+	public Library scan(MediaLibraryPath srcPath, Library library) {
+		
+		File directory = new File(srcPath.getPath());
 		
         if (directory.isFile())
             mediaLibraryRoot = directory.getParentFile().getAbsolutePath();
@@ -43,14 +51,13 @@ public class MovieDirectoryScanner {
     
         mediaLibraryRootPathIndex = mediaLibraryRoot.length();
 		
-        Library library = new Library();
-		this.scanDirectory(directory, library);
+		this.scanDirectory(srcPath, directory, library);
 		return library;
 	}
 
-	protected void scanDirectory(File directory, Library collection) {
+	protected void scanDirectory(MediaLibraryPath srcPath, File directory, Library collection) {
 		if (directory.isFile())
-			scanFile(directory, collection);
+			scanFile(srcPath, directory, collection);
 		else {
 			File[] contentList = directory.listFiles();
 			if (contentList!=null) {
@@ -59,16 +66,16 @@ public class MovieDirectoryScanner {
 				
 				for (File file : files) {
 					if (file.isDirectory()) {
-						scanDirectory(file, collection);
+						scanDirectory(srcPath, file, collection);
 					} else {
-						scanFile(file, collection);
+						scanFile(srcPath, file, collection);
 					}
 				}
 			}
 		}		
 	}
 	
-	protected void scanFile(File file, Library library) {
+	protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
 		String filename = file.getName();
 		int index = filename.lastIndexOf(".");
 		if (index < 0) return;
@@ -82,20 +89,37 @@ public class MovieDirectoryScanner {
 				 relativeFilename = relativeFilename.substring(1); 
 			}
 			
-			MovieFile movieFile = new MovieFile();
-			relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
-			movieFile.setFilename(relativeFilename);
-			movieFile.setPart(1);
-						
-			Movie m = new Movie();
-			m.addMovieFile(movieFile);
-			m.setFile(file);
-			m.setBaseName(filename.substring(0, index));
+			String baseFileName = filename.substring(0, index);
+
+			String[] filenameFilters = srcPath.getExcludes();
+			boolean allowedFileName = true;
+			for (String fileExclusionFilter : filenameFilters) {
+				String baseFileNameLower = baseFileName.toLowerCase();
+				if(baseFileNameLower.indexOf(fileExclusionFilter) >= 0) {
+					allowedFileName = false;
+					logger.info("File " + filename + " excluded.");
+					break;
+				}
+			}
 			
-			MovieFilenameScanner filenameScanner = new MovieFilenameScanner(props);
-			filenameScanner.scan(m);
+			if(allowedFileName) {
+				MovieFile movieFile = new MovieFile();
+				movieFile.setNmtRootPath(srcPath.getNmtRootPath());
+				relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
+				movieFile.setFilename(relativeFilename);
+				movieFile.setPart(1);
+							
+				Movie m = new Movie();
+				m.addMovieFile(movieFile);
+				m.setFile(file);
+				m.setBaseName(baseFileName);
+				
+				MovieFilenameScanner filenameScanner = new MovieFilenameScanner(props);
+				filenameScanner.scan(m);
+				
+				library.addMovie(m);
 			
-			library.addMovie(m);
+			}
 	    }
 	}	
 }

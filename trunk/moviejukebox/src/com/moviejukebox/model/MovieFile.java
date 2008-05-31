@@ -4,6 +4,7 @@ public class MovieFile implements Comparable<MovieFile> {
 	private String filename = "UNKNOWN";
 	private String title = "UNKNOWN";
 	private int part = 1; // #1, #2, CD1, CD2, etc.
+	private String nmtRootPath;
 
 	public String getFilename() {
 		return filename;
@@ -27,6 +28,14 @@ public class MovieFile implements Comparable<MovieFile> {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	
+	public String getNmtRootPath() {
+		return nmtRootPath;
+	}
+
+	public void setNmtRootPath(String nmtPath) {
+		this.nmtRootPath = nmtPath;
 	}
 	
 	/*
