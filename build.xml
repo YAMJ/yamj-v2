@@ -4,43 +4,57 @@
 
 	<target name="init">
 		<property name="version" value="v1.0.7 beta" />
-		
-		<property name="dir.build" value="build" />
-		<property name="dir.dist" value="dist" />
-		<property name="dir.src" value="src" />
-		<delete dir="dist"/>
 	</target>
 
 	<target name="clean">
-		<delete dir="${dir.build}"/>
-		<delete dir="${dir.dist}"/>
+		<delete dir="build"/>
+		<delete dir="dist"/>
 	</target>
 
 	<target name="prepare" depends="init">
-		<mkdir dir="${dir.build}"/>
-		<mkdir dir="${dir.dist}"/>
+		<mkdir dir="build"/>
+		<mkdir dir="dist"/>
 	</target>
 
 	<target name="compile" depends="prepare">
-		<javac nowarn="true" source="1.6" destdir="${dir.build}" srcdir="${dir.src}" classpath="${java.home}/jre/lib/rt.jar"/>
+		<javac nowarn="true" source="1.6" destdir="build" srcdir="src">
+			<classpath>
+		      <fileset dir="lib">
+		        <include name="**/*.jar"/>
+			  </fileset>
+			</classpath>
+		</javac>
 	</target>
 	
 	<target name="test">
 	</target>
 
 	<target name="delivery">
-		<jar destfile="${dir.dist}/${ant.project.name}.jar" basedir="${dir.build}" includes="**/*.class" />
-		<copydir dest="${dir.dist}" src="conf"></copydir>
-		<mkdir dir="${dir.dist}/resources"/>
-		<copy todir="${dir.dist}/resources">
-			<fileset dir="${dir.src}">
+		<mkdir dir="dist/resources"/>
+		<mkdir dir="dist/lib"/>
+
+		<jar destfile="dist/lib/${ant.project.name}.jar" basedir="build" includes="**/*.class" />
+
+		<copy todir="dist/lib">
+			<fileset dir="lib">
+			      <include name="**/*"/>
+		    </fileset>
+		</copy>
+			
+		<copy todir="dist">
+			<fileset dir="conf">
+			      <include name="**/*"/>
+		    </fileset>
+		</copy>
+		
+		<copy todir="dist/resources">
+			<fileset dir="src">
 			      <include name="*"/>
 			      <exclude name="com"/>
 		    </fileset>
 		</copy>
 		
-		<zip basedir="${dir.dist}" destfile="${dir.dist}/moviejukebox_${version}.zip"/>
-		
+		<zip basedir="dist" destfile="dist/moviejukebox_${version}.zip"/>
 	</target>
 
 </project>
