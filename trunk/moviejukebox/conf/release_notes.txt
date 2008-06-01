@@ -4,13 +4,13 @@
 
 MovieJukebox 1.0.7 beta
 -----------------------
-    - Added multiple directories and xml configuration + logging (by jriihi)
-    - Added Updated index.xsl and detail.xsl to include navigation (by jriihi)
+	- Added multiple directories and xml configuration + logging (by jriihi)
+	- Added Updated index.xsl and detail.xsl to include navigation (by jriihi)
 	- Added moviejukebox.properties
 	- Added support for MediaInfo (by gaelead)
 	- Fixed defect #12 add language detection for "ger", "eng", ".DL." (by quickfinga)
-    - Fixed defect #19 Requires Java 6
-    - Fixed defect #22 add all file extension supported by PCH (*.MOV, etc...)
+	- Fixed defect #19 Requires Java 6
+	- Fixed defect #22 add all file extension supported by PCH (*.MOV, etc...)
 
 MovieJukebox 1.0.6 beta
 -----------------------
