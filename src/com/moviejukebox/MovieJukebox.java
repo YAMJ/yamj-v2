@@ -90,7 +90,9 @@ public class MovieJukebox {
 					return;
 				} else {
 					movieLibraryRoot = args[i];
-					if (jukeboxRoot == null) {
+					
+					File f = new File(movieLibraryRoot);
+					if (f.exists() && f.isDirectory() && jukeboxRoot == null) {
 						jukeboxRoot = movieLibraryRoot;
 					}
 				}
@@ -105,7 +107,14 @@ public class MovieJukebox {
 			help();
 			return;
 		}
-
+		
+		if (jukeboxRoot == null) {
+			System.out.println("Wrong arguments specified: you must define the jukeboxRoot property (-o) !");
+			help();
+			return;
+		}
+		
+		
 		if (!new File(movieLibraryRoot).exists()) {
 			System.err.println("Directory not found : " + movieLibraryRoot);
 			return;
@@ -116,6 +125,9 @@ public class MovieJukebox {
 	}
 
 	private static void help() {
+		System.out.println("");
+		System.out.println("Usage:");
+		System.out.println("");
 		System.out.println("Generates an HTML library for your movies library.");
 		System.out.println("");
 		System.out.println("MOVIELIB movieLibraryRoot [-o jukeboxRoot]");
@@ -124,12 +136,14 @@ public class MovieJukebox {
 		System.out.println("                          This parameter can be either: ");
 		System.out.println("                          - An existing directory (local or network)");
 		System.out.println("                            This is where your movie files are stored.");
+		System.out.println("                            In this case -o is optional.");
 		System.out.println("");
 		System.out.println("                          - Or an XML configuration file specifying one or");
 		System.out.println("                            many directories to be scanned for movies.");
+		System.out.println("                            In this case -o option is MANDATORY.");
 		System.out.println("                            Please check README.TXT for further information.");
 		System.out.println("");
-		System.out.println("    -o jukeboxRoot      : OPTIONAL");
+		System.out.println("    -o jukeboxRoot      : OPTIONAL (when not using XML libraries file)");
 		System.out.println("                          output directory (local or network directory)");
 		System.out.println("                          This is where the jukebox file will be written to");
 		System.out.println("                          by default the is the same as the movieLibraryRoot");
