@@ -317,12 +317,5 @@ public class MediaInfoScanner {
 			}
 
 		}
-		
-		// Langage, same as codecAudio (should change maybe)
-		String oldInfo = movie.getLanguage();
-		if (oldInfo.equals("UNKNOWN")) {
-			movie.setLanguage(movie.getAudioCodec());
-		}
 	}
-
 }
