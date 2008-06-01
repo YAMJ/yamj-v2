@@ -38,35 +38,34 @@ public class MovieJukebox {
 	private static Logger logger = Logger.getLogger("moviejukebox");
 
 	Collection<MediaLibraryPath> movieLibraryPaths;
-	
+
 	private String movieLibraryRoot;
 	private String jukeboxRoot;
 	private String detailsDirName;
 	private boolean forceXMLOverwrite;
 	private boolean forceHTMLOverwrite;
+	private boolean forceThumbnailOverwrite;
 	private int thumbWidth;
 	private int thumbHeight;
 	private Properties props;
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
 		// Send logger output to our FileHandler.
-		
-		Formatter mjbFormatter = new Formatter() { 
+
+		Formatter mjbFormatter = new Formatter() {
 			public synchronized String format(LogRecord record) {
-				return record.getMessage() + 
-					(String) java.security.AccessController.doPrivileged(
-			               new sun.security.action.GetPropertyAction("line.separator"));
+				return record.getMessage() + (String) java.security.AccessController.doPrivileged(new sun.security.action.GetPropertyAction("line.separator"));
 			}
 		};
 
 		FileHandler fh = new FileHandler("moviejukebox.log");
 		fh.setFormatter(mjbFormatter);
 		fh.setLevel(Level.ALL);
-		
+
 		ConsoleHandler ch = new ConsoleHandler();
 		ch.setFormatter(mjbFormatter);
 		ch.setLevel(Level.FINE);
-		
+
 		logger.setUseParentHandlers(false);
 		logger.addHandler(fh);
 		logger.addHandler(ch);
@@ -90,7 +89,7 @@ public class MovieJukebox {
 					return;
 				} else {
 					movieLibraryRoot = args[i];
-					
+
 					File f = new File(movieLibraryRoot);
 					if (f.exists() && f.isDirectory() && jukeboxRoot == null) {
 						jukeboxRoot = movieLibraryRoot;
@@ -107,14 +106,13 @@ public class MovieJukebox {
 			help();
 			return;
 		}
-		
+
 		if (jukeboxRoot == null) {
 			System.out.println("Wrong arguments specified: you must define the jukeboxRoot property (-o) !");
 			help();
 			return;
 		}
-		
-		
+
 		if (!new File(movieLibraryRoot).exists()) {
 			System.err.println("Directory not found : " + movieLibraryRoot);
 			return;
@@ -153,17 +151,17 @@ public class MovieJukebox {
 		// Load moviejukebox.properties form the classpath
 		props = new java.util.Properties();
 		InputStream propertiesStream = ClassLoader.getSystemResourceAsStream("moviejukebox.properties");
-		
+
 		try {
 			if (propertiesStream == null) {
 				propertiesStream = new FileInputStream("moviejukebox.properties");
 			}
-			
+
 			props.load(propertiesStream);
 		} catch (Exception e) {
 			logger.severe("Failed loading file moviejukebox.properties: Please check your configuration. The moviejukebox.properties should be in the classpath.");
 		}
-
+		
 		logger.finer(props.toString());
 
 		this.movieLibraryRoot = source;
@@ -171,6 +169,7 @@ public class MovieJukebox {
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
 		this.forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "true"));
 		this.forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "true"));
+		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "true"));
 
 		try {
 			this.thumbWidth = Integer.parseInt(props.getProperty("mjb.thumbnails.width", "140"));
@@ -183,7 +182,6 @@ public class MovieJukebox {
 		} catch (Exception e) {
 			this.thumbHeight = 200;
 		}
-		
 
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -202,11 +200,8 @@ public class MovieJukebox {
 		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(forceXMLOverwrite);
 		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(forceHTMLOverwrite);
 
-		MovieDatabasePlugin movieDB = this.getMovieDatabasePlugin( 
-			props.getProperty(
-				"mjb.internet.plugin",
-		        "com.moviejukebox.plugin.ImdbPlugin"));
-		        
+		MovieDatabasePlugin movieDB = this.getMovieDatabasePlugin(props.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
+
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
 		MediaInfoScanner miScanner = new MediaInfoScanner(props);
@@ -214,57 +209,58 @@ public class MovieJukebox {
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
 
-		logger.fine("Scanning movies directory " + mediaLibraryRoot);
-		Library library = new Library();
 		
+		//////////////////////////////////////////////////////////////////
+		/// PASS 1 : Scan movie libraries for files...
+		//
+		logger.fine("Scanning movies directory " + mediaLibraryRoot);
+		logger.fine("Jukebox output goes to " + jukeboxRoot);
+
+
+		Library library = new Library();
 		for (MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
 			logger.finer("Scanning media library " + mediaLibraryPath.getPath());
 			library = mds.scan(mediaLibraryPath, library);
 		}
-
+		
 		logger.fine("Found " + library.size() + " movies in your media library");
 
+		
+		
+		//////////////////////////////////////////////////////////////////
+		/// PASS 2 : Scan movie libraries for files...
+		//
 		logger.fine("Searching for movies information...");
 
-		// retreiving internet Data
 		for (Movie movie : library.values()) {
-			logger.fine("Processing movie: " + movie.getTitle());
+			// First get movie data (title, year, director, genre, etc...)
+			logger.fine("Updating data for: " + movie.getTitle());
+			updateMovieData(xmlWriter, movieDB, nfoScanner, miScanner, jukeboxDetailsRoot, movie);
 
-			// For each movie in the library, if an XML file for this
-			// movie already exist, then no need to search for movie
-			// information, just parse the XML data.
-			File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
-			if (xmlFile.exists()) {
-				// parse the movie XML file
-				logger.finer("movie XML file found for movie:" + movie.getBaseName());
-				xmlWriter.parseMovieXML(xmlFile, movie);
-			} else {
-				// No XML file for this movie. We've got to find movie
-				// information where we can (filename, IMDb, NFO, etc...)
-				// Add here extra scanners if needed.
-				logger.finer("movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
-				nfoScanner.scan(movie);
-				movieDB.scan(movie);
-				miScanner.scan(movie);
-				xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
-				logger.finer("movie XML file created for movie:" + movie.getBaseName());
-			}
-
-			// Download poster file only if this file doesn't exist...
-			// never overwrite an existing file...
-			logger.finer("Downloading poster file for movie " + movie.getTitle() + "...");
-			movieDB.downloadPoster(jukeboxDetailsRoot, movie);
+			// Then get this movie's poster
+			logger.finer("Updating poster for: " + movie.getTitle() + "...");
+			updateMoviePoster(movieDB, jukeboxDetailsRoot, movie);
 		}
 
-		// library indexing
+
+		
+		
+		//////////////////////////////////////////////////////////////////
+		/// PASS 3 : Indexing the library
+		//
 		logger.fine("Indexing libraries...");
 		library.buildIndex();
 
-		logger.fine("Creating movie XML files...");
 		for (Movie movie : library.values()) {
+			// Update movie XML files with computed index information
+			logger.finest("Writing index data to movie: " + movie.getBaseName());
 			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
+			
+			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
 			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
+			
+			// write the movie details HTML		
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
 		}
 
@@ -279,61 +275,130 @@ public class MovieJukebox {
 		logger.fine("Process terminated.");
 	}
 
-	private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
-		Collection<MediaLibraryPath> movieLibraryPaths = 
-			new ArrayList<MediaLibraryPath>();
+	/**
+	 * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
+	 * 
+	 * When an XML file exists for the specified movie file, it is loaded into the 
+	 * specified <tt>Movie</tt> object.
+	 * 
+	 * When no XML file exist, scanners are called in turn, in order to add information
+	 * to the specified <tt>movie</tt> object. Once scanned, the <tt>movie</tt> object
+	 * is persisted.
+	 */
+	private void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MovieDatabasePlugin movieDB, 
+			MovieNFOScanner nfoScanner, MediaInfoScanner miScanner, 
+			String jukeboxDetailsRoot, Movie movie) throws FileNotFoundException, XMLStreamException {
 		
+		// For each movie in the library, if an XML file for this
+		// movie already exist, then no need to search for movie
+		// information, just parse the XML data.
+		File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
+		
+		if (xmlFile.exists()) {
+			// parse the movie XML file
+			logger.finer("movie XML file found for movie:" + movie.getBaseName());
+			xmlWriter.parseMovieXML(xmlFile, movie);
+			
+		} else {
+		
+			// No XML file for this movie. We've got to find movie
+			// information where we can (filename, IMDb, NFO, etc...)
+			// Add here extra scanners if needed.
+			logger.finer("movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
+			nfoScanner.scan(movie);
+			movieDB.scan(movie);
+			miScanner.scan(movie);
+			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
+			logger.finer("movie XML file created for movie:" + movie.getBaseName());
+		}
+	}
+
+	/**
+	 * Update the movie poster for the specified movie.
+	 * 
+	 * When an existing thumbnail is found for the movie, it is not overwriten,
+	 * unless the mjb.forceThumbnailOverwrite is set to true in the property file.
+	 * 
+	 * When the specified movie does not contain a valid URL for the poster, a 
+	 * dummy image is used instead.
+	 */
+	private void updateMoviePoster(MovieDatabasePlugin movieDB, String jukeboxDetailsRoot, Movie movie) {
+		String posterFilename = jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".jpg";
+		File posterFile = new File(posterFilename);
+
+		// Do not overwrite existing posters
+		if (!posterFile.exists() || forceThumbnailOverwrite) {
+			posterFile.getParentFile().mkdirs();
+
+			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
+				logger.finest("Dummy image used for " + movie.getBaseName());
+				MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getBaseName() + ".jpg");
+			} else {
+				try {
+					logger.finest("Downloading poster for " + movie.getBaseName() + " [calling plugin]");
+					MovieJukeboxTools.downloadPoster(posterFile, movie);
+				} catch (Exception e) {
+					logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
+					MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getBaseName() + ".jpg");
+				}
+			}
+		}
+	}
+
+	private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
+		Collection<MediaLibraryPath> movieLibraryPaths = new ArrayList<MediaLibraryPath>();
+
 		if (!f.exists() || f.isDirectory()) {
 			logger.severe("The moviejukebox library input file you specified is invalid: " + f.getName());
 			return movieLibraryPaths;
 		}
-		
+
 		try {
 			XMLConfiguration c = new XMLConfiguration(f);
-			
+
 			List fields = c.configurationsAt("library");
-			for(Iterator it = fields.iterator(); it.hasNext();) {
-			    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
-			    // sub contains now all data about a single medialibrary node
-			    String path = sub.getString("path");
-			    String nmtpath = sub.getString("nmtpath");
-			    List excludes = sub.getList("exclude[@name]");
-				    
-			    if (new File(path).exists()) {
-				    MediaLibraryPath medlib = new MediaLibraryPath();
-				    medlib.setPath(path);
-				    medlib.setNmtRootPath(nmtpath);
-				    medlib.setExcludes(excludes);
-				    movieLibraryPaths.add(medlib);
-				    logger.fine("Found media library: " + medlib);
-			    } else {
-				    logger.fine("Skipped invalid media library: " + path);
-			    }
+			for (Iterator it = fields.iterator(); it.hasNext();) {
+				HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
+				// sub contains now all data about a single medialibrary node
+				String path = sub.getString("path");
+				String nmtpath = sub.getString("nmtpath");
+				List excludes = sub.getList("exclude[@name]");
+
+				if (new File(path).exists()) {
+					MediaLibraryPath medlib = new MediaLibraryPath();
+					medlib.setPath(path);
+					medlib.setNmtRootPath(nmtpath);
+					medlib.setExcludes(excludes);
+					movieLibraryPaths.add(medlib);
+					logger.fine("Found media library: " + medlib);
+				} else {
+					logger.fine("Skipped invalid media library: " + path);
+				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.severe("Failed parsing moviejukebox library input file: " + f.getName());
 			e.printStackTrace();
 		}
 		return movieLibraryPaths;
 	}
-	
+
 	public MovieDatabasePlugin getMovieDatabasePlugin(String className) {
 		MovieDatabasePlugin movieDB;
-			
+
 		try {
 			Thread t = Thread.currentThread();
 			ClassLoader cl = t.getContextClassLoader();
 			Class pluginClass = cl.loadClass(className);
 			Object plugin = pluginClass.newInstance();
-		
+
 			movieDB = (MovieDatabasePlugin) plugin;
 		} catch (Exception e) {
 			movieDB = new ImdbPlugin();
 			logger.severe("Failed instanciating MovieDatabasePlugin: " + className);
 			logger.severe("IMDb will be used instead.");
 			e.printStackTrace();
-		} 
-		
+		}
+
 		movieDB.init(props);
 		return movieDB;
 	}

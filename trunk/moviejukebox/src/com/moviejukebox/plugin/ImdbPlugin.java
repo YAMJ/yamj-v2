@@ -1,12 +1,8 @@
 package com.moviejukebox.plugin;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
@@ -303,68 +299,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		} finally {
 			if (content != null)
 				content.close();
-		}
-	}
-
-	static final int BUFF_SIZE = 100000;
-	static final byte[] buffer = new byte[BUFF_SIZE];
-
-	/**
-	 * Try to download the movie poster for the specified media file from the
-	 * imdb site. This method uses the actual posterURL of the movie.
-	 */
-	public void downloadPoster(String jukeboxDetailsRoot, Movie mediaFile) {
-		String posterFilename = jukeboxDetailsRoot + File.separator + mediaFile.getBaseName() + ".jpg";
-		File posterFile = new File(posterFilename);		
-
-		// Do not overwrite existing posters
-		if (posterFile.exists())
-			return;
-
-		posterFile.getParentFile().mkdirs();
-
-		if (mediaFile.getPosterURL() == null || mediaFile.getPosterURL().equalsIgnoreCase("Unknown")) {
-			MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, mediaFile.getBaseName() + ".jpg");
-			return;
-		}
-
-		InputStream in = null;
-		OutputStream out = null;
-
-		try {
-			URL url = new URL(mediaFile.getPosterURL());
-			URLConnection cnx = url.openConnection();
-
-			// Let's pretend we're Firefox...
-			cnx.setRequestProperty(
-				"User-Agent",
-				"Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.1.5) Gecko/20070719 Iceweasel/2.0.0.5 (Debian-2.0.0.5-0etch1)");
-
-			try {
-				in = cnx.getInputStream();
-				out = new FileOutputStream(posterFile);
-
-				while (true) {
-					synchronized (buffer) {
-						int amountRead = in.read(buffer);
-						if (amountRead == -1) {
-							break;
-						}
-						out.write(buffer, 0, amountRead);
-					}
-				}
-			} finally {
-				if (in != null) {
-					in.close();
-				}
-
-				if (out != null) {
-					out.close();
-				}
-			}
-		} catch (Exception e) {
-			logger.severe("Failed downloading movie poster : " + mediaFile.getPosterURL());
-			MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, mediaFile.getBaseName() + ".jpg");
 		}
 	}
 

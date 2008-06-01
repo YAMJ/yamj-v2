@@ -14,6 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -529,6 +531,44 @@ public abstract class MovieJukeboxTools {
 		} finally {
 			if (out != null) {
 				try { out.close(); } catch(Exception e) { }
+			}
+		}
+	}
+	
+	/**
+	 * Download the movie poster for the specified movie into the specified file.
+	 * @throws IOException
+	 */
+	public static void downloadPoster(File posterFile, Movie mediaFile) throws IOException {
+		InputStream in = null;
+		OutputStream out = null;
+
+		URL url = new URL(mediaFile.getPosterURL());
+		URLConnection cnx = url.openConnection();
+
+		// Let's pretend we're Firefox...
+		cnx.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.1.5) Gecko/20070719 Iceweasel/2.0.0.5 (Debian-2.0.0.5-0etch1)");
+
+		try {
+			in = cnx.getInputStream();
+			out = new FileOutputStream(posterFile);
+
+			while (true) {
+				synchronized (buffer) {
+					int amountRead = in.read(buffer);
+					if (amountRead == -1) {
+						break;
+					}
+					out.write(buffer, 0, amountRead);
+				}
+			}
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+
+			if (out != null) {
+				out.close();
 			}
 		}
 	}
