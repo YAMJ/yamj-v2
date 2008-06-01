@@ -68,73 +68,74 @@
               <td colspan="2" class="subtitle" height="17" align="left">Additional Details</td>
             </tr>
 
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Director</td>
-              <td class="cellvalue"><xsl:value-of select="director" /></td>
-            </tr>
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Genre</td>
-              <td class="cellvalue"><xsl:value-of select="genres" /></td>
-            </tr>
-            <tr valign="top">
-              <td class="celllabel" width="10%" nowrap="1">Rating</td>
-              <td class="cellvalue"><xsl:value-of select="rating" /></td>
-            </tr>
-            <tr valign="top">
-              <td class="celllabel" width="10%" nowrap="1">Release Date</td>
-              <td class="cellvalue"><xsl:value-of select="releaseDate" /></td>
-            </tr>
-            <tr valign="top">
-              <td class="celllabel" width="10%" nowrap="1">Country</td>
-              <td class="cellvalue"><xsl:value-of select="country" /></td>
-            </tr>
-            <tr valign="top">
-              <td class="celllabel" width="10%" nowrap="1">Language</td>
-              <td class="cellvalue"><xsl:value-of select="language" /></td>
-            </tr>
-            <tr valign="top">
-              <td class="celllabel" width="10%" nowrap="1">Running Time</td>
-              <td class="cellvalue"><xsl:value-of select="runtime" /></td>
-            </tr>
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Company</td>
-              <td class="cellvalue"><xsl:value-of select="company" /></td>
-            </tr>
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Subtitles</td>
-              <td class="cellvalue"><xsl:value-of select="subtitles" /></td>
-            </tr>
+			<tr>
+			<td colspan="2">
+			  <table width="100%" height="100%" border="0" cellspacing="1" cellpadding="0">                        
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1">Director</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="director" /></td>
+                <td class="celllabel" width="15%" nowrap="1">Genre</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="genres" /></td>
+              </tr>
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1">Company</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="company" /></td>
+                <td class="celllabel" width="15%" nowrap="1">Country</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="country" /></td>
+              </tr>
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1">Running Time</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="runtime" /></td>
+                <td class="celllabel" width="15%" nowrap="1">Language</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="language" /></td>
+              </tr>
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1">Rating</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="rating" /></td>
+                <td class="celllabel" width="15%" nowrap="1"> </td>
+                <td class="cellvalue" width="35%"> </td>
+              </tr>
+            </table>
+			</td></tr>
             
             <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Video codec</td>
-              <td class="cellvalue"><xsl:value-of select="videoCodec" /></td>
+              <td colspan="2" class="celllabel" height="17" align="left"> </td>
             </tr>
 
             <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Audio codec</td>
-              <td class="cellvalue"><xsl:value-of select="audioCodec" /></td>
+              <td colspan="2" class="subtitle" height="17" align="left">Video information</td>
             </tr>
 
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Resolution</td>
-              <td class="cellvalue"><xsl:value-of select="resolution" /></td>
-            </tr>
-            
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Video source</td>
-              <td class="cellvalue"><xsl:value-of select="videoSource" /></td>
-            </tr>
-                        
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">FPS</td>
-              <td class="cellvalue"><xsl:value-of select="fps" /></td>
-            </tr>
-                        
-            <tr valign="top">
-              <td width="15%" nowrap="1" class="celllabel">Video output</td>
-              <td class="cellvalue"><xsl:value-of select="videoOutput" /></td>
-            </tr>
-                        
+			<tr>
+			<td colspan="2">
+			<table width="100%" height="100%" border="0" cellspacing="1" cellpadding="0">                        
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1" >Source</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="videoSource" /></td>
+                <td class="celllabel" width="15%" nowrap="1">Subtitles</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="subtitles" /></td>
+              </tr>
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1">System</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="container" /></td>
+                <td class="celllabel" width="15%" nowrap="1">Dimension</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="resolution" /></td>
+              </tr>
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1">Video</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="videoCodec" /></td>
+                <td class="celllabel" width="15%" nowrap="1">Video output</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="videoOutput" /></td>
+              </tr>
+              <tr valign="top">
+                <td class="celllabel" width="15%" nowrap="1">Audio</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="audioCodec" /></td>
+                <td class="celllabel" width="15%" nowrap="1">FPS</td>
+                <td class="cellvalue" width="35%"><xsl:value-of select="fps" /></td>
+              </tr>
+			</table>
+			</td></tr>
+
             <tr valign="top">
               <td colspan="2" class="celllabel" height="17" align="left"> </td>
             </tr>
