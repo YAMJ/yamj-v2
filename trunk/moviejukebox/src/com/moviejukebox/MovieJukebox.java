@@ -1,9 +1,10 @@
 package com.moviejukebox;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -137,12 +138,16 @@ public class MovieJukebox {
 	private MovieJukebox(String source, String jukeboxRoot) {
 		// Load moviejukebox.properties form the classpath
 		props = new java.util.Properties();
-		URL url = ClassLoader.getSystemResource("moviejukebox.properties");
+		InputStream propertiesStream = ClassLoader.getSystemResourceAsStream("moviejukebox.properties");
+		
 		try {
-			props.load(url.openStream());
-		} catch (IOException e) {
+			if (propertiesStream == null) {
+				propertiesStream = new FileInputStream("moviejukebox.properties");
+			}
+			
+			props.load(propertiesStream);
+		} catch (Exception e) {
 			logger.severe("Failed loading file moviejukebox.properties: Please check your configuration. The moviejukebox.properties should be in the classpath.");
-			e.printStackTrace();
 		}
 
 		logger.finer(props.toString());
@@ -278,7 +283,7 @@ public class MovieJukebox {
 			    // sub contains now all data about a single medialibrary node
 			    String path = sub.getString("path");
 			    String nmtpath = sub.getString("nmtpath");
-			    List excludes = sub.getList("excludes[@names]");
+			    List excludes = sub.getList("exclude[@name]");
 				    
 			    if (new File(path).exists()) {
 				    MediaLibraryPath medlib = new MediaLibraryPath();
