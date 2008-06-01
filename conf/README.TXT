@@ -7,6 +7,7 @@ WARNING: THIS BETA VERSION IS A PROTOTYPE, YOU MAY EXPERIENCE PROBLEMS
 Features
 --------
 	- Recursively scan your video library for video files (AVI, MKV, etc.)
+	- Generate jukebox from multiple video library sources
 	- Analyze each video file filename to extract information like: year, language, subtitles, container, part, fps, audio and video codecs
 	- Analyze NFO files (for IMDb id)
 	- Support for TV shows (season, episode number, episode title)
@@ -34,26 +35,26 @@ How does it work?
 	- In a command shell, Execute the MovieJukebox command. 
 	  The syntax for the MovieJukebox command is the following:
 	  
-	  	    MOVIELIB movieLibraryRoot [-o jukeboxRoot][-nr nmtRootPath]
+	  	    MOVIELIB movieLibraryRoot [-o jukeboxRoot]
+            
+            or
+	  	    
+	  	    MOVIELIB movieLibraryXMLFile -o jukeboxRoot
 
       Where parameters are:
 
-    			movieLibraryRoot    : MANDATORY
-                			          input directory (local or network directory)
-                          			  This is where your movie files are stored.
+			movieLibraryRoot    : MANDATORY
+								  Must point to an existing directory (local or network
+								  This is where your movie files are stored.
+									
+            movieLibraryXMLFile : MANDATORY
+                                  Must point to an XML configuration file specifying one or
+                                  many directories to be scanned for movies.
 
-			    -o jukeboxRoot      : OPTIONAL
-            			              output directory (local or network directory)
-                        			  This is where the jukebox file will be written to
-                          			  by default the is the same as the movieLibraryRoot
-
-			    -d detailsDirName   : OPTIONAL
-            			              name of the details directory of the jukebox
-                        			  Default is: "Jukebox"
-
-			    -nr nmtRootPath     : OPTIONAL
-			                          path of the media library root on your NMT
-            			              Default is: "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"
+            -o jukeboxRoot      : OPTIONAL"
+                                  output directory (local or network directory)
+                                  This is where the jukebox file will be written to
+                                  by default the is the same as the movieLibraryRoot
 
 	  For instance, the following command will analyze video files from directory Z:\Video. The jukebox files
 	  will be stored into this directory as well. drive "Z:\" can be a local drive, a USB drive or a network drive. 
@@ -84,6 +85,48 @@ How does it work?
                Z:\Video\index.htm					<-- movies index
                                                 
 	- On your PCH, go to "Video", then select one of the index files.
+
+Using a libraries XML file as input
+-----------------------------------
+
+	In order to generate en jukebox for several movie libraries, you have to 
+	create an XML file specifying every library you need.
+	
+	Here is an example of such a file:
+	
+		<?xml version="1.0" encoding="utf-8"?>
+		<libraries>
+	
+		  <library>
+		      <path>/media/HD1/Movies/</path>
+		      <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Movies/</nmtpath>
+		      <exclude name="sample,tmp/,temp/"/>
+		  </library>
+		
+		  <library>
+		      <path>/media/HD1/TV/</path>
+		      <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/TV/</nmtpath>
+		      <exclude name="sample,tmp/,temp/"/>
+		  </library>
+		
+		  <library>
+		      <path>/media/HD1/Misc/</path>
+		      <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Misc/</nmtpath>
+		      <exclude name="sample,tmp/,temp/"/>
+		  </library>
+		</libraries>
+	
+	In this example, 3 libraries are defined. For each of them, The following data must be specified:
+	
+		path: root path of your movie library
+		nmtpath: NMT root path 
+		exclude: a comma separated list of excluded strings. when found in the filename, the file is excluded.
+
+
+	Once this file is creatte, you may run moviejukebox. 
+	For instance:
+
+	  			MovieJukebox libraries.xml -o MyJukebox
 
 
 Things you should know about
