@@ -161,6 +161,10 @@ public class MovieJukeboxXMLWriter {
 			for (String akey : keys) {
 				writer.writeStartElement("index"); 
 				writer.writeAttribute("name", akey);
+//				if currently writing this page then add current attribute with value true
+				if(akey.equals(key)) {
+					writer.writeAttribute("current", "true");
+				}
 				writer.writeCharacters("index_" + akey); 
 				writer.writeEndElement();
 			}				
