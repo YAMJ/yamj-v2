@@ -15,7 +15,7 @@
           <div class="navlink">
                 <a><xsl:attribute name="TVID">RIGHT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
               - <a><xsl:attribute name="TVID">LEFT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
-              - <a><xsl:attribute name="TVID">UP</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute>Up</a>
+              - <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute>Up</a>
               - <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
               - <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
           </div>
