@@ -243,7 +243,7 @@ public class MediaInfoScanner {
 						normeHD += "i";
 					}
 				}
-				movie.setVideoOutput(normeHD + " " + movie.getFps());
+				movie.setVideoOutput(normeHD + " " + movie.getFps() + "Hz");
 
 			} else {
 				String videoOutput;
@@ -279,9 +279,9 @@ public class MediaInfoScanner {
 				infoValue = infosMainVideo.get("Scan type");
 				if (infoValue != null) {
 					if (infoValue.equals("Progressive")) {
-						videoOutput += " p";
+						videoOutput += "p";
 					} else {
-						videoOutput += " i";
+						videoOutput += "i";
 					}
 				}
 				movie.setVideoOutput(videoOutput);
