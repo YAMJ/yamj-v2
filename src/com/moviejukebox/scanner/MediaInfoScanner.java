@@ -32,6 +32,8 @@ public class MediaInfoScanner {
 	public final static String OS_VERSION = System.getProperty("os.version");
 
 	public final static String OS_ARCH = System.getProperty("os.arch");
+	
+	private boolean activated;
 
 	/**
 	 * @param mediaInfoPath
@@ -42,6 +44,9 @@ public class MediaInfoScanner {
 		
 		if (!mediaInfoPath.exists()) {
 			logger.fine("Couldn't find mediaInfo tool : Video files data won't be extracted");
+			activated = false;
+		} else {
+			activated = true;
 		}
 		
 		logger.finer("OS name : " + OS_NAME);
@@ -56,6 +61,9 @@ public class MediaInfoScanner {
 	}
 
 	public void scan(Movie currentMovie) {
+		if (!activated)
+			return;
+		
 		try {
 			String[] commandMedia = mediaInfoExe;
 			commandMedia[commandMedia.length - 1] = currentMovie.getFile()
