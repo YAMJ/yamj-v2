@@ -181,6 +181,13 @@ public class MovieJukeboxXMLWriter {
 				} 
 				writer.writeEndElement();
 
+				writer.writeStartElement("titleSort"); 
+				writer.writeCharacters(movie.getTitleSort()); 
+				if (movie.isTVShow() && movie.getSeason() != -1) {
+					writer.writeCharacters(" Season " + movie.getSeason());
+				} 
+				writer.writeEndElement();
+				
 				writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()); writer.writeEndElement();
 				writer.writeEndElement();
 			}
