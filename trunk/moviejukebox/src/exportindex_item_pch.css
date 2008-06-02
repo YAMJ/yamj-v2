@@ -1,40 +1,40 @@
 body {
-	font-family: Arial;
-	font-size: 10pt;
-	color: #FFFFFF;
-	background-color: #046688;
+    font-family: Arial;
+    font-size: 16pt;
+    color: #CCCCCC;
+    background-color: #000000;
 }
 
 .title {
-  font-size : 10pt;
+  font-size : 16pt;
   font-weight: bold;
   text-align: center;
 }
 
 td {
-	font-family: Arial;
-	font-size: 10pt;
-	text-align: center;	
-	color: #FFFFFF;
-	background-color: #777777;
-	padding: 10px 10px 10px 10px;
+    font-family: Arial;
+    font-size: 10pt;
+    text-align: center; 
+    color: #CCCCCC;
+    background-color: #000000;
+    padding: 10px 10px 10px 10px;
 }
 
 img {
-	border: 0;
+    border: 0;
 }
 
 a {
-	color: #FFFFFF;	
-	text-decoration: none;
+    color: #CCCCCC; 
+    text-decoration: none;
 }
 
 a:hover {
-	text-decoration: underline;
+    text-decoration: underline;
 }
 
 a:hover img#thumbimage {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 .navigation {
@@ -47,9 +47,9 @@ a:hover img#thumbimage {
 .navlink {
   text-align: center;
   display: inline;
-	color: #FFFFFF;	
-	font-size: 10pt;
-	font-weight : bold;
+    color: #CCCCCC; 
+    font-size: 15pt;
+    font-weight : bold;
   padding-left: 5px;
   padding-right: 5px;
 }
@@ -59,12 +59,12 @@ a:hover img#thumbimage {
 }
 
 .navlink a {
-	text-decoration: none;
-	color: #FFFFFF;	
-	font-size: 10pt;
-	font-weight : bold;
+    text-decoration: none;
+    color: #FFFFFF; 
+    font-size: 10pt;
+    font-weight : bold;
 }
 
 .navlink a:hover {
-	text-decoration: underline;
+    text-decoration: underline;
 }
