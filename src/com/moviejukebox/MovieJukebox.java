@@ -167,9 +167,9 @@ public class MovieJukebox {
 		this.movieLibraryRoot = source;
 		this.jukeboxRoot = jukeboxRoot;
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
-		this.forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "true"));
-		this.forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "true"));
-		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "true"));
+		this.forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "false"));
+		this.forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "false"));
+		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
 
 		try {
 			this.thumbWidth = Integer.parseInt(props.getProperty("mjb.thumbnails.width", "140"));
@@ -258,7 +258,7 @@ public class MovieJukebox {
 			
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight);
+			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight, forceThumbnailOverwrite);
 			
 			// write the movie details HTML		
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
@@ -327,7 +327,7 @@ public class MovieJukebox {
 		File posterFile = new File(posterFilename);
 
 		// Do not overwrite existing posters
-		if (!posterFile.exists() || forceThumbnailOverwrite) {
+		if (!posterFile.exists()) {
 			posterFile.getParentFile().mkdirs();
 
 			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {

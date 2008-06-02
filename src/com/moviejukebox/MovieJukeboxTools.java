@@ -323,8 +323,7 @@ public abstract class MovieJukeboxTools {
 		while (current_index <= source.length()) {
 			delimiter_start_index = source.indexOf('&', current_index);
 			if (delimiter_start_index != -1) {
-				delimiter_end_index = source.indexOf(';',
-						delimiter_start_index + 1);
+				delimiter_end_index = source.indexOf(';', delimiter_start_index + 1);
 				if (delimiter_end_index != -1) {
 					// ensure that the string builder is setup correctly
 					if (null == result) {
@@ -333,13 +332,11 @@ public abstract class MovieJukeboxTools {
 
 					// add the text that leads up to this match
 					if (delimiter_start_index > current_index) {
-						result.append(source.substring(current_index,
-								delimiter_start_index));
+						result.append(source.substring(current_index, delimiter_start_index));
 					}
 
 					// add the decoded entity
-					String entity = source.substring(delimiter_start_index,
-							delimiter_end_index + 1);
+					String entity = source.substring(delimiter_start_index, delimiter_end_index + 1);
 
 					current_index = delimiter_end_index + 1;
 
@@ -353,9 +350,7 @@ public abstract class MovieJukeboxTools {
 							radix = 16;
 						}
 						try {
-							Character c = new Character((char) Integer
-									.parseInt(entity.substring(start, entity
-											.length() - 1), radix));
+							Character c = new Character((char) Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
 							result.append(c);
 						}
 						// when the number of the entity can't be parsed, add
@@ -390,7 +385,6 @@ public abstract class MovieJukeboxTools {
 
 		return result.toString();
 	}
-	
 
 	static final int BUFF_SIZE = 100000;
 	static final byte[] buffer = new byte[BUFF_SIZE];
@@ -398,38 +392,49 @@ public abstract class MovieJukeboxTools {
 	public static void copyResource(String resource, String directory) {
 		copyResource(resource, directory, resource);
 	}
-	
+
 	public static void copyResource(String resource, String path, String dstFilename) {
-	   InputStream in = null;
-	   OutputStream out = null; 
+		InputStream in = null;
+		OutputStream out = null;
 
-	   try {
-	      in = ClassLoader.getSystemResource(resource).openStream();
-	      out = new FileOutputStream(path + File.separator + dstFilename);
-	      while (true) {
-	         synchronized (buffer) {
-	            int amountRead = in.read(buffer);
-	            if (amountRead == -1) break;
-	            out.write(buffer, 0, amountRead); 
-	         }
-	      } 
-	   
-	   } catch (IOException e) {
-		  logger.severe("Failed copying " + resource + " to " + path + File.separator + dstFilename);
-		  e.printStackTrace();
+		try {
+			in = ClassLoader.getSystemResource(resource).openStream();
+			out = new FileOutputStream(path + File.separator + dstFilename);
+			while (true) {
+				synchronized (buffer) {
+					int amountRead = in.read(buffer);
+					if (amountRead == -1)
+						break;
+					out.write(buffer, 0, amountRead);
+				}
+			}
 
-	   } finally {
-		   try { if (in != null) { in.close(); } } catch(IOException e) { }
-		   try { if (out != null) { out.close(); } } catch(IOException e) { }
-	   }
+		} catch (IOException e) {
+			logger.severe("Failed copying " + resource + " to " + path + File.separator + dstFilename);
+			e.printStackTrace();
+
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (IOException e) {
+			}
+			try {
+				if (out != null) {
+					out.close();
+				}
+			} catch (IOException e) {
+			}
+		}
 	}
 
-	public static void createThumbnail(String rootPath, Movie movie, int thumbWidth, int thumbHeight) {
+	public static void createThumbnail(String rootPath, Movie movie, int thumbWidth, int thumbHeight, boolean forceThumbnailOverwrite) {
 		try {
 			String src = rootPath + File.separator + movie.getBaseName() + ".jpg";
 			String dst = rootPath + File.separator + movie.getBaseName() + "_small.jpg";
-			
-			if (!(new File(dst).exists())) {
+
+			if (!(new File(dst).exists()) || forceThumbnailOverwrite) {
 				BufferedImage bi = loadBufferedImage(src);
 				if (bi == null) {
 					copyResource("dummy.jpg", rootPath, movie.getBaseName() + ".jpg");
@@ -437,8 +442,8 @@ public abstract class MovieJukeboxTools {
 				}
 				bi = scaleToSize(thumbWidth, thumbHeight, bi);
 				bi = cropToSize(thumbWidth, thumbHeight, bi);
-				
-				saveImageToDisk(bi,dst);
+				bi = GraphicsTools.createReflectedPicture(bi);
+				saveImageToDisk(bi, dst);
 			}
 		} catch (Exception e) {
 			logger.severe("Failed creating thumbnail for " + movie.getTitle());
@@ -451,26 +456,26 @@ public abstract class MovieJukeboxTools {
 		int nWidth = imgSrc.getWidth();
 
 		int x1 = 0;
-		if (nWidth>nMaxWidth) {
+		if (nWidth > nMaxWidth) {
 			x1 = (nWidth - nMaxWidth) / 2;
-		} 
+		}
 
 		int l = nMaxWidth;
-		if (nWidth<nMaxWidth) {
-			l = nWidth; 
-		}
-		
-		int y1 = 0;
-		if (nHeight>nMaxHeight) {
-			y1 = (nHeight - nMaxHeight) / 2;
-		} 		
-		
-		int h = nMaxHeight;
-		if (nHeight<nMaxHeight) {
-			h = nHeight; 
+		if (nWidth < nMaxWidth) {
+			l = nWidth;
 		}
 
-		return imgSrc.getSubimage(x1,y1,l,h);
+		int y1 = 0;
+		if (nHeight > nMaxHeight) {
+			y1 = (nHeight - nMaxHeight) / 2;
+		}
+
+		int h = nMaxHeight;
+		if (nHeight < nMaxHeight) {
+			h = nHeight;
+		}
+
+		return imgSrc.getSubimage(x1, y1, l, h);
 	}
 
 	public static BufferedImage scaleToSize(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
@@ -486,8 +491,7 @@ public abstract class MovieJukeboxTools {
 		if (scale == 1) {
 			return srcImg;
 		}
-		AffineTransformOp op = new AffineTransformOp(AffineTransform
-				.getScaleInstance(scale, scale), null);
+		AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(scale, scale), AffineTransformOp.TYPE_BICUBIC);
 		return op.filter(srcImg, null);
 	}
 
@@ -506,14 +510,17 @@ public abstract class MovieJukeboxTools {
 			e.printStackTrace();
 		} finally {
 			if (fis != null) {
-				try { fis.close(); } catch (Exception e) {}
+				try {
+					fis.close();
+				} catch (Exception e) {
+				}
 			}
 		}
 		return bi;
 	}
 
 	public static void saveImageToDisk(BufferedImage bi, String str) {
-		if (bi == null || str == null) 
+		if (bi == null || str == null)
 			return;
 
 		// save image as Jpeg
@@ -523,20 +530,29 @@ public abstract class MovieJukeboxTools {
 			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bi);
 			param.setQuality(0.75f, false);
-			encoder.encode(bi);
+
+	        BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+	        bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
+			
+			encoder.encode(bufImage);
 
 		} catch (Exception e) {
 			logger.severe("Failed Saving thumbnail file: " + str);
 			e.printStackTrace();
 		} finally {
 			if (out != null) {
-				try { out.close(); } catch(Exception e) { }
+				try {
+					out.close();
+				} catch (Exception e) {
+				}
 			}
 		}
 	}
-	
+
 	/**
-	 * Download the movie poster for the specified movie into the specified file.
+	 * Download the movie poster for the specified movie into the specified
+	 * file.
+	 * 
 	 * @throws IOException
 	 */
 	public static void downloadPoster(File posterFile, Movie mediaFile) throws IOException {
