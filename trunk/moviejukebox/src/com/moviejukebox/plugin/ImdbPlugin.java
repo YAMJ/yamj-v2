@@ -213,7 +213,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
 			
 			String posterURL = "Unknown";
-			if (beginIndex<castIndex && beginIndex != -1) {
+			
+			if (this.testHQPoster(movie.getId())) {
+				posterURL = "http://posters.motechnet.com/covers/" + movie.getId() + "_largeCover.jpg";
+			}
+			else if (beginIndex<castIndex && beginIndex != -1) {
 				
 				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 5), "\"");
 				posterURL = st.nextToken();
@@ -354,6 +358,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			return "Unknown";
 		}
 	}
+
+	public boolean testHQPoster(String movieId) throws IOException {
+		String content = request((new URL("http://posters.motechnet.com/title/" + movieId + "/")));
+		
+		return ( (content!=null) && (content.contains("/covers/"+movieId+"_largeCover.jpg")));
+		
+	}
+
 
 	@Override
 	public void init(Properties props) {
