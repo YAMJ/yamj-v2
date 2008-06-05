@@ -214,8 +214,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			
 			String posterURL = "Unknown";
 			
-			if (this.testHQPoster(movie.getId())) {
+			if (this.testMotechnetPoster(movie.getId())) {
 				posterURL = "http://posters.motechnet.com/covers/" + movie.getId() + "_largeCover.jpg";
+			}
+			else if (!((posterURL =this.testImpawardsPoster(movie.getId())).equals("Unknown"))) {
+				//Cover Found
 			}
 			else if (beginIndex<castIndex && beginIndex != -1) {
 				
@@ -359,11 +362,29 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 	}
 
-	public boolean testHQPoster(String movieId) throws IOException {
+	public boolean testMotechnetPoster(String movieId) throws IOException {
 		String content = request((new URL("http://posters.motechnet.com/title/" + movieId + "/")));
 		
 		return ( (content!=null) && (content.contains("/covers/"+movieId+"_largeCover.jpg")));
 		
+	}
+
+
+	public String testImpawardsPoster(String movieId) throws IOException {
+		String returnString = "Unknown";
+	    String content =request((new URL("http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/" + movieId)));
+	    
+	    int indexMovieLink = content.indexOf("<span class=url>www.<b>impawards.com</b>/");
+	    if (indexMovieLink!=-1) {
+	    	String finMovieUrl=content.substring(indexMovieLink+41, content.indexOf("</span>", indexMovieLink));
+	    	finMovieUrl=finMovieUrl.replaceAll("<wbr />", "");
+		    
+	    	int indexLastRep = finMovieUrl.lastIndexOf('/');
+	    	String imgRepUrl="http://www.impawards.com/"+finMovieUrl.substring(0, indexLastRep)+"/posters";
+	    	returnString=imgRepUrl+finMovieUrl.substring(indexLastRep,finMovieUrl.lastIndexOf('.'))+".jpg";
+	    }
+
+		return returnString;
 	}
 
 
