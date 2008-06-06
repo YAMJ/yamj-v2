@@ -214,10 +214,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			
 			String posterURL = "Unknown";
 			
+			//Check posters.motechnet.com 
 			if (this.testMotechnetPoster(movie.getId())) {
 				posterURL = "http://posters.motechnet.com/covers/" + movie.getId() + "_largeCover.jpg";
 			}
+			//Check www.impawards.com 
 			else if (!((posterURL =this.testImpawardsPoster(movie.getId())).equals("Unknown"))) {
+				//Cover Found
+			}
+			//Check www.moviecovers.com (if set in property file)
+			else if ( ("moviecovers".equals(preferredPosterSearchEngine))
+					&&
+					  !((posterURL =this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals("Unknown"))
+					) {
 				//Cover Found
 			}
 			else if (beginIndex<castIndex && beginIndex != -1) {
@@ -374,17 +383,43 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		String returnString = "Unknown";
 	    String content =request((new URL("http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/" + movieId)));
 	    
+		if (content!=null) {
 	    int indexMovieLink = content.indexOf("<span class=url>www.<b>impawards.com</b>/");
-	    if (indexMovieLink!=-1) {
-	    	String finMovieUrl=content.substring(indexMovieLink+41, content.indexOf("</span>", indexMovieLink));
-	    	finMovieUrl=finMovieUrl.replaceAll("<wbr />", "");
-		    
-	    	int indexLastRep = finMovieUrl.lastIndexOf('/');
-	    	String imgRepUrl="http://www.impawards.com/"+finMovieUrl.substring(0, indexLastRep)+"/posters";
-	    	returnString=imgRepUrl+finMovieUrl.substring(indexLastRep,finMovieUrl.lastIndexOf('.'))+".jpg";
-	    }
+		    if (indexMovieLink!=-1) {
+		    	String finMovieUrl=content.substring(indexMovieLink+41, content.indexOf("</span>", indexMovieLink));
+		    	finMovieUrl=finMovieUrl.replaceAll("<wbr />", "");
+			    
+		    	int indexLastRep = finMovieUrl.lastIndexOf('/');
+		    	String imgRepUrl="http://www.impawards.com/"+finMovieUrl.substring(0, indexLastRep)+"/posters";
+		    	returnString=imgRepUrl+finMovieUrl.substring(indexLastRep,finMovieUrl.lastIndexOf('.'))+".jpg";
+		    }
+		}
 
 		return returnString;
+	}
+
+	private String getPosterURLFromMoviecoversViaGoogle(String movieName) {
+		try {
+			String returnString = "Unknown";
+			StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
+			sb.append(URLEncoder.encode(movieName, "UTF-8"));			
+
+			String content = request(new URL(sb.toString()));
+			if (content!=null) {
+			    int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
+			    if (indexMovieLink!=-1) {
+			    	String finMovieUrl=content.substring(indexMovieLink+47, content.indexOf("\" class=l>", indexMovieLink));
+			    	returnString="http://www.moviecovers.com/getjpg.html/"+finMovieUrl.substring(0,finMovieUrl.lastIndexOf('.')).replace("+","%20")+".jpg";
+			    }
+			}
+            System.out.println(returnString);
+		    return returnString;
+
+		} catch (Exception e) {
+			logger.severe("Failed retreiving moviecovers poster URL from google : " + movieName);
+			logger.severe("Error : " + e.getMessage());
+			return "Unknown";
+		}
 	}
 
 
