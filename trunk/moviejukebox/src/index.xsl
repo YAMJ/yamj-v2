@@ -8,6 +8,9 @@
 <title>MovieJukebox</title>
 </head>
 <body>
+     <xsl:attribute name="ONLOADSET">
+       <xsl:for-each select="library/indexes/index"><xsl:if test="@current='true'"><xsl:value-of select="@name" /></xsl:if></xsl:for-each>
+     </xsl:attribute>
 	<div class="navigation" align="center">-       
 		<xsl:for-each select="library/indexes/index">
        		<a>
