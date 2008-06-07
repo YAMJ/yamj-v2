@@ -3,6 +3,7 @@ package com.moviejukebox.plugin;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.GradientPaint;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
@@ -15,8 +16,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
 
 import com.moviejukebox.model.Movie;
 
@@ -27,6 +33,7 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 	private boolean createReflectionEffect;
 	private boolean createGlossyEffect;
 	private boolean normalizeThumbnails;
+	private boolean drawLogoHD;
 	private int thumbWidth;
 	private int thumbHeight;
 
@@ -37,6 +44,7 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 		createReflectionEffect = Boolean.parseBoolean(props.getProperty("thumbnails.plugin.reflection", "true"));
 		createGlossyEffect = Boolean.parseBoolean(props.getProperty("thumbnails.glossy", "false"));
 		normalizeThumbnails = Boolean.parseBoolean(props.getProperty("thumbnails.normalize", "false"));
+		drawLogoHD = Boolean.parseBoolean(props.getProperty("thumbnails.logoHD", "false"));
 	}
 
 	@Override
@@ -49,6 +57,10 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 			bi = scaleToSize(thumbWidth, thumbHeight, bi);
 		}
 
+		if (drawLogoHD) {
+			bi = drawLogoHD(movie, bi);
+		}
+		
 		if (createGlossyEffect) {
 			bi = createGlossyPicture(bi);
 		}
@@ -57,6 +69,25 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 			bi = createReflectedPicture(bi);
 		}
 
+		return bi;
+	}
+
+	private BufferedImage drawLogoHD(Movie movie, BufferedImage bi) {
+		String videoOutput = movie.getVideoOutput();
+		if (  videoOutput.indexOf("720") != -1   
+		   || videoOutput.indexOf("1080") != -1) {
+			
+			try {
+				InputStream in = ClassLoader.getSystemResource("hd.png").openStream();
+				BufferedImage biHd = ImageIO.read(in);
+				Graphics g = bi.getGraphics();
+				g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
+			} catch (IOException e) {
+				logger.warning("Failed drawind HD logo to thumbnail file: Please check that hd.png is in the resources directory.");
+				e.printStackTrace();
+			}
+		}
+		
 		return bi;
 	}
 
