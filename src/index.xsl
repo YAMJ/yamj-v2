@@ -41,6 +41,8 @@
             </a>
           </td></tr> 
         </xsl:for-each>
+        <tr><td><hr/></td></tr>
+        <tr><td align="right"><img src="nav.png"/></td></tr>
       </table>
     </td>
     <td>

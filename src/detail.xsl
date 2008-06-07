@@ -7,23 +7,24 @@
     <META http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <TITLE><xsl:value-of select="movie/titleSort"/></TITLE>
   </HEAD>
-  <BODY marginheight="0" marginwidth="0" leftmargin="0" rightmargin="0" topmargin="0" bottommargin="0" border="0" class="bodybg">
-    <div align="center">
+
+  <body bgproperties="fixed" background="background.jpg" onloadset="1">
+
+  <div align="center">
       <div class="navigation" align="center">
         <div class="navigationline">
-        
           <div class="navlink">
-                <a><xsl:attribute name="TVID">RIGHT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
-              - <a><xsl:attribute name="TVID">LEFT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
-              - <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute>Up</a>
-              - <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
-              - <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
+                <a><xsl:attribute name="TVID">next</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
+              - <a><xsl:attribute name="TVID">prev</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
+              - <a><xsl:attribute name="TVID">home</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute>Up</a>
+              - <a><xsl:attribute name="TVID">pgup</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
+              - <a><xsl:attribute name="TVID">pgdn</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
           </div>
         </div>
       </div>
     </div>
     <xsl:apply-templates/>
-  </BODY>
+  </body>
 </html>
 
 </xsl:template>
