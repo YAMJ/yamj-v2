@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -13,6 +14,7 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -26,11 +28,13 @@ import com.moviejukebox.model.Movie;
 public class MovieJukeboxHTMLWriter {
 
 	private boolean forceHTMLOverwrite;
+	private int nbMoviesPerPage;
 
-	public MovieJukeboxHTMLWriter(boolean forceHTMLOverwrite) {
-		this.forceHTMLOverwrite = forceHTMLOverwrite;
+	public MovieJukeboxHTMLWriter(Properties props) {
+		forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "false"));
+		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
 	}
-	
+
 	public void generateMovieDetailsHTML(String rootPath, Movie movie) {
 		try {
 			String filename = rootPath + File.separator + movie.getBaseName();
@@ -65,26 +69,14 @@ public class MovieJukeboxHTMLWriter {
 		}
 
 		for (String key : keys) {
-			try {
-				String filename = rootPath + File.separator +  detailsDirName + File.separator + "index_" + key;
-				File xmlFile = new File(filename + ".xml");
-				File htmlFile = new File(filename + ".html");
-				
-				htmlFile.getParentFile().mkdirs();
-				
-				TransformerFactory tranformerFactory = TransformerFactory.newInstance();
-				java.net.URL url = ClassLoader.getSystemResource("index.xsl");
-			 
-				Source xslSource = new StreamSource(url.openStream());
-				Transformer transformer = tranformerFactory.newTransformer(xslSource);
-			 
-				Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
-				Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
-			 
-				transformer.transform(xmlSource, xmlResult);
-			} catch (Exception e) {
-				System.err.println("Failed generating HTML library index.");
-				e.printStackTrace();
+			int nbPages;
+			if (library.getMoviesByIndexKey(key).size() % nbMoviesPerPage != 0) {
+				nbPages = 1 + library.getMoviesByIndexKey(key).size() / nbMoviesPerPage;
+			} else {
+				nbPages = library.getMoviesByIndexKey(key).size() / nbMoviesPerPage;
+			}
+			for (int page=1 ; page<=nbPages ; page++) {
+				writeSingleIndexPage(rootPath, detailsDirName, key, page);
 			}
 		}
 		
@@ -108,7 +100,7 @@ public class MovieJukeboxHTMLWriter {
 				
 				writer.writeStartElement("meta");
 				writer.writeAttribute("HTTP-EQUIV", "REFRESH");
-				writer.writeAttribute("content", "0; url=" + detailsDirName+"/index_" + keys.get(0) + ".html");
+				writer.writeAttribute("content", "0; url=" + detailsDirName+"/index_" + keys.get(0) + "_1.html");
 				writer.writeEndElement();
 
 				writer.writeEndElement();					
@@ -117,6 +109,30 @@ public class MovieJukeboxHTMLWriter {
 				System.err.println("Failed generating HTML library index.");
 				e.printStackTrace();
 			}
+		}
+	}
+
+	private void writeSingleIndexPage(String rootPath, String detailsDirName, String key, int page) throws TransformerFactoryConfigurationError {
+		try {
+			String filename = rootPath + File.separator +  detailsDirName + File.separator + "index_" + key + "_" + page;
+			File xmlFile = new File(filename + ".xml");
+			File htmlFile = new File(filename + ".html");
+			
+			htmlFile.getParentFile().mkdirs();
+			
+			TransformerFactory tranformerFactory = TransformerFactory.newInstance();
+			java.net.URL url = ClassLoader.getSystemResource("index.xsl");
+		 
+			Source xslSource = new StreamSource(url.openStream());
+			Transformer transformer = tranformerFactory.newTransformer(xslSource);
+		 
+			Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
+			Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
+		 
+			transformer.transform(xmlSource, xmlResult);
+		} catch (Exception e) {
+			System.err.println("Failed generating HTML library index.");
+			e.printStackTrace();
 		}
 	}
 }

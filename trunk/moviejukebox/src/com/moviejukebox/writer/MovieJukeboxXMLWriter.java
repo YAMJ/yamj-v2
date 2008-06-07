@@ -5,10 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -29,10 +31,15 @@ import com.moviejukebox.model.MovieFile;
  * @author Julien
  */
 public class MovieJukeboxXMLWriter {
+	
 	private boolean forceXMLOverwrite;
+	private int nbMoviesPerPage;
+	private int nbMoviesPerLine;
 
-	public MovieJukeboxXMLWriter(boolean forceXMLOverwrite) {
-		this.forceXMLOverwrite = forceXMLOverwrite;
+	public MovieJukeboxXMLWriter(Properties props) {
+		forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "false"));
+		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
+		nbMoviesPerLine = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "5"));
 	}
 
 	/**
@@ -54,6 +61,8 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<releaseDate>")) { movie.setReleaseDate(parseCData(r)); }
 				if (tag.equals("<rating>")) { movie.setRating(parseCData(r)); }
 				if (tag.equals("<posterURL>")) { movie.setPosterURL(parseCData(r)); }
+				if (tag.equals("<posterFile>")) { movie.setPosterFilename(parseCData(r)); }
+				if (tag.equals("<thumbnailFile>")) { movie.setThumbnailFilename(parseCData(r)); }
 				if (tag.equals("<plot>")) { movie.setPlot(parseCData(r)); }
 				if (tag.equals("<director>")) { movie.setDirector(parseCData(r)); }
 				if (tag.equals("<country>")) { movie.setCountry(parseCData(r)); }
@@ -147,58 +156,128 @@ public class MovieJukeboxXMLWriter {
 		}
 		
 		for (String key : keys) {
-			File xmlFile = new File(rootPath + "/index_" + key + ".xml");
-			xmlFile.getParentFile().mkdirs();
-				
-			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(
-					new FileOutputStream(xmlFile), "UTF-8");
-
-			writer.writeStartDocument();
-			writer.writeStartElement("library");
-
-			writer.writeStartElement("indexes");
-			for (String akey : keys) {
-				writer.writeStartElement("index"); 
-				writer.writeAttribute("name", akey);
-//				if currently writing this page then add current attribute with value true
-				if(akey.equals(key)) {
-					writer.writeAttribute("current", "true");
-				}
-				writer.writeCharacters("index_" + akey); 
-				writer.writeEndElement();
-			}				
-			writer.writeEndElement();					
-
-			writer.writeStartElement("movies");
 			List<Movie> movies = library.getMoviesByIndexKey(key);
-			for (Movie movie : movies) {
-				writer.writeStartElement("movie"); 
-				writer.writeStartElement("title"); 
-				writer.writeCharacters(movie.getTitle()); 
-				if (movie.isTVShow() && movie.getSeason() != -1) {
-					writer.writeCharacters(" Season " + movie.getSeason());
-				} 
-				writer.writeEndElement();
 
-				writer.writeStartElement("titleSort"); 
-				writer.writeCharacters(movie.getTitleSort()); 
-				if (movie.isTVShow() && movie.getSeason() != -1) {
-					writer.writeCharacters(" Season " + movie.getSeason());
-				} 
-				writer.writeEndElement();
-				
-				writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()); writer.writeEndElement();
-				writer.writeEndElement();
-			}
-			writer.writeEndElement();					
+			int previous = 1;
+			int current = 1;
+			int last = 1 + movies.size() / nbMoviesPerPage;
+			int next = Math.min(2, last);
+			int nbMoviesLeft = nbMoviesPerPage;
 			
-			writer.writeEndElement();					
-			writer.writeEndDocument();
-			writer.close();
+			List<Movie> movieInASignlePage = new ArrayList();
+			for (Movie movie : movies) {
+				movieInASignlePage.add(movie);
+				nbMoviesLeft--;
+			
+				if (nbMoviesLeft == 0) {
+					writeIndexPage(keys, movieInASignlePage, rootPath, key, previous, current, next, last);
+					movieInASignlePage = new ArrayList();
+					previous = current;
+					current = Math.min(current+1, last);
+					next = Math.min(current+1, last);
+					nbMoviesLeft = nbMoviesPerPage;
+				}
+			}
+
+			if (movieInASignlePage.size() > 0) {
+				writeIndexPage(keys, movieInASignlePage, rootPath, key, previous, current, next, last);
+			}
 		}
 	}
 
+	public void writeIndexPage(Collection<String> keys, Collection<Movie> movies, String rootPath, String key, int previous, int current, int next, int last) throws FileNotFoundException, XMLStreamException {
+		File xmlFile = new File(rootPath + "/index_" + key + "_" + current + ".xml");
+		xmlFile.getParentFile().mkdirs();
+			
+		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+		XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
+
+		writer.writeStartDocument();
+		writer.writeStartElement("library");
+
+		writer.writeStartElement("indexes");
+		
+		for (String akey : keys) {
+			writer.writeStartElement("index"); 
+			
+			String keyType;
+			if ((akey.length() == 2) && akey.equalsIgnoreCase("09")) {
+				keyType = "1";
+			} else if (akey.length() ==1) {
+				keyType = "1";
+			} else {
+				keyType = "2";
+			}
+			
+			writer.writeAttribute("type", keyType);
+			writer.writeAttribute("name", akey);
+
+			// if currently writing this page then add current attribute with value true
+			if(akey.equals(key)) {
+				writer.writeAttribute("current", "true");
+			}
+			
+			writer.writeCharacters("index_" + akey + "_1"); 
+			writer.writeEndElement();
+		}				
+		
+		writer.writeStartElement("index"); 
+		writer.writeAttribute("type", "0");
+		writer.writeAttribute("name", "first");
+		writer.writeCharacters("index_" + key + "_" + 1); 
+		writer.writeEndElement();
+
+		writer.writeStartElement("index"); 
+		writer.writeAttribute("type", "0");
+		writer.writeAttribute("name", "previous");
+		writer.writeCharacters("index_" + key + "_" + previous); 
+		writer.writeEndElement();
+
+		writer.writeStartElement("index"); 
+		writer.writeAttribute("type", "0");
+		writer.writeAttribute("name", "next");
+		writer.writeCharacters("index_" + key + "_" + next); 
+		writer.writeEndElement();
+		
+		writer.writeStartElement("index"); 
+		writer.writeAttribute("type", "0");
+		writer.writeAttribute("name", "last");
+		writer.writeCharacters("index_" + key + "_" + last); 
+		writer.writeEndElement();
+		
+		writer.writeEndElement();					
+
+		writer.writeStartElement("movies");
+		writer.writeAttribute("count", ""+ nbMoviesPerPage);
+		writer.writeAttribute("cols", ""+ nbMoviesPerLine);
+		
+		for (Movie movie : movies) {
+			writer.writeStartElement("movie"); 
+			writer.writeStartElement("title"); 
+			writer.writeCharacters(movie.getTitle()); 
+			if (movie.isTVShow() && movie.getSeason() != -1) {
+				writer.writeCharacters(" Season " + movie.getSeason());
+			} 
+			writer.writeEndElement();
+
+			writer.writeStartElement("titleSort"); 
+			writer.writeCharacters(movie.getTitleSort()); 
+			if (movie.isTVShow() && movie.getSeason() != -1) {
+				writer.writeCharacters(" Season " + movie.getSeason());
+			} 
+			writer.writeEndElement();
+			
+			writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()+".html"); writer.writeEndElement();
+			writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
+			writer.writeEndElement();
+		}
+		writer.writeEndElement();					
+		
+		writer.writeEndElement();					
+		writer.writeEndDocument();
+		writer.close();
+	}
+	
 	/**
 	 * Persist a movie into an XML file.
 	 * Doesn't overwrite an already existing XML file for the specified movie
@@ -222,7 +301,8 @@ public class MovieJukeboxXMLWriter {
 			writer.writeStartElement("releaseDate"); writer.writeCharacters(movie.getReleaseDate()); writer.writeEndElement();
 			writer.writeStartElement("rating"); writer.writeCharacters(movie.getRating()); writer.writeEndElement();
 			writer.writeStartElement("posterURL"); writer.writeCharacters(movie.getPosterURL()); writer.writeEndElement();
-			writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getBaseName() + ".jpg"); writer.writeEndElement();
+			writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getPosterFilename()); writer.writeEndElement();
+			writer.writeStartElement("thumbnailFile"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
 			writer.writeStartElement("plot"); writer.writeCharacters(movie.getPlot()); writer.writeEndElement();
 			writer.writeStartElement("director"); writer.writeCharacters(movie.getDirector()); writer.writeEndElement();
 			writer.writeStartElement("country"); writer.writeCharacters(movie.getCountry()); writer.writeEndElement();

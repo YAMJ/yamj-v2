@@ -24,6 +24,7 @@ public class MovieDirectoryScanner {
 	protected int mediaLibraryRootPathIndex;
 	private String mediaLibraryRoot;
 	private String supportedExtensions;
+	private String thumbnailsFormat;
 	private Properties props;
 	
 	private static Logger logger = Logger.getLogger("moviejukebox");
@@ -31,6 +32,7 @@ public class MovieDirectoryScanner {
 	public MovieDirectoryScanner(Properties props) {
 		this.props = props;
 		supportedExtensions = props.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
+		thumbnailsFormat = props.getProperty("thumbnails.format", "png");
 	}
 
 	/**
@@ -113,6 +115,8 @@ public class MovieDirectoryScanner {
 				m.addMovieFile(movieFile);
 				m.setFile(file);
 				m.setBaseName(baseFileName);
+				m.setPosterFilename(baseFileName + ".jpg");
+				m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
 				
 				MovieFilenameScanner filenameScanner = new MovieFilenameScanner(props);
 				filenameScanner.scan(m);

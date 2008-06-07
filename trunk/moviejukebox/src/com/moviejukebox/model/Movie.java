@@ -24,6 +24,8 @@ public class Movie implements Comparable<Movie> {
 	private String releaseDate = UNKNOWN;
 	private String rating = UNKNOWN;
 	private String posterURL = UNKNOWN;
+	private String posterFilename = UNKNOWN;
+	private String thumbnailFilename = UNKNOWN;
 	private String plot = UNKNOWN;
 	private String director = UNKNOWN;
 	private String country = UNKNOWN;
@@ -465,5 +467,21 @@ public class Movie implements Comparable<Movie> {
 
 	public void setFile(File file) {
 		this.file = file;
+	}
+
+	public String getThumbnailFilename() {
+		return thumbnailFilename;
+	}
+
+	public void setThumbnailFilename(String thumbnailFilename) {
+		this.thumbnailFilename = thumbnailFilename;
+	}
+
+	public String getPosterFilename() {
+		return posterFilename;
+	}
+
+	public void setPosterFilename(String posterFilename) {
+		this.posterFilename = posterFilename;
 	}
 }
