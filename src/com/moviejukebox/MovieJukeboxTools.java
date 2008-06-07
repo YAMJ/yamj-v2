@@ -5,8 +5,6 @@
  */
 package com.moviejukebox;
 
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +19,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
+
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.MovieThumbnailPlugin;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
@@ -429,20 +430,20 @@ public abstract class MovieJukeboxTools {
 		}
 	}
 
-	public static void createThumbnail(String rootPath, Movie movie, int thumbWidth, int thumbHeight, boolean forceThumbnailOverwrite) {
+	public static void createThumbnail(MovieThumbnailPlugin thumbnailManager, String rootPath, Movie movie, boolean forceThumbnailOverwrite) {
 		try {
-			String src = rootPath + File.separator + movie.getBaseName() + ".jpg";
-			String dst = rootPath + File.separator + movie.getBaseName() + "_small.jpg";
+			String src = rootPath + File.separator + movie.getPosterFilename();
+			String dst = rootPath + File.separator + movie.getThumbnailFilename();
 
 			if (!(new File(dst).exists()) || forceThumbnailOverwrite) {
 				BufferedImage bi = loadBufferedImage(src);
 				if (bi == null) {
-					copyResource("dummy.jpg", rootPath, movie.getBaseName() + ".jpg");
+					copyResource("dummy.jpg", rootPath, movie.getPosterFilename());
 					bi = loadBufferedImage(src);
 				}
-				bi = scaleToSize(thumbWidth, thumbHeight, bi);
-				bi = cropToSize(thumbWidth, thumbHeight, bi);
-				bi = GraphicsTools.createReflectedPicture(bi);
+				
+				bi = thumbnailManager.generate(movie, bi);
+				
 				saveImageToDisk(bi, dst);
 			}
 		} catch (Exception e) {
@@ -451,75 +452,17 @@ public abstract class MovieJukeboxTools {
 		}
 	}
 
-	public static BufferedImage cropToSize(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
-		int nHeight = imgSrc.getHeight();
-		int nWidth = imgSrc.getWidth();
-
-		int x1 = 0;
-		if (nWidth > nMaxWidth) {
-			x1 = (nWidth - nMaxWidth) / 2;
-		}
-
-		int l = nMaxWidth;
-		if (nWidth < nMaxWidth) {
-			l = nWidth;
-		}
-
-		int y1 = 0;
-		if (nHeight > nMaxHeight) {
-			y1 = (nHeight - nMaxHeight) / 2;
-		}
-
-		int h = nMaxHeight;
-		if (nHeight < nMaxHeight) {
-			h = nHeight;
-		}
-
-		return imgSrc.getSubimage(x1, y1, l, h);
-	}
-
-	public static BufferedImage scaleToSize(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
-		int nHeight = imgSrc.getHeight();
-		int nWidth = imgSrc.getWidth();
-		double scaleX = (double) nMaxWidth / (double) nWidth;
-		double scaleY = (double) nMaxHeight / (double) nHeight;
-		double fScale = Math.max(scaleX, scaleY);
-		return scale(fScale, imgSrc);
-	}
-
-	public static BufferedImage scale(double scale, BufferedImage srcImg) {
-		if (scale == 1) {
-			return srcImg;
-		}
-		AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(scale, scale), AffineTransformOp.TYPE_BICUBIC);
-		return op.filter(srcImg, null);
-	}
-
-	public static BufferedImage loadBufferedImage(String filename) {
-		// Create BufferedImage
-		BufferedImage bi = null;
-		FileInputStream fis = null;
-		try {
-			// load file from disk using Sun's JPEGIMageDecoder
-			fis = new FileInputStream(filename);
-			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(fis);
-			bi = decoder.decodeAsBufferedImage();
-			fis.close();
-		} catch (Exception e) {
-			logger.severe("Failed Loading poster file: " + filename);
-			e.printStackTrace();
-		} finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (Exception e) {
-				}
-			}
-		}
-		return bi;
-	}
-
 	public static void saveImageToDisk(BufferedImage bi, String str) {
+		if (str.endsWith("jpg") | str.endsWith("jpeg")) {
+			saveImageAsJpeg(bi,str);
+		} else if (str.endsWith("png")) {
+			saveImageAsPng(bi,str);
+		} else {
+			saveImageAsJpeg(bi,str);
+		}
+	}
+	
+	public static void saveImageAsJpeg(BufferedImage bi, String str) {
 		if (bi == null || str == null)
 			return;
 
@@ -529,7 +472,7 @@ public abstract class MovieJukeboxTools {
 			out = new FileOutputStream(str);
 			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bi);
-			param.setQuality(0.75f, false);
+			param.setQuality(0.95f, false);
 
 	        BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
 	        bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
@@ -547,6 +490,19 @@ public abstract class MovieJukeboxTools {
 				}
 			}
 		}
+	}
+	
+	public static void saveImageAsPng(BufferedImage bi, String str) {
+		if (bi == null || str == null)
+			return;
+
+		// save image as PNG
+		try {
+			ImageIO.write(bi, "png", new File(str));
+		} catch (Exception e) {
+			logger.severe("Failed Saving thumbnail file: " + str);
+			e.printStackTrace();
+		} 
 	}
 
 	/**
@@ -587,5 +543,30 @@ public abstract class MovieJukeboxTools {
 				out.close();
 			}
 		}
+	}
+	
+
+	public static BufferedImage loadBufferedImage(String filename) {
+		// Create BufferedImage
+		BufferedImage bi = null;
+		FileInputStream fis = null;
+		try {
+			// load file from disk using Sun's JPEGIMageDecoder
+			fis = new FileInputStream(filename);
+			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(fis);
+			bi = decoder.decodeAsBufferedImage();
+			fis.close();
+		} catch (Exception e) {
+			logger.severe("Failed Loading poster file: " + filename);
+			e.printStackTrace();
+		} finally {
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (Exception e) {
+				}
+			}
+		}
+		return bi;
 	}
 }

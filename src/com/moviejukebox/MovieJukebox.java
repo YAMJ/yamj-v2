@@ -25,8 +25,10 @@ import org.apache.commons.configuration.XMLConfiguration;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.DefaultThumbnailPlugin;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
+import com.moviejukebox.plugin.MovieThumbnailPlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
@@ -42,11 +44,7 @@ public class MovieJukebox {
 	private String movieLibraryRoot;
 	private String jukeboxRoot;
 	private String detailsDirName;
-	private boolean forceXMLOverwrite;
-	private boolean forceHTMLOverwrite;
 	private boolean forceThumbnailOverwrite;
-	private int thumbWidth;
-	private int thumbHeight;
 	private Properties props;
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
@@ -167,21 +165,7 @@ public class MovieJukebox {
 		this.movieLibraryRoot = source;
 		this.jukeboxRoot = jukeboxRoot;
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
-		this.forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "false"));
-		this.forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "false"));
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
-
-		try {
-			this.thumbWidth = Integer.parseInt(props.getProperty("mjb.thumbnails.width", "140"));
-		} catch (Exception e) {
-			this.thumbWidth = 140;
-		}
-
-		try {
-			this.thumbHeight = Integer.parseInt(props.getProperty("mjb.thumbnails.height", "200"));
-		} catch (Exception e) {
-			this.thumbHeight = 200;
-		}
 
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -197,10 +181,11 @@ public class MovieJukebox {
 	}
 
 	private void generateLibrary() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
-		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(forceXMLOverwrite);
-		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(forceHTMLOverwrite);
+		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(props);
+		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(props);
 
-		MovieDatabasePlugin movieDB = this.getMovieDatabasePlugin(props.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
+		MovieDatabasePlugin movieDBPlugin = this.getMovieDatabasePlugin(props.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
+		MovieThumbnailPlugin thumbnailPlugin = this.getThumbnailPlugin(props.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.ImdbDefaultThumbnailPlugin"));
 
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
@@ -235,11 +220,11 @@ public class MovieJukebox {
 		for (Movie movie : library.values()) {
 			// First get movie data (title, year, director, genre, etc...)
 			logger.fine("Updating data for: " + movie.getTitle());
-			updateMovieData(xmlWriter, movieDB, nfoScanner, miScanner, jukeboxDetailsRoot, movie);
+			updateMovieData(xmlWriter, movieDBPlugin, nfoScanner, miScanner, jukeboxDetailsRoot, movie);
 
 			// Then get this movie's poster
 			logger.finer("Updating poster for: " + movie.getTitle() + "...");
-			updateMoviePoster(movieDB, jukeboxDetailsRoot, movie);
+			updateMoviePoster(movieDBPlugin, jukeboxDetailsRoot, movie);
 		}
 
 
@@ -258,7 +243,7 @@ public class MovieJukebox {
 			
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-			MovieJukeboxTools.createThumbnail(jukeboxDetailsRoot, movie, thumbWidth, thumbHeight, forceThumbnailOverwrite);
+			MovieJukeboxTools.createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, movie, forceThumbnailOverwrite);
 			
 			// write the movie details HTML		
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
@@ -271,6 +256,7 @@ public class MovieJukebox {
 		logger.fine("Copying resources to Jukebox directory...");
 		MovieJukeboxTools.copyResource("exportdetails_item_popcorn.css", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("exportindex_item_pch.css", jukeboxDetailsRoot);
+		MovieJukeboxTools.copyResource("background.jpg", jukeboxDetailsRoot);
 
 		logger.fine("Process terminated.");
 	}
@@ -298,6 +284,10 @@ public class MovieJukebox {
 			// parse the movie XML file
 			logger.finer("movie XML file found for movie:" + movie.getBaseName());
 			xmlWriter.parseMovieXML(xmlFile, movie);
+
+			// Update thumbnails format if needed
+			String thumbnailExtension = props.getProperty("thumbnails.format", "png");
+			movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
 			
 		} else {
 		
@@ -323,7 +313,7 @@ public class MovieJukebox {
 	 * dummy image is used instead.
 	 */
 	private void updateMoviePoster(MovieDatabasePlugin movieDB, String jukeboxDetailsRoot, Movie movie) {
-		String posterFilename = jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".jpg";
+		String posterFilename = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
 		File posterFile = new File(posterFilename);
 
 		// Do not overwrite existing posters
@@ -332,14 +322,14 @@ public class MovieJukebox {
 
 			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
 				logger.finest("Dummy image used for " + movie.getBaseName());
-				MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getBaseName() + ".jpg");
+				MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getPosterFilename());
 			} else {
 				try {
 					logger.finest("Downloading poster for " + movie.getBaseName() + " [calling plugin]");
 					MovieJukeboxTools.downloadPoster(posterFile, movie);
 				} catch (Exception e) {
 					logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
-					MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getBaseName() + ".jpg");
+					MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getPosterFilename());
 				}
 			}
 		}
@@ -395,11 +385,32 @@ public class MovieJukebox {
 		} catch (Exception e) {
 			movieDB = new ImdbPlugin();
 			logger.severe("Failed instanciating MovieDatabasePlugin: " + className);
-			logger.severe("IMDb will be used instead.");
+			logger.severe("Default IMDb plugin will be used instead.");
 			e.printStackTrace();
 		}
 
 		movieDB.init(props);
 		return movieDB;
+	}
+	
+	public MovieThumbnailPlugin getThumbnailPlugin(String className) {
+		MovieThumbnailPlugin thumbnailPlugin;
+
+		try {
+			Thread t = Thread.currentThread();
+			ClassLoader cl = t.getContextClassLoader();
+			Class pluginClass = cl.loadClass(className);
+			Object plugin = pluginClass.newInstance();
+
+			thumbnailPlugin = (MovieThumbnailPlugin) plugin;
+		} catch (Exception e) {
+			thumbnailPlugin = new DefaultThumbnailPlugin();
+			logger.severe("Failed instanciating ThumbnailPlugin: " + className);
+			logger.severe("Default thumbnail plugin will be used instead.");
+			e.printStackTrace();
+		}
+
+		thumbnailPlugin.init(props);
+		return thumbnailPlugin;
 	}
 }
