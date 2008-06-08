@@ -1,108 +1,37 @@
 body {
-	color: #000000;
-  background-color: #e3e3e3;
-	font-family: Verdana,Arial,Helvetica, sans-serif;
-	font-size:normal;
+  color: #888888;
+  font-family: Verdana,Arial,Helvetica, sans-serif;
+  font-size:normal;
 }
 
-.maintable {
-	background-color: #e3e3e3;
+table.main { width:1100; height:656; }
+
+.title1 {
+    color: #ff8000;
+    font-size: 28pt;
+    font-weight : bold;
 }
 
-.subtitle {
-	color: #ffffff;
-	background-color: #59B232;
-	font-size: 14pt;
-  font-weight: bold;
-  padding-left: 5px;
-  padding-top: 1px;
-  padding-bottom: 1px;
+.title2 {
+    color: #AAAAAA;
+    font-size: 16pt;
+    font-weight: bold;
 }
 
-.maintitle {
-	color: #ffffff;
-	background-color: #056689;
-	font-size: 24pt;
-	font-weight : bold;
-  padding-left: 5px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-right: 5px;
+.title3 {
+    color: #AAAAAA;
+    font-size: 14pt;
+    font-weight: bold;
 }
 
-.celllabel {
-	color: #000000;
-	background-color: #e3e3e3;
-	font-size: 11pt;
-	font-weight : normal;
-  padding-top: 2px;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-bottom: 2px;
+.normal {
+    color: #888888;
+    font-size: 14pt;
+    font-weight: normal;
 }
 
-.cellvalue {
-	color: #056689;	
-	background-color: #e3e3e3;
-	font-size: 11pt;
-	font-weight : bold;
-  padding-top: 2px;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-bottom: 2px;
+.firstMovie {
+    color: #4444FF;
+    font-size: 14pt;
+    font-weight: bold;
 }
-
-.cellalt {
-	color: #000000;
-	background-color: #e3e3e3;
-	font-size: 11pt;
-	font-weight : normal;
-  padding-top: 2px;
-  padding-left: 5px;
-  padding-bottom: 5px;
-}
-
-.detailsbg {
-	background-color: #e3e3e3;
-}
-
-.link {
-  color: #056689;
-  text-decoration: underline;
-}
-
-a.link:hover {
-  color: #59B232;
-  text-decoration: underline;
-}
-
-.imagestrip {
-	color: #000000;
-	background-color: #e3e3e3;
-}
-
-.imagestrip a {
-  text-decoration: none;
-}
-
-.navigation {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.navlink {
-  padding-left: 20px;
-  padding-right: 20px;
-  text-align: center;
-  display: inline;
-	color: #056689;	
-	font-size: 14pt;
-	font-weight : bold;
-}
-
-.navlink a {
-	color: #056689;	
-	font-size: 14pt;
-	font-weight : bold;
-}
-

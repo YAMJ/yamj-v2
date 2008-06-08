@@ -1,189 +1,165 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:template match="/">
+<xsl:template match="/movie">
 <html>
-  <HEAD>
-    <LINK REL="StyleSheet" TYPE="text/css" HREF="exportdetails_item_popcorn.css"></LINK>
-    <META http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <TITLE><xsl:value-of select="movie/titleSort"/></TITLE>
-  </HEAD>
+<head>
+  <link rel="StyleSheet" type="text/css" href="exportdetails_item_popcorn.css"></link>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title><xsl:value-of select="titleSort"/></title>
+</head>
 
-  <body bgproperties="fixed" background="background.jpg" onloadset="1">
+<body bgproperties="fixed" background="background.jpg" onloadset="1">
 
-  <div align="center">
-      <div class="navigation" align="center">
-        <div class="navigationline">
-          <div class="navlink">
-                <a><xsl:attribute name="TVID">next</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/next"/>.html</xsl:attribute>Next</a>
-              - <a><xsl:attribute name="TVID">prev</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/previous"/>.html</xsl:attribute>Previous</a>
-              - <a><xsl:attribute name="TVID">home</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute>Up</a>
-              - <a><xsl:attribute name="TVID">pgup</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/first"/>.html</xsl:attribute>First</a>
-              - <a><xsl:attribute name="TVID">pgdn</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="movie/last"/>.html</xsl:attribute>Last</a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <xsl:apply-templates/>
-  </body>
-</html>
-
-</xsl:template>
+<table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   
-<xsl:template match="movie" >
-    <table border="0" cellspacing="0" cellpadding="0" width="100%">
-      <tr>
-        <td class="maintitleleft"></td>
-        <td class="maintitle" width="100%">
-        		<xsl:value-of select="titleSort"/> 
-                <xsl:if test="season!=-1"> Season <xsl:value-of select="season" /></xsl:if>
-        		(<xsl:value-of select="year"/>)</td>
-        <td class="maintitleright"></td>
-        <td align="right" bgcolor="#FFFFFF">
-          <div id="formatlogo"></div>
-        </td>
-      </tr>
-    </table>
-    <table border="0" cellspacing="1" cellpadding="0" width="100%">
-      <tr valign="top">
-        <td width="1" class="detailsbg">
-          <img width="350">
-          		<xsl:attribute name="src">
-    				<xsl:value-of select="posterFile" />
-  				</xsl:attribute> 
-  		  </img>
-        </td>
-        <td class="detailsbg" valign="top">
-          <table width="100%" height="100%" border="0" cellspacing="1" cellpadding="0" >
-            <tr valign="top">
-              <td colspan="2" class="subtitle" height="17" align="left">Plot</td>
-            </tr>
-            <tr valign="top">
-              <td class="cellalt" colspan="2"><xsl:value-of select="plot" /></td>
-            </tr>
+  <tr height="30">
+    <td heigth="50" align="center" colspan="2">
+      <!-- Navigation using remote keys PageUP/PageDown and Prev/Next -->
+      <a><xsl:attribute name="TVID">RIGHT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="next"/>.html</xsl:attribute></a>
+      <a><xsl:attribute name="TVID">LEFT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="previous"/>.html</xsl:attribute></a>
+      <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute></a>
+      <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="first"/>.html</xsl:attribute></a>
+      <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="last"/>.html</xsl:attribute></a>
+    </td>
+  </tr>
+  
+  <tr align="left" valign="top">
+    <td width="420px">
+       <img width="400"><xsl:attribute name="src"><xsl:value-of select="posterFile" /></xsl:attribute></img>
+    </td>
+    
+    <td>
+      <table border="0" width="85%">
+        <tr>
+          <td class="title1" valign="top" colspan="4">
+            <xsl:value-of select="titleSort"/> 
+            <xsl:if test="season!=-1"> Season <xsl:value-of select="season" /></xsl:if>
+            (<xsl:value-of select="year"/>)
+          </td>
+        </tr>
+        <tr>
+          <td class="title2" valign="top" colspan="4">
+            <xsl:if test="director != 'UNKNOWN'">
+              <xsl:value-of select="director" /> 
+            </xsl:if>
+            <xsl:if test="company != 'UNKNOWN'">
+              <xsl:if test="director != 'UNKNOWN'">, </xsl:if>
+              <xsl:value-of select="company" /> 
+            </xsl:if>
+            <xsl:if test="company != 'UNKNOWN'">
+              (<xsl:value-of select="country" />) 
+            </xsl:if>
+          </td>
+        </tr>
 
-            <tr valign="top">
-              <td colspan="2" class="celllabel" height="17" align="left"> </td>
-            </tr>
+        <tr>
+          <td class="title2" valign="top" colspan="3">
+            <xsl:if test="genres != 'UNKNOWN'">
+              <xsl:value-of select="genres" /> 
+            </xsl:if>
+            <xsl:if test="runtime != 'UNKNOWN'">
+              <xsl:if test="genres != 'UNKNOWN'">, </xsl:if>
+              <xsl:value-of select="runtime" /> 
+            </xsl:if>
+            <xsl:if test="language != 'UNKNOWN'">
+              <xsl:if test="genres != 'UNKNOWN'"><xsl:if test="runtime != 'UNKNOWN'">, </xsl:if></xsl:if>
+              <xsl:value-of select="language" /> 
+            </xsl:if>
+            <xsl:if test="rating != 'UNKNOWN'">
+              <xsl:if test="genres != 'UNKNOWN'"><xsl:if test="runtime != 'UNKNOWN'"><xsl:if test="language != 'UNKNOWN'">, </xsl:if></xsl:if></xsl:if>
+              (<xsl:value-of select="rating" />) 
+            </xsl:if>
+          </td>
+        </tr>
 
-            <tr valign="top">
-              <td colspan="2" class="subtitle" height="17" align="left">Additional Details</td>
-            </tr>
+        <tr><td><hr/></td></tr>
 
-			<tr>
-			<td colspan="2">
-			  <table width="100%" height="100%" border="0" cellspacing="1" cellpadding="0">                        
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1">Director</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="director" /></td>
-                <td class="celllabel" width="15%" nowrap="1">Genre</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="genres" /></td>
-              </tr>
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1">Company</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="company" /></td>
-                <td class="celllabel" width="15%" nowrap="1">Country</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="country" /></td>
-              </tr>
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1">Running Time</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="runtime" /></td>
-                <td class="celllabel" width="15%" nowrap="1">Language</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="language" /></td>
-              </tr>
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1">Rating</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="rating" /></td>
-                <td class="celllabel" width="15%" nowrap="1"> </td>
-                <td class="cellvalue" width="35%"> </td>
-              </tr>
+        <tr>
+          <td width="85%" class="normal" colspan="4">
+             <xsl:value-of select="plot" />
+          </td>
+        </tr>
+
+        <tr height="25"><td> </td></tr>
+
+        <tr>
+          <td colspan="4"><center><table width="85%">
+            <tr>
+              <td class="title3" width="5%">Source</td>
+              <td class="normal" width="45%"><xsl:value-of select="videoSource" /></td>
+              <td class="title3" width="5%">Subtitles</td>
+              <td class="normal" width="45%"><xsl:value-of select="subtitles" /></td>
+            </tr>
+            <tr>
+              <td class="title3" width="5%">System</td>
+              <td class="normal" width="45%"><xsl:value-of select="container" /></td>
+              <td class="title3" width="5%">Dimension</td>
+              <td class="normal" width="45%"><xsl:value-of select="resolution" /></td>
+            </tr>
+            <tr>
+              <td class="title3" width="5%">Video</td>
+              <td class="normal" width="45%"><xsl:value-of select="videoCodec" /></td>
+              <td class="title3" width="5%">Output</td>
+              <td class="normal" width="45%"><xsl:value-of select="videoOutput" /></td>
+            </tr>
+            <tr>
+              <td class="title3" width="5%">Audio</td>
+              <td class="normal" width="45%"><xsl:value-of select="audioCodec" /></td>
+              <td class="title3" width="5%">FPS</td>
+              <td class="normal" width="45%"><xsl:value-of select="fps" /></td>
+            </tr>
+          </table></center></td>
+        </tr>
+        
+        <tr height="20"><td> </td></tr>
+
+        <tr>
+          <td width="125">
+            <img src="play.png"/>
+          </td>
+          <td colspan="3">
+            <table>
+             <xsl:for-each select="files/file">
+             <tr valign="top">
+               <td class="normal">
+                 <a class="link">
+                   <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
+                    
+                   <xsl:choose>                                
+                     <xsl:when test="position() = 1">
+                       <xsl:attribute name="TVID">Play</xsl:attribute>
+                     </xsl:when>
+                     <xsl:otherwise>
+                       <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute>
+                     </xsl:otherwise>            
+                   </xsl:choose> 
+                    
+                   <xsl:if test="//movie/container = 'ISO' or substring(.,string-length(.)-3,4) = '.ISO' or substring(.,string-length(.)-3,4) = '.iso'">
+                     <xsl:attribute name="zcd">2</xsl:attribute> 
+                   </xsl:if>
+                    
+                   <xsl:attribute name="vod"/>               
+                   <xsl:choose>
+                     <xsl:when test="position() = 1"> 
+                       <xsl:attribute name="class">firstMovie</xsl:attribute> 
+                       <xsl:value-of select="position()"/><xsl:text>. </xsl:text><xsl:value-of select="@title" />
+                     </xsl:when>
+                     <xsl:otherwise>
+                       <xsl:value-of select="position()"/><xsl:text>. </xsl:text><xsl:value-of select="@title" />
+                     </xsl:otherwise>
+                   </xsl:choose>
+                 </a>
+               </td>
+             </tr>
+             </xsl:for-each>
             </table>
-			</td></tr>
-            
-            <tr valign="top">
-              <td colspan="2" class="celllabel" height="17" align="left"> </td>
-            </tr>
-
-            <tr valign="top">
-              <td colspan="2" class="subtitle" height="17" align="left">Video information</td>
-            </tr>
-
-			<tr>
-			<td colspan="2">
-			<table width="100%" height="100%" border="0" cellspacing="1" cellpadding="0">                        
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1" >Source</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="videoSource" /></td>
-                <td class="celllabel" width="15%" nowrap="1">Subtitles</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="subtitles" /></td>
-              </tr>
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1">System</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="container" /></td>
-                <td class="celllabel" width="15%" nowrap="1">Dimension</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="resolution" /></td>
-              </tr>
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1">Video</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="videoCodec" /></td>
-                <td class="celllabel" width="15%" nowrap="1">Video output</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="videoOutput" /></td>
-              </tr>
-              <tr valign="top">
-                <td class="celllabel" width="15%" nowrap="1">Audio</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="audioCodec" /></td>
-                <td class="celllabel" width="15%" nowrap="1">FPS</td>
-                <td class="cellvalue" width="35%"><xsl:value-of select="fps" /></td>
-              </tr>
-			</table>
-			</td></tr>
-
-            <tr valign="top">
-              <td colspan="2" class="celllabel" height="17" align="left"> </td>
-            </tr>
-
-            <tr valign="top">
-              <td colspan="2" class="subtitle" height="17" align="left">Movie files</td>
-            </tr>
-
-            <xsl:for-each select="files/file">
-            <center></center>
-            <tr valign="top">
-              <td class="cellvalue" colspan="2">
-             	 <a class="link">
-	          		<xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
-				<xsl:choose>                                
-				  <xsl:when test="position() = 1">
-                                  <xsl:attribute name="TVID">Play</xsl:attribute>
-                                  </xsl:when>
-				  <xsl:otherwise>
-				  <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute>
-				  </xsl:otherwise>
-				</xsl:choose> 
-  					<xsl:if test="//movie/container = 'ISO' or substring(.,string-length(.)-3,4) = '.ISO' or substring(.,string-length(.)-3,4) = '.iso'">
-	          		  <xsl:attribute name="zcd">2</xsl:attribute> 
-  					</xsl:if>
-	          		<xsl:attribute name="vod"/>
-				<xsl:choose>
-				<xsl:when test="position() = 1"> 
-	          		<xsl:text>Play-&gt; </xsl:text><xsl:value-of select="@title" />
-				</xsl:when>
-				<xsl:otherwise>
-				<xsl:value-of select="position()"/><xsl:text>-&gt; </xsl:text><xsl:value-of select="@title" />
-				</xsl:otherwise>
-				</xsl:choose>
-  				 </a>
-              </td>
-            </tr>
-            
-			</xsl:for-each>
-            
-          </table>
-        </td>
-      </tr>
-    </table>
-    <table border="0" cellspacing="0" cellpadding="0" width="100%">
-      <tr></tr>
-    </table>
-</xsl:template >
-
+          </td>
+       </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+</xsl:template>
 </xsl:stylesheet>
