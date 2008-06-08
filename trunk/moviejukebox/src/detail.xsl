@@ -112,7 +112,7 @@
         
         <tr height="20"><td> </td></tr>
 
-        <tr>
+        <tr valign="top">
           <td width="125">
             <img src="play.png"/>
           </td>
