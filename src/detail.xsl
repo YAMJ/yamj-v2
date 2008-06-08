@@ -112,8 +112,8 @@
         
         <tr height="20"><td> </td></tr>
 
-        <tr valign="top">
-          <td width="125">
+        <tr>
+          <td width="100" valign="top">
             <img src="play.png"/>
           </td>
           <td colspan="3">
@@ -144,7 +144,7 @@
                        <xsl:value-of select="@title" />
                      </xsl:when>
                      <xsl:otherwise>
-                       <xsl:value-of select="position()"/><xsl:text>. </xsl:text><xsl:value-of select="@title" />
+                       <xsl:value-of select="@title" />
                      </xsl:otherwise>
                    </xsl:choose>
                  </a>
