@@ -39,7 +39,7 @@ public class MovieJukeboxXMLWriter {
 	public MovieJukeboxXMLWriter(Properties props) {
 		forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "false"));
 		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
-		nbMoviesPerLine = Integer.parseInt(props.getProperty("mjb.nbThumbnailsLine", "5"));
+		nbMoviesPerLine = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerLine", "5"));
 	}
 
 	/**
