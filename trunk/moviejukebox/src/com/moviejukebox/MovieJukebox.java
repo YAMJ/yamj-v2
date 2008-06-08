@@ -258,6 +258,7 @@ public class MovieJukebox {
 		MovieJukeboxTools.copyResource("exportindex_item_pch.css", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("background.jpg", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("nav.png", jukeboxDetailsRoot);
+		MovieJukeboxTools.copyResource("play.png", jukeboxDetailsRoot);
 
 		logger.fine("Process terminated.");
 	}
