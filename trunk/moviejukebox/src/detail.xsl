@@ -66,7 +66,6 @@
               <xsl:value-of select="language" /> 
             </xsl:if>
             <xsl:if test="rating != 'UNKNOWN'">
-              <xsl:if test="genres != 'UNKNOWN'"><xsl:if test="runtime != 'UNKNOWN'"><xsl:if test="language != 'UNKNOWN'">, </xsl:if></xsl:if></xsl:if>
               (<xsl:value-of select="rating" />) 
             </xsl:if>
           </td>
@@ -142,7 +141,7 @@
                    <xsl:choose>
                      <xsl:when test="position() = 1"> 
                        <xsl:attribute name="class">firstMovie</xsl:attribute> 
-                       <xsl:value-of select="position()"/><xsl:text>. </xsl:text><xsl:value-of select="@title" />
+                       <xsl:value-of select="@title" />
                      </xsl:when>
                      <xsl:otherwise>
                        <xsl:value-of select="position()"/><xsl:text>. </xsl:text><xsl:value-of select="@title" />
