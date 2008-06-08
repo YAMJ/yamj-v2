@@ -25,6 +25,7 @@
         <xsl:for-each select="library/indexes/index[@type=1]">
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute> 
+            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute> 
             <xsl:value-of select="@name" />
             </a> - 
         </xsl:for-each>
@@ -37,12 +38,17 @@
           <tr valign="top"><td align="right">
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute> 
+            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute> 
             <xsl:value-of select="@name" />
             </a>
           </td></tr> 
         </xsl:for-each>
         <tr><td><hr/></td></tr>
-        <tr><td align="right"><img src="nav.png"/></td></tr>
+
+        <xsl:if test="//index[@name='first'] != //index[@name='last']">
+           <tr><td align="right"><img src="nav.png"/></td></tr>
+        </xsl:if>
+        
       </table>
     </td>
     <td>
