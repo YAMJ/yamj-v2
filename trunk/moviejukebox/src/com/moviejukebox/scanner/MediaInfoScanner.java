@@ -61,6 +61,9 @@ public class MediaInfoScanner {
 	}
 
 	public void scan(Movie currentMovie) {
+		if (currentMovie.getFile().isDirectory())
+			return;
+		
 		if (!activated)
 			return;
 		

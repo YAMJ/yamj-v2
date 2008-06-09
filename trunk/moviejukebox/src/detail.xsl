@@ -137,6 +137,10 @@
                      <xsl:attribute name="zcd">2</xsl:attribute> 
                    </xsl:if>
                     
+                   <xsl:if test="substring(//movie/files/file[1],string-length(//movie/files/file[1])-7,8) = 'VIDEO_TS'">
+                     <xsl:attribute name="zcd">2</xsl:attribute> 
+                   </xsl:if>
+
                    <xsl:attribute name="vod"/>               
                    <xsl:choose>
                      <xsl:when test="position() = 1"> 
