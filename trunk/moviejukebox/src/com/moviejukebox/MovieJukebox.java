@@ -260,6 +260,8 @@ public class MovieJukebox {
 		MovieJukeboxTools.copyResource("nav.png", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("play.png", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("play_selected.png", jukeboxDetailsRoot);
+		MovieJukeboxTools.copyResource("play_small.png", jukeboxDetailsRoot);
+		MovieJukeboxTools.copyResource("play_selected_small.png", jukeboxDetailsRoot);
 
 		logger.fine("Process terminated.");
 	}
