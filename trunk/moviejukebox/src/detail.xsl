@@ -34,7 +34,9 @@
           <td class="title1" valign="top" colspan="4">
             <xsl:value-of select="titleSort"/> 
             <xsl:if test="season!=-1"> Season <xsl:value-of select="season" /></xsl:if>
+            <xsl:if test="year != 'UNKNOWN'">
             (<xsl:value-of select="year"/>)
+            </xsl:if>
           </td>
         </tr>
         <tr>
@@ -75,7 +77,9 @@
 
         <tr>
           <td width="85%" class="normal" colspan="4">
-             <xsl:value-of select="plot" />
+            <xsl:if test="plot != 'UNKNOWN'">
+              <xsl:value-of select="plot" />
+            </xsl:if>
           </td>
         </tr>
 
@@ -112,27 +116,15 @@
         
         <tr height="20"><td> </td></tr>
 
-        <tr>
-          <td width="100" valign="top">
-            <img src="play.png"/>
-          </td>
-          <td colspan="3">
-            <table>
-             <xsl:for-each select="files/file">
-             <tr valign="top">
-               <td class="normal">
+        <xsl:choose>                                
+        <xsl:when test="count(files/file) = 1">
+          <tr>
+            <td>
+                <center>
                  <a class="link">
-                   <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
-                    
-                   <xsl:choose>                                
-                     <xsl:when test="position() = 1">
-                       <xsl:attribute name="TVID">Play</xsl:attribute>
-                     </xsl:when>
-                     <xsl:otherwise>
-                       <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute>
-                     </xsl:otherwise>            
-                   </xsl:choose> 
-                    
+                   <xsl:attribute name="href"><xsl:value-of select="files/file[1]" /></xsl:attribute>
+                   <xsl:attribute name="TVID">Play</xsl:attribute>
+
                    <xsl:if test="//movie/container = 'ISO' or substring(.,string-length(.)-3,4) = '.ISO' or substring(.,string-length(.)-3,4) = '.iso'">
                      <xsl:attribute name="zcd">2</xsl:attribute> 
                    </xsl:if>
@@ -142,22 +134,59 @@
                    </xsl:if>
 
                    <xsl:attribute name="vod"/>               
-                   <xsl:choose>
-                     <xsl:when test="position() = 1"> 
-                       <xsl:attribute name="class">firstMovie</xsl:attribute> 
-                       <xsl:value-of select="@title" />
-                     </xsl:when>
-                     <xsl:otherwise>
-                       <xsl:value-of select="@title" />
-                     </xsl:otherwise>
-                   </xsl:choose>
+                   <img src="play.png" onfocussrc="play_selected.png"/>
                  </a>
-               </td>
-             </tr>
-             </xsl:for-each>
-            </table>
-          </td>
-       </tr>
+                </center>
+            </td>
+          </tr>
+        </xsl:when>
+        <xsl:otherwise>
+          <tr>
+            <td>
+              <table>
+               <xsl:for-each select="files/file">
+               <tr>
+                 <td class="normal">
+                   <a class="link">
+                     <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
+                    
+                     <xsl:choose>                                
+                       <xsl:when test="position() = 1">
+                         <xsl:attribute name="TVID">Play</xsl:attribute>
+                       </xsl:when>
+                       <xsl:otherwise>
+                         <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute>
+                       </xsl:otherwise>            
+                     </xsl:choose> 
+                    
+                     <xsl:if test="//movie/container = 'ISO' or substring(.,string-length(.)-3,4) = '.ISO' or substring(.,string-length(.)-3,4) = '.iso'">
+                       <xsl:attribute name="zcd">2</xsl:attribute> 
+                     </xsl:if>
+                    
+                     <xsl:if test="substring(//movie/files/file[1],string-length(//movie/files/file[1])-7,8) = 'VIDEO_TS'">
+                       <xsl:attribute name="zcd">2</xsl:attribute> 
+                     </xsl:if>
+
+                     <xsl:attribute name="vod"/>               
+                     <img src="play.png" onfocussrc="play_selected.png" width="20" height="20"/>
+                     <xsl:choose>
+                       <xsl:when test="position() = 1"> 
+                         <xsl:attribute name="class">firstMovie</xsl:attribute> 
+                         <xsl:value-of select="@title" />
+                       </xsl:when>
+                       <xsl:otherwise>
+                         <xsl:value-of select="@title" />
+                       </xsl:otherwise>
+                     </xsl:choose>
+                   </a>
+                 </td>
+               </tr>
+               </xsl:for-each>
+              </table>
+            </td>
+          </tr>
+        </xsl:otherwise>
+        </xsl:choose>
       </table>
     </td>
   </tr>
