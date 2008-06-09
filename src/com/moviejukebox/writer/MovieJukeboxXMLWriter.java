@@ -355,17 +355,7 @@ public class MovieJukeboxXMLWriter {
 				if (movie.isTVShow()) {
 					writer.writeAttribute("title", "Episode " + mf.getPart() + ((mf.getTitle().equalsIgnoreCase("UNKNOWN"))?(""): (" - " + mf.getTitle())));
 				} else {
-					if(movie.getFiles().size()==1) {
-						writer.writeAttribute("title", movie.getBaseName());
-					} else {
-						int index = mf.getFilename().lastIndexOf("/");
-						if (index != -1) {
-							String filename = mf.getFilename().substring(index+1);
-							writer.writeAttribute("title", filename);
-						} else {
-							writer.writeAttribute("title", "Part " + mf.getPart());
-						}
-					}
+					writer.writeAttribute("title", movie.getTitle() + " (Part " + mf.getPart() + ")");
 				}
 				writer.writeCharacters(mf.getNmtRootPath() + mf.getFilename()); 
 				writer.writeEndElement();
