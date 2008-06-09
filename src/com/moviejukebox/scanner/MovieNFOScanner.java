@@ -30,10 +30,16 @@ public class MovieNFOScanner {
 	 */
 	public void scan(Movie movie){     
 		
-		String fn = movie.getFile().getAbsolutePath();
-		int i = fn.lastIndexOf(".");
+		File nfoFile;
 		
-		File nfoFile = new File(fn.substring(0, i) + ".nfo");
+		if (movie.getFile().isFile()) {
+			String fn = movie.getFile().getAbsolutePath();
+			int i = fn.lastIndexOf(".");
+			nfoFile = new File(fn.substring(0, i) + ".nfo");
+		} else {
+			String fn = movie.getFile().getAbsolutePath();
+			nfoFile = new File(fn + ".nfo");
+		}
 		
 		if (nfoFile.exists()) {
 		

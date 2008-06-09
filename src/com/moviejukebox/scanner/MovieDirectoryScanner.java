@@ -66,64 +66,83 @@ public class MovieDirectoryScanner {
 				Collections.sort(files);
 				
 				for (File file : files) {
-					if (file.isDirectory()) {
+					if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
+						scanFile(srcPath, file.getParentFile(), collection);
+					} else if (file.isDirectory()) {
 						scanDirectory(srcPath, file, collection);
-					} else {
+					} else if ( !isFiltered(srcPath, file) ){
 						scanFile(srcPath, file, collection);
 					}
 				}
 			}
 		}		
 	}
-	
-	protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
+
+	protected boolean isFiltered(MediaLibraryPath srcPath, File file) {
 		String filename = file.getName();
 		int index = filename.lastIndexOf(".");
-		if (index < 0) return;
+		if (index < 0) 
+			return true;
 		
 		String extension = file.getName().substring(index+1).toUpperCase();
-		if (supportedExtensions.indexOf(extension) >= 0) {
+		if (supportedExtensions.indexOf(extension) == -1) 
+			return true;
 
-			String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
-			
-			if ( relativeFilename.startsWith(File.separator) ) {
-				 relativeFilename = relativeFilename.substring(1); 
+		// Compute the relative filename
+		String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
+		if ( relativeFilename.startsWith(File.separator) ) {
+			 relativeFilename = relativeFilename.substring(1); 
+		}
+		
+		for (String excluded : srcPath.getExcludes()) {
+			excluded = excluded.replace("/", File.separator);
+			excluded = excluded.replace("\\", File.separator);
+			String relativeFileNameLower = relativeFilename.toLowerCase();
+			if(relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
+				logger.fine("File " + filename + " excluded.");
+				return true;
 			}
-			
-			String baseFileName = filename.substring(0, index);
-
-			boolean allowedFileName = true;
-			for (String excluded : srcPath.getExcludes()) {
-				excluded = excluded.replace("/", File.separator);
-				excluded = excluded.replace("\\", File.separator);
-				String relativeFileNameLower = relativeFilename.toLowerCase();
-				if(relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
-					allowedFileName = false;
-					logger.fine("File " + filename + " excluded.");
-					break;
-				}
-			}
-			
-			if(allowedFileName) {
-				MovieFile movieFile = new MovieFile();
-				movieFile.setNmtRootPath(srcPath.getNmtRootPath());
-				relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
-				movieFile.setFilename(relativeFilename);
-				movieFile.setPart(1);
-							
-				Movie m = new Movie();
-				m.addMovieFile(movieFile);
-				m.setFile(file);
-				m.setBaseName(baseFileName);
-				m.setPosterFilename(baseFileName + ".jpg");
-				m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
-				
-				MovieFilenameScanner filenameScanner = new MovieFilenameScanner(props);
-				filenameScanner.scan(m);
-				
-				library.addMovie(m);
-			
-			}
-	    }
+		}
+		
+		return false;
+	}
+	
+	protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
+		
+		// Compute the baseFilename: This is the filename with no the extension
+		String baseFileName = file.getName();
+		if (!file.isDirectory()) {
+			baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
+		}
+		
+		// Compute the relative filename
+		String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
+		if ( relativeFilename.startsWith(File.separator) ) {
+			 relativeFilename = relativeFilename.substring(1); 
+		}
+		
+		MovieFile movieFile = new MovieFile();
+		movieFile.setNmtRootPath(srcPath.getNmtRootPath());
+		relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
+		
+		if (file.isDirectory()) {
+			// For DVD images
+			movieFile.setFilename(relativeFilename + "/VIDEO_TS");
+		} else {
+			movieFile.setFilename(relativeFilename);
+		}
+		movieFile.setPart(1);
+					
+		Movie m = new Movie();
+		m.addMovieFile(movieFile);
+		m.setFile(file);
+		m.setBaseName(baseFileName);
+		m.setPosterFilename(baseFileName + ".jpg");
+		m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
+		
+		MovieFilenameScanner filenameScanner = new MovieFilenameScanner(props);
+		filenameScanner.scan(m);
+		
+		library.addMovie(m);
 	}	
 }

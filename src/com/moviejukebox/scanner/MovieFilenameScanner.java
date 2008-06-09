@@ -50,14 +50,26 @@ public class MovieFilenameScanner {
 			movieFile.setPart(getPart(filename));	
 		}
 
-		movie.setAudioCodec(getAudioCodec(filename));
-		movie.setContainer(getContainer(filename));
-		movie.setFps(getFPS(filename));
-		movie.setSubtitles(hasSubtitles(fileToScan));
-		movie.setVideoCodec(getVideoCodec(filename));
-		movie.setVideoOutput(getVideoOutput(filename));
-		movie.setVideoSource(getVideoSource(filename));
-		movie.setLanguage(getLanguage(filename));
+		if (fileToScan.isFile()) {
+			movie.setAudioCodec(getAudioCodec(filename));
+			movie.setContainer(getContainer(filename));
+			movie.setFps(getFPS(filename));
+			movie.setSubtitles(hasSubtitles(fileToScan));
+			movie.setVideoCodec(getVideoCodec(filename));
+			movie.setVideoOutput(getVideoOutput(filename));
+			movie.setVideoSource(getVideoSource(filename));
+			movie.setLanguage(getLanguage(filename));
+		} else {
+			// For DVD images
+			movie.setAudioCodec(getAudioCodec(filename));
+			movie.setContainer("DVD");
+			movie.setFps(getFPS(filename));
+			movie.setSubtitles(hasSubtitles(fileToScan));
+			movie.setVideoCodec("MPEG2");
+			movie.setVideoOutput(getVideoOutput(filename));
+			movie.setVideoSource("DVD");
+			movie.setLanguage(getLanguage(filename));
+		}
 		
 		// Skip some keywords
 		findKeyword(filename, skipKeywords);
