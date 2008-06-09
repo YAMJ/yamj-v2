@@ -168,7 +168,10 @@
                      </xsl:if>
 
                      <xsl:attribute name="vod"/>               
-                     <img src="play.png" onfocussrc="play_selected.png" width="20" height="20"/>
+                     <img src="play_small.png" onfocussrc="play_selected_small.png" align="top"/>
+                     
+                     <xsl:text>&#160;</xsl:text>
+                     
                      <xsl:choose>
                        <xsl:when test="position() = 1"> 
                          <xsl:attribute name="class">firstMovie</xsl:attribute> 
