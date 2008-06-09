@@ -4,7 +4,14 @@ body {
   font-size:normal;
 }
 
-table.main { width:1100; height:656; }
+img { 
+    border: 0; 
+}
+
+table.main { 
+    width:1100; 
+    height:656; 
+}
 
 .title1 {
     color: #ff8000;
@@ -34,4 +41,10 @@ table.main { width:1100; height:656; }
     color: #4444FF;
     font-size: 14pt;
     font-weight: bold;
+}
+
+a { 
+    font-size: 14pt; 
+    color: #AAAAAA; 
+    text-decoration: none; 
 }

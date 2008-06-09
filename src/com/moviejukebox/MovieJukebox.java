@@ -259,6 +259,7 @@ public class MovieJukebox {
 		MovieJukeboxTools.copyResource("background.jpg", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("nav.png", jukeboxDetailsRoot);
 		MovieJukeboxTools.copyResource("play.png", jukeboxDetailsRoot);
+		MovieJukeboxTools.copyResource("play_selected.png", jukeboxDetailsRoot);
 
 		logger.fine("Process terminated.");
 	}
@@ -300,6 +301,13 @@ public class MovieJukebox {
 			nfoScanner.scan(movie);
 			movieDB.scan(movie);
 			miScanner.scan(movie);
+			
+			// If the TitleSort field was not found by any of the scanners
+			// Then consider the title as the sorted title...
+			if (movie.getTitleSort().equalsIgnoreCase("UNKNOWN")) {
+				movie.setTitleSort(movie.getTitle());
+			}
+			
 			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
 			logger.finer("movie XML file created for movie:" + movie.getBaseName());
 		}
