@@ -1,24 +1,24 @@
-div.title {top:626; left:0; width:1090; height:30; font-size: 22pt; color: #AAAAAA}
-div#title1{visibility:hidden; position:absolute;}
-div#title2{visibility:hidden; position:absolute;}
-div#title3{visibility:hidden; position:absolute;}
-div#title4{visibility:hidden; position:absolute;}
-div#title5{visibility:hidden; position:absolute;}
-div#title6{visibility:hidden; position:absolute;}
-div#title7{visibility:hidden; position:absolute;}
-div#title8{visibility:hidden; position:absolute;}
-div#title9{visibility:hidden; position:absolute;}
-div#title10{visibility:hidden; position:absolute;}
-div#title11{visibility:hidden; position:absolute;}
-div#title12{visibility:hidden; position:absolute;}
-div#title13{visibility:hidden; position:absolute;}
-div#title14{visibility:hidden; position:absolute;}
-div#title15{visibility:hidden; position:absolute;}
-div#title16{visibility:hidden; position:absolute;}
-div#title17{visibility:hidden; position:absolute;}
-div#title18{visibility:hidden; position:absolute;}
-div#title19{visibility:hidden; position:absolute;}
-div#title20{visibility:hidden; position:absolute;}
+div.title {top:626; left:0; width:1090; height:30; font-size: 22pt; color: #AAAAAA; position:absolute}
+div#title1{visibility:hidden}
+div#title2{visibility:hidden}
+div#title3{visibility:hidden}
+div#title4{visibility:hidden}
+div#title5{visibility:hidden}
+div#title6{visibility:hidden}
+div#title7{visibility:hidden}
+div#title8{visibility:hidden}
+div#title9{visibility:hidden}
+div#title10{visibility:hidden}
+div#title11{visibility:hidden}
+div#title12{visibility:hidden}
+div#title13{visibility:hidden}
+div#title14{visibility:hidden}
+div#title15{visibility:hidden}
+div#title16{visibility:hidden}
+div#title17{visibility:hidden}
+div#title18{visibility:hidden}
+div#title19{visibility:hidden}
+div#title20{visibility:hidden}
 div.counter {font-size: 15pt; color: #AAAAAA}
 
 body { font-size: 10pt; color: #AAAAAA; text-decoration: none; }
