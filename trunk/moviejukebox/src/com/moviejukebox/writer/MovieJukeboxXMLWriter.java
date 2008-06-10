@@ -252,6 +252,18 @@ public class MovieJukeboxXMLWriter {
 		writer.writeCharacters("index_" + key + "_" + last); 
 		writer.writeEndElement();
 		
+		writer.writeStartElement("index"); 
+		writer.writeAttribute("type", "0");
+		writer.writeAttribute("name", "currentIndex");
+		writer.writeCharacters(Integer.toString(current)); 
+		writer.writeEndElement();
+
+		writer.writeStartElement("index"); 
+		writer.writeAttribute("type", "0");
+		writer.writeAttribute("name", "lastIndex");
+		writer.writeCharacters(Integer.toString(last)); 
+		writer.writeEndElement();
+
 		writer.writeEndElement();					
 
 		writer.writeStartElement("movies");

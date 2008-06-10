@@ -412,7 +412,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			    	returnString="http://www.moviecovers.com/getjpg.html/"+finMovieUrl.substring(0,finMovieUrl.lastIndexOf('.')).replace("+","%20")+".jpg";
 			    }
 			}
-            System.out.println(returnString);
+//            System.out.println(returnString);
 		    return returnString;
 
 		} catch (Exception e) {
