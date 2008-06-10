@@ -1,7 +1,30 @@
+div.title {top:626; left:0; width:1090; height:30; font-size: 22pt; color: #AAAAAA}
+div#title1{visibility:hidden; position:absolute;}
+div#title2{visibility:hidden; position:absolute;}
+div#title3{visibility:hidden; position:absolute;}
+div#title4{visibility:hidden; position:absolute;}
+div#title5{visibility:hidden; position:absolute;}
+div#title6{visibility:hidden; position:absolute;}
+div#title7{visibility:hidden; position:absolute;}
+div#title8{visibility:hidden; position:absolute;}
+div#title9{visibility:hidden; position:absolute;}
+div#title10{visibility:hidden; position:absolute;}
+div#title11{visibility:hidden; position:absolute;}
+div#title12{visibility:hidden; position:absolute;}
+div#title13{visibility:hidden; position:absolute;}
+div#title14{visibility:hidden; position:absolute;}
+div#title15{visibility:hidden; position:absolute;}
+div#title16{visibility:hidden; position:absolute;}
+div#title17{visibility:hidden; position:absolute;}
+div#title18{visibility:hidden; position:absolute;}
+div#title19{visibility:hidden; position:absolute;}
+div#title20{visibility:hidden; position:absolute;}
+div.counter {font-size: 15pt; color: #AAAAAA}
+
 body { font-size: 10pt; color: #AAAAAA; text-decoration: none; }
 a { font-size: 18pt; color: #AAAAAA; text-decoration: none; }
 img { border: 0; }
-table.main { width:1100; height:656; }
+table.main { width:1090; height:626; }
 table.categories { width:180; }
 td { text-decoration: none;}
 td.movies { width: 270; padding-right: 10px;}

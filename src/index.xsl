@@ -6,6 +6,15 @@
 <link rel="StyleSheet" type="text/css" href="exportindex_item_pch.css"></link>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <title>MovieJukebox</title>
+    <script type="text/javascript">
+		function hideTitle(x){
+		  document.styleSheets[0].cssRules[x].style.visibility="hidden";
+		};
+		
+		function showTitle(x){
+		  document.styleSheets[0].cssRules[x].style.visibility="visible";
+                }
+    </script>
 </head>
 <body bgproperties="fixed" background="background.jpg">
 <xsl:attribute name="ONLOADSET">
@@ -20,8 +29,7 @@
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
-    <td></td>
-    <td align="center">- 
+    <td COLSPAN="2" align="center">- 
         <xsl:for-each select="library/indexes/index[@type=1]">
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute> 
@@ -46,7 +54,12 @@
         <tr><td><hr/></td></tr>
 
         <xsl:if test="//index[@name='first'] != //index[@name='last']">
-           <tr><td align="right"><img src="nav.png"/></td></tr>
+           <tr><td align="right"><table><tr>
+             <td valign="center">
+              <div class="counter"><xsl:value-of select="//index[@name='currentIndex']" /> / <xsl:value-of select="//index[@name='lastIndex']" /></div></td>
+             <td valign="top"><img src="nav.png"/></td>
+             </tr></table>
+           </td></tr>
         </xsl:if>
         
       </table>
@@ -59,15 +72,22 @@
               <a>
                 <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
                 <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute> 
+                <xsl:attribute name="onfocus">showTitle(<xsl:value-of select="position()"/>)</xsl:attribute>
+                <xsl:attribute name="onblur">hideTitle(<xsl:value-of select="position()"/>)</xsl:attribute>
                 <img><xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute></img>
               </a>
             </td>
-        <!-- <center><xsl:value-of select="position()"/><xsl:text>. </xsl:text><xsl:value-of select="title"/></center> -->
         </xsl:for-each>
       </table>
     </td>
   </tr>
 </table>
+     <xsl:for-each select="library/movies/movie">
+           <div class="title">
+               <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
+               <xsl:value-of select="title"/>
+           </div>
+     </xsl:for-each>
 </body>
 </html>
 </xsl:template>
