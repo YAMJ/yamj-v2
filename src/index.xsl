@@ -66,17 +66,13 @@
     </td>
     <td>
       <table class="movies" border="0">
-        <xsl:for-each select="library/movies/movie">
-            <xsl:if test="(position() mod //@cols) = 1"><tr></tr></xsl:if>
-            <td>
-              <a>
-                <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
-                <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute> 
-                <xsl:attribute name="onfocus">showTitle(<xsl:value-of select="position()"/>)</xsl:attribute>
-                <xsl:attribute name="onblur">hideTitle(<xsl:value-of select="position()"/>)</xsl:attribute>
-                <img><xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute></img>
-              </a>
-            </td>
+        <xsl:for-each select="library/movies/movie[position() mod //@cols = 1]">
+          <tr>
+            <xsl:apply-templates 
+                 select=".|following-sibling::movie[position() &lt; //@cols]">
+              <xsl:with-param name="gap" select="(position() - 1) * //@cols" />
+            </xsl:apply-templates>
+          </tr>
         </xsl:for-each>
       </table>
     </td>
@@ -90,5 +86,18 @@
      </xsl:for-each>
 </body>
 </html>
+</xsl:template>
+
+<xsl:template match="movie">
+  <xsl:param name="gap" />
+     <td>
+        <a>
+          <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
+          <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute> 
+          <xsl:attribute name="onfocus">showTitle(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
+          <xsl:attribute name="onblur">hideTitle(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
+          <img><xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute></img>
+        </a>
+     </td>
 </xsl:template>
 </xsl:stylesheet>
