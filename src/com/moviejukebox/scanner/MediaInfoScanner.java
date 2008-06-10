@@ -42,22 +42,22 @@ public class MediaInfoScanner {
 		mediaInfoPath = new File(
 				props.getProperty("mediainfo.home", "./mediaInfo/"));
 		
-		if (!mediaInfoPath.exists()) {
-			logger.fine("Couldn't find mediaInfo tool : Video files data won't be extracted");
+		logger.finer("OS name : " + OS_NAME);
+		logger.finer("OS version : " + OS_VERSION);
+		logger.finer("OS archi : " + OS_ARCH);
+
+		if (OS_NAME.contains("Windows")) {
+			mediaInfoExe = mediaInfoExeWindows;
+		} else {
+			mediaInfoExe = mediaInfoExeLinux;
+		}
+		if (!new File(mediaInfoPath.getAbsolutePath()+File.pathSeparator+mediaInfoExe).canExecute()) {
+			logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
 			activated = false;
 		} else {
 			activated = true;
 		}
 		
-		logger.finer("OS name : " + OS_NAME);
-		logger.finer("OS version : " + OS_VERSION);
-		logger.finer("OS archi : " + OS_ARCH);
-
-		if (OS_NAME.startsWith("Linux")) {
-			mediaInfoExe = mediaInfoExeLinux;
-		} else {
-			mediaInfoExe = mediaInfoExeWindows;
-		}
 	}
 
 	public void scan(Movie currentMovie) {
@@ -82,10 +82,11 @@ public class MediaInfoScanner {
 			HashMap<String, String> infosGeneral = new HashMap<String, String>();
 			ArrayList<HashMap<String, String>> infosVideo = new ArrayList<HashMap<String, String>>();
 			ArrayList<HashMap<String, String>> infosAudio = new ArrayList<HashMap<String, String>>();
+			ArrayList<HashMap<String, String>> infosText = new ArrayList<HashMap<String, String>>();
 
-			parseMediaInfo(p, infosGeneral, infosVideo, infosAudio);
+			parseMediaInfo(p, infosGeneral, infosVideo, infosAudio, infosText);
 
-			updateMovieInfo(currentMovie, infosGeneral, infosVideo, infosAudio);
+			updateMovieInfo(currentMovie, infosGeneral, infosVideo, infosAudio, infosText);
 
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -105,7 +106,8 @@ public class MediaInfoScanner {
 	private void parseMediaInfo(Process p,
 			HashMap<String, String> infosGeneral,
 			ArrayList<HashMap<String, String>> infosVideo,
-			ArrayList<HashMap<String, String>> infosAudio) throws IOException {
+			ArrayList<HashMap<String, String>> infosAudio,
+			ArrayList<HashMap<String, String>> infosText) throws IOException {
 
 		
 		BufferedReader input = new BufferedReader(new InputStreamReader(p
@@ -156,6 +158,21 @@ public class MediaInfoScanner {
 				}
 				infosAudio.add(audioCourant);
 			}
+			else if (line.startsWith("Text")) {
+				HashMap<String, String> textCourant = new HashMap<String, String>();
+
+				int indexSeparateur = -1;
+				while (((line = localInputReadLine(input)) != null)
+						&& ((indexSeparateur = line.indexOf(" : ")) != -1)) {
+					int longueurUtile = indexSeparateur - 1;
+					while (line.charAt(longueurUtile) == ' ') {
+						longueurUtile--;
+					}
+					textCourant.put(line.substring(0, longueurUtile + 1), line
+							.substring(indexSeparateur + 3));
+				}
+				infosText.add(textCourant);
+			}
 			else {
 				line = localInputReadLine(input);
 			}
@@ -168,7 +185,8 @@ public class MediaInfoScanner {
 	private void updateMovieInfo(Movie movie,
 			HashMap<String, String> infosGeneral,
 			ArrayList<HashMap<String, String>> infosVideo,
-			ArrayList<HashMap<String, String>> infosAudio) {
+			ArrayList<HashMap<String, String>> infosAudio,
+			ArrayList<HashMap<String, String>> infosText) {
 
 		String infoValue;
 
@@ -320,5 +338,9 @@ public class MediaInfoScanner {
 			}
 
 		}
+		
+		// Subtitles ?
+		if (infosText.size()>0)
+			movie.setSubtitles(true);
 	}
 }
