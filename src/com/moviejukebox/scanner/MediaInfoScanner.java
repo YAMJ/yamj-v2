@@ -42,16 +42,21 @@ public class MediaInfoScanner {
 		mediaInfoPath = new File(
 				props.getProperty("mediainfo.home", "./mediaInfo/"));
 		
+		File checkMediainfo =null;
+		
 		logger.finer("OS name : " + OS_NAME);
 		logger.finer("OS version : " + OS_VERSION);
 		logger.finer("OS archi : " + OS_ARCH);
 
 		if (OS_NAME.contains("Windows")) {
 			mediaInfoExe = mediaInfoExeWindows;
+			checkMediainfo = new File(mediaInfoPath.getAbsolutePath()+File.separator+"MediaInfo.exe");
 		} else {
 			mediaInfoExe = mediaInfoExeLinux;
+			checkMediainfo = new File(mediaInfoPath.getAbsolutePath()+File.separator+"mediainfo");
 		}
-		if (!new File(mediaInfoPath.getAbsolutePath()+File.pathSeparator+mediaInfoExe).canExecute()) {
+		System.out.println(checkMediainfo.getAbsolutePath());
+		if (!checkMediainfo.canExecute()) {
 			logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
 			activated = false;
 		} else {
