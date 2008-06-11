@@ -169,6 +169,7 @@ public class MovieFilenameScanner {
 	protected String getName(String filename) {
 		String name = filename.substring(0, firstKeywordIndex);
 		name = name.replace(".", " ");
+		name = name.replace("_", " ");
 		name = name.replace("-", " ");
 		name = name.replace("[", " ");
 		name = name.replace("]", " ");
