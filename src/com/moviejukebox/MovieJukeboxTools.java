@@ -14,13 +14,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieThumbnailPlugin;
 import com.sun.image.codec.jpeg.JPEGCodec;
@@ -387,50 +392,98 @@ public abstract class MovieJukeboxTools {
 		return result.toString();
 	}
 
+	public static void copyDir(String srcDir, String dstDir) {
+		try {
+			File src = new File(srcDir);
+			if (!src.exists()) {
+				logger.severe("The specified " + srcDir + " file or directory does not exist!");
+				return;
+			}
+
+			File dst = new File(dstDir);
+			dst.mkdirs();
+			
+			if (!dst.exists()) {
+				logger.severe("The specified " + dstDir + " output directory does not exist!");
+				return;
+			}
+
+			if (src.isFile())
+				copy(new FileInputStream(src), new FileOutputStream(dstDir));
+			else {
+				File[] contentList = src.listFiles();
+				if (contentList!=null) {
+					List<File> files = Arrays.asList(contentList);
+					Collections.sort(files);
+					
+					for (File file : files) {
+						if (!file.getName().equals(".svn")) {
+							if (file.isDirectory()) {
+								copyDir(file.getAbsolutePath(), dstDir + File.separator + file.getName());
+							} else {
+								copyFile(file, dst);
+							}
+						}
+					}
+				}
+			}		
+		} catch (IOException e) {
+			logger.severe("Failed copying file " + srcDir + " to " + dstDir);
+			e.printStackTrace();
+		}
+	}
+	
+	public static void copyFile(File src, File dst) {
+		try {
+			if (!src.exists()) {
+				logger.severe("The specified " + src + " file does not exist!");
+				return;
+			}
+			
+			if (dst.isDirectory()) {
+				dst.mkdirs();
+				copy(new FileInputStream(src), new FileOutputStream(dst + File.separator + src.getName()));
+			} else {
+				copy(new FileInputStream(src), new FileOutputStream(dst));
+			}
+			
+		} catch (IOException e) {
+			logger.severe("Failed copying file " + src + " to " + dst);
+			e.printStackTrace();
+		}
+	}
+	
 	static final int BUFF_SIZE = 100000;
 	static final byte[] buffer = new byte[BUFF_SIZE];
-
-	public static void copyResource(String resource, String directory) {
-		copyResource(resource, directory, resource);
-	}
-
-	public static void copyResource(String resource, String path, String dstFilename) {
-		InputStream in = null;
-		OutputStream out = null;
-
+	public static void copy(InputStream is, OutputStream os) throws IOException {
 		try {
-			in = ClassLoader.getSystemResource(resource).openStream();
-			out = new FileOutputStream(path + File.separator + dstFilename);
 			while (true) {
 				synchronized (buffer) {
-					int amountRead = in.read(buffer);
+					int amountRead = is.read(buffer);
 					if (amountRead == -1)
 						break;
-					out.write(buffer, 0, amountRead);
+					os.write(buffer, 0, amountRead);
 				}
 			}
-
-		} catch (IOException e) {
-			logger.severe("Failed copying " + resource + " to " + path + File.separator + dstFilename);
-			e.printStackTrace();
-
 		} finally {
 			try {
-				if (in != null) {
-					in.close();
+				if (is != null) {
+					is.close();
 				}
 			} catch (IOException e) {
+				// ignore
 			}
 			try {
-				if (out != null) {
-					out.close();
+				if (os != null) {
+					os.close();
 				}
 			} catch (IOException e) {
+				// ignore
 			}
 		}
 	}
 
-	public static void createThumbnail(MovieThumbnailPlugin thumbnailManager, String rootPath, Movie movie, boolean forceThumbnailOverwrite) {
+	public static void createThumbnail(MovieThumbnailPlugin thumbnailManager, String rootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
 		try {
 			String src = rootPath + File.separator + movie.getPosterFilename();
 			String dst = rootPath + File.separator + movie.getThumbnailFilename();
@@ -438,7 +491,8 @@ public abstract class MovieJukeboxTools {
 			if (!(new File(dst).exists()) || forceThumbnailOverwrite) {
 				BufferedImage bi = loadBufferedImage(src);
 				if (bi == null) {
-					copyResource("dummy.jpg", rootPath, movie.getPosterFilename());
+					copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+							new File(rootPath + File.separator + movie.getPosterFilename()));
 					bi = loadBufferedImage(src);
 				}
 				
