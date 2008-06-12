@@ -22,7 +22,7 @@ public class Movie implements Comparable<Movie> {
 	private String titleSort = UNKNOWN;
 	private String year = UNKNOWN;
 	private String releaseDate = UNKNOWN;
-	private String rating = UNKNOWN;
+	private int rating = -1;
 	private String posterURL = UNKNOWN;
 	private String posterFilename = UNKNOWN;
 	private String thumbnailFilename = UNKNOWN;
@@ -163,7 +163,7 @@ public class Movie implements Comparable<Movie> {
 		return previous;
 	}
 
-	public String getRating() {
+	public int getRating() {
 		return rating;
 	}
 
@@ -348,8 +348,8 @@ public class Movie implements Comparable<Movie> {
 		}
 	}
 
-	public void setRating(String rating) {
-		if (!rating.equalsIgnoreCase(this.rating)) {
+	public void setRating(int rating) {
+		if (rating != this.rating) {
 			this.isDirty = true;
 			this.rating = rating;
 		}

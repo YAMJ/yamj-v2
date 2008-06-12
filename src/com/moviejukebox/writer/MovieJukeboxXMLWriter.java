@@ -59,7 +59,7 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<titleSort>")) { movie.setTitleSort(parseCData(r)); }
 				if (tag.equals("<year>")) { movie.setYear(parseCData(r)); }
 				if (tag.equals("<releaseDate>")) { movie.setReleaseDate(parseCData(r)); }
-				if (tag.equals("<rating>")) { movie.setRating(parseCData(r)); }
+				if (tag.equals("<rating>")) { movie.setRating(Integer.parseInt(parseCData(r))); }
 				if (tag.equals("<posterURL>")) { movie.setPosterURL(parseCData(r)); }
 				if (tag.equals("<posterFile>")) { movie.setPosterFilename(parseCData(r)); }
 				if (tag.equals("<thumbnailFile>")) { movie.setThumbnailFilename(parseCData(r)); }
@@ -318,7 +318,7 @@ public class MovieJukeboxXMLWriter {
 			writer.writeStartElement("titleSort"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
 			writer.writeStartElement("year"); writer.writeCharacters(movie.getYear()); writer.writeEndElement();
 			writer.writeStartElement("releaseDate"); writer.writeCharacters(movie.getReleaseDate()); writer.writeEndElement();
-			writer.writeStartElement("rating"); writer.writeCharacters(movie.getRating()); writer.writeEndElement();
+			writer.writeStartElement("rating"); writer.writeCharacters(Integer.toString(movie.getRating())); writer.writeEndElement();
 			writer.writeStartElement("posterURL"); writer.writeCharacters(movie.getPosterURL()); writer.writeEndElement();
 			writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getPosterFilename()); writer.writeEndElement();
 			writer.writeStartElement("thumbnailFile"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
