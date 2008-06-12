@@ -12,11 +12,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +44,9 @@ public abstract class MovieJukeboxTools {
 	private static final Map<Character, String> AGGRESSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
 	private static final Map<Character, String> DEFENSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
 	private static final Map<String, Character> HTML_DECODE_MAP = new HashMap<String, Character>();
+	private static final HtmlEncoderFallbackHandler HTML_ENCODER_FALLBACK = new HtmlEncoderFallbackHandler();
 
-	static {
+	 {
 		// Html encoding mapping according to the HTML 4.0 spec
 		// http://www.w3.org/TR/REC-html40/sgml/entities.html
 
@@ -453,8 +458,8 @@ public abstract class MovieJukeboxTools {
 		}
 	}
 	
-	static final int BUFF_SIZE = 100000;
-	static final byte[] buffer = new byte[BUFF_SIZE];
+	final static int BUFF_SIZE = 100000;
+	final static byte[] buffer = new byte[BUFF_SIZE];
 	public static void copy(InputStream is, OutputStream os) throws IOException {
 		try {
 			while (true) {
@@ -622,5 +627,174 @@ public abstract class MovieJukeboxTools {
 			}
 		}
 		return bi;
+	}
+	
+	private static boolean needsHtmlEncoding(String source, boolean defensive)
+	{
+		if (null == source)
+		{
+			return false;
+		}
+		
+		boolean encode = false;
+		char ch;
+		for (int i = 0; i < source.length(); i++)
+		{
+			ch = source.charAt(i);
+			
+			if ((defensive || (ch != '\u0022' && ch != '\u0026' && ch != '\u003C' && ch != '\u003E')) &&
+				ch < '\u00A0')
+			{
+				continue;
+			}
+			
+			encode = true;
+			break;
+		}
+		
+		return encode;
+	}
+	
+	/**
+	 * Transforms a provided <code>String</code> object into a new string,
+	 * containing only valid Html characters.
+	 *
+	 * @param source The string that has to be transformed into a valid Html
+	 * string.
+	 * @return The encoded <code>String</code> object.
+	 * @see #encodeClassname(String)
+	 * @see #encodeUrl(String)
+	 * @see #encodeUrlValue(String)
+	 * @see #encodeXml(String)
+	 * @see #encodeSql(String)
+	 * @see #encodeString(String)
+	 * @see #encodeLatex(String)
+	 * @see #encodeRegexp(String)
+	 * @since 1.0
+	 */
+	public static String encodeHtml(String source)
+	{
+		if (needsHtmlEncoding(source, false))
+		{
+			return encode(source, HTML_ENCODER_FALLBACK, AGGRESSIVE_HTML_ENCODE_MAP, DEFENSIVE_HTML_ENCODE_MAP);
+		}
+		return source;
+	}
+
+	/**
+	 * Transforms a provided <code>String</code> object into a new string,
+	 * using the mapping that are provided through the supplied encoding
+	 * table.
+	 *
+	 * @param source The string that has to be transformed into a valid
+	 * string, using the mappings that are provided through the supplied
+	 * encoding table.
+	 * @param encodingTables A <code>Map</code> object containing the mappings
+	 * to transform characters into valid entities. The keys of this map
+	 * should be <code>Character</code> objects and the values
+	 * <code>String</code> objects.
+	 * @return The encoded <code>String</code> object.
+	 * @since 1.0
+	 */
+	private static String encode(String source, EncoderFallbackHandler fallbackHandler, Map<Character, String>... encodingTables)
+	{
+		if (null == source)
+		{
+			return null;
+		}
+
+		if (null == encodingTables ||
+			0 == encodingTables.length)
+		{
+			return source;
+		}
+
+		StringBuilder	encoded_string = null;
+		char[]			string_to_encode_array = source.toCharArray();
+		int				last_match = -1;
+
+		for (int i = 0; i < string_to_encode_array.length; i++)
+		{
+			char char_to_encode = string_to_encode_array[i];
+			for (Map<Character, String> encoding_table : encodingTables)
+			{
+				if (encoding_table.containsKey(char_to_encode))
+				{
+					encoded_string = prepareEncodedString(source, encoded_string, i, last_match, string_to_encode_array);
+					
+					encoded_string.append(encoding_table.get(char_to_encode));
+					last_match = i;
+				}
+			}
+			
+			if (fallbackHandler != null &&
+				last_match < i &&
+				fallbackHandler.hasFallback(char_to_encode))
+			{
+				encoded_string = prepareEncodedString(source, encoded_string, i, last_match, string_to_encode_array);
+
+				fallbackHandler.appendFallback(encoded_string, char_to_encode);
+				last_match = i;
+			}
+		}
+
+		if (null == encoded_string)
+		{
+			return source;
+		}
+		else
+		{
+			int difference = string_to_encode_array.length-(last_match+1);
+			if (difference > 0)
+			{
+				encoded_string.append(string_to_encode_array, last_match+1, difference);
+			}
+			return encoded_string.toString();
+		}
+	}
+
+	private static StringBuilder prepareEncodedString(String source, StringBuilder encodedString, int i, int lastMatch, char[] stringToEncodeArray)
+	{
+		if (null == encodedString)
+		{
+			encodedString = new StringBuilder(source.length());
+		}
+		
+		int difference = i - (lastMatch + 1);
+		if (difference > 0)
+		{
+			encodedString.append(stringToEncodeArray, lastMatch + 1, difference);
+		}
+		
+		return encodedString;
+	}
+	
+	private static interface EncoderFallbackHandler
+	{
+		abstract boolean hasFallback(char character);
+		abstract void appendFallback(StringBuilder encodedBuffer, char character);
+	}
+	
+	private static class HtmlEncoderFallbackHandler implements EncoderFallbackHandler
+	{
+		private final  String PREFIX = "&#";
+		private final  String SUFFIX = ";";
+		
+		public boolean hasFallback(char character)
+		{
+			if (character < '\u00A0')
+			{
+				return false;
+			}
+			
+			return true;
+		}
+		
+		public void appendFallback(StringBuilder encodedBuffer, char character)
+		{
+			encodedBuffer.append(PREFIX);
+			encodedBuffer.append((int)character);
+			encodedBuffer.append(SUFFIX);
+		}
 	}
 }

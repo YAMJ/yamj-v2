@@ -22,6 +22,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import com.moviejukebox.MovieJukeboxTools;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -199,7 +200,7 @@ public class MovieJukeboxXMLWriter {
 		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 		XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
 
-		writer.writeStartDocument();
+		writer.writeStartDocument("UTF-8", "1.0");
 		writer.writeStartElement("library");
 
 		writer.writeStartElement("indexes");
@@ -286,8 +287,8 @@ public class MovieJukeboxXMLWriter {
 			} 
 			writer.writeEndElement();
 			
-			writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()+".html"); writer.writeEndElement();
-			writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
+			writer.writeStartElement("details"); writer.writeCharacters(MovieJukeboxTools.encodeHtml(movie.getBaseName()+".html")); writer.writeEndElement();
+			writer.writeStartElement("thumbnail"); writer.writeCharacters(MovieJukeboxTools.encodeHtml(movie.getThumbnailFilename())); writer.writeEndElement();
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();					
@@ -311,7 +312,7 @@ public class MovieJukeboxXMLWriter {
 			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
 	
-			writer.writeStartDocument();
+			writer.writeStartDocument("UTF-8", "1.0");
 			writer.writeStartElement("movie");			
 			writer.writeStartElement("id"); writer.writeCharacters(movie.getId()); writer.writeEndElement();
 			writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
@@ -320,7 +321,7 @@ public class MovieJukeboxXMLWriter {
 			writer.writeStartElement("releaseDate"); writer.writeCharacters(movie.getReleaseDate()); writer.writeEndElement();
 			writer.writeStartElement("rating"); writer.writeCharacters(Integer.toString(movie.getRating())); writer.writeEndElement();
 			writer.writeStartElement("posterURL"); writer.writeCharacters(movie.getPosterURL()); writer.writeEndElement();
-			writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getPosterFilename()); writer.writeEndElement();
+			writer.writeStartElement("posterFile"); writer.writeCharacters(MovieJukeboxTools.encodeHtml(movie.getPosterFilename())); writer.writeEndElement();
 			writer.writeStartElement("thumbnailFile"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
 			writer.writeStartElement("plot"); writer.writeCharacters(movie.getPlot()); writer.writeEndElement();
 			writer.writeStartElement("director"); writer.writeCharacters(movie.getDirector()); writer.writeEndElement();
@@ -378,5 +379,5 @@ public class MovieJukeboxXMLWriter {
 			writer.writeEndDocument();
 			writer.close();
 		}
-	}
+	}	
 }
