@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	<xsl:output method="html" encoding="ISO-8859-1"/>
+        <xsl:output method="html" encoding="ISO-8859-1"/>
 	
 <xsl:template match="/movie">
 <html>
@@ -41,6 +41,13 @@
           </td>
         </tr>
         <tr>
+          <td>
+            <xsl:if test="rating != -1">
+              <img><xsl:attribute name="src">pictures/rating_<xsl:value-of select="floor(rating div 10)*10" />.png</xsl:attribute></img>
+            </xsl:if>
+          </td>
+        </tr>
+        <tr>
           <td class="title2" valign="top" colspan="4">
             <xsl:if test="director != 'UNKNOWN'">
               <xsl:value-of select="director" /> 
@@ -67,9 +74,6 @@
             <xsl:if test="language != 'UNKNOWN'">
               <xsl:if test="genres != 'UNKNOWN'"><xsl:if test="runtime != 'UNKNOWN'">, </xsl:if></xsl:if>
               <xsl:value-of select="language" /> 
-            </xsl:if>
-            <xsl:if test="rating != 'UNKNOWN'">
-              (<xsl:value-of select="rating" />) 
             </xsl:if>
           </td>
         </tr>
