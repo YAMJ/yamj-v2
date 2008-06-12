@@ -9,7 +9,7 @@
   <title><xsl:value-of select="titleSort"/></title>
 </head>
 
-<body bgproperties="fixed" background="background.jpg" onloadset="1">
+<body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   
@@ -135,7 +135,7 @@
                    </xsl:if>
 
                    <xsl:attribute name="vod"/>               
-                   <img src="play.png" onfocussrc="play_selected.png"/>
+                   <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
                  </a>
                 </center>
             </td>
@@ -169,7 +169,7 @@
                      </xsl:if>
 
                      <xsl:attribute name="vod"/>               
-                     <img src="play_small.png" onfocussrc="play_selected_small.png" align="top"/>
+                     <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                      
                      <xsl:text>&#160;</xsl:text>
                      

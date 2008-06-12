@@ -5,6 +5,7 @@
 MovieJukebox 1.0.9 beta
 -----------------------
     - Added DVD images support
+    - New skins directory added + skin selection property added into moviejukebox.properties
 
 MovieJukebox 1.0.8 beta
 -----------------------

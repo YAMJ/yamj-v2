@@ -43,6 +43,7 @@ public class MovieJukebox {
 
 	private String movieLibraryRoot;
 	private String jukeboxRoot;
+	private String skinHome;
 	private String detailsDirName;
 	private boolean forceThumbnailOverwrite;
 	private Properties props;
@@ -164,6 +165,7 @@ public class MovieJukebox {
 
 		this.movieLibraryRoot = source;
 		this.jukeboxRoot = jukeboxRoot;
+		this.skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
 
@@ -243,7 +245,7 @@ public class MovieJukebox {
 			
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-			MovieJukeboxTools.createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, movie, forceThumbnailOverwrite);
+			MovieJukeboxTools.createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 			
 			// write the movie details HTML		
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
@@ -254,14 +256,7 @@ public class MovieJukebox {
 		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, detailsDirName, library);
 
 		logger.fine("Copying resources to Jukebox directory...");
-		MovieJukeboxTools.copyResource("exportdetails_item_popcorn.css", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("exportindex_item_pch.css", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("background.jpg", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("nav.png", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("play.png", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("play_selected.png", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("play_small.png", jukeboxDetailsRoot);
-		MovieJukeboxTools.copyResource("play_selected_small.png", jukeboxDetailsRoot);
+		MovieJukeboxTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
 
 		logger.fine("Process terminated.");
 	}
@@ -334,14 +329,18 @@ public class MovieJukebox {
 
 			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
 				logger.finest("Dummy image used for " + movie.getBaseName());
-				MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getPosterFilename());
+				MovieJukeboxTools.copyFile(
+					new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+					new File(jukeboxDetailsRoot + File.separator + movie.getPosterFilename()));				
 			} else {
 				try {
 					logger.finest("Downloading poster for " + movie.getBaseName() + " [calling plugin]");
 					MovieJukeboxTools.downloadPoster(posterFile, movie);
 				} catch (Exception e) {
 					logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
-					MovieJukeboxTools.copyResource("dummy.jpg", jukeboxDetailsRoot, movie.getPosterFilename());
+					MovieJukeboxTools.copyFile(
+							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+							new File(jukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
 				}
 			}
 		}

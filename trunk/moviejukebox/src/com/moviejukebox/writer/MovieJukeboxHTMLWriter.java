@@ -29,10 +29,12 @@ public class MovieJukeboxHTMLWriter {
 
 	private boolean forceHTMLOverwrite;
 	private int nbMoviesPerPage;
+	private String skinHome;
 
 	public MovieJukeboxHTMLWriter(Properties props) {
 		forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "false"));
 		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
+		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
 	}
 
 	public void generateMovieDetailsHTML(String rootPath, Movie movie) {
@@ -46,9 +48,8 @@ public class MovieJukeboxHTMLWriter {
 				htmlFile.getParentFile().mkdirs();
 				
 				TransformerFactory tranformerFactory = TransformerFactory.newInstance();
-				java.net.URL url = ClassLoader.getSystemResource("detail.xsl");
-			 
-				Source xslSource = new StreamSource(url.openStream());
+
+				Source xslSource = new StreamSource(new File(skinHome + File.separator + "detail.xsl"));
 				Transformer transformer = tranformerFactory.newTransformer(xslSource);
 			 
 				Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
@@ -121,9 +122,8 @@ public class MovieJukeboxHTMLWriter {
 			htmlFile.getParentFile().mkdirs();
 			
 			TransformerFactory tranformerFactory = TransformerFactory.newInstance();
-			java.net.URL url = ClassLoader.getSystemResource("index.xsl");
-		 
-			Source xslSource = new StreamSource(url.openStream());
+			
+			Source xslSource = new StreamSource(new File(skinHome + File.separator + "index.xsl"));
 			Transformer transformer = tranformerFactory.newTransformer(xslSource);
 		 
 			Source xmlSource = new StreamSource(new FileInputStream(xmlFile));

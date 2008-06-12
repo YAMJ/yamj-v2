@@ -30,7 +30,6 @@
 	</target>
 
 	<target name="delivery">
-		<mkdir dir="dist/resources"/>
 		<mkdir dir="dist/lib"/>
 
 		<jar destfile="dist/lib/${ant.project.name}.jar" basedir="build" includes="**/*.class" />
@@ -47,10 +46,9 @@
 		    </fileset>
 		</copy>
 		
-		<copy todir="dist/resources">
-			<fileset dir="src">
-			      <include name="*"/>
-			      <exclude name="com"/>
+		<copy todir="dist/skins">
+			<fileset dir="skins">
+			      <include name="**/*"/>
 		    </fileset>
 		</copy>
 		

@@ -17,6 +17,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -24,12 +25,14 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import com.moviejukebox.MovieJukeboxTools;
 import com.moviejukebox.model.Movie;
 
 public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 
 	private static Logger logger = Logger.getLogger("moviejukebox");
 
+	private String skinHome; 
 	private boolean createReflectionEffect;
 	private boolean createGlossyEffect;
 	private boolean normalizeThumbnails;
@@ -39,6 +42,7 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 
 	@Override
 	public void init(Properties props) {
+		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
 		thumbWidth = Integer.parseInt(props.getProperty("thumbnails.width", "180"));
 		thumbHeight = Integer.parseInt(props.getProperty("thumbnails.height", "260"));
 		createReflectionEffect = Boolean.parseBoolean(props.getProperty("thumbnails.plugin.reflection", "true"));
@@ -78,7 +82,7 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 		   || videoOutput.indexOf("1080") != -1) {
 			
 			try {
-				InputStream in = ClassLoader.getSystemResource("hd.png").openStream();
+				InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "hd.png");
 				BufferedImage biHd = ImageIO.read(in);
 				Graphics g = bi.getGraphics();
 				g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);

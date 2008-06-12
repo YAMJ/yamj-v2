@@ -21,7 +21,7 @@
                 }
     </script>
 </head>
-<body bgproperties="fixed" background="background.jpg">
+<body bgproperties="fixed" background="pictures/background.jpg">
 <xsl:attribute name="ONLOADSET">
   <xsl:for-each select="library/indexes/index"><xsl:if test="@current='true'"><xsl:value-of select="@name" /></xsl:if></xsl:for-each>
 </xsl:attribute>
@@ -62,7 +62,7 @@
            <tr><td align="right"><table><tr>
              <td valign="center">
               <div class="counter"><xsl:value-of select="$currentIndex"/> / <xsl:value-of select="$lastIndex" /></div></td>
-             <td valign="top"><img src="nav.png"/></td>
+             <td valign="top"><img src="pictures/nav.png"/></td>
              </tr></table>
            </td></tr>
         </xsl:if>
