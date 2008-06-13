@@ -163,9 +163,18 @@ public class MovieJukebox {
 		
 		logger.finer(props.toString());
 
+		this.skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
+
+		try {
+			propertiesStream = new FileInputStream(this.skinHome + File.separator + "skin.properties");
+			props.load(propertiesStream);
+		} catch (Exception e) {
+			logger.severe("Failed loading file skin.properties: Please check your configuration. The moviejukebox.properties should be in the classpath, and define a property called mjb.skin.dir which point to the skin directory.");
+		}
+		
+		
 		this.movieLibraryRoot = source;
 		this.jukeboxRoot = jukeboxRoot;
-		this.skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
 
