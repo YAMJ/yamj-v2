@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -14,6 +15,7 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.MovieJukeboxTools;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 	
@@ -22,6 +24,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	private String preferredSearchEngine;
 	private String preferredPosterSearchEngine;
 	private boolean perfectMatch;
+
+	@Override
+	public void init(Properties props) {
+		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
+		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
+		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
+	}
 
 	public void scan(Movie mediaFile) {
 
@@ -253,6 +262,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			
 			movie.setPosterURL(posterURL);
 
+			if (movie.isTVShow()) {
+				updateTVShowInfo(movie);
+			}
+			
 		} catch (Exception e) {
 			logger.severe("Failed retreiving imdb rating for movie : " + movie.getId());
 			e.printStackTrace();
@@ -431,11 +444,33 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 	}
 
+	/** 
+	 * Get the TV show information from IMDb
+	 * @throws IOException 
+	 * @throws MalformedURLException 
+	 */
+	private void updateTVShowInfo(Movie movie) throws MalformedURLException, IOException {
+		if (!movie.isTVShow())
+			return;
 
-	@Override
-	public void init(Properties props) {
-		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
-		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
-		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
+		/* String title = movie.getTitleSort();
+		if (title.startsWith("\"")) {
+			StringTokenizer st = new StringTokenizer(title, "\"");
+			movie.setTitleSort(st.nextToken());
+		} */
+		
+		String xml = request(new URL("http://www.imdb.com/title/" + movie.getId()+"/episodes"));
+		
+		int season = movie.getSeason();
+		for (MovieFile file : movie.getFiles()) {
+			int episode = file.getPart();
+			String episodeName = extractTag(xml, "<h4>Season "+ season +", Episode " + episode + ":", 2);
+			
+			if (episodeName.indexOf("Episode #") == -1) {
+				file.setTitle(episodeName);
+			} else {
+				file.setTitle("Unknown");
+			}
+		}
 	}
 }
