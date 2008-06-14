@@ -1,5 +1,6 @@
 package com.moviejukebox.model;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,11 +89,25 @@ public class Library implements Map<String, Movie> {
 	}
 	
 	private void indexByProperties() {
+		long oneDay = 1000 * 60 * 60 * 24;
+		long oneWeek = oneDay * 7;
+		long oneMonth = oneWeek * 30;
+
 		HashMap<String, List<Movie>> index = new HashMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {				
 			if (movie.getVideoOutput().indexOf("720") != -1  || movie.getVideoOutput().indexOf("1080") != -1) {
 				addMovie(index, "HD" , movie);
 			}
+			
+			File f = movie.getFile();
+			long delay = System.currentTimeMillis() - f.lastModified();
+			
+			if (delay <= oneWeek ) {
+				addMovie(index, "New this week", movie);
+			} else if (delay < oneMonth) {
+				addMovie(index, "New this month", movie);
+			}
+
 		}
 		indexes.put("Other", index);
 	}
