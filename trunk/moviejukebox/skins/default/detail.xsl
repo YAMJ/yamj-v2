@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-        <xsl:output method="html" encoding="ISO-8859-1"/>
-	
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
 <xsl:template match="/movie">
 <html>
 <head>
   <link rel="StyleSheet" type="text/css" href="exportdetails_item_popcorn.css"></link>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <title><xsl:value-of select="titleSort"/></title>
 </head>
 
