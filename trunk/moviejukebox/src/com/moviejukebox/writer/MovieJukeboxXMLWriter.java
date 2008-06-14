@@ -287,8 +287,8 @@ public class MovieJukeboxXMLWriter {
 			} 
 			writer.writeEndElement();
 			
-			writer.writeStartElement("details"); writer.writeCharacters(MovieJukeboxTools.encodeHtml(movie.getBaseName()+".html")); writer.writeEndElement();
-			writer.writeStartElement("thumbnail"); writer.writeCharacters(MovieJukeboxTools.encodeHtml(movie.getThumbnailFilename())); writer.writeEndElement();
+			writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()+".html"); writer.writeEndElement();
+			writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();					
