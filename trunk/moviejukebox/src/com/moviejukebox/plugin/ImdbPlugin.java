@@ -193,7 +193,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
 			movie.setTitleSort(extractTag(xml, "<title>", 0, "()><"));
 			movie.setRating(parseRating(extractTag(xml, "<b>User Rating:</b>",2)));
-			movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+			//movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
 			movie.setDirector(extractTag(xml, "<h5>Director:</h5>", 1));
 			movie.setReleaseDate(extractTag(xml, "<h5>Release Date:</h5>"));
 			movie.setRuntime(extractTag(xml, "<h5>Runtime:</h5>"));
