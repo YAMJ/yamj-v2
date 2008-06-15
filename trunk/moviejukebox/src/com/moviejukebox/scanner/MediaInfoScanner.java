@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
+
 import com.moviejukebox.model.Movie;
 
 /**
@@ -34,6 +36,9 @@ public class MediaInfoScanner {
 	public final static String OS_ARCH = System.getProperty("os.arch");
 	
 	private boolean activated;
+	
+	//Dvd rip infos Scanner
+	private DVDRipScanner localDVDRipScanner;
 
 	/**
 	 * @param mediaInfoPath
@@ -62,20 +67,30 @@ public class MediaInfoScanner {
 		} else {
 			activated = true;
 		}
+		localDVDRipScanner=new DVDRipScanner(props);
 		
 	}
 
 	public void scan(Movie currentMovie) {
-		if (currentMovie.getFile().isDirectory())
-			return;
+		if (currentMovie.getFile().isDirectory()) {
+			FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie);
+			if (mainMovieIFO != null) {
+			  scan(currentMovie, mainMovieIFO.getLocation());
+			  currentMovie.setRuntime(localDVDRipScanner.formatDuration(mainMovieIFO));
+			}
+		}
+		else scan(currentMovie, currentMovie.getFile().getAbsolutePath());
 		
+	}
+
+	public void scan(Movie currentMovie, String movieFilePath) {
+
 		if (!activated)
 			return;
 		
 		try {
 			String[] commandMedia = mediaInfoExe;
-			commandMedia[commandMedia.length - 1] = currentMovie.getFile()
-					.getAbsolutePath();
+			commandMedia[commandMedia.length - 1] = movieFilePath;
 
 			ProcessBuilder pb = new ProcessBuilder(commandMedia);
 
