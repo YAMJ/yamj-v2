@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import com.jhlabs.image.MirrorFilter;
+import com.jhlabs.image.PerspectiveFilter;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
@@ -238,9 +240,12 @@ public class GraphicTools {
 	////////////////////////////////////////////////////////////////////////////////////////////
 	/// 3D effect
 	//
-
 	public static BufferedImage create3DPicture(BufferedImage bi) {
-		// TODO
-		return bi;
+		int w = bi.getWidth();
+        int h = bi.getHeight();
+
+        PerspectiveFilter perspectiveFilter = new PerspectiveFilter();
+        perspectiveFilter.setCorners(0, 0, w, 0, w, h - 10, 0, h);
+        return perspectiveFilter.filter(bi, null);
 	}
 }
