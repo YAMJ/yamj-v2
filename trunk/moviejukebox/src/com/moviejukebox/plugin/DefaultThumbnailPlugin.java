@@ -1,19 +1,7 @@
 package com.moviejukebox.plugin;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Paint;
-import java.awt.PaintContext;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,10 +19,10 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 	private static Logger logger = Logger.getLogger("moviejukebox");
 
 	private String skinHome; 
-	private boolean createReflectionEffect;
-	private boolean create3DEffect;
+	private boolean addReflectionEffect;
+	private boolean addPerspective;
 	private boolean normalizeThumbnails;
-	private boolean drawLogoHD;
+	private boolean addHDLogo;
 	private int thumbWidth;
 	private int thumbHeight;
 
@@ -43,10 +31,10 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
 		thumbWidth = Integer.parseInt(props.getProperty("thumbnails.width", "180"));
 		thumbHeight = Integer.parseInt(props.getProperty("thumbnails.height", "260"));
-		createReflectionEffect = Boolean.parseBoolean(props.getProperty("thumbnails.plugin.reflection", "true"));
-		create3DEffect = Boolean.parseBoolean(props.getProperty("thumbnails.3D", "false"));
+		addReflectionEffect = Boolean.parseBoolean(props.getProperty("thumbnails.plugin.reflection", "true"));
+		addPerspective = Boolean.parseBoolean(props.getProperty("thumbnails.perspective", "false"));
 		normalizeThumbnails = Boolean.parseBoolean(props.getProperty("thumbnails.normalize", "false"));
-		drawLogoHD = Boolean.parseBoolean(props.getProperty("thumbnails.logoHD", "false"));
+		addHDLogo = Boolean.parseBoolean(props.getProperty("thumbnails.logoHD", "false"));
 	}
 
 	@Override
@@ -59,15 +47,15 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 			bi = GraphicTools.scaleToSize(thumbWidth, thumbHeight, bi);
 		}
 
-		if (drawLogoHD) {
+		if (addHDLogo) {
 			bi = drawLogoHD(movie, bi);
 		}
 
-		if (createReflectionEffect) {
+		if (addReflectionEffect) {
 			bi = GraphicTools.createReflectedPicture(bi);
 		}
 		
-		if (create3DEffect) {
+		if (addPerspective) {
 			bi = GraphicTools.create3DPicture(bi);
 		}
 
