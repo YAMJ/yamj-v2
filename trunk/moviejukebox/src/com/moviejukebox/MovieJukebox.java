@@ -1,10 +1,15 @@
 package com.moviejukebox;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,6 +37,8 @@ import com.moviejukebox.plugin.MovieThumbnailPlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -254,7 +261,7 @@ public class MovieJukebox {
 			
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-			MovieJukeboxTools.createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+			createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 			
 			// write the movie details HTML		
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
@@ -265,7 +272,7 @@ public class MovieJukebox {
 		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, detailsDirName, library);
 
 		logger.fine("Copying resources to Jukebox directory...");
-		MovieJukeboxTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
+		FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
 
 		logger.fine("Process terminated.");
 	}
@@ -338,16 +345,16 @@ public class MovieJukebox {
 
 			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
 				logger.finest("Dummy image used for " + movie.getBaseName());
-				MovieJukeboxTools.copyFile(
+				FileTools.copyFile(
 					new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
 					new File(jukeboxDetailsRoot + File.separator + movie.getPosterFilename()));				
 			} else {
 				try {
 					logger.finest("Downloading poster for " + movie.getBaseName() + " [calling plugin]");
-					MovieJukeboxTools.downloadPoster(posterFile, movie);
+					downloadPoster(posterFile, movie);
 				} catch (Exception e) {
 					logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
-					MovieJukeboxTools.copyFile(
+					FileTools.copyFile(
 							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
 							new File(jukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
 				}
@@ -432,5 +439,43 @@ public class MovieJukebox {
 
 		thumbnailPlugin.init(props);
 		return thumbnailPlugin;
+	}
+
+	/**
+	 * Download the movie poster for the specified movie into the specified file.
+	 * @throws IOException
+	 */
+	public static void downloadPoster(File posterFile, Movie mediaFile) throws IOException {
+		URL url = new URL(mediaFile.getPosterURL());
+		URLConnection cnx = url.openConnection();
+	
+		// Let's pretend we're Firefox...
+		cnx.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.1.5) Gecko/20070719 Iceweasel/2.0.0.5 (Debian-2.0.0.5-0etch1)");
+
+		FileTools.copy(cnx.getInputStream(), new FileOutputStream(posterFile));
+	}
+
+	public static void createThumbnail(MovieThumbnailPlugin thumbnailManager, String rootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
+		try {
+			String src = rootPath + File.separator + movie.getPosterFilename();
+			String dst = rootPath + File.separator + movie.getThumbnailFilename();
+	
+			if (!(new File(dst).exists()) || forceThumbnailOverwrite) {
+				BufferedImage bi = GraphicTools.loadBufferedImage(src);
+				if (bi == null) {
+					FileTools.copyFile(
+							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+							new File(rootPath + File.separator + movie.getPosterFilename()));
+					bi = GraphicTools.loadBufferedImage(src);
+				}
+				
+				bi = thumbnailManager.generate(movie, bi);
+				
+				GraphicTools.saveImageToDisk(bi, dst);
+			}
+		} catch (Exception e) {
+			logger.severe("Failed creating thumbnail for " + movie.getTitle());
+			e.printStackTrace();
+		}
 	}
 }
