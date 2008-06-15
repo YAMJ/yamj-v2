@@ -13,9 +13,9 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
-import com.moviejukebox.MovieJukeboxTools;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.HTMLTools;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 	
@@ -297,7 +297,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		for (int i = 0; i < skip; i++)
 			st.nextToken();
 		
-		String value = MovieJukeboxTools.decodeHtml(st.nextToken().trim());
+		String value = HTMLTools.decodeHtml(st.nextToken().trim());
 		if (   (value.indexOf("uiv=\"content-ty")!= -1) 
 			    || (value.indexOf("cast")!= -1)
 		    	|| (value.indexOf("title")!= -1)
