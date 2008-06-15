@@ -179,11 +179,17 @@ public class MovieFilenameScanner {
 	}
 
 	protected int getPart(String filename) {
-		String upperCaseFilename = filename.toUpperCase();
-		if (hasKeyword(upperCaseFilename, new String[] { "CD1", "CD 1" } )) return 1;
-		if (hasKeyword(upperCaseFilename, new String[] { "CD2", "CD 2" } )) return 2;
-		if (hasKeyword(upperCaseFilename, new String[] { "CD3", "CD 3" } )) return 3;
-		if (hasKeyword(upperCaseFilename, new String[] { "CD4", "CD 4" } )) return 4;
+		String f = filename.toUpperCase();
+		int index = f.indexOf("CD");
+		if(index!= -1) {
+			updateFirstKeywordIndex(index);
+			StringTokenizer st = new StringTokenizer(f.substring(index+2), " {[-|_)]},.");
+			try {
+				return Integer.parseInt(st.nextToken());
+			} catch (Exception e) {
+				return 1;
+			}
+		}
 		return 1;
 	}
 	
