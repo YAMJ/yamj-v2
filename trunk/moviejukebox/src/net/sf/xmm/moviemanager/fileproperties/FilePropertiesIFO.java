@@ -21,6 +21,8 @@
  * - org.apache.log4j.Logger switched to java.util.logging.Logger
  * - Use only getRuntime (Video/Audio/Subs infos will be scanned by mediainfo)
  * - removed all unused code
+ * - fixed the way duration is computed (minutes and secondes intepretation was
+ *   faulty)
  **/
 
 package net.sf.xmm.moviemanager.fileproperties;
@@ -95,23 +97,27 @@ class FilePropertiesIFO extends FileProperties {
 
 			runtime[i] = 0;
 
-			runtime[i] += Integer.parseInt(Integer.toHexString(ifoFile[pointer
-					+ startcode + 4]), 16) * 60 * 60; /* Hours */
-			runtime[i] += Integer.parseInt(Integer.toHexString(ifoFile[pointer
-					+ startcode + 5]), 16) * 60; /* Minutes */
-			runtime[i] += Integer.parseInt(Integer.toHexString(ifoFile[pointer
-					+ startcode + 6]), 16); /* Seconds */
-
-			//int[] bits = getBits(ifoFile[pointer + startcode + 7], 1);
-
+			runtime[i] += encode(ifoFile[pointer + startcode + 4]) * 60 * 60; /* Hours */
+			runtime[i] += encode(ifoFile[pointer + startcode + 5]) * 60; /* Minutes */
+			runtime[i] += encode(ifoFile[pointer + startcode + 6]); /* Seconds */
 
 			/* Encrease by 8 to get to the next startcode */
 			offsetVTS_PGCI += 8;
 			startcode = changeEndianness(readUnsignedInt32(ifoFile,
 					offsetVTS_PGCI));
-		}
+        }
 
 		setDuration(runtime[0]);
+	}
+
+	public static int encode(byte dataByte) {
+		StringBuilder builder = new StringBuilder();
+
+		// A byte stand for 2 hex characters
+		builder.append(Integer.toHexString((dataByte & 0xF0) >> 4));
+		builder.append(Integer.toHexString(dataByte & 0x0F));
+
+		return Integer.parseInt(builder.toString());
 	}
 
 }
