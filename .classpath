@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/filters.jar" sourcepath="C:/Users/Julien/workspace/Filters/src"/>
+	<classpathentry kind="lib" path="lib/mucommanderlight.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

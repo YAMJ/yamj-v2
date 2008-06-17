@@ -2,17 +2,23 @@ package com.moviejukebox.scanner;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.logging.Logger;
 
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
 import com.moviejukebox.model.Movie;
-
+import com.mucommander.file.AbstractFile;
+import com.mucommander.file.ArchiveEntry;
+import com.mucommander.file.FileFactory;
+import com.mucommander.file.impl.iso.IsoArchiveFile;
 /**
  * @author Grael
  */
@@ -73,13 +79,55 @@ public class MediaInfoScanner {
 
 	public void scan(Movie currentMovie) {
 		if (currentMovie.getFile().isDirectory()) {
-			FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie);
+            //Scan IFO files
+			FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
 			if (mainMovieIFO != null) {
 			  scan(currentMovie, mainMovieIFO.getLocation());
 			  currentMovie.setRuntime(localDVDRipScanner.formatDuration(mainMovieIFO));
 			}
 		}
-		else scan(currentMovie, currentMovie.getFile().getAbsolutePath());
+		else 
+			if (currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) {
+				//extracting IFO files from iso file
+				AbstractFile abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
+				IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
+                File tempRep = new File("./isoTEMP/VIDEO_TS");
+                tempRep.mkdirs();
+				try {
+					Vector allEntries = scannedIsoFile.getEntries();
+					Iterator parcoursEntries = allEntries.iterator();
+					while(parcoursEntries.hasNext()) {
+						ArchiveEntry currentArchiveEntry = (ArchiveEntry)parcoursEntries.next();
+						if (currentArchiveEntry.getName().endsWith("IFO")) {
+							File currentIFO =new File("./isoTEMP/VIDEO_TS/"+currentArchiveEntry.getName());
+							FileOutputStream fosCurrentIFO = new FileOutputStream( currentIFO);
+							byte[] ifoFileContent = new byte[Integer.parseInt(Long.toString(currentArchiveEntry.getSize()))];
+							scannedIsoFile.getEntryInputStream(currentArchiveEntry).read(ifoFileContent);
+							fosCurrentIFO.write(ifoFileContent);
+							fosCurrentIFO.close();
+						}
+					}
+				}
+				catch (Exception e) {
+					logger.fine(e.getMessage());
+				}
+				
+				//Scan IFO files
+				FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
+				if (mainMovieIFO != null) {
+				  scan(currentMovie, mainMovieIFO.getLocation());
+				  currentMovie.setRuntime(localDVDRipScanner.formatDuration(mainMovieIFO));
+				}
+				
+				// Clean up
+				File[] isoList = tempRep.listFiles();
+				for (int nbFiles=0;nbFiles<isoList.length;nbFiles++)
+					isoList[nbFiles].delete();
+				tempRep.delete();
+			}
+			else {
+				scan(currentMovie, currentMovie.getFile().getAbsolutePath());
+			}
 		
 	}
 

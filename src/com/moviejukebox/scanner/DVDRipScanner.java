@@ -7,8 +7,6 @@ import java.util.logging.Logger;
 
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
-import com.moviejukebox.model.Movie;
-
 /**
  * @author Grael by using GPL Source from Mediterranean :
  * @(#)DialogMovieInfo.java 1.0 26.09.06 (dd.mm.yy)
@@ -38,11 +36,11 @@ public class DVDRipScanner {
 	public DVDRipScanner(Properties props) {
 	}
 
-	public FilePropertiesMovie executeGetDVDInfo(Movie currentMovie) {
+	public FilePropertiesMovie executeGetDVDInfo(File mediaRep) {
 		try {
 
 			/* Gets the path... */
-			File selectedFile = currentMovie.getFile();
+			File selectedFile = mediaRep;
 
 			if (selectedFile.getName().equalsIgnoreCase("AUDIO_TS") || selectedFile.getName().equalsIgnoreCase("VIDEO_TS")) { //$NON-NLS-1$
 				selectedFile = selectedFile.getParentFile();
@@ -58,7 +56,7 @@ public class DVDRipScanner {
 
 			if (!video_ts.equalsIgnoreCase("VIDEO_TS"))
 				throw new Exception(
-						"DVD drive not found:" + currentMovie.getFile()); //$NON-NLS-1$
+						"DVD drive not found:" + mediaRep);
 
 			selectedFile = new File(selectedFile.getAbsolutePath(), video_ts);
 
@@ -82,12 +80,8 @@ public class DVDRipScanner {
 				log.info("No Ifo Found");
 			} else {
 
-				int biggestSize = 0;
-				int biggestSizeIndex = -1;
 				int longestDuration = 0;
 				int longestDurationIndex = -1;
-
-				int mainIfoIndex = -1;
 
 				FilePropertiesMovie[] fileProperties = new FilePropertiesMovie[ifo.length];
 
@@ -96,34 +90,17 @@ public class DVDRipScanner {
 						fileProperties[i] = new FilePropertiesMovie(ifo[i]
 								.getAbsolutePath());
 
-						if (ifo[i].length() > biggestSize) {
-							biggestSize = (int) ifo[i].length();
-							biggestSizeIndex = i;
-						}
-
 						if (fileProperties[i].getDuration() > longestDuration) {
 							longestDuration = fileProperties[i].getDuration();
 							longestDurationIndex = i;
 						}
 
 					} catch (Exception e) {
-						log.finer("Error when parsing file:" + ifo[i]); //$NON-NLS-1$
+						log.finer("Error when parsing file:" + ifo[i]); 
 					}
 				}
 
-				/*
-				 * If duration less than 30 minutes, will check the other ifo
-				 * files
-				 */
-				if (fileProperties[biggestSizeIndex].getDuration() < 1800) {
-
-					if (longestDurationIndex != biggestSizeIndex
-							&& longestDuration > 1800)
-						mainIfoIndex = longestDurationIndex;
-				} else
-					mainIfoIndex = biggestSizeIndex;
-
-				return fileProperties[mainIfoIndex];
+				return fileProperties[longestDurationIndex];
 			}
 		} catch (Exception err) {
 			err.printStackTrace();

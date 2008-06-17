@@ -70,6 +70,7 @@ class FilePropertiesIFO extends FileProperties {
 	void getRuntime(byte[] ifoFile) throws Exception {
 
 		int[] runtime;
+		int mainRuntime=0;
 
 		/* sector pointer to VTS_PGCI (Title Program Chain table) Offset 204 */
 		int sectorPointerVTS_PGCI = changeEndianness(readUnsignedInt32(ifoFile,
@@ -101,13 +102,16 @@ class FilePropertiesIFO extends FileProperties {
 			runtime[i] += encode(ifoFile[pointer + startcode + 5]) * 60; /* Minutes */
 			runtime[i] += encode(ifoFile[pointer + startcode + 6]); /* Seconds */
 
+			if (mainRuntime < runtime[i])
+				mainRuntime = runtime[i];
+			
 			/* Encrease by 8 to get to the next startcode */
 			offsetVTS_PGCI += 8;
 			startcode = changeEndianness(readUnsignedInt32(ifoFile,
 					offsetVTS_PGCI));
         }
 
-		setDuration(runtime[0]);
+		setDuration(mainRuntime);
 	}
 
 	public static int encode(byte dataByte) {
