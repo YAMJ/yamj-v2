@@ -26,7 +26,8 @@ How does it work?
     
     - Unrar the MovieJukebox archive
     
-    - Install MediaInfo right into the movieJukebox directory (moviejukebox/mediaInfo)
+    - Install MediaInfo CLI (not full version, only command line version)
+      right into the movieJukebox directory (moviejukebox/mediaInfo)
           * Tested with MediaInfo version 0.7.7.0
           * You can download at: http://sourceforge.net/project/showfiles.php?group_id=86862&package_id=90612
     

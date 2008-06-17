@@ -6,6 +6,8 @@ MovieJukebox 1.0.9 beta
 -----------------------
     - Added DVD images support
     - New skins directory added + skin selection property added into moviejukebox.properties
+    - Added media info extraction from DVD images (Video_ts/ifo or iso) with main movie detection
+      (using sources or jar from 2 GPL projects : muCommander and MeD's Movie Manager)
 
 MovieJukebox 1.0.8 beta
 -----------------------
