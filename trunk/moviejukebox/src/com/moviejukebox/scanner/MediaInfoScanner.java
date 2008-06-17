@@ -98,7 +98,7 @@ public class MediaInfoScanner {
 					Iterator parcoursEntries = allEntries.iterator();
 					while(parcoursEntries.hasNext()) {
 						ArchiveEntry currentArchiveEntry = (ArchiveEntry)parcoursEntries.next();
-						if (currentArchiveEntry.getName().endsWith("IFO")) {
+						if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
 							File currentIFO =new File("./isoTEMP/VIDEO_TS/"+currentArchiveEntry.getName());
 							FileOutputStream fosCurrentIFO = new FileOutputStream( currentIFO);
 							byte[] ifoFileContent = new byte[Integer.parseInt(Long.toString(currentArchiveEntry.getSize()))];
