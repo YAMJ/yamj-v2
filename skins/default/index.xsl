@@ -27,8 +27,6 @@
 </xsl:attribute>
 
 <!-- Navigation using remote keys PageUP/PageDown and Prev/Next -->
-<a name="pgup" tvid="pgup" ONFOCUSLOAD=""><xsl:attribute name="href"><xsl:value-of select="//index[@name='previous']" />.html</xsl:attribute></a>
-<a name="pgdn" tvid="pgdn" ONFOCUSLOAD=""><xsl:attribute name="href"><xsl:value-of select="//index[@name='next']" />.html</xsl:attribute></a>
 <a tvid="prev"><xsl:attribute name="href"><xsl:value-of select="//index[@name='previous']" />.html</xsl:attribute></a>
 <a tvid="next"><xsl:attribute name="href"><xsl:value-of select="//index[@name='next']" />.html</xsl:attribute></a>
 
@@ -63,7 +61,10 @@
            <tr><td align="right"><table><tr>
              <td valign="center">
               <div class="counter"><xsl:value-of select="$currentIndex"/> / <xsl:value-of select="$lastIndex" /></div></td>
-             <td valign="top"><img src="pictures/nav.png"/></td>
+             <td valign="top">
+                 <a name="pgdn" tvid="pgdn" ONFOCUSLOAD=""><xsl:attribute name="href"><xsl:value-of select="//index[@name='next']" />.html</xsl:attribute><img src="pictures/nav_down.png" /></a>
+                 <a name="pgup" tvid="pgup" ONFOCUSLOAD=""><xsl:attribute name="href"><xsl:value-of select="//index[@name='previous']" />.html</xsl:attribute><img src="pictures/nav_up.png" /></a>
+             </td>
              </tr></table>
            </td></tr>
         </xsl:if>
