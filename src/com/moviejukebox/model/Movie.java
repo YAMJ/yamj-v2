@@ -35,7 +35,7 @@ public class Movie implements Comparable<Movie> {
 	private int season = -1;
 	private boolean hasSubtitles = false;
 	private Collection<String> genres = new ArrayList<String>();
-	private Collection<String> casting = new ArrayList<String>();
+	private Collection<String> cast = new ArrayList<String>();
 	private String container = UNKNOWN;  // AVI, MKV, TS, etc.
 	private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
 	private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
@@ -43,6 +43,7 @@ public class Movie implements Comparable<Movie> {
 	private String videoSource = UNKNOWN;
 	private String videoOutput = UNKNOWN;
 	private int fps = 60;
+	private String certification = UNKNOWN;
 
 	// Navigation data
 	private String first = UNKNOWN;
@@ -81,8 +82,8 @@ public class Movie implements Comparable<Movie> {
 		return baseName;
 	}
 
-	public Collection<String> getCasting() {
-		return casting;
+	public Collection<String> getCast() {
+		return cast;
 	}
 
 	public String getCompany() {
@@ -103,6 +104,10 @@ public class Movie implements Comparable<Movie> {
 
 	public Collection<MovieFile> getFiles() {
 		return movieFiles;
+	}
+
+	public String getCertification() {
+		return certification;
 	}
 
 	public String getFirst() {
@@ -237,9 +242,14 @@ public class Movie implements Comparable<Movie> {
 		}
 	}
 
-	public void setCasting(Collection<String> casting) {
+	public void addActor(String actor) {
 		this.isDirty = true;
-		this.casting = casting;
+		cast.add(actor);
+	}
+
+	public void setCast(Collection<String> cast) {
+		this.isDirty = true;
+		this.cast = cast;
 	}
 
 	public void setCompany(String company) {
@@ -307,6 +317,10 @@ public class Movie implements Comparable<Movie> {
 		}
 	}
 	
+	public void setCertification(String certification) {
+		this.certification = certification;
+		this.isDirty = true;
+	}
 
 	public void setLast(String last) {
 		if (!last.equalsIgnoreCase(this.last)) {
@@ -370,7 +384,7 @@ public class Movie implements Comparable<Movie> {
 	}
 
 	public void setRuntime(String runtime) {
-		if (!runtime.equalsIgnoreCase(this.runtime)) {
+		if ((runtime != null) && !runtime.equalsIgnoreCase(this.runtime)) {
 			this.isDirty = true;
 			this.runtime = runtime;
 		}
@@ -457,6 +471,8 @@ public class Movie implements Comparable<Movie> {
 		sb.append("[videoSource=").append(videoSource).append("]");
 		sb.append("[videoOutput=").append(videoOutput).append("]");
 		sb.append("[fps=").append(fps).append("]");
+		sb.append("[certification=").append(certification).append("] ");
+		sb.append("[cast=").append(cast).append("] ");
 		sb.append("]");
 		return sb.toString();
 	}

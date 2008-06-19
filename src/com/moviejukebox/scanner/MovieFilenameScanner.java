@@ -181,7 +181,15 @@ public class MovieFilenameScanner {
 	protected int getPart(String filename) {
 		String f = filename.toUpperCase();
 		int index = f.indexOf("CD");
+		if ( index == -1 ) {
+			index = f.indexOf( "DISC");
+			if ( index != -1)
+				index += 4;
+		} else
+	    	index += 2;
 		if(index!= -1) {
+			if ( f.charAt(index) == ' ')
+				++index;
 			updateFirstKeywordIndex(index);
 			StringTokenizer st = new StringTokenizer(f.substring(index+2), " {[-|_)]},.");
 			try {

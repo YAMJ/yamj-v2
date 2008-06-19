@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -24,12 +25,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	private String preferredSearchEngine;
 	private String preferredPosterSearchEngine;
 	private boolean perfectMatch;
+	private String preferredCountry;
 
 	@Override
 	public void init(Properties props) {
 		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
-		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
-		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
+		preferredPosterSearchEngine = props.getProperty(
+				"imdb.alternate.poster.search", "google");
+		perfectMatch = Boolean.parseBoolean(props.getProperty(
+				"imdb.perfect.match", "true"));
+		preferredCountry = props.getProperty("imdb.preferredCountry", "USA");
 	}
 
 	public void scan(Movie mediaFile) {
@@ -184,6 +189,28 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 	}
 
+	private String getPreferredValue(ArrayList<String> values) {
+		String value = null;
+		for (String text : values) {
+			String country = null;
+
+			int pos = text.indexOf(':');
+			if (pos != -1) {
+				country = text.substring(0, pos);
+				text = text.substring(pos + 1);
+			}
+			if (country == null) {
+				if (value == null)
+					value = text;
+			} else {
+				if (country.equals(preferredCountry)) {
+					return text;
+				}
+			}
+		}
+		return value;
+	}
+
 	/**
 	 * Scan IMDB html page for the specified movie
 	 */
@@ -196,18 +223,24 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			//movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
 			movie.setDirector(extractTag(xml, "<h5>Director:</h5>", 1));
 			movie.setReleaseDate(extractTag(xml, "<h5>Release Date:</h5>"));
-			movie.setRuntime(extractTag(xml, "<h5>Runtime:</h5>"));
+			movie.setRuntime(getPreferredValue(extractTags(xml,
+					"<h5>Runtime:</h5>", "</div>")));
+
 			movie.setCountry(extractTag(xml, "<h5>Country:</h5>", 1));
 			movie.setCompany(extractTag(xml, "<h5>Company:</h5>", 1));
-			movie.addGenre(extractTag(xml, "<h5>Genre:</h5>", 1));
+			movie.setGenres(extractTags(xml, "<h5>Genre:</h5>", "</div>",
+					"<a href=\"/Sections/Genres/", "</a>"));
 			movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
 
 			if (movie.getPlot().startsWith("a class=\"tn15more")) {
 				movie.setPlot("None");
 			}
 
-			if (movie.getYear() == null 
-			 || movie.getYear().isEmpty()
+			movie.setCertification(getPreferredValue(extractTags(xml,
+					"<h5>Certification:</h5>", "</div>",
+					"<a href=\"/List?certificates=", "</a>")));
+
+			if (movie.getYear() == null || movie.getYear().isEmpty()
 			 || movie.getYear().equalsIgnoreCase("Unknown")) {
 			
 				int beginIndex = xml.indexOf("<a href=\"/Sections/Years/");
@@ -217,6 +250,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 				} catch (NumberFormatException e) { }
 			}
 
+			movie.setCast(extractTags(xml, "<table class=\"cast\">",
+					"</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
 			
 			int castIndex = xml.indexOf("<h3>Cast</h3>");
 			int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
@@ -306,6 +341,55 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 		
 		return value;
+	}
+
+	private ArrayList<String> extractTags(String src, String sectionStart,
+			String sectionEnd) {
+		return extractTags(src, sectionStart, sectionEnd, null, "|");
+	}
+
+	private ArrayList<String> extractTags(String src, String sectionStart,
+			String sectionEnd, String startTag, String endTag) {
+		ArrayList<String> tags = new ArrayList<String>();
+		int index = src.indexOf(sectionStart);
+		if (index == -1)
+			return tags;
+		index += sectionStart.length();
+		int endIndex = src.indexOf(sectionEnd, index);
+		if (endIndex == -1)
+			return tags;
+
+		String sectionText = src.substring(index, endIndex);
+		int lastIndex = sectionText.length();
+		index = 0;
+		int startLen = 0;
+		int endLen = endTag.length();
+
+		if (startTag != null) {
+			index = sectionText.indexOf(startTag);
+			startLen = startTag.length();
+		}
+
+		while (index != -1) {
+			index += startLen;
+			int close = sectionText.indexOf('>', index);
+			if (close != -1)
+				index = close + 1;
+			endIndex = sectionText.indexOf(endTag, index);
+			if (endIndex == -1)
+				endIndex = lastIndex;
+			String text = sectionText.substring(index, endIndex);
+
+			tags.add(text.trim());
+			endIndex += endLen;
+			if (endIndex > lastIndex)
+				break;
+			if (startTag != null)
+				index = sectionText.indexOf(startTag, endIndex);
+			else
+				index = endIndex;
+		}
+		return tags;
 	}
 
 	public String request(URL url) throws IOException {

@@ -81,7 +81,7 @@ public class Library implements Map<String, Movie> {
 			if (movie.isTVShow()) {
 				addMovie(index, "TV Show", movie);
 			} else if (movie.getGenres().size()>0) {
-				String genre = movie.getGenres().iterator().next();
+				for ( String genre : movie.getGenres())
 				addMovie(index, genre, movie);
 			}
 		}
