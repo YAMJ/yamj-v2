@@ -68,6 +68,9 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<country>")) { movie.setCountry(parseCData(r)); }
 				if (tag.equals("<company>")) { movie.setCompany(parseCData(r)); }
 				if (tag.equals("<runtime>")) { movie.setRuntime(parseCData(r)); }
+				if (tag.equals("<genre>")) { movie.addGenre(parseCData(r)); } 
+				if (tag.equals("<actor>")) { movie.addActor(parseCData(r)); } 
+				if (tag.equals("<certification>")) { movie.setCertification(parseCData(r)); }
 				if (tag.equals("<season>")) { movie.setSeason(Integer.parseInt(parseCData(r))); }
 				if (tag.equals("<language>")) { movie.setLanguage(parseCData(r)); }
 				if (tag.equals("<subtitles>")) { movie.setSubtitles(parseCData(r).equalsIgnoreCase("YES")); }
@@ -82,24 +85,6 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<previous>")) { movie.setPrevious(parseCData(r)); }
 				if (tag.equals("<next>")) { movie.setNext(parseCData(r)); }
 				if (tag.equals("<last>")) { movie.setLast(parseCData(r)); }
-				
-				if (tag.equals("<genres>")) { 
-					ArrayList<String> genres = new ArrayList<String>();
-					e=r.nextEvent(); 
-					if (!e.toString().equals("</genres>")) {
-						genres.add(e.toString());
-						movie.setGenres(genres); 
-					}
-				}
-				
-				if (tag.equals("<cast>")) { 
-					ArrayList<String> cast = new ArrayList<String>();
-					e=r.nextEvent(); 
-					if (!e.toString().equals("</cast>")) {
-						cast.add(e.toString());
-						movie.setCasting(cast); 
-					}
-				}
 				
 				if (tag.startsWith("<file ")) {
 					MovieFile mf = new MovieFile();
@@ -171,14 +156,14 @@ public class MovieJukeboxXMLWriter {
 			int next = Math.min(2, last);
 			int nbMoviesLeft = nbMoviesPerPage;
 			
-			List<Movie> movieInASignlePage = new ArrayList();
+			List<Movie> movieInASignlePage = new ArrayList<Movie>();
 			for (Movie movie : movies) {
 				movieInASignlePage.add(movie);
 				nbMoviesLeft--;
 			
 				if (nbMoviesLeft == 0) {
 					writeIndexPage(keys, movieInASignlePage, rootPath, key, previous, current, next, last);
-					movieInASignlePage = new ArrayList();
+					movieInASignlePage = new ArrayList<Movie>();
 					previous = current;
 					current = Math.min(current+1, last);
 					next = Math.min(current+1, last);
@@ -327,6 +312,7 @@ public class MovieJukeboxXMLWriter {
 			writer.writeStartElement("country"); writer.writeCharacters(movie.getCountry()); writer.writeEndElement();
 			writer.writeStartElement("company"); writer.writeCharacters(movie.getCompany()); writer.writeEndElement();
 			writer.writeStartElement("runtime"); writer.writeCharacters(movie.getRuntime()); writer.writeEndElement();
+			writer.writeStartElement("certification"); writer.writeCharacters(movie.getCertification()); writer.writeEndElement();
 			writer.writeStartElement("season"); writer.writeCharacters(Integer.toString(movie.getSeason())); writer.writeEndElement();
 			writer.writeStartElement("language"); writer.writeCharacters(movie.getLanguage()); writer.writeEndElement();
 			writer.writeStartElement("subtitles"); writer.writeCharacters(movie.hasSubtitles()?"YES":"NO"); writer.writeEndElement();
@@ -343,22 +329,28 @@ public class MovieJukeboxXMLWriter {
 			writer.writeStartElement("next"); writer.writeCharacters(movie.getNext()); writer.writeEndElement();
 			writer.writeStartElement("last"); writer.writeCharacters(movie.getLast()); writer.writeEndElement();
 			
-			StringBuffer genres = new StringBuffer();
-			for (String genre : movie.getGenres()) {
-				genres.append(genre);
-				genres.append(" ");
+			Collection< String> items = movie.getGenres();
+			if ( items.size()> 0 ) {
+				writer.writeStartElement("genres");	
+				for (String genre : items ) {
+					writer.writeStartElement("genre");	
+					writer.writeCharacters(genre);
+					writer.writeEndElement();
+				}
+				writer.writeEndElement();
 			}
 			
-			writer.writeStartElement("genres"); writer.writeCharacters(genres.toString().trim()); writer.writeEndElement();
-	
-			StringBuffer cast = new StringBuffer();
-			for (String actor : movie.getCasting()) {
-				cast.append(actor);
-				cast.append(" ");
+			items = movie.getCast();
+			if ( items.size()> 0 ) {
+				writer.writeStartElement("cast");	
+				for (String genre : items ) {
+					writer.writeStartElement("actor");	
+					writer.writeCharacters(genre);
+					writer.writeEndElement();
+				}
+				writer.writeEndElement();
 			}
 			
-			writer.writeStartElement("cast"); writer.writeCharacters(cast.toString().trim()); writer.writeEndElement();
-	
 			writer.writeStartElement("files"); 
 			for (MovieFile mf : movie.getFiles()) { 
 				writer.writeStartElement("file");

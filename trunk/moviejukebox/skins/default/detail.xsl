@@ -64,15 +64,22 @@
 
         <tr>
           <td class="title2" valign="top" colspan="3">
-            <xsl:if test="genres != 'UNKNOWN'">
-              <xsl:value-of select="genres" /> 
+            <xsl:if test="count(genres) != 0">
+              <xsl:for-each select="genres/genre">
+                <xsl:if test="position()!= 1">, </xsl:if>
+                <xsl:value-of select="." />
+			  </xsl:for-each>
             </xsl:if>
             <xsl:if test="runtime != 'UNKNOWN'">
-              <xsl:if test="genres != 'UNKNOWN'">, </xsl:if>
+              <xsl:if test="count(genres) != 0">, </xsl:if>
               <xsl:value-of select="runtime" /> 
             </xsl:if>
+            <xsl:if test="certification != 'UNKNOWN'">
+              <xsl:if test="count(genres) != 0 and runtime != 'UNKNOWN'">, </xsl:if>
+              <xsl:value-of select="certification" /> 
+            </xsl:if>
             <xsl:if test="language != 'UNKNOWN'">
-              <xsl:if test="genres != 'UNKNOWN'"><xsl:if test="runtime != 'UNKNOWN'">, </xsl:if></xsl:if>
+              <xsl:if test="count(genres) != 0 and runtime != 'UNKNOWN' and certification != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="language" /> 
             </xsl:if>
           </td>
