@@ -34,13 +34,14 @@
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
-    <td COLSPAN="2" align="center">- 
+    <td COLSPAN="2" align="center"> 
         <xsl:for-each select="library/indexes/index[@type=1]">
+            <xsl:if test="position()>1"> - </xsl:if>
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute> 
             <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute> 
             <xsl:value-of select="@name" />
-            </a> - 
+            </a> 
         </xsl:for-each>
     </td>
   </tr>
