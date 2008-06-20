@@ -263,7 +263,7 @@ public class GraphicTools {
         int h = bi.getHeight();
 
         PerspectiveFilter perspectiveFilter = new PerspectiveFilter();
-        perspectiveFilter.setCorners(0, 0, w, 6, w, h - 10, 0, h);
+        perspectiveFilter.setCorners(0, 0, w, h/60, w, h - h/30, 0, h);
         return perspectiveFilter.filter(bi, null);
 	}
 }
