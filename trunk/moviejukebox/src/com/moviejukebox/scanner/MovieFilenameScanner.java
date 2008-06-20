@@ -132,7 +132,7 @@ public class MovieFilenameScanner {
 		f = f.replace("(", ".");
 		f = f.replace(")", ".");
 
-		if (hasKeyword(f, new String[] {".FRA.",".FR.",".FRENCH.", ".VF.", }))
+		if (hasKeyword(f, new String[] {".FRA.",".FR.",".FRENCH.", ".VF.", " VF "}))
 			return "French";
 
 		if (hasKeyword(f, new String[] {".GER.",".DE.",".GERMAN."}))
@@ -181,6 +181,7 @@ public class MovieFilenameScanner {
 	protected int getPart(String filename) {
 		String f = filename.toUpperCase();
 		int index = f.indexOf("CD");
+		int keywordIndex = index;
 		if ( index == -1 ) {
 			index = f.indexOf( "DISC");
 			if ( index != -1)
@@ -190,7 +191,7 @@ public class MovieFilenameScanner {
 		if(index!= -1) {
 			if ( f.charAt(index) == ' ')
 				++index;
-			updateFirstKeywordIndex(index);
+			updateFirstKeywordIndex(keywordIndex);
 			StringTokenizer st = new StringTokenizer(f.substring(index+2), " {[-|_)]},.");
 			try {
 				return Integer.parseInt(st.nextToken());
