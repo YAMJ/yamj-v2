@@ -82,7 +82,7 @@ public class Library implements Map<String, Movie> {
 				addMovie(index, "TV Show", movie);
 			} else if (movie.getGenres().size()>0) {
 				for ( String genre : movie.getGenres()) {
-					addMovie(index, genre, movie);
+					addMovie(index, getIndexingGenre(genre), movie);
 					break;
 				}
 			}
@@ -90,6 +90,35 @@ public class Library implements Map<String, Movie> {
 		indexes.put("Genres",index);
 	}
 	
+	// Before we have a dedicated index page...
+	// we gotta reduce the number of categories
+	// Added for 1.0.9b only.
+	// Greg: we'll remove this as soon as you're 
+	// ready to include the main index page.
+	private String getIndexingGenre(String genre) {
+		if (genre.equalsIgnoreCase("Action") 
+		 || genre.equalsIgnoreCase("Adventure")
+		 || genre.equalsIgnoreCase("Sport")
+		 || genre.equalsIgnoreCase("War")
+		 || genre.equalsIgnoreCase("Western")) {
+			return "Action";
+		} else if (genre.equalsIgnoreCase("Drama") 
+				|| genre.equalsIgnoreCase("Biography")
+			    || genre.equalsIgnoreCase("Romance")) {
+			return "Drama";
+		} else if (genre.equalsIgnoreCase("Thriller") 
+				|| genre.equalsIgnoreCase("Horror")
+				|| genre.equalsIgnoreCase("Mystery")) {
+			return "Thriller";
+		} else if (genre.equalsIgnoreCase("Short") 
+				|| genre.equalsIgnoreCase("Music")
+			    || genre.equalsIgnoreCase("Documentary")) {
+			return "Other";
+		} else {
+			return genre;
+		}
+	}
+
 	private void indexByProperties() {
 		long oneDay = 1000 * 60 * 60 * 24;
 		long oneWeek = oneDay * 7;
