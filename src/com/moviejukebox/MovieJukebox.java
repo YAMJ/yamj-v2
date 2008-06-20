@@ -461,12 +461,14 @@ public class MovieJukebox {
 			String dst = rootPath + File.separator + movie.getThumbnailFilename();
 	
 			if (!(new File(dst).exists()) || forceThumbnailOverwrite) {
-				BufferedImage bi = GraphicTools.loadBufferedImage(src);
+				FileInputStream fis = new FileInputStream(src);
+				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
 					FileTools.copyFile(
 							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
 							new File(rootPath + File.separator + movie.getPosterFilename()));
-					bi = GraphicTools.loadBufferedImage(src);
+					fis = new FileInputStream(src);
+					bi = GraphicTools.loadJPEGImage(fis);
 				}
 				
 				bi = thumbnailManager.generate(movie, bi);
