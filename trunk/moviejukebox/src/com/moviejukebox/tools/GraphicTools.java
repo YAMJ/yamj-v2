@@ -9,13 +9,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import com.jhlabs.image.MirrorFilter;
 import com.jhlabs.image.PerspectiveFilter;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
@@ -27,22 +26,19 @@ public class GraphicTools {
 	private static Logger logger = Logger.getLogger("moviejukebox");
 
 	////////////////////////////////////////////////////////////////////////////////////////////
-	/// Lodaing / Saving
+	/// Loading / Saving
 	//
 
-	public static BufferedImage loadBufferedImage(String filename) {
+	public static BufferedImage loadJPEGImage(InputStream fis) {
 		// Create BufferedImage
 		BufferedImage bi = null;
-		FileInputStream fis = null;
 		try {
 			// load file from disk using Sun's JPEGIMageDecoder
-			fis = new FileInputStream(filename);
 			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(fis);
 			bi = decoder.decodeAsBufferedImage();
-			fis.close();
 		} catch (Exception e) {
-			logger.severe("Failed Loading poster file: " + filename);
 			e.printStackTrace();
+			return null;
 		} finally {
 			if (fis != null) {
 				try {
@@ -130,6 +126,28 @@ public class GraphicTools {
 		Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
 		BufferedImage bi = new BufferedImage(nMaxWidth, nMaxHeight, BufferedImage.TYPE_INT_RGB);
 		bi.getGraphics().drawImage(temp1, 0, y, null);
+		return bi;
+	}
+	
+	public static BufferedImage scaleToSizeBestFit(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
+		/* determine thumbnail size from WIDTH and HEIGHT */
+		int imageWidth = imgSrc.getWidth(null);
+		int imageHeight = imgSrc.getHeight(null);
+		
+		int tempWidth;
+		int tempHeight;
+		int y = 0;
+		
+		tempWidth = nMaxWidth;
+		tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
+
+		if (nMaxHeight>tempHeight) {
+		   	y = nMaxHeight-tempHeight;
+		}
+
+		Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
+		BufferedImage bi = new BufferedImage(tempWidth, tempHeight, BufferedImage.TYPE_INT_RGB);
+		bi.getGraphics().drawImage(temp1, 0, 0, null);
 		return bi;
 	}
 	
@@ -245,7 +263,7 @@ public class GraphicTools {
         int h = bi.getHeight();
 
         PerspectiveFilter perspectiveFilter = new PerspectiveFilter();
-        perspectiveFilter.setCorners(0, 0, w, 0, w, h - 10, 0, h);
+        perspectiveFilter.setCorners(0, 0, w, 6, w, h - 10, 0, h);
         return perspectiveFilter.filter(bi, null);
 	}
 }
