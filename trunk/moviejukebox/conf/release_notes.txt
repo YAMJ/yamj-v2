@@ -6,8 +6,24 @@ MovieJukebox 1.0.9 beta
 -----------------------
     - Added DVD images support
     - New skins directory added + skin selection property added into moviejukebox.properties
+    - Split properties file into two...moviejukebox.properties and a skin specific properties
+    - Added SD skin to skins directory (default is the HD skin)
     - Added media info extraction from DVD images (Video_ts/ifo or iso) with main movie detection
       (using sources or jar from 2 GPL projects : muCommander and MeD's Movie Manager)
+    - New icons
+    - Display title of focused movie at the botton of the index page
+    - Changed rating (percent value + dedicated pictures in detail page)
+    - IMDB plugin now searches for TVShow titles
+    - Movies can now belong to multiple genres, plus an ALL, and NEW category
+    - Added a 3D perspective to thumbnails
+    - Fixed defect #25 Mediainfo should check subtitles info
+    - Fixed defect #26 Picking up ripped DVD's
+    - Fixed defect #30 Invalid html in output
+    - Fixed defect #33 Additional filename word separator "_"
+    - Fixed defect #39 No media info with DVD rips (VIDEO_TS...)
+    - Fixed defect #48 Scroll buttons don't work
+    - Fixed defect #53 File name at the bottom of the index page
+    
 
 MovieJukebox 1.0.8 beta
 -----------------------
