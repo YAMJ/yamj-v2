@@ -31,7 +31,12 @@ How does it work?
           * Tested with MediaInfo version 0.7.7.0
           * You can download at: http://sourceforge.net/project/showfiles.php?group_id=86862&package_id=90612
     
-    - Edit the file moviejukebox.properties and setup according your needs
+    - Edit the file moviejukebox.properties and setup according to your needs
+
+    - Select the desired skin from the skin directory and set in the mjb.skin.dir property in the moviejukebox.properties file
+      default is a HD skin. An SD skin is also available.
+
+    - Edit the skin.properties in the selected skin dir and setup according to your needs
     
     - In a command shell, Execute the MovieJukebox command. 
       The syntax for the MovieJukebox command is the following:
@@ -168,8 +173,10 @@ Things you should know about
             you can test that request into IMDb itself to check that the new filename 
             will return the appropriate film first.
 
-          * either you can add a new file ".NFO" next to your video file (same name as the             video file), that will contain the IMDb url of the film matching the video file
-                For instance:           
+          * either you can add a new file ".NFO" next to your video file (same name as the 
+            video file), that will contain the IMDb url of the film matching the video file
+            
+    For instance:           
 
                                  http://www.imdb.com/title/tt0097576
             
