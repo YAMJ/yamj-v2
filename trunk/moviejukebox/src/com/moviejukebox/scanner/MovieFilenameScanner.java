@@ -180,19 +180,19 @@ public class MovieFilenameScanner {
 
 	protected int getPart(String filename) {
 		String f = filename.toUpperCase();
-		int index = f.indexOf("CD");
-		int keywordIndex = index;
+		
+		String keyword = "CD";
+		int index = f.indexOf(keyword);
+
 		if ( index == -1 ) {
-			index = f.indexOf( "DISC");
-			if ( index != -1)
-				index += 4;
-		} else
-	    	index += 2;
+			keyword = "DISC";
+			index = f.indexOf(keyword);
+		} 
+		
 		if(index!= -1) {
-			if ( f.charAt(index) == ' ')
-				++index;
-			updateFirstKeywordIndex(keywordIndex);
-			StringTokenizer st = new StringTokenizer(f.substring(index+2), " {[-|_)]},.");
+			updateFirstKeywordIndex(index);
+			StringTokenizer st = new StringTokenizer(
+					f.substring(index+keyword.length()), " {[-|_)]},.");
 			try {
 				return Integer.parseInt(st.nextToken());
 			} catch (Exception e) {
