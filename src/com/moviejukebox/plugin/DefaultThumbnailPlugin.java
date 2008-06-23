@@ -31,7 +31,7 @@ public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
 		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
 		thumbWidth = Integer.parseInt(props.getProperty("thumbnails.width", "180"));
 		thumbHeight = Integer.parseInt(props.getProperty("thumbnails.height", "260"));
-		addReflectionEffect = Boolean.parseBoolean(props.getProperty("thumbnails.plugin.reflection", "true"));
+		addReflectionEffect = Boolean.parseBoolean(props.getProperty("thumbnails.reflection", "true"));
 		addPerspective = Boolean.parseBoolean(props.getProperty("thumbnails.perspective", "false"));
 		normalizeThumbnails = Boolean.parseBoolean(props.getProperty("thumbnails.normalize", "false"));
 		addHDLogo = Boolean.parseBoolean(props.getProperty("thumbnails.logoHD", "false"));
