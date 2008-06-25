@@ -37,7 +37,6 @@ public class GraphicTools {
 			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(fis);
 			bi = decoder.decodeAsBufferedImage();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		} finally {
 			if (fis != null) {

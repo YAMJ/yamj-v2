@@ -496,6 +496,7 @@ public class MovieJukebox {
 				FileInputStream fis = new FileInputStream(src);
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
+                                        logger.info("Using dummy thumbnail image for " + movie.getTitle());
 					FileTools.copyFile(
 							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
 							new File(rootPath + File.separator + movie.getPosterFilename()));
@@ -522,6 +523,7 @@ public class MovieJukebox {
 				FileInputStream fis = new FileInputStream(src);
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
+                                        logger.info("Using dummy poster image for " + movie.getTitle());
 					FileTools.copyFile(
 							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
 							new File(rootPath + File.separator + movie.getPosterFilename()));
