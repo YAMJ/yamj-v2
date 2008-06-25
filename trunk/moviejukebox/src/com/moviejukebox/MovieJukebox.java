@@ -30,10 +30,11 @@ import org.apache.commons.configuration.XMLConfiguration;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.DefaultPosterPlugin;
 import com.moviejukebox.plugin.DefaultThumbnailPlugin;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
-import com.moviejukebox.plugin.MovieThumbnailPlugin;
+import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
@@ -53,6 +54,7 @@ public class MovieJukebox {
 	private String skinHome;
 	private String detailsDirName;
 	private boolean forceThumbnailOverwrite;
+        private boolean forcePosterOverwrite;
 	private Properties props;
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
@@ -184,6 +186,7 @@ public class MovieJukebox {
 		this.jukeboxRoot = jukeboxRoot;
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
+                this.forcePosterOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forcePostersOverwrite", "false"));
 
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -203,7 +206,8 @@ public class MovieJukebox {
 		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(props);
 
 		MovieDatabasePlugin movieDBPlugin = this.getMovieDatabasePlugin(props.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
-		MovieThumbnailPlugin thumbnailPlugin = this.getThumbnailPlugin(props.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.ImdbDefaultThumbnailPlugin"));
+		MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(props.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
+                MovieImagePlugin posterPlugin = this.getPosterPlugin(props.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
 
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
@@ -262,6 +266,10 @@ public class MovieJukebox {
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
 			createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                        
+                        // Create a detail poster for each movie
+			logger.finest("Creating detail poster for movie: " + movie.getBaseName());
+			createPoster(posterPlugin, jukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 			
 			// write the movie details HTML		
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
@@ -304,6 +312,9 @@ public class MovieJukebox {
 			// Update thumbnails format if needed
 			String thumbnailExtension = props.getProperty("thumbnails.format", "png");
 			movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
+                        // Update poster format if needed
+			String posterExtension = props.getProperty("posters.format", "png");
+			movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
 			
 		} else {
 		
@@ -420,8 +431,8 @@ public class MovieJukebox {
 		return movieDB;
 	}
 	
-	public MovieThumbnailPlugin getThumbnailPlugin(String className) {
-		MovieThumbnailPlugin thumbnailPlugin;
+	public MovieImagePlugin getThumbnailPlugin(String className) {
+		MovieImagePlugin thumbnailPlugin;
 
 		try {
 			Thread t = Thread.currentThread();
@@ -429,7 +440,7 @@ public class MovieJukebox {
 			Class pluginClass = cl.loadClass(className);
 			Object plugin = pluginClass.newInstance();
 
-			thumbnailPlugin = (MovieThumbnailPlugin) plugin;
+			thumbnailPlugin = (MovieImagePlugin) plugin;
 		} catch (Exception e) {
 			thumbnailPlugin = new DefaultThumbnailPlugin();
 			logger.severe("Failed instanciating ThumbnailPlugin: " + className);
@@ -441,6 +452,27 @@ public class MovieJukebox {
 		return thumbnailPlugin;
 	}
 
+	public MovieImagePlugin getPosterPlugin(String className) {
+		MovieImagePlugin posterPlugin;
+
+		try {
+			Thread t = Thread.currentThread();
+			ClassLoader cl = t.getContextClassLoader();
+			Class pluginClass = cl.loadClass(className);
+			Object plugin = pluginClass.newInstance();
+
+			posterPlugin = (MovieImagePlugin) plugin;
+		} catch (Exception e) {
+			posterPlugin = new DefaultPosterPlugin();
+			logger.severe("Failed instanciating PosterPlugin: " + className);
+			logger.severe("Default poster plugin will be used instead.");
+			e.printStackTrace();
+		}
+
+		posterPlugin.init(props);
+		return posterPlugin;
+	}
+        
 	/**
 	 * Download the movie poster for the specified movie into the specified file.
 	 * @throws IOException
@@ -455,7 +487,7 @@ public class MovieJukebox {
 		FileTools.copy(cnx.getInputStream(), new FileOutputStream(posterFile));
 	}
 
-	public static void createThumbnail(MovieThumbnailPlugin thumbnailManager, String rootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
+	public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
 		try {
 			String src = rootPath + File.separator + movie.getPosterFilename();
 			String dst = rootPath + File.separator + movie.getThumbnailFilename();
@@ -480,4 +512,31 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 	}
+        
+	public static void createPoster(MovieImagePlugin posterManager, String rootPath, String skinHome, Movie movie, boolean forcePosterOverwrite) {
+		try {
+			String src = rootPath + File.separator + movie.getPosterFilename();
+			String dst = rootPath + File.separator + movie.getDetailPosterFilename();
+	
+			if (!(new File(dst).exists()) || forcePosterOverwrite) {
+				FileInputStream fis = new FileInputStream(src);
+				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
+				if (bi == null) {
+					FileTools.copyFile(
+							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+							new File(rootPath + File.separator + movie.getPosterFilename()));
+					fis = new FileInputStream(src);
+					bi = GraphicTools.loadJPEGImage(fis);
+				}
+				
+				bi = posterManager.generate(movie, bi);
+				
+				GraphicTools.saveImageToDisk(bi, dst);
+			}
+		} catch (Exception e) {
+			logger.severe("Failed creating poster for " + movie.getTitle());
+			e.printStackTrace();
+		}
+	}
+        
 }

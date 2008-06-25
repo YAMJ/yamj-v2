@@ -306,6 +306,7 @@ public class MovieJukeboxXMLWriter {
 			writer.writeStartElement("rating"); writer.writeCharacters(Integer.toString(movie.getRating())); writer.writeEndElement();
 			writer.writeStartElement("posterURL"); writer.writeCharacters(movie.getPosterURL()); writer.writeEndElement();
 			writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getPosterFilename()); writer.writeEndElement();
+                        writer.writeStartElement("detailPosterFile"); writer.writeCharacters(movie.getDetailPosterFilename()); writer.writeEndElement();
 			writer.writeStartElement("thumbnailFile"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
 			writer.writeStartElement("plot"); writer.writeCharacters(movie.getPlot()); writer.writeEndElement();
 			writer.writeStartElement("director"); writer.writeCharacters(movie.getDirector()); writer.writeEndElement();
