@@ -62,6 +62,7 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<rating>")) { movie.setRating(Integer.parseInt(parseCData(r))); }
 				if (tag.equals("<posterURL>")) { movie.setPosterURL(parseCData(r)); }
 				if (tag.equals("<posterFile>")) { movie.setPosterFilename(parseCData(r)); }
+                                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(parseCData(r)); }
 				if (tag.equals("<thumbnailFile>")) { movie.setThumbnailFilename(parseCData(r)); }
 				if (tag.equals("<plot>")) { movie.setPlot(parseCData(r)); }
 				if (tag.equals("<director>")) { movie.setDirector(parseCData(r)); }
