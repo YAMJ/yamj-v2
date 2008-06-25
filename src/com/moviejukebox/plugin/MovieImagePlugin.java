@@ -5,7 +5,7 @@ import java.util.Properties;
 
 import com.moviejukebox.model.Movie;
 
-public interface MovieThumbnailPlugin {
+public interface MovieImagePlugin {
 	/**
 	 * Called by movie jukebox at program initialisation.
 	 * Contains the moviejukebox.properties

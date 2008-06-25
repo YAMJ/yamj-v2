@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 
-public class DefaultThumbnailPlugin implements MovieThumbnailPlugin {
+public class DefaultThumbnailPlugin implements MovieImagePlugin {
 
 	private static Logger logger = Logger.getLogger("moviejukebox");
 

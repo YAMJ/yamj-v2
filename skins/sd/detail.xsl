@@ -26,7 +26,7 @@
   
   <tr align="left" valign="top">
     <td width="205px">
-       <img width="200"><xsl:attribute name="src"><xsl:value-of select="posterFile" /></xsl:attribute></img>
+       <img width="200"><xsl:attribute name="src"><xsl:value-of select="detailPosterFile" /></xsl:attribute></img>
     </td>
     
     <td>
