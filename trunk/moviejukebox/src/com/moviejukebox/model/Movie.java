@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 
 /**
@@ -13,7 +15,24 @@ import java.util.TreeSet;
 public class Movie implements Comparable<Movie> {
 	
 	private static String UNKNOWN = "UNKNOWN";
-
+    private static ArrayList< String > sortIgnorePrefixes = new ArrayList< String >();
+    
+    public static void setup( Properties props )
+    {
+    	String temp = props.getProperty( "sorting.strip.prefixes" );
+        if ( temp == null )
+        	return;
+        
+        StringTokenizer st = new StringTokenizer( temp, "," );
+        while ( st.hasMoreTokens())
+        {
+        	String token = st.nextToken();
+        	if (token.startsWith("\"") && token.endsWith("\""))
+        		token = token.substring(1,token.length()-1);
+        	sortIgnorePrefixes.add( token );
+        }
+    }
+	
 	private String baseName;
 	
 	// Movie properties
@@ -70,9 +89,25 @@ public class Movie implements Comparable<Movie> {
 		this.movieFiles.add(movieFile);
 	}
 
+	
+	public String getStrippedTitleSort()
+	{
+		String text = titleSort;
+		
+		// Remove configured prefixed and append to the end
+		for ( String prefix : sortIgnorePrefixes )
+		{ 
+			if ( text.startsWith(prefix))
+			{
+				return (text.substring(prefix.length()) + ", " + prefix).trim();
+			}
+		}
+		return text;
+	}
+	
 	@Override
 	public int compareTo(Movie anotherMovie) {
-		return this.getTitle().compareToIgnoreCase(anotherMovie.getTitle());
+		return this.getStrippedTitleSort().compareToIgnoreCase( anotherMovie.getStrippedTitleSort());
 	}
 
 	public String getAudioCodec() {
@@ -192,7 +227,7 @@ public class Movie implements Comparable<Movie> {
 	public String getTitle() {
 		return title;
 	}
-
+	
 	public String getTitleSort() {
 		return titleSort;
 	}
@@ -409,16 +444,24 @@ public class Movie implements Comparable<Movie> {
 		if (!name.equalsIgnoreCase(this.title)) {
 			this.isDirty = true;
 			this.title = name;
+			
+			setTitleSort( name );
 		}
 	}
 
-	public void setTitleSort(String titleSort) {
-		if (!titleSort.equalsIgnoreCase(this.titleSort)) {
+	public void setTitleSort( String text )
+	{
+		if ( !text.equalsIgnoreCase(this.titleSort ))
+		{
+			//  Automatically remove enclosing quotes
+			if (( text.charAt(0) == '"' ) && ( text.charAt(text.length()-1) == '"'))
+				text = text.substring(1,text.length()-1);
+			
+			this.titleSort = text;
 			this.isDirty = true;
-			this.titleSort = titleSort;
 		}
 	}
-
+	
 	public void setVideoCodec(String videoCodec) {
 		if (!videoCodec.equalsIgnoreCase(this.videoCodec)) {
 			this.isDirty = true;

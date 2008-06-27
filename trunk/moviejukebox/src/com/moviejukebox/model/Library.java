@@ -3,17 +3,17 @@ package com.moviejukebox.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class Library implements Map<String, Movie> {
 
-	private HashMap<String, Movie> library = new HashMap<String, Movie>();
+	private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
 	private List<Movie> moviesList = new ArrayList<Movie>();
-	private HashMap<String, HashMap<String, List<Movie>>> indexes = new HashMap<String, HashMap<String, List<Movie>>>();
+	private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
 	
 	public void addMovie(Movie movie) {
 		String key = movie.getTitle();
@@ -40,12 +40,13 @@ public class Library implements Map<String, Movie> {
 			sortMovieDetails();	
 			indexByProperties();
 			indexByGenres();
-			indexAlphabetically();
+			indexByTitle();
+			indexByCertification();
 		}
 	}
 
 	private void sortMovieDetails() {
-		Collections.sort(moviesList);
+//		Collections.sort(moviesList);  Don't need to sort 'cause its a TreeMap now
 		
 		Movie first = moviesList.get(0);
 		Movie last = moviesList.get(moviesList.size()-1);
@@ -58,10 +59,10 @@ public class Library implements Map<String, Movie> {
 		}
 	}
 
-	private void indexAlphabetically() {
-		HashMap<String, List<Movie>> index = new HashMap<String, List<Movie>>();
+	private void indexByTitle() {
+		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {				
-			String title = movie.getTitle();
+			String title = movie.getStrippedTitleSort();
 			if (title.length()>0) {
 				Character c = Character.toUpperCase(title.charAt(0));
 			
@@ -72,59 +73,33 @@ public class Library implements Map<String, Movie> {
 				} 
 			}
 		}
-		indexes.put("Alphabetical",index);
+		indexes.put("Title",index);
 	}
 
 	private void indexByGenres() {
-		HashMap<String, List<Movie>> index = new HashMap<String, List<Movie>>();
+		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {				
-			if (movie.isTVShow()) {
-				addMovie(index, "TV Show", movie);
-			} else if (movie.getGenres().size()>0) {
-				for ( String genre : movie.getGenres()) {
-					addMovie(index, getIndexingGenre(genre), movie);
-					break;
-				}
+			for ( String genre : movie.getGenres()){
+				addMovie(index, genre, movie);
 			}
 		}
 		indexes.put("Genres",index);
 	}
 	
-	// Before we have a dedicated index page...
-	// we gotta reduce the number of categories
-	// Added for 1.0.9b only.
-	// Greg: we'll remove this as soon as you're 
-	// ready to include the main index page.
-	private String getIndexingGenre(String genre) {
-		if (genre.equalsIgnoreCase("Action") 
-		 || genre.equalsIgnoreCase("Adventure")
-		 || genre.equalsIgnoreCase("Sport")
-		 || genre.equalsIgnoreCase("War")
-		 || genre.equalsIgnoreCase("Western")) {
-			return "Action";
-		} else if (genre.equalsIgnoreCase("Drama") 
-				|| genre.equalsIgnoreCase("Biography")
-			    || genre.equalsIgnoreCase("Romance")) {
-			return "Drama";
-		} else if (genre.equalsIgnoreCase("Thriller") 
-				|| genre.equalsIgnoreCase("Horror")
-				|| genre.equalsIgnoreCase("Mystery")) {
-			return "Thriller";
-		} else if (genre.equalsIgnoreCase("Short") 
-				|| genre.equalsIgnoreCase("Music")
-			    || genre.equalsIgnoreCase("Documentary")) {
-			return "Other";
-		} else {
-			return genre;
+	private void indexByCertification() {
+		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
+		for (Movie movie : moviesList) {
+			addMovie(index, movie.getCertification(), movie);
 		}
+		indexes.put("Rating",index);
 	}
-
+	
 	private void indexByProperties() {
 		long oneDay = 1000 * 60 * 60 * 24;
 		long oneWeek = oneDay * 7;
-		// long oneMonth = oneWeek * 30;
+		// long oneMonth = oneDay * 30;
 
-		HashMap<String, List<Movie>> index = new HashMap<String, List<Movie>>();
+		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {				
 			if (movie.getVideoOutput().indexOf("720") != -1  || movie.getVideoOutput().indexOf("1080") != -1) {
 				addMovie(index, "HD" , movie);
@@ -140,11 +115,18 @@ public class Library implements Map<String, Movie> {
 			} */
 
 			addMovie(index, "All", movie);
+
+			if (movie.isTVShow()) {
+				addMovie(index, "TV Shows", movie);
+			} 
+			else {
+				addMovie(index, "Movies", movie);
+			}
 		}
 		indexes.put("Other", index);
 	}
 
-	private void addMovie(HashMap<String, List<Movie>> index, String category, Movie movie) {
+	private void addMovie(TreeMap<String, List<Movie>> index, String category, Movie movie) {
 		if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("UNKNOWN"))
 			return;
 		
@@ -234,7 +216,7 @@ public class Library implements Map<String, Movie> {
 	}
 	
 	public List<Movie> getMoviesByIndexKey(String key) {
-		for (HashMap<String, List<Movie>> index : indexes.values()) {
+		for (Map<String, List<Movie>> index : indexes.values()) {
 			List<Movie> movies = index.get(key);
 			if (movies != null) 
 				return movies;
@@ -243,7 +225,7 @@ public class Library implements Map<String, Movie> {
 		return new ArrayList<Movie>();
 	}
 
-	public HashMap<String, HashMap<String, List<Movie>>> getIndexes() {
+	public Map<String, Map<String, List<Movie>>> getIndexes() {
 		return indexes;
 	}
 }

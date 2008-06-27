@@ -1,25 +1,6 @@
-div.title {top:626; left:0; width:1090; height:30; font-size: 22pt; color: #AAAAAA; position:absolute}
-div#title1{visibility:hidden}
-div#title2{visibility:hidden}
-div#title3{visibility:hidden}
-div#title4{visibility:hidden}
-div#title5{visibility:hidden}
-div#title6{visibility:hidden}
-div#title7{visibility:hidden}
-div#title8{visibility:hidden}
-div#title9{visibility:hidden}
-div#title10{visibility:hidden}
-div#title11{visibility:hidden}
-div#title12{visibility:hidden}
-div#title13{visibility:hidden}
-div#title14{visibility:hidden}
-div#title15{visibility:hidden}
-div#title16{visibility:hidden}
-div#title17{visibility:hidden}
-div#title18{visibility:hidden}
-div#title19{visibility:hidden}
-div#title20{visibility:hidden}
-div.counter {font-size: 15pt; color: #AAAAAA}
+td#title { font-size: 18pt; color: #AAAAAA; }
+div.title{ visibility:hidden; }
+div.counter {font-size: 15pt; color: #AAAAAA; }
 
 body { font-size: 10pt; color: #AAAAAA; text-decoration: none; }
 a { font-size: 18pt; color: #AAAAAA; text-decoration: none; }
@@ -27,4 +8,4 @@ img { border: 0; }
 table.main { width:1090; height:626; }
 table.categories { width:180; }
 td { text-decoration: none;}
-td.movies { width: 270; padding-right: 10px;}
+td.movies { padding-right: 10px;}

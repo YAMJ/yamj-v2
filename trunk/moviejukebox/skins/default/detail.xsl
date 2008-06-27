@@ -1,7 +1,9 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
-<xsl:template match="/movie">
+<xsl:template match="details/preferences"></xsl:template>
+
+<xsl:template match="details/movie">
 <html>
 <head>
   <link rel="StyleSheet" type="text/css" href="exportdetails_item_popcorn.css"></link>
@@ -18,7 +20,7 @@
       <!-- Navigation using remote keys PageUP/PageDown and Prev/Next -->
       <a><xsl:attribute name="TVID">RIGHT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="next"/>.html</xsl:attribute></a>
       <a><xsl:attribute name="TVID">LEFT</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="previous"/>.html</xsl:attribute></a>
-      <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href">../index.htm</xsl:attribute></a>
+      <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="//preferences/homePage"/></xsl:attribute></a>
       <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="first"/>.html</xsl:attribute></a>
       <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="last"/>.html</xsl:attribute></a>
     </td>
@@ -85,7 +87,7 @@
           </td>
         </tr>
 
-        <tr><td><hr/></td></tr>
+        <tr class="divider"><td> </td></tr>
 
         <tr>
           <td width="85%" class="normal" colspan="4">
@@ -95,7 +97,7 @@
           </td>
         </tr>
 
-        <tr height="25"><td> </td></tr>
+        <tr class="spacer"><td> </td></tr>
 
         <tr>
           <td colspan="4"><center><table width="85%">
@@ -126,7 +128,7 @@
           </table></center></td>
         </tr>
         
-        <tr height="20"><td> </td></tr>
+        <tr class="spacer"><td> </td></tr>
 
         <xsl:choose>                                
         <xsl:when test="count(files/file) = 1">

@@ -17,7 +17,7 @@
 	</target>
 
 	<target name="compile" depends="prepare">
-		<javac  encoding="iso-8859-1" nowarn="true" source="1.6" destdir="build" srcdir="src">
+		<javac debug="true" encoding="iso-8859-1" nowarn="true" source="1.6" destdir="build" srcdir="src">
 			<classpath>
 		      <fileset dir="lib">
 		        <include name="**/*.jar"/>
