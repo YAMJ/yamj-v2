@@ -25,6 +25,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	private String preferredSearchEngine;
 	private String preferredPosterSearchEngine;
 	private boolean perfectMatch;
+	private int maxGenres;
 	private String preferredCountry;
 
 	@Override
@@ -35,7 +36,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		perfectMatch = Boolean.parseBoolean(props.getProperty(
 				"imdb.perfect.match", "true"));
 		preferredCountry = props.getProperty("imdb.preferredCountry", "USA");
-	}
+		try {
+			String temp = props.getProperty( "imdb.genres.max", "9" );
+			System.out.println( "imdb.genres.max=" + temp );
+			maxGenres = Integer.parseInt( temp );
+		}
+		catch ( NumberFormatException ex )
+		{
+			maxGenres = 9;
+		}
+	}	
 
 	public void scan(Movie mediaFile) {
 
@@ -228,8 +238,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
 			movie.setCountry(extractTag(xml, "<h5>Country:</h5>", 1));
 			movie.setCompany(extractTag(xml, "<h5>Company:</h5>", 1));
-			movie.setGenres(extractTags(xml, "<h5>Genre:</h5>", "</div>",
-					"<a href=\"/Sections/Genres/", "</a>"));
+			int count = 0;
+			for ( String genre : extractTags(xml, "<h5>Genre:</h5>", "</div>",
+					"<a href=\"/Sections/Genres/", "</a>"))
+			{
+			  movie.addGenre( genre );
+			  if ( ++count >= maxGenres )
+				  break;
+			}
 			movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
 
 			if (movie.getPlot().startsWith("a class=\"tn15more")) {
@@ -380,7 +396,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 				endIndex = lastIndex;
 			String text = sectionText.substring(index, endIndex);
 
-			tags.add(text.trim());
+			tags.add(HTMLTools.decodeHtml(text.trim()));
 			endIndex += endLen;
 			if (endIndex > lastIndex)
 				break;

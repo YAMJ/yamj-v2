@@ -6,10 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.stream.XMLEventReader;
@@ -25,6 +24,7 @@ import javax.xml.stream.events.XMLEvent;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.HTMLTools;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -35,16 +35,19 @@ public class MovieJukeboxXMLWriter {
 	private boolean forceXMLOverwrite;
 	private int nbMoviesPerPage;
 	private int nbMoviesPerLine;
+	private String homePage;
 
 	public MovieJukeboxXMLWriter(Properties props) {
 		forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "false"));
 		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
 		nbMoviesPerLine = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerLine", "5"));
+		homePage = props.getProperty("mjb.homePage", "Other_All_1") + ".html";
 	}
 
 	/**
 	 * Parse a single movie detail xml file
 	 */
+	@SuppressWarnings("unchecked")
 	public void parseMovieXML(File xmlFile, Movie movie) {
 		try {
 			XMLInputFactory factory = XMLInputFactory.newInstance();    
@@ -62,7 +65,7 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<rating>")) { movie.setRating(Integer.parseInt(parseCData(r))); }
 				if (tag.equals("<posterURL>")) { movie.setPosterURL(parseCData(r)); }
 				if (tag.equals("<posterFile>")) { movie.setPosterFilename(parseCData(r)); }
-                                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(parseCData(r)); }
+                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(parseCData(r)); }
 				if (tag.equals("<thumbnailFile>")) { movie.setThumbnailFilename(parseCData(r)); }
 				if (tag.equals("<plot>")) { movie.setPlot(parseCData(r)); }
 				if (tag.equals("<director>")) { movie.setDirector(parseCData(r)); }
@@ -125,164 +128,243 @@ public class MovieJukeboxXMLWriter {
 		while( (e=r.nextEvent()) instanceof Characters) {
 			sb.append(e.toString());
 		}
-		return sb.toString();
+		return HTMLTools.decodeHtml(sb.toString());
 	}
 	
-	
+	public void writeCategoryXML( String rootPath, String detailsDirName, Library library )
+		throws FileNotFoundException, XMLStreamException
+	{
+		File folder = new File( rootPath, detailsDirName );
+		folder.mkdirs();
+
+		File xmlFile = new File( folder, "Categories.xml" );
+
+		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+		XMLStreamWriter writer = outputFactory.createXMLStreamWriter( new FileOutputStream( xmlFile ),
+				"UTF-8" );
+
+		writer.writeStartDocument();
+		writer.writeStartElement( "library" );
+
+		for ( Map.Entry< String, Map< String, List< Movie >>> category : library.getIndexes().entrySet())
+		{
+			writer.writeStartElement( "category" );
+			writer.writeAttribute( "name", category.getKey());
+			
+			for ( Map.Entry< String, List< Movie >> index : category.getValue().entrySet())
+			{
+				writer.writeStartElement("index");
+				writer.writeCharacters( index.getKey());
+				writer.writeEndElement();
+			}
+			writer.writeEndElement(); // category
+		}
+		writer.writeEndElement(); // library
+		writer.writeEndDocument();
+		writer.close();
+	}
+
 	/**
 	 * Write the set of index XML files for the library
 	 */
-	public void writeIndexXML(String rootPath, String detailsDirName, Library library) throws FileNotFoundException, XMLStreamException {
-		ArrayList<String> keys = new ArrayList<String>();
-		for(HashMap<String, List<Movie>> index : library.getIndexes().values()) {
-			ArrayList<String> c = new ArrayList<String>();
-			c.addAll(index.keySet());
-			Collections.sort(c);
-			keys.addAll(c);
-		}
+	public void writeIndexXML(String rootPath, String detailsDirName, Library library)
+	    throws FileNotFoundException, XMLStreamException {
 		
-		for (String key : keys) {
-			List<Movie> movies = library.getMoviesByIndexKey(key);
+		for ( Map.Entry<String, Map<String,List<Movie>>> category : library.getIndexes().entrySet())
+		{
+			String categoryName = category.getKey();
+			Map< String, List<Movie>> index = category.getValue();
+			
+			for ( Map.Entry< String, List<Movie>> group : index.entrySet()) {
+				String key = group.getKey(); 
+				List<Movie> movies = group.getValue();
 
-			int previous = 1;
-			int current = 1;
-			int last;
-			
-			if (movies.size() % nbMoviesPerPage != 0) {
-				last = 1 + movies.size() / nbMoviesPerPage;
-			} else {
-				last = movies.size() / nbMoviesPerPage;
-			}
-			
-			int next = Math.min(2, last);
-			int nbMoviesLeft = nbMoviesPerPage;
-			
-			List<Movie> movieInASignlePage = new ArrayList<Movie>();
-			for (Movie movie : movies) {
-				movieInASignlePage.add(movie);
-				nbMoviesLeft--;
-			
-				if (nbMoviesLeft == 0) {
-					writeIndexPage(keys, movieInASignlePage, rootPath, key, previous, current, next, last);
-					movieInASignlePage = new ArrayList<Movie>();
-					previous = current;
-					current = Math.min(current+1, last);
-					next = Math.min(current+1, last);
-					nbMoviesLeft = nbMoviesPerPage;
+				int previous = 1;
+				int current = 1;
+				int last;
+				
+				if (movies.size() % nbMoviesPerPage != 0) {
+					last = 1 + movies.size() / nbMoviesPerPage;
+				} else {
+					last = movies.size() / nbMoviesPerPage;
 				}
-			}
+				
+				int next = Math.min(2, last);
+				int nbMoviesLeft = nbMoviesPerPage;
+				
+				List<Movie> moviesInASinglePage = new ArrayList<Movie>();
+				for (Movie movie : movies) {
+					moviesInASinglePage.add(movie);
+					nbMoviesLeft--;
+				
+					if (nbMoviesLeft == 0) {
+						writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+						moviesInASinglePage = new ArrayList<Movie>();
+						previous = current;
+						current = Math.min(current+1, last);
+						next = Math.min(current+1, last);
+						nbMoviesLeft = nbMoviesPerPage;
+					}
+				}
 
-			if (movieInASignlePage.size() > 0) {
-				writeIndexPage(keys, movieInASignlePage, rootPath, key, previous, current, next, last);
+				if (moviesInASinglePage.size() > 0) {
+					writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+				}
 			}
 		}
 	}
+	
+	private String createPrefix( String category, String key )
+	{
+		return category + '_' + key + '_';
+	}
 
-	public void writeIndexPage(Collection<String> keys, Collection<Movie> movies, String rootPath, String key, int previous, int current, int next, int last) throws FileNotFoundException, XMLStreamException {
-		File xmlFile = new File(rootPath + "/index_" + key + "_" + current + ".xml");
+	public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current, int next, int last) throws FileNotFoundException, XMLStreamException {
+		String prefix = createPrefix( categoryName, key );
+		File xmlFile = new File(rootPath,  prefix + current + ".xml");
 		xmlFile.getParentFile().mkdirs();
-			
+
 		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 		XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
 
 		writer.writeStartDocument("UTF-8", "1.0");
 		writer.writeStartElement("library");
+		writePreferences( writer );
 
-		writer.writeStartElement("indexes");
-		
-		for (String akey : keys) {
-			writer.writeStartElement("index"); 
-			
-			String keyType;
-			if ((akey.length() == 2) && akey.equalsIgnoreCase("09")) {
-				keyType = "1";
-			} else if (akey.length() ==1) {
-				keyType = "1";
-			} else {
-				keyType = "2";
+		for ( Map.Entry<String, Map<String,List<Movie>>> category : library.getIndexes().entrySet())
+		{
+			String categoryKey = category.getKey();
+			Map< String, List<Movie>> index = category.getValue();
+			writer.writeStartElement("category");
+			writer.writeAttribute("name", categoryKey);
+			if ( categoryKey.equals( categoryName ))
+			{
+				writer.writeAttribute( "current", "true" );
 			}
-			
-			writer.writeAttribute("type", keyType);
-			writer.writeAttribute("name", akey);
 
-			// if currently writing this page then add current attribute with value true
-			if(akey.equals(key)) {
-				writer.writeAttribute("current", "true");
+			for (String akey : index.keySet()) {
+				prefix = createPrefix( categoryKey, akey );
+				
+				writer.writeStartElement("index"); 
+				writer.writeAttribute("name", akey);
+
+				// if currently writing this page then add current attribute with value true
+				if(akey.equals(key)) {
+					writer.writeAttribute("current", "true");
+					writer.writeAttribute("first", prefix + '1');
+					writer.writeAttribute("previous", prefix + previous);
+					writer.writeAttribute("next", prefix + next);
+					writer.writeAttribute("last", prefix + last );
+					writer.writeAttribute("currentIndex", Integer.toString(current));
+					writer.writeAttribute("lastIndex", Integer.toString(last));
+				}
+
+				writer.writeCharacters( prefix + '1'); 
+				writer.writeEndElement(); // index
 			}
-			
-			writer.writeCharacters("index_" + akey + "_1"); 
-			writer.writeEndElement();
-		}				
-		
-		writer.writeStartElement("index"); 
-		writer.writeAttribute("type", "0");
-		writer.writeAttribute("name", "first");
-		writer.writeCharacters("index_" + key + "_" + 1); 
-		writer.writeEndElement();
 
-		writer.writeStartElement("index"); 
-		writer.writeAttribute("type", "0");
-		writer.writeAttribute("name", "previous");
-		writer.writeCharacters("index_" + key + "_" + previous); 
-		writer.writeEndElement();
-
-		writer.writeStartElement("index"); 
-		writer.writeAttribute("type", "0");
-		writer.writeAttribute("name", "next");
-		writer.writeCharacters("index_" + key + "_" + next); 
-		writer.writeEndElement();
-		
-		writer.writeStartElement("index"); 
-		writer.writeAttribute("type", "0");
-		writer.writeAttribute("name", "last");
-		writer.writeCharacters("index_" + key + "_" + last); 
-		writer.writeEndElement();
-		
-		writer.writeStartElement("index"); 
-		writer.writeAttribute("type", "0");
-		writer.writeAttribute("name", "currentIndex");
-		writer.writeCharacters(Integer.toString(current)); 
-		writer.writeEndElement();
-
-		writer.writeStartElement("index"); 
-		writer.writeAttribute("type", "0");
-		writer.writeAttribute("name", "lastIndex");
-		writer.writeCharacters(Integer.toString(last)); 
-		writer.writeEndElement();
-
-		writer.writeEndElement();					
-
+			writer.writeEndElement(); // categories					
+		}
 		writer.writeStartElement("movies");
 		writer.writeAttribute("count", ""+ nbMoviesPerPage);
 		writer.writeAttribute("cols", ""+ nbMoviesPerLine);
-		
-		for (Movie movie : movies) {
-			writer.writeStartElement("movie"); 
-			writer.writeStartElement("title"); 
-			writer.writeCharacters(movie.getTitle()); 
-			if (movie.isTVShow() && movie.getSeason() != -1) {
-				writer.writeCharacters(" Season " + movie.getSeason());
-			} 
-			writer.writeEndElement();
 
-			writer.writeStartElement("titleSort"); 
-			writer.writeCharacters(movie.getTitleSort()); 
-			if (movie.isTVShow() && movie.getSeason() != -1) {
-				writer.writeCharacters(" Season " + movie.getSeason());
-			} 
-			writer.writeEndElement();
-			
-			writer.writeStartElement("details"); writer.writeCharacters(movie.getBaseName()+".html"); writer.writeEndElement();
-			writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
-			writer.writeEndElement();
+		for (Movie movie : movies) {
+			writeMovie( writer, movie ); 
 		}
-		writer.writeEndElement();					
-		
-		writer.writeEndElement();					
+		writer.writeEndElement(); // movies					
+
+		writer.writeEndElement(); // library 					
 		writer.writeEndDocument();
 		writer.close();
 	}
 	
+	
+   private void writeMovie( XMLStreamWriter writer, Movie movie ) throws XMLStreamException
+   {
+		writer.writeStartElement("movie");			
+		writer.writeStartElement("id"); writer.writeCharacters(movie.getId()); writer.writeEndElement();
+		writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
+		writer.writeStartElement("titleSort"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
+		writer.writeStartElement("year"); writer.writeCharacters(movie.getYear()); writer.writeEndElement();
+		writer.writeStartElement("releaseDate"); writer.writeCharacters(movie.getReleaseDate()); writer.writeEndElement();
+		writer.writeStartElement("rating"); writer.writeCharacters(Integer.toString(movie.getRating())); writer.writeEndElement();
+		writer.writeStartElement("details"); writer.writeCharacters( movie.getBaseName() + ".html" ); writer.writeEndElement();
+		writer.writeStartElement("posterURL"); writer.writeCharacters(movie.getPosterURL()); writer.writeEndElement();
+		writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getPosterFilename()); writer.writeEndElement();
+		writer.writeStartElement("detailPosterFile"); writer.writeCharacters(movie.getDetailPosterFilename()); writer.writeEndElement();
+		writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
+		writer.writeStartElement("plot"); writer.writeCharacters(movie.getPlot()); writer.writeEndElement();
+		writer.writeStartElement("director"); writer.writeCharacters(movie.getDirector()); writer.writeEndElement();
+		writer.writeStartElement("country"); writer.writeCharacters(movie.getCountry()); writer.writeEndElement();
+		writer.writeStartElement("company"); writer.writeCharacters(movie.getCompany()); writer.writeEndElement();
+		writer.writeStartElement("runtime"); writer.writeCharacters(movie.getRuntime()); writer.writeEndElement();
+		writer.writeStartElement("certification"); writer.writeCharacters(movie.getCertification()); writer.writeEndElement();
+		writer.writeStartElement("season"); writer.writeCharacters(Integer.toString(movie.getSeason())); writer.writeEndElement();
+		writer.writeStartElement("language"); writer.writeCharacters(movie.getLanguage()); writer.writeEndElement();
+		writer.writeStartElement("subtitles"); writer.writeCharacters(movie.hasSubtitles()?"YES":"NO"); writer.writeEndElement();
+		writer.writeStartElement("container"); writer.writeCharacters(movie.getContainer()); writer.writeEndElement();  // AVI, MKV, TS, etc.
+		writer.writeStartElement("videoCodec"); writer.writeCharacters(movie.getVideoCodec()); writer.writeEndElement(); // DIVX, XVID, H.264, etc.
+		writer.writeStartElement("audioCodec"); writer.writeCharacters(movie.getAudioCodec()); writer.writeEndElement(); // MP3, AC3, DTS, etc.
+		writer.writeStartElement("resolution"); writer.writeCharacters(movie.getResolution()); writer.writeEndElement(); // 1280x528
+		writer.writeStartElement("videoSource"); writer.writeCharacters(movie.getVideoSource()); writer.writeEndElement();
+		writer.writeStartElement("videoOutput"); writer.writeCharacters(movie.getVideoOutput()); writer.writeEndElement();
+		writer.writeStartElement("fps"); writer.writeCharacters(Integer.toString(movie.getFps())); writer.writeEndElement();
+
+		writer.writeStartElement("first"); writer.writeCharacters(movie.getFirst()); writer.writeEndElement();
+		writer.writeStartElement("previous"); writer.writeCharacters(movie.getPrevious()); writer.writeEndElement();
+		writer.writeStartElement("next"); writer.writeCharacters(movie.getNext()); writer.writeEndElement();
+		writer.writeStartElement("last"); writer.writeCharacters(movie.getLast()); writer.writeEndElement();
+		
+		Collection< String> items = movie.getGenres();
+		if ( items.size()> 0 ) {
+			writer.writeStartElement("genres");	
+			for (String genre : items ) {
+				writer.writeStartElement("genre");	
+				writer.writeCharacters(genre);
+				writer.writeEndElement();
+			}
+			writer.writeEndElement();
+		}
+		
+		items = movie.getCast();
+		if ( items.size()> 0 ) {
+			writer.writeStartElement("cast");	
+			for (String genre : items ) {
+				writer.writeStartElement("actor");	
+				writer.writeCharacters(genre);
+				writer.writeEndElement();
+			}
+			writer.writeEndElement();
+		}
+		
+		writer.writeStartElement("files"); 
+		for (MovieFile mf : movie.getFiles()) { 
+			writer.writeStartElement("file");
+			writer.writeAttribute("part", Integer.toString(mf.getPart()));
+			
+			if (movie.isTVShow()) {
+				writer.writeAttribute("title", "Episode " + mf.getPart() + ((mf.getTitle().equalsIgnoreCase("UNKNOWN"))?(""): (" - " + mf.getTitle())));
+			} else {
+				writer.writeAttribute("title", movie.getTitle() + " (Part " + mf.getPart() + ")");
+			}
+			writer.writeCharacters(mf.getNmtRootPath() + mf.getFilename()); 
+			writer.writeEndElement();
+		}
+		writer.writeEndElement();
+			
+		writer.writeEndElement();
+
+   }
+   
+   public void writePreferences( XMLStreamWriter writer ) throws XMLStreamException
+   {
+		writer.writeStartElement( "preferences" );
+		writer.writeStartElement( "homePage" );
+		writer.writeCharacters( homePage );
+        writer.writeEndElement();
+        writer.writeEndElement();
+   }
 	/**
 	 * Persist a movie into an XML file.
 	 * Doesn't overwrite an already existing XML file for the specified movie
@@ -298,76 +380,9 @@ public class MovieJukeboxXMLWriter {
 			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
 	
 			writer.writeStartDocument("UTF-8", "1.0");
-			writer.writeStartElement("movie");			
-			writer.writeStartElement("id"); writer.writeCharacters(movie.getId()); writer.writeEndElement();
-			writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
-			writer.writeStartElement("titleSort"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
-			writer.writeStartElement("year"); writer.writeCharacters(movie.getYear()); writer.writeEndElement();
-			writer.writeStartElement("releaseDate"); writer.writeCharacters(movie.getReleaseDate()); writer.writeEndElement();
-			writer.writeStartElement("rating"); writer.writeCharacters(Integer.toString(movie.getRating())); writer.writeEndElement();
-			writer.writeStartElement("posterURL"); writer.writeCharacters(movie.getPosterURL()); writer.writeEndElement();
-			writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getPosterFilename()); writer.writeEndElement();
-                        writer.writeStartElement("detailPosterFile"); writer.writeCharacters(movie.getDetailPosterFilename()); writer.writeEndElement();
-			writer.writeStartElement("thumbnailFile"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
-			writer.writeStartElement("plot"); writer.writeCharacters(movie.getPlot()); writer.writeEndElement();
-			writer.writeStartElement("director"); writer.writeCharacters(movie.getDirector()); writer.writeEndElement();
-			writer.writeStartElement("country"); writer.writeCharacters(movie.getCountry()); writer.writeEndElement();
-			writer.writeStartElement("company"); writer.writeCharacters(movie.getCompany()); writer.writeEndElement();
-			writer.writeStartElement("runtime"); writer.writeCharacters(movie.getRuntime()); writer.writeEndElement();
-			writer.writeStartElement("certification"); writer.writeCharacters(movie.getCertification()); writer.writeEndElement();
-			writer.writeStartElement("season"); writer.writeCharacters(Integer.toString(movie.getSeason())); writer.writeEndElement();
-			writer.writeStartElement("language"); writer.writeCharacters(movie.getLanguage()); writer.writeEndElement();
-			writer.writeStartElement("subtitles"); writer.writeCharacters(movie.hasSubtitles()?"YES":"NO"); writer.writeEndElement();
-			writer.writeStartElement("container"); writer.writeCharacters(movie.getContainer()); writer.writeEndElement();  // AVI, MKV, TS, etc.
-			writer.writeStartElement("videoCodec"); writer.writeCharacters(movie.getVideoCodec()); writer.writeEndElement(); // DIVX, XVID, H.264, etc.
-			writer.writeStartElement("audioCodec"); writer.writeCharacters(movie.getAudioCodec()); writer.writeEndElement(); // MP3, AC3, DTS, etc.
-			writer.writeStartElement("resolution"); writer.writeCharacters(movie.getResolution()); writer.writeEndElement(); // 1280x528
-			writer.writeStartElement("videoSource"); writer.writeCharacters(movie.getVideoSource()); writer.writeEndElement();
-			writer.writeStartElement("videoOutput"); writer.writeCharacters(movie.getVideoOutput()); writer.writeEndElement();
-			writer.writeStartElement("fps"); writer.writeCharacters(Integer.toString(movie.getFps())); writer.writeEndElement();
-	
-			writer.writeStartElement("first"); writer.writeCharacters(movie.getFirst()); writer.writeEndElement();
-			writer.writeStartElement("previous"); writer.writeCharacters(movie.getPrevious()); writer.writeEndElement();
-			writer.writeStartElement("next"); writer.writeCharacters(movie.getNext()); writer.writeEndElement();
-			writer.writeStartElement("last"); writer.writeCharacters(movie.getLast()); writer.writeEndElement();
-			
-			Collection< String> items = movie.getGenres();
-			if ( items.size()> 0 ) {
-				writer.writeStartElement("genres");	
-				for (String genre : items ) {
-					writer.writeStartElement("genre");	
-					writer.writeCharacters(genre);
-					writer.writeEndElement();
-				}
-				writer.writeEndElement();
-			}
-			
-			items = movie.getCast();
-			if ( items.size()> 0 ) {
-				writer.writeStartElement("cast");	
-				for (String genre : items ) {
-					writer.writeStartElement("actor");	
-					writer.writeCharacters(genre);
-					writer.writeEndElement();
-				}
-				writer.writeEndElement();
-			}
-			
-			writer.writeStartElement("files"); 
-			for (MovieFile mf : movie.getFiles()) { 
-				writer.writeStartElement("file");
-				writer.writeAttribute("part", Integer.toString(mf.getPart()));
-				
-				if (movie.isTVShow()) {
-					writer.writeAttribute("title", "Episode " + mf.getPart() + ((mf.getTitle().equalsIgnoreCase("UNKNOWN"))?(""): (" - " + mf.getTitle())));
-				} else {
-					writer.writeAttribute("title", movie.getTitle() + " (Part " + mf.getPart() + ")");
-				}
-				writer.writeCharacters(mf.getNmtRootPath() + mf.getFilename()); 
-				writer.writeEndElement();
-			}
-			writer.writeEndElement();
-				
+			writer.writeStartElement("details");
+			writePreferences( writer );
+			writeMovie( writer, movie );
 			writer.writeEndElement();
 			writer.writeEndDocument();
 			writer.close();

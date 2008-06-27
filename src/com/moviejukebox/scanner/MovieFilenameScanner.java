@@ -191,10 +191,11 @@ public class MovieFilenameScanner {
 		
 		if(index!= -1) {
 			updateFirstKeywordIndex(index);
-			StringTokenizer st = new StringTokenizer(
-					f.substring(index+keyword.length()), " {[-|_)]},.");
+			int end = index;
+			while ( end < filename.length() && Character.isDigit( filename.charAt( end )))
+				++end;
 			try {
-				return Integer.parseInt(st.nextToken());
+				return Integer.parseInt(filename.substring(index, end ));
 			} catch (Exception e) {
 				return 1;
 			}

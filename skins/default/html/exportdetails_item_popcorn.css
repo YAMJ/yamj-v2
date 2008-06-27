@@ -48,3 +48,10 @@ a {
     color: #AAAAAA; 
     text-decoration: none; 
 }
+
+tr.divider {
+    background-color: #AAAAAA;
+    height: 1px;
+}
+
+tr.spacer { height: 10px; }

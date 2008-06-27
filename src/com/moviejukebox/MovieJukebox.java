@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -277,7 +276,9 @@ public class MovieJukebox {
 
 		logger.fine("Generating Indexes...");
 		xmlWriter.writeIndexXML(jukeboxDetailsRoot, detailsDirName, library);
+		xmlWriter.writeCategoryXML(jukeboxRoot, detailsDirName, library);
 		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, detailsDirName, library);
+		htmlWriter.generateMoviesCategoryHTML(jukeboxRoot, detailsDirName, library);
 
 		logger.fine("Copying resources to Jukebox directory...");
 		FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
@@ -326,12 +327,6 @@ public class MovieJukebox {
 			movieDB.scan(movie);
 			miScanner.scan(movie);
 			
-			// If the TitleSort field was not found by any of the scanners
-			// Then consider the title as the sorted title...
-			if (movie.getTitleSort().equalsIgnoreCase("UNKNOWN")) {
-				movie.setTitleSort(movie.getTitle());
-			}
-			
 			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
 			logger.finer("movie XML file created for movie:" + movie.getBaseName());
 		}
@@ -373,6 +368,7 @@ public class MovieJukebox {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
 		Collection<MediaLibraryPath> movieLibraryPaths = new ArrayList<MediaLibraryPath>();
 
@@ -384,13 +380,13 @@ public class MovieJukebox {
 		try {
 			XMLConfiguration c = new XMLConfiguration(f);
 
-			List fields = c.configurationsAt("library");
-			for (Iterator it = fields.iterator(); it.hasNext();) {
-				HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
+			List<HierarchicalConfiguration> fields = c.configurationsAt("library");
+			for (Iterator<HierarchicalConfiguration> it = fields.iterator(); it.hasNext();) {
+				HierarchicalConfiguration sub = it.next();
 				// sub contains now all data about a single medialibrary node
 				String path = sub.getString("path");
 				String nmtpath = sub.getString("nmtpath");
-				List excludes = sub.getList("exclude[@name]");
+				List<String> excludes = sub.getList("exclude[@name]");
 
 				if (new File(path).exists()) {
 					MediaLibraryPath medlib = new MediaLibraryPath();
@@ -416,10 +412,8 @@ public class MovieJukebox {
 		try {
 			Thread t = Thread.currentThread();
 			ClassLoader cl = t.getContextClassLoader();
-			Class pluginClass = cl.loadClass(className);
-			Object plugin = pluginClass.newInstance();
-
-			movieDB = (MovieDatabasePlugin) plugin;
+			Class<? extends MovieDatabasePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieDatabasePlugin.class);
+			movieDB = pluginClass.newInstance();
 		} catch (Exception e) {
 			movieDB = new ImdbPlugin();
 			logger.severe("Failed instanciating MovieDatabasePlugin: " + className);
@@ -437,10 +431,8 @@ public class MovieJukebox {
 		try {
 			Thread t = Thread.currentThread();
 			ClassLoader cl = t.getContextClassLoader();
-			Class pluginClass = cl.loadClass(className);
-			Object plugin = pluginClass.newInstance();
-
-			thumbnailPlugin = (MovieImagePlugin) plugin;
+			Class< ?extends DefaultThumbnailPlugin> pluginClass = cl.loadClass(className).asSubclass(DefaultThumbnailPlugin.class);
+			thumbnailPlugin = pluginClass.newInstance();
 		} catch (Exception e) {
 			thumbnailPlugin = new DefaultThumbnailPlugin();
 			logger.severe("Failed instanciating ThumbnailPlugin: " + className);
@@ -458,10 +450,8 @@ public class MovieJukebox {
 		try {
 			Thread t = Thread.currentThread();
 			ClassLoader cl = t.getContextClassLoader();
-			Class pluginClass = cl.loadClass(className);
-			Object plugin = pluginClass.newInstance();
-
-			posterPlugin = (MovieImagePlugin) plugin;
+			Class< ?extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
+			posterPlugin = pluginClass.newInstance();
 		} catch (Exception e) {
 			posterPlugin = new DefaultPosterPlugin();
 			logger.severe("Failed instanciating PosterPlugin: " + className);
