@@ -3,6 +3,7 @@ package com.moviejukebox.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class Library implements Map<String, Movie> {
 	}
 
 	private void sortMovieDetails() {
-//		Collections.sort(moviesList);  Don't need to sort 'cause its a TreeMap now
+  		Collections.sort(moviesList);
 		
 		Movie first = moviesList.get(0);
 		Movie last = moviesList.get(moviesList.size()-1);
