@@ -211,6 +211,7 @@ public class MovieJukebox {
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
 		MediaInfoScanner miScanner = new MediaInfoScanner(props);
+		Movie.setup(props);
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
