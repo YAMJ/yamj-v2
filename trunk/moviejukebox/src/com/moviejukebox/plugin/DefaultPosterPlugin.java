@@ -23,6 +23,7 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 	private boolean addPerspective;
 	private boolean normalizePosters;
 	private boolean addHDLogo;
+        private boolean addLanguage;
 	private int posterWidth;
 	private int posterHeight;
 
@@ -35,6 +36,7 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 		addPerspective = Boolean.parseBoolean(props.getProperty("posters.perspective", "true"));
 		normalizePosters = Boolean.parseBoolean(props.getProperty("posters.normalize", "false"));
 		addHDLogo = Boolean.parseBoolean(props.getProperty("posters.logoHD", "false"));
+                addLanguage = Boolean.parseBoolean(props.getProperty("posters.language", "false"));
 	}
 
 	@Override
@@ -50,6 +52,10 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 		if (addHDLogo) {
 			bi = drawLogoHD(movie, bi);
 		}
+                
+                if (addLanguage) {
+                        bi = drawLanguage(movie, bi);
+                }
 
 		if (addReflectionEffect) {
 			bi = GraphicTools.createReflectedPicture(bi);
@@ -80,4 +86,21 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 		
 		return bi;
 	}
+        
+	private BufferedImage drawLanguage(Movie movie, BufferedImage bi) {
+		String lang = movie.getLanguage();
+		if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase("Unknown")) {
+			
+			try {
+				InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + lang + ".png");
+				BufferedImage biLang = ImageIO.read(in);
+				Graphics g = bi.getGraphics();
+				g.drawImage(biLang, 2, 2, null);
+			} catch (IOException e) {
+				logger.warning("Failed drawing Language logo to poster file: Please check that language specific png is in the resources/languages directory.");
+			}
+		}
+		
+		return bi;
+	}        
 }

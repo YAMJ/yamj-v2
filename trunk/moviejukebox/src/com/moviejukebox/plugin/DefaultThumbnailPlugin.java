@@ -23,6 +23,7 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 	private boolean addPerspective;
 	private boolean normalizeThumbnails;
 	private boolean addHDLogo;
+        private boolean addLanguage;
 	private int thumbWidth;
 	private int thumbHeight;
 
@@ -35,6 +36,7 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 		addPerspective = Boolean.parseBoolean(props.getProperty("thumbnails.perspective", "false"));
 		normalizeThumbnails = Boolean.parseBoolean(props.getProperty("thumbnails.normalize", "false"));
 		addHDLogo = Boolean.parseBoolean(props.getProperty("thumbnails.logoHD", "false"));
+                addLanguage = Boolean.parseBoolean(props.getProperty("thumbnails.language", "false"));
 	}
 
 	@Override
@@ -50,6 +52,10 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 		if (addHDLogo) {
 			bi = drawLogoHD(movie, bi);
 		}
+                
+                if (addLanguage) {
+                        bi = drawLanguage(movie, bi);
+                }
 
 		if (addReflectionEffect) {
 			bi = GraphicTools.createReflectedPicture(bi);
@@ -73,11 +79,28 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 				Graphics g = bi.getGraphics();
 				g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
 			} catch (IOException e) {
-				logger.warning("Failed drawind HD logo to thumbnail file: Please check that hd.png is in the resources directory.");
-				e.printStackTrace();
+				logger.warning("Failed drawing HD logo to thumbnail file: Please check that hd.png is in the resources directory.");
 			}
 		}
 		
 		return bi;
 	}
+        
+	private BufferedImage drawLanguage(Movie movie, BufferedImage bi) {
+		String lang = movie.getLanguage();
+		if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase("Unknown")) {
+			
+			try {
+				InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + lang + ".png");
+				BufferedImage biLang = ImageIO.read(in);
+				Graphics g = bi.getGraphics();
+				g.drawImage(biLang, 1, 1, null);
+			} catch (IOException e) {
+				logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific png is in the resources/languages directory.");
+			}
+		}
+		
+		return bi;
+	}
+        
 }
