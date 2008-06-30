@@ -30,17 +30,17 @@ public class MovieNFOScanner {
 	 */
 	public void scan(Movie movie){     
 		
-		File nfoFile;
-		
+		String fn = movie.getFile().getAbsolutePath();
 		if (movie.getFile().isFile()) {
-			String fn = movie.getFile().getAbsolutePath();
 			int i = fn.lastIndexOf(".");
-			nfoFile = new File(fn.substring(0, i) + ".nfo");
-		} else {
-			String fn = movie.getFile().getAbsolutePath();
-			nfoFile = new File(fn + ".nfo");
+                        fn = fn.substring(0, i);
 		}
+		File nfoFile = nfoFile = new File(fn + ".nfo");
 		
+                if (!nfoFile.exists()) {
+                    nfoFile = new File(fn + ".NFO");
+                }
+                
 		if (nfoFile.exists()) {
 		
 		   InputStream in = null;
@@ -62,7 +62,7 @@ public class MovieNFOScanner {
 		      
 		      int beginIndex = nfo.indexOf("/tt");
 		      if ( beginIndex != -1) {
-		    	  StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex+1),"/ \n,:!&é\"'(--è_çà)=$");
+		    	  StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex+1),"/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
 		    	  movie.setId(st.nextToken());
 		      }
 		      
