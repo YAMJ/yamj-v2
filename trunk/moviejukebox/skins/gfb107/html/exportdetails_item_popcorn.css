@@ -1,0 +1,56 @@
+body {
+  color: #888888;
+  font-family: Verdana,Arial,Helvetica, sans-serif;
+  font-size:normal;
+}
+
+img { 
+    border: 0; 
+}
+
+table.main { 
+    width:1100; 
+    height:656; 
+}
+
+.title1 {
+    color: #ff8000;
+    font-size: 28pt;
+    font-weight : bold;
+}
+
+.title2 {
+    color: #AAAAAA;
+    font-size: 16pt;
+    font-weight: bold;
+}
+
+.title3 {
+    color: #AAAAAA;
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+.normal {
+    color: #888888;
+    font-size: 14pt;
+    font-weight: normal;
+}
+
+.firstMovie {
+    color: #4444FF;
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+a { 
+    color: #AAAAAA; 
+    text-decoration: none; 
+}
+
+tr.divider {
+    background-color: #AAAAAA;
+    height: 1px;
+}
+
+tr.spacer { height: 10px; }
