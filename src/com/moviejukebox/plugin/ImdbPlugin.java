@@ -19,558 +19,563 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
-	
-	private static Logger logger = Logger.getLogger("moviejukebox");
-	
-	private String preferredSearchEngine;
-	private String preferredPosterSearchEngine;
-	private boolean perfectMatch;
-	private int maxGenres;
-	private String preferredCountry;
 
-	@Override
-	public void init(Properties props) {
-		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
-		preferredPosterSearchEngine = props.getProperty(
-				"imdb.alternate.poster.search", "google");
-		perfectMatch = Boolean.parseBoolean(props.getProperty(
-				"imdb.perfect.match", "true"));
-		preferredCountry = props.getProperty("imdb.preferredCountry", "USA");
-		try {
-			String temp = props.getProperty( "imdb.genres.max", "9" );
-			System.out.println( "imdb.genres.max=" + temp );
-			maxGenres = Integer.parseInt( temp );
-		}
-		catch ( NumberFormatException ex )
-		{
-			maxGenres = 9;
-		}
-	}	
+    private static Logger logger = Logger.getLogger("moviejukebox");
+    private String preferredSearchEngine;
+    private String preferredPosterSearchEngine;
+    private boolean perfectMatch;
+    private int maxGenres;
+    private String preferredCountry;
 
-	public void scan(Movie mediaFile) {
+    @Override
+    public void init(Properties props) {
+        preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
+        preferredPosterSearchEngine = props.getProperty(
+                "imdb.alternate.poster.search", "google");
+        perfectMatch = Boolean.parseBoolean(props.getProperty(
+                "imdb.perfect.match", "true"));
+        preferredCountry = props.getProperty("imdb.preferredCountry", "USA");
+        try {
+            String temp = props.getProperty("imdb.genres.max", "9");
+            System.out.println("imdb.genres.max=" + temp);
+            maxGenres = Integer.parseInt(temp);
+        } catch (NumberFormatException ex) {
+            maxGenres = 9;
+        }
+    }
 
-		String imdbId = mediaFile.getId();
-		if (imdbId == null || imdbId.equalsIgnoreCase("Unknown")) {
-			imdbId = getImdbId(mediaFile.getTitle(), mediaFile.getYear());
-			mediaFile.setId(imdbId);
-		}
+    public void scan(Movie mediaFile) {
 
-		if (!imdbId.equalsIgnoreCase("Unknown")) {
-			updateImdbMediaInfo(mediaFile);
-		}
-	}
+        String imdbId = mediaFile.getId();
+        if (imdbId == null || imdbId.equalsIgnoreCase("Unknown")) {
+            imdbId = getImdbId(mediaFile.getTitle(), mediaFile.getYear());
+            mediaFile.setId(imdbId);
+        }
 
-	/**
-	 * retrieve the imdb matching the specified movie name and year.
-	 * This routine is base on a IMDb request.
-	 */
-	private String getImdbId(String movieName, String year) {
-		if ("google".equalsIgnoreCase(preferredSearchEngine)) {
-			return getImdbIdFromGoogle(movieName, year);
-		} else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
-			return getImdbIdFromYahoo(movieName, year);
-		} else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
-			return "Unknown";
-		} else {
-			return getImdbIdFromImdb(movieName, year);
-		}
-	}
-	
-	/**
-	 * retrieve the imdb matching the specified movie name and year.
-	 * This routine is base on a yahoo request.
-	 */
-	private String getImdbIdFromYahoo(String movieName, String year) {
-		try {
-			StringBuffer sb = new StringBuffer("http://fr.search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));
-			
-			if (year != null && !year.equalsIgnoreCase("Unknown")) {
-				sb.append("+%28").append(year).append("%29");
-			}
-			
-			sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
+        if (!imdbId.equalsIgnoreCase("Unknown")) {
+            updateImdbMediaInfo(mediaFile);
+        }
+    }
 
-			String xml = request(new URL(sb.toString()));
-			int beginIndex = xml.indexOf("/title/tt");
-			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
-			String imdbId = st.nextToken();
+    /**
+     * retrieve the imdb matching the specified movie name and year.
+     * This routine is base on a IMDb request.
+     */
+    private String getImdbId(String movieName, String year) {
+        if ("google".equalsIgnoreCase(preferredSearchEngine)) {
+            return getImdbIdFromGoogle(movieName, year);
+        } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
+            return getImdbIdFromYahoo(movieName, year);
+        } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
+            return "Unknown";
+        } else {
+            return getImdbIdFromImdb(movieName, year);
+        }
+    }
 
-			if (imdbId.startsWith("tt")) {
-				return imdbId;
-			} else {
-				return "Unknown";
-			}
+    /**
+     * retrieve the imdb matching the specified movie name and year.
+     * This routine is base on a yahoo request.
+     */
+    private String getImdbIdFromYahoo(String movieName, String year) {
+        try {
+            StringBuffer sb = new StringBuffer("http://fr.search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
+            sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-		} catch (Exception e) {
-			logger.severe("Failed retreiving imdb Id for movie : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return "Unknown";
-		}
-	}
+            if (year != null && !year.equalsIgnoreCase("Unknown")) {
+                sb.append("+%28").append(year).append("%29");
+            }
 
-	/**
-	 * retrieve the imdb matching the specified movie name and year.
-	 * This routine is base on a google request.
-	 */
-	private String getImdbIdFromGoogle(String movieName, String year) {
-		try {
-			StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));
-			
-			if (year != null && !year.equalsIgnoreCase("Unknown")) {
-				sb.append("+%28").append(year).append("%29");
-			}
-			
-			sb.append("+site%3Awww.imdb.com&meta=");
+            sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
 
-			String xml = request(new URL(sb.toString()));
-			int beginIndex = xml.indexOf("/title/tt");
-			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
-			String imdbId = st.nextToken();
+            String xml = request(new URL(sb.toString()));
+            int beginIndex = xml.indexOf("/title/tt");
+            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
+            String imdbId = st.nextToken();
 
-			if (imdbId.startsWith("tt")) {
-				return imdbId;
-			} else {
-				return "Unknown";
-			}
+            if (imdbId.startsWith("tt")) {
+                return imdbId;
+            } else {
+                return "Unknown";
+            }
 
-		} catch (Exception e) {
-			logger.severe("Failed retreiving imdb Id for movie : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return "Unknown";
-		}
-	}
+        } catch (Exception e) {
+            logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+            logger.severe("Error : " + e.getMessage());
+            return "Unknown";
+        }
+    }
 
-	/**
-	 * retrieve the imdb matching the specified movie name and year.
-	 * This routine is base on a IMDb request.
-	 */
-	private String getImdbIdFromImdb(String movieName, String year) {
-		try {
-			StringBuffer sb = new StringBuffer("http://www.imdb.com/find?s=tt&q=");
-			sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
-			
-			if (year != null && !year.equalsIgnoreCase("Unknown")) {
-				sb.append("+%28").append(year).append("%29");
-			}
-			sb.append(";s=tt;site=aka");
-			
-			String xml = request(new URL(sb.toString()));
+    /**
+     * retrieve the imdb matching the specified movie name and year.
+     * This routine is base on a google request.
+     */
+    private String getImdbIdFromGoogle(String movieName, String year) {
+        try {
+            StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
+            sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-			// Try to have a more accurate search result
-			// by considering "exact matches" categories
-			if (perfectMatch) {
-				int beginIndex = xml.indexOf("Popular Titles");
-				if (beginIndex != -1) {
-					xml = xml.substring(beginIndex);
-				}
-				
-				// Try to find an exact match first... 
-				// never know... that could be ok...
-				int movieIndex;
-				if (year != null && !year.equalsIgnoreCase("Unknown")) {
-					movieIndex = xml.indexOf(movieName +" </a> ("+year+")");
-				} else {
-					movieIndex = xml.indexOf(movieName);
-				}
-				
-				// Let's consider Exact Matches first
-				beginIndex = xml.indexOf("Titles (Exact Matches)");			
-				if (beginIndex != -1 && movieIndex > beginIndex) {
-					xml = xml.substring(beginIndex);
-				}
-			}
-			
-			int beginIndex = xml.indexOf("title/tt");
-			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 6), "/\"");
-			String imdbId = st.nextToken();
+            if (year != null && !year.equalsIgnoreCase("Unknown")) {
+                sb.append("+%28").append(year).append("%29");
+            }
 
-			if (imdbId.startsWith("tt")) {
-				return imdbId;
-			} else {
-				return "Unknown";
-			}
+            sb.append("+site%3Awww.imdb.com&meta=");
 
-		} catch (Exception e) {
-			logger.severe("Failed retreiving imdb Id for movie : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return "Unknown";
-		}
-	}
+            String xml = request(new URL(sb.toString()));
+            int beginIndex = xml.indexOf("/title/tt");
+            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
+            String imdbId = st.nextToken();
 
-	private String getPreferredValue(ArrayList<String> values) {
-		String value = null;
-		for (String text : values) {
-			String country = null;
+            if (imdbId.startsWith("tt")) {
+                return imdbId;
+            } else {
+                return "Unknown";
+            }
 
-			int pos = text.indexOf(':');
-			if (pos != -1) {
-				country = text.substring(0, pos);
-				text = text.substring(pos + 1);
-			}
-			if (country == null) {
-				if (value == null)
-					value = text;
-			} else {
-				if (country.equals(preferredCountry)) {
-					return text;
-				}
-			}
-		}
-		return value;
-	}
+        } catch (Exception e) {
+            logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+            logger.severe("Error : " + e.getMessage());
+            return "Unknown";
+        }
+    }
 
-	/**
-	 * Scan IMDB html page for the specified movie
-	 */
-	private void updateImdbMediaInfo(Movie movie) {
-		try {
-			String xml = request(new URL("http://www.imdb.com/title/" + movie.getId()));
+    /**
+     * retrieve the imdb matching the specified movie name and year.
+     * This routine is base on a IMDb request.
+     */
+    private String getImdbIdFromImdb(String movieName, String year) {
+        try {
+            StringBuffer sb = new StringBuffer("http://www.imdb.com/find?s=tt&q=");
+            sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
 
-			movie.setTitleSort(extractTag(xml, "<title>", 0, "()><"));
-			movie.setRating(parseRating(extractTag(xml, "<b>User Rating:</b>",2)));
-			//movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
-			movie.setDirector(extractTag(xml, "<h5>Director:</h5>", 1));
-			movie.setReleaseDate(extractTag(xml, "<h5>Release Date:</h5>"));
-			movie.setRuntime(getPreferredValue(extractTags(xml,
-					"<h5>Runtime:</h5>", "</div>")));
+            if (year != null && !year.equalsIgnoreCase("Unknown")) {
+                sb.append("+%28").append(year).append("%29");
+            }
+            sb.append(";s=tt;site=aka");
 
-			movie.setCountry(extractTag(xml, "<h5>Country:</h5>", 1));
-			movie.setCompany(extractTag(xml, "<h5>Company:</h5>", 1));
-			int count = 0;
-			for ( String genre : extractTags(xml, "<h5>Genre:</h5>", "</div>",
-					"<a href=\"/Sections/Genres/", "</a>"))
-			{
-			  movie.addGenre( genre );
-			  if ( ++count >= maxGenres )
-				  break;
-			}
-			movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+            String xml = request(new URL(sb.toString()));
 
-			if (movie.getPlot().startsWith("a class=\"tn15more")) {
-				movie.setPlot("None");
-			}
+            // Try to have a more accurate search result
+            // by considering "exact matches" categories
+            if (perfectMatch) {
+                int beginIndex = xml.indexOf("Popular Titles");
+                if (beginIndex != -1) {
+                    xml = xml.substring(beginIndex);
+                }
 
-			movie.setCertification(getPreferredValue(extractTags(xml,
-					"<h5>Certification:</h5>", "</div>",
-					"<a href=\"/List?certificates=", "</a>")));
+                // Try to find an exact match first... 
+                // never know... that could be ok...
+                int movieIndex;
+                if (year != null && !year.equalsIgnoreCase("Unknown")) {
+                    movieIndex = xml.indexOf(movieName + " </a> (" + year + ")");
+                } else {
+                    movieIndex = xml.indexOf(movieName);
+                }
 
-			if (movie.getYear() == null || movie.getYear().isEmpty()
-			 || movie.getYear().equalsIgnoreCase("Unknown")) {
-			
-				int beginIndex = xml.indexOf("<a href=\"/Sections/Years/");
-				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 25), "\"");
-				try {
-					movie.setYear(st.nextToken().trim());
-				} catch (NumberFormatException e) { }
-			}
+                // Let's consider Exact Matches first
+                beginIndex = xml.indexOf("Titles (Exact Matches)");
+                if (beginIndex != -1 && movieIndex > beginIndex) {
+                    xml = xml.substring(beginIndex);
+                }
+            }
 
-			movie.setCast(extractTags(xml, "<table class=\"cast\">",
-					"</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
-			
-			int castIndex = xml.indexOf("<h3>Cast</h3>");
-			int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
-			
-			String posterURL = "Unknown";
-			
-			//Check posters.motechnet.com 
-			if (this.testMotechnetPoster(movie.getId())) {
-				posterURL = "http://posters.motechnet.com/covers/" + movie.getId() + "_largeCover.jpg";
-			}
-			//Check www.impawards.com 
-			else if (!((posterURL =this.testImpawardsPoster(movie.getId())).equals("Unknown"))) {
-				//Cover Found
-			}
-			//Check www.moviecovers.com (if set in property file)
-			else if ( ("moviecovers".equals(preferredPosterSearchEngine))
-					&&
-					  !((posterURL =this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals("Unknown"))
-					) {
-				//Cover Found
-			}
-			else if (beginIndex<castIndex && beginIndex != -1) {
-				
-				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 5), "\"");
-				posterURL = st.nextToken();
-				int index = posterURL.indexOf("_SY");
-				if (index != -1) {
-					posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
-				}
-			} else { 
-				// try searching an alternate search engine
-				String alternateURL = "Unknown";
-				if ("google".equalsIgnoreCase(preferredPosterSearchEngine)) {
-					alternateURL = getPosterURLFromGoogle(movie.getTitle());
-				} else if ("yahoo".equalsIgnoreCase(preferredPosterSearchEngine)) {
-					alternateURL = getPosterURLFromYahoo(movie.getTitle());
-				} 
-				
-				if (!alternateURL.equalsIgnoreCase("Unknown")) {
-					posterURL = alternateURL;
-				}
-			}
-			
-			movie.setPosterURL(posterURL);
+            int beginIndex = xml.indexOf("title/tt");
+            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 6), "/\"");
+            String imdbId = st.nextToken();
 
-			if (movie.isTVShow()) {
-				updateTVShowInfo(movie);
-			}
-			
-		} catch (Exception e) {
-			logger.severe("Failed retreiving imdb rating for movie : " + movie.getId());
-			e.printStackTrace();
-		}
-	}
+            if (imdbId.startsWith("tt")) {
+                return imdbId;
+            } else {
+                return "Unknown";
+            }
 
-	private int parseRating(String rating) {
-		StringTokenizer st = new StringTokenizer(rating, "/ ()");
-		try {
-			return (int) Float.parseFloat(st.nextToken()) * 10;
-		} catch(Exception e) {
-			return -1;
-		}
-	}
+        } catch (Exception e) {
+            logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+            logger.severe("Error : " + e.getMessage());
+            return "Unknown";
+        }
+    }
 
-	private String extractTag(String src, String findStr) {
-		return this.extractTag(src, findStr, 0);
-	}
+    private String getPreferredValue(ArrayList<String> values) {
+        String value = null;
+        for (String text : values) {
+            String country = null;
 
-	private String extractTag(String src, String findStr, int skip) {
-		return this.extractTag(src, findStr, skip, "><");
-	}
+            int pos = text.indexOf(':');
+            if (pos != -1) {
+                country = text.substring(0, pos);
+                text = text.substring(pos + 1);
+            }
+            if (country == null) {
+                if (value == null) {
+                    value = text;
+                }
+            } else {
+                if (country.equals(preferredCountry)) {
+                    return text;
+                }
+            }
+        }
+        return value;
+    }
 
-	private String extractTag(String src, String findStr, int skip,
-			String separator) {
-		int beginIndex = src.indexOf(findStr);
-		StringTokenizer st = new StringTokenizer(src.substring(beginIndex
-				+ findStr.length()), separator);
-		for (int i = 0; i < skip; i++)
-			st.nextToken();
-		
-		String value = HTMLTools.decodeHtml(st.nextToken().trim());
-		if (   (value.indexOf("uiv=\"content-ty")!= -1) 
-			    || (value.indexOf("cast")!= -1)
-		    	|| (value.indexOf("title")!= -1)
-			    || (value.indexOf("<")!= -1)) {
-			value = "Unknown";
-		}
-		
-		return value;
-	}
+    /**
+     * Scan IMDB html page for the specified movie
+     */
+    private void updateImdbMediaInfo(Movie movie) {
+        try {
+            String xml = request(new URL("http://www.imdb.com/title/" + movie.getId()));
 
-	private ArrayList<String> extractTags(String src, String sectionStart,
-			String sectionEnd) {
-		return extractTags(src, sectionStart, sectionEnd, null, "|");
-	}
+            movie.setTitleSort(extractTag(xml, "<title>", 0, "()><"));
+            movie.setRating(parseRating(extractTag(xml, "<b>User Rating:</b>", 2)));
+            //movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+            movie.setDirector(extractTag(xml, "<h5>Director:</h5>", 1));
+            movie.setReleaseDate(extractTag(xml, "<h5>Release Date:</h5>"));
+            movie.setRuntime(getPreferredValue(extractTags(xml,
+                    "<h5>Runtime:</h5>", "</div>")));
 
-	private ArrayList<String> extractTags(String src, String sectionStart,
-			String sectionEnd, String startTag, String endTag) {
-		ArrayList<String> tags = new ArrayList<String>();
-		int index = src.indexOf(sectionStart);
-		if (index == -1)
-			return tags;
-		index += sectionStart.length();
-		int endIndex = src.indexOf(sectionEnd, index);
-		if (endIndex == -1)
-			return tags;
+            movie.setCountry(extractTag(xml, "<h5>Country:</h5>", 1));
+            movie.setCompany(extractTag(xml, "<h5>Company:</h5>", 1));
+            int count = 0;
+            for (String genre : extractTags(xml, "<h5>Genre:</h5>", "</div>",
+                    "<a href=\"/Sections/Genres/", "</a>")) {
+                movie.addGenre(genre);
+                if (++count >= maxGenres) {
+                    break;
+                }
+            }
+            movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
 
-		String sectionText = src.substring(index, endIndex);
-		int lastIndex = sectionText.length();
-		index = 0;
-		int startLen = 0;
-		int endLen = endTag.length();
+            if (movie.getPlot().startsWith("a class=\"tn15more")) {
+                movie.setPlot("None");
+            }
 
-		if (startTag != null) {
-			index = sectionText.indexOf(startTag);
-			startLen = startTag.length();
-		}
+            movie.setCertification(getPreferredValue(extractTags(xml,
+                    "<h5>Certification:</h5>", "</div>",
+                    "<a href=\"/List?certificates=", "</a>")));
 
-		while (index != -1) {
-			index += startLen;
-			int close = sectionText.indexOf('>', index);
-			if (close != -1)
-				index = close + 1;
-			endIndex = sectionText.indexOf(endTag, index);
-			if (endIndex == -1)
-				endIndex = lastIndex;
-			String text = sectionText.substring(index, endIndex);
+            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase("Unknown")) {
 
-			tags.add(HTMLTools.decodeHtml(text.trim()));
-			endIndex += endLen;
-			if (endIndex > lastIndex)
-				break;
-			if (startTag != null)
-				index = sectionText.indexOf(startTag, endIndex);
-			else
-				index = endIndex;
-		}
-		return tags;
-	}
+                int beginIndex = xml.indexOf("<a href=\"/Sections/Years/");
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 25), "\"");
+                try {
+                    movie.setYear(st.nextToken().trim());
+                } catch (NumberFormatException e) {
+                }
+            }
 
-	public String request(URL url) throws IOException {
-		StringWriter content = null;
+            movie.setCast(extractTags(xml, "<table class=\"cast\">",
+                    "</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
 
-		try {
-			content = new StringWriter();
+            int castIndex = xml.indexOf("<h3>Cast</h3>");
+            int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
 
-			BufferedReader in = null;
-			try {
-				URLConnection cnx = url.openConnection();
-				cnx.setRequestProperty(
-					"User-Agent",
-					"Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
+            String posterURL = "Unknown";
 
-				in = new BufferedReader(new InputStreamReader(cnx.getInputStream()));
+            //Check posters.motechnet.com 
+            if (this.testMotechnetPoster(movie.getId())) {
+                posterURL = "http://posters.motechnet.com/covers/" + movie.getId() + "_largeCover.jpg";
+            } //Check www.impawards.com 
+            else if (!((posterURL = this.testImpawardsPoster(movie.getId())).equals("Unknown"))) {
+            //Cover Found
+            } //Check www.moviecovers.com (if set in property file)
+            else if (("moviecovers".equals(preferredPosterSearchEngine)) &&
+                    !((posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals("Unknown"))) {
+            //Cover Found
+            } else if (beginIndex < castIndex && beginIndex != -1) {
 
-				String line;
-				while ((line = in.readLine()) != null) {
-					content.write(line);
-				}
-				
-			} finally {
-				if (in != null)
-					in.close();
-			}
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 5), "\"");
+                posterURL = st.nextToken();
+                int index = posterURL.indexOf("_SY");
+                if (index != -1) {
+                    posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
+                }
+            } else {
+                // try searching an alternate search engine
+                String alternateURL = "Unknown";
+                if ("google".equalsIgnoreCase(preferredPosterSearchEngine)) {
+                    alternateURL = getPosterURLFromGoogle(movie.getTitle());
+                } else if ("yahoo".equalsIgnoreCase(preferredPosterSearchEngine)) {
+                    alternateURL = getPosterURLFromYahoo(movie.getTitle());
+                }
 
-			return content.toString();
-		} finally {
-			if (content != null)
-				content.close();
-		}
-	}
+                if (!alternateURL.equalsIgnoreCase("Unknown")) {
+                    posterURL = alternateURL;
+                }
+            }
 
-	/**
-	 * retrieve the imdb matching the specified movie name and year.
-	 * This routine is base on a yahoo request.
-	 */
-	private String getPosterURLFromYahoo(String movieName) {
-		try {
-			StringBuffer sb = new StringBuffer("	http://fr.images.search.yahoo.com/search/images?p=");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));			
-			sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
+            movie.setPosterURL(posterURL);
 
-			String xml = request(new URL(sb.toString()));
-			int beginIndex = xml.indexOf("imgurl=");
-			int endIndex = xml.indexOf("%26",beginIndex);
+            if (movie.isTVShow()) {
+                updateTVShowInfo(movie);
+            }
 
-			if (beginIndex != -1 && endIndex>beginIndex) {
-				return URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
-			} else {
-				return "Unknown";
-			}
+        } catch (Exception e) {
+            logger.severe("Failed retreiving imdb rating for movie : " + movie.getId());
+            e.printStackTrace();
+        }
+    }
 
-		} catch (Exception e) {
-			logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return "Unknown";
-		}
-	}
+    private int parseRating(String rating) {
+        StringTokenizer st = new StringTokenizer(rating, "/ ()");
+        try {
+            return (int) Float.parseFloat(st.nextToken()) * 10;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
 
-	/**
-	 * retrieve the imdb matching the specified movie name and year.
-	 * This routine is base on a yahoo request.
-	 */
-	private String getPosterURLFromGoogle(String movieName) {
-		try {
-			StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));			
-			sb.append("&gbv=2");
+    private String extractTag(String src, String findStr) {
+        return this.extractTag(src, findStr, 0);
+    }
 
-			String xml = request(new URL(sb.toString()));
-			int beginIndex = xml.indexOf("imgurl=") + 7;
+    private String extractTag(String src, String findStr, int skip) {
+        return this.extractTag(src, findStr, skip, "><");
+    }
 
-			if (beginIndex != -1) {
-				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
-				return st.nextToken();
-			} else {
-				return "Unknown";
-			}
-		} catch (Exception e) {
-			logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return "Unknown";
-		}
-	}
+    private String extractTag(String src, String findStr, int skip,
+            String separator) {
+        int beginIndex = src.indexOf(findStr);
+        StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
+        for (int i = 0; i < skip; i++) {
+            st.nextToken();
+        }
 
-	public boolean testMotechnetPoster(String movieId) throws IOException {
-		String content = request((new URL("http://posters.motechnet.com/title/" + movieId + "/")));
-		
-		return ( (content!=null) && (content.contains("/covers/"+movieId+"_largeCover.jpg")));
-		
-	}
+        String value = HTMLTools.decodeHtml(st.nextToken().trim());
+        if ((value.indexOf("uiv=\"content-ty") != -1) || (value.indexOf("cast") != -1) || (value.indexOf("title") != -1) || (value.indexOf("<") != -1)) {
+            value = "Unknown";
+        }
 
+        return value;
+    }
 
-	public String testImpawardsPoster(String movieId) throws IOException {
-		String returnString = "Unknown";
-	    String content =request((new URL("http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/" + movieId)));
-	    
-		if (content!=null) {
-	    int indexMovieLink = content.indexOf("<span class=url>www.<b>impawards.com</b>/");
-		    if (indexMovieLink!=-1) {
-		    	String finMovieUrl=content.substring(indexMovieLink+41, content.indexOf("</span>", indexMovieLink));
-		    	finMovieUrl=finMovieUrl.replaceAll("<wbr />", "");
-			    
-		    	int indexLastRep = finMovieUrl.lastIndexOf('/');
-		    	String imgRepUrl="http://www.impawards.com/"+finMovieUrl.substring(0, indexLastRep)+"/posters";
-		    	returnString=imgRepUrl+finMovieUrl.substring(indexLastRep,finMovieUrl.lastIndexOf('.'))+".jpg";
-		    }
-		}
+    private ArrayList<String> extractTags(String src, String sectionStart,
+            String sectionEnd) {
+        return extractTags(src, sectionStart, sectionEnd, null, "|");
+    }
 
-		return returnString;
-	}
+    private ArrayList<String> extractTags(String src, String sectionStart,
+            String sectionEnd, String startTag, String endTag) {
+        ArrayList<String> tags = new ArrayList<String>();
+        int index = src.indexOf(sectionStart);
+        if (index == -1) {
+            return tags;
+        }
+        index += sectionStart.length();
+        int endIndex = src.indexOf(sectionEnd, index);
+        if (endIndex == -1) {
+            return tags;
+        }
 
-	private String getPosterURLFromMoviecoversViaGoogle(String movieName) {
-		try {
-			String returnString = "Unknown";
-			StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));			
+        String sectionText = src.substring(index, endIndex);
+        int lastIndex = sectionText.length();
+        index = 0;
+        int startLen = 0;
+        int endLen = endTag.length();
 
-			String content = request(new URL(sb.toString()));
-			if (content!=null) {
-			    int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
-			    if (indexMovieLink!=-1) {
-			    	String finMovieUrl=content.substring(indexMovieLink+47, content.indexOf("\" class=l>", indexMovieLink));
-			    	returnString="http://www.moviecovers.com/getjpg.html/"+finMovieUrl.substring(0,finMovieUrl.lastIndexOf('.')).replace("+","%20")+".jpg";
-			    }
-			}
+        if (startTag != null) {
+            index = sectionText.indexOf(startTag);
+            startLen = startTag.length();
+        }
+
+        while (index != -1) {
+            index += startLen;
+            int close = sectionText.indexOf('>', index);
+            if (close != -1) {
+                index = close + 1;
+            }
+            endIndex = sectionText.indexOf(endTag, index);
+            if (endIndex == -1) {
+                endIndex = lastIndex;
+            }
+            String text = sectionText.substring(index, endIndex);
+
+            tags.add(HTMLTools.decodeHtml(text.trim()));
+            endIndex += endLen;
+            if (endIndex > lastIndex) {
+                break;
+            }
+            if (startTag != null) {
+                index = sectionText.indexOf(startTag, endIndex);
+            } else {
+                index = endIndex;
+            }
+        }
+        return tags;
+    }
+
+    public String request(URL url) throws IOException {
+        StringWriter content = null;
+
+        try {
+            content = new StringWriter();
+
+            BufferedReader in = null;
+            try {
+                URLConnection cnx = url.openConnection();
+                cnx.setRequestProperty(
+                        "User-Agent",
+                        "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
+
+                in = new BufferedReader(new InputStreamReader(cnx.getInputStream()));
+
+                String line;
+                while ((line = in.readLine()) != null) {
+                    content.write(line);
+                }
+
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+            }
+
+            return content.toString();
+        } finally {
+            if (content != null) {
+                content.close();
+            }
+        }
+    }
+
+    /**
+     * retrieve the imdb matching the specified movie name and year.
+     * This routine is base on a yahoo request.
+     */
+    private String getPosterURLFromYahoo(String movieName) {
+        try {
+            StringBuffer sb = new StringBuffer("http://fr.images.search.yahoo.com/search/images?p=");
+            sb.append(URLEncoder.encode(movieName, "UTF-8"));
+            sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
+
+            String xml = request(new URL(sb.toString()));
+            int beginIndex = xml.indexOf("imgurl=");
+            int endIndex = xml.indexOf("%26", beginIndex);
+
+            if (beginIndex != -1 && endIndex > beginIndex) {
+                return URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
+            } else {
+                return "Unknown";
+            }
+
+        } catch (Exception e) {
+            logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
+            logger.severe("Error : " + e.getMessage());
+            return "Unknown";
+        }
+    }
+
+    /**
+     * retrieve the imdb matching the specified movie name and year.
+     * This routine is base on a yahoo request.
+     */
+    private String getPosterURLFromGoogle(String movieName) {
+        try {
+            StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
+            sb.append(URLEncoder.encode(movieName, "UTF-8"));
+            sb.append("&gbv=2");
+
+            String xml = request(new URL(sb.toString()));
+            int beginIndex = xml.indexOf("imgurl=") + 7;
+
+            if (beginIndex != -1) {
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
+                return st.nextToken();
+            } else {
+                return "Unknown";
+            }
+        } catch (Exception e) {
+            logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
+            logger.severe("Error : " + e.getMessage());
+            return "Unknown";
+        }
+    }
+
+    public boolean testMotechnetPoster(String movieId) {
+        String content = null;
+        try {
+            content = request((new URL("http://posters.motechnet.com/title/" + movieId + "/")));
+        } catch (Exception e) {
+        }
+
+        return ((content != null) && (content.contains("/covers/" + movieId + "_largeCover.jpg")));
+    }
+
+    public String testImpawardsPoster(String movieId) throws IOException {
+        String returnString = "Unknown";
+        String content = null;
+        try {
+            content = request((new URL("http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/" + movieId)));
+        } catch (Exception e) {
+        }
+
+        if (content != null) {
+            int indexMovieLink = content.indexOf("<span class=url>www.<b>impawards.com</b>/");
+            if (indexMovieLink != -1) {
+                String finMovieUrl = content.substring(indexMovieLink + 41, content.indexOf("</span>", indexMovieLink));
+                finMovieUrl = finMovieUrl.replaceAll("<wbr />", "");
+
+                int indexLastRep = finMovieUrl.lastIndexOf('/');
+                String imgRepUrl = "http://www.impawards.com/" + finMovieUrl.substring(0, indexLastRep) + "/posters";
+                returnString = imgRepUrl + finMovieUrl.substring(indexLastRep, finMovieUrl.lastIndexOf('.')) + ".jpg";
+            }
+        }
+
+        return returnString;
+    }
+
+    private String getPosterURLFromMoviecoversViaGoogle(String movieName) {
+        try {
+            String returnString = "Unknown";
+            StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
+            sb.append(URLEncoder.encode(movieName, "UTF-8"));
+
+            String content = request(new URL(sb.toString()));
+            if (content != null) {
+                int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
+                if (indexMovieLink != -1) {
+                    String finMovieUrl = content.substring(indexMovieLink + 47, content.indexOf("\" class=l>", indexMovieLink));
+                    returnString = "http://www.moviecovers.com/getjpg.html/" + finMovieUrl.substring(0, finMovieUrl.lastIndexOf('.')).replace("+", "%20") + ".jpg";
+                }
+            }
 //            System.out.println(returnString);
-		    return returnString;
+            return returnString;
 
-		} catch (Exception e) {
-			logger.severe("Failed retreiving moviecovers poster URL from google : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return "Unknown";
-		}
-	}
+        } catch (Exception e) {
+            logger.severe("Failed retreiving moviecovers poster URL from google : " + movieName);
+            logger.severe("Error : " + e.getMessage());
+            return "Unknown";
+        }
+    }
 
-	/** 
-	 * Get the TV show information from IMDb
-	 * @throws IOException 
-	 * @throws MalformedURLException 
-	 */
-	private void updateTVShowInfo(Movie movie) throws MalformedURLException, IOException {
-		if (!movie.isTVShow())
-			return;
+    /** 
+     * Get the TV show information from IMDb
+     * @throws IOException 
+     * @throws MalformedURLException 
+     */
+    private void updateTVShowInfo(Movie movie) throws MalformedURLException, IOException {
+        if (!movie.isTVShow()) {
+            return;
+        }
 
-		/* String title = movie.getTitleSort();
-		if (title.startsWith("\"")) {
-			StringTokenizer st = new StringTokenizer(title, "\"");
-			movie.setTitleSort(st.nextToken());
-		} */
-		
-		String xml = request(new URL("http://www.imdb.com/title/" + movie.getId()+"/episodes"));
-		
-		int season = movie.getSeason();
-		for (MovieFile file : movie.getFiles()) {
-			int episode = file.getPart();
-			String episodeName = extractTag(xml, "<h4>Season "+ season +", Episode " + episode + ":", 2);
-			
-			if (episodeName.indexOf("Episode #") == -1) {
-				file.setTitle(episodeName);
-			} else {
-				file.setTitle("Unknown");
-			}
-		}
-	}
+        /* String title = movie.getTitleSort();
+        if (title.startsWith("\"")) {
+        StringTokenizer st = new StringTokenizer(title, "\"");
+        movie.setTitleSort(st.nextToken());
+        } */
+
+        String xml = request(new URL("http://www.imdb.com/title/" + movie.getId() + "/episodes"));
+
+        int season = movie.getSeason();
+        for (MovieFile file : movie.getFiles()) {
+            int episode = file.getPart();
+            String episodeName = extractTag(xml, "<h4>Season " + season + ", Episode " + episode + ":", 2);
+
+            if (episodeName.indexOf("Episode #") == -1) {
+                file.setTitle(episodeName);
+            } else {
+                file.setTitle("Unknown");
+            }
+        }
+    }
 }
