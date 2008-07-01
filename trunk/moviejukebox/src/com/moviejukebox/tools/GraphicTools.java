@@ -16,10 +16,6 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import com.jhlabs.image.PerspectiveFilter;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 public class GraphicTools {
 
@@ -33,9 +29,7 @@ public class GraphicTools {
 		// Create BufferedImage
 		BufferedImage bi = null;
 		try {
-			// load file from disk using Sun's JPEGIMageDecoder
-			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(fis);
-			bi = decoder.decodeAsBufferedImage();
+			bi = ImageIO.read(fis);
 		} catch (Exception e) {
 			return null;
 		} finally {
@@ -57,14 +51,10 @@ public class GraphicTools {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(str);
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bi);
-			param.setQuality(0.95f, false);
-	
-	        BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
-	        bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
+			BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+                        bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
 			
-			encoder.encode(bufImage);
+                        ImageIO.write(bufImage, "jpg", out);
 	
 		} catch (Exception e) {
 			logger.severe("Failed Saving thumbnail file: " + str);
