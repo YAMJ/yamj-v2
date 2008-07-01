@@ -48,24 +48,15 @@ public class GraphicTools {
 			return;
 	
 		// save image as Jpeg
-		FileOutputStream out = null;
 		try {
-			out = new FileOutputStream(str);
 			BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
                         bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
 			
-                        ImageIO.write(bufImage, "jpg", out);
+                        ImageIO.write(bufImage, "jpg", new File(str));
 	
 		} catch (Exception e) {
 			logger.severe("Failed Saving thumbnail file: " + str);
 			e.printStackTrace();
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (Exception e) {
-				}
-			}
 		}
 	}
 
