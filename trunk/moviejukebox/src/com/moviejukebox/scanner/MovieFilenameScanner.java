@@ -321,39 +321,100 @@ public class MovieFilenameScanner {
 
 	protected void updateTVShow(String filename, Movie movie) {
 		try {
-			StringTokenizer st = new StringTokenizer(filename,". []-");
+			StringTokenizer st = new StringTokenizer(filename,". []-_");
 			while(st.hasMoreTokens()) {
-				String token = st.nextToken();
-				
-				// S??E?? format
-				if (token.length()==6 && token.toUpperCase().startsWith("S") && token.toUpperCase().charAt(3)=='E' && Character.isDigit(token.charAt(2)) ) {
-					updateFirstKeywordIndex(filename.indexOf(token));
-					movie.setSeason(Integer.parseInt(token.substring(1,3)));
-					movie.getFirstFile().setPart(Integer.parseInt(token.substring(4,6)));
-					
-					int beginIndex = filename.lastIndexOf("-");
+				String origToken = st.nextToken();
+                                String token = origToken.toUpperCase();
+                                
+				// S???E???? variable format
+                                int eIdx = token.indexOf("E");
+                                if (token.startsWith("S") && eIdx > 1 && eIdx < (token.length() - 1)) {
+                                    boolean isValid = true;
+                                    
+                                    StringBuffer season = new StringBuffer();
+                                    String sToken = token.substring(1, eIdx);
+                                    for (char c : sToken.toCharArray()) {
+                                        if (Character.isDigit(c)) {
+                                            season.append(c);
+                                        } else {
+                                            isValid = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    StringBuffer episode = null;
+                                    if (isValid) {
+                                        episode = new StringBuffer();
+                                        String eToken = token.substring(eIdx+1);
+                                        for (char c : eToken.toCharArray()) {
+                                            if (Character.isDigit(c)) {
+                                                episode.append(c);
+                                            } else {
+                                                isValid = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (isValid) {
+                                        updateFirstKeywordIndex(filename.indexOf(origToken));
+                                        movie.setSeason(Integer.parseInt(season.toString()));
+                                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
+                                        
+                                        int beginIndex = filename.lastIndexOf("-");
 					int endIndex = filename.lastIndexOf(".");
 					if ( beginIndex>=0 && endIndex>beginIndex ) {
 						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
 					} else {
 						movie.getFirstFile().setTitle("Unknown");
 					}
-				}
-				
-				// ?x?? format
-				if (token.length()==4 && Character.isDigit(token.charAt(0)) && token.toUpperCase().charAt(1)=='X') {
-					updateFirstKeywordIndex(filename.indexOf(token));
-					movie.setSeason(Integer.parseInt(token.substring(0,1)));
-					movie.getFirstFile().setPart(Integer.parseInt(token.substring(2,4)));
-					movie.getFirstFile().setTitle(getName(filename));
-					
-					int beginIndex = filename.lastIndexOf("-");
+                                    }
+                                    
+                                }
+                                				
+				// ?x?? variable format
+                                int xIdx = token.indexOf("X");
+				if (Character.isDigit(token.charAt(0)) && xIdx > 0 && xIdx < (token.length()-1) && Character.isDigit(token.charAt(token.length()-1))) {
+                                    boolean isValid = true;
+                                    
+                                    StringBuffer season = new StringBuffer();
+                                    String sToken = token.substring(0, xIdx);
+                                    for (char c : sToken.toCharArray()) {
+                                        if (Character.isDigit(c)) {
+                                            season.append(c);
+                                        } else {
+                                            isValid = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    StringBuffer episode = null;
+                                    if (isValid) {
+                                        episode = new StringBuffer();
+                                        String eToken = token.substring(xIdx+1);
+                                        for (char c : eToken.toCharArray()) {
+                                            if (Character.isDigit(c)) {
+                                                episode.append(c);
+                                            } else {
+                                                isValid = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (isValid) {
+                                        updateFirstKeywordIndex(filename.indexOf(origToken));
+                                        movie.setSeason(Integer.parseInt(season.toString()));
+                                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
+                                        
+                                        int beginIndex = filename.lastIndexOf("-");
 					int endIndex = filename.lastIndexOf(".");
 					if ( beginIndex>=0 && endIndex>beginIndex ) {
 						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
 					} else {
 						movie.getFirstFile().setTitle("Unknown");
 					}
+                                    }
 				}
 			}
 		} catch (Exception e) {
