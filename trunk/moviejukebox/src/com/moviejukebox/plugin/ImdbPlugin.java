@@ -26,6 +26,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean perfectMatch;
     private int maxGenres;
     private String preferredCountry;
+    private String imdbPlot;
 
     @Override
     public void init(Properties props) {
@@ -35,6 +36,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         perfectMatch = Boolean.parseBoolean(props.getProperty(
                 "imdb.perfect.match", "true"));
         preferredCountry = props.getProperty("imdb.preferredCountry", "USA");
+        imdbPlot = props.getProperty("imdb.plot", "short");
         try {
             String temp = props.getProperty("imdb.genres.max", "9");
             System.out.println("imdb.genres.max=" + temp);
@@ -244,11 +246,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     break;
                 }
             }
-            movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
-
-            if (movie.getPlot().startsWith("a class=\"tn15more")) {
-                movie.setPlot("None");
+            
+            String plot = "None";
+            if (imdbPlot.equalsIgnoreCase("long")) {
+                plot = getLongPlot(movie);
             }
+            // even if "long" is set we will default to the "short" one if none was found
+            if (imdbPlot.equalsIgnoreCase("short") || plot.equals("None")) {
+                plot = extractTag(xml, "<h5>Plot:</h5>");
+                if (plot.startsWith("a class=\"tn15more")) {
+                    plot = "None";
+                }
+            }
+            movie.setPlot(plot);
 
             movie.setCertification(getPreferredValue(extractTags(xml,
                     "<h5>Certification:</h5>", "</div>",
@@ -577,5 +587,27 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 file.setTitle("Unknown");
             }
         }
+    }
+    
+    /**
+     * Retrieves the long plot description from IMDB if it exists, else "None"
+     * @param movie
+     * @return long plot
+     */
+    private String getLongPlot(Movie movie) {
+        String plot = "None";
+        
+        try {
+            String xml = request(new URL("http://www.imdb.com/title/" + movie.getId() + "/plotsummary"));
+            
+            String result = extractTag(xml, "<p class=\"plotpar\">");
+            if (!result.equalsIgnoreCase("Unknown") && result.indexOf("This plot synopsis is empty") < 0) {
+                plot = result;
+            }
+        } catch (Exception e) {
+            plot = "None";
+        }
+        
+        return plot;
     }
 }
