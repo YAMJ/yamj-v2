@@ -41,6 +41,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
+import java.security.PrivilegedAction;
 
 public class MovieJukebox {
 
@@ -61,7 +62,13 @@ public class MovieJukebox {
 
 		Formatter mjbFormatter = new Formatter() {
 			public synchronized String format(LogRecord record) {
-				return record.getMessage() + (String) java.security.AccessController.doPrivileged(new sun.security.action.GetPropertyAction("line.separator"));
+				return record.getMessage() + (String)java.security.AccessController.doPrivileged(
+                                    new PrivilegedAction<Object>() {
+                                        public Object run() {
+                                            return System.getProperty("line.separator");
+                                        }
+                                    }
+                                );
 			}
 		};
 
