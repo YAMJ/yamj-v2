@@ -1,0 +1,10 @@
+table.header { width:610; }
+table.title { width:610 }
+td { font-size:14pt; color: #ff8000; text-align: center; white-space:nowrap; }
+div.title{ visibility:hidden; }
+td.counter {font-size: 12pt; color: #AAAAAA; width: 50; text-align: right; white-space: nowrap; }
+td.nav { width: 25; }
+
+table.movies { height: 304; }
+a { font-size: 16pt; color: #ff8000; text-decoration: none; font-weight: bold; }
+img { border: 0; }

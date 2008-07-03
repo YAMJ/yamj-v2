@@ -1,0 +1,13 @@
+body{ color: #8F8F8F; }
+a { text-decoration: none; white-space: nowrap; color: #AAAAAA; }
+hr { width: 200px; }
+
+table.categories {
+  width: 600px;
+  padding-top: 30px;
+  font-weight: bold;
+}
+
+table.categories th.title { font-size:16pt; text-align: center; }
+table.categories th { font-size:14pt; color: #ff8000; text-align: left; }
+table.categories td { font-size:12pt; }
