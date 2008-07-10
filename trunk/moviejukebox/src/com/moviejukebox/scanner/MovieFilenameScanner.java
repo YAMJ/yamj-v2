@@ -191,6 +191,7 @@ public class MovieFilenameScanner {
 		
 		if(index!= -1) {
 			updateFirstKeywordIndex(index);
+			index += keyword.length();
 			int end = index;
 			while ( end < filename.length() && Character.isDigit( filename.charAt( end )))
 				++end;

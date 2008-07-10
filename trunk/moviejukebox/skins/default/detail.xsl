@@ -50,7 +50,7 @@
           </td>
         </tr>
         <tr>
-          <td class="title2" valign="top" colspan="4">
+          <td class="title2" valign="top" colspan="4">By 
             <xsl:if test="director != 'UNKNOWN'">
               <xsl:value-of select="director" /> 
             </xsl:if>
@@ -63,6 +63,17 @@
             </xsl:if>
           </td>
         </tr>
+
+        <xsl:if test="count(cast/actor)!=0">
+        <tr>
+            <td class="title2" colspan="4">With 
+              <xsl:for-each select="cast/actor[position()&lt;3]">
+                 <xsl:if test="position()!=1">, </xsl:if>
+                 <xsl:value-of select="." />
+              </xsl:for-each>
+           </td>
+        </tr>
+        </xsl:if>
 
         <tr>
           <td class="title2" valign="top" colspan="3">
