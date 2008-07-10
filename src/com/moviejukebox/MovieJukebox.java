@@ -231,7 +231,7 @@ public class MovieJukebox {
 		logger.fine("Jukebox output goes to " + jukeboxRoot);
 
 
-		Library library = new Library();
+		Library library = new Library(props);
 		for (MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
 			logger.finer("Scanning media library " + mediaLibraryPath.getPath());
 			library = mds.scan(mediaLibraryPath, library);

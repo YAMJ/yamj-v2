@@ -7,15 +7,26 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
 public class Library implements Map<String, Movie> {
 
+	private Properties props = new Properties();
 	private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
 	private List<Movie> moviesList = new ArrayList<Movie>();
 	private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
+	private boolean filterGenres;
 	
+	public Library(Properties props) {
+		if (props != null) {
+			this.props = props;
+		}
+		
+		filterGenres = props.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
+	}
+
 	public void addMovie(Movie movie) {
 		String key = movie.getTitle();
 		if (movie.isTVShow()) {
@@ -81,7 +92,7 @@ public class Library implements Map<String, Movie> {
 		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {				
 			for ( String genre : movie.getGenres()){
-				addMovie(index, genre, movie);
+				addMovie(index, getIndexingGenre(genre), movie);
 			}
 		}
 		indexes.put("Genres",index);
@@ -126,6 +137,37 @@ public class Library implements Map<String, Movie> {
 		}
 		indexes.put("Other", index);
 	}
+	
+    private String getIndexingGenre(String genre) {
+    	if (!filterGenres) 
+    		return genre;
+    	
+        if (genre.equalsIgnoreCase("Action") 
+             || genre.equalsIgnoreCase("Adventure")
+             || genre.equalsIgnoreCase("Sport")
+             || genre.equalsIgnoreCase("War")
+             || genre.equalsIgnoreCase("Western")) {
+        		return "Action";
+        } else if (genre.equalsIgnoreCase("Drama") 
+             || genre.equalsIgnoreCase("Biography")
+             || genre.equalsIgnoreCase("Romance")
+             || genre.equalsIgnoreCase("History")
+             || genre.equalsIgnoreCase("Crime")) {
+        		return "Drama";
+        } else if (genre.equalsIgnoreCase("Thriller") 
+        	|| genre.equalsIgnoreCase("Horror")
+        	|| genre.equalsIgnoreCase("Mystery")) {
+        		return "Thriller";
+        } else if (genre.equalsIgnoreCase("Short") 
+           	|| genre.equalsIgnoreCase("Music")
+        	|| genre.equalsIgnoreCase("Musical")) {
+        		return "Other";
+        } else {
+        	return genre;
+        }
+    }
+
+
 
 	private void addMovie(TreeMap<String, List<Movie>> index, String category, Movie movie) {
 		if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("UNKNOWN"))
