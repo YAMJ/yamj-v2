@@ -270,7 +270,7 @@ public class MovieJukeboxXMLWriter {
 		writer.writeAttribute("cols", ""+ nbMoviesPerLine);
 
 		for (Movie movie : movies) {
-			writeMovie( writer, movie ); 
+			writeMovieForIndex( writer, movie ); 
 		}
 		writer.writeEndElement(); // movies					
 
@@ -280,6 +280,21 @@ public class MovieJukeboxXMLWriter {
 	}
 	
 	
+	   private void writeMovieForIndex( XMLStreamWriter writer, Movie movie ) throws XMLStreamException
+	   {
+			writer.writeStartElement("movie");			
+			writer.writeStartElement("details"); writer.writeCharacters( movie.getBaseName() + ".html" ); writer.writeEndElement();
+			writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
+			writer.writeStartElement("titleSort"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
+			writer.writeStartElement("detailPosterFile"); writer.writeCharacters(movie.getDetailPosterFilename()); writer.writeEndElement();
+			writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
+			writer.writeStartElement("certification"); writer.writeCharacters(movie.getCertification()); writer.writeEndElement();
+			writer.writeStartElement("season"); writer.writeCharacters(Integer.toString(movie.getSeason())); writer.writeEndElement();
+						
+			writer.writeEndElement();
+
+	   }
+
    private void writeMovie( XMLStreamWriter writer, Movie movie ) throws XMLStreamException
    {
 		writer.writeStartElement("movie");			
