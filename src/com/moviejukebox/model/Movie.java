@@ -29,7 +29,7 @@ public class Movie implements Comparable<Movie> {
         	String token = st.nextToken();
         	if (token.startsWith("\"") && token.endsWith("\""))
         		token = token.substring(1,token.length()-1);
-        	sortIgnorePrefixes.add( token );
+        	sortIgnorePrefixes.add( token.toLowerCase() );
         }
     }
 	
@@ -93,13 +93,15 @@ public class Movie implements Comparable<Movie> {
 	public String getStrippedTitleSort()
 	{
 		String text = titleSort;
+		String lowerText = text.toLowerCase();
 		
 		// Remove configured prefixed and append to the end
 		for ( String prefix : sortIgnorePrefixes )
 		{ 
-			if ( text.startsWith(prefix))
+			if ( lowerText.startsWith(prefix.toLowerCase()))
 			{
-				return (text.substring(prefix.length()) + ", " + prefix).trim();
+			  int length = prefix.length();
+				return text.substring( length ) + ", " + text.substring( 0, length - 1 ).trim();
 			}
 		}
 		return text;
