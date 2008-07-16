@@ -222,7 +222,24 @@ public class MovieJukebox {
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
+		
+		//////////////////////////////////////////////////////////////////
+		/// PASS 0 : Preparing temporary environnement...
+		//
+		logger.fine("Initializing...");
+		String tempJukeboxRoot = "./temp";
+		String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
 
+		File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
+		if (tempJukeboxDetailsRootFile.exists()) {
+            //Clean up
+			File[] isoList = tempJukeboxDetailsRootFile.listFiles();
+			for (int nbFiles=0;nbFiles<isoList.length;nbFiles++)
+				isoList[nbFiles].delete();
+			tempJukeboxDetailsRootFile.delete();
+		}
+		tempJukeboxDetailsRootFile.mkdirs();
+		
 		
 		//////////////////////////////////////////////////////////////////
 		/// PASS 1 : Scan movie libraries for files...
@@ -257,8 +274,6 @@ public class MovieJukebox {
 		}
 
 
-		
-		
 		//////////////////////////////////////////////////////////////////
 		/// PASS 3 : Indexing the library
 		//
@@ -268,29 +283,41 @@ public class MovieJukebox {
 		for (Movie movie : library.values()) {
 			// Update movie XML files with computed index information
 			logger.finest("Writing index data to movie: " + movie.getBaseName());
-			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
+			xmlWriter.writeMovieXML(tempJukeboxDetailsRoot, movie);
 			
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-			createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+			createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
                         
                         // Create a detail poster for each movie
 			logger.finest("Creating detail poster for movie: " + movie.getBaseName());
-			createPoster(posterPlugin, jukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+			createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 			
 			// write the movie details HTML		
-			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, movie);
+			htmlWriter.generateMovieDetailsHTML(tempJukeboxDetailsRoot, movie);
 		}
 
 		logger.fine("Generating Indexes...");
-		xmlWriter.writeIndexXML(jukeboxDetailsRoot, detailsDirName, library);
-		xmlWriter.writeCategoryXML(jukeboxRoot, detailsDirName, library);
-		htmlWriter.generateMoviesIndexHTML(jukeboxRoot, detailsDirName, library);
-		htmlWriter.generateMoviesCategoryHTML(jukeboxRoot, detailsDirName, library);
+		xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
+		xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
+		htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
+		htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
+
+		logger.fine("Copying new files to Jukebox directory...");
+		FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);
+		FileTools.copyFile(new File(tempJukeboxRoot+File.separator+"index.htm"), new File(jukeboxRoot+File.separator+"index.htm"));
 
 		logger.fine("Copying resources to Jukebox directory...");
 		FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
 
+		logger.fine("Clean up temporary files");
+		File[] isoList = tempJukeboxDetailsRootFile.listFiles();
+		for (int nbFiles=0;nbFiles<isoList.length;nbFiles++)
+			isoList[nbFiles].delete();
+		tempJukeboxDetailsRootFile.delete();
+		File rootIndex = new File(tempJukeboxRoot+File.separator+"index.htm");
+		rootIndex.delete();
+		
 		logger.fine("Process terminated.");
 	}
 
@@ -335,8 +362,9 @@ public class MovieJukebox {
 			movieDB.scan(movie);
 			miScanner.scan(movie);
 			
-			xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
-			logger.finer("movie XML file created for movie:" + movie.getBaseName());
+			//Will be done after Indexing, no need here
+			//xmlWriter.writeMovieXML(jukeboxDetailsRoot, movie);
+			//logger.finer("movie XML file created for movie:" + movie.getBaseName());
 		}
 	}
 
@@ -485,12 +513,13 @@ public class MovieJukebox {
 		FileTools.copy(cnx.getInputStream(), new FileOutputStream(posterFile));
 	}
 
-	public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
+	public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
 		try {
 			String src = rootPath + File.separator + movie.getPosterFilename();
-			String dst = rootPath + File.separator + movie.getThumbnailFilename();
+			String dst = tempRootPath + File.separator + movie.getThumbnailFilename();
+			String olddst = rootPath + File.separator + movie.getThumbnailFilename();
 	
-			if (!(new File(dst).exists()) || forceThumbnailOverwrite) {
+			if (!(new File(olddst).exists()) || forceThumbnailOverwrite) {
 				FileInputStream fis = new FileInputStream(src);
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
@@ -512,12 +541,13 @@ public class MovieJukebox {
 		}
 	}
         
-	public static void createPoster(MovieImagePlugin posterManager, String rootPath, String skinHome, Movie movie, boolean forcePosterOverwrite) {
+	public static void createPoster(MovieImagePlugin posterManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forcePosterOverwrite) {
 		try {
 			String src = rootPath + File.separator + movie.getPosterFilename();
-			String dst = rootPath + File.separator + movie.getDetailPosterFilename();
+			String dst = tempRootPath + File.separator + movie.getDetailPosterFilename();
+			String olddst = rootPath + File.separator + movie.getDetailPosterFilename();
 	
-			if (!(new File(dst).exists()) || forcePosterOverwrite) {
+			if (!(new File(olddst).exists()) || forcePosterOverwrite) {
 				FileInputStream fis = new FileInputStream(src);
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
