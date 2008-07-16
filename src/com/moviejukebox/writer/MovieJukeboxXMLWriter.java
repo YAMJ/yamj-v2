@@ -24,6 +24,7 @@ import javax.xml.stream.events.XMLEvent;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 
 /**
@@ -57,7 +58,20 @@ public class MovieJukeboxXMLWriter {
 				XMLEvent e = r.nextEvent();
 				String tag = e.toString();
 				
-				if (tag.equals("<id>")) { movie.setId(parseCData(r)); }
+				if (tag.startsWith("<id ")) {
+					String movieDatabase = ImdbPlugin.IMDB_PLUGIN_ID;
+					StartElement start = e.asStartElement();
+					for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+						Attribute attr = i.next();
+						String ns = attr.getName().toString();
+
+						if ("movieDatabase".equals(ns)) {
+							movieDatabase = ns;
+							continue;
+						}
+					}
+					movie.setId(movieDatabase, parseCData(r));
+				}
 				if (tag.equals("<title>")) { movie.setTitle(parseCData(r)); }
 				if (tag.equals("<titleSort>")) { movie.setTitleSort(parseCData(r)); }
 				if (tag.equals("<year>")) { movie.setYear(parseCData(r)); }
@@ -298,7 +312,12 @@ public class MovieJukeboxXMLWriter {
    private void writeMovie( XMLStreamWriter writer, Movie movie ) throws XMLStreamException
    {
 		writer.writeStartElement("movie");			
-		writer.writeStartElement("id"); writer.writeCharacters(movie.getId()); writer.writeEndElement();
+		for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
+			writer.writeStartElement("id");
+			writer.writeAttribute("movieDatabase", e.getKey());
+			writer.writeCharacters(e.getValue());
+			writer.writeEndElement();
+		}
 		writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
 		writer.writeStartElement("titleSort"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
 		writer.writeStartElement("year"); writer.writeCharacters(movie.getYear()); writer.writeEndElement();

@@ -3,10 +3,14 @@ package com.moviejukebox.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+
+import com.moviejukebox.plugin.ImdbPlugin;
 
 /**
  * Movie bean
@@ -14,7 +18,7 @@ import java.util.TreeSet;
  */
 public class Movie implements Comparable<Movie> {
 	
-	private static String UNKNOWN = "UNKNOWN";
+	public static String UNKNOWN = "UNKNOWN";
     private static ArrayList< String > sortIgnorePrefixes = new ArrayList< String >();
     
     public static void setup( Properties props )
@@ -36,7 +40,7 @@ public class Movie implements Comparable<Movie> {
 	private String baseName;
 	
 	// Movie properties
-	private String id = UNKNOWN;
+	private Map<String, String> idMap = new HashMap<String, String>(2);
 	private String title = UNKNOWN;
 	private String titleSort = UNKNOWN;
 	private String year = UNKNOWN;
@@ -174,8 +178,29 @@ public class Movie implements Comparable<Movie> {
 		return genres;
 	}
 
+	/**
+	 * 
+	 * @deprecated replaced by getId(String key). This method is kept for compatibility purpose. But you should use
+	 *             getId(String key, String id) instead. Ex: movie.getId(ImdbPlugin.IMDB_PLUGIN_ID) {@link getId(String
+	 *             key)}
+	 */
+
+	@Deprecated
 	public String getId() {
-		return id;
+		return idMap.get(ImdbPlugin.IMDB_PLUGIN_ID);
+	}
+
+	public String getId(String key) {
+		String result = idMap.get(key);
+		if (result != null) {
+			return result;
+		} else {
+			return UNKNOWN;
+		}
+	}
+
+	public Map<String, String> getIdMap() {
+		return idMap;
 	}
 
 	public String getLanguage() {
@@ -341,10 +366,22 @@ public class Movie implements Comparable<Movie> {
 		this.genres = genres;
 	}
 
+	/**
+	 * 
+	 * @deprecated replaced by setId(String key, String id). This method is kept for compatibility purpose. But you
+	 *             should use setId(String key, String id) instead. Ex: movie.setId(ImdbPlugin.IMDB_PLUGIN_ID,"tt12345")
+	 *             {@link setId(String key, String id)}
+	 */
+
+	@Deprecated
 	public void setId(String id) {
-		if (!id.equalsIgnoreCase(this.id)) {
+		setId(ImdbPlugin.IMDB_PLUGIN_ID, id);
+	}
+
+	public void setId(String key, String id) {
+		if (!id.equalsIgnoreCase(this.getId(key))) {
 			this.isDirty = true;
-			this.id = id;
+			this.idMap.put(key, id);
 		}
 	}
 	
@@ -495,7 +532,9 @@ public class Movie implements Comparable<Movie> {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("[Movie ");
-		sb.append("[id=").append(id).append("]");
+		for (Map.Entry<String, String> e : idMap.entrySet()) {
+			sb.append("[id_").append(e.getKey()).append("=").append(e.getValue()).append("]");
+		}
 		sb.append("[title=").append(title).append("]");
 		sb.append("[titleSort=").append(titleSort).append("]");
 		sb.append("[year=").append(year).append("]");
@@ -519,6 +558,7 @@ public class Movie implements Comparable<Movie> {
 		sb.append("[fps=").append(fps).append("]");
 		sb.append("[certification=").append(certification).append("] ");
 		sb.append("[cast=").append(cast).append("] ");
+		sb.append("[genres=").append(genres).append("] ");
 		sb.append("]");
 		return sb.toString();
 	}
