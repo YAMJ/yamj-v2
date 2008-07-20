@@ -26,6 +26,7 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
         private boolean addLanguage;
 	private int posterWidth;
 	private int posterHeight;
+        private float ratio;
 
 	@Override
 	public void init(Properties props) {
@@ -37,15 +38,27 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 		normalizePosters = Boolean.parseBoolean(props.getProperty("posters.normalize", "false"));
 		addHDLogo = Boolean.parseBoolean(props.getProperty("posters.logoHD", "false"));
                 addLanguage = Boolean.parseBoolean(props.getProperty("posters.language", "false"));
+                ratio = (float)posterWidth/(float)posterHeight;
 	}
 
 	@Override
 	public BufferedImage generate(Movie movie, BufferedImage moviePoster) {
 		BufferedImage bi = moviePoster;
 		
+                int origWidth = moviePoster.getWidth();
+                int origHeight = moviePoster.getHeight();
+                boolean skipResize = false;
+                if (origWidth < posterWidth && origHeight < posterHeight && !addHDLogo && !addLanguage) {
+                    skipResize = true;
+                }
+                
 		if (normalizePosters) {
-			bi = GraphicTools.scaleToSizeNormalized(posterWidth, posterHeight, bi);
-		} else {
+                        if (skipResize) {
+                            bi = GraphicTools.scaleToSizeNormalized((int)(origHeight*ratio), origHeight, bi);
+                        } else {
+                            bi = GraphicTools.scaleToSizeNormalized(posterWidth, posterHeight, bi);
+                        }
+		} else if (!skipResize) {
 			bi = GraphicTools.scaleToSizeBestFit(posterWidth, posterHeight, bi);
 		}
 

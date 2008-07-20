@@ -26,6 +26,7 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
         private boolean addLanguage;
 	private int thumbWidth;
 	private int thumbHeight;
+        private float ratio;
 
 	@Override
 	public void init(Properties props) {
@@ -37,15 +38,27 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 		normalizeThumbnails = Boolean.parseBoolean(props.getProperty("thumbnails.normalize", "false"));
 		addHDLogo = Boolean.parseBoolean(props.getProperty("thumbnails.logoHD", "false"));
                 addLanguage = Boolean.parseBoolean(props.getProperty("thumbnails.language", "false"));
+                ratio = (float)thumbWidth/(float)thumbHeight;
 	}
 
 	@Override
 	public BufferedImage generate(Movie movie, BufferedImage moviePoster) {
 		BufferedImage bi = moviePoster;
 		
+                int origWidth = moviePoster.getWidth();
+                int origHeight = moviePoster.getHeight();
+                boolean skipResize = false;
+                if (origWidth < thumbWidth && origHeight < thumbHeight && !addHDLogo && !addLanguage) {
+                    skipResize = true;
+                }
+                
 		if (normalizeThumbnails) {
-			bi = GraphicTools.scaleToSizeNormalized(thumbWidth, thumbHeight, bi);
-		} else {
+                        if (skipResize) {
+                            bi = GraphicTools.scaleToSizeNormalized((int)(origHeight*ratio), origHeight, bi);
+                        } else {
+                            bi = GraphicTools.scaleToSizeNormalized(thumbWidth, thumbHeight, bi);
+                        }
+		} else if (!skipResize) {
 			bi = GraphicTools.scaleToSize(thumbWidth, thumbHeight, bi);
 		}
 
