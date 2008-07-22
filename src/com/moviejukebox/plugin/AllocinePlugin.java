@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -23,7 +22,6 @@ public class AllocinePlugin extends ImdbPlugin {
 		super.init(props);
 		storedProps = props;
 		preferredCountry = props.getProperty("imdb.preferredCountry", "France");
-		logger.setLevel(Level.FINER);
 	}
 
 	/**
@@ -43,7 +41,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
 			int count = 0;
 			for (String genre : extractTags(xml, "Genre</span> :", "-", " ", ",")) {
-				movie.addGenre(genre);
+				movie.addGenre(removeOpenedHtmlTags(genre));
 				if (++count >= maxGenres) {
 					break;
 				}
@@ -58,7 +56,9 @@ public class AllocinePlugin extends ImdbPlugin {
 				movie.setYear(extractTag(xml, "</a> en", "</h4>"));
 			}
 
-			movie.setCast(extractTags(xml, "<h4>Avec", "</h4>", "personne/fichepersonne_gen_cpersonne", "</a>"));
+			for (String acteur : extractTags(xml, "<h4>Avec", "</h4>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
+				movie.addActor(removeOpenedHtmlTags(acteur));
+			}
 
 			updatePoster(movie);
 			// start a new request for seasons details
@@ -115,7 +115,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
 			int count = 0;
 			for (String genre : extractTags(xml, "<h4>Genre : ", "</h4>", "film/alaffiche_genre_gen_genre", "</a>")) {
-				movie.addGenre(genre);
+				movie.addGenre(removeOpenedHtmlTags(genre));
 				if (++count >= maxGenres) {
 					break;
 				}
@@ -129,7 +129,9 @@ public class AllocinePlugin extends ImdbPlugin {
 				movie.setYear(extractTag(xml, "<h4>Année de production : ", "</h4>"));
 			}
 
-			movie.setCast(extractTags(xml, "<h4>Avec", "</h4>", "personne/fichepersonne_gen_cpersonne", "</a>"));
+			for (String acteur : extractTags(xml, "<h4>Avec", "</h4>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
+				movie.addActor(removeOpenedHtmlTags(acteur));
+			}
 
 			updatePoster(movie);
 
@@ -264,28 +266,26 @@ public class AllocinePlugin extends ImdbPlugin {
 
 			String xml = request(new URL(sb.toString()));
 
-			int beginIndex;
+			String alloCineStartResult;
 			String alloCineMediaPrefix;
 			if (mediaFile.isTVShow()) {
-				beginIndex = xml.indexOf("<h3><b>Séries TV <h4>");
+				alloCineStartResult = "<h3><b>Séries TV <h4>";
 				alloCineMediaPrefix = "/series/ficheserie_gen_cserie=";
 			} else {
-				beginIndex = xml.indexOf("<h3><b>Films <h4>");
+				alloCineStartResult = "<h3><b>Films <h4>";
 				alloCineMediaPrefix = "/film/fichefilm_gen_cfilm=";
-			}
-			if (beginIndex != -1) {
-				xml = xml.substring(beginIndex);
 			}
 
 			for (String searchResult : extractTags(xml,
-					"<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 445;\">",
-					"<script type=\"text/javascript\">", "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">",
-					"</table>")) {
+					alloCineStartResult,
+					"<script type=\"text/javascript\">",
+					alloCineMediaPrefix,
+					"</h4></div>")) {
 				logger.finest("AlloCine SearchResult = " + searchResult);
-				String searchResultYear = extractTag(searchResult, "<h4 style=\"color: #808080\">", "<");
+				String searchResultYear = searchResult.substring(searchResult.lastIndexOf(">")+1, searchResult.length());
 				logger.finest("AlloCine searchResultYear = " + searchResultYear);
 				if (year == null || year.equalsIgnoreCase(Movie.UNKNOWN) || year.equalsIgnoreCase(searchResultYear)) {
-					int allocineIndexBegin = searchResult.indexOf(alloCineMediaPrefix) + alloCineMediaPrefix.length();
+					int allocineIndexBegin = 0;
 					int allocineIndexEnd = searchResult.indexOf(".html");
 
 					allocineId = searchResult.substring(allocineIndexBegin, allocineIndexEnd);
@@ -333,6 +333,13 @@ public class AllocinePlugin extends ImdbPlugin {
 		return src.replaceAll("\\<.*?>", "");
 	}
 
+	protected String removeOpenedHtmlTags(String src) {
+		String result = src.replaceAll("^.*?>", "");
+		result = result.replaceAll("<.*?$", "");
+		logger.finest("removeOpenedHtmlTags before=[" + src + "], after=["+ result + "]");		
+		return result;
+	}
+
 	@Override
 	protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag,
 			String endTag) {
@@ -364,19 +371,20 @@ public class AllocinePlugin extends ImdbPlugin {
 		logger.finest("extractTags startTag index = " + index);
 		while (index != -1) {
 			index += startLen;
-			int close = sectionText.indexOf('>', index);
-			if (close != -1) {
-				index = close + 1;
-			}
+//			int close = sectionText.indexOf('>', index);
+//			if (close != -1) {
+//				index = close + 1;
+//			}
 			endIndex = sectionText.indexOf(endTag, index);
 			if (endIndex == -1) {
 				logger.finest("extractTags no endTag found");
 				endIndex = lastIndex;
 			}
 			String text = sectionText.substring(index, endIndex);
-			logger.finest("extractTags Tag found text = " + text);
+			logger.finest("extractTags Tag found text = [" + text+"]");
 
-			tags.add(HTMLTools.decodeHtml(text.trim()).trim());
+			// replaceAll used because trim() does not trim unicode space
+			tags.add(HTMLTools.decodeHtml(text.trim()).replaceAll("^[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*\\b(.*)\\b[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*$", "$1"));
 			endIndex += endLen;
 			if (endIndex > lastIndex) {
 				break;
