@@ -256,7 +256,7 @@ public class MovieFilenameScanner {
 	protected String getVideoSource(String filename) {
 		String f = filename.toUpperCase();
 		if (hasKeyword(f, "HDTV")) return "HDTV";
-		if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP" })) return "BDRiP";
+		if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP" })) return "BluRay";
 		if (hasKeyword(f, "DVDRIP")) return "DVDRip";
 		if (hasKeyword(f, "DVDSCR")) return "DVDSCR";
 		if (hasKeyword(f, "DSRIP")) return "DSRip";
@@ -265,7 +265,8 @@ public class MovieFilenameScanner {
 		if (hasKeyword(filename, "R5")) return "R5";
 		if (hasKeyword(filename, "LINE")) return "LINE";
 		if (hasKeyword(filename, new String[] { "HDDVD", "HD-DVD", "HDDVDRIP"})) return "HDDVD";
-		if (hasKeyword(filename, "DTH")) return "D-THEATER";
+		if (hasKeyword(filename, new String[] { "DTH", "D-THEATER", "DTHEATER"})) return "D-THEATER";
+                if (hasKeyword(filename, "HD2DVD")) return "HD2DVD";
 		return "Unknown";
 	}
 	
