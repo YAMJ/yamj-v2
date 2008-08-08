@@ -277,7 +277,13 @@ public class MovieFilenameScanner {
 		
 		if (index >= 0) {
 			return ( new File(basename + "srt").exists() || 
-				   ( new File(basename + "sub").exists() && new File(basename + "idx").exists()));
+					   new File(basename + "SRT").exists() || 
+					   new File(basename + "sub").exists() ||
+					   new File(basename + "SUB").exists() || 
+					   new File(basename + "smi").exists() ||
+					   new File(basename + "SMI").exists() || 
+					   new File(basename + "ssa").exists() ||
+					   new File(basename + "SSA").exists() );
 		}
 		
 		String fn = path.toUpperCase();
