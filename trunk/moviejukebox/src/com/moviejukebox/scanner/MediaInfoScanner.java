@@ -87,7 +87,8 @@ public class MediaInfoScanner {
 			}
 		}
 		else 
-			if (currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) {
+			if ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso"))
+					||(currentMovie.getFile().getName().toLowerCase().endsWith(".img"))) {
 				//extracting IFO files from iso file
 				AbstractFile abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
 				IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
