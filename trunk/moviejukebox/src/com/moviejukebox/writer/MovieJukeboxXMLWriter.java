@@ -37,12 +37,14 @@ public class MovieJukeboxXMLWriter {
 	private int nbMoviesPerPage;
 	private int nbMoviesPerLine;
 	private String homePage;
+	private boolean fullMovieInfoInIndexes;
 
 	public MovieJukeboxXMLWriter(Properties props) {
 		forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "false"));
 		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
 		nbMoviesPerLine = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerLine", "5"));
 		homePage = props.getProperty("mjb.homePage", "Other_All_1") + ".html";
+		fullMovieInfoInIndexes = Boolean.parseBoolean(props.getProperty("mjb.fullMovieInfoInIndexes","false"));
 	}
 
 	/**
@@ -283,8 +285,15 @@ public class MovieJukeboxXMLWriter {
 		writer.writeAttribute("count", ""+ nbMoviesPerPage);
 		writer.writeAttribute("cols", ""+ nbMoviesPerLine);
 
-		for (Movie movie : movies) {
-			writeMovieForIndex( writer, movie ); 
+        if (fullMovieInfoInIndexes) {
+    		for (Movie movie : movies) {
+    			writeMovie( writer, movie ); 
+    		}
+        } 
+        else {
+    		for (Movie movie : movies) {
+    			writeMovieForIndex( writer, movie ); 
+    		}
 		}
 		writer.writeEndElement(); // movies					
 
