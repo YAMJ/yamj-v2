@@ -42,20 +42,23 @@ public class MovieFlowWriter {
 	 * Write the set of index JS files for the library
 	 * @throws IOException 
 	 */
-	public void writeIndexJS(String rootPath, String detailsDirName, Library library)
-	    throws XMLStreamException, IOException {
+	public void writeIndexJS(String rootPath, String detailsDirName, Library library) {
+		try  {
+			for ( Map.Entry<String, Map<String,List<Movie>>> category : library.getIndexes().entrySet())
+			{
+				String categoryName = category.getKey();
+				Map< String, List<Movie>> index = category.getValue();
+				
+				for ( Map.Entry< String, List<Movie>> group : index.entrySet()) {
+					String key = group.getKey(); 
+					List<Movie> movies = group.getValue();
 		
-		for ( Map.Entry<String, Map<String,List<Movie>>> category : library.getIndexes().entrySet())
-		{
-			String categoryName = category.getKey();
-			Map< String, List<Movie>> index = category.getValue();
-			
-			for ( Map.Entry< String, List<Movie>> group : index.entrySet()) {
-				String key = group.getKey(); 
-				List<Movie> movies = group.getValue();
-	
-				writeJSIndexPage(library, movies, rootPath, categoryName, key);
+					writeJSIndexPage(library, movies, rootPath, categoryName, key);
+				}
 			}
+		} catch(Exception e) {
+			System.err.println("Failed generating MovieFlow javascript files.");
+			e.printStackTrace();
 		}
 	}
 

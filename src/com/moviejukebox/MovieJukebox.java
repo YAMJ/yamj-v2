@@ -39,6 +39,7 @@ import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.writer.MovieFlowWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 import java.security.PrivilegedAction;
@@ -298,11 +299,17 @@ public class MovieJukebox {
 		}
 
 		logger.fine("Generating Indexes...");
-		xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
-		xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
-		htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
-		htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
-
+		
+		if(props.getProperty("mjb.skin.dir", "./skins/default").toLowerCase().indexOf("movieflow") != -1) {
+			MovieFlowWriter writer = new MovieFlowWriter (props);
+			writer.writeIndexJS(tempJukeboxDetailsRoot, detailsDirName, library);
+		} else {
+			xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
+			xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
+			htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
+			htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
+		}
+		
 		logger.fine("Copying new files to Jukebox directory...");
 		FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);
 		FileTools.copyFile(new File(tempJukeboxRoot+File.separator+"index.htm"), new File(jukeboxRoot+File.separator+"index.htm"));
