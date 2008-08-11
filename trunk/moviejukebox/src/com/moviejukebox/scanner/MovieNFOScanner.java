@@ -63,7 +63,7 @@ public class MovieNFOScanner {
 		}
 
 		if (nfoFile.exists()) {
-
+			logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
 			InputStream in = null;
 			ByteArrayOutputStream out = null;
 			try {
@@ -84,11 +84,15 @@ public class MovieNFOScanner {
 				String movieDatabasePlugin = props.getProperty("mjb.internet.plugin",
 						"com.moviejukebox.plugin.ImdbPlugin");
 				// Always look for imdb id look for ttXXXXXX
+				logger.finest("Scanning NFO for Imdb Id");
 				int beginIndex = nfo.indexOf("/tt");
 				if (beginIndex != -1) {
 					StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1),
 							"/ \n,:!&é\"'(--è_çà)=$");
 					movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
+					logger.finer("Imdb Id found in nfo = "+ movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+				}else{
+					logger.finer("No Imdb Id found in nfo !");					
 				}
 				if (movieDatabasePlugin.equals("com.moviejukebox.plugin.AllocinePlugin")) {
 					// If we use allocine plugin look for
@@ -104,17 +108,24 @@ public class MovieNFOScanner {
 										+ nfo.substring(beginIdIndex + 1, endIdIndex));
 								movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, nfo.substring(beginIdIndex + 1,
 										endIdIndex));
+							}else{
+								logger.finer("No Allocine Id found in nfo !");					
 							}
+						}else{
+							logger.finer("No Allocine Id found in nfo !");					
 						}
+					}else{
+						logger.finer("No Allocine Id found in nfo !");					
 					}
 				}
 
+				logger.finest("Scanning NFO for Poster URL");
 				int urlStartIndex = 0;
 				while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
-					logger.finest("Looking for URL start found in nfo urlStartIndex  = " + urlStartIndex);
+//					logger.finest("Looking for URL start found in nfo urlStartIndex  = " + urlStartIndex);
 					int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
 					if (currentUrlStartIndex >= 0) {
-						logger.finest("URL start found in nfo at pos=" + currentUrlStartIndex);
+//						logger.finest("URL start found in nfo at pos=" + currentUrlStartIndex);
 						int currentUrlEndIndex = nfo.indexOf("jpg", currentUrlStartIndex);
 						if (currentUrlEndIndex < 0) {
 							currentUrlEndIndex = nfo.indexOf("JPG", currentUrlStartIndex);
