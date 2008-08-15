@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import com.moviejukebox.plugin.ImdbPlugin;
 
@@ -18,6 +19,8 @@ import com.moviejukebox.plugin.ImdbPlugin;
  */
 public class Movie implements Comparable<Movie> {
 	
+	private static Logger logger = Logger.getLogger("moviejukebox");
+
 	public static String UNKNOWN = "UNKNOWN";
     private static ArrayList< String > sortIgnorePrefixes = new ArrayList< String >();
     
@@ -85,6 +88,7 @@ public class Movie implements Comparable<Movie> {
 	
 	public void addGenre(String genre) {
 		this.isDirty = true;
+		logger.finest("Genre added : " + genre);
 		genres.add(genre);
 	}
 

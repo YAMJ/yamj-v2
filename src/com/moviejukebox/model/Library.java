@@ -4,20 +4,29 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Logger;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 
 public class Library implements Map<String, Movie> {
+
+	private static Logger logger = Logger.getLogger("moviejukebox");
 
 	private Properties props = new Properties();
 	private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
 	private List<Movie> moviesList = new ArrayList<Movie>();
 	private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
 	private boolean filterGenres;
+	private Map<String,String> genresMap = new HashMap<String, String>();
 	
 	public Library(Properties props) {
 		if (props != null) {
@@ -142,26 +151,9 @@ public class Library implements Map<String, Movie> {
     	if (!filterGenres) 
     		return genre;
     	
-        if (genre.equalsIgnoreCase("Action") 
-             || genre.equalsIgnoreCase("Adventure")
-             || genre.equalsIgnoreCase("Sport")
-             || genre.equalsIgnoreCase("War")
-             || genre.equalsIgnoreCase("Western")) {
-        		return "Action";
-        } else if (genre.equalsIgnoreCase("Drama") 
-             || genre.equalsIgnoreCase("Biography")
-             || genre.equalsIgnoreCase("Romance")
-             || genre.equalsIgnoreCase("History")
-             || genre.equalsIgnoreCase("Crime")) {
-        		return "Drama";
-        } else if (genre.equalsIgnoreCase("Thriller") 
-        	|| genre.equalsIgnoreCase("Horror")
-        	|| genre.equalsIgnoreCase("Mystery")) {
-        		return "Thriller";
-        } else if (genre.equalsIgnoreCase("Short") 
-           	|| genre.equalsIgnoreCase("Music")
-        	|| genre.equalsIgnoreCase("Musical")) {
-        		return "Other";
+    	String masterGenre = genresMap.get(genre);
+        if (masterGenre != null ){
+        	return masterGenre;
         } else {
         	return genre;
         }
@@ -270,5 +262,32 @@ public class Library implements Map<String, Movie> {
 
 	public Map<String, Map<String, List<Movie>>> getIndexes() {
 		return indexes;
+	}
+	
+	public void fillGenreMap(String xmlGenreFile){
+		File f = new File(xmlGenreFile);
+		if (f.exists() && f.isFile() && xmlGenreFile.toUpperCase().endsWith("XML")) {
+
+			try {
+				XMLConfiguration c = new XMLConfiguration(f);
+
+				List<HierarchicalConfiguration> genres = c.configurationsAt("genre");
+				for (HierarchicalConfiguration genre : genres) {
+					String masterGenre = genre.getString("[@name]");
+//					logger.finest("New masterGenre parsed : (" +  masterGenre+ ")");
+					List<String> subgenres = genre.getList("subgenre");
+					for (String subgenre : subgenres) {
+//						logger.finest("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
+						genresMap.put(subgenre, masterGenre);						
+					}
+
+				}
+			}catch (Exception e) {
+				logger.severe("Failed parsing moviejukebox genre input file: " + f.getName());
+				e.printStackTrace();
+			}
+		}else{
+			logger.severe("The moviejukebox library input file you specified is invalid: " + f.getName());
+		}
 	}
 }

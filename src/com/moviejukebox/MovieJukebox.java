@@ -55,8 +55,9 @@ public class MovieJukebox {
 	private String skinHome;
 	private String detailsDirName;
 	private boolean forceThumbnailOverwrite;
-        private boolean forcePosterOverwrite;
+    private boolean forcePosterOverwrite;
 	private Properties props;
+	private String xmlGenreFile;
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
 		// Send logger output to our FileHandler.
@@ -193,12 +194,15 @@ public class MovieJukebox {
 		this.jukeboxRoot = jukeboxRoot;
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
-                this.forcePosterOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forcePostersOverwrite", "false"));
-
+		this.forcePosterOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forcePostersOverwrite", "false"));
+        this.xmlGenreFile = props.getProperty("mjb.xmlGenreFile", "genres.xml");
+		
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
+			logger.finest("Parsing library file : " + source);
 			movieLibraryPaths = parseMovieLibraryRootFile(f);
 		} else if (f.exists() && f.isDirectory()) {
+			logger.finest("Library path is : " + source);
 			movieLibraryPaths = new ArrayList<MediaLibraryPath>();
 			MediaLibraryPath mlp = new MediaLibraryPath();
 			mlp.setPath(source);
@@ -214,7 +218,7 @@ public class MovieJukebox {
 
 		MovieDatabasePlugin movieDBPlugin = this.getMovieDatabasePlugin(props.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
 		MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(props.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
-                MovieImagePlugin posterPlugin = this.getPosterPlugin(props.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
+        MovieImagePlugin posterPlugin = this.getPosterPlugin(props.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
 
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
@@ -257,7 +261,8 @@ public class MovieJukebox {
 		
 		logger.fine("Found " + library.size() + " movies in your media library");
 
-		
+		// fill genre map for genre rewriting
+		library.fillGenreMap(xmlGenreFile);
 		
 		//////////////////////////////////////////////////////////////////
 		/// PASS 2 : Scan movie libraries for files...
