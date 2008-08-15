@@ -8,7 +8,9 @@
 
 	<target name="clean">
 		<delete dir="build"/>
-		<delete dir="dist"/>
+		  <delete includeemptydirs="true">
+		    <fileset dir="dist" includes="**/*" excludes="mediaInfo/*"/>
+		  </delete>
 	</target>
 
 	<target name="prepare" depends="init">

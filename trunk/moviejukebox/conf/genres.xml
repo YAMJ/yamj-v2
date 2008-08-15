@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--                                                                                   -->
+<!-- Genre elements contains the relation between some subgenres and a master genre    -->
+<!--                                                                                   -->
+
+<genres>
+  <genre name="Action">
+    <subgenre>Adventure</subgenre>
+    <subgenre>Sport</subgenre>
+    <subgenre>War</subgenre>
+    <subgenre>Western</subgenre>
+    <subgenre>Guerre</subgenre>
+    <subgenre>Aventure</subgenre>
+  </genre>
+  <genre name="Drame">
+    <subgenre>Drama</subgenre> 
+    <subgenre>Biography</subgenre>
+    <subgenre>Romance</subgenre>
+    <subgenre>History</subgenre>
+    <subgenre>Crime</subgenre>
+  </genre>
+  <genre name="Thriller">
+    <subgenre>Thriller</subgenre> 
+    <subgenre>Horror</subgenre>
+    <subgenre>Mystery</subgenre>
+  </genre>
+  <genre name="Other">
+    <subgenre>Short</subgenre> 
+    <subgenre>Music</subgenre>
+    <subgenre>Musical</subgenre>
+  </genre>
+  <genre name="Documentaire">
+    <subgenre>Documentary</subgenre> 
+  </genre>
+  <genre name="Comédie">
+    <subgenre>Comedy</subgenre> 
+  </genre>
+</genres>
+  

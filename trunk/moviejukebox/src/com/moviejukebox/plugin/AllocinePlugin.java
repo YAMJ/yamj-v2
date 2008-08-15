@@ -276,7 +276,8 @@ public class AllocinePlugin extends ImdbPlugin {
 		try {
 			StringBuffer sb = new StringBuffer("http://www.allocine.fr/recherche/?motcle=");
 			sb.append(URLEncoder.encode(movieName.replace(' ', '+'), "iso-8859-1"));
-
+			sb.append("&x=0&y=0&rub=0"); // some AlloCine Magic 
+//			logger.finest("Allocine request : "+sb.toString());
 			String xml = request(new URL(sb.toString()));
 
 			String alloCineStartResult;
@@ -294,9 +295,9 @@ public class AllocinePlugin extends ImdbPlugin {
 					"<script type=\"text/javascript\">",
 					alloCineMediaPrefix,
 					"</h4></div>")) {
-				logger.finest("AlloCine SearchResult = " + searchResult);
+//				logger.finest("AlloCine SearchResult = " + searchResult);
 				String searchResultYear = searchResult.substring(searchResult.lastIndexOf(">")+1, searchResult.length());
-				logger.finest("AlloCine searchResultYear = " + searchResultYear);
+//				logger.finest("AlloCine searchResultYear = " + searchResultYear);
 				if (year == null || year.equalsIgnoreCase(Movie.UNKNOWN) || year.equalsIgnoreCase(searchResultYear)) {
 					int allocineIndexBegin = 0;
 					int allocineIndexEnd = searchResult.indexOf(".html");
@@ -308,7 +309,7 @@ public class AllocinePlugin extends ImdbPlugin {
 					return allocineId;
 				}
 			}
-
+			logger.finer("No AllocineId Found with request : " + sb.toString());
 			return Movie.UNKNOWN;
 		} catch (Exception e) {
 			logger.severe("Failed to retrieve alloCine Id for movie : " + movieName);
@@ -383,10 +384,6 @@ public class AllocinePlugin extends ImdbPlugin {
 //		logger.finest("extractTags startTag index = " + index);
 		while (index != -1) {
 			index += startLen;
-//			int close = sectionText.indexOf('>', index);
-//			if (close != -1) {
-//				index = close + 1;
-//			}
 			endIndex = sectionText.indexOf(endTag, index);
 			if (endIndex == -1) {
 //				logger.finest("extractTags no endTag found");
@@ -415,13 +412,13 @@ public class AllocinePlugin extends ImdbPlugin {
 		ArrayList<String> tags = new ArrayList<String>();
 		int index = src.indexOf(sectionStart);
 		if (index == -1) {
-			logger.finest("extractTags no sectionStart Tags found");
+//			logger.finest("extractTags no sectionStart Tags found");
 			return tags;
 		}
 		index += sectionStart.length();
 		int endIndex = src.indexOf(sectionEnd, index);
 		if (endIndex == -1) {
-			logger.finest("extractTags no sectionEnd Tags found");
+//			logger.finest("extractTags no sectionEnd Tags found");
 			return tags;
 		}
 
@@ -433,9 +430,9 @@ public class AllocinePlugin extends ImdbPlugin {
 		if (startTag != null) {
 			index = sectionText.indexOf(startTag);
 		}
-		logger.finest("extractTags sectionText = " + sectionText);
-		logger.finest("extractTags startTag = " + startTag);
-		logger.finest("extractTags startTag index = " + index);
+//		logger.finest("extractTags sectionText = " + sectionText);
+//		logger.finest("extractTags startTag = " + startTag);
+//		logger.finest("extractTags startTag index = " + index);
 		while (index != -1) {
 			endIndex = sectionText.indexOf(endTag, index);
 			if (endIndex == -1) {
@@ -443,7 +440,7 @@ public class AllocinePlugin extends ImdbPlugin {
 			}
 			endIndex += endLen;
 			String text = sectionText.substring(index, endIndex);
-			logger.finest("extractTags Tag found text = " + text);
+//			logger.finest("extractTags Tag found text = " + text);
 			tags.add(text);
 			if (endIndex > lastIndex) {
 				break;
