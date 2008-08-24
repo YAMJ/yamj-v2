@@ -98,7 +98,7 @@
           </td>
         </tr>
 
-        <tr class="divider"><td><HR align="left"></HR></td></tr>
+        <tr class="divider"><td> </td></tr>
 
         <tr>
           <td width="85%" class="normal" colspan="4">
@@ -108,7 +108,7 @@
           </td>
         </tr>
 
-        <tr height="25"><td height="25"/></tr>
+        <tr class="spacer"><td> </td></tr>
 
         <tr>
           <td colspan="4"><center><table width="85%">
