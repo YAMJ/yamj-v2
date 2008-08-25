@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,8 +173,9 @@ public class Library implements Map<String, Movie> {
 			list = new ArrayList<Movie>();
 			index.put(category, list);
 		}
-		
-		list.add(movie);
+		if (!list.contains(movie)) {
+			list.add(movie);
+		}
 	}
 	
 	public void clear() {
