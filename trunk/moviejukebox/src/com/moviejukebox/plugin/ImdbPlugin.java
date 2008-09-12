@@ -1,22 +1,18 @@
 package com.moviejukebox.plugin;
 
-import java.io.BufferedReader;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.HTMLTools;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.HTMLTools;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -30,7 +26,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	protected String preferredCountry;
 	protected String imdbPlot;
 
-	@Override
 	public void init(Properties props) {
 		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
 		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
@@ -224,17 +219,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		try {
 			String xml = request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID)));
 
-			movie.setTitleSort(extractTag(xml, "<title>", 0, "()><"));
-			movie.setRating(parseRating(extractTag(xml, "<b>User Rating:</b>", 2)));
+			movie.setTitleSort(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
+			movie.setRating(parseRating(HTMLTools.extractTag(xml, "<b>User Rating:</b>", 2)));
 			// movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
-			movie.setDirector(extractTag(xml, "<h5>Director:</h5>", 1));
-			movie.setReleaseDate(extractTag(xml, "<h5>Release Date:</h5>"));
-			movie.setRuntime(getPreferredValue(extractTags(xml, "<h5>Runtime:</h5>", "</div>")));
+			movie.setDirector(HTMLTools.extractTag(xml, "<h5>Director:</h5>", 1));
+			movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>Release Date:</h5>"));
+			movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Runtime:</h5>", "</div>")));
 
-			movie.setCountry(extractTag(xml, "<h5>Country:</h5>", 1));
-			movie.setCompany(extractTag(xml, "<h5>Company:</h5>", 1));
+			movie.setCountry(HTMLTools.extractTag(xml, "<h5>Country:</h5>", 1));
+			movie.setCompany(HTMLTools.extractTag(xml, "<h5>Company:</h5>", 1));
 			int count = 0;
-			for (String genre : extractTags(xml, "<h5>Genre:</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")) {
+			for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")) {
 				movie.addGenre(genre);
 				if (++count >= maxGenres) {
 					break;
@@ -248,14 +243,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			// even if "long" is set we will default to the "short" one if none
 			// was found
 			if (imdbPlot.equalsIgnoreCase("short") || plot.equals("None")) {
-				plot = extractTag(xml, "<h5>Plot:</h5>");
+				plot = HTMLTools.extractTag(xml, "<h5>Plot:</h5>");
 				if (plot.startsWith("a class=\"tn15more")) {
 					plot = "None";
 				}
 			}
 			movie.setPlot(plot);
 
-			movie.setCertification(getPreferredValue(extractTags(xml, "<h5>Certification:</h5>", "</div>",
+			movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Certification:</h5>", "</div>",
 					"<a href=\"/List?certificates=", "</a>")));
 
 			if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -268,53 +263,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 				}
 			}
 
-			movie.setCast(extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/",
+			movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/",
 					"</a>"));
 
-			if (movie.getPosterURL() != null && !movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-				// we already have a poster URL
-				// logger.info("Movie already has PosterURL : " +
-				// movie.getPosterURL());
-				return;
+			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+				movie.setPosterURL(getPosterURL(movie, xml));
 			}
-			int castIndex = xml.indexOf("<h3>Cast</h3>");
-			int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
-
-			String posterURL = Movie.UNKNOWN;
-
-			// Check posters.motechnet.com
-			if (this.testMotechnetPoster(movie.getId(IMDB_PLUGIN_ID))) {
-				posterURL = "http://posters.motechnet.com/covers/" + movie.getId(IMDB_PLUGIN_ID) + "_largeCover.jpg";
-			} // Check www.impawards.com
-			else if (!(posterURL = this.testImpawardsPoster(movie.getId(IMDB_PLUGIN_ID))).equals(Movie.UNKNOWN)) {
-				// Cover Found
-			} // Check www.moviecovers.com (if set in property file)
-			else if ("moviecovers".equals(preferredPosterSearchEngine)
-					&& !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals(Movie.UNKNOWN)) {
-				// Cover Found
-			} else if (beginIndex < castIndex && beginIndex != -1) {
-
-				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 5), "\"");
-				posterURL = st.nextToken();
-				int index = posterURL.indexOf("_SY");
-				if (index != -1) {
-					posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
-				}
-			} else {
-				// try searching an alternate search engine
-				String alternateURL = Movie.UNKNOWN;
-				if ("google".equalsIgnoreCase(preferredPosterSearchEngine)) {
-					alternateURL = getPosterURLFromGoogle(movie.getTitle());
-				} else if ("yahoo".equalsIgnoreCase(preferredPosterSearchEngine)) {
-					alternateURL = getPosterURLFromYahoo(movie.getTitle());
-				}
-
-				if (!alternateURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-					posterURL = alternateURL;
-				}
-			}
-
-			movie.setPosterURL(posterURL);
 
 			if (movie.isTVShow()) {
 				updateTVShowInfo(movie);
@@ -335,114 +289,44 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 	}
 
-	protected String extractTag(String src, String findStr) {
-		return this.extractTag(src, findStr, 0);
-	}
+	protected String getPosterURL(Movie movie, String xml) {
+		int castIndex = xml.indexOf("<h3>Cast</h3>");
+		int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
 
-	protected String extractTag(String src, String findStr, int skip) {
-		return this.extractTag(src, findStr, skip, "><");
-	}
+		String posterURL = Movie.UNKNOWN;
 
-	protected String extractTag(String src, String findStr, int skip, String separator) {
-		int beginIndex = src.indexOf(findStr);
-		StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
-		for (int i = 0; i < skip; i++) {
-			st.nextToken();
-		}
+		// Check posters.motechnet.com
+		if (this.testMotechnetPoster(movie.getId(IMDB_PLUGIN_ID))) {
+			posterURL = "http://posters.motechnet.com/covers/" + movie.getId(IMDB_PLUGIN_ID) + "_largeCover.jpg";
+		} // Check www.impawards.com
+		else if (!(posterURL = this.testImpawardsPoster(movie.getId(IMDB_PLUGIN_ID))).equals(Movie.UNKNOWN)) {
+			// Cover Found
+		} // Check www.moviecovers.com (if set in property file)
+		else if ("moviecovers".equals(preferredPosterSearchEngine)
+				&& !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals(Movie.UNKNOWN)) {
+			// Cover Found
+		} else if (beginIndex < castIndex && beginIndex != -1) {
 
-		String value = HTMLTools.decodeHtml(st.nextToken().trim());
-		if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1
-				|| value.indexOf("<") != -1) {
-			value = Movie.UNKNOWN;
-		}
-
-		return value;
-	}
-
-	protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd) {
-		return extractTags(src, sectionStart, sectionEnd, null, "|");
-	}
-
-	protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag,
-			String endTag) {
-		ArrayList<String> tags = new ArrayList<String>();
-		int index = src.indexOf(sectionStart);
-		if (index == -1) {
-			return tags;
-		}
-		index += sectionStart.length();
-		int endIndex = src.indexOf(sectionEnd, index);
-		if (endIndex == -1) {
-			return tags;
-		}
-
-		String sectionText = src.substring(index, endIndex);
-		int lastIndex = sectionText.length();
-		index = 0;
-		int startLen = 0;
-		int endLen = endTag.length();
-
-		if (startTag != null) {
-			index = sectionText.indexOf(startTag);
-			startLen = startTag.length();
-		}
-
-		while (index != -1) {
-			index += startLen;
-			int close = sectionText.indexOf('>', index);
-			if (close != -1) {
-				index = close + 1;
+			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 5), "\"");
+			posterURL = st.nextToken();
+			int index = posterURL.indexOf("_SY");
+			if (index != -1) {
+				posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
 			}
-			endIndex = sectionText.indexOf(endTag, index);
-			if (endIndex == -1) {
-				endIndex = lastIndex;
-			}
-			String text = sectionText.substring(index, endIndex);
-
-			tags.add(HTMLTools.decodeHtml(text.trim()));
-			endIndex += endLen;
-			if (endIndex > lastIndex) {
-				break;
-			}
-			if (startTag != null) {
-				index = sectionText.indexOf(startTag, endIndex);
-			} else {
-				index = endIndex;
-			}
-		}
-		return tags;
-	}
-
-	public String request(URL url) throws IOException {
-		StringWriter content = null;
-
-		try {
-			content = new StringWriter();
-
-			BufferedReader in = null;
-			try {
-				URLConnection cnx = url.openConnection();
-				cnx.setRequestProperty("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
-
-				in = new BufferedReader(new InputStreamReader(cnx.getInputStream()));
-
-				String line;
-				while ((line = in.readLine()) != null) {
-					content.write(line);
-				}
-
-			} finally {
-				if (in != null) {
-					in.close();
-				}
+		} else {
+			// try searching an alternate search engine
+			String alternateURL = Movie.UNKNOWN;
+			if ("google".equalsIgnoreCase(preferredPosterSearchEngine)) {
+				alternateURL = getPosterURLFromGoogle(movie.getTitle());
+			} else if ("yahoo".equalsIgnoreCase(preferredPosterSearchEngine)) {
+				alternateURL = getPosterURLFromYahoo(movie.getTitle());
 			}
 
-			return content.toString();
-		} finally {
-			if (content != null) {
-				content.close();
+			if (!alternateURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+				posterURL = alternateURL;
 			}
 		}
+		return posterURL;
 	}
 
 	/**
@@ -506,7 +390,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		return content != null && content.contains("/covers/" + movieId + "_largeCover.jpg");
 	}
 
-	public String testImpawardsPoster(String movieId) throws IOException {
+	public String testImpawardsPoster(String movieId) {
 		String returnString = Movie.UNKNOWN;
 		String content = null;
 		try {
@@ -563,7 +447,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	 * @throws IOException
 	 * @throws MalformedURLException
 	 */
-	private void updateTVShowInfo(Movie movie) throws MalformedURLException, IOException {
+	protected void updateTVShowInfo(Movie movie) throws MalformedURLException, IOException {
 		if (!movie.isTVShow()) {
 			return;
 		}
@@ -578,7 +462,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		int season = movie.getSeason();
 		for (MovieFile file : movie.getFiles()) {
 			int episode = file.getPart();
-			String episodeName = extractTag(xml, "<h4>Season " + season + ", Episode " + episode + ":", 2);
+			String episodeName = HTMLTools.extractTag(xml, "<h4>Season " + season + ", Episode " + episode + ":", 2);
 
 			if (episodeName.indexOf("Episode #") == -1) {
 				file.setTitle(episodeName);
@@ -600,7 +484,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		try {
 			String xml = request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary"));
 
-			String result = extractTag(xml, "<p class=\"plotpar\">");
+			String result = HTMLTools.extractTag(xml, "<p class=\"plotpar\">");
 			if (!result.equalsIgnoreCase(Movie.UNKNOWN) && result.indexOf("This plot synopsis is empty") < 0) {
 				plot = result;
 			}
@@ -609,5 +493,22 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 
 		return plot;
+	}
+
+	public void scanNFO(String nfo, Movie movie) {
+		logger.finest("Scanning NFO for Imdb Id");
+		int beginIndex = nfo.indexOf("/tt");
+		if (beginIndex != -1) {
+			StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1),
+					"/ \n,:!&é\"'(--è_çà)=$");
+			movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
+			logger.finer("Imdb Id found in nfo = "+ movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+		}else{
+			logger.finer("No Imdb Id found in nfo !");
+		}
+	}
+
+	protected String request(URL url) throws IOException {
+		return HTMLTools.request(url);
 	}
 }

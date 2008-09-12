@@ -27,17 +27,17 @@ public class AllocinePlugin extends ImdbPlugin {
 	/**
 	 * Scan Allocine html page for the specified Tv Show
 	 */
-	private void updateTVShowInfo(Movie movie) {
+	protected void updateTVShowInfo(Movie movie) {
 		try {
-			String xml = request(new URL("http://www.allocine.fr/series/ficheserie_gen_cserie="
+			String xml = HTMLTools.request(new URL("http://www.allocine.fr/series/ficheserie_gen_cserie="
 					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
 
 			movie.setTitleSort(extractTag(xml, "<title>", "</title>"));
 			movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
 			movie.setPlot(removeHtmlTags(extractTag(xml, "Synopsis</span> :", "</h5>")));
-			movie.setDirector(removeHtmlTags(extractTag(xml, "<h4>Série créée par", "</a> en")));
+			movie.setDirector(removeHtmlTags(extractTag(xml, "<h4>SÃ©rie crÃ©Ã©e par", "</a> en")));
 			movie.setRuntime(extractTag(xml, "Format</span> : ", "."));
-			movie.setCountry(extractTag(xml, "Nationalité</span> :", "</h5>"));
+			movie.setCountry(extractTag(xml, "NationalitÃ©</span> :", "</h5>"));
 
 			int count = 0;
 			for (String genre : extractTags(xml, "Genre</span> :", "-", " ", ",")) {
@@ -64,7 +64,7 @@ public class AllocinePlugin extends ImdbPlugin {
 			// start a new request for seasons details
 //			logger.finest("Start a new request for seasons details : http://www.allocine.fr/series/episodes_gen_cserie="
 //					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
-			xml = request(new URL("http://www.allocine.fr/series/episodes_gen_cserie="
+			xml = HTMLTools.request(new URL("http://www.allocine.fr/series/episodes_gen_cserie="
 					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
 
 			for (String seasonTag : extractHtmlTags(xml, "<h4><b>Choisir une saison</b>", "<table",
@@ -81,7 +81,7 @@ public class AllocinePlugin extends ImdbPlugin {
 					if (seasonId == movie.getSeason()) {
 						// we found the right season, time to get the infos
 //						logger.finest("The right Season IdI = " + seasonId);
-						xml = request(new URL("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId
+						xml = HTMLTools.request(new URL("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId
 								+ "&cserie=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
 						for (MovieFile file : movie.getFiles()) {
 							int episode = file.getPart();
@@ -107,17 +107,17 @@ public class AllocinePlugin extends ImdbPlugin {
 	 */
 	private void updateMovieInfo(Movie movie) {
 		try {
-			String xml = request(new URL("http://www.allocine.fr/film/fichefilm_gen_cfilm="
+			String xml = HTMLTools.request(new URL("http://www.allocine.fr/film/fichefilm_gen_cfilm="
 					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
 
 			movie.setTitleSort(extractTag(xml, "<title>", "</title>"));
 			movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
 			movie.setPlot(removeHtmlTags(extractTag(xml, "<h3><b>Synopsis</b></h3>", "</h4>")));
-			movie.setDirector(removeHtmlTags(extractTag(xml, "<h4>Réalisé par ", "</h4>")));
+			movie.setDirector(removeHtmlTags(extractTag(xml, "<h4>RÃ©alisÃ© par ", "</h4>")));
 			movie.setReleaseDate(extractTag(xml, "<h4>Date de sortie : <b>", "</b>"));
-			movie.setRuntime(extractTag(xml, "<h4>Durée : ", "</h4>"));
+			movie.setRuntime(extractTag(xml, "<h4>DurÃ©e : ", "</h4>"));
 			movie.setCountry(extractTag(xml, "<h4>Film", "."));
-			movie.setCompany(removeHtmlTags(extractTag(xml, "<h4>Distribué par ", "</h4>")));
+			movie.setCompany(removeHtmlTags(extractTag(xml, "<h4>DistribuÃ© par ", "</h4>")));
 
 			int count = 0;
 			for (String genre : extractTags(xml, "<h4>Genre : ", "</h4>", "film/alaffiche_genre_gen_genre", "</a>")) {
@@ -132,7 +132,7 @@ public class AllocinePlugin extends ImdbPlugin {
 			// "<a href=\"/List?certificates=", "</a>")));
 
 			if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase("Unknown")) {
-				movie.setYear(extractTag(xml, "<h4>Année de production : ", "</h4>"));
+				movie.setYear(extractTag(xml, "<h4>AnnÃ©e de production : ", "</h4>"));
 			}
 
 			for (String acteur : extractTags(xml, "<h4>Avec", "</h4>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
@@ -161,7 +161,7 @@ public class AllocinePlugin extends ImdbPlugin {
 			// wrong.
 			if (!movie.isTVShow()) {
 				String baseUrl = "http://www.allocine.fr/film/galerievignette_gen_cfilm=";
-				xml = request(new URL(baseUrl + movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
+				xml = HTMLTools.request(new URL(baseUrl + movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
 				posterURL = extractTag(xml, "img id='imgNormal' class='photo' src='", "'");
 				if (!posterURL.equalsIgnoreCase("Unknown")) {
 					logger.finest("Movie PosterURL : " + posterURL);
@@ -188,7 +188,7 @@ public class AllocinePlugin extends ImdbPlugin {
 				movie.setPosterURL(posterURL);
 				return;
 			} else {
-				xml = request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID)));
+				xml = HTMLTools.request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID)));
 				int castIndex = xml.indexOf("<h3>Cast</h3>");
 				int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
 				if (beginIndex < castIndex && beginIndex != -1) {
@@ -278,12 +278,12 @@ public class AllocinePlugin extends ImdbPlugin {
 			sb.append(URLEncoder.encode(movieName.replace(' ', '+'), "iso-8859-1"));
 			sb.append("&x=0&y=0&rub=0"); // some AlloCine Magic 
 //			logger.finest("Allocine request : "+sb.toString());
-			String xml = request(new URL(sb.toString()));
+			String xml = HTMLTools.request(new URL(sb.toString()));
 
 			String alloCineStartResult;
 			String alloCineMediaPrefix;
 			if (mediaFile.isTVShow()) {
-				alloCineStartResult = "<h3><b>Séries TV <h4>";
+				alloCineStartResult = "<h3><b>SÃ©ries TV <h4>";
 				alloCineMediaPrefix = "/series/ficheserie_gen_cserie=";
 			} else {
 				alloCineStartResult = "<h3><b>Films <h4>";
@@ -353,7 +353,6 @@ public class AllocinePlugin extends ImdbPlugin {
 		return result;
 	}
 
-	@Override
 	protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag,
 			String endTag) {
 		ArrayList<String> tags = new ArrayList<String>();
@@ -454,4 +453,31 @@ public class AllocinePlugin extends ImdbPlugin {
 		return tags;
 	}
 
+	public void scanNFO(String nfo, Movie movie) {
+		// Always look for imdb id look for ttXXXXXX
+		super.scanNFO(nfo, movie);
+
+		// If we use allocine plugin look for
+		// http://www.allocine.fr/...=XXXXX.html
+		logger.finest("Scanning NFO for Allocine Id");
+		int beginIndex = nfo.indexOf("http://www.allocine.fr/");
+		if (beginIndex != -1) {
+			int beginIdIndex = nfo.indexOf("=", beginIndex);
+			if (beginIdIndex != -1) {
+				int endIdIndex = nfo.indexOf(".", beginIdIndex);
+				if (endIdIndex != -1) {
+					logger.finer("Allocine Id found in nfo = "
+							+ nfo.substring(beginIdIndex + 1, endIdIndex));
+					movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, nfo.substring(beginIdIndex + 1,
+							endIdIndex));
+				} else {
+					logger.finer("No Allocine Id found in nfo !");
+				}
+			} else {
+				logger.finer("No Allocine Id found in nfo !");
+			}
+		} else {
+			logger.finer("No Allocine Id found in nfo !");
+		}
+	}
 }

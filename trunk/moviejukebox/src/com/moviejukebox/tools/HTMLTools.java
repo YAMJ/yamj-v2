@@ -1,8 +1,18 @@
 package com.moviejukebox.tools;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.moviejukebox.model.Movie;
+
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.net.URL;
+import java.net.URLConnection;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 
 public class HTMLTools {
 
@@ -359,5 +369,173 @@ public class HTMLTools {
 		}
 
 		return result.toString();
+	}
+
+	public static String getTextAfterElem(String src, String findStr) {
+		return getTextAfterElem(src, findStr, 0);
+	}
+
+	public static String getTextAfterElem(String src, String findStr, int skip) {
+		return getTextAfterElem(src, findStr, skip, 0);
+	}
+
+	/**
+	 * Example:
+	 * src = "<a id="specialID"><br/><img src="a.gif"/>my text</a>
+	 * findStr = "specialID"
+	 * result = "my text"
+	 *
+	 * @param src			 html text
+	 * @param findStr	 string to find in src
+	 * @param skip			count of found texts to skip
+	 * @param fromIndex begin index in src
+	 * @return string	 from html text which is plain text without html tags
+	 */
+	public static String getTextAfterElem(String src, String findStr, int skip, int fromIndex) {
+		int beginIndex = src.indexOf(findStr, fromIndex);
+		if (beginIndex == -1) {
+			return Movie.UNKNOWN;
+		}
+		StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), "<");
+		int i = 0;
+		while (st.hasMoreElements()) {
+			String elem = st.nextToken().replaceAll("&nbsp;|&#160;", "").trim();
+			if (elem.length() != 0 && !elem.endsWith(">") && i++ >= skip) {
+				String[] elems = elem.split(">");
+				if (elems.length > 1) {
+					return HTMLTools.decodeHtml(elems[1].trim());
+				} else {
+					return HTMLTools.decodeHtml(elems[0].trim());
+				}
+			}
+		}
+		return Movie.UNKNOWN;
+	}
+
+	public static String extractTag(String src, String findStr) {
+		return extractTag(src, findStr, 0);
+	}
+
+	public static String extractTag(String src, String findStr, int skip) {
+		return extractTag(src, findStr, skip, "><");
+	}
+
+	public static String extractTag(String src, String findStr, int skip, String separator) {
+		int beginIndex = src.indexOf(findStr);
+		StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
+		for (int i = 0; i < skip; i++) {
+			st.nextToken();
+		}
+
+		String value = HTMLTools.decodeHtml(st.nextToken().trim());
+		if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1
+				|| value.indexOf("<") != -1) {
+			value = Movie.UNKNOWN;
+		}
+
+		return value;
+	}
+
+	public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd) {
+		return extractTags(src, sectionStart, sectionEnd, null, "|");
+	}
+
+	public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag,
+																							String endTag) {
+		ArrayList<String> tags = new ArrayList<String>();
+		int index = src.indexOf(sectionStart);
+		if (index == -1) {
+			return tags;
+		}
+		index += sectionStart.length();
+		int endIndex = src.indexOf(sectionEnd, index);
+		if (endIndex == -1) {
+			return tags;
+		}
+
+		String sectionText = src.substring(index, endIndex);
+		int lastIndex = sectionText.length();
+		index = 0;
+		int startLen = 0;
+		int endLen = endTag.length();
+
+		if (startTag != null) {
+			index = sectionText.indexOf(startTag);
+			startLen = startTag.length();
+		}
+
+		while (index != -1) {
+			index += startLen;
+			int close = sectionText.indexOf('>', index);
+			if (close != -1) {
+				index = close + 1;
+			}
+			endIndex = sectionText.indexOf(endTag, index);
+			if (endIndex == -1) {
+				endIndex = lastIndex;
+			}
+			String text = sectionText.substring(index, endIndex);
+
+			tags.add(HTMLTools.decodeHtml(text.trim()));
+			endIndex += endLen;
+			if (endIndex > lastIndex) {
+				break;
+			}
+			if (startTag != null) {
+				index = sectionText.indexOf(startTag, endIndex);
+			} else {
+				index = endIndex;
+			}
+		}
+		return tags;
+	}
+
+	public static String request(URL url) throws IOException {
+		StringWriter content = null;
+
+		try {
+			content = new StringWriter();
+
+			BufferedReader in = null;
+			try {
+				URLConnection cnx = url.openConnection();
+				cnx.setRequestProperty("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
+				Charset charset = null;
+				// content type will be string like "text/html; charset=UTF-8" or "text/html"
+				String contentType = cnx.getContentType();
+				if (contentType != null) {
+					Matcher m = Pattern.compile("charset *=[ '\"]*([^ '\"]+)[ '\"]*").matcher(contentType);
+					if (m.find()) {
+						String encoding = m.group(1);
+						try {
+							charset = Charset.forName(encoding);
+						} catch (UnsupportedCharsetException e) {
+							// there will be used default charset
+						}
+					}
+				}
+				if (charset == null) {
+					charset = Charset.defaultCharset();
+				}
+
+				in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
+
+				String line;
+				while ((line = in.readLine()) != null) {
+					content.write(line);
+				}
+
+			} finally {
+				if (in != null) {
+					in.close();
+				}
+			}
+
+			return content.toString();
+		} finally {
+			if (content != null) {
+				content.close();
+			}
+		}
 	}
 }

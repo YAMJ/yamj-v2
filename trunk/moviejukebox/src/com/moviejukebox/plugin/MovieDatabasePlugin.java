@@ -42,4 +42,12 @@ public interface MovieDatabasePlugin {
 	 * @param movie a <tt>Movie</tt> object to update.
 	 */
 	public void scan(Movie movie);
+
+	/**
+	 * Scan NFO file for movie id
+	 *
+	 * @param nfo
+	 * @param movie
+	 */
+	public void scanNFO(String nfo, Movie movie);
 }
