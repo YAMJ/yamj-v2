@@ -55,7 +55,7 @@ public class MovieJukebox {
 	private String skinHome;
 	private String detailsDirName;
 	private boolean forceThumbnailOverwrite;
-    private boolean forcePosterOverwrite;
+	private boolean forcePosterOverwrite;
 	private Properties props;
 	private String xmlGenreFile;
 
@@ -64,13 +64,13 @@ public class MovieJukebox {
 
 		Formatter mjbFormatter = new Formatter() {
 			public synchronized String format(LogRecord record) {
-				return record.getMessage() + (String)java.security.AccessController.doPrivileged(
-                                    new PrivilegedAction<Object>() {
-                                        public Object run() {
-                                            return System.getProperty("line.separator");
-                                        }
-                                    }
-                                );
+				return record.getMessage() + (String) java.security.AccessController.doPrivileged(
+						new PrivilegedAction<Object>() {
+							public Object run() {
+								return System.getProperty("line.separator");
+							}
+						}
+				);
 			}
 		};
 
@@ -195,7 +195,7 @@ public class MovieJukebox {
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
 		this.forcePosterOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forcePostersOverwrite", "false"));
-        this.xmlGenreFile = props.getProperty("mjb.xmlGenreFile", "genres.xml");
+		this.xmlGenreFile = props.getProperty("mjb.xmlGenreFile", "genres.xml");
 		
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -218,7 +218,7 @@ public class MovieJukebox {
 
 		MovieDatabasePlugin movieDBPlugin = this.getMovieDatabasePlugin(props.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
 		MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(props.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
-        MovieImagePlugin posterPlugin = this.getPosterPlugin(props.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
+		MovieImagePlugin posterPlugin = this.getPosterPlugin(props.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
 
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
@@ -237,7 +237,7 @@ public class MovieJukebox {
 
 		File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
 		if (tempJukeboxDetailsRootFile.exists()) {
-            //Clean up
+		//Clean up
 			File[] isoList = tempJukeboxDetailsRootFile.listFiles();
 			for (int nbFiles=0;nbFiles<isoList.length;nbFiles++)
 				isoList[nbFiles].delete();
@@ -294,8 +294,8 @@ public class MovieJukebox {
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
 			createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
-                        
-                        // Create a detail poster for each movie
+
+			// Create a detail poster for each movie
 			logger.finest("Creating detail poster for movie: " + movie.getBaseName());
 			createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 			
@@ -360,7 +360,7 @@ public class MovieJukebox {
 			// Update thumbnails format if needed
 			String thumbnailExtension = props.getProperty("thumbnails.format", "png");
 			movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
-                        // Update poster format if needed
+			// Update poster format if needed
 			String posterExtension = props.getProperty("posters.format", "png");
 			movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
 			
@@ -370,7 +370,7 @@ public class MovieJukebox {
 			// information where we can (filename, IMDb, NFO, etc...)
 			// Add here extra scanners if needed.
 			logger.finer("movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
-			nfoScanner.scan(movie);
+			nfoScanner.scan(movie, movieDB);
 			movieDB.scan(movie);
 			miScanner.scan(movie);
 			
@@ -510,7 +510,7 @@ public class MovieJukebox {
 		posterPlugin.init(props);
 		return posterPlugin;
 	}
-        
+
 	/**
 	 * Download the movie poster for the specified movie into the specified file.
 	 * @throws IOException
@@ -535,7 +535,7 @@ public class MovieJukebox {
 				FileInputStream fis = new FileInputStream(src);
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
-                                        logger.info("Using dummy thumbnail image for " + movie.getTitle());
+					logger.info("Using dummy thumbnail image for " + movie.getTitle());
 					FileTools.copyFile(
 							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
 							new File(rootPath + File.separator + movie.getPosterFilename()));
@@ -552,7 +552,7 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 	}
-        
+
 	public static void createPoster(MovieImagePlugin posterManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forcePosterOverwrite) {
 		try {
 			String src = rootPath + File.separator + movie.getPosterFilename();
@@ -563,7 +563,7 @@ public class MovieJukebox {
 				FileInputStream fis = new FileInputStream(src);
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
-                                        logger.info("Using dummy poster image for " + movie.getTitle());
+					logger.info("Using dummy poster image for " + movie.getTitle());
 					FileTools.copyFile(
 							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
 							new File(rootPath + File.separator + movie.getPosterFilename()));
@@ -580,5 +580,4 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 	}
-        
 }

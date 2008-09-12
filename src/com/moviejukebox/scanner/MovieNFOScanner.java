@@ -6,12 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.plugin.AllocinePlugin;
-import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.MovieDatabasePlugin;
 
 /**
  * NFO file parser.
@@ -32,9 +30,9 @@ public class MovieNFOScanner {
 	 * Search the IMDBb id of the specified movie in the NFO file if it exists.
 	 * 
 	 * @param movie
-	 *            movie to scan
+	 * @param movieDB
 	 */
-	public void scan(Movie movie) {
+	public void scan(Movie movie, MovieDatabasePlugin movieDB) {
 		Properties props = new Properties();
 		InputStream propertiesStream = ClassLoader.getSystemResourceAsStream("moviejukebox.properties");
 
@@ -81,43 +79,7 @@ public class MovieNFOScanner {
 
 				String nfo = out.toString();
 
-				String movieDatabasePlugin = props.getProperty("mjb.internet.plugin",
-						"com.moviejukebox.plugin.ImdbPlugin");
-				// Always look for imdb id look for ttXXXXXX
-				logger.finest("Scanning NFO for Imdb Id");
-				int beginIndex = nfo.indexOf("/tt");
-				if (beginIndex != -1) {
-					StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1),
-							"/ \n,:!&é\"'(--è_çà)=$");
-					movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
-					logger.finer("Imdb Id found in nfo = "+ movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
-				}else{
-					logger.finer("No Imdb Id found in nfo !");					
-				}
-				if (movieDatabasePlugin.equals("com.moviejukebox.plugin.AllocinePlugin")) {
-					// If we use allocine plugin look for
-					// http://www.allocine.fr/...=XXXXX.html
-					logger.finest("Scanning NFO for Allocine Id");
-					beginIndex = nfo.indexOf("http://www.allocine.fr/");
-					if (beginIndex != -1) {
-						int beginIdIndex = nfo.indexOf("=", beginIndex);
-						if (beginIdIndex != -1) {
-							int endIdIndex = nfo.indexOf(".", beginIdIndex);
-							if (endIdIndex != -1) {
-								logger.finer("Allocine Id found in nfo = "
-										+ nfo.substring(beginIdIndex + 1, endIdIndex));
-								movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, nfo.substring(beginIdIndex + 1,
-										endIdIndex));
-							}else{
-								logger.finer("No Allocine Id found in nfo !");					
-							}
-						}else{
-							logger.finer("No Allocine Id found in nfo !");					
-						}
-					}else{
-						logger.finer("No Allocine Id found in nfo !");					
-					}
-				}
+				movieDB.scanNFO(nfo, movie);
 
 				logger.finest("Scanning NFO for Poster URL");
 				int urlStartIndex = 0;
@@ -161,7 +123,7 @@ public class MovieNFOScanner {
 						out.close();
 					}
 				} catch (IOException e) {
-
+					logger.severe("Failed closing: " + e.getMessage());
 				}
 			}
 		}
