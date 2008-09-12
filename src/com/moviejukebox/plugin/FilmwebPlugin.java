@@ -1,0 +1,304 @@
+package com.moviejukebox.plugin;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.HTMLTools;
+
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.MalformedURLException;
+import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.io.IOException;
+
+import org.apache.commons.lang.StringUtils;
+
+public class FilmwebPlugin extends ImdbPlugin {
+	public static String FILMWEB_PLUGIN_ID = "filmweb";
+
+	private static Logger logger = Logger.getLogger("moviejukebox");
+	private static Pattern googlePattern = Pattern.compile("\"(http://[^\"/?&]*filmweb.pl[^\"]*)\"");
+	private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
+	private static Pattern filmwebPattern = Pattern.compile("searchResultTitle[^>]+\"(http://[^\"/?&]*filmweb.pl[^\"]*)\"");
+	private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^ ]*");
+	private static Pattern longPlotUrlPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\"]*/opisy");
+	private static Pattern posterUrlPattern = Pattern.compile("artshow[^>]+(http://gfx.filmweb.pl[^\"]+)\"");
+	private static Pattern episodesUrlPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\"]*/odcinki");
+
+	protected String filmwebPreferredSearchEngine;
+	protected String filmwebPlot;
+
+	public void init(Properties props) {
+		super.init(props); // use IMDB if filmweb doesn't know movie
+		filmwebPreferredSearchEngine = props.getProperty("filmweb.id.search", "filmweb");
+		filmwebPlot = props.getProperty("filmweb.plot", "short");
+	}
+
+	public void scan(Movie mediaFile) {
+		String filmwebUrl = mediaFile.getId(FILMWEB_PLUGIN_ID);
+		if (filmwebUrl == null || filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+			filmwebUrl = getFilmwebUrl(mediaFile.getTitle(), mediaFile.getYear());
+			mediaFile.setId(FILMWEB_PLUGIN_ID, filmwebUrl);
+		}
+
+		if (!filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+			updateMediaInfo(mediaFile);
+		} else {
+			// use IMDB if filmweb doesn't know movie
+			super.scan(mediaFile);
+		}
+	}
+
+	/**
+	 * retrieve the filmweb url matching the specified movie name and year.
+	 */
+	protected String getFilmwebUrl(String movieName, String year) {
+		if ("google".equalsIgnoreCase(preferredSearchEngine)) {
+			return getFilmwebUrlFromGoogle(movieName, year);
+		} else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
+			return getFilmwebUrlFromYahoo(movieName, year);
+		} else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
+			return Movie.UNKNOWN;
+		} else {
+			return getFilmwebUrlFromFilmweb(movieName, year);
+		}
+	}
+
+	/**
+	 * retrieve the filmweb url matching the specified movie name and year. This routine is base on a yahoo request.
+	 */
+	private String getFilmwebUrlFromYahoo(String movieName, String year) {
+		try {
+			StringBuffer sb = new StringBuffer("http://search.yahoo.com/search?p=");
+			sb.append(URLEncoder.encode(movieName, "UTF-8"));
+
+			if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+				sb.append("+%28").append(year).append("%29");
+			}
+
+			sb.append("+site%3Afilmweb.pl&ei=UTF-8");
+
+			String xml = request(new URL(sb.toString()));
+			Matcher m = yahooPattern.matcher(xml);
+			if (m.find()) {
+				return "http:" + m.group(1);
+			} else {
+				return Movie.UNKNOWN;
+			}
+
+		} catch (Exception e) {
+			logger.severe("Failed retreiving filmweb url for movie : " + movieName);
+			logger.severe("Error : " + e.getMessage());
+			return Movie.UNKNOWN;
+		}
+	}
+
+	/**
+	 * retrieve the filmweb url matching the specified movie name and year. This routine is base on a google request.
+	 */
+	private String getFilmwebUrlFromGoogle(String movieName, String year) {
+		try {
+			StringBuffer sb = new StringBuffer("http://www.google.pl/search?hl=pl&q=");
+			sb.append(URLEncoder.encode(movieName, "UTF-8"));
+
+			if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+				sb.append("+%28").append(year).append("%29");
+			}
+
+			sb.append("+site%3Afilmweb.pl");
+
+			String xml = request(new URL(sb.toString()));
+			Matcher m = googlePattern.matcher(xml);
+			if (m.find()) {
+				return m.group(1);
+			} else {
+				return Movie.UNKNOWN;
+			}
+		} catch (Exception e) {
+			logger.severe("Failed retreiving filmweb url for movie : " + movieName);
+			logger.severe("Error : " + e.getMessage());
+			return Movie.UNKNOWN;
+		}
+	}
+
+	/**
+	 * retrieve the filmweb url matching the specified movie name and year. This routine is base on a filmweb request.
+	 */
+	private String getFilmwebUrlFromFilmweb(String movieName, String year) {
+		try {
+			StringBuffer sb = new StringBuffer("http://www.filmweb.pl/szukaj/film?q=");
+			sb.append(URLEncoder.encode(movieName, "UTF-8"));
+
+			if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+				sb.append("&startYear=").append(year).append("&endYear=").append(year);
+			}
+			String xml = request(new URL(sb.toString()));
+			Matcher m = filmwebPattern.matcher(xml);
+			if (m.find()) {
+				return m.group(1);
+			} else {
+				return Movie.UNKNOWN;
+			}
+		} catch (Exception e) {
+			logger.severe("Failed retreiving filmweb url for movie : " + movieName);
+			logger.severe("Error : " + e.getMessage());
+			return Movie.UNKNOWN;
+		}
+	}
+
+	/**
+	 * Scan IMDB html page for the specified movie
+	 */
+	protected void updateMediaInfo(Movie movie) {
+		try {
+			String xml = request(new URL(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID)));
+
+			movie.setTitleSort(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
+			movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "film-rating-precise")));
+			movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria"));
+			movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "data premiery:"));
+			movie.setRuntime(HTMLTools.getTextAfterElem(xml, "czas trwania:"));
+			movie.setCountry(StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "gatunek", "<a ", "</a>"), ", "));
+
+			int count = 0;
+			for (String genre : HTMLTools.extractTags(xml, "gatunek:", "</p>", "<a ", "</a>")) {
+				movie.addGenre(genre);
+				if (++count >= maxGenres) {
+					break;
+				}
+			}
+
+			String plot = "None";
+			if (filmwebPlot.equalsIgnoreCase("long")) {
+				plot = getLongPlot(xml);
+			}
+			// even if "long" is set we will default to the "short" one if none
+			// was found
+			if (filmwebPlot.equalsIgnoreCase("short") || plot.equals("None")) {
+				plot = HTMLTools.getTextAfterElem(xml, "o-filmie-header", 1);
+				if (plot.equals(Movie.UNKNOWN)) {
+					plot = "None";
+				}
+			}
+			movie.setPlot(plot);
+
+			if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+				movie.setYear(HTMLTools.extractTag(xml, "<title>", 1, "()><"));
+			}
+
+			movie.setCast(HTMLTools.extractTags(xml, "film-starring", "</table>", "<img ", "</a>"));
+
+			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+				movie.setPosterURL(getFilmwebPosterURL(movie, xml));
+			}
+
+			if (movie.isTVShow()) {
+				updateTVShowInfo(movie, xml);
+			}
+
+		} catch (Exception e) {
+			logger.severe("Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+			e.printStackTrace();
+		}
+	}
+
+	private int parseRating(String rating) {
+		try {
+			return Math.round(Float.parseFloat(rating.replace(",", "."))) * 10;
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+
+	/**
+	 * Retrieves the long plot description from filmweb if it exists, else "None"
+	 *
+	 * @return long plot
+	 */
+	private String getLongPlot(String mainXML) {
+		String plot;
+		try {
+			// searchs for long plot url
+			String longPlotUrl;
+			Matcher m = longPlotUrlPattern.matcher(mainXML);
+			if (m.find()) {
+				longPlotUrl = m.group();
+			} else {
+				return "None";
+			}
+			String xml = request(new URL(longPlotUrl));
+			plot = HTMLTools.getTextAfterElem(xml, "opisy-header", 2);
+			if (plot.equalsIgnoreCase(Movie.UNKNOWN)) {
+				plot = "None";
+			}
+		} catch (Exception e) {
+			plot = "None";
+		}
+
+		return plot;
+	}
+
+	private String updateImdbId(Movie movie) {
+		String imdbId = movie.getId(IMDB_PLUGIN_ID);
+		if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+			imdbId = getImdbId(movie.getTitle(), movie.getYear());
+			movie.setId(IMDB_PLUGIN_ID, imdbId);
+		}
+		return imdbId;
+	}
+
+	protected String getFilmwebPosterURL(Movie movie, String xml) {
+		String posterURL = Movie.UNKNOWN;
+		Matcher m = posterUrlPattern.matcher(xml);
+		if (m.find()) {
+			posterURL = m.group(1);
+		} else {
+			String imdbId = updateImdbId(movie);
+			if (imdbId != null && !imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+				try {
+					String imdbXml = request(new URL("http://www.imdb.com/title/" + imdbId));
+					posterURL = super.getPosterURL(movie, imdbXml);
+				} catch (IOException e) {
+					return posterURL;
+				}
+			}
+		}
+		return posterURL;
+	}
+
+	protected void updateTVShowInfo(Movie movie, String mainXML) throws MalformedURLException, IOException {
+		// searchs for episodes url
+		Matcher m = episodesUrlPattern.matcher(mainXML);
+		if (m.find()) {
+			String episodesUrl = m.group();
+			String xml = request(new URL(episodesUrl));
+			for (MovieFile file : movie.getFiles()) {
+				int fromIndex = xml.indexOf("seria" + movie.getSeason());
+				String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + file.getPart(), 1, fromIndex);
+				file.setTitle(episodeName);
+			}
+		} else {
+			// use IMDB if filmweb doesn't know episodes titles
+			String imdbId = updateImdbId(movie);
+			if (imdbId != null && !imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+				super.updateTVShowInfo(movie);
+			}
+		}
+	}
+
+	public void scanNFO(String nfo, Movie movie) {
+		super.scanNFO(nfo, movie); // use IMDB if filmweb doesn't know movie
+		logger.finest("Scanning NFO for filmweb url");
+		Matcher m = nfoPattern.matcher(nfo);
+		if (m.find()) {
+			movie.setId(FILMWEB_PLUGIN_ID, m.group());
+			System.out.println("Filmweb url found in nfo = " + movie.getId(FILMWEB_PLUGIN_ID));
+			logger.finer("Filmweb url found in nfo = " + movie.getId(FILMWEB_PLUGIN_ID));
+		} else {
+			System.out.println("Filmweb url not found in nfo = " + movie.getTitle());
+			logger.finer("No filmweb url found in nfo !");
+		}
+	}
+}
