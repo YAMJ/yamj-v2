@@ -1,0 +1,4 @@
+Project code style:
+ - encoding UTF-8
+ - use tab characters
+ - tab size: 2 spaces
