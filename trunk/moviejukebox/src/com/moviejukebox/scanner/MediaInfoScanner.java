@@ -297,12 +297,12 @@ public class MediaInfoScanner {
 			infoValue = infosMainVideo.get("Width");
 			if (infoValue != null) {
 				width = Integer.parseInt(infoValue.substring(0, infoValue
-						.indexOf(" ")));
+						.lastIndexOf(" ")).replaceAll(" ", ""));
 
 				infoValue = infosMainVideo.get("Height");
 				if (infoValue != null) {
 					movie.setResolution(width + "x"
-							+ infoValue.substring(0, infoValue.indexOf(" ")));
+							+ infoValue.substring(0, infoValue.lastIndexOf(" ")).replaceAll(" ", ""));
 				}
 
 			}
