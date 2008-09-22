@@ -190,7 +190,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	}
 
 	protected String getPreferredValue(ArrayList<String> values) {
-		String value = null;
+		String value = Movie.UNKNOWN;
 		for (String text : values) {
 			String country = null;
 
@@ -222,7 +222,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			movie.setTitleSort(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
 			movie.setRating(parseRating(HTMLTools.extractTag(xml, "<b>User Rating:</b>", 2)));
 			// movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+                        
 			movie.setDirector(HTMLTools.extractTag(xml, "<h5>Director:</h5>", 1));
+                        if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
+                            movie.setDirector(HTMLTools.extractTag(xml, "<h5>Directors:</h5>", 1));
+                        }
+                        
 			movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>Release Date:</h5>"));
 			movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Runtime:</h5>", "</div>")));
 
@@ -254,13 +259,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 					"<a href=\"/List?certificates=", "</a>")));
 
 			if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-
-				int beginIndex = xml.indexOf("<a href=\"/Sections/Years/");
-				StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 25), "\"");
-				try {
-					movie.setYear(st.nextToken().trim());
-				} catch (NumberFormatException e) {
-				}
+                                movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
+                                if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+                                    movie.setYear(HTMLTools.extractTag(xml, "<h5>Original Air Date:</h5>", 2, " "));
+                                }
 			}
 
 			movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/",

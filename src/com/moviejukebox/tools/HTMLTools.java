@@ -422,16 +422,22 @@ public class HTMLTools {
 
 	public static String extractTag(String src, String findStr, int skip, String separator) {
 		int beginIndex = src.indexOf(findStr);
-		StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
-		for (int i = 0; i < skip; i++) {
-			st.nextToken();
-		}
+                
+                String value = Movie.UNKNOWN;
+                
+                if (beginIndex >= 0) {
+                    StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
+                    for (int i = 0; i < skip; i++) {
+                            st.nextToken();
+                    }
 
-		String value = HTMLTools.decodeHtml(st.nextToken().trim());
-		if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1
-				|| value.indexOf("<") != -1) {
-			value = Movie.UNKNOWN;
-		}
+                    value = HTMLTools.decodeHtml(st.nextToken().trim());
+                    
+                    if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1
+                                    || value.indexOf("<") != -1) {
+                            value = Movie.UNKNOWN;
+                    }
+                }
 
 		return value;
 	}
@@ -440,8 +446,7 @@ public class HTMLTools {
 		return extractTags(src, sectionStart, sectionEnd, null, "|");
 	}
 
-	public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag,
-																							String endTag) {
+	public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
 		ArrayList<String> tags = new ArrayList<String>();
 		int index = src.indexOf(sectionStart);
 		if (index == -1) {
