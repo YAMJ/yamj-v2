@@ -1,6 +1,39 @@
 **************************************************************
 ** MovieJukebox Release note
 ***************************************************************
+MovieJukebox 1.0.11 beta
+-----------------------
+
+   - Enhancement  Issue  #78: Custom coverart Enhancement
+			Quick first implementation (not flexible but working ;) )
+			Scan the .nfo file for the URL of poster (currently only URL starting with
+			http:// and ending with .jpg or .JPG)
+			If this URL exists, set it as poster URL and to not search for another poster.
+
+   - Enhancement Issue #108: Allocine Plugin
+			New MovieDatabasePlugin using a french movie database site named AlloCine.
+			set mjb.internet.plugin=com.moviejukebox.plugin.AllocinePlugin in moviejukebox.properties to use it
+			
+   - Enhancement Issue #109: Multiple Id for Movie objects
+			Change the current id to a map of id indexed by a pluginIdString.
+			For example :
+			   mediaFile.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
+			   mediaFile.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, allocineId);
+			   mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID);			
+			also
+			   mediaFile.getId();
+			   mediaFile.setId(imdbId);
+			will be kept for compatibility purpose.
+
+   - Fixed defect Issue #130: Fixes for the Allocine plugin
+    		Fixes for the Allocine plugin in order to follow the changes in alloCine html
+			layout. I should be now more robust to futur changes.
+			Fixes also a problem with "&nbsp;" in genre categories for some movies.
+			
+   - Enhancement  Issue #147: Management of genres in a external xml file
+			Relation between Genre and SubGenre is now defined in an external xml file.
+			See genre.xml file for example
+			
 
 MovieJukebox 1.0.10 beta
 -----------------------
