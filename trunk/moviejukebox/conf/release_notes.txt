@@ -33,6 +33,10 @@ MovieJukebox 1.0.11 beta
    - Enhancement  Issue #147: Management of genres in a external xml file
 			Relation between Genre and SubGenre is now defined in an external xml file.
 			See genre.xml file for example
+
+   - Fixed defect Issue #161: IMDB scanner is adding "/" to the year of films
+                        Several other various IMDB scanner issues fixed due to missing
+                        data or layout changes at IMDB
 			
 
 MovieJukebox 1.0.10 beta
