@@ -20,7 +20,7 @@ MovieJukebox 1.0.11 beta
     set mjb.internet.plugin=com.moviejukebox.plugin.AllocinePlugin in moviejukebox.properties to use it
   - Enhancement Issue #109 Multiple Id for Movie objects
     Change the current id to a map of id indexed by a pluginIdString.
-    For example :
+    For example:
        mediaFile.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
        mediaFile.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, allocineId);
        mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID);
@@ -42,9 +42,8 @@ MovieJukebox 1.0.11 beta
   - Enhancement Issue #156 Filmweb plugin
     New MovieDatabasePlugin using a polish movie database site named Filmweb.
     set mjb.internet.plugin=com.moviejukebox.plugin.FilmwebPlugin in moviejukebox.properties to use it
-  - Fixed defect #161: IMDB scanner is adding "/" to the year of films
-                        Several other various IMDB scanner issues fixed due to missing
-                        data or layout changes at IMDB
+  - Fixed defect #161 IMDB scanner is adding "/" to the year of films
+    Several other various IMDB scanner issues fixed due to missing data or layout changes at IMDB
   - Fixed defect #163 Jukebox cuts dimension with latest mediainfo
   - Fixed defect #164 IMDB scanner doesn't get the TV show information (episode titles) when poster url is in NFO file
   - Enhancement Issue #165 Refactoring MovieDatabasePlugin
