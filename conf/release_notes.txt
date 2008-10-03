@@ -28,11 +28,13 @@ MovieJukebox 1.0.11 beta
        mediaFile.getId();
        mediaFile.setId(imdbId);
     will be kept for compatibility purpose.
+  - Enhancement Issue #124 Getting episode title from filename if episode not found by www scanner
+    Episde title must be after "-" character, eg: TVShow name - 1x01 - episode name.mpg
   - Fixed defect #130 Fixes for the Allocine plugin
     Fixes for the Allocine plugin in order to follow the changes in alloCine html
     layout. I should be now more robust to futur changes.
     Fixes also a problem with "&nbsp;" in genre categories for some movies.
-  - Enhancement  Issue #147 Management of genres in a external xml file
+  - Enhancement Issue #147 Management of genres in a external xml file
     Relation between Genre and SubGenre is now defined in an external xml file.
     See genre.xml file for example
   - Enhancement Issue #149 Extending file type support (containers, subs, img/iso)
@@ -49,7 +51,6 @@ MovieJukebox 1.0.11 beta
   - Fixed defect #166 Mucommander jna exception (jnidispatch.dll) for 64 bit OS
   - Enhancement Issue #179 Polish language detection and added flag
   - Fixed defect #182 IMDB scanner doesn't get correct episode titles since IMDB has been changed
-  - Added new MovieFlow skin
   - Added junit tests and report
 
 MovieJukebox 1.0.10 beta
