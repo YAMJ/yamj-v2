@@ -1,138 +1,153 @@
 **************************************************************
 ** MovieJukebox Release note
 ***************************************************************
+
 MovieJukebox 1.0.11 beta
 -----------------------
-
-   - Enhancement  Issue  #78: Custom coverart Enhancement
-			Quick first implementation (not flexible but working ;) )
-			Scan the .nfo file for the URL of poster (currently only URL starting with
-			http:// and ending with .jpg or .JPG)
-			If this URL exists, set it as poster URL and to not search for another poster.
-
-   - Enhancement Issue #108: Allocine Plugin
-			New MovieDatabasePlugin using a french movie database site named AlloCine.
-			set mjb.internet.plugin=com.moviejukebox.plugin.AllocinePlugin in moviejukebox.properties to use it
-			
-   - Enhancement Issue #109: Multiple Id for Movie objects
-			Change the current id to a map of id indexed by a pluginIdString.
-			For example :
-			   mediaFile.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
-			   mediaFile.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, allocineId);
-			   mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID);			
-			also
-			   mediaFile.getId();
-			   mediaFile.setId(imdbId);
-			will be kept for compatibility purpose.
-
-   - Fixed defect Issue #130: Fixes for the Allocine plugin
-    		Fixes for the Allocine plugin in order to follow the changes in alloCine html
-			layout. I should be now more robust to futur changes.
-			Fixes also a problem with "&nbsp;" in genre categories for some movies.
-			
-   - Enhancement  Issue #147: Management of genres in a external xml file
-			Relation between Genre and SubGenre is now defined in an external xml file.
-			See genre.xml file for example
-
-   - Fixed defect Issue #161: IMDB scanner is adding "/" to the year of films
+  - Enhancement Issue #78 Custom coverart Enhancement
+    Quick first implementation (not flexible but working ;) )
+    Scan the .nfo file for the URL of poster (currently only URL starting with
+    http:// and ending with .jpg or .JPG)
+    If this URL exists, set it as poster URL and to not search for another poster.
+  - Enhancement Issue #81 Additional Video Sources (HD2DVD)
+  - Fixed defect #96 Multiple Genres cause multiple entries under the "master" genres
+  - Enhancement Issue #97 Prefix stripping is case sensitive
+  - Enhancement Issue #105 Support for MP4 file format added
+  - Fixed defect #106 XML indexes generation is very long
+  - Enhancement Issue #107 Selective resizing of poster images
+  - Enhancement Issue #108 Allocine Plugin
+    New MovieDatabasePlugin using a french movie database site named AlloCine.
+    set mjb.internet.plugin=com.moviejukebox.plugin.AllocinePlugin in moviejukebox.properties to use it
+  - Enhancement Issue #109 Multiple Id for Movie objects
+    Change the current id to a map of id indexed by a pluginIdString.
+    For example :
+       mediaFile.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
+       mediaFile.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, allocineId);
+       mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID);
+    also
+       mediaFile.getId();
+       mediaFile.setId(imdbId);
+    will be kept for compatibility purpose.
+  - Fixed defect #130 Fixes for the Allocine plugin
+    Fixes for the Allocine plugin in order to follow the changes in alloCine html
+    layout. I should be now more robust to futur changes.
+    Fixes also a problem with "&nbsp;" in genre categories for some movies.
+  - Enhancement  Issue #147 Management of genres in a external xml file
+    Relation between Genre and SubGenre is now defined in an external xml file.
+    See genre.xml file for example
+  - Enhancement Issue #149 Extending file type support (containers, subs, img/iso)
+  - Fixed defect #150 Broken TV Shows episode parsing in AllocinePlugin
+  - Enhancement Issue #156 Filmweb plugin
+    New MovieDatabasePlugin using a polish movie database site named Filmweb.
+    set mjb.internet.plugin=com.moviejukebox.plugin.FilmwebPlugin in moviejukebox.properties to use it
+  - Fixed defect #161: IMDB scanner is adding "/" to the year of films
                         Several other various IMDB scanner issues fixed due to missing
                         data or layout changes at IMDB
-			
+  - Fixed defect #163 Jukebox cuts dimension with latest mediainfo
+  - Fixed defect #164 IMDB scanner doesn't get the TV show information (episode titles) when poster url is in NFO file
+  - Enhancement Issue #165 Refactoring MovieDatabasePlugin
+  - Fixed defect #166 Mucommander jna exception (jnidispatch.dll) for 64 bit OS
+  - Enhancement Issue #179 Polish language detection and added flag
+  - Fixed defect #182 IMDB scanner doesn't get correct episode titles since IMDB has been changed
+  - Added new MovieFlow skin
+  - Added junit tests and report
 
 MovieJukebox 1.0.10 beta
 -----------------------
-   - Added new skin gfb107 providing an extra index page
-   - Major Wiki update
-   - Fixed defect #20 episode names
-   - Fixed defect #31 Plot field improvement
-   - Fixed defect #35 Multiple movie genres
-   - Fixed defect #37 language flag on cover
-   - Fixed defect #38 Resize large Covers
-   - Fixed defect #42 Make SD-Template
-   - Fixed defect #47 Add for Season at least 3 digits and for Episode at least 4 digits like S999E9999 or 999x9999/Take Episode Name from File
-   - Fixed defect #56 Create categories for indexes
-   - Fixed defect #57 Allow configurable prefixes that get ignored for sorting
-   - Fixed defect #60 Not a JPEG file: starts with...
-   - Fixed defect #63 moviejukebox can not handle CD1/2 file naming
-   - Fixed defect #64 thumbnails.reflection variable is ignored in skin.properties
-   - Fixed defect #68 default to "All" cat as opposed to "HD"
-   - Fixed defect #69 Request create a "Movie: genre
-   - Fixed defect #73 Indexing by "Movie Title" instead of "File Name"
-   - Fixed defect #83 java 7 drops support for JPEGCodec
-   - Fixed defect #84 The .nfo files should also be accepted as .NFO
-   - Fixed defect #85 Exception thrown when IMPAwards image not found
-   - Fixed defect #88 sun.security.action.GetPropertyAction is Sun proprietary API
+  - Added new skin gfb107 providing an extra index page
+  - Major Wiki update
+  - Fixed defect #20 episode names
+  - Fixed defect #31 Plot field improvement
+  - Fixed defect #35 Multiple movie genres
+  - Fixed defect #37 language flag on cover
+  - Fixed defect #38 Resize large Covers
+  - Fixed defect #42 Make SD-Template
+  - Fixed defect #47 Add for Season at least 3 digits and for Episode at least 4 digits like S999E9999 or 999x9999/Take Episode Name from File
+  - Fixed defect #56 Create categories for indexes
+  - Fixed defect #57 Allow configurable prefixes that get ignored for sorting
+  - Fixed defect #60 Not a JPEG file: starts with...
+  - Enhancement Issue #62 Sorting list of files found when processing
+  - Fixed defect #63 moviejukebox can not handle CD1/2 file naming
+  - Fixed defect #64 thumbnails.reflection variable is ignored in skin.properties
+  - Fixed defect #68 default to "All" cat as opposed to "HD"
+  - Fixed defect #69 Request create a "Movie: genre
+  - Fixed defect #73 Indexing by "Movie Title" instead of "File Name"
+  - Fixed defect #82 Folders with DISC or CD in name cause MJB to fail
+  - Fixed defect #83 java 7 drops support for JPEGCodec
+  - Fixed defect #84 The .nfo files should also be accepted as .NFO
+  - Fixed defect #85 Exception thrown when IMPAwards image not found
+  - Fixed defect #88 sun.security.action.GetPropertyAction is Sun proprietary API
 
 MovieJukebox 1.0.9 beta
 -----------------------
-    - Added DVD images support
-    - New skins directory added + skin selection property added into moviejukebox.properties
-    - Split properties file into two...moviejukebox.properties and a skin specific properties
-    - Added SD skin to skins directory (default is the HD skin)
-    - Added media info extraction from DVD images (Video_ts/ifo or iso) with main movie detection
-      (using sources or jar from 2 GPL projects : muCommander and MeD's Movie Manager)
-    - New icons
-    - Display title of focused movie at the botton of the index page
-    - Changed rating (percent value + dedicated pictures in detail page)
-    - IMDB plugin now searches for TVShow titles
-    - Movies can now belong to multiple genres, plus an ALL, and NEW category
-    - Added a 3D perspective to thumbnails
-    - Fixed defect #17 Overzealous language detection
-    - Fixed defect #25 Mediainfo should check subtitles info
-    - Fixed defect #26 Picking up ripped DVD's
-    - Fixed defect #27 Additional Movie Poster Plugin
-    - Fixed defect #28 impruvment
-    - Fixed defect #30 Invalid html in output
-    - Fixed defect #33 Additional filename word separator "_"
-    - Fixed defect #39 No media info with DVD rips (VIDEO_TS...)
-    - Fixed defect #48 Scroll buttons don't work
-    - Fixed defect #53 File name at the bottom of the index page
+  - Added DVD images support
+  - New skins directory added + skin selection property added into moviejukebox.properties
+  - Split properties file into two...moviejukebox.properties and a skin specific properties
+  - Added SD skin to skins directory (default is the HD skin)
+  - Added media info extraction from DVD images (Video_ts/ifo or iso) with main movie detection
+    (using sources or jar from 2 GPL projects : muCommander and MeD's Movie Manager)
+  - New icons
+  - Display title of focused movie at the botton of the index page
+  - Changed rating (percent value + dedicated pictures in detail page)
+  - IMDB plugin now searches for TVShow titles
+  - Movies can now belong to multiple genres, plus an ALL, and NEW category
+  - Added a 3D perspective to thumbnails
+  - Fixed defect #17 Overzealous language detection
+  - Fixed defect #25 Mediainfo should check subtitles info
+  - Fixed defect #26 Picking up ripped DVD's
+  - Fixed defect #27 Additional Movie Poster Plugin
+  - Fixed defect #28 impruvment
+  - Fixed defect #30 Invalid html in output
+  - Fixed defect #33 Additional filename word separator "_"
+  - Fixed defect #39 No media info with DVD rips (VIDEO_TS...)
+  - Fixed defect #48 Scroll buttons don't work
+  - Fixed defect #53 File name at the bottom of the index page
     
 
 MovieJukebox 1.0.8 beta
 -----------------------
-    - Updated index and detail HTML pages.
-    - Added plugin for thumbnails creation.
-    - Added tumbnails reflection
-    - Added HD logo
+  - Updated index and detail HTML pages.
+  - Added plugin for thumbnails creation.
+  - Added tumbnails reflection
+  - Added HD logo
 
 MovieJukebox 1.0.7 beta
 -----------------------
-	- Added Updated index.xsl and detail.xsl to include navigation (by jriihi)
-	- Added moviejukebox.properties
-	- Added support for MediaInfo (by gaelead)
-	- Fixed defect #12 add language detection for "ger", "eng", ".DL." (by quickfinga)
-	- Fixed defect #13 add mediainfo support
-	- Fixed defect #19 Requires Java 6
-    - Fixed defect #21 added multiple directories and xml configuration + logging
-	- Fixed defect #22 add all file extension supported by PCH (*.MOV, etc...)
+  - Added Updated index.xsl and detail.xsl to include navigation (by jriihi)
+  - Added moviejukebox.properties
+  - Added support for MediaInfo (by gaelead)
+  - Fixed defect #12 add language detection for "ger", "eng", ".DL." (by quickfinga)
+  - Fixed defect #13 add mediainfo support
+  - Fixed defect #19 Requires Java 6
+  - Fixed defect #21 added multiple directories and xml configuration + logging
+  - Fixed defect #22 add all file extension supported by PCH (*.MOV, etc...)
 
 MovieJukebox 1.0.6 beta
 -----------------------
-	- Fixed defect #4 ISO files not supported
-	- Fixed defect #8 automatically start the index.html when you click on the share
-	- Fixed defect #9 multiple CD movies not detected properly
-	- Fixed defect #15 sXXeYY pattern for TVShows do not find episode titles
-	- Fixed defect #16 MPG file not taken into account
-	- Added new categories
-	- Integrated new MichaelT templates
+  - Fixed defect #4 ISO files not supported
+  - Fixed defect #8 automatically start the index.html when you click on the share
+  - Fixed defect #9 multiple CD movies not detected properly
+  - Fixed defect #15 sXXeYY pattern for TVShows do not find episode titles
+  - Fixed defect #16 MPG file not taken into account
+  - Added new categories
+  - Integrated new MichaelT templates
 
 MovieJukebox 1.0.5 beta
 -----------------------
-	- Fixed defect #6 Can't replace dummy posters
+  - Fixed defect #6 Can't replace dummy posters
 
 MovieJukebox 1.0.4 beta
 -----------------------
-	- Improved IMDb search
-	- Improved filenames scanner
-	- Fixed defect #1 IOException when Jukebox directory is not created
-	- Fixed defect #3 Adding new movie to the library is not taken into account into the prev/next sequence
+  - Improved IMDb search
+  - Improved filenames scanner
+  - Fixed defect #1 IOException when Jukebox directory is not created
+  - Fixed defect #3 Adding new movie to the library is not taken into account into the prev/next sequence
 
 MovieJukebox 1.0.3 beta
 -----------------------
-	- Fixed command line argument parsing
-	- Fixed movies indexes
+  - Fixed command line argument parsing
+  - Fixed movies indexes
 
 1.0 beta
 --------
-	- First delivery
+  - First delivery
