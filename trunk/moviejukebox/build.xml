@@ -100,7 +100,7 @@
 			</fileset>
 		</copy>
 
-		<zip basedir="dist" destfile="dist/moviejukebox_${version}.zip"/>
+		<zip basedir="dist" destfile="dist/moviejukebox_${version}.zip" excludes="mediaInfo/"/>
 	</target>
 
 </project>
