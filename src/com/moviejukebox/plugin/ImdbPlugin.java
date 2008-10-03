@@ -466,10 +466,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			int episode = file.getPart();
 			String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
 
-			if (episodeName.indexOf("Episode #") == -1) {
+			if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1) {
 				file.setTitle(episodeName);
-			} else {
-				file.setTitle(Movie.UNKNOWN);
 			}
 		}
 	}

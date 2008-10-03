@@ -277,7 +277,9 @@ public class FilmwebPlugin extends ImdbPlugin {
 			for (MovieFile file : movie.getFiles()) {
 				int fromIndex = xml.indexOf("seria" + movie.getSeason());
 				String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + file.getPart(), 1, fromIndex);
-				file.setTitle(episodeName);
+				if (!episodeName.equals(Movie.UNKNOWN)) {
+					file.setTitle(episodeName);
+				}
 			}
 		} else {
 			// use IMDB if filmweb doesn't know episodes titles
