@@ -2,6 +2,10 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.0.12 beta
+-----------------------
+  - Fixed defect #185 IMDB scanner is returning rating = "-1" in xml file
+
 MovieJukebox 1.0.11 beta
 -----------------------
   - Enhancement Issue #78 Custom coverart Enhancement

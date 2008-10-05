@@ -220,7 +220,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			String xml = request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID)));
 
 			movie.setTitleSort(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
-			movie.setRating(parseRating(HTMLTools.extractTag(xml, "<b>User Rating:</b>", 2)));
+			movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 1)));
 			// movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
                         
 			movie.setDirector(HTMLTools.extractTag(xml, "<h5>Director:</h5>", 1));
