@@ -248,7 +248,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			// even if "long" is set we will default to the "short" one if none
 			// was found
 			if (imdbPlot.equalsIgnoreCase("short") || plot.equals("None")) {
-				plot = HTMLTools.extractTag(xml, "<h5>Plot:</h5>");
+				plot = HTMLTools.extractTag(xml, "<h5>Plot:</h5>", 0, "><|");
 				if (plot.startsWith("a class=\"tn15more")) {
 					plot = "None";
 				}
