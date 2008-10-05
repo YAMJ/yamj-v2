@@ -229,7 +229,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         }
                         
 			movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>Release Date:</h5>"));
-			movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Runtime:</h5>", "</div>")));
+			movie.setRuntime(HTMLTools.extractTag(xml, "<h5>Runtime:</h5>"));
 
 			movie.setCountry(HTMLTools.extractTag(xml, "<h5>Country:</h5>", 1));
 			movie.setCompany(HTMLTools.extractTag(xml, "<h5>Company:</h5>", 1));
