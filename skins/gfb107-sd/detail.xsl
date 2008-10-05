@@ -47,7 +47,7 @@
         <tr>
           <td>
             <xsl:if test="rating != -1">
-              <img><xsl:attribute name="src">pictures/rating_<xsl:value-of select="floor(rating div 10)*10" />.png</xsl:attribute></img>
+              <img><xsl:attribute name="src">pictures/rating_<xsl:value-of select="round(rating div 10)*10" />.png</xsl:attribute></img>
             </xsl:if>
           </td>
         </tr>

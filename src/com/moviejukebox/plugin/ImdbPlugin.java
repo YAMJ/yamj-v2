@@ -285,7 +285,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	private int parseRating(String rating) {
 		StringTokenizer st = new StringTokenizer(rating, "/ ()");
 		try {
-			return (int) Float.parseFloat(st.nextToken()) * 10;
+			return (int)(Float.parseFloat(st.nextToken()) * 10);
 		} catch (Exception e) {
 			return -1;
 		}
