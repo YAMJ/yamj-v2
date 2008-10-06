@@ -80,6 +80,7 @@ MovieJukebox 1.0.10 beta
   - Fixed defect #64 thumbnails.reflection variable is ignored in skin.properties
   - Fixed defect #68 default to "All" cat as opposed to "HD"
   - Fixed defect #69 Request create a "Movie: genre
+  - Enhancement Issue #71 Include detailPosterFile url in index_X.xml files
   - Fixed defect #73 Indexing by "Movie Title" instead of "File Name"
   - Fixed defect #82 Folders with DISC or CD in name cause MJB to fail
   - Fixed defect #83 java 7 drops support for JPEGCodec
