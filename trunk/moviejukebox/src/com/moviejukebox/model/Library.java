@@ -2,6 +2,7 @@ package com.moviejukebox.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,13 +27,22 @@ public class Library implements Map<String, Movie> {
 	private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
 	private boolean filterGenres;
 	private Map<String,String> genresMap = new HashMap<String, String>();
+        private List<String> certificationOrdering = new ArrayList<String>();
 	
 	public Library(Properties props) {
-		if (props != null) {
-			this.props = props;
-		}
-		
-		filterGenres = props.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
+            if (props != null) {
+                    this.props = props;
+            }
+
+            filterGenres = props.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
+            
+            {
+                String temp = props.getProperty("certification.ordering");
+                if (temp != null && !temp.isEmpty()) {
+                    String[] certs = temp.split(",");
+                    certificationOrdering.addAll(Arrays.asList(certs));
+                }
+            }
 	}
 
 	public void addMovie(Movie movie) {
@@ -107,11 +117,17 @@ public class Library implements Map<String, Movie> {
 	}
 	
 	private void indexByCertification() {
-		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
-		for (Movie movie : moviesList) {
-			addMovie(index, movie.getCertification(), movie);
-		}
-		indexes.put("Rating",index);
+            TreeMap<String, List<Movie>> index = null;
+            if (!certificationOrdering.isEmpty()) {
+                index = new TreeMap<String, List<Movie>>(new CertificationComparator(certificationOrdering));
+            } else {
+                index = new TreeMap<String, List<Movie>>();
+            }
+            
+            for (Movie movie : moviesList) {
+                addMovie(index, movie.getCertification(), movie);
+            }
+            indexes.put("Rating",index);
 	}
 	
 	private void indexByProperties() {

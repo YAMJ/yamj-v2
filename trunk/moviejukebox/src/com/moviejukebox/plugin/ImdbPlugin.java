@@ -257,6 +257,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
 			movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Certification:</h5>", "</div>",
 					"<a href=\"/List?certificates=", "</a>")));
+                        if (movie.getCertification() == null || movie.getCertification().equalsIgnoreCase(Movie.UNKNOWN)) {
+                            movie.setCertification(Movie.NOTRATED);
+                        }
 
 			if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
