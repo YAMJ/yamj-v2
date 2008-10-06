@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.12 beta
 -----------------------
+  - Fixed defect #132 Unable to parse year of TV episode on IMDb
   - Fixed defect #134 Rating calculation not correct
   - Fixed defect #185 IMDB scanner is returning rating = "-1" in xml file
   - Fixed defect #187 trailing character in some IMDB plot output
