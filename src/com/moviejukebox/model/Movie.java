@@ -19,9 +19,12 @@ import com.moviejukebox.plugin.ImdbPlugin;
  */
 public class Movie implements Comparable<Movie> {
 	
-	private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger("moviejukebox");
 
-	public static String UNKNOWN = "UNKNOWN";
+    public static String UNKNOWN = "UNKNOWN";
+    public static String NOTRATED = "Not Rated";
+        
+        
     private static ArrayList< String > sortIgnorePrefixes = new ArrayList< String >();
     
     public static void setup( Properties props )

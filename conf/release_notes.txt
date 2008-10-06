@@ -5,6 +5,8 @@
 MovieJukebox 1.0.12 beta
 -----------------------
   - Fixed defect #122 Patch for MovieNFOScanner.java for old style imdb urls
+  - Enhancement #123 improved MPAA rating organization in the gfb107 skin
+    Added certification.ordering property to skin.properties in both gfb107 skins
   - Fixed defect #132 Unable to parse year of TV episode on IMDb
   - Fixed defect #134 Rating calculation not correct
   - Fixed defect #185 IMDB scanner is returning rating = "-1" in xml file
