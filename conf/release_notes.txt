@@ -12,6 +12,8 @@ MovieJukebox 1.0.12 beta
   - Fixed defect #185 IMDB scanner is returning rating = "-1" in xml file
   - Fixed defect #187 trailing character in some IMDB plot output
   - Fixed defect #188 Runtime is sometimes showing up as UNKNOWN
+  - Enhancement #189 Hungarian flag support
+    Also resizing of other SD flags
 
 MovieJukebox 1.0.11 beta
 -----------------------
