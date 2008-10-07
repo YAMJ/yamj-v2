@@ -142,7 +142,7 @@
                    <img src="pictures/play.png" onfocussrc="pictures/play_selected.png">
                        <xsl:attribute name="onmouseover">this.src='pictures/play_selected.png';</xsl:attribute>
                        <xsl:attribute name="onmouseout">this.src='pictures/play.png';</xsl:attribute>
-				   </img>
+                   </img>
                  </a>
                 </center>
             </td>
@@ -184,7 +184,17 @@
                      </img>
                      <xsl:text>&#160;</xsl:text>
 
-                     <xsl:value-of select="@title" />
+                     <xsl:choose>
+                       <xsl:when test="/details/movie/season!=-1">
+                         Episode <xsl:value-of select="@part"/>
+                         <xsl:if test="@title!='UNKNOWN'">
+                           - <xsl:value-of select="@title"/>
+                         </xsl:if>
+                       </xsl:when>
+                       <xsl:otherwise>
+                         <xsl:value-of select="/details/movie/titleSort"/> (Part <xsl:value-of select="@part"/>)
+                       </xsl:otherwise>
+                     </xsl:choose>
                    </a>
                  </td>
                </tr>

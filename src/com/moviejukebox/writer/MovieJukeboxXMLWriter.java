@@ -53,7 +53,7 @@ public class MovieJukeboxXMLWriter {
 	@SuppressWarnings("unchecked")
 	public void parseMovieXML(File xmlFile, Movie movie) {
 		try {
-			XMLInputFactory factory = XMLInputFactory.newInstance();    
+			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLEventReader r = factory.createXMLEventReader(new FileInputStream(xmlFile), "UTF-8");    
 			
 			while(r.hasNext()) {      
@@ -105,26 +105,26 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<previous>")) { movie.setPrevious(parseCData(r)); }
 				if (tag.equals("<next>")) { movie.setNext(parseCData(r)); }
 				if (tag.equals("<last>")) { movie.setLast(parseCData(r)); }
-				
+
 				if (tag.startsWith("<file ")) {
 					MovieFile mf = new MovieFile();
 	
 					StartElement start = e.asStartElement();
 					for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-	                    Attribute attr = i.next();
-	                    String ns = attr.getName().toString();
-	
-	                    if ("title".equals(ns)) {
-	                    	mf.setTitle(attr.getValue());
-	                        continue;
-					    }
-	                    
-	                    if ("part".equals(ns)) {
-	                  	  	mf.setPart(Integer.parseInt(attr.getValue()));
-	                        continue;
-	                    }
+						Attribute attr = i.next();
+						String ns = attr.getName().toString();
+
+						if ("title".equals(ns)) {
+							mf.setTitle(attr.getValue());
+							continue;
+						}
+
+						if ("part".equals(ns)) {
+							mf.setPart(Integer.parseInt(attr.getValue()));
+							continue;
+						}
 					}
-					
+
 					mf.setFilename(parseCData(r));
 					movie.addMovieFile(mf);
 					break;
@@ -134,7 +134,7 @@ public class MovieJukeboxXMLWriter {
 			e.printStackTrace();
 			System.err.println("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
 		}
-		
+
 		movie.setDirty(false);
 	}
 
@@ -385,13 +385,8 @@ public class MovieJukeboxXMLWriter {
 		for (MovieFile mf : movie.getFiles()) { 
 			writer.writeStartElement("file");
 			writer.writeAttribute("part", Integer.toString(mf.getPart()));
-			
-			if (movie.isTVShow()) {
-				writer.writeAttribute("title", "Episode " + mf.getPart() + ((mf.getTitle().equalsIgnoreCase("UNKNOWN"))?(""): (" - " + mf.getTitle())));
-			} else {
-				writer.writeAttribute("title", movie.getTitle() + " (Part " + mf.getPart() + ")");
-			}
-			writer.writeCharacters(mf.getNmtRootPath() + mf.getFilename()); 
+			writer.writeAttribute("title", mf.getTitle());
+			writer.writeCharacters(mf.getNmtRootPath() + mf.getFilename());
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
@@ -418,7 +413,7 @@ public class MovieJukeboxXMLWriter {
 		xmlFile.getParentFile().mkdirs();
 		
 		if (!xmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
-			
+
 			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
 	
