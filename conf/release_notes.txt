@@ -47,6 +47,7 @@ MovieJukebox 1.0.11 beta
     Fixes for the Allocine plugin in order to follow the changes in alloCine html
     layout. I should be now more robust to futur changes.
     Fixes also a problem with "&nbsp;" in genre categories for some movies.
+  - Fixed defect #137 New TV episodes not added to season page
   - Enhancement Issue #147 Management of genres in a external xml file
     Relation between Genre and SubGenre is now defined in an external xml file.
     See genre.xml file for example
