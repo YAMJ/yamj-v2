@@ -155,6 +155,9 @@ public class MovieFilenameScanner {
 	
 		if (hasKeyword(f, new String[] {".POL.",".PL.",".POLISH.","PLDUB"}))
 			return "Polish";
+                
+                if (hasKeyword(f, new String[] {".HUN.",".HU.",".HUNGARIAN."}))
+                        return "Hungarian";
 
 		if (hasKeyword(f, new String[] {".VO.", ".VOSTFR."}))
 			return "VO";
