@@ -81,7 +81,7 @@
               <xsl:for-each select="genres/genre">
                 <xsl:if test="position()!= 1">, </xsl:if>
                 <xsl:value-of select="." />
-			  </xsl:for-each>
+              </xsl:for-each>
             </xsl:if>
             <xsl:if test="runtime != 'UNKNOWN'">
               <xsl:if test="count(genres) != 0">, </xsl:if>
@@ -200,10 +200,18 @@
                      <xsl:choose>
                        <xsl:when test="position() = 1"> 
                          <xsl:attribute name="class">firstMovie</xsl:attribute> 
-                         <xsl:value-of select="@title" />
+                       </xsl:when>
+                     </xsl:choose>
+
+                     <xsl:choose>
+                       <xsl:when test="/details/movie/season!=-1">
+                         Episode <xsl:value-of select="@part"/>
+                         <xsl:if test="@title!='UNKNOWN'">
+                           - <xsl:value-of select="@title"/>
+                         </xsl:if>
                        </xsl:when>
                        <xsl:otherwise>
-                         <xsl:value-of select="@title" />
+                         <xsl:value-of select="/details/movie/titleSort"/> (Part <xsl:value-of select="@part"/>)
                        </xsl:otherwise>
                      </xsl:choose>
                    </a>
