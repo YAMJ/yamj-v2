@@ -37,6 +37,7 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
+import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.writer.MovieFlowWriter;
@@ -223,6 +224,8 @@ public class MovieJukebox {
 		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
 		MediaInfoScanner miScanner = new MediaInfoScanner(props);
+		PosterScanner posterScanner = new PosterScanner(props);
+
 		Movie.setup(props);
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
@@ -274,9 +277,12 @@ public class MovieJukebox {
 			logger.fine("Updating data for: " + movie.getTitle());
 			updateMovieData(xmlWriter, movieDBPlugin, nfoScanner, miScanner, jukeboxDetailsRoot, movie);
 
+			// Look for local file poster (MUST BE DONE BEFORE updateMoviePoster)
+			posterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+
 			// Then get this movie's poster
 			logger.finer("Updating poster for: " + movie.getTitle() + "...");
-			updateMoviePoster(movieDBPlugin, jukeboxDetailsRoot, movie);
+			updateMoviePoster(movieDBPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 		}
 
 
@@ -388,29 +394,36 @@ public class MovieJukebox {
 	 * 
 	 * When the specified movie does not contain a valid URL for the poster, a 
 	 * dummy image is used instead.
+	 * @param tempJukeboxDetailsRoot 
 	 */
-	private void updateMoviePoster(MovieDatabasePlugin movieDB, String jukeboxDetailsRoot, Movie movie) {
+	private void updateMoviePoster(MovieDatabasePlugin movieDB, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
 		String posterFilename = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
 		File posterFile = new File(posterFilename);
+		String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename();
+		File tmpDestFile = new File(tmpDestFileName);
+
+//		logger.finest("updateMoviePoster tmpDestFileName= " + tmpDestFile);
+//		logger.finest("updateMoviePoster posterFilename " + posterFilename);
 
 		// Do not overwrite existing posters
-		if (!posterFile.exists()) {
+		if (!posterFile.exists() && !tmpDestFile.exists()) {
 			posterFile.getParentFile().mkdirs();
 
 			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
 				logger.finest("Dummy image used for " + movie.getBaseName());
 				FileTools.copyFile(
 					new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
-					new File(jukeboxDetailsRoot + File.separator + movie.getPosterFilename()));				
+					new File(tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename()));				
 			} else {
 				try {
-					logger.finest("Downloading poster for " + movie.getBaseName() + " [calling plugin]");
-					downloadPoster(posterFile, movie);
+					// Issue 201 : we now download to local temp dir
+					logger.finest("Downloading poster for " + movie.getBaseName() +" to "+ tmpDestFileName +" [calling plugin]");
+					downloadPoster(tmpDestFile, movie);
 				} catch (Exception e) {
 					logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
 					FileTools.copyFile(
 							new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
-							new File(jukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
+							new File(tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
 				}
 			}
 		}
@@ -527,7 +540,8 @@ public class MovieJukebox {
 
 	public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
 		try {
-			String src = rootPath + File.separator + movie.getPosterFilename();
+			// Issue 201 : we now download to local temp dire
+			String src = tempRootPath + File.separator + movie.getPosterFilename();
 			String dst = tempRootPath + File.separator + movie.getThumbnailFilename();
 			String olddst = rootPath + File.separator + movie.getThumbnailFilename();
 	
@@ -545,6 +559,7 @@ public class MovieJukebox {
 				
 				bi = thumbnailManager.generate(movie, bi);
 				
+				logger.finest("Generating thumbnail from " + src + " to " + dst);
 				GraphicTools.saveImageToDisk(bi, dst);
 			}
 		} catch (Exception e) {
@@ -555,7 +570,8 @@ public class MovieJukebox {
 
 	public static void createPoster(MovieImagePlugin posterManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forcePosterOverwrite) {
 		try {
-			String src = rootPath + File.separator + movie.getPosterFilename();
+			// Issue 201 : we now download to local temp dire
+			String src = tempRootPath + File.separator + movie.getPosterFilename();
 			String dst = tempRootPath + File.separator + movie.getDetailPosterFilename();
 			String olddst = rootPath + File.separator + movie.getDetailPosterFilename();
 	
@@ -570,7 +586,7 @@ public class MovieJukebox {
 					fis = new FileInputStream(src);
 					bi = GraphicTools.loadJPEGImage(fis);
 				}
-				
+				logger.finest("Generating poster from " + src + " to " + dst);
 				bi = posterManager.generate(movie, bi);
 				
 				GraphicTools.saveImageToDisk(bi, dst);
