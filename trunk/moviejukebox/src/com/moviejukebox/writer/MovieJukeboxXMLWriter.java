@@ -440,14 +440,15 @@ public class MovieJukeboxXMLWriter {
 	 * Doesn't overwrite an already existing XML file for the specified movie
 	 * unless, movie's data has changed or forceXMLOverwrite is true.
 	 */
-	public void writeMovieXML(String rootPath, Movie movie) throws FileNotFoundException, XMLStreamException {
-		File xmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
-		xmlFile.getParentFile().mkdirs();
+	public void writeMovieXML(String rootPath, String tempRootPath, Movie movie) throws FileNotFoundException, XMLStreamException {
+		File finalXmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
+		File tempXmlFile = new File(tempRootPath + File.separator + movie.getBaseName() + ".xml");
+		tempXmlFile.getParentFile().mkdirs();
 		
-		if (!xmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
+		if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
 
 			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
+			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(tempXmlFile), "UTF-8");
 	
 			writer.writeStartDocument("UTF-8", "1.0");
 			writer.writeStartElement("details");

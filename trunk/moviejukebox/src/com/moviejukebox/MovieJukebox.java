@@ -295,7 +295,7 @@ public class MovieJukebox {
 		for (Movie movie : library.values()) {
 			// Update movie XML files with computed index information
 			logger.finest("Writing index data to movie: " + movie.getBaseName());
-			xmlWriter.writeMovieXML(tempJukeboxDetailsRoot, movie);
+			xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 			
 			// Create a thumbnail for each movie
 			logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
@@ -306,7 +306,7 @@ public class MovieJukebox {
 			createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 			
 			// write the movie details HTML		
-			htmlWriter.generateMovieDetailsHTML(tempJukeboxDetailsRoot, movie);
+			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 		}
 
 		logger.fine("Generating Indexes...");

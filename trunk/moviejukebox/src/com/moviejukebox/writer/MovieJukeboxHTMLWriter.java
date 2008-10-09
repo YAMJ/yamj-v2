@@ -38,23 +38,24 @@ public class MovieJukeboxHTMLWriter {
 		homePage = props.getProperty("mjb.homePage", "Other_All_1") + ".html";
 	}
 
-	public void generateMovieDetailsHTML(String rootPath, Movie movie) {
+	public void generateMovieDetailsHTML(String rootPath, String tempRootPath, Movie movie) {
 		try {
-			String filename = rootPath + File.separator + movie.getBaseName();
-			File xmlFile = new File(filename + ".xml");
-			File htmlFile = new File(filename + ".html");
+			String tempFilename = tempRootPath + File.separator + movie.getBaseName();
+			File tempXmlFile = new File(tempFilename + ".xml");
+			File finalHtmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".html");
+			File tempHtmlFile = new File(tempFilename + ".html");
+
+			if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
 			
-			if (!htmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
-			
-				htmlFile.getParentFile().mkdirs();
+				tempHtmlFile.getParentFile().mkdirs();
 				
 				TransformerFactory tranformerFactory = TransformerFactory.newInstance();
 
 				Source xslSource = new StreamSource(new File(skinHome + File.separator + "detail.xsl"));
 				Transformer transformer = tranformerFactory.newTransformer(xslSource);
 			 
-				Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
-				Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
+				Source xmlSource = new StreamSource(new FileInputStream(tempXmlFile));
+				Result xmlResult = new StreamResult(new FileOutputStream(tempHtmlFile));
 			 
 				transformer.transform(xmlSource, xmlResult);
 			}
