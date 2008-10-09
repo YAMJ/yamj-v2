@@ -350,7 +350,7 @@ public class MovieFilenameScanner {
 			
 			movie.setTitle(getName(filename));
 		} catch (Exception e) {
-			movie.setTitle("Unknown");
+			movie.setTitle(Movie.UNKNOWN);
 		}
 	}
 
@@ -401,7 +401,7 @@ public class MovieFilenameScanner {
 					if ( beginIndex>=0 && endIndex>beginIndex ) {
 						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
 					} else {
-						movie.getFirstFile().setTitle("Unknown");
+						movie.getFirstFile().setTitle(Movie.UNKNOWN);
 					}
                                     }
                                     
@@ -447,7 +447,7 @@ public class MovieFilenameScanner {
 					if ( beginIndex>=0 && endIndex>beginIndex ) {
 						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
 					} else {
-						movie.getFirstFile().setTitle("Unknown");
+						movie.getFirstFile().setTitle(Movie.UNKNOWN);
 					}
                                     }
 				}

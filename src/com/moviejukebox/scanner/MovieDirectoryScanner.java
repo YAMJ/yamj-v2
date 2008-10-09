@@ -124,14 +124,13 @@ public class MovieDirectoryScanner {
 		}
 		
 		MovieFile movieFile = new MovieFile();
-		movieFile.setNmtRootPath(srcPath.getNmtRootPath());
 		relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
 		
 		if (file.isDirectory()) {
 			// For DVD images
-			movieFile.setFilename(relativeFilename + "/VIDEO_TS");
+			movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename + "/VIDEO_TS");
 		} else {
-			movieFile.setFilename(relativeFilename);
+			movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename);
 		}
 		movieFile.setPart(1);
 					

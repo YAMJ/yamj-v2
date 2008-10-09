@@ -446,6 +446,34 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 	}
 
+	public void scanTVShowTitles(Movie movie) {
+		String imdbId = movie.getId(IMDB_PLUGIN_ID);
+		if (!movie.isTVShow() || !movie.hasNewMovieFiles() ||
+				imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+			return;
+		}
+
+		try {
+			String xml = request(new URL("http://www.imdb.com/title/" + imdbId + "/episodes"));
+			int season = movie.getSeason();
+			for (MovieFile file : movie.getMovieFiles()) {
+				if (!file.isNewFile()) {
+					// don't scan episode title if it exists in XML data
+					continue;
+				}
+				int episode = file.getPart();
+				String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
+
+				if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1) {
+					file.setTitle(episodeName);
+				}
+			}
+		} catch (IOException e) {
+			logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
+			logger.severe("Error : " + e.getMessage());
+		}
+	}
+
 	/**
 	 * Get the TV show information from IMDb
 	 * 
@@ -453,26 +481,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	 * @throws MalformedURLException
 	 */
 	protected void updateTVShowInfo(Movie movie) throws MalformedURLException, IOException {
-		if (!movie.isTVShow()) {
-			return;
-		}
-
-		/*
-		 * String title = movie.getTitleSort(); if (title.startsWith("\"")) { StringTokenizer st = new
-		 * StringTokenizer(title, "\""); movie.setTitleSort(st.nextToken()); }
-		 */
-
-		String xml = request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID) + "/episodes"));
-
-		int season = movie.getSeason();
-		for (MovieFile file : movie.getFiles()) {
-			int episode = file.getPart();
-			String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
-
-			if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1) {
-				file.setTitle(episodeName);
-			}
-		}
+		scanTVShowTitles(movie);
 	}
 
 	/**

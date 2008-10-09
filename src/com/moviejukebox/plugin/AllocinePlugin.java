@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.io.IOException;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -61,11 +62,26 @@ public class AllocinePlugin extends ImdbPlugin {
 			}
 
 			updatePoster(movie);
+			scanTVShowTitles(movie);
+		} catch (Exception e) {
+			logger.severe("Failed retreiving alloCine TVShow info for " + movie.getId(ALLOCINE_PLUGIN_ID));
+			e.printStackTrace();
+		}
+	}
+
+	public void scanTVShowTitles(Movie movie) {
+		String allocineId = movie.getId(ALLOCINE_PLUGIN_ID);
+		if (!movie.isTVShow() || !movie.hasNewMovieFiles() ||
+				allocineId == null || allocineId.equalsIgnoreCase(Movie.UNKNOWN)) {
+			return;
+		}
+
+		try {
 			// start a new request for seasons details
 //			logger.finest("Start a new request for seasons details : http://www.allocine.fr/series/episodes_gen_cserie="
 //					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
-			xml = HTMLTools.request(new URL("http://www.allocine.fr/series/episodes_gen_cserie="
-					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
+			String xml = HTMLTools.request(new URL("http://www.allocine.fr/series/episodes_gen_cserie="
+					+ allocineId + ".html"));
 
 			for (String seasonTag : extractHtmlTags(xml, "<h4><b>Choisir une saison</b>", "<table",
 					"<a href=\"/series/episodes_gen_csaison", "</a>")) {
@@ -82,8 +98,12 @@ public class AllocinePlugin extends ImdbPlugin {
 						// we found the right season, time to get the infos
 //						logger.finest("The right Season IdI = " + seasonId);
 						xml = HTMLTools.request(new URL("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId
-								+ "&cserie=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
+								+ "&cserie=" + allocineId + ".html"));
 						for (MovieFile file : movie.getFiles()) {
+							if (!file.isNewFile()) {
+								// don't scan episode title if it exists in XML data
+								continue;
+							}
 							int episode = file.getPart();
 							String episodeName = removeHtmlTags(extractTag(xml, "<b>Episode " + episode
 									+ "</b></h4>&nbsp;-&nbsp;", "<span id="));
@@ -97,8 +117,8 @@ public class AllocinePlugin extends ImdbPlugin {
 				}
 			}
 		} catch (Exception e) {
-			logger.severe("Failed retreiving alloCine TVShow info for " + movie.getId(ALLOCINE_PLUGIN_ID));
-			e.printStackTrace();
+			logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
+			logger.severe("Error : " + e.getMessage());
 		}
 	}
 
@@ -141,7 +161,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
 			updatePoster(movie);
 
-		} catch (Exception e) {
+		} catch (IOException e) {
 			logger.severe("Failed retreiving allocine infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
 			e.printStackTrace();
 		}

@@ -81,7 +81,7 @@ public class Movie implements Comparable<Movie> {
 	private String previous = UNKNOWN;
 	private String next = UNKNOWN;
 	private String last = UNKNOWN;
-	
+
 	// Media file properties
 	Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
         Collection<MovieFile> trailerFiles = new TreeSet<MovieFile>();
@@ -90,7 +90,7 @@ public class Movie implements Comparable<Movie> {
 	private boolean isDirty = false;
 
 	private File file;
-	
+
 	public void addGenre(String genre) {
             if (!trailer) {
 		this.isDirty = true;
@@ -101,22 +101,32 @@ public class Movie implements Comparable<Movie> {
 
 	public void addMovieFile(MovieFile movieFile) {
 		this.isDirty = true;
+		// always replace MovieFile
+		this.movieFiles.remove(movieFile);
 		this.movieFiles.add(movieFile);
 	}
-        
+
+	public boolean hasNewMovieFiles() {
+		for (MovieFile movieFile : movieFiles) {
+			if (movieFile.isNewFile()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
         public void addTrailerFile(MovieFile movieFile) {
             this.isDirty = true;
             this.trailerFiles.add(movieFile);
         }
-	
-	public String getStrippedTitleSort()
-	{
+
+	public String getStrippedTitleSort() {
 		String text = titleSort;
 		String lowerText = text.toLowerCase();
-		
+
 		// Remove configured prefixed and append to the end
 		for ( String prefix : sortIgnorePrefixes )
-		{ 
+		{
 			if ( lowerText.startsWith(prefix.toLowerCase()))
 			{
 			  int length = prefix.length();
@@ -125,7 +135,7 @@ public class Movie implements Comparable<Movie> {
 		}
 		return text;
 	}
-	
+
 	@Override
 	public int compareTo(Movie anotherMovie) {
 		return this.getStrippedTitleSort().compareToIgnoreCase( anotherMovie.getStrippedTitleSort());
@@ -162,7 +172,7 @@ public class Movie implements Comparable<Movie> {
 	public Collection<MovieFile> getFiles() {
 		return movieFiles;
 	}
-        
+
         public Collection<MovieFile> getTrailerFiles() {
             return trailerFiles;
         }
@@ -176,16 +186,16 @@ public class Movie implements Comparable<Movie> {
 	}
 
 	public MovieFile getFirstFile() {
-		
+
 		for (MovieFile part : movieFiles) {
-			if (part.getPart() == 1) 
+			if (part.getPart() == 1)
 				return part;
 		}
 
 		Iterator<MovieFile> i = movieFiles.iterator();
 		if (i.hasNext())
 			return i.next();
-		else 
+		else
 			return null;
 	}
 
@@ -198,7 +208,7 @@ public class Movie implements Comparable<Movie> {
 	}
 
 	/**
-	 * 
+	 *
 	 * @deprecated replaced by getId(String key). This method is kept for compatibility purpose. But you should use
 	 *             getId(String key, String id) instead. Ex: movie.getId(ImdbPlugin.IMDB_PLUGIN_ID) {@link getId(String
 	 *             key)}
@@ -273,7 +283,7 @@ public class Movie implements Comparable<Movie> {
 	public String getTitle() {
 		return title;
 	}
-	
+
 	public String getTitleSort() {
 		return titleSort;
 	}
@@ -388,7 +398,7 @@ public class Movie implements Comparable<Movie> {
 	}
 
 	/**
-	 * 
+	 *
 	 * @deprecated replaced by setId(String key, String id). This method is kept for compatibility purpose. But you
 	 *             should use setId(String key, String id) instead. Ex: movie.setId(ImdbPlugin.IMDB_PLUGIN_ID,"tt12345")
 	 *             {@link setId(String key, String id)}
@@ -405,14 +415,14 @@ public class Movie implements Comparable<Movie> {
 			this.idMap.put(key, id);
 		}
 	}
-	
+
 	public void setLanguage(String language) {
 		if (!language.equalsIgnoreCase(this.language)) {
 			this.isDirty = true;
 			this.language = language;
 		}
 	}
-	
+
 	public void setCertification(String certification) {
 		this.certification = certification;
 		this.isDirty = true;
@@ -429,7 +439,7 @@ public class Movie implements Comparable<Movie> {
 		this.isDirty = true;
 		this.movieFiles = movieFiles;
 	}
-        
+
         public void setTrailerFiles(Collection<MovieFile> trailerFiles) {
             this.isDirty = true;
             this.trailerFiles = trailerFiles;
@@ -509,7 +519,7 @@ public class Movie implements Comparable<Movie> {
 		if (!name.equalsIgnoreCase(this.title)) {
 			this.isDirty = true;
 			this.title = name;
-			
+
 			setTitleSort( name );
 		}
 	}
@@ -521,12 +531,12 @@ public class Movie implements Comparable<Movie> {
 			//  Automatically remove enclosing quotes
 			if (( text.charAt(0) == '"' ) && ( text.charAt(text.length()-1) == '"'))
 				text = text.substring(1,text.length()-1);
-			
+
 			this.titleSort = text;
 			this.isDirty = true;
 		}
 	}
-	
+
 	public void setVideoCodec(String videoCodec) {
 		if (!videoCodec.equalsIgnoreCase(this.videoCodec)) {
 			this.isDirty = true;
@@ -547,7 +557,7 @@ public class Movie implements Comparable<Movie> {
 			this.videoSource = videoSource;
 		}
 	}
-	
+
 	public void setYear(String year) {
 		if (!year.equalsIgnoreCase(this.year)) {
 			this.isDirty = true;
@@ -620,7 +630,7 @@ public class Movie implements Comparable<Movie> {
         public void setDetailPosterFilename(String detailPosterFilename) {
             this.detailPosterFilename = detailPosterFilename;
         }
-        
+
         public void setTrailer(boolean trailer) {
             this.isDirty = true;
             this.trailer = trailer;
@@ -628,7 +638,7 @@ public class Movie implements Comparable<Movie> {
                 genres.clear();
             }
         }
-        
+
         public boolean isTrailer() {
             return trailer;
         }

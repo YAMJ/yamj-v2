@@ -16,6 +16,8 @@ MovieJukebox 1.0.12 beta
     Episode name formatting was moved from java and XML to skin layout.
   - Fixed defect #132 Unable to parse year of TV episode on IMDb
   - Fixed defect #134 Rating calculation not correct
+  - Fixed defect #137 New TV episodes not added to season page
+    Now they are added and titles are taken from movie DB site (eg imdb)
   - Enhancement #181 Support of local stored coverarts instead of search for them on the internet
   - Fixed defect #185 IMDB scanner is returning rating = "-1" in xml file
   - Fixed defect #187 trailing character in some IMDB plot output
@@ -23,6 +25,7 @@ MovieJukebox 1.0.12 beta
   - Enhancement #189 Hungarian flag support
     Also resizing of other SD flags
   - Enhancement #201 Download of coverArt on temp directory instead of final Jukebox Directory
+  - Fixed defect #195 Episode names vanished after second YAMJ run
    
 MovieJukebox 1.0.11 beta
 -----------------------
@@ -56,7 +59,6 @@ MovieJukebox 1.0.11 beta
     Fixes for the Allocine plugin in order to follow the changes in alloCine html
     layout. I should be now more robust to futur changes.
     Fixes also a problem with "&nbsp;" in genre categories for some movies.
-  - Fixed defect #137 New TV episodes not added to season page
   - Enhancement Issue #147 Management of genres in a external xml file
     Relation between Genre and SubGenre is now defined in an external xml file.
     See genre.xml file for example

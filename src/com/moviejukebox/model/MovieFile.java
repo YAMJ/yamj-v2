@@ -1,10 +1,10 @@
 package com.moviejukebox.model;
 
 public class MovieFile implements Comparable<MovieFile> {
-	private String filename = "UNKNOWN";
-	private String title = "UNKNOWN";
+	private String filename = Movie.UNKNOWN;
+	private String title = Movie.UNKNOWN;
 	private int part = 1; // #1, #2, CD1, CD2, etc.
-	private String nmtRootPath;
+	private boolean newFile = true; // is new file or already exists in XML data
 
 	public String getFilename() {
 		return filename;
@@ -29,15 +29,15 @@ public class MovieFile implements Comparable<MovieFile> {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
-	public String getNmtRootPath() {
-		return nmtRootPath;
+
+	public boolean isNewFile() {
+		return newFile;
 	}
 
-	public void setNmtRootPath(String nmtPath) {
-		this.nmtRootPath = nmtPath;
+	public void setNewFile(boolean newFile) {
+		this.newFile = newFile;
 	}
-	
+
 	/*
 	 * Compares this object with the specified object for order. Returns a
 	 * negative integer, zero, or a positive integer as this object is less

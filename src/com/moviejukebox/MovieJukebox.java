@@ -363,6 +363,9 @@ public class MovieJukebox {
 			logger.finer("movie XML file found for movie:" + movie.getBaseName());
 			xmlWriter.parseMovieXML(xmlFile, movie);
 
+			// update new episodes titles if new MovieFiles were added
+			movieDB.scanTVShowTitles(movie);
+
 			// Update thumbnails format if needed
 			String thumbnailExtension = props.getProperty("thumbnails.format", "png");
 			movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
