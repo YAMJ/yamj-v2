@@ -24,9 +24,10 @@ MovieJukebox 1.0.12 beta
   - Fixed defect #188 Runtime is sometimes showing up as UNKNOWN
   - Enhancement #189 Hungarian flag support
     Also resizing of other SD flags
-  - Enhancement #201 Download of coverArt on temp directory instead of final Jukebox Directory
   - Fixed defect #195 Episode names vanished after second YAMJ run
-   
+  - Fixed defect #198 HTML and XML files are always overwritten
+  - Enhancement #201 Download of coverArt on temp directory instead of final Jukebox Directory
+
 MovieJukebox 1.0.11 beta
 -----------------------
   - Enhancement Issue #78 Custom coverart Enhancement
