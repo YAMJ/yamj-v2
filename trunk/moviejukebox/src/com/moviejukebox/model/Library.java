@@ -54,10 +54,20 @@ public class Library implements Map<String, Movie> {
 		key = key.toLowerCase();
 		
 		Movie existingMovie = library.get(key);
+                
+                if (movie.isTrailer()) {
+                    key = movie.getBaseName();
+                }
+                
 		if (existingMovie == null) {
-			library.put(key, movie);
+                    library.put(key, movie);
 		} else {
-			existingMovie.addMovieFile(movie.getFirstFile());
+                    if (movie.isTrailer()) {
+                        library.put(key, movie);
+                        existingMovie.addTrailerFile(movie.getFirstFile());
+                    } else {
+                        existingMovie.addMovieFile(movie.getFirstFile());
+                    }
 		}
 	}
 	
@@ -91,7 +101,8 @@ public class Library implements Map<String, Movie> {
 
 	private void indexByTitle() {
 		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
-		for (Movie movie : moviesList) {				
+		for (Movie movie : moviesList) {	
+                    if (!movie.isTrailer()) {
 			String title = movie.getStrippedTitleSort();
 			if (title.length()>0) {
 				Character c = Character.toUpperCase(title.charAt(0));
@@ -102,6 +113,7 @@ public class Library implements Map<String, Movie> {
 					addMovie(index, c.toString(), movie);
 				} 
 			}
+                    }
 		}
 		indexes.put("Title",index);
 	}
@@ -125,7 +137,9 @@ public class Library implements Map<String, Movie> {
             }
             
             for (Movie movie : moviesList) {
-                addMovie(index, movie.getCertification(), movie);
+                if (!movie.isTrailer()) {
+                    addMovie(index, movie.getCertification(), movie);
+                }
             }
             indexes.put("Rating",index);
 	}
@@ -136,7 +150,10 @@ public class Library implements Map<String, Movie> {
 		// long oneMonth = oneDay * 30;
 
 		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
-		for (Movie movie : moviesList) {				
+		for (Movie movie : moviesList) {
+                    if (movie.isTrailer()) {
+                        addMovie(index, "Trailers", movie);
+                    } else {
 			if (movie.getVideoOutput().indexOf("720") != -1  || movie.getVideoOutput().indexOf("1080") != -1) {
 				addMovie(index, "HD" , movie);
 			}
@@ -158,6 +175,7 @@ public class Library implements Map<String, Movie> {
 			else {
 				addMovie(index, "Movies", movie);
 			}
+                    }
 		}
 		indexes.put("Other", index);
 	}

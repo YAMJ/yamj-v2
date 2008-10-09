@@ -75,6 +75,7 @@ public class MovieFilenameScanner {
 		findKeyword(filename, skipKeywords);
 		
 		// Update the movie file with interpreted movie data
+                updateTrailer(filename, movie);
 		updateTVShow(filename, movie);
 		updateMovie(filename, movie);
 	}
@@ -302,6 +303,26 @@ public class MovieFilenameScanner {
 			firstKeywordIndex = (firstKeywordIndex>index)?index:firstKeywordIndex;
 		}
 	}
+        
+        protected void updateTrailer(String filename, Movie movie) {
+            int beginIdx = filename.indexOf("[");
+            while (beginIdx > -1) {
+                int endIdx = filename.indexOf("]", beginIdx);
+                if (endIdx > -1) {
+                    String token = filename.substring(beginIdx+1, endIdx).toUpperCase();
+                    if (token.indexOf("TRAILER") > -1) {
+                        movie.setTrailer(true);
+                        movie.getFirstFile().setTitle(movie.getBaseName());
+                        break;
+                    }
+                } else {
+                    break;
+                }
+                
+                beginIdx = filename.indexOf("[", endIdx+1);
+            }
+        }
+        
 	protected void updateMovie(String filename, Movie movie) {
 		try {
 			StringTokenizer st = new StringTokenizer(filename,". []()-");

@@ -74,6 +74,7 @@ public class Movie implements Comparable<Movie> {
 	private String videoOutput = UNKNOWN;
 	private int fps = 60;
 	private String certification = UNKNOWN;
+        private boolean trailer = false;
 
 	// Navigation data
 	private String first = UNKNOWN;
@@ -83,6 +84,7 @@ public class Movie implements Comparable<Movie> {
 	
 	// Media file properties
 	Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
+        Collection<MovieFile> trailerFiles = new TreeSet<MovieFile>();
 
 	// Caching
 	private boolean isDirty = false;
@@ -90,16 +92,22 @@ public class Movie implements Comparable<Movie> {
 	private File file;
 	
 	public void addGenre(String genre) {
+            if (!trailer) {
 		this.isDirty = true;
 		logger.finest("Genre added : " + genre);
 		genres.add(genre);
+            }
 	}
 
 	public void addMovieFile(MovieFile movieFile) {
 		this.isDirty = true;
 		this.movieFiles.add(movieFile);
 	}
-
+        
+        public void addTrailerFile(MovieFile movieFile) {
+            this.isDirty = true;
+            this.trailerFiles.add(movieFile);
+        }
 	
 	public String getStrippedTitleSort()
 	{
@@ -154,6 +162,10 @@ public class Movie implements Comparable<Movie> {
 	public Collection<MovieFile> getFiles() {
 		return movieFiles;
 	}
+        
+        public Collection<MovieFile> getTrailerFiles() {
+            return trailerFiles;
+        }
 
 	public String getCertification() {
 		return certification;
@@ -369,8 +381,10 @@ public class Movie implements Comparable<Movie> {
 	}
 
 	public void setGenres(Collection<String> genres) {
+            if (!trailer) {
 		this.isDirty = true;
 		this.genres = genres;
+            }
 	}
 
 	/**
@@ -415,6 +429,11 @@ public class Movie implements Comparable<Movie> {
 		this.isDirty = true;
 		this.movieFiles = movieFiles;
 	}
+        
+        public void setTrailerFiles(Collection<MovieFile> trailerFiles) {
+            this.isDirty = true;
+            this.trailerFiles = trailerFiles;
+        }
 
 	public void setNext(String next) {
 		if (!next.equalsIgnoreCase(this.next)) {
@@ -600,5 +619,17 @@ public class Movie implements Comparable<Movie> {
 
         public void setDetailPosterFilename(String detailPosterFilename) {
             this.detailPosterFilename = detailPosterFilename;
+        }
+        
+        public void setTrailer(boolean trailer) {
+            this.isDirty = true;
+            this.trailer = trailer;
+            if (trailer) {
+                genres.clear();
+            }
+        }
+        
+        public boolean isTrailer() {
+            return trailer;
         }
 }

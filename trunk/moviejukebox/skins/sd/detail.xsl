@@ -212,6 +212,44 @@
           </tr>
         </xsl:otherwise>
         </xsl:choose>
+        
+        <xsl:if test="count(trailers) != 0">
+          <tr>
+            <td>
+              <table>
+               <tr><td class="title2">Trailers</td></tr>
+               <xsl:for-each select="trailers/trailer">
+               <tr>
+                 <td class="normal">
+                   <a>
+                     <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
+
+                     <xsl:if test="substring(.,string-length(.)-2) = 'ISO'">
+                       <xsl:attribute name="zcd">2</xsl:attribute>
+                     </xsl:if>
+                     <xsl:if test="substring(.,string-length(.)-2) = 'iso'">
+                       <xsl:attribute name="zcd">2</xsl:attribute>
+                     </xsl:if>
+                     <xsl:if test="substring(.,string-length(.)-2) = 'VIDEO_TS'">
+                       <xsl:attribute name="zcd">2</xsl:attribute>
+                     </xsl:if>
+
+                     <xsl:attribute name="vod"/>
+                     <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">
+                       <xsl:attribute name="onmouseover">this.src='pictures/play_selected_small.png';</xsl:attribute>
+                       <xsl:attribute name="onmouseout">this.src='pictures/play_small.png';</xsl:attribute>
+                     </img>
+                     <xsl:text>&#160;</xsl:text>
+                     <xsl:value-of select="@title"/>
+                   </a>
+                 </td>
+               </tr>
+               </xsl:for-each>
+              </table>
+            </td>
+          </tr>
+        </xsl:if>
+        
       </table>
     </td>
   </tr>
