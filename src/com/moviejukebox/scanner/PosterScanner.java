@@ -70,15 +70,19 @@ public class PosterScanner {
 		boolean foundLocalCoverArt= false;
 
 		for (String extension : coverArtExtensions) {
-			fullPosterFilename = movie.getFile().getParent();
+			if (movie.getFile().isDirectory()) { // for VIDEO_TS
+				fullPosterFilename = movie.getFile().getPath();				
+			}else {
+				fullPosterFilename = movie.getFile().getParent();
+			}
 			if (! coverArtDirectory.equals("")) {
 				fullPosterFilename += File.separator + coverArtDirectory;
 			}
 			fullPosterFilename += File.separator + localPosterBaseFilename + "." + extension;
-//			logger.finest("Check if "+ fullPosterFilename + " exists");
+			logger.finest("Check if "+ fullPosterFilename + " exists");
 			localPosterFile = new File(fullPosterFilename);
 			if (localPosterFile.exists()){
-//				logger.finest("The file "+ fullPosterFilename + " exists");
+				logger.finest("The file "+ fullPosterFilename + " exists");
 				foundLocalCoverArt= true;
 				break;
 			}			
