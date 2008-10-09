@@ -24,6 +24,7 @@ import javax.xml.stream.events.XMLEvent;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.TrailerFile;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 
@@ -132,8 +133,8 @@ public class MovieJukeboxXMLWriter {
 				}
 
 				if (tag.startsWith("<trailer ")) {
-					MovieFile mf = new MovieFile();
-					mf.setNewFile(false);
+					TrailerFile tf = new TrailerFile();
+					tf.setNewFile(false);
 
 					StartElement start = e.asStartElement();
 					for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
@@ -141,14 +142,14 @@ public class MovieJukeboxXMLWriter {
 						String ns = attr.getName().toString();
 
 						if ("title".equals(ns)) {
-							mf.setTitle(attr.getValue());
+							tf.setTitle(attr.getValue());
 							continue;
 						}
 					}
 
-					mf.setFilename(parseCData(r));
+					tf.setFilename(parseCData(r));
 					// add or replace trailer based on XML data
-					movie.addTrailerFile(mf);
+					movie.addTrailerFile(tf);
 				}
 			}
 		} catch (Exception e) {
@@ -412,10 +413,10 @@ public class MovieJukeboxXMLWriter {
 		}
 		writer.writeEndElement();
 
-                Collection<MovieFile> trailerFiles = movie.getTrailerFiles();
+                Collection<TrailerFile> trailerFiles = movie.getTrailerFiles();
                 if (trailerFiles != null && trailerFiles.size() > 0) {
                     writer.writeStartElement("trailers");
-                    for (MovieFile tf : trailerFiles) {
+                    for (TrailerFile tf : trailerFiles) {
                         writer.writeStartElement("trailer");
                         writer.writeAttribute("title", tf.getTitle());
                         writer.writeCharacters(tf.getFilename());

@@ -84,7 +84,7 @@ public class Movie implements Comparable<Movie> {
 
 	// Media file properties
 	Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
-        Collection<MovieFile> trailerFiles = new ArrayList<MovieFile>();
+        Collection<TrailerFile> trailerFiles = new TreeSet<TrailerFile>();
 
 	// Caching
 	private boolean isDirty = false;
@@ -115,7 +115,7 @@ public class Movie implements Comparable<Movie> {
 		return false;
 	}
 
-	public void addTrailerFile(MovieFile movieFile) {
+	public void addTrailerFile(TrailerFile movieFile) {
 		this.isDirty = true;
 		// always replace MovieFile
 		this.trailerFiles.remove(movieFile);
@@ -184,7 +184,7 @@ public class Movie implements Comparable<Movie> {
 		return movieFiles;
 	}
 
-        public Collection<MovieFile> getTrailerFiles() {
+        public Collection<TrailerFile> getTrailerFiles() {
             return trailerFiles;
         }
 
@@ -451,7 +451,7 @@ public class Movie implements Comparable<Movie> {
 		this.movieFiles = movieFiles;
 	}
 
-        public void setTrailerFiles(Collection<MovieFile> trailerFiles) {
+        public void setTrailerFiles(Collection<TrailerFile> trailerFiles) {
             this.isDirty = true;
             this.trailerFiles = trailerFiles;
         }

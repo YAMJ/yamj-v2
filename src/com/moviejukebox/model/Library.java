@@ -64,7 +64,7 @@ public class Library implements Map<String, Movie> {
 		} else {
                     if (movie.isTrailer()) {
                         library.put(key, movie);
-                        existingMovie.addTrailerFile(movie.getFirstFile());
+                        existingMovie.addTrailerFile(new TrailerFile(movie.getFirstFile()));
                     } else {
                         existingMovie.addMovieFile(movie.getFirstFile());
                     }
