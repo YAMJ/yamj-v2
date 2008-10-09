@@ -44,6 +44,15 @@ public interface MovieDatabasePlugin {
 	public void scan(Movie movie);
 
 	/**
+	 * Called by jukebox when there are new episodes files added.
+	 * Method checks if movie id exists and scan only for new MovieFiles.
+	 *
+	 *
+	 * @param movie a <tt>Movie</tt> object to update.
+	 */
+	public void scanTVShowTitles(Movie movie);
+
+	/**
 	 * Scan NFO file for movie id
 	 *
 	 * @param nfo

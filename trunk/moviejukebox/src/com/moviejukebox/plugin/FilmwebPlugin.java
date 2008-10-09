@@ -268,26 +268,55 @@ public class FilmwebPlugin extends ImdbPlugin {
 		return posterURL;
 	}
 
-	protected void updateTVShowInfo(Movie movie, String mainXML) throws MalformedURLException, IOException {
-		// searchs for episodes url
-		Matcher m = episodesUrlPattern.matcher(mainXML);
-		if (m.find()) {
-			String episodesUrl = m.group();
-			String xml = request(new URL(episodesUrl));
-			for (MovieFile file : movie.getFiles()) {
-				int fromIndex = xml.indexOf("seria" + movie.getSeason());
-				String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + file.getPart(), 1, fromIndex);
-				if (!episodeName.equals(Movie.UNKNOWN)) {
-					file.setTitle(episodeName);
-				}
-			}
-		} else {
+	public void scanTVShowTitles(Movie movie) {
+		scanTVShowTitles(movie, null);
+	}
+
+	public void scanTVShowTitles(Movie movie, String mainXML) {
+		if (!movie.isTVShow() || !movie.hasNewMovieFiles()) {
+			return;
+		}
+
+		String filmwebUrl = movie.getId(FILMWEB_PLUGIN_ID);
+		if (filmwebUrl == null || filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
 			// use IMDB if filmweb doesn't know episodes titles
-			String imdbId = updateImdbId(movie);
-			if (imdbId != null && !imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+			super.scanTVShowTitles(movie);
+			return;
+		}
+
+		try {
+			if (mainXML == null) {
+				mainXML = request(new URL(filmwebUrl));
+			}
+			// searchs for episodes url
+			Matcher m = episodesUrlPattern.matcher(mainXML);
+			if (m.find()) {
+				String episodesUrl = m.group();
+				String xml = request(new URL(episodesUrl));
+				for (MovieFile file : movie.getMovieFiles()) {
+					if (!file.isNewFile()) {
+						// don't scan episode title if it exists in XML data
+						continue;
+					}
+					int fromIndex = xml.indexOf("seria" + movie.getSeason());
+					String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + file.getPart(), 1, fromIndex);
+					if (!episodeName.equals(Movie.UNKNOWN)) {
+						file.setTitle(episodeName);
+					}
+				}
+			} else {
+				// use IMDB if filmweb doesn't know episodes titles
+				updateImdbId(movie);
 				super.updateTVShowInfo(movie);
 			}
+		} catch (IOException e) {
+			logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
+			logger.severe("Error : " + e.getMessage());
 		}
+	}
+
+	protected void updateTVShowInfo(Movie movie, String mainXML) throws MalformedURLException, IOException {
+		scanTVShowTitles(movie, mainXML);
 	}
 
 	public void scanNFO(String nfo, Movie movie) {

@@ -68,7 +68,7 @@ public class MovieJukeboxXMLWriter {
 						String ns = attr.getName().toString();
 
 						if ("movieDatabase".equals(ns)) {
-							movieDatabase = ns;
+							movieDatabase = attr.getValue();
 							continue;
 						}
 					}
@@ -108,6 +108,7 @@ public class MovieJukeboxXMLWriter {
 
 				if (tag.startsWith("<file ")) {
 					MovieFile mf = new MovieFile();
+					mf.setNewFile(false);
 	
 					StartElement start = e.asStartElement();
 					for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
@@ -126,10 +127,10 @@ public class MovieJukeboxXMLWriter {
 					}
 
 					mf.setFilename(parseCData(r));
+					// add or replace MovieFile based on XML data
 					movie.addMovieFile(mf);
-					break;
 				}
-                                
+
                                 if (tag.startsWith("<trailer ")) {
                                     MovieFile mf = new MovieFile();
 
@@ -154,7 +155,7 @@ public class MovieJukeboxXMLWriter {
 			System.err.println("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
 		}
 
-		movie.setDirty(false);
+		movie.setDirty(movie.hasNewMovieFiles());
 	}
 
 	private String parseCData(XMLEventReader r) throws XMLStreamException {
@@ -165,7 +166,7 @@ public class MovieJukeboxXMLWriter {
 		}
 		return HTMLTools.decodeHtml(sb.toString());
 	}
-	
+
 	public void writeCategoryXML( String rootPath, String detailsDirName, Library library )
 		throws FileNotFoundException, XMLStreamException
 	{
@@ -185,7 +186,7 @@ public class MovieJukeboxXMLWriter {
 		{
 			writer.writeStartElement( "category" );
 			writer.writeAttribute( "name", category.getKey());
-			
+
 			for ( Map.Entry< String, List< Movie >> index : category.getValue().entrySet())
 			{
 				writer.writeStartElement("index");
@@ -204,34 +205,34 @@ public class MovieJukeboxXMLWriter {
 	 */
 	public void writeIndexXML(String rootPath, String detailsDirName, Library library)
 	    throws FileNotFoundException, XMLStreamException {
-		
+
 		for ( Map.Entry<String, Map<String,List<Movie>>> category : library.getIndexes().entrySet())
 		{
 			String categoryName = category.getKey();
 			Map< String, List<Movie>> index = category.getValue();
-			
+
 			for ( Map.Entry< String, List<Movie>> group : index.entrySet()) {
-				String key = group.getKey(); 
+				String key = group.getKey();
 				List<Movie> movies = group.getValue();
 
 				int previous = 1;
 				int current = 1;
 				int last;
-				
+
 				if (movies.size() % nbMoviesPerPage != 0) {
 					last = 1 + movies.size() / nbMoviesPerPage;
 				} else {
 					last = movies.size() / nbMoviesPerPage;
 				}
-				
+
 				int next = Math.min(2, last);
 				int nbMoviesLeft = nbMoviesPerPage;
-				
+
 				List<Movie> moviesInASinglePage = new ArrayList<Movie>();
 				for (Movie movie : movies) {
 					moviesInASinglePage.add(movie);
 					nbMoviesLeft--;
-				
+
 					if (nbMoviesLeft == 0) {
 						writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
 						moviesInASinglePage = new ArrayList<Movie>();
@@ -248,7 +249,7 @@ public class MovieJukeboxXMLWriter {
 			}
 		}
 	}
-	
+
 	private String createPrefix( String category, String key )
 	{
 		return category + '_' + key + '_';
@@ -279,8 +280,8 @@ public class MovieJukeboxXMLWriter {
 
 			for (String akey : index.keySet()) {
 				prefix = createPrefix( categoryKey, akey );
-				
-				writer.writeStartElement("index"); 
+
+				writer.writeStartElement("index");
 				writer.writeAttribute("name", akey);
 
 				// if currently writing this page then add current attribute with value true
@@ -294,11 +295,11 @@ public class MovieJukeboxXMLWriter {
 					writer.writeAttribute("lastIndex", Integer.toString(last));
 				}
 
-				writer.writeCharacters( prefix + '1'); 
+				writer.writeCharacters( prefix + '1');
 				writer.writeEndElement(); // index
 			}
 
-			writer.writeEndElement(); // categories					
+			writer.writeEndElement(); // categories
 		}
 		writer.writeStartElement("movies");
 		writer.writeAttribute("count", ""+ nbMoviesPerPage);
@@ -306,25 +307,25 @@ public class MovieJukeboxXMLWriter {
 
         if (fullMovieInfoInIndexes) {
     		for (Movie movie : movies) {
-    			writeMovie( writer, movie ); 
+    			writeMovie( writer, movie );
     		}
-        } 
+        }
         else {
     		for (Movie movie : movies) {
-    			writeMovieForIndex( writer, movie ); 
+    			writeMovieForIndex( writer, movie );
     		}
 		}
-		writer.writeEndElement(); // movies					
+		writer.writeEndElement(); // movies
 
-		writer.writeEndElement(); // library 					
+		writer.writeEndElement(); // library
 		writer.writeEndDocument();
 		writer.close();
 	}
-	
-	
+
+
 	   private void writeMovieForIndex( XMLStreamWriter writer, Movie movie ) throws XMLStreamException
 	   {
-			writer.writeStartElement("movie");			
+			writer.writeStartElement("movie");
 			writer.writeStartElement("details"); writer.writeCharacters( movie.getBaseName() + ".html" ); writer.writeEndElement();
 			writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
 			writer.writeStartElement("titleSort"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
@@ -332,14 +333,14 @@ public class MovieJukeboxXMLWriter {
 			writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
 			writer.writeStartElement("certification"); writer.writeCharacters(movie.getCertification()); writer.writeEndElement();
 			writer.writeStartElement("season"); writer.writeCharacters(Integer.toString(movie.getSeason())); writer.writeEndElement();
-						
+
 			writer.writeEndElement();
 
 	   }
 
    private void writeMovie( XMLStreamWriter writer, Movie movie ) throws XMLStreamException
    {
-		writer.writeStartElement("movie");			
+		writer.writeStartElement("movie");
 		for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
 			writer.writeStartElement("id");
 			writer.writeAttribute("movieDatabase", e.getKey());
@@ -377,46 +378,46 @@ public class MovieJukeboxXMLWriter {
 		writer.writeStartElement("previous"); writer.writeCharacters(movie.getPrevious()); writer.writeEndElement();
 		writer.writeStartElement("next"); writer.writeCharacters(movie.getNext()); writer.writeEndElement();
 		writer.writeStartElement("last"); writer.writeCharacters(movie.getLast()); writer.writeEndElement();
-		
+
 		Collection< String> items = movie.getGenres();
 		if ( items.size()> 0 ) {
-			writer.writeStartElement("genres");	
+			writer.writeStartElement("genres");
 			for (String genre : items ) {
-				writer.writeStartElement("genre");	
+				writer.writeStartElement("genre");
 				writer.writeCharacters(genre);
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();
 		}
-		
+
 		items = movie.getCast();
 		if ( items.size()> 0 ) {
-			writer.writeStartElement("cast");	
+			writer.writeStartElement("cast");
 			for (String genre : items ) {
-				writer.writeStartElement("actor");	
+				writer.writeStartElement("actor");
 				writer.writeCharacters(genre);
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();
 		}
-		
-		writer.writeStartElement("files"); 
-		for (MovieFile mf : movie.getFiles()) { 
+
+		writer.writeStartElement("files");
+		for (MovieFile mf : movie.getFiles()) {
 			writer.writeStartElement("file");
 			writer.writeAttribute("part", Integer.toString(mf.getPart()));
 			writer.writeAttribute("title", mf.getTitle());
-			writer.writeCharacters(mf.getNmtRootPath() + mf.getFilename());
+			writer.writeCharacters(mf.getFilename());
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
-                
+
                 Collection<MovieFile> trailerFiles = movie.getTrailerFiles();
                 if (trailerFiles != null && trailerFiles.size() > 0) {
                     writer.writeStartElement("trailers");
                     for (MovieFile tf : trailerFiles) {
                         writer.writeStartElement("trailer");
                         writer.writeAttribute("title", tf.getTitle());
-                        writer.writeCharacters(tf.getNmtRootPath() + tf.getFilename());
+                        writer.writeCharacters(tf.getFilename());
                         writer.writeEndElement();
                     }
                     writer.writeEndElement();
