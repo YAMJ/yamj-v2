@@ -222,7 +222,7 @@
                      <xsl:if test="substring(.,string-length(.)-2) = 'iso'">
                        <xsl:attribute name="zcd">2</xsl:attribute>
                      </xsl:if>
-                     <xsl:if test="substring(.,string-length(.)-2) = 'VIDEO_TS'">
+                     <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
                        <xsl:attribute name="zcd">2</xsl:attribute>
                      </xsl:if>
 
