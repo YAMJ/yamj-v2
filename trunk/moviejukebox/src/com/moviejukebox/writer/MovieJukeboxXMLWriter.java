@@ -131,23 +131,24 @@ public class MovieJukeboxXMLWriter {
 					movie.addMovieFile(mf);
 				}
 
-                                if (tag.startsWith("<trailer ")) {
-                                    MovieFile mf = new MovieFile();
+				if (tag.startsWith("<trailer ")) {
+					MovieFile mf = new MovieFile();
+					mf.setNewFile(false);
 
-                                    StartElement start = e.asStartElement();
-                                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                                        Attribute attr = i.next();
-                                        String ns = attr.getName().toString();
+					StartElement start = e.asStartElement();
+					for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+						Attribute attr = i.next();
+						String ns = attr.getName().toString();
 
-                                        if ("title".equals(ns)) {
-                                            mf.setTitle(attr.getValue());
-                                            continue;
-                                        }
-                                    }
+						if ("title".equals(ns)) {
+							mf.setTitle(attr.getValue());
+							continue;
+						}
+					}
 
-                                    mf.setFilename(parseCData(r));
-                                    movie.addTrailerFile(mf);
-                                    break;
+					mf.setFilename(parseCData(r));
+					// add or replace trailer based on XML data
+					movie.addTrailerFile(mf);
 				}
 			}
 		} catch (Exception e) {
@@ -155,7 +156,7 @@ public class MovieJukeboxXMLWriter {
 			System.err.println("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
 		}
 
-		movie.setDirty(movie.hasNewMovieFiles());
+		movie.setDirty(movie.hasNewMovieFiles() || movie.hasNewTrailerFiles());
 	}
 
 	private String parseCData(XMLEventReader r) throws XMLStreamException {
