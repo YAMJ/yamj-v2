@@ -27,6 +27,7 @@ MovieJukebox 1.0.12 beta
   - Fixed defect #195 Episode names vanished after second YAMJ run
   - Fixed defect #198 HTML and XML files are always overwritten
   - Enhancement #201 Download of coverArt on temp directory instead of final Jukebox Directory
+  - Fixed defect #204 Movie trailer title from XML is always replaced by title from file name
 
 MovieJukebox 1.0.11 beta
 -----------------------

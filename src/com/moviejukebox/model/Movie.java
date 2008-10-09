@@ -115,10 +115,21 @@ public class Movie implements Comparable<Movie> {
 		return false;
 	}
 
-        public void addTrailerFile(MovieFile movieFile) {
-            this.isDirty = true;
-            this.trailerFiles.add(movieFile);
-        }
+	public void addTrailerFile(MovieFile movieFile) {
+		this.isDirty = true;
+		// always replace MovieFile
+		this.trailerFiles.remove(movieFile);
+		this.trailerFiles.add(movieFile);
+	}
+
+	public boolean hasNewTrailerFiles() {
+		for (MovieFile movieFile : trailerFiles) {
+			if (movieFile.isNewFile()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public String getStrippedTitleSort() {
 		String text = titleSort;
