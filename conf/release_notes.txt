@@ -4,6 +4,10 @@
 
 MovieJukebox 1.0.12 beta
 -----------------------
+  - Enhancement #66 Ability to recognise a movie trailer and add it to the movie html page
+  - Enhancement #67 New category: Trailer
+    Trailers must contain the word Trailer (case-insensitive) somewhere between brackets []
+    Trailers will only be included in the new "Trailers" category, and no other genre or alpha-listing
   - Fixed defect #122 Patch for MovieNFOScanner.java for old style imdb urls
   - Enhancement #123 improved MPAA rating organization in the gfb107 skin
     Added certification.ordering property to skin.properties in both gfb107 skins
@@ -12,12 +16,12 @@ MovieJukebox 1.0.12 beta
     Episode name formatting was moved from java and XML to skin layout.
   - Fixed defect #132 Unable to parse year of TV episode on IMDb
   - Fixed defect #134 Rating calculation not correct
+  - Enhancement #181 Support of local stored coverarts instead of search for them on the internet
   - Fixed defect #185 IMDB scanner is returning rating = "-1" in xml file
   - Fixed defect #187 trailing character in some IMDB plot output
   - Fixed defect #188 Runtime is sometimes showing up as UNKNOWN
   - Enhancement #189 Hungarian flag support
     Also resizing of other SD flags
-  - Enhancement #181 Support of local stored coverarts instead of search for them on the internet
   - Enhancement #201 Download of coverArt on temp directory instead of final Jukebox Directory
    
 MovieJukebox 1.0.11 beta

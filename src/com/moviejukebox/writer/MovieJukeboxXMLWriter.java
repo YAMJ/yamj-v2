@@ -129,6 +129,25 @@ public class MovieJukeboxXMLWriter {
 					movie.addMovieFile(mf);
 					break;
 				}
+                                
+                                if (tag.startsWith("<trailer ")) {
+                                    MovieFile mf = new MovieFile();
+
+                                    StartElement start = e.asStartElement();
+                                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                                        Attribute attr = i.next();
+                                        String ns = attr.getName().toString();
+
+                                        if ("title".equals(ns)) {
+                                            mf.setTitle(attr.getValue());
+                                            continue;
+                                        }
+                                    }
+
+                                    mf.setFilename(parseCData(r));
+                                    movie.addTrailerFile(mf);
+                                    break;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -390,6 +409,18 @@ public class MovieJukeboxXMLWriter {
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
+                
+                Collection<MovieFile> trailerFiles = movie.getTrailerFiles();
+                if (trailerFiles != null && trailerFiles.size() > 0) {
+                    writer.writeStartElement("trailers");
+                    for (MovieFile tf : trailerFiles) {
+                        writer.writeStartElement("trailer");
+                        writer.writeAttribute("title", tf.getTitle());
+                        writer.writeCharacters(tf.getNmtRootPath() + tf.getFilename());
+                        writer.writeEndElement();
+                    }
+                    writer.writeEndElement();
+                }
 			
 		writer.writeEndElement();
 
