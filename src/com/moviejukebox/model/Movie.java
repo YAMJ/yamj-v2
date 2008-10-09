@@ -84,7 +84,7 @@ public class Movie implements Comparable<Movie> {
 
 	// Media file properties
 	Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
-        Collection<MovieFile> trailerFiles = new TreeSet<MovieFile>();
+        Collection<MovieFile> trailerFiles = new ArrayList<MovieFile>();
 
 	// Caching
 	private boolean isDirty = false;
