@@ -1,5 +1,6 @@
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
@@ -237,7 +238,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			movie.setCompany(HTMLTools.extractTag(xml, "<h5>Company:</h5>", 1));
 			int count = 0;
 			for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")) {
-				movie.addGenre(genre);
+				movie.addGenre(Library.getIndexingGenre(genre));
 				if (++count >= maxGenres) {
 					break;
 				}

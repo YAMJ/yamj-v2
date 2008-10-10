@@ -64,7 +64,7 @@ public class Movie implements Comparable<Movie> {
 	private String language = UNKNOWN;
 	private int season = -1;
 	private boolean hasSubtitles = false;
-	private Collection<String> genres = new ArrayList<String>();
+	private Collection<String> genres = new TreeSet<String>();
 	private Collection<String> cast = new ArrayList<String>();
 	private String container = UNKNOWN;  // AVI, MKV, TS, etc.
 	private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.

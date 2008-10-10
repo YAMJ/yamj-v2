@@ -58,7 +58,6 @@ public class MovieJukebox {
 	private boolean forceThumbnailOverwrite;
 	private boolean forcePosterOverwrite;
 	private Properties props;
-	private String xmlGenreFile;
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
 		// Send logger output to our FileHandler.
@@ -196,7 +195,6 @@ public class MovieJukebox {
 		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
 		this.forcePosterOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forcePostersOverwrite", "false"));
-		this.xmlGenreFile = props.getProperty("mjb.xmlGenreFile", "genres.xml");
 		
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -255,8 +253,8 @@ public class MovieJukebox {
 		logger.fine("Scanning movies directory " + mediaLibraryRoot);
 		logger.fine("Jukebox output goes to " + jukeboxRoot);
 
-
-		Library library = new Library(props);
+                Library.setup(props);
+		Library library = new Library();
 		for (MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
 			logger.finer("Scanning media library " + mediaLibraryPath.getPath());
 			library = mds.scan(mediaLibraryPath, library);
@@ -264,9 +262,6 @@ public class MovieJukebox {
 		
 		logger.fine("Found " + library.size() + " movies in your media library");
 
-		// fill genre map for genre rewriting
-		library.fillGenreMap(xmlGenreFile);
-		
 		//////////////////////////////////////////////////////////////////
 		/// PASS 2 : Scan movie libraries for files...
 		//

@@ -1,5 +1,6 @@
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
@@ -170,7 +171,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 			String genres = HTMLTools.getTextAfterElem(xml, "gatunek:");
 			if (!Movie.UNKNOWN.equals(genres)) {
 				for (String genre : genres.split(" *, *")) {
-					movie.addGenre(genre);
+					movie.addGenre(Library.getIndexingGenre(genre));
 					if (++count >= maxGenres) {
 						break;
 					}

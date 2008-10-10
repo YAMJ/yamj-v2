@@ -120,7 +120,7 @@ public class FilmwebPluginTest extends TestCase {
     filmwebPlugin.maxGenres = 9;
     filmwebPlugin.setRequestResult("<p class=\"film-production-genre\">\n\t\t\tprodukcja:\t\t<strong>\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=38&amp;sort=COUNT&amp;sortAscending=false\">Niemcy</a>\t\t\t\t, \t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=53&amp;sort=COUNT&amp;sortAscending=false\">USA</a>\t\t\t\t\t\t\t\t\t</strong>\t\t\t\tgatunek:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<strong>\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?sort=COUNT&sortAscending=false&genreIds=26&amp;genreIds=28\"> Wojenny, Akcja</a>\t\t</strong>\t\t</p>");
     filmwebPlugin.updateMediaInfo(movie);
-    assertEquals(Arrays.asList(new String[] {"Wojenny", "Akcja"}).toString(), movie.getGenres().toString());
+    assertEquals(Arrays.asList(new String[] {"Akcja","Wojenny"}).toString(), movie.getGenres().toString());
 
     filmwebPlugin.maxGenres = 1;
     movie.getGenres().clear();
