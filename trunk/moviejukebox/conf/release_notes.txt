@@ -31,6 +31,7 @@ MovieJukebox 1.0.12 beta
   - Fixed defect #204 Movie trailer title from XML is always replaced by title from file name
   - Fixed defect #205 Only one trailer at detail page
   - Fixed defect #206 Local coverArt not working for VIDEO_TS directories
+  - Fixed defect #209 Filmweb plugin - genres aren't correctly recognized after filmweb site has been changed
 
 MovieJukebox 1.0.11 beta
 -----------------------

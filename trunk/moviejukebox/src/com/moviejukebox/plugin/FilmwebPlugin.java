@@ -167,10 +167,13 @@ public class FilmwebPlugin extends ImdbPlugin {
 			movie.setCountry(StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "gatunek", "<a ", "</a>"), ", "));
 
 			int count = 0;
-			for (String genre : HTMLTools.extractTags(xml, "gatunek:", "</p>", "<a ", "</a>")) {
-				movie.addGenre(genre);
-				if (++count >= maxGenres) {
-					break;
+			String genres = HTMLTools.getTextAfterElem(xml, "gatunek:");
+			if (!Movie.UNKNOWN.equals(genres)) {
+				for (String genre : genres.split(" *, *")) {
+					movie.addGenre(genre);
+					if (++count >= maxGenres) {
+						break;
+					}
 				}
 			}
 
