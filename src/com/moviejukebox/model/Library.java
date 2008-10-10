@@ -21,20 +21,24 @@ public class Library implements Map<String, Movie> {
 
 	private static Logger logger = Logger.getLogger("moviejukebox");
 
-	private Properties props = new Properties();
-	private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
+	private static Properties props = new Properties();
+	private static boolean filterGenres;
+        private static List<String> certificationOrdering = new ArrayList<String>();
+	private static Map<String,String> genresMap = new HashMap<String, String>();
+
+        private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
 	private List<Movie> moviesList = new ArrayList<Movie>();
 	private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
-	private boolean filterGenres;
-	private Map<String,String> genresMap = new HashMap<String, String>();
-        private List<String> certificationOrdering = new ArrayList<String>();
 	
-	public Library(Properties props) {
+	
+        public static void setup(Properties p) {
             if (props != null) {
-                    this.props = props;
+                props = p;
             }
 
             filterGenres = props.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
+            String xmlGenreFile = props.getProperty("mjb.xmlGenreFile", "genres.xml");
+            fillGenreMap(xmlGenreFile);
             
             {
                 String temp = props.getProperty("certification.ordering");
@@ -43,7 +47,7 @@ public class Library implements Map<String, Movie> {
                     certificationOrdering.addAll(Arrays.asList(certs));
                 }
             }
-	}
+        }
 
 	public void addMovie(Movie movie) {
 		String key = movie.getTitle();
@@ -180,7 +184,7 @@ public class Library implements Map<String, Movie> {
 		indexes.put("Other", index);
 	}
 	
-    private String getIndexingGenre(String genre) {
+    public static String getIndexingGenre(String genre) {
     	if (!filterGenres) 
     		return genre;
     	
@@ -298,7 +302,7 @@ public class Library implements Map<String, Movie> {
 		return indexes;
 	}
 	
-	public void fillGenreMap(String xmlGenreFile){
+	private static void fillGenreMap(String xmlGenreFile) {
 		File f = new File(xmlGenreFile);
 		if (f.exists() && f.isFile() && xmlGenreFile.toUpperCase().endsWith("XML")) {
 

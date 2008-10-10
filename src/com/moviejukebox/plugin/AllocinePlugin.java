@@ -1,5 +1,6 @@
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Library;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
 			int count = 0;
 			for (String genre : extractTags(xml, "Genre</span> :", "-", " ", ",")) {
-				movie.addGenre(removeOpenedHtmlTags(genre));
+				movie.addGenre(Library.getIndexingGenre(removeOpenedHtmlTags(genre)));
 				if (++count >= maxGenres) {
 					break;
 				}
