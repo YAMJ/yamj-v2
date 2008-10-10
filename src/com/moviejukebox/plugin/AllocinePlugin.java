@@ -1,6 +1,5 @@
 package com.moviejukebox.plugin;
 
-import java.net.URL;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -30,8 +29,8 @@ public class AllocinePlugin extends ImdbPlugin {
 	 */
 	protected void updateTVShowInfo(Movie movie) {
 		try {
-			String xml = HTMLTools.request(new URL("http://www.allocine.fr/series/ficheserie_gen_cserie="
-					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
+			String xml = webBrowser.request("http://www.allocine.fr/series/ficheserie_gen_cserie="
+					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
 
 			movie.setTitleSort(extractTag(xml, "<title>", "</title>"));
 			movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
@@ -80,8 +79,8 @@ public class AllocinePlugin extends ImdbPlugin {
 			// start a new request for seasons details
 //			logger.finest("Start a new request for seasons details : http://www.allocine.fr/series/episodes_gen_cserie="
 //					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
-			String xml = HTMLTools.request(new URL("http://www.allocine.fr/series/episodes_gen_cserie="
-					+ allocineId + ".html"));
+			String xml = webBrowser.request("http://www.allocine.fr/series/episodes_gen_cserie="
+					+ allocineId + ".html");
 
 			for (String seasonTag : extractHtmlTags(xml, "<h4><b>Choisir une saison</b>", "<table",
 					"<a href=\"/series/episodes_gen_csaison", "</a>")) {
@@ -97,8 +96,8 @@ public class AllocinePlugin extends ImdbPlugin {
 					if (seasonId == movie.getSeason()) {
 						// we found the right season, time to get the infos
 //						logger.finest("The right Season IdI = " + seasonId);
-						xml = HTMLTools.request(new URL("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId
-								+ "&cserie=" + allocineId + ".html"));
+						xml = webBrowser.request("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId
+								+ "&cserie=" + allocineId + ".html");
 						for (MovieFile file : movie.getFiles()) {
 							if (!file.isNewFile()) {
 								// don't scan episode title if it exists in XML data
@@ -127,8 +126,8 @@ public class AllocinePlugin extends ImdbPlugin {
 	 */
 	private void updateMovieInfo(Movie movie) {
 		try {
-			String xml = HTMLTools.request(new URL("http://www.allocine.fr/film/fichefilm_gen_cfilm="
-					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
+			String xml = webBrowser.request("http://www.allocine.fr/film/fichefilm_gen_cfilm="
+					+ movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
 
 			movie.setTitleSort(extractTag(xml, "<title>", "</title>"));
 			movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
@@ -181,7 +180,7 @@ public class AllocinePlugin extends ImdbPlugin {
 			// wrong.
 			if (!movie.isTVShow()) {
 				String baseUrl = "http://www.allocine.fr/film/galerievignette_gen_cfilm=";
-				xml = HTMLTools.request(new URL(baseUrl + movie.getId(ALLOCINE_PLUGIN_ID) + ".html"));
+				xml = webBrowser.request(baseUrl + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
 				posterURL = extractTag(xml, "img id='imgNormal' class='photo' src='", "'");
 				if (!posterURL.equalsIgnoreCase("Unknown")) {
 					logger.finest("Movie PosterURL : " + posterURL);
@@ -208,7 +207,7 @@ public class AllocinePlugin extends ImdbPlugin {
 				movie.setPosterURL(posterURL);
 				return;
 			} else {
-				xml = HTMLTools.request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID)));
+				xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID));
 				int castIndex = xml.indexOf("<h3>Cast</h3>");
 				int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
 				if (beginIndex < castIndex && beginIndex != -1) {
@@ -298,7 +297,7 @@ public class AllocinePlugin extends ImdbPlugin {
 			sb.append(URLEncoder.encode(movieName.replace(' ', '+'), "iso-8859-1"));
 			sb.append("&x=0&y=0&rub=0"); // some AlloCine Magic 
 //			logger.finest("Allocine request : "+sb.toString());
-			String xml = HTMLTools.request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 
 			String alloCineStartResult;
 			String alloCineMediaPrefix;
