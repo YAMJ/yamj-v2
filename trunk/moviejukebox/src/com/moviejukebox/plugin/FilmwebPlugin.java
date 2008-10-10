@@ -3,17 +3,15 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
+import org.apache.commons.lang.StringUtils;
 
-import java.net.URL;
-import java.net.URLEncoder;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.IOException;
-
-import org.apache.commons.lang.StringUtils;
 
 public class FilmwebPlugin extends ImdbPlugin {
 	public static String FILMWEB_PLUGIN_ID = "filmweb";
@@ -34,6 +32,12 @@ public class FilmwebPlugin extends ImdbPlugin {
 		super.init(props); // use IMDB if filmweb doesn't know movie
 		filmwebPreferredSearchEngine = props.getProperty("filmweb.id.search", "filmweb");
 		filmwebPlot = props.getProperty("filmweb.plot", "short");
+		try {
+			// first request to filmweb site to skip welcome screen with ad banner
+			webBrowser.request("http://www.filmweb.pl");
+		} catch (IOException e) {
+			logger.severe("Error : " + e.getMessage());
+		}
 	}
 
 	public void scan(Movie mediaFile) {
@@ -80,7 +84,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
 			sb.append("+site%3Afilmweb.pl&ei=UTF-8");
 
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 			Matcher m = yahooPattern.matcher(xml);
 			if (m.find()) {
 				return "http:" + m.group(1);
@@ -109,7 +113,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
 			sb.append("+site%3Afilmweb.pl");
 
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 			Matcher m = googlePattern.matcher(xml);
 			if (m.find()) {
 				return m.group(1);
@@ -134,7 +138,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 			if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
 				sb.append("&startYear=").append(year).append("&endYear=").append(year);
 			}
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 			Matcher m = filmwebPattern.matcher(xml);
 			if (m.find()) {
 				return m.group(1);
@@ -153,7 +157,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 	 */
 	protected void updateMediaInfo(Movie movie) {
 		try {
-			String xml = request(new URL(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID)));
+			String xml = webBrowser.request(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
 			movie.setTitleSort(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
 			movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "film-rating-precise")));
@@ -228,7 +232,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 			} else {
 				return "None";
 			}
-			String xml = request(new URL(longPlotUrl));
+			String xml = webBrowser.request(longPlotUrl);
 			plot = HTMLTools.getTextAfterElem(xml, "opisy-header", 2);
 			if (plot.equalsIgnoreCase(Movie.UNKNOWN)) {
 				plot = "None";
@@ -258,7 +262,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 			String imdbId = updateImdbId(movie);
 			if (imdbId != null && !imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
 				try {
-					String imdbXml = request(new URL("http://www.imdb.com/title/" + imdbId));
+					String imdbXml = webBrowser.request("http://www.imdb.com/title/" + imdbId);
 					posterURL = super.getPosterURL(movie, imdbXml);
 				} catch (IOException e) {
 					return posterURL;
@@ -286,13 +290,13 @@ public class FilmwebPlugin extends ImdbPlugin {
 
 		try {
 			if (mainXML == null) {
-				mainXML = request(new URL(filmwebUrl));
+				mainXML = webBrowser.request(filmwebUrl);
 			}
 			// searchs for episodes url
 			Matcher m = episodesUrlPattern.matcher(mainXML);
 			if (m.find()) {
 				String episodesUrl = m.group();
-				String xml = request(new URL(episodesUrl));
+				String xml = webBrowser.request(episodesUrl);
 				for (MovieFile file : movie.getMovieFiles()) {
 					if (!file.isNewFile()) {
 						// don't scan episode title if it exists in XML data

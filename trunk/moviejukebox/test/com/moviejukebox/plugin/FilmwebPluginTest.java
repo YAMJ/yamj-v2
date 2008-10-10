@@ -2,6 +2,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.WebBrowser;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class FilmwebPluginTest extends TestCase {
 
   protected void setUp() {
     filmwebPlugin = new FilmwebPluginMock();
-    filmwebPlugin.filmwebPlot = "short";
+		filmwebPlugin.filmwebPlot = "short";
     // uncomment the bottom line to check if tests are still up to date
     // filmwebPlugin.offline = false;
     movie = new Movie();
@@ -81,9 +82,9 @@ public class FilmwebPluginTest extends TestCase {
 
   public void testUpdateMediaInfoRating() {
     movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://john.rambo.filmweb.pl");
-    filmwebPlugin.setRequestResult("<div class=\"film-rating\">\n<p>Średnia ocena: <b>Bardzo dobry</b></p>\n<div class=\"film-rating-precise\">\n<div class=\"film-rating-fill\" style=\"width: 75.21777629852295%\">\n<span><strong class=\"value\">7,52</strong>/10</span></div></div></div>");
+    filmwebPlugin.setRequestResult("<div class=\"film-rating\">\n<p>Średnia ocena: <b>Bardzo dobry</b></p>\n<div class=\"film-rating-precise\">\n<div class=\"film-rating-fill\" style=\"width: 75.21777629852295%\">\n<span><strong class=\"value\">7,47</strong>/10</span></div></div></div>");
     filmwebPlugin.updateMediaInfo(movie);
-    assertEquals(80, movie.getRating());
+    assertEquals(70, movie.getRating());
   }
 
   public void testUpdateMediaInfoDirector() {
@@ -137,15 +138,19 @@ public class FilmwebPluginTest extends TestCase {
 
   public void testUpdateMediaInfoLongPlot() {
     movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://seksmisja.filmweb.pl");
-    filmwebPlugin = new FilmwebPluginMock() {
-      public String request(URL url) {
-        if ("http://seksmisja.filmweb.pl/f1163/Seksmisja,1984/opisy".equals(url.toString())) {
-          return "<h2 class=\"replace\" id=\"opisy-header\">Opisy - Seksmisja<span></span></h2>\n\t\t\t&#160;<a class=\"n\" href=\"/Login\">zgłoś poprawkę</a>\n\t  </div>\n  \t\t<ul>\n\t\t<li><p style=\"text-align:justify\">\n\n\t\t\tAkcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efekt&oacute;w było całkowite zniszczenie gen&oacute;w męskich, w związku z czym są obecnie prawdopodobnie jedynymi mężczyznami na planecie. \n\t\t\t</p></li>\n\t\t\t\t</ul>";
-        } else {
-          return "<li><a title=\"Seksmisja (1984)  - opisy - FILMWEB.pl\" href=\"http://seksmisja.filmweb.pl/f1163/Seksmisja,1984/opisy\">opisy</a> [6] &raquo;</li>";
-        }
-      }
-    };
+    filmwebPlugin.webBrowser = new WebBrowser() {
+			public String request(URL url) throws IOException {
+				if (filmwebPlugin.offline) {
+					if ("http://seksmisja.filmweb.pl/f1163/Seksmisja,1984/opisy".equals(url.toString())) {
+						return "<h2 class=\"replace\" id=\"opisy-header\">Opisy - Seksmisja<span></span></h2>\n\t\t\t&#160;<a class=\"n\" href=\"/Login\">zgłoś poprawkę</a>\n\t  </div>\n  \t\t<ul>\n\t\t<li><p style=\"text-align:justify\">\n\n\t\t\tAkcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efekt&oacute;w było całkowite zniszczenie gen&oacute;w męskich, w związku z czym są obecnie prawdopodobnie jedynymi mężczyznami na planecie. \n\t\t\t</p></li>\n\t\t\t\t</ul>";
+					} else {
+						return "<li><a title=\"Seksmisja (1984)  - opisy - FILMWEB.pl\" href=\"http://seksmisja.filmweb.pl/f1163/Seksmisja,1984/opisy\">opisy</a> [6] &raquo;</li>";
+					}
+				} else {
+					return super.request(url);
+				}
+			}
+		};
     filmwebPlugin.filmwebPlot = "long";
     filmwebPlugin.updateMediaInfo(movie);
     assertEquals("Akcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efektów było całkowite zniszczenie genów męskich, w związku z czym są obecnie prawdopodobnie jedynymi mężczyznami na planecie.", movie.getPlot());
@@ -181,15 +186,19 @@ public class FilmwebPluginTest extends TestCase {
     episode = new MovieFile();
     episode.setPart(2);
     movie.addMovieFile(episode);
-    filmwebPlugin = new FilmwebPluginMock() {
-      public String request(URL url) {
-        if ("http://prison.break.filmweb.pl/f236096/Skazany+na+%C5%9Bmier%C4%87,2005/odcinki".equals(url.toString())) {
-          return "<tr>\n\t\t\t\t\t\t\t\t\t\t<td colspan=\"3\"><h2 id=\"seria4\" style=\"padding-top:10px\">sezon 4</h2></td>\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\todcinek 1\n\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t<td style=\"text-align:right\">\n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t1\n\t\t\t\t\t\twrześnia\t\t\t\t2008\n\t USA<br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\tScylla\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\todcinek 2\n\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t</td>\n\n\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t1\n\t\t\t\t\t\twrześnia\t\t\t\t2008\n\t USA<br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\tBreaking and Entering\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>";
-        } else {
-          return "<li><a title=\"Skazany na śmierć / Prison Break (2005)  - odcinki - FILMWEB.pl\" href=\"http://prison.break.filmweb.pl/f236096/Skazany+na+%C5%9Bmier%C4%87,2005/odcinki\">odcinki</a> [66] &raquo;</li>";
-        }
-      }
-    };
+		filmwebPlugin.webBrowser = new WebBrowser() {
+			public String request(URL url) throws IOException {
+				if (filmwebPlugin.offline) {
+					if ("http://prison.break.filmweb.pl/f236096/Skazany+na+%C5%9Bmier%C4%87,2005/odcinki".equals(url.toString())) {
+						return "<tr>\n\t\t\t\t\t\t\t\t\t\t<td colspan=\"3\"><h2 id=\"seria4\" style=\"padding-top:10px\">sezon 4</h2></td>\n\t\t\t\t</tr>\n\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\todcinek 1\n\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t<td style=\"text-align:right\">\n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t1\n\t\t\t\t\t\twrześnia\t\t\t\t2008\n\t USA<br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\tScylla\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\todcinek 2\n\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t</td>\n\n\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t1\n\t\t\t\t\t\twrześnia\t\t\t\t2008\n\t USA<br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t<td style=\"text-align:right\">\n\t\t\t\t\t\t\t\t\tBreaking and Entering\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>";
+					} else {
+						return "<li><a title=\"Skazany na śmierć / Prison Break (2005)  - odcinki - FILMWEB.pl\" href=\"http://prison.break.filmweb.pl/f236096/Skazany+na+%C5%9Bmier%C4%87,2005/odcinki\">odcinki</a> [66] &raquo;</li>";
+					}
+				} else {
+					return super.request(url);
+				}
+			}
+		};
     filmwebPlugin.filmwebPlot = "short";
     filmwebPlugin.updateMediaInfo(movie);
 
@@ -198,24 +207,28 @@ public class FilmwebPluginTest extends TestCase {
     assertEquals("Breaking and Entering", episodesIt.next().getTitle());
   }
 
-  class FilmwebPluginMock extends FilmwebPlugin {
+	class FilmwebPluginMock extends FilmwebPlugin {
     private String requestResult;
     private boolean offline = true;
 
-    public String getRequestResult() {
+		public FilmwebPluginMock() {
+			webBrowser = new WebBrowser() {
+				public String request(URL url) throws IOException {
+					if (offline) {
+						return getRequestResult();
+					} else {
+						return super.request(url);
+					}
+				}
+			};
+		}
+
+		public String getRequestResult() {
       return requestResult;
     }
 
     public void setRequestResult(String requestResult) {
       this.requestResult = requestResult;
-    }
-
-    public String request(URL url) throws IOException {
-      if (offline) {
-        return getRequestResult();
-      } else {
-        return super.request(url);
-      }
     }
   }
 }

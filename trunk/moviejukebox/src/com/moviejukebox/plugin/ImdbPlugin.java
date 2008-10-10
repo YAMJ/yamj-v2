@@ -3,10 +3,10 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.WebBrowser;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -25,8 +25,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	protected int maxGenres;
 	protected String preferredCountry;
 	protected String imdbPlot;
+	protected WebBrowser webBrowser;
 
 	public void init(Properties props) {
+		webBrowser = new WebBrowser();
 		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
 		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
 		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
@@ -83,7 +85,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
 			sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
 
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 			int beginIndex = xml.indexOf("/title/tt");
 			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
 			String imdbId = st.nextToken();
@@ -115,7 +117,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
 			sb.append("+site%3Awww.imdb.com&meta=");
 
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 			int beginIndex = xml.indexOf("/title/tt");
 			StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
 			String imdbId = st.nextToken();
@@ -146,7 +148,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			}
 			sb.append(";s=tt;site=aka");
 
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 
 			// Try to have a more accurate search result
 			// by considering "exact matches" categories
@@ -217,7 +219,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	 */
 	private void updateImdbMediaInfo(Movie movie) {
 		try {
-			String xml = request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID)));
+			String xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID));
 
 			movie.setTitleSort(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
 			movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 1)));
@@ -343,7 +345,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			sb.append(URLEncoder.encode(movieName, "UTF-8"));
 			sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
 
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 			int beginIndex = xml.indexOf("imgurl=");
 			int endIndex = xml.indexOf("%26", beginIndex);
 
@@ -369,7 +371,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			sb.append(URLEncoder.encode(movieName, "UTF-8"));
 			sb.append("&gbv=2");
 
-			String xml = request(new URL(sb.toString()));
+			String xml = webBrowser.request(sb.toString());
 			int beginIndex = xml.indexOf("imgurl=") + 7;
 
 			if (beginIndex != -1) {
@@ -388,7 +390,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	public boolean testMotechnetPoster(String movieId) {
 		String content = null;
 		try {
-			content = request((new URL("http://posters.motechnet.com/title/" + movieId + "/")));
+			content = webBrowser.request("http://posters.motechnet.com/title/" + movieId + "/");
 		} catch (Exception e) {
 		}
 
@@ -399,9 +401,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		String returnString = Movie.UNKNOWN;
 		String content = null;
 		try {
-			content = request((new URL(
-					"http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/"
-							+ movieId)));
+			content = webBrowser.request(
+					"http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/"+ movieId);
 		} catch (Exception e) {
 		}
 
@@ -426,7 +427,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
 			sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-			String content = request(new URL(sb.toString()));
+			String content = webBrowser.request(sb.toString());
 			if (content != null) {
 				int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
 				if (indexMovieLink != -1) {
@@ -454,7 +455,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		}
 
 		try {
-			String xml = request(new URL("http://www.imdb.com/title/" + imdbId + "/episodes"));
+			String xml = webBrowser.request("http://www.imdb.com/title/" + imdbId + "/episodes");
 			int season = movie.getSeason();
 			for (MovieFile file : movie.getMovieFiles()) {
 				if (!file.isNewFile()) {
@@ -494,7 +495,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 		String plot = "None";
 
 		try {
-			String xml = request(new URL("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary"));
+			String xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary");
 
 			String result = HTMLTools.extractTag(xml, "<p class=\"plotpar\">");
 			if (!result.equalsIgnoreCase(Movie.UNKNOWN) && result.indexOf("This plot synopsis is empty") < 0) {
@@ -525,9 +526,5 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 			logger.finer("No Imdb Id found in nfo !");
                     }
 		}
-	}
-
-	protected String request(URL url) throws IOException {
-		return HTMLTools.request(url);
 	}
 }
