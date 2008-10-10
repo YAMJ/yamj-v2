@@ -19,6 +19,10 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -65,6 +69,32 @@ public class MovieJukeboxHTMLWriter {
 		}
 	}
 
+        public void generatePlaylist(String rootPath, String tempRootPath, Movie movie) {
+            try {
+                if (movie.getFiles().size() > 1) {
+                    String tempFilename = tempRootPath + File.separator + movie.getBaseName();
+                    File finalPlaylistFile = new File(rootPath + File.separator + movie.getBaseName() + ".playlist.jsp");
+                    File tempPlaylistFile = new File(tempFilename + ".playlist.jsp");
+
+                    if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
+                        tempPlaylistFile.getParentFile().mkdirs();
+
+                        PrintWriter writer = new PrintWriter(tempPlaylistFile);
+
+                        for (MovieFile part : movie.getFiles()) {
+                            // write one line each in the format "name|0|0|path" replacing an | that may exist in the title
+                            writer.println(movie.getTitle().replace('|', ' ') + " " + part.getPart() + "|0|0|" + part.getFilename() + "|");
+                        }
+                        writer.flush();
+                        writer.close();
+                    }
+                }
+            } catch(Exception e) {
+                System.err.println("Failed generating playlist for movie " + movie);
+                e.printStackTrace();
+            }
+        }
+    
 	public void generateMoviesCategoryHTML( String rootPath, String detailsDirName, Library library )
 	{
 		try

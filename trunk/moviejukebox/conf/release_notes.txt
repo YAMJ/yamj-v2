@@ -18,6 +18,7 @@ MovieJukebox 1.0.12 beta
   - Fixed defect #134 Rating calculation not correct
   - Fixed defect #137 New TV episodes not added to season page
     Now they are added and titles are taken from movie DB site (eg imdb)
+  - Enhancement #146 "Play all" - Feature: generate .jsp-playlists for multipart movies (CD1, CD2,...) and tv-series
   - Enhancement #181 Support of local stored coverarts instead of search for them on the internet
   - Fixed defect #185 IMDB scanner is returning rating = "-1" in xml file
   - Fixed defect #187 trailing character in some IMDB plot output

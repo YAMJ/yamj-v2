@@ -307,6 +307,9 @@ public class MovieJukebox {
 			
 			// write the movie details HTML		
 			htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                        
+                        // write the playlist for the movie if needed
+                        htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 		}
 
 		logger.fine("Generating Indexes...");

@@ -186,27 +186,37 @@
                      
                      <xsl:text>&#160;</xsl:text>
                      
-										 <xsl:choose>
-											 <xsl:when test="position() = 1">
-												 <xsl:attribute name="class">firstMovie</xsl:attribute>
-											 </xsl:when>
-										 </xsl:choose>
+                     <xsl:choose>
+                             <xsl:when test="position() = 1">
+                                     <xsl:attribute name="class">firstMovie</xsl:attribute>
+                             </xsl:when>
+                     </xsl:choose>
 
-										 <xsl:choose>
-											 <xsl:when test="/details/movie/season!=-1">
-												 Episode <xsl:value-of select="@part"/>
-												 <xsl:if test="@title!='UNKNOWN'">
-													 - <xsl:value-of select="@title"/>
-												 </xsl:if>
-											 </xsl:when>
-											 <xsl:otherwise>
-												 <xsl:value-of select="/details/movie/titleSort"/> (Part <xsl:value-of select="@part"/>)
-											 </xsl:otherwise>
-										 </xsl:choose>
+                     <xsl:choose>
+                             <xsl:when test="/details/movie/season!=-1">
+                                     Episode <xsl:value-of select="@part"/>
+                                     <xsl:if test="@title!='UNKNOWN'">
+                                             - <xsl:value-of select="@title"/>
+                                     </xsl:if>
+                             </xsl:when>
+                             <xsl:otherwise>
+                                     <xsl:value-of select="/details/movie/titleSort"/> (Part <xsl:value-of select="@part"/>)
+                             </xsl:otherwise>
+                     </xsl:choose>
                    </a>
                  </td>
                </tr>
                </xsl:for-each>
+               <tr>
+                 <td class="normal">
+                   <a class="link">
+                       <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
+                       <xsl:attribute name="vod">playlist</xsl:attribute>
+                       <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
+                       <xsl:text>&#160;</xsl:text>PLAY ALL
+                   </a>
+                 </td>
+               </tr>               
               </table>
             </td>
           </tr>
