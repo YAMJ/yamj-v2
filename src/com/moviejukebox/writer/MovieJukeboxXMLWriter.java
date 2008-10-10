@@ -349,6 +349,7 @@ public class MovieJukeboxXMLWriter {
 			writer.writeCharacters(e.getValue());
 			writer.writeEndElement();
 		}
+                writer.writeStartElement("baseFilename"); writer.writeCharacters(movie.getBaseName()); writer.writeEndElement();
 		writer.writeStartElement("title"); writer.writeCharacters(movie.getTitle()); writer.writeEndElement();
 		writer.writeStartElement("titleSort"); writer.writeCharacters(movie.getTitleSort()); writer.writeEndElement();
 		writer.writeStartElement("year"); writer.writeCharacters(movie.getYear()); writer.writeEndElement();

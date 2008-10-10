@@ -218,6 +218,16 @@
                  </td>
                </tr>
                </xsl:for-each>
+               <tr>
+                 <td class="normal">
+                   <a class="link">
+                       <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
+                       <xsl:attribute name="vod">playlist</xsl:attribute>
+                       <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
+                       <xsl:text>&#160;</xsl:text>PLAY ALL
+                   </a>
+                 </td>
+               </tr>
               </table>
             </td>
           </tr>
