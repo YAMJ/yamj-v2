@@ -100,7 +100,7 @@
      <xsl:for-each select="library/movies/movie">
            <div class="title">
                <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
-               <xsl:value-of select="titleSort"/>
+               <xsl:value-of select="title"/>
            </div>
      </xsl:for-each>
 	 <div class="title">
