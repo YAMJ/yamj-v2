@@ -4,13 +4,13 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * DirectoryScanner
@@ -26,15 +26,13 @@ public class MovieDirectoryScanner {
 	private String supportedExtensions;
 	private String thumbnailsFormat;
         private String postersFormat;
-	private Properties props;
 	
 	private static Logger logger = Logger.getLogger("moviejukebox");
 	
-	public MovieDirectoryScanner(Properties props) {
-		this.props = props;
-		supportedExtensions = props.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
-		thumbnailsFormat = props.getProperty("thumbnails.format", "png");
-                postersFormat = props.getProperty("posters.format", "png");
+	public MovieDirectoryScanner() {
+            supportedExtensions = PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
+            thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
+            postersFormat = PropertiesUtil.getProperty("posters.format", "png");
 	}
 
 	/**
@@ -142,7 +140,7 @@ public class MovieDirectoryScanner {
 		m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
                 m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
 		
-		MovieFilenameScanner filenameScanner = new MovieFilenameScanner(props);
+		MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
 		filenameScanner.scan(m);
 		
 		library.addMovie(m);

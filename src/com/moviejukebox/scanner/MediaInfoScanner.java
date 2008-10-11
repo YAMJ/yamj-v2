@@ -8,13 +8,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Logger;
 
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
@@ -49,9 +49,8 @@ public class MediaInfoScanner {
 	/**
 	 * @param mediaInfoPath
 	 */
-	public MediaInfoScanner(Properties props) {
-		mediaInfoPath = new File(
-				props.getProperty("mediainfo.home", "./mediaInfo/"));
+	public MediaInfoScanner() {
+		mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
 		
 		File checkMediainfo =null;
 		
@@ -73,7 +72,7 @@ public class MediaInfoScanner {
 		} else {
 			activated = true;
 		}
-		localDVDRipScanner=new DVDRipScanner(props);
+		localDVDRipScanner = new DVDRipScanner();
 		
 	}
 

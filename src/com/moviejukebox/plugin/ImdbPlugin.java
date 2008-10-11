@@ -4,6 +4,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
@@ -28,15 +28,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 	protected String imdbPlot;
 	protected WebBrowser webBrowser;
 
-	public void init(Properties props) {
+	public ImdbPlugin() {
 		webBrowser = new WebBrowser();
-		preferredSearchEngine = props.getProperty("imdb.id.search", "imdb");
-		preferredPosterSearchEngine = props.getProperty("imdb.alternate.poster.search", "google");
-		perfectMatch = Boolean.parseBoolean(props.getProperty("imdb.perfect.match", "true"));
-		preferredCountry = props.getProperty("imdb.preferredCountry", "USA");
-		imdbPlot = props.getProperty("imdb.plot", "short");
+		preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
+		preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
+		perfectMatch = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
+		preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
+		imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
 		try {
-			String temp = props.getProperty("imdb.genres.max", "9");
+			String temp = PropertiesUtil.getProperty("imdb.genres.max", "9");
 			System.out.println("imdb.genres.max=" + temp);
 			maxGenres = Integer.parseInt(temp);
 		} catch (NumberFormatException ex) {

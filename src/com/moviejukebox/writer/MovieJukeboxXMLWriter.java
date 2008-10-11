@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -27,6 +26,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.TrailerFile;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -40,12 +40,12 @@ public class MovieJukeboxXMLWriter {
 	private String homePage;
 	private boolean fullMovieInfoInIndexes;
 
-	public MovieJukeboxXMLWriter(Properties props) {
-		forceXMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceXMLOverwrite", "false"));
-		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
-		nbMoviesPerLine = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerLine", "5"));
-		homePage = props.getProperty("mjb.homePage", "Other_All_1") + ".html";
-		fullMovieInfoInIndexes = Boolean.parseBoolean(props.getProperty("mjb.fullMovieInfoInIndexes","false"));
+	public MovieJukeboxXMLWriter() {
+            forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
+            nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
+            nbMoviesPerLine = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerLine", "5"));
+            homePage = PropertiesUtil.getProperty("mjb.homePage", "Other_All_1") + ".html";
+            fullMovieInfoInIndexes = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.fullMovieInfoInIndexes","false"));
 	}
 
 	/**

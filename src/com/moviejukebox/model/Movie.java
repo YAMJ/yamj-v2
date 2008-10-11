@@ -6,12 +6,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Movie bean
@@ -27,19 +27,17 @@ public class Movie implements Comparable<Movie> {
         
     private static ArrayList< String > sortIgnorePrefixes = new ArrayList< String >();
     
-    public static void setup( Properties props )
-    {
-    	String temp = props.getProperty( "sorting.strip.prefixes" );
-        if ( temp == null )
-        	return;
-        
-        StringTokenizer st = new StringTokenizer( temp, "," );
-        while ( st.hasMoreTokens())
-        {
-        	String token = st.nextToken();
-        	if (token.startsWith("\"") && token.endsWith("\""))
-        		token = token.substring(1,token.length()-1);
-        	sortIgnorePrefixes.add( token.toLowerCase() );
+    static {
+        String temp = PropertiesUtil.getProperty( "sorting.strip.prefixes" );
+        if (temp != null) {
+            StringTokenizer st = new StringTokenizer( temp, "," );
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                if (token.startsWith("\"") && token.endsWith("\"")) {
+                    token = token.substring(1,token.length()-1);
+                }
+                sortIgnorePrefixes.add( token.toLowerCase() );
+            }
         }
     }
 	

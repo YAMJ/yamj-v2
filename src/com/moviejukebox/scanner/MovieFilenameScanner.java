@@ -3,11 +3,11 @@ package com.moviejukebox.scanner;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Simple movie filename scanner. 
@@ -26,16 +26,19 @@ import com.moviejukebox.model.MovieFile;
  */
 public class MovieFilenameScanner {
 	
-	protected String[] skipKeywords;
+	protected static String[] skipKeywords;
 	protected int firstKeywordIndex = 0;
 
-	public MovieFilenameScanner(Properties props) {
-		StringTokenizer st = new StringTokenizer(props.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
-		Collection<String> keywords = new ArrayList<String>();
-		while (st.hasMoreTokens()) {
-			keywords.add(st.nextToken());
-		}
-		skipKeywords = keywords.toArray(new String[] {});
+        static {
+            StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
+            Collection<String> keywords = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                keywords.add(st.nextToken());
+            }
+            skipKeywords = keywords.toArray(new String[] {});
+        }
+        
+	public MovieFilenameScanner() {
 	}
 	
 	public void scan(Movie movie) {

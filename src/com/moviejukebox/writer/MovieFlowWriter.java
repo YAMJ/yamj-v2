@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Result;
@@ -21,6 +20,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -32,10 +32,10 @@ public class MovieFlowWriter {
 	private String skinHome;
 	private String homePage;
 
-	public MovieFlowWriter(Properties props) {
-		forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "false"));
-		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
-		homePage = props.getProperty("mjb.skin.homePage", "movieflow") + ".html";
+	public MovieFlowWriter() {
+            forceHTMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceHTMLOverwrite", "false"));
+            skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+            homePage = PropertiesUtil.getProperty("mjb.skin.homePage", "movieflow") + ".html";
 	}
 
 	/**
