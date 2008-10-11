@@ -86,7 +86,7 @@
 
 <table class="title"><tr><td id="title" align="center">&#160;</td></tr></table>
 <xsl:for-each select="library/movies/movie">
-<div class="title"><xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute><xsl:if test="season!=-1">&quot;</xsl:if><xsl:value-of select="titleSort"/><xsl:if test="season!=-1">&quot; Season <xsl:value-of select="season"/></xsl:if> (<xsl:value-of select="certification" />)</div>
+<div class="title"><xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute><xsl:if test="season!=-1">&quot;</xsl:if><xsl:value-of select="title"/><xsl:if test="season!=-1">&quot; Season <xsl:value-of select="season"/></xsl:if> (<xsl:value-of select="certification" />)</div>
 </xsl:for-each>
 </body>
 </html>

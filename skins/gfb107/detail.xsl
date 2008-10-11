@@ -8,7 +8,7 @@
 <head>
   <link rel="StyleSheet" type="text/css" href="exportdetails_item_popcorn.css"></link>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <title><xsl:value-of select="titleSort"/></title>
+  <title><xsl:value-of select="title"/></title>
 </head>
 
 <body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
@@ -36,8 +36,8 @@
         <tr>
           <td class="title1" valign="top" colspan="4">
             <xsl:choose>
-            <xsl:when test="season!=-1">&quot;<xsl:value-of select="titleSort"/>&quot; Season <xsl:value-of select="season" /></xsl:when>
-            <xsl:otherwise><xsl:value-of select="titleSort"/></xsl:otherwise>
+            <xsl:when test="season!=-1">&quot;<xsl:value-of select="title"/>&quot; Season <xsl:value-of select="season" /></xsl:when>
+            <xsl:otherwise><xsl:value-of select="title"/></xsl:otherwise>
             </xsl:choose>
             <xsl:if test="year != 'UNKNOWN'">
             (<xsl:value-of select="year"/>)
@@ -192,7 +192,7 @@
                          </xsl:if>
                        </xsl:when>
                        <xsl:otherwise>
-                         <xsl:value-of select="/details/movie/titleSort"/> (Part <xsl:value-of select="@part"/>)
+                         <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
                        </xsl:otherwise>
                      </xsl:choose>
                    </a>
