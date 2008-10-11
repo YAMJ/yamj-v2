@@ -6,13 +6,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class DefaultPosterPlugin implements MovieImagePlugin {
 
@@ -28,16 +28,15 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 	private int posterHeight;
         private float ratio;
 
-	@Override
-	public void init(Properties props) {
-		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
-		posterWidth = Integer.parseInt(props.getProperty("posters.width", "400"));
-		posterHeight = Integer.parseInt(props.getProperty("posters.height", "600"));
-		addReflectionEffect = Boolean.parseBoolean(props.getProperty("posters.reflection", "true"));
-		addPerspective = Boolean.parseBoolean(props.getProperty("posters.perspective", "true"));
-		normalizePosters = Boolean.parseBoolean(props.getProperty("posters.normalize", "false"));
-		addHDLogo = Boolean.parseBoolean(props.getProperty("posters.logoHD", "false"));
-                addLanguage = Boolean.parseBoolean(props.getProperty("posters.language", "false"));
+	public DefaultPosterPlugin() {
+		skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+		posterWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "400"));
+		posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "600"));
+		addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty("posters.reflection", "true"));
+		addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty("posters.perspective", "true"));
+		normalizePosters = Boolean.parseBoolean(PropertiesUtil.getProperty("posters.normalize", "false"));
+		addHDLogo = Boolean.parseBoolean(PropertiesUtil.getProperty("posters.logoHD", "false"));
+                addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty("posters.language", "false"));
                 ratio = (float)posterWidth/(float)posterHeight;
 	}
 

@@ -4,25 +4,21 @@ import com.moviejukebox.model.Library;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.io.IOException;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class AllocinePlugin extends ImdbPlugin {
 
-	protected Properties storedProps;
-
 	public static String ALLOCINE_PLUGIN_ID = "allocine";
 
-	@Override
-	public void init(Properties props) {
-		super.init(props);
-		storedProps = props;
-		preferredCountry = props.getProperty("imdb.preferredCountry", "France");
+	public AllocinePlugin() {
+		super();
+		preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
 	}
 
 	/**
@@ -274,14 +270,12 @@ public class AllocinePlugin extends ImdbPlugin {
 				// If no AllocineId found fallback to Imdb
 				logger.finer("No Allocine Id available, we fall back to ImdbPlugin");
 				ImdbPlugin imdbPlugin = new ImdbPlugin();
-				imdbPlugin.init(storedProps);
 				imdbPlugin.scan(mediaFile);				
 			}
 		} catch (ParseException e) {
 			// If no AllocineId found fallback to Imdb
 			logger.finer("Parse error in AllocinePlugin we fall back to ImdbPlugin");
 			ImdbPlugin imdbPlugin = new ImdbPlugin();
-			imdbPlugin.init(storedProps);
 			imdbPlugin.scan(mediaFile);
 		}
 	}

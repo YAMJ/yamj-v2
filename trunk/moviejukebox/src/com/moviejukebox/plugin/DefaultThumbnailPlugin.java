@@ -6,13 +6,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class DefaultThumbnailPlugin implements MovieImagePlugin {
 
@@ -28,16 +28,15 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 	private int thumbHeight;
         private float ratio;
 
-	@Override
-	public void init(Properties props) {
-		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
-		thumbWidth = Integer.parseInt(props.getProperty("thumbnails.width", "180"));
-		thumbHeight = Integer.parseInt(props.getProperty("thumbnails.height", "260"));
-		addReflectionEffect = Boolean.parseBoolean(props.getProperty("thumbnails.reflection", "true"));
-		addPerspective = Boolean.parseBoolean(props.getProperty("thumbnails.perspective", "false"));
-		normalizeThumbnails = Boolean.parseBoolean(props.getProperty("thumbnails.normalize", "false"));
-		addHDLogo = Boolean.parseBoolean(props.getProperty("thumbnails.logoHD", "false"));
-                addLanguage = Boolean.parseBoolean(props.getProperty("thumbnails.language", "false"));
+	public DefaultThumbnailPlugin() {
+		skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+		thumbWidth = Integer.parseInt(PropertiesUtil.getProperty("thumbnails.width", "180"));
+		thumbHeight = Integer.parseInt(PropertiesUtil.getProperty("thumbnails.height", "260"));
+		addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.reflection", "true"));
+		addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.perspective", "false"));
+		normalizeThumbnails = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.normalize", "false"));
+		addHDLogo = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.logoHD", "false"));
+                addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.language", "false"));
                 ratio = (float)thumbWidth/(float)thumbHeight;
 	}
 

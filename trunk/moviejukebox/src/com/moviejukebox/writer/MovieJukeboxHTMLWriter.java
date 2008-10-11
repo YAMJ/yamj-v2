@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -20,8 +19,7 @@ import javax.xml.transform.stream.StreamSource;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import com.moviejukebox.tools.PropertiesUtil;
 import java.io.PrintWriter;
 
 /**
@@ -35,11 +33,11 @@ public class MovieJukeboxHTMLWriter {
 	private String skinHome;
 	private String homePage;
 
-	public MovieJukeboxHTMLWriter(Properties props) {
-		forceHTMLOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceHTMLOverwrite", "false"));
-		nbMoviesPerPage = Integer.parseInt(props.getProperty("mjb.nbThumbnailsPerPage", "10"));
-		skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
-		homePage = props.getProperty("mjb.homePage", "Other_All_1") + ".html";
+	public MovieJukeboxHTMLWriter() {
+            forceHTMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceHTMLOverwrite", "false"));
+            nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
+            skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+            homePage = PropertiesUtil.getProperty("mjb.homePage", "Other_All_1") + ".html";
 	}
 
 	public void generateMovieDetailsHTML(String rootPath, String tempRootPath, Movie movie) {

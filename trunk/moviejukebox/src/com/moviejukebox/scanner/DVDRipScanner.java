@@ -2,7 +2,6 @@ package com.moviejukebox.scanner;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
@@ -33,7 +32,7 @@ public class DVDRipScanner {
 
 	private static Logger log = Logger.getLogger("moviejukebox");
 
-	public DVDRipScanner(Properties props) {
+	public DVDRipScanner() {
 	}
 
 	public FilePropertiesMovie executeGetDVDInfo(File mediaRep) {

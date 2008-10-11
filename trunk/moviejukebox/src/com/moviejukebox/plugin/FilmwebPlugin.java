@@ -4,12 +4,12 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
-import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,10 +29,10 @@ public class FilmwebPlugin extends ImdbPlugin {
 	protected String filmwebPreferredSearchEngine;
 	protected String filmwebPlot;
 
-	public void init(Properties props) {
-		super.init(props); // use IMDB if filmweb doesn't know movie
-		filmwebPreferredSearchEngine = props.getProperty("filmweb.id.search", "filmweb");
-		filmwebPlot = props.getProperty("filmweb.plot", "short");
+	public FilmwebPlugin() {
+		super(); // use IMDB if filmweb doesn't know movie
+		filmwebPreferredSearchEngine = PropertiesUtil.getProperty("filmweb.id.search", "filmweb");
+		filmwebPlot = PropertiesUtil.getProperty("filmweb.plot", "short");
 		try {
 			// first request to filmweb site to skip welcome screen with ad banner
 			webBrowser.request("http://www.filmweb.pl");

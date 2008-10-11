@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
@@ -33,22 +32,6 @@ public class MovieNFOScanner {
 	 * @param movieDB
 	 */
 	public void scan(Movie movie, MovieDatabasePlugin movieDB) {
-		Properties props = new Properties();
-		InputStream propertiesStream = ClassLoader.getSystemResourceAsStream("moviejukebox.properties");
-
-		try {
-			if (propertiesStream == null) {
-				propertiesStream = new FileInputStream("moviejukebox.properties");
-			}
-
-			props.load(propertiesStream);
-		} catch (Exception e) {
-			logger
-					.severe("Failed loading file moviejukebox.properties: Please check your configuration. The moviejukebox.properties should be in the classpath.");
-		}
-
-		logger.finer(props.toString());
-
 		String fn = movie.getFile().getAbsolutePath();
 		if (movie.getFile().isFile()) {
 			int i = fn.lastIndexOf(".");

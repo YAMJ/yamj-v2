@@ -1,7 +1,5 @@
 package com.moviejukebox.plugin;
 
-import java.util.Properties;
-
 import com.moviejukebox.model.Movie;
 
 /**
@@ -17,14 +15,6 @@ import com.moviejukebox.model.Movie;
  * @author Julien
  */
 public interface MovieDatabasePlugin {
-
-	/**
-	 * Called by movie jukebox at program initialisation.
-	 * Contains the moviejukebox.properties
-	 * 
-	 * @param props moviejukebox properties
-	 */
-	public void init(Properties props);
 
 	/**
 	 * Called by movie jukebox when processing a movie.

@@ -6,12 +6,12 @@ package com.moviejukebox.scanner;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Scanner for poster files in local directory
@@ -28,22 +28,22 @@ public class PosterScanner {
 	protected String fixedCoverArtName;
 	protected String coverArtDirectory;
 	
-	public PosterScanner(Properties props) {
-		// We get covert art scanner behaviour
-		searchForExistingCoverArt = props.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
-		// We get the fixed name property 
-		fixedCoverArtName = props.getProperty("poster.scanner.fixedCoverArtName", "folder");
+	public PosterScanner() {
+            // We get covert art scanner behaviour
+            searchForExistingCoverArt = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
+            // We get the fixed name property 
+            fixedCoverArtName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
 
-		// We get valid extensions
-		StringTokenizer st = new StringTokenizer(props.getProperty("poster.scanner.coverArtExtensions", ""), ",;| ");
-		Collection<String> extensions = new ArrayList<String>();
-		while (st.hasMoreTokens()) {
-			extensions.add(st.nextToken());
-		}
-		coverArtExtensions = extensions.toArray(new String[] {});
-		
-		// We get coverart Directory if needed
-		coverArtDirectory = props.getProperty("poster.scanner.coverArtDirectory", "");		
+            // We get valid extensions
+            StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.coverArtExtensions", ""), ",;| ");
+            Collection<String> extensions = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                    extensions.add(st.nextToken());
+            }
+            coverArtExtensions = extensions.toArray(new String[] {});
+
+            // We get coverart Directory if needed
+            coverArtDirectory = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");		
 	}
 	
 	public void scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {

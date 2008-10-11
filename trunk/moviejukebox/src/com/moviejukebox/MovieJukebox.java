@@ -6,14 +6,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -40,6 +38,7 @@ import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.writer.MovieFlowWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
@@ -57,7 +56,6 @@ public class MovieJukebox {
 	private String detailsDirName;
 	private boolean forceThumbnailOverwrite;
 	private boolean forcePosterOverwrite;
-	private Properties props;
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
 		// Send logger output to our FileHandler.
@@ -164,38 +162,13 @@ public class MovieJukebox {
 	}
 
 	private MovieJukebox(String source, String jukeboxRoot) {
-		// Load moviejukebox.properties form the classpath
-		props = new java.util.Properties();
-		InputStream propertiesStream = ClassLoader.getSystemResourceAsStream("moviejukebox.properties");
-
-		try {
-			if (propertiesStream == null) {
-				propertiesStream = new FileInputStream("moviejukebox.properties");
-			}
-
-			props.load(propertiesStream);
-		} catch (Exception e) {
-			logger.severe("Failed loading file moviejukebox.properties: Please check your configuration. The moviejukebox.properties should be in the classpath.");
-		}
-		
-		logger.finer(props.toString());
-
-		this.skinHome = props.getProperty("mjb.skin.dir", "./skins/default");
-
-		try {
-			propertiesStream = new FileInputStream(this.skinHome + File.separator + "skin.properties");
-			props.load(propertiesStream);
-		} catch (Exception e) {
-			logger.severe("Failed loading file skin.properties: Please check your configuration. The moviejukebox.properties should be in the classpath, and define a property called mjb.skin.dir which point to the skin directory.");
-		}
-		
-		
 		this.movieLibraryRoot = source;
 		this.jukeboxRoot = jukeboxRoot;
-		this.detailsDirName = props.getProperty("mjb.detailsDirName", "Jukebox");
-		this.forceThumbnailOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forceThumbnailsOverwrite", "false"));
-		this.forcePosterOverwrite = Boolean.parseBoolean(props.getProperty("mjb.forcePostersOverwrite", "false"));
-		
+		this.detailsDirName = PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox");
+		this.forceThumbnailOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceThumbnailsOverwrite", "false"));
+		this.forcePosterOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forcePostersOverwrite", "false"));
+		this.skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+                
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
 			logger.finest("Parsing library file : " + source);
@@ -205,26 +178,24 @@ public class MovieJukebox {
 			movieLibraryPaths = new ArrayList<MediaLibraryPath>();
 			MediaLibraryPath mlp = new MediaLibraryPath();
 			mlp.setPath(source);
-			mlp.setNmtRootPath(props.getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"));
+			mlp.setNmtRootPath(PropertiesUtil.getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"));
 			mlp.setExcludes(new ArrayList<String>());
 			movieLibraryPaths.add(mlp);
 		}
 	}
 
 	private void generateLibrary() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
-		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter(props);
-		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter(props);
+		MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
+		MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
-		MovieDatabasePlugin movieDBPlugin = this.getMovieDatabasePlugin(props.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
-		MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(props.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
-		MovieImagePlugin posterPlugin = this.getPosterPlugin(props.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
+		MovieDatabasePlugin movieDBPlugin = this.getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
+		MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(PropertiesUtil.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
+		MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
 
-		MovieDirectoryScanner mds = new MovieDirectoryScanner(props);
+		MovieDirectoryScanner mds = new MovieDirectoryScanner();
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
-		MediaInfoScanner miScanner = new MediaInfoScanner(props);
-		PosterScanner posterScanner = new PosterScanner(props);
-
-		Movie.setup(props);
+		MediaInfoScanner miScanner = new MediaInfoScanner();
+		PosterScanner posterScanner = new PosterScanner();
 
 		File mediaLibraryRoot = new File(movieLibraryRoot);
 		String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
@@ -253,7 +224,6 @@ public class MovieJukebox {
 		logger.fine("Scanning movies directory " + mediaLibraryRoot);
 		logger.fine("Jukebox output goes to " + jukeboxRoot);
 
-                Library.setup(props);
 		Library library = new Library();
 		for (MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
 			logger.finer("Scanning media library " + mediaLibraryPath.getPath());
@@ -309,8 +279,8 @@ public class MovieJukebox {
 
 		logger.fine("Generating Indexes...");
 		
-		if(props.getProperty("mjb.skin.dir", "./skins/default").toLowerCase().indexOf("movieflow") != -1) {
-			MovieFlowWriter writer = new MovieFlowWriter (props);
+		if (PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default").toLowerCase().indexOf("movieflow") != -1) {
+			MovieFlowWriter writer = new MovieFlowWriter();
 			writer.writeIndexJS(tempJukeboxDetailsRoot, detailsDirName, library);
 		} else {
 			xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
@@ -365,10 +335,10 @@ public class MovieJukebox {
 			movieDB.scanTVShowTitles(movie);
 
 			// Update thumbnails format if needed
-			String thumbnailExtension = props.getProperty("thumbnails.format", "png");
+			String thumbnailExtension = PropertiesUtil.getProperty("thumbnails.format", "png");
 			movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
 			// Update poster format if needed
-			String posterExtension = props.getProperty("posters.format", "png");
+			String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
 			movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
 			
 		} else {
@@ -432,11 +402,11 @@ public class MovieJukebox {
 
 	@SuppressWarnings("unchecked")
 	private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
-		Collection<MediaLibraryPath> movieLibraryPaths = new ArrayList<MediaLibraryPath>();
+		Collection<MediaLibraryPath> mlp = new ArrayList<MediaLibraryPath>();
 
 		if (!f.exists() || f.isDirectory()) {
 			logger.severe("The moviejukebox library input file you specified is invalid: " + f.getName());
-			return movieLibraryPaths;
+			return mlp;
 		}
 
 		try {
@@ -455,7 +425,7 @@ public class MovieJukebox {
 					medlib.setPath(path);
 					medlib.setNmtRootPath(nmtpath);
 					medlib.setExcludes(excludes);
-					movieLibraryPaths.add(medlib);
+					mlp.add(medlib);
 					logger.fine("Found media library: " + medlib);
 				} else {
 					logger.fine("Skipped invalid media library: " + path);
@@ -465,7 +435,7 @@ public class MovieJukebox {
 			logger.severe("Failed parsing moviejukebox library input file: " + f.getName());
 			e.printStackTrace();
 		}
-		return movieLibraryPaths;
+		return mlp;
 	}
 
 	public MovieDatabasePlugin getMovieDatabasePlugin(String className) {
@@ -483,7 +453,6 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 
-		movieDB.init(props);
 		return movieDB;
 	}
 	
@@ -502,7 +471,6 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 
-		thumbnailPlugin.init(props);
 		return thumbnailPlugin;
 	}
 
@@ -521,7 +489,6 @@ public class MovieJukebox {
 			e.printStackTrace();
 		}
 
-		posterPlugin.init(props);
 		return posterPlugin;
 	}
 

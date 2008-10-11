@@ -1,5 +1,6 @@
 package com.moviejukebox.model;
 
+import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
@@ -21,7 +21,6 @@ public class Library implements Map<String, Movie> {
 
 	private static Logger logger = Logger.getLogger("moviejukebox");
 
-	private static Properties props = new Properties();
 	private static boolean filterGenres;
         private static List<String> certificationOrdering = new ArrayList<String>();
 	private static Map<String,String> genresMap = new HashMap<String, String>();
@@ -30,23 +29,21 @@ public class Library implements Map<String, Movie> {
 	private List<Movie> moviesList = new ArrayList<Movie>();
 	private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
 	
-	
-        public static void setup(Properties p) {
-            if (props != null) {
-                props = p;
-            }
-
-            filterGenres = props.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
-            String xmlGenreFile = props.getProperty("mjb.xmlGenreFile", "genres.xml");
+        static {
+            filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
+            String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres.xml");
             fillGenreMap(xmlGenreFile);
             
             {
-                String temp = props.getProperty("certification.ordering");
+                String temp = PropertiesUtil.getProperty("certification.ordering");
                 if (temp != null && !temp.isEmpty()) {
                     String[] certs = temp.split(",");
                     certificationOrdering.addAll(Arrays.asList(certs));
                 }
             }
+        }
+	
+        public Library() {
         }
 
 	public void addMovie(Movie movie) {
