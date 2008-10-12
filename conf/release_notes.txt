@@ -34,6 +34,7 @@ MovieJukebox 1.0.12 beta
   - Fixed defect #206 Local coverArt not working for VIDEO_TS directories
   - Fixed defect #207 with genre filtering the subGenre still shows in the detail page resulting in broken links
   - Fixed defect #209 Filmweb plugin - genres aren't correctly recognized after filmweb site has been changed
+  - Fixed defect #210 sortTitle is displayed instead of title, so sortTitle field can't be tweaked to change only the sort order
 
 MovieJukebox 1.0.11 beta
 -----------------------
