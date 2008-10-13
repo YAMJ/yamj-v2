@@ -81,9 +81,11 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<releaseDate>")) { movie.setReleaseDate(parseCData(r)); }
 				if (tag.equals("<rating>")) { movie.setRating(Integer.parseInt(parseCData(r))); }
 				if (tag.equals("<posterURL>")) { movie.setPosterURL(parseCData(r)); }
+                                if (tag.equals("<fanartURL>")) { movie.setFanartURL(parseCData(r)); }
 				if (tag.equals("<posterFile>")) { movie.setPosterFilename(parseCData(r)); }
-                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(parseCData(r)); }
-				if (tag.equals("<thumbnailFile>")) { movie.setThumbnailFilename(parseCData(r)); }
+                                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(parseCData(r)); }
+				if (tag.equals("<thumbnail>")) { movie.setThumbnailFilename(parseCData(r)); }
+                                if (tag.equals("<fanartFile>")) { movie.setFanartFilename(parseCData(r)); }
 				if (tag.equals("<plot>")) { movie.setPlot(parseCData(r)); }
 				if (tag.equals("<director>")) { movie.setDirector(parseCData(r)); }
 				if (tag.equals("<country>")) { movie.setCountry(parseCData(r)); }
@@ -357,9 +359,11 @@ public class MovieJukeboxXMLWriter {
 		writer.writeStartElement("rating"); writer.writeCharacters(Integer.toString(movie.getRating())); writer.writeEndElement();
 		writer.writeStartElement("details"); writer.writeCharacters( movie.getBaseName() + ".html" ); writer.writeEndElement();
 		writer.writeStartElement("posterURL"); writer.writeCharacters(movie.getPosterURL()); writer.writeEndElement();
+                writer.writeStartElement("fanartURL"); writer.writeCharacters(movie.getFanartURL()); writer.writeEndElement();
 		writer.writeStartElement("posterFile"); writer.writeCharacters(movie.getPosterFilename()); writer.writeEndElement();
 		writer.writeStartElement("detailPosterFile"); writer.writeCharacters(movie.getDetailPosterFilename()); writer.writeEndElement();
 		writer.writeStartElement("thumbnail"); writer.writeCharacters(movie.getThumbnailFilename()); writer.writeEndElement();
+                writer.writeStartElement("fanartFile"); writer.writeCharacters(movie.getFanartFilename()); writer.writeEndElement();
 		writer.writeStartElement("plot"); writer.writeCharacters(movie.getPlot()); writer.writeEndElement();
 		writer.writeStartElement("director"); writer.writeCharacters(movie.getDirector()); writer.writeEndElement();
 		writer.writeStartElement("country"); writer.writeCharacters(movie.getCountry()); writer.writeEndElement();

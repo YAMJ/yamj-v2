@@ -27,6 +27,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultPosterPlugin;
 import com.moviejukebox.plugin.DefaultThumbnailPlugin;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -56,6 +57,7 @@ public class MovieJukebox {
 	private String detailsDirName;
 	private boolean forceThumbnailOverwrite;
 	private boolean forcePosterOverwrite;
+        private boolean fanartDownload;
 
 	public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
 		// Send logger output to our FileHandler.
@@ -168,6 +170,7 @@ public class MovieJukebox {
 		this.forceThumbnailOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceThumbnailsOverwrite", "false"));
 		this.forcePosterOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forcePostersOverwrite", "false"));
 		this.skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+                this.fanartDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
                 
 		File f = new File(source);
 		if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -191,6 +194,7 @@ public class MovieJukebox {
 		MovieDatabasePlugin movieDBPlugin = this.getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin"));
 		MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(PropertiesUtil.getProperty("mjb.thumbnail.plugin", "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
 		MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
+                MovieImagePlugin backgroundPlugin = this.getBackgroundPlugin(PropertiesUtil.getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
 
 		MovieDirectoryScanner mds = new MovieDirectoryScanner();
 		MovieNFOScanner nfoScanner = new MovieNFOScanner();
@@ -248,6 +252,12 @@ public class MovieJukebox {
 			// Then get this movie's poster
 			logger.finer("Updating poster for: " + movie.getTitle() + "...");
 			updateMoviePoster(movieDBPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                        
+                        // Get Fanart if requested
+                        if (fanartDownload) {
+                            logger.finer("Updating fanart for: " + movie.getTitle() + "...");
+                            updateFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                        }
 		}
 
 
@@ -389,7 +399,7 @@ public class MovieJukebox {
 				try {
 					// Issue 201 : we now download to local temp dir
 					logger.finest("Downloading poster for " + movie.getBaseName() +" to "+ tmpDestFileName +" [calling plugin]");
-					downloadPoster(tmpDestFile, movie);
+					downloadImage(tmpDestFile, movie.getPosterURL());
 				} catch (Exception e) {
 					logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
 					FileTools.copyFile(
@@ -400,6 +410,33 @@ public class MovieJukebox {
 		}
 	}
 
+	private void updateFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+            if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+		String fanartFilename = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
+		File fanartFile = new File(fanartFilename);
+		String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getFanartFilename();
+		File tmpDestFile = new File(tmpDestFileName);
+
+		// Do not overwrite existing fanart
+		if (!fanartFile.exists() && !tmpDestFile.exists()) {
+                    fanartFile.getParentFile().mkdirs();
+
+                    try {
+                        logger.finest("Downloading fanart for " + movie.getBaseName() +" to "+ tmpDestFileName +" [calling plugin]");
+                        
+                        BufferedImage fanartImage = GraphicTools.loadJPEGImage(new URL(movie.getFanartURL()));
+                        
+                        if (fanartImage != null) {
+                            fanartImage = backgroundPlugin.generate(movie, fanartImage);
+                            GraphicTools.saveImageToDisk(fanartImage, tmpDestFileName);
+                        }
+                    } catch (Exception e) {
+                        logger.finer("Failed downloading fanart : " + movie.getFanartURL());
+                    }
+		}
+            }
+	}
+        
 	@SuppressWarnings("unchecked")
 	private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
 		Collection<MediaLibraryPath> mlp = new ArrayList<MediaLibraryPath>();
@@ -491,19 +528,37 @@ public class MovieJukebox {
 
 		return posterPlugin;
 	}
+        
+	public MovieImagePlugin getBackgroundPlugin(String className) {
+		MovieImagePlugin backgroundPlugin;
+
+		try {
+			Thread t = Thread.currentThread();
+			ClassLoader cl = t.getContextClassLoader();
+			Class< ?extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
+			backgroundPlugin = pluginClass.newInstance();
+		} catch (Exception e) {
+			backgroundPlugin = new DefaultBackgroundPlugin();
+			logger.severe("Failed instanciating BackgroundPlugin: " + className);
+			logger.severe("Default background plugin will be used instead.");
+			e.printStackTrace();
+		}
+
+		return backgroundPlugin;
+	}        
 
 	/**
-	 * Download the movie poster for the specified movie into the specified file.
+	 * Download the image for the specified url into the specified file.
 	 * @throws IOException
 	 */
-	public static void downloadPoster(File posterFile, Movie mediaFile) throws IOException {
-		URL url = new URL(mediaFile.getPosterURL());
+	public static void downloadImage(File imageFile, String imageURL) throws IOException {
+		URL url = new URL(imageURL);
 		URLConnection cnx = url.openConnection();
 	
 		// Let's pretend we're Firefox...
 		cnx.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.1.5) Gecko/20070719 Iceweasel/2.0.0.5 (Debian-2.0.0.5-0etch1)");
 
-		FileTools.copy(cnx.getInputStream(), new FileOutputStream(posterFile));
+		FileTools.copy(cnx.getInputStream(), new FileOutputStream(imageFile));
 	}
 
 	public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
