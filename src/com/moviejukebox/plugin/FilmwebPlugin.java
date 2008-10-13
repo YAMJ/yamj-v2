@@ -38,20 +38,24 @@ public class FilmwebPlugin extends ImdbPlugin
   public FilmwebPlugin()
   {
     super(); // use IMDB if filmweb doesn't know movie
-    filmwebPreferredSearchEngine = PropertiesUtil.getProperty( "filmweb.id.search", "filmweb" );
-    filmwebPlot = PropertiesUtil.getProperty( "filmweb.plot", "short" );
-    try
-    {
-      // first request to filmweb site to skip welcome screen with ad banner
-      webBrowser.request( "http://www.filmweb.pl" );
-    }
-    catch ( IOException e )
-    {
-      logger.severe( "Error : " + e.getMessage() );
-    }
-  }
+		init();
+	}
 
-  public void scan( Movie mediaFile )
+	public void init() {
+		filmwebPreferredSearchEngine = PropertiesUtil.getProperty( "filmweb.id.search", "filmweb" );
+		filmwebPlot = PropertiesUtil.getProperty( "filmweb.plot", "short" );
+		try
+		{
+			// first request to filmweb site to skip welcome screen with ad banner
+			webBrowser.request( "http://www.filmweb.pl" );
+		}
+		catch ( IOException e )
+		{
+			logger.severe( "Error : " + e.getMessage() );
+		}
+	}
+
+	public void scan( Movie mediaFile )
   {
     String filmwebUrl = mediaFile.getId( FILMWEB_PLUGIN_ID );
     if ( filmwebUrl == null || filmwebUrl.equalsIgnoreCase( Movie.UNKNOWN ) )
