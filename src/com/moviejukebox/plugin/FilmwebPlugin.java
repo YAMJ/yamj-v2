@@ -296,7 +296,7 @@ public class FilmwebPlugin extends ImdbPlugin
 
   /**
    * Retrieves the long plot description from filmweb if it exists, else "None"
-   * 
+   *
    * @return long plot
    */
   private String getLongPlot( String mainXML )
@@ -420,7 +420,7 @@ public class FilmwebPlugin extends ImdbPlugin
       {
         // use IMDB if filmweb doesn't know episodes titles
         updateImdbId( movie );
-        super.updateTVShowInfo( movie );
+				super.scanTVShowTitles(movie);
       }
     }
     catch ( IOException e )
