@@ -51,9 +51,11 @@ public class Movie implements Comparable<Movie> {
 	private String releaseDate = UNKNOWN;
 	private int rating = -1;
 	private String posterURL = UNKNOWN;
+        private String fanartURL = UNKNOWN;
 	private String posterFilename = UNKNOWN;
         private String detailPosterFilename = UNKNOWN;
 	private String thumbnailFilename = UNKNOWN;
+        private String fanartFilename = UNKNOWN;
 	private String plot = UNKNOWN;
 	private String director = UNKNOWN;
 	private String country = UNKNOWN;
@@ -650,5 +652,21 @@ public class Movie implements Comparable<Movie> {
 
         public boolean isTrailer() {
             return trailer;
+        }
+        
+        public String getFanartFilename() {
+            return fanartFilename;
+        }
+        
+        public void setFanartFilename(String fanartFilename) {
+            this.fanartFilename = fanartFilename;
+        }
+        
+        public String getFanartURL() {
+            return fanartURL;
+        }
+        
+        public void setFanartURL(String fanartURL) {
+            this.fanartURL = fanartURL;
         }
 }

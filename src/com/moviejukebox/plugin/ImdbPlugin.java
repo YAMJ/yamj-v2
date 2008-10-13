@@ -6,6 +6,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Library;
@@ -28,17 +29,17 @@ public class ImdbPlugin implements MovieDatabasePlugin
   protected String preferredCountry;
   protected String imdbPlot;
   protected WebBrowser webBrowser;
+  protected boolean downloadFanart;
 
   public ImdbPlugin()
   {
     webBrowser = new WebBrowser();
     preferredSearchEngine = PropertiesUtil.getProperty( "imdb.id.search", "imdb" );
-    preferredPosterSearchEngine = PropertiesUtil.getProperty( "imdb.alternate.poster.search",
-        "google" );
-    perfectMatch = Boolean
-        .parseBoolean( PropertiesUtil.getProperty( "imdb.perfect.match", "true" ) );
+    preferredPosterSearchEngine = PropertiesUtil.getProperty( "imdb.alternate.poster.search", "google" );
+    perfectMatch = Boolean.parseBoolean( PropertiesUtil.getProperty( "imdb.perfect.match", "true" ) );
     preferredCountry = PropertiesUtil.getProperty( "imdb.preferredCountry", "USA" );
     imdbPlot = PropertiesUtil.getProperty( "imdb.plot", "short" );
+    downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
     try
     {
       String temp = PropertiesUtil.getProperty( "imdb.genres.max", "9" );
@@ -361,6 +362,13 @@ public class ImdbPlugin implements MovieDatabasePlugin
       {
         updateTVShowInfo( movie );
       }
+      
+      if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+          movie.setFanartURL(getFanartURL(movie));
+          if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+              movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+          }
+      }
 
     }
     catch ( Exception e )
@@ -383,6 +391,29 @@ public class ImdbPlugin implements MovieDatabasePlugin
     }
   }
 
+    protected String getFanartURL(Movie movie) {
+        String fanartURL = Movie.UNKNOWN;
+        
+        String imdbID = movie.getId(IMDB_PLUGIN_ID);
+        if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            try {
+                String response = webBrowser.request("http://api.themoviedb.org/backdrop.php?imdb=" + imdbID);
+                
+                if (response != null && !response.isEmpty()) {
+                    int beginIdx = response.indexOf("<URL>");
+                    if (beginIdx > -1) {
+                        int endIdx = response.indexOf("</URL>", beginIdx);
+                        if (endIdx > -1) {
+                            fanartURL = response.substring(beginIdx+5, endIdx);
+                        }
+                    }
+                }
+            } catch (IOException ignore) {}
+        }
+      
+        return fanartURL;
+    }
+  
   protected String getPosterURL( Movie movie, String xml )
   {
     int castIndex = xml.indexOf( "<h3>Cast</h3>" );

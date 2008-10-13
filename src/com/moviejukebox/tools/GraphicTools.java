@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import com.jhlabs.image.PerspectiveFilter;
+import java.net.URL;
 
 public class GraphicTools {
 
@@ -42,6 +43,16 @@ public class GraphicTools {
 		}
 		return bi;
 	}
+        
+        public static BufferedImage loadJPEGImage(URL url) {
+            BufferedImage bi = null;
+            try {
+                bi = ImageIO.read(url);
+            } catch (Exception ignore) {
+                bi = null;
+            }
+            return bi;
+        }
 
 	public static void saveImageAsJpeg(BufferedImage bi, String str) {
 		if (bi == null || str == null)
