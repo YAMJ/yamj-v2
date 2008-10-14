@@ -3,7 +3,7 @@
 	<target name="all" depends="clean, compile, test, delivery"/>
 
 	<target name="init">
-		<property name="version" value="v1.0.11 beta"/>
+		<property name="version" value="v1.0.12 beta"/>
 	</target>
 
 	<target name="clean">
