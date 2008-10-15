@@ -2,6 +2,10 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.0.13 beta
+------------------------
+  - Enhancement #224 Trailer names...
+
 MovieJukebox 1.0.12 beta
 -----------------------
   - Enhancement #66 Ability to recognise a movie trailer and add it to the movie html page
