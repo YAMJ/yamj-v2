@@ -11,11 +11,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
 import com.jhlabs.image.PerspectiveFilter;
+import java.io.IOException;
 import java.net.URL;
 
 public class GraphicTools {
@@ -43,6 +46,17 @@ public class GraphicTools {
 		}
 		return bi;
 	}
+        
+        public static BufferedImage loadJPEGImage(String urlString) {
+            BufferedImage bi = null;
+            try {
+                bi = loadJPEGImage(new URL(urlString));
+            } catch (IOException ignore) {
+                ignore.printStackTrace();
+                bi = null;
+            }
+            return bi;
+        }
         
         public static BufferedImage loadJPEGImage(URL url) {
             BufferedImage bi = null;
