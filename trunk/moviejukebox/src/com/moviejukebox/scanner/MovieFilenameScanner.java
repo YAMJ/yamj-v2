@@ -462,14 +462,25 @@ public class MovieFilenameScanner {
 	}
 	
 	protected String findKeyword(String filename, String[] strings) {
-		for (String keyword : strings) {
-			int index = filename.indexOf(keyword);
-			if (index>0) {
-				updateFirstKeywordIndex(index);
-				return keyword;
-			}
-		}
-		return "Unknown";
+            String name = filename.toUpperCase();
+            name = name.replace(".", " ");
+            name = name.replace("_", " ");
+            name = name.replace("-", " ");
+            name = name.replace("[", " ");
+            name = name.replace("]", " ");
+            name = name.replace("(", " ");
+            name = name.replace(")", " ");
+            
+            String val = "Unknown";
+            for (String keyword : strings) {
+                String upperKeyword = " " + keyword.toUpperCase() + " ";
+                int index = name.indexOf(upperKeyword);
+                if (index > 0) {
+                    updateFirstKeywordIndex(index);
+                    val = keyword;
+                }
+            }
+            return val;
 	}
 
 	/**
