@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.13 beta
 ------------------------
+  - Fixed defect #202 scanner.skip.keywords problems
   - Fixed defect #223 When the first fanart file is corrupt or has an error
   - Enhancement #224 Trailer names...
 
