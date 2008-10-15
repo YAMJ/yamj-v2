@@ -314,9 +314,10 @@ public class MovieFilenameScanner {
                 if (endIdx > -1) {
                     String token = filename.substring(beginIdx+1, endIdx).toUpperCase();
                     if (token.indexOf("TRAILER") > -1) {
-                        movie.setTrailer(true);
-                        movie.getFirstFile().setTitle(movie.getBaseName());
-                        break;
+                       movie.setTrailer(true);
+                       String tmp = movie.getBaseName();
+                       movie.getFirstFile().setTitle(tmp.substring(tmp.indexOf("[")+1,tmp.indexOf("]")));
+                       break;
                     }
                 } else {
                     break;
