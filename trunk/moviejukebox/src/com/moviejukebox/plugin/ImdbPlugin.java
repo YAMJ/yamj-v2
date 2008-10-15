@@ -12,9 +12,12 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 
 public class ImdbPlugin implements MovieDatabasePlugin
 {
@@ -400,12 +403,23 @@ public class ImdbPlugin implements MovieDatabasePlugin
                 String response = webBrowser.request("http://api.themoviedb.org/backdrop.php?imdb=" + imdbID);
                 
                 if (response != null && !response.isEmpty()) {
+                    
+                    BufferedImage fanartImage = null;
                     int beginIdx = response.indexOf("<URL>");
-                    if (beginIdx > -1) {
+                    while (fanartImage == null && beginIdx > -1) {
                         int endIdx = response.indexOf("</URL>", beginIdx);
                         if (endIdx > -1) {
                             fanartURL = response.substring(beginIdx+5, endIdx);
+                            // test to see if the image url is valid
+                            // if not, then the loop will continue looking for the next valid url
+                            fanartImage = GraphicTools.loadJPEGImage(fanartURL);
+                            if (fanartImage == null) {
+                                fanartURL = Movie.UNKNOWN;
+                            }
+                        } else {
+                            break;
                         }
+                        beginIdx = response.indexOf("<URL>", endIdx);
                     }
                 }
             } catch (IOException ignore) {}

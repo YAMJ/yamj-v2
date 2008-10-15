@@ -424,11 +424,14 @@ public class MovieJukebox {
                     try {
                         logger.finest("Downloading fanart for " + movie.getBaseName() +" to "+ tmpDestFileName +" [calling plugin]");
                         
-                        BufferedImage fanartImage = GraphicTools.loadJPEGImage(new URL(movie.getFanartURL()));
+                        BufferedImage fanartImage = GraphicTools.loadJPEGImage(movie.getFanartURL());
                         
                         if (fanartImage != null) {
                             fanartImage = backgroundPlugin.generate(movie, fanartImage);
                             GraphicTools.saveImageToDisk(fanartImage, tmpDestFileName);
+                        } else {
+                            movie.setFanartFilename(Movie.UNKNOWN);
+                            movie.setFanartURL(Movie.UNKNOWN);
                         }
                     } catch (Exception e) {
                         logger.finer("Failed downloading fanart : " + movie.getFanartURL());
