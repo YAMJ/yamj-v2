@@ -33,6 +33,9 @@ public class MovieNFOScanner {
 	 */
 	public void scan(Movie movie, MovieDatabasePlugin movieDB) {
 		String fn = movie.getFile().getAbsolutePath();
+		String localMovieName = movie.getTitle();
+		
+		// Filename is not a directory
 		if (movie.getFile().isFile()) {
 			int i = fn.lastIndexOf(".");
 			fn = fn.substring(0, i);
@@ -41,6 +44,19 @@ public class MovieNFOScanner {
 
 		if (!nfoFile.exists()) {
 			nfoFile = new File(fn + ".NFO");
+		}
+
+		// Check to see if the filename is a directory and then look in there if it is.
+		if (movie.getFile().isDirectory()) {
+			// Filename is a directory, so check in there for a nfo file first.
+			logger.finest("Searching in the movie directory for nfo file");
+			nfoFile = new File(fn + "\\" + localMovieName + ".nfo");
+
+			// Can't fine the lowercase extension, try uppercase.
+			if (!nfoFile.exists()) {
+				// check to see if the nfo file is in a sub-directory named the same as the movie
+				nfoFile = new File(fn + "\\" + localMovieName + ".NFO");
+			}
 		}
 
 		if (nfoFile.exists()) {
