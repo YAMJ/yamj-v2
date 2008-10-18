@@ -27,12 +27,16 @@ public class PosterScanner {
 	protected String searchForExistingCoverArt;
 	protected String fixedCoverArtName;
 	protected String coverArtDirectory;
+	// Added by Stuart.Boston
+	protected Boolean useFolderImage;
 	
 	public PosterScanner() {
             // We get covert art scanner behaviour
             searchForExistingCoverArt = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
             // We get the fixed name property 
             fixedCoverArtName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
+			// Stuart.Boston: See if we user folder.* or not
+			useFolderImage = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.useFolderImage", "true"));
 
             // We get valid extensions
             StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.coverArtExtensions", ""), ",;| ");
@@ -79,7 +83,7 @@ public class PosterScanner {
 				fullPosterFilename += File.separator + coverArtDirectory;
 			}
 			fullPosterFilename += File.separator + localPosterBaseFilename + "." + extension;
-			logger.finest("Check if "+ fullPosterFilename + " exists");
+			logger.finest("Checking for "+ fullPosterFilename);
 			localPosterFile = new File(fullPosterFilename);
 			if (localPosterFile.exists()){
 				logger.finest("The file "+ fullPosterFilename + " exists");
@@ -87,6 +91,54 @@ public class PosterScanner {
 				break;
 			}			
 		}
+		
+		/***
+		* This part will look for a filename with the same name as the directory for the cover art or for folder.* coverart
+		* The intention is for you to be able to create the season / Tv series art for the whole series and not for the first show.
+		* useful if you change the files regularly
+		* 
+		* @author Stuart.Boston
+		* @version 1.0
+		* @date 18th October 2008
+		*/
+		if (! foundLocalCoverArt) {
+		// if no coverart has been found, try the foldername
+		// no  need to check the coverart directory
+			localPosterBaseFilename = movie.getFile().getParent();
+			logger.finest("Individual coverart not found. Checking for folder coverart.");
+			
+			localPosterBaseFilename = localPosterBaseFilename.substring(localPosterBaseFilename.lastIndexOf("\\") + 1);
+			logger.finest("Checking for '" + localPosterBaseFilename + ".*' coverart");
+			
+			for (String extension : coverArtExtensions) {
+				// Check for the directory name with extension for coverart
+				fullPosterFilename = movie.getFile().getParent() + File.separator + localPosterBaseFilename + "." + extension;
+				//logger.finest("Checking for "+ fullPosterFilename);
+				localPosterFile = new File(fullPosterFilename);
+				if (localPosterFile.exists()){
+					logger.finest("The file "+ fullPosterFilename + " found");
+					foundLocalCoverArt= true;
+					break;
+				}
+				
+				if (useFolderImage)
+				{
+					logger.finest("Checking for 'folder.*' coverart");
+					// Check for folder.jpg if it exists
+					fullPosterFilename = movie.getFile().getParent() + File.separator + "folder." + extension;
+					//logger.finest("Checking for "+ fullPosterFilename);
+					localPosterFile = new File(fullPosterFilename);
+					if (localPosterFile.exists()){
+						logger.finest("The file "+ fullPosterFilename + " found");
+						foundLocalCoverArt= true;
+						break;
+					}
+				}
+			}
+		}
+		/***
+		* END OF  Folder Art
+		*/
 		
 		if (foundLocalCoverArt) {
 			String finalDestinationFileName = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
