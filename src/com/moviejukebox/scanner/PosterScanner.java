@@ -27,7 +27,6 @@ public class PosterScanner {
 	protected String searchForExistingCoverArt;
 	protected String fixedCoverArtName;
 	protected String coverArtDirectory;
-	// Added by Stuart.Boston
 	protected Boolean useFolderImage;
 	
 	public PosterScanner() {
@@ -105,15 +104,19 @@ public class PosterScanner {
 		// if no coverart has been found, try the foldername
 		// no  need to check the coverart directory
 			localPosterBaseFilename = movie.getFile().getParent();
-			logger.finest("Individual coverart not found. Checking for folder coverart.");
-			
 			localPosterBaseFilename = localPosterBaseFilename.substring(localPosterBaseFilename.lastIndexOf("\\") + 1);
-			logger.finest("Checking for '" + localPosterBaseFilename + ".*' coverart");
+			
+			if (useFolderImage) {
+				// Checking for MovieFolderName.* AND folder.*
+				logger.finest("Checking for '" + localPosterBaseFilename + ".*' coverart AND folder.* coverart");
+			} else {
+				// Only checking for the MovieFolderName.* and not folder.*
+				logger.finest("Checking for '" + localPosterBaseFilename + ".*' coverart");
+			}
 			
 			for (String extension : coverArtExtensions) {
 				// Check for the directory name with extension for coverart
 				fullPosterFilename = movie.getFile().getParent() + File.separator + localPosterBaseFilename + "." + extension;
-				//logger.finest("Checking for "+ fullPosterFilename);
 				localPosterFile = new File(fullPosterFilename);
 				if (localPosterFile.exists()){
 					logger.finest("The file "+ fullPosterFilename + " found");
@@ -123,10 +126,9 @@ public class PosterScanner {
 				
 				if (useFolderImage)
 				{
-					logger.finest("Checking for 'folder.*' coverart");
+					//logger.finest("Checking for 'folder.*' coverart");
 					// Check for folder.jpg if it exists
 					fullPosterFilename = movie.getFile().getParent() + File.separator + "folder." + extension;
-					//logger.finest("Checking for "+ fullPosterFilename);
 					localPosterFile = new File(fullPosterFilename);
 					if (localPosterFile.exists()){
 						logger.finest("The file "+ fullPosterFilename + " found");
@@ -137,7 +139,7 @@ public class PosterScanner {
 			}
 		}
 		/***
-		* END OF  Folder Art
+		* END OF  Folder CoverArt
 		*/
 		
 		if (foundLocalCoverArt) {
