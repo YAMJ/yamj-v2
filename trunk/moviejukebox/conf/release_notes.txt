@@ -4,10 +4,14 @@
 
 MovieJukebox 1.0.13 beta
 ------------------------
+  - Enhancement #76 Addition of a TV logo to TV Series
   - Fixed defect #202 scanner.skip.keywords problems
+  - Fixed defect #217 NFO Scanner now checks the movie folder for NFO files (For VIDEO_TS)
   - Fixed defect #223 When the first fanart file is corrupt or has an error
   - Enhancement #224 Trailer names...
   - Fixed defect #235 Filmweb plugin - better url identifying in NFO files
+  - Enhancement #? Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
+
 
 MovieJukebox 1.0.12 beta
 -----------------------
