@@ -34,6 +34,7 @@ public class MovieNFOScanner {
 	public void scan(Movie movie, MovieDatabasePlugin movieDB) {
 		String fn = movie.getFile().getAbsolutePath();
 		String localMovieName = movie.getTitle();
+		String baseMovieDir = "";
 		
 		// Filename is not a directory
 		if (movie.getFile().isFile()) {
@@ -47,7 +48,7 @@ public class MovieNFOScanner {
 		}
 
 		// Check to see if the filename is a directory and then look in there if it is.
-		if (movie.getFile().isDirectory()) {
+		if (!nfoFile.exists() && movie.getFile().isDirectory()) {
 			// Filename is a directory, so check in there for a nfo file first.
 			logger.finest("Searching in the movie directory for nfo file");
 			nfoFile = new File(fn + "\\" + localMovieName + ".nfo");
@@ -58,7 +59,23 @@ public class MovieNFOScanner {
 				nfoFile = new File(fn + "\\" + localMovieName + ".NFO");
 			}
 		}
-
+		
+		// There's no NFO file called video.nfo or directory\video.nfo so look for directory.nfo
+		// this is to be used mainly for TV Series.
+		if (!nfoFile.exists()) {
+			// Still not found the nfo file, so check to see if there's an nfo file with the same name as the directory
+			baseMovieDir = fn.substring(0, fn.lastIndexOf("\\"));
+			localMovieName = baseMovieDir.substring(baseMovieDir.lastIndexOf("\\") + 1);
+			
+			nfoFile = new File(baseMovieDir + "\\" + localMovieName + ".nfo");
+			
+			// Can't fine the lowercase extension, try uppercase.
+			if (!nfoFile.exists()) {
+				// check to see if the nfo file is in a sub-directory named the same as the movie
+				nfoFile = new File(baseMovieDir + "\\" + localMovieName + ".NFO");
+			}
+		}
+		
 		if (nfoFile.exists()) {
 			logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
 			InputStream in = null;
