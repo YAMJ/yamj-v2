@@ -34,47 +34,35 @@ public class MovieNFOScanner {
 	public void scan(Movie movie, MovieDatabasePlugin movieDB) {
 		String fn = movie.getFile().getAbsolutePath();
 		String localMovieName = movie.getTitle();
-		String baseMovieDir = "";
-		
-		// Filename is not a directory
+		String localMovieDir = fn.substring(0, fn.lastIndexOf("\\"));	// the full directory that the video file is in
+		String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf("\\") + 1);	// just the sub-directory the video file is in
+		String checkedFN = "";
+
+		// If "fn" is a file then strip the extension from the file.
 		if (movie.getFile().isFile()) {
-			int i = fn.lastIndexOf(".");
-			fn = fn.substring(0, i);
+			fn = fn.substring(0, fn.lastIndexOf("."));
+		} else {
+			// The movie is a directory, which indicates that this is a VIDEO_TS file
+			// So, we should search for the file moviename.nfo in the sub-directory
+			checkedFN = checkNFO(fn + fn.substring(fn.lastIndexOf("\\")));
 		}
-		File nfoFile = new File(fn + ".nfo");
-
-		if (!nfoFile.exists()) {
-			nfoFile = new File(fn + ".NFO");
-		}
-
-		// Check to see if the filename is a directory and then look in there if it is.
-		if (!nfoFile.exists() && movie.getFile().isDirectory()) {
-			// Filename is a directory, so check in there for a nfo file first.
-			logger.finest("Searching in the movie directory for nfo file");
-			nfoFile = new File(fn + "\\" + localMovieName + ".nfo");
-
-			// Can't fine the lowercase extension, try uppercase.
-			if (!nfoFile.exists()) {
-				// check to see if the nfo file is in a sub-directory named the same as the movie
-				nfoFile = new File(fn + "\\" + localMovieName + ".NFO");
+		
+		if (checkedFN.equals("")) {
+			// Not a VIDEO_TS directory so search for the variations on the filename.nfo
+			// *** Second step is to check for a directory wide NFO file.
+			// This file should be named the same as the directory that it is in
+			// E.G. C:\TV\Chuck\Season 1\Season 1.nfo
+			checkedFN = checkNFO(localMovieDir + "\\" + localDirectoryName);
+			
+			if (checkedFN.equals("")) {
+				// *** Third step is to check for the filename.nfo dile
+				// This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
+				// E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
+				checkedFN = checkNFO(fn);
 			}
 		}
 		
-		// There's no NFO file called video.nfo or directory\video.nfo so look for directory.nfo
-		// this is to be used mainly for TV Series.
-		if (!nfoFile.exists()) {
-			// Still not found the nfo file, so check to see if there's an nfo file with the same name as the directory
-			baseMovieDir = fn.substring(0, fn.lastIndexOf("\\"));
-			localMovieName = baseMovieDir.substring(baseMovieDir.lastIndexOf("\\") + 1);
-			
-			nfoFile = new File(baseMovieDir + "\\" + localMovieName + ".nfo");
-			
-			// Can't fine the lowercase extension, try uppercase.
-			if (!nfoFile.exists()) {
-				// check to see if the nfo file is in a sub-directory named the same as the movie
-				nfoFile = new File(baseMovieDir + "\\" + localMovieName + ".NFO");
-			}
-		}
+		File nfoFile = new File(checkedFN);
 		
 		if (nfoFile.exists()) {
 			logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
@@ -141,6 +129,26 @@ public class MovieNFOScanner {
 				} catch (IOException e) {
 					logger.severe("Failed closing: " + e.getMessage());
 				}
+			}
+		}
+	}
+	
+	/**
+	 * Check to see if the passed filename exists with nfo extensions
+	 * 
+	 * @param checkNFOfilename (NO EXTENSION)
+	 * @return blank string if not found, filename if found
+	 */
+private String checkNFO(String checkNFOfilename) {
+		File nfoFile = new File(checkNFOfilename + ".nfo");
+		if (nfoFile.exists()) {
+			return (checkNFOfilename + ".nfo");
+		} else {
+			nfoFile = new File(checkNFOfilename + ".NFO");
+			if (nfoFile.exists()) {
+				return (checkNFOfilename + ".NFO");
+			} else {
+				return ("");
 			}
 		}
 	}
