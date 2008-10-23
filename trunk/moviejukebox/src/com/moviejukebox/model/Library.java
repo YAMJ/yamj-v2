@@ -146,10 +146,22 @@ public class Library implements Map<String, Movie> {
 	}
 	
 	private void indexByProperties() {
-		long oneDay = 1000 * 60 * 60 * 24;
-		long oneWeek = oneDay * 7;
+		long oneDay = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+		// long oneWeek = oneDay * 7;
 		// long oneMonth = oneDay * 30;
+		
+		String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
+		long newDays;
+		
+		try {
+			newDays = Long.parseLong(newDaysParam.trim());
+		} catch (NumberFormatException nfe) {
+			newDays = 7;
+		}
 
+		newDays = newDays * oneDay;
+		logger.finest("New category will have the last " + newDays + " days");
+		
 		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {
                     if (movie.isTrailer()) {
@@ -162,7 +174,8 @@ public class Library implements Map<String, Movie> {
 			File f = movie.getFile();
 			long delay = System.currentTimeMillis() - f.lastModified();
 			
-			if (delay <= oneWeek ) {
+			logger.finest("*--*--* Delay: " + delay);
+			if (delay <= newDays ) {
 				addMovie(index, "New", movie);
 			} /* else if (delay < oneMonth) {
 				addMovie(index, "New this month", movie);
