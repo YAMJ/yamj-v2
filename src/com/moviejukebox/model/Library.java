@@ -159,8 +159,8 @@ public class Library implements Map<String, Movie> {
 			newDays = 7;
 		}
 
-		newDays = newDays * oneDay;
 		logger.finest("New category will have the last " + newDays + " days");
+		newDays = newDays * oneDay;
 		
 		TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
 		for (Movie movie : moviesList) {
@@ -174,7 +174,6 @@ public class Library implements Map<String, Movie> {
 			File f = movie.getFile();
 			long delay = System.currentTimeMillis() - f.lastModified();
 			
-			logger.finest("*--*--* Delay: " + delay);
 			if (delay <= newDays ) {
 				addMovie(index, "New", movie);
 			} /* else if (delay < oneMonth) {
