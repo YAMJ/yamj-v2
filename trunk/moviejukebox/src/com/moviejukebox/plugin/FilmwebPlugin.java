@@ -23,7 +23,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 	private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
 	private static Pattern filmwebPattern = Pattern
 			.compile("searchResultTitle[^>]+\"(http://[^\"/?&]*filmweb.pl[^\"]*)\"");
-	private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[a-zA-Z0-9\\-_\\.\\*!~'\\(\\),/]*");
+	private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^ <>`\"\\[\\]]*");
 	private static Pattern longPlotUrlPattern = Pattern
 			.compile("http://[^\"/?&]*filmweb.pl[^\"]*/opisy");
 	private static Pattern posterUrlPattern = Pattern
@@ -347,7 +347,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 			if (!url.endsWith(".jpg") && !url.endsWith(".jpeg") &&
 			    !url.endsWith(".gif") && !url.endsWith(".png") && !url.endsWith(".bmp")) {
 				found = true;
-				movie.setId(FILMWEB_PLUGIN_ID, m.group());
+				movie.setId(FILMWEB_PLUGIN_ID, url);
 			}
 		}
 		if (found) {
