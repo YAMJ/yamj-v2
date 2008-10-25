@@ -32,14 +32,14 @@
 <table class="main" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td COLSPAN="2" align="center"> 
-        <xsl:for-each select="library/category[@name='Title']/index">
-			<xsl:if test="position()>1"> - </xsl:if>
-            <a>
-            <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute> 
-            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute> 
-            <xsl:value-of select="@name" />
-            </a>
-        </xsl:for-each>
+      <xsl:for-each select="library/category[@name='Title']/index">
+        <xsl:if test="position()>1"> - </xsl:if>
+        <a>
+        <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+        <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
+        <xsl:value-of select="@name" />
+        </a>
+      </xsl:for-each>
     </td>
   </tr>
   <tr align="left" valign="top">
@@ -48,20 +48,20 @@
         <xsl:for-each select="library/category[@name='Other']/index">
           <tr valign="top"><td align="right">
             <a>
-            <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute> 
-            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute> 
+            <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
             <xsl:value-of select="@name" />
             </a>
-          </td></tr> 
+          </td></tr>
         </xsl:for-each>
         <xsl:for-each select="library/category[@name='Genres']/index">
           <tr valign="top"><td align="right">
             <a>
-            <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute> 
-            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute> 
+            <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
             <xsl:value-of select="@name" />
             </a>
-          </td></tr> 
+          </td></tr>
         </xsl:for-each>
         <tr><td><hr/></td></tr>
 
@@ -76,14 +76,14 @@
              </tr></table>
            </td></tr>
         </xsl:if>
-        
+
       </table>
     </td>
     <td>
       <table class="movies" border="0">
         <xsl:for-each select="library/movies/movie[position() mod $nbCols = 1]">
           <tr>
-            <xsl:apply-templates 
+            <xsl:apply-templates
                  select=".|following-sibling::movie[position() &lt; $nbCols]">
               <xsl:with-param name="gap" select="(position() - 1) * $nbCols" />
               <xsl:with-param name="currentIndex" select="$currentIndex" />
@@ -97,15 +97,17 @@
     </td>
   </tr>
 </table>
-     <xsl:for-each select="library/movies/movie">
-           <div class="title">
-               <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
-               <xsl:value-of select="titleSort"/><xsl:if test="season > 0"> Season <xsl:value-of select="season"/></xsl:if> 
-           </div>
-     </xsl:for-each>
-	 <div class="title">
-		<a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="/library/preferences/homePage"/></xsl:attribute>Home</a>
+  <xsl:for-each select="library/movies/movie">
+     <div class="title">
+       <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
+       <xsl:value-of select="titleSort"/><xsl:if test="season > 0"> Season <xsl:value-of select="season"/></xsl:if>
      </div>
+  </xsl:for-each>
+  <div class="title">
+    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="/library/preferences/homePage"/></xsl:attribute>Home</a>
+    <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
+    <a name="pgupload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
+  </div>
 </body>
 </html>
 </xsl:template>
@@ -118,22 +120,23 @@
      <td>
         <a>
           <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
-          <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute> 
+          <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute>
+          <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
           <xsl:attribute name="onblur">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
           <xsl:if test="$lastIndex != 1">
             <xsl:if test="$gap=0 and $currentIndex != 1">
-              <xsl:attribute name="onkeyupset">pgup</xsl:attribute>
+              <xsl:attribute name="onkeyupset">pgupload</xsl:attribute>
             </xsl:if>
             <xsl:if test="$gap=$lastGap and $currentIndex != $lastIndex">
-              <xsl:attribute name="onkeydownset">pgdn</xsl:attribute>
+              <xsl:attribute name="onkeydownset">pgdnload</xsl:attribute>
             </xsl:if>
           </xsl:if>
           <img>
-			<xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
+            <xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
             <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
             <xsl:attribute name="onmouseout">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
-		  </img>
+          </img>
         </a>
      </td>
 </xsl:template>

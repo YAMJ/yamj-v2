@@ -6,6 +6,7 @@ MovieJukebox 1.0.13 beta
 ------------------------
   - Enhancement #76 Addition of a TV logo to TV Series
   - Enhancement #151 Season indicator on SD and Default skins for TV Series
+  - Enhancement #160 Vertical scroll
   - Enhancement #194 Configurable number of days for "New" Category. 0 (Zero) will disable new category.
   - Fixed defect #202 scanner.skip.keywords problems
   - Fixed Defect #216 - HTML generation fails if the xml is not created as part of this run (i.e. the html is deleted from the source directory)
