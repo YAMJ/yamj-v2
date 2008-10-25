@@ -34,8 +34,8 @@ public class MovieNFOScanner {
 	public void scan(Movie movie, MovieDatabasePlugin movieDB) {
 		String fn = movie.getFile().getAbsolutePath();
 		String localMovieName = movie.getTitle();
-		String localMovieDir = fn.substring(0, fn.lastIndexOf("\\"));	// the full directory that the video file is in
-		String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf("\\") + 1);	// just the sub-directory the video file is in
+		String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator));	// the full directory that the video file is in
+		String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1);	// just the sub-directory the video file is in
 		String checkedFN = "";
 
 		// If "fn" is a file then strip the extension from the file.
@@ -44,7 +44,7 @@ public class MovieNFOScanner {
 		} else {
 			// The movie is a directory, which indicates that this is a VIDEO_TS file
 			// So, we should search for the file moviename.nfo in the sub-directory
-			checkedFN = checkNFO(fn + fn.substring(fn.lastIndexOf("\\")));
+			checkedFN = checkNFO(fn + fn.substring(fn.lastIndexOf(File.separator)));
 		}
 		
 		if (checkedFN.equals("")) {
@@ -52,7 +52,7 @@ public class MovieNFOScanner {
 			// *** Second step is to check for a directory wide NFO file.
 			// This file should be named the same as the directory that it is in
 			// E.G. C:\TV\Chuck\Season 1\Season 1.nfo
-			checkedFN = checkNFO(localMovieDir + "\\" + localDirectoryName);
+			checkedFN = checkNFO(localMovieDir + File.separator + localDirectoryName);
 			
 			if (checkedFN.equals("")) {
 				// *** Third step is to check for the filename.nfo dile
