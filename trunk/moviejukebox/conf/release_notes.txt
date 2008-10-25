@@ -7,11 +7,13 @@ MovieJukebox 1.0.13 beta
   - Enhancement #76 Addition of a TV logo to TV Series
   - Enhancement #194 Configurable number of days for "New" Category. 0 (Zero) will disable new category.
   - Fixed defect #202 scanner.skip.keywords problems
+  - Fixed Defect #216 - HTML generation fails if the xml is not created as part of this run (i.e. the html is deleted from the source directory)
   - Fixed defect #217 NFO Scanner now checks the movie folder for NFO files (For VIDEO_TS)
   - Fixed defext #217 NFO scanner now looks for directory.nfo first then specific video.nfo second
   - Fixed defect #223 When the first fanart file is corrupt or has an error
   - Enhancement #224 Trailer names...
   - Fixed defect #235 Filmweb plugin - better url identifying in NFO files
+  - Fixed Defect #228 - Thumbnail and poster generation fails if the artwork is not downloaded as part of this run
   - Enhancement #? Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
 
 

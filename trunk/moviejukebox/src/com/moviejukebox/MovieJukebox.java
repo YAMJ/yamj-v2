@@ -567,12 +567,22 @@ public class MovieJukebox {
 	public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
 		try {
 			// Issue 201 : we now download to local temp dire
-			String src = tempRootPath + File.separator + movie.getPosterFilename();
-			String dst = tempRootPath + File.separator + movie.getThumbnailFilename();
+			String src    = tempRootPath + File.separator + movie.getPosterFilename();
+			String oldsrc = rootPath + File.separator + movie.getPosterFilename();
+			String dst    = tempRootPath + File.separator + movie.getThumbnailFilename();
 			String olddst = rootPath + File.separator + movie.getThumbnailFilename();
-	
+			FileInputStream fis;
+			
 			if (!(new File(olddst).exists()) || forceThumbnailOverwrite) {
-				FileInputStream fis = new FileInputStream(src);
+				// Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefor check to see if they exist in the original directory
+				if (new File(src).exists()) {
+					logger.finest("New file exists");
+					fis = new FileInputStream(src);
+				} else {
+					logger.finest("Use old file");
+					fis = new FileInputStream(oldsrc);
+				}
+				
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
 					logger.info("Using dummy thumbnail image for " + movie.getTitle());
@@ -598,11 +608,21 @@ public class MovieJukebox {
 		try {
 			// Issue 201 : we now download to local temp dire
 			String src = tempRootPath + File.separator + movie.getPosterFilename();
+			String oldsrc = rootPath + File.separator + movie.getPosterFilename();
 			String dst = tempRootPath + File.separator + movie.getDetailPosterFilename();
 			String olddst = rootPath + File.separator + movie.getDetailPosterFilename();
+			FileInputStream fis;
 	
 			if (!(new File(olddst).exists()) || forcePosterOverwrite) {
-				FileInputStream fis = new FileInputStream(src);
+				// Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefor check to see if they exist in the original directory
+				if (new File(src).exists()) {
+					logger.finest("New file exists");
+					fis = new FileInputStream(src);
+				} else {
+					logger.finest("Use old file");
+					fis = new FileInputStream(oldsrc);
+				}
+
 				BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 				if (bi == null) {
 					logger.info("Using dummy poster image for " + movie.getTitle());

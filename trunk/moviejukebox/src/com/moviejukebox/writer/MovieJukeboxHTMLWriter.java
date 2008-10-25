@@ -44,11 +44,12 @@ public class MovieJukeboxHTMLWriter {
 		try {
 			String tempFilename = tempRootPath + File.separator + movie.getBaseName();
 			File tempXmlFile = new File(tempFilename + ".xml");
+			File oldXmlFile  = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
 			File finalHtmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".html");
-			File tempHtmlFile = new File(tempFilename + ".html");
+			File tempHtmlFile  = new File(tempFilename + ".html");
+			Source xmlSource;
 
 			if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
-			
 				tempHtmlFile.getParentFile().mkdirs();
 				
 				TransformerFactory tranformerFactory = TransformerFactory.newInstance();
@@ -56,7 +57,14 @@ public class MovieJukeboxHTMLWriter {
 				Source xslSource = new StreamSource(new File(skinHome + File.separator + "detail.xsl"));
 				Transformer transformer = tranformerFactory.newTransformer(xslSource);
 			 
-				Source xmlSource = new StreamSource(new FileInputStream(tempXmlFile));
+				// Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not the original source directory
+				if (tempXmlFile.exists()) {
+					// Use the temp file
+					xmlSource = new StreamSource(new FileInputStream(tempXmlFile));
+				} else {
+					// Use the file in the original directory
+					xmlSource = new StreamSource(new FileInputStream(oldXmlFile));
+				}
 				Result xmlResult = new StreamResult(new FileOutputStream(tempHtmlFile));
 			 
 				transformer.transform(xmlSource, xmlResult);
