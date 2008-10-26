@@ -2,8 +2,8 @@
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
 <xsl:template match="/">
-<xsl:variable name="currentIndex" select="//index[@name='currentIndex']"/>
-<xsl:variable name="lastIndex" select="//index[@name='lastIndex']"/>
+<xsl:variable name="currentIndex" select="//index[@current='true']/@currentIndex"/>
+<xsl:variable name="lastIndex" select="//index[@current='true']/@lastIndex"/>
 <xsl:variable name="nbCols" select="//@cols"/>
 <xsl:variable name="nbLines" select="ceiling(count(library/movies/movie) div $nbCols)"/>
 <html>
@@ -88,6 +88,10 @@
 <xsl:for-each select="library/movies/movie">
 <div class="title"><xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute><xsl:if test="season!=-1">&quot;</xsl:if><xsl:value-of select="title"/><xsl:if test="season!=-1">&quot; Season <xsl:value-of select="season"/></xsl:if> (<xsl:value-of select="certification" />)</div>
 </xsl:for-each>
+  <div class="title">
+    <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
+    <a name="pgupload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
+  </div>
 </body>
 </html>
 </xsl:template>
@@ -104,6 +108,14 @@
       <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute> 
       <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
       <xsl:attribute name="onblur">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
+      <xsl:if test="$lastIndex != 1">
+        <xsl:if test="$gap=0 and $currentIndex != 1">
+          <xsl:attribute name="onkeyupset">pgupload</xsl:attribute>
+        </xsl:if>
+        <xsl:if test="$gap=$lastGap and $currentIndex != $lastIndex">
+          <xsl:attribute name="onkeydownset">pgdnload</xsl:attribute>
+        </xsl:if>
+      </xsl:if>
       <img>
 		<xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
         <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
