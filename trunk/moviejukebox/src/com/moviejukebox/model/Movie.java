@@ -141,10 +141,14 @@ public class Movie implements Comparable<Movie> {
 			if ( lowerText.startsWith(prefix.toLowerCase()))
 			{
 			  int length = prefix.length();
-				return text.substring( length ) + ", " + text.substring( 0, length - 1 ).trim();
+//				Issue 190
+//				return text.substring( length ) + ", " + text.substring( 0, length - 1 ).trim();
+				return text.substring( length );
 			}
 		}
-		return text;
+//		Issue 190
+//		Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
+		return text + " " + this.getYear();
 	}
 
 	@Override

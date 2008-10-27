@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+import java.text.DecimalFormat;			// Issue 190
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -22,12 +23,14 @@ public class Library implements Map<String, Movie> {
 	private static Logger logger = Logger.getLogger("moviejukebox");
 
 	private static boolean filterGenres;
-        private static List<String> certificationOrdering = new ArrayList<String>();
+	private static List<String> certificationOrdering = new ArrayList<String>();
 	private static Map<String,String> genresMap = new HashMap<String, String>();
 
-        private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
+	private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
 	private List<Movie> moviesList = new ArrayList<Movie>();
 	private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
+	
+	private static DecimalFormat paddedFormat = new DecimalFormat("000");	// Issue 190
 	
         static {
             filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
@@ -47,9 +50,15 @@ public class Library implements Map<String, Movie> {
         }
 
 	public void addMovie(Movie movie) {
-		String key = movie.getTitle();
+//		Issue 190
+//		String key = movie.getTitle();
+//		added Year to movie key to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
+		String key = movie.getTitle() + " " + movie.getYear();
+
 		if (movie.isTVShow()) {
-			key += " Season " + movie.getSeason();
+//			Issue 190
+//			key += " Season " + movie.getSeason();
+			key += " Season " + paddedFormat.format(movie.getSeason());
 		}
 
 		key = key.toLowerCase();
