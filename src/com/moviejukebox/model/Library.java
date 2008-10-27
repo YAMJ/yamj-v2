@@ -53,7 +53,7 @@ public class Library implements Map<String, Movie> {
 //		Issue 190
 //		String key = movie.getTitle();
 //		added Year to movie key to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
-		String key = movie.getTitle() + " " + movie.getYear();
+		String key = movie.getTitle() + " (" + movie.getYear() + ")";
 
 		if (movie.isTVShow()) {
 //			Issue 190

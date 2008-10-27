@@ -148,7 +148,7 @@ public class Movie implements Comparable<Movie> {
 		}
 //		Issue 190
 //		Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
-		return text + " " + this.getYear();
+		return text + " (" + this.getYear() + ")";
 	}
 
 	@Override
