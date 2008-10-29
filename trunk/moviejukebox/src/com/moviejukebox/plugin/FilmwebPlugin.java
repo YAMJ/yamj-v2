@@ -23,7 +23,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 	private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
 	private static Pattern filmwebPattern = Pattern
 			.compile("searchResultTitle[^>]+\"(http://[^\"/?&]*filmweb.pl[^\"]*)\"");
-	private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^ <>`\"\\[\\]]*");
+	private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^ \\s<>`\"\\[\\]]*");
 	private static Pattern longPlotUrlPattern = Pattern
 			.compile("http://[^\"/?&]*filmweb.pl[^\"]*/opisy");
 	private static Pattern posterUrlPattern = Pattern
