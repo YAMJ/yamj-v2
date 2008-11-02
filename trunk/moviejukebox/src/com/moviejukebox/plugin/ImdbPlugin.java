@@ -280,106 +280,112 @@ public class ImdbPlugin implements MovieDatabasePlugin
     return value;
   }
 
-  /**
-   * Scan IMDB html page for the specified movie
-   */
-  private void updateImdbMediaInfo( Movie movie )
-  {
-    try
-    {
-      String xml = webBrowser
-          .request( "http://www.imdb.com/title/" + movie.getId( IMDB_PLUGIN_ID ) );
+    /**
+     * Scan IMDB html page for the specified movie
+     */
+    private void updateImdbMediaInfo(Movie movie) {
+        try {
+            String xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID));
 
-      movie.setTitle( HTMLTools.extractTag( xml, "<title>", 0, "()><" ) );
-      movie.setRating( parseRating( HTMLTools.extractTag( xml, "<div class=\"meta\">", 1 ) ) );
-      // movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+            if (movie.getTitle().equals(Movie.UNKNOWN)) {
+                movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
+            }
+            if (movie.getRating() == -1) {
+                movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 1)));
+            }
+            // movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
 
-      movie.setDirector( HTMLTools.extractTag( xml, "<h5>Director:</h5>", 1 ) );
-      if ( movie.getDirector() == null || movie.getDirector().isEmpty()
-          || movie.getDirector().equalsIgnoreCase( Movie.UNKNOWN ) )
-      {
-        movie.setDirector( HTMLTools.extractTag( xml, "<h5>Directors:</h5>", 1 ) );
-      }
+            if (movie.getDirector().equals(Movie.UNKNOWN)) {
+                movie.setDirector(HTMLTools.extractTag(xml, "<h5>Director:</h5>", 1));
+                if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    movie.setDirector(HTMLTools.extractTag(xml, "<h5>Directors:</h5>", 1));
+                }
+            }
 
-      movie.setReleaseDate( HTMLTools.extractTag( xml, "<h5>Release Date:</h5>" ) );
-      movie.setRuntime( HTMLTools.extractTag( xml, "<h5>Runtime:</h5>" ) );
+            if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
+                movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>Release Date:</h5>"));
+            }
+            
+            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                movie.setRuntime(HTMLTools.extractTag(xml, "<h5>Runtime:</h5>"));
+            }
 
-      movie.setCountry( HTMLTools.extractTag( xml, "<h5>Country:</h5>", 1 ) );
-      movie.setCompany( HTMLTools.extractTag( xml, "<h5>Company:</h5>", 1 ) );
-      int count = 0;
-      for ( String genre : HTMLTools.extractTags( xml, "<h5>Genre:</h5>", "</div>",
-          "<a href=\"/Sections/Genres/", "</a>" ) )
-      {
-        movie.addGenre( Library.getIndexingGenre( genre ) );
-        if ( ++count >= maxGenres )
-        {
-          break;
+            if (movie.getCountry().equals(Movie.UNKNOWN)) {
+                movie.setCountry(HTMLTools.extractTag(xml, "<h5>Country:</h5>", 1));
+            }
+            
+            if (movie.getCompany().equals(Movie.UNKNOWN)) {
+                movie.setCompany(HTMLTools.extractTag(xml, "<h5>Company:</h5>", 1));
+            }
+            
+            if (movie.getGenres().isEmpty()) {
+                int count = 0;
+                for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>",
+                        "<a href=\"/Sections/Genres/", "</a>")) {
+                    movie.addGenre(Library.getIndexingGenre(genre));
+                    if (++count >= maxGenres) {
+                        break;
+                    }
+                }
+            }
+
+            if (movie.getPlot().equals(Movie.UNKNOWN)) {
+                String plot = Movie.UNKNOWN;
+                if (imdbPlot.equalsIgnoreCase("long")) {
+                    plot = getLongPlot(movie);
+                }
+                // even if "long" is set we will default to the "short" one if none
+                // was found
+                if (imdbPlot.equalsIgnoreCase("short") || plot.equals(Movie.UNKNOWN)) {
+                    plot = HTMLTools.extractTag(xml, "<h5>Plot:</h5>", 0, "><|");
+                    if (plot.startsWith("a class=\"tn15more")) {
+                        plot = Movie.UNKNOWN;
+                    }
+                }
+                movie.setPlot(plot);
+            }
+
+            if (movie.getCertification().equals(Movie.UNKNOWN)) {
+                movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml,
+                        "<h5>Certification:</h5>", "</div>", "<a href=\"/List?certificates=", "</a>")));
+                if (movie.getCertification() == null || movie.getCertification().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    movie.setCertification(Movie.NOTRATED);
+                }
+            }
+
+            
+            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+                movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
+                if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    movie.setYear(HTMLTools.extractTag(xml, "<h5>Original Air Date:</h5>", 2, " "));
+                }
+            }
+
+            if (movie.getCast().isEmpty()) {
+                movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>",
+                        "<td class=\"nm\"><a href=\"/name/", "</a>"));
+            }
+
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                movie.setPosterURL(getPosterURL(movie, xml));
+            }
+
+            if (movie.isTVShow()) {
+                updateTVShowInfo(movie);
+            }
+
+            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+                movie.setFanartURL(getFanartURL(movie));
+                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+                }
+            }
+
+        } catch (Exception e) {
+            logger.severe("Failed retreiving imdb rating for movie : " + movie.getId(IMDB_PLUGIN_ID));
+            e.printStackTrace();
         }
-      }
-
-      String plot = "None";
-      if ( imdbPlot.equalsIgnoreCase( "long" ) )
-      {
-        plot = getLongPlot( movie );
-      }
-      // even if "long" is set we will default to the "short" one if none
-      // was found
-      if ( imdbPlot.equalsIgnoreCase( "short" ) || plot.equals( "None" ) )
-      {
-        plot = HTMLTools.extractTag( xml, "<h5>Plot:</h5>", 0, "><|" );
-        if ( plot.startsWith( "a class=\"tn15more" ) )
-        {
-          plot = "None";
-        }
-      }
-      movie.setPlot( plot );
-
-      movie.setCertification( getPreferredValue( HTMLTools.extractTags( xml,
-          "<h5>Certification:</h5>", "</div>", "<a href=\"/List?certificates=", "</a>" ) ) );
-      if ( movie.getCertification() == null
-          || movie.getCertification().equalsIgnoreCase( Movie.UNKNOWN ) )
-      {
-        movie.setCertification( Movie.NOTRATED );
-      }
-
-      if ( movie.getYear() == null || movie.getYear().isEmpty()
-          || movie.getYear().equalsIgnoreCase( Movie.UNKNOWN ) )
-      {
-        movie.setYear( HTMLTools.extractTag( xml, "<a href=\"/Sections/Years/", 1 ) );
-        if ( movie.getYear() == null || movie.getYear().isEmpty()
-            || movie.getYear().equalsIgnoreCase( Movie.UNKNOWN ) )
-        {
-          movie.setYear( HTMLTools.extractTag( xml, "<h5>Original Air Date:</h5>", 2, " " ) );
-        }
-      }
-
-      movie.setCast( HTMLTools.extractTags( xml, "<table class=\"cast\">", "</table>",
-          "<td class=\"nm\"><a href=\"/name/", "</a>" ) );
-
-      if ( movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase( Movie.UNKNOWN ) )
-      {
-        movie.setPosterURL( getPosterURL( movie, xml ) );
-      }
-
-      if ( movie.isTVShow() )
-      {
-        updateTVShowInfo( movie );
-      }
-      
-      if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
-          movie.setFanartURL(getFanartURL(movie));
-          if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-              movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
-          }
-      }
-
     }
-    catch ( Exception e )
-    {
-      logger.severe( "Failed retreiving imdb rating for movie : " + movie.getId( IMDB_PLUGIN_ID ) );
-      e.printStackTrace();
-    }
-  }
 
   private int parseRating( String rating )
   {
@@ -703,7 +709,7 @@ public class ImdbPlugin implements MovieDatabasePlugin
     }
     catch ( Exception e )
     {
-      plot = "None";
+      plot = Movie.UNKNOWN;
     }
 
     return plot;
