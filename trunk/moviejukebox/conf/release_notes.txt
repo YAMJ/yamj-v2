@@ -6,6 +6,7 @@ MovieJukebox 1.0.13 beta
 ------------------------
   - Enhancement   #76 Addition of a TV logo to TV Series
   - Enhancement   #86 Search NFO directory for nfo files as well
+  - Enhancement  #101 Allow NFO file to override information from scanner
   - Enhancement  #151 Season indicator on SD and Default skins for TV Series
   - Enhancement  #160 Vertical scroll
   - Fixed defect #190 TV Series / Season sorting incorectly
