@@ -496,4 +496,18 @@ public class HTMLTools {
         return result;
     }
     
+    public static String decodeUrl(String s) {
+        if (s == null || s.length() == 0) {
+            return s;
+        }
+        
+        // white space and blanks
+        String result = s.replaceAll("%20", " ");
+        
+        // semicolon
+        result = result.replaceAll("%3B", ";");
+        
+        return result;
+    }
+    
 }
