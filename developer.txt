@@ -1,4 +1,51 @@
 Project code style:
  - encoding UTF-8
- - use tab characters
- - tab size: 2 spaces
+ - indentation: 4 spaces
+ - tab size: 4 spaces
+ - expand tabs to spaces
+ - right margin: 160
+ - beginning brace on same line as declaration
+ - no new line for else, while, catch, finally
+ - use whitespace around assignment and comparators
+ - only a single declaration per line
+ - always use braces for conditional statements and looping; even if only contains a single statement
+ - use blank lines and spaces to assist in readability
+ - comment logic that isn't straight forward
+
+------- Example -------
+
+package com.my.package;
+
+import java.util.List;
+
+public class MyClass {
+
+    private String memberAttribute;
+    private String blahString;
+
+    public MyClass {
+    }
+
+    public void methodA() {
+        // can use inline comments where necessary
+        if (memberAttribute == null) {
+            memberAttribute = "blah";
+        }
+    }
+
+    public int methodB(List<String> someList) {
+        int count = 0;
+
+        for (String s : someList) {
+            if (s.contains("abc")) {
+                count++;
+            } else {
+                System.out.println(s);
+            }
+        }
+
+        return count;
+    }
+
+}
+
