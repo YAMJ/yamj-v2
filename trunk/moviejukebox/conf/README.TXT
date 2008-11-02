@@ -18,6 +18,11 @@ Features
     - Support for Popcorn Hour links in the movie details reports (clicking will launch the movie)
     - Reports are generated outside your actual library (to avoid risks of altering your data)
 
+Please read the Wiki
+--------------------
+
+The online Wiki has more information that is contained here. It can be found at:
+http://code.google.com/p/moviejukebox/w/list
 
 How does it work?
 -----------------
