@@ -80,12 +80,12 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<year>")) { movie.setYear(parseCData(r)); }
 				if (tag.equals("<releaseDate>")) { movie.setReleaseDate(parseCData(r)); }
 				if (tag.equals("<rating>")) { movie.setRating(Integer.parseInt(parseCData(r))); }
-				if (tag.equals("<posterURL>")) { movie.setPosterURL(parseCData(r)); }
-                                if (tag.equals("<fanartURL>")) { movie.setFanartURL(parseCData(r)); }
-				if (tag.equals("<posterFile>")) { movie.setPosterFilename(parseCData(r)); }
-                                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(parseCData(r)); }
-				if (tag.equals("<thumbnail>")) { movie.setThumbnailFilename(parseCData(r)); }
-                                if (tag.equals("<fanartFile>")) { movie.setFanartFilename(parseCData(r)); }
+				if (tag.equals("<posterURL>")) { movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r))); }
+                                if (tag.equals("<fanartURL>")) { movie.setFanartURL(HTMLTools.decodeUrl(parseCData(r))); }
+				if (tag.equals("<posterFile>")) { movie.setPosterFilename(HTMLTools.decodeUrl(parseCData(r))); }
+                                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(HTMLTools.decodeUrl(parseCData(r))); }
+				if (tag.equals("<thumbnail>")) { movie.setThumbnailFilename(HTMLTools.decodeUrl(parseCData(r))); }
+                                if (tag.equals("<fanartFile>")) { movie.setFanartFilename(HTMLTools.decodeUrl(parseCData(r))); }
 				if (tag.equals("<plot>")) { movie.setPlot(parseCData(r)); }
 				if (tag.equals("<director>")) { movie.setDirector(parseCData(r)); }
 				if (tag.equals("<country>")) { movie.setCountry(parseCData(r)); }
@@ -104,10 +104,10 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<videoSource>")) { movie.setVideoSource(parseCData(r)); }
 				if (tag.equals("<videoOutput>")) { movie.setVideoOutput(parseCData(r)); }
 				if (tag.equals("<fps>")) { movie.setFps(Integer.parseInt(parseCData(r))); }
-				if (tag.equals("<first>")) { movie.setFirst(parseCData(r)); }
-				if (tag.equals("<previous>")) { movie.setPrevious(parseCData(r)); }
-				if (tag.equals("<next>")) { movie.setNext(parseCData(r)); }
-				if (tag.equals("<last>")) { movie.setLast(parseCData(r)); }
+				if (tag.equals("<first>")) { movie.setFirst(HTMLTools.decodeUrl(parseCData(r))); }
+				if (tag.equals("<previous>")) { movie.setPrevious(HTMLTools.decodeUrl(parseCData(r))); }
+				if (tag.equals("<next>")) { movie.setNext(HTMLTools.decodeUrl(parseCData(r))); }
+				if (tag.equals("<last>")) { movie.setLast(HTMLTools.decodeUrl(parseCData(r))); }
 
 				if (tag.startsWith("<file ")) {
 					MovieFile mf = new MovieFile();
@@ -129,7 +129,7 @@ public class MovieJukeboxXMLWriter {
 						}
 					}
 
-					mf.setFilename(parseCData(r));
+					mf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
 					// add or replace MovieFile based on XML data
 					movie.addMovieFile(mf);
 				}
@@ -149,7 +149,7 @@ public class MovieJukeboxXMLWriter {
 						}
 					}
 
-					tf.setFilename(parseCData(r));
+					tf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
 					// add or replace trailer based on XML data
 					movie.addTrailerFile(tf);
 				}
@@ -376,10 +376,10 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("videoSource"); writer.writeCharacters(movie.getVideoSource()); writer.writeEndElement();
         writer.writeStartElement("videoOutput"); writer.writeCharacters(movie.getVideoOutput()); writer.writeEndElement();
         writer.writeStartElement("fps"); writer.writeCharacters(Integer.toString(movie.getFps())); writer.writeEndElement();
-        writer.writeStartElement("first"); writer.writeCharacters(movie.getFirst()); writer.writeEndElement();
-        writer.writeStartElement("previous"); writer.writeCharacters(movie.getPrevious()); writer.writeEndElement();
-        writer.writeStartElement("next"); writer.writeCharacters(movie.getNext()); writer.writeEndElement();
-        writer.writeStartElement("last"); writer.writeCharacters(movie.getLast()); writer.writeEndElement();
+        writer.writeStartElement("first"); writer.writeCharacters(HTMLTools.encodeUrl(movie.getFirst())); writer.writeEndElement();
+        writer.writeStartElement("previous"); writer.writeCharacters(HTMLTools.encodeUrl(movie.getPrevious())); writer.writeEndElement();
+        writer.writeStartElement("next"); writer.writeCharacters(HTMLTools.encodeUrl(movie.getNext())); writer.writeEndElement();
+        writer.writeStartElement("last"); writer.writeCharacters(HTMLTools.encodeUrl(movie.getLast())); writer.writeEndElement();
 
         Collection<String> items = movie.getGenres();
         if (items.size() > 0) {
