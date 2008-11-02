@@ -51,11 +51,11 @@ public class Movie implements Comparable<Movie> {
 	private String releaseDate = UNKNOWN;
 	private int rating = -1;
 	private String posterURL = UNKNOWN;
-        private String fanartURL = UNKNOWN;
+    private String fanartURL = UNKNOWN;
 	private String posterFilename = UNKNOWN;
-        private String detailPosterFilename = UNKNOWN;
+    private String detailPosterFilename = UNKNOWN;
 	private String thumbnailFilename = UNKNOWN;
-        private String fanartFilename = UNKNOWN;
+    private String fanartFilename = UNKNOWN;
 	private String plot = UNKNOWN;
 	private String director = UNKNOWN;
 	private String country = UNKNOWN;
@@ -74,7 +74,9 @@ public class Movie implements Comparable<Movie> {
 	private String videoOutput = UNKNOWN;
 	private int fps = 60;
 	private String certification = UNKNOWN;
-        private boolean trailer = false;
+    private boolean trailer = false;
+    private String libraryPath = UNKNOWN;
+    private String videoFilename = UNKNOWN;
 
 	// Navigation data
 	private String first = UNKNOWN;
@@ -84,7 +86,7 @@ public class Movie implements Comparable<Movie> {
 
 	// Media file properties
 	Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
-        Collection<TrailerFile> trailerFiles = new TreeSet<TrailerFile>();
+    Collection<TrailerFile> trailerFiles = new TreeSet<TrailerFile>();
 
 	// Caching
 	private boolean isDirty = false;
@@ -638,39 +640,47 @@ public class Movie implements Comparable<Movie> {
 		this.posterFilename = posterFilename;
 	}
 
-        public String getDetailPosterFilename() {
-            return detailPosterFilename;
-        }
+    public String getDetailPosterFilename() {
+        return detailPosterFilename;
+    }
 
-        public void setDetailPosterFilename(String detailPosterFilename) {
-            this.detailPosterFilename = detailPosterFilename;
-        }
+    public void setDetailPosterFilename(String detailPosterFilename) {
+        this.detailPosterFilename = detailPosterFilename;
+    }
 
-        public void setTrailer(boolean trailer) {
-            this.isDirty = true;
-            this.trailer = trailer;
-            if (trailer) {
-                genres.clear();
-            }
+    public void setTrailer(boolean trailer) {
+        this.isDirty = true;
+        this.trailer = trailer;
+        if (trailer) {
+            genres.clear();
         }
+    }
 
-        public boolean isTrailer() {
-            return trailer;
-        }
+    public boolean isTrailer() {
+        return trailer;
+    }
         
-        public String getFanartFilename() {
-            return fanartFilename;
-        }
+    public String getFanartFilename() {
+        return fanartFilename;
+    }
         
-        public void setFanartFilename(String fanartFilename) {
-            this.fanartFilename = fanartFilename;
-        }
+    public void setFanartFilename(String fanartFilename) {
+        this.fanartFilename = fanartFilename;
+    }
         
-        public String getFanartURL() {
-            return fanartURL;
-        }
+    public String getFanartURL() {
+        return fanartURL;
+    }
         
-        public void setFanartURL(String fanartURL) {
-            this.fanartURL = fanartURL;
-        }
+    public void setFanartURL(String fanartURL) {
+        this.fanartURL = fanartURL;
+    }
+    
+    public String getLibraryPath() {
+        return libraryPath;
+    }
+    
+    public void setLibraryPath(String libraryPath) {
+        this.libraryPath = libraryPath;
+    }
 }

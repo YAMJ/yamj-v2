@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * NFO file parser.
@@ -33,15 +34,17 @@ public class MovieNFOScanner {
 	 */
 	public void scan(Movie movie, MovieDatabasePlugin movieDB) {
 		String fn = movie.getFile().getAbsolutePath();
-		String localMovieName = movie.getTitle();
+//		String localMovieName = movie.getTitle();
 		String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator));	// the full directory that the video file is in
 		String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1);	// just the sub-directory the video file is in
 		String checkedFN = "";
+        String NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
 
 		// If "fn" is a file then strip the extension from the file.
 		if (movie.getFile().isFile()) {
 			fn = fn.substring(0, fn.lastIndexOf("."));
 		} else {
+            // *** First step is to check for VIDEO_TS
 			// The movie is a directory, which indicates that this is a VIDEO_TS file
 			// So, we should search for the file moviename.nfo in the sub-directory
 			checkedFN = checkNFO(fn + fn.substring(fn.lastIndexOf(File.separator)));
@@ -60,8 +63,14 @@ public class MovieNFOScanner {
 				// E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
 				checkedFN = checkNFO(fn);
 			}
+            
+            if (checkedFN.equals("") && !NFOdirectory.equals("")) {
+                // *** Last step if we still haven't found the nfo file is to
+                // search the NFO directory as specified in the moviejukebox,properties file
+                checkedFN = checkNFO(movie.getLibraryPath() + NFOdirectory + File.separator + movie.getBaseName());
+            }
 		}
-		
+
 		File nfoFile = new File(checkedFN);
 		
 		if (nfoFile.exists()) {
@@ -139,7 +148,7 @@ public class MovieNFOScanner {
 	 * @param checkNFOfilename (NO EXTENSION)
 	 * @return blank string if not found, filename if found
 	 */
-private String checkNFO(String checkNFOfilename) {
+    private String checkNFO(String checkNFOfilename) {
 		File nfoFile = new File(checkNFOfilename + ".nfo");
 		if (nfoFile.exists()) {
 			return (checkNFOfilename + ".nfo");

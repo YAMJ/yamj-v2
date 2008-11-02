@@ -25,7 +25,7 @@ public class MovieDirectoryScanner {
 	private String mediaLibraryRoot;
 	private String supportedExtensions;
 	private String thumbnailsFormat;
-        private String postersFormat;
+    private String postersFormat;
 	
 	private static Logger logger = Logger.getLogger("moviejukebox");
 	
@@ -64,7 +64,7 @@ public class MovieDirectoryScanner {
 			if (contentList!=null) {
 				List<File> files = Arrays.asList(contentList);
 				Collections.sort(files);
-				
+
 				for (File file : files) {
 					if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
 						scanFile(srcPath, file.getParentFile(), collection);
@@ -136,10 +136,11 @@ public class MovieDirectoryScanner {
 		m.addMovieFile(movieFile);
 		m.setFile(file);
 		m.setBaseName(baseFileName);
+		m.setLibraryPath(srcPath.getPath());
 		m.setPosterFilename(baseFileName + ".jpg");
 		m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
-                m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
-		
+        m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
+        
 		MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
 		filenameScanner.scan(m);
 		
