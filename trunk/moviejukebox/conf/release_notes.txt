@@ -9,6 +9,7 @@ MovieJukebox 1.0.13 beta
   - Enhancement  #160 Vertical scroll
   - Fixed defect #190 TV Series / Season sorting incorectly
   - Enhancement  #194 Configurable number of days for "New" Category. 0 (Zero) will disable new category.
+  - Fixed defect #200 Semi-colon in dir/file name breaks image/page link
   - Fixed defect #202 scanner.skip.keywords problems
   - Fixed Defect #216 HTML generation fails if the xml is not created as part of this run (i.e. the html is deleted from the source directory)
   - Fixed defect #217 NFO Scanner now checks the movie folder for NFO files (For VIDEO_TS)
