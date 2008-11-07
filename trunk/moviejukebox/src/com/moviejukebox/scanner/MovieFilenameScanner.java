@@ -403,9 +403,13 @@ public class MovieFilenameScanner {
                                         int beginIndex = filename.lastIndexOf("-");
 					int endIndex = filename.lastIndexOf(".");
 					if ( beginIndex>=0 && endIndex>beginIndex ) {
+                                            if (!movie.isTrailer()) {
 						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
+                                            }
 					} else {
+                                            if (!movie.isTrailer()) {
 						movie.getFirstFile().setTitle(Movie.UNKNOWN);
+                                            }
 					}
                                     }
                                     
@@ -449,9 +453,13 @@ public class MovieFilenameScanner {
                                         int beginIndex = filename.lastIndexOf("-");
 					int endIndex = filename.lastIndexOf(".");
 					if ( beginIndex>=0 && endIndex>beginIndex ) {
+                                            if (!movie.isTrailer()) {
 						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
+                                            }
 					} else {
+                                            if (!movie.isTrailer()) {
 						movie.getFirstFile().setTitle(Movie.UNKNOWN);
+                                            }
 					}
                                     }
 				}
