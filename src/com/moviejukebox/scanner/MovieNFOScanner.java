@@ -74,7 +74,12 @@ public class MovieNFOScanner {
             if (checkedFN.equals("") && !NFOdirectory.equals("")) {
                 // *** Last step if we still haven't found the nfo file is to
                 // search the NFO directory as specified in the moviejukebox,properties file
-                checkedFN = checkNFO(movie.getLibraryPath() + NFOdirectory + File.separator + movie.getBaseName());
+                String sLibraryPath = movie.getLibraryPath();
+                if ((sLibraryPath.lastIndexOf("\\") == sLibraryPath.length()) || (sLibraryPath.lastIndexOf("/") == sLibraryPath.length())) {
+                    checkedFN = checkNFO(movie.getLibraryPath() + NFOdirectory + File.separator + movie.getBaseName());
+                } else {
+                    checkedFN = checkNFO(movie.getLibraryPath() + File.separator + NFOdirectory + File.separator + movie.getBaseName());
+                }
             }
         }
 
