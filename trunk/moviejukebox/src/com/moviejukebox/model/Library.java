@@ -96,17 +96,63 @@ public class Library implements Map<String, Movie> {
 	}
 
 	private void sortMovieDetails() {
-  		Collections.sort(moviesList);
-		
-		Movie first = moviesList.get(0);
-		Movie last = moviesList.get(moviesList.size()-1);
-		for (int i = 0; i < moviesList.size(); i++) {
-			Movie movie = moviesList.get(i);
-			movie.setFirst(first.getBaseName());
-			movie.setPrevious(i>0?moviesList.get(i-1).getBaseName():first.getBaseName());
-			movie.setNext(i<moviesList.size()-1?moviesList.get(i+1).getBaseName():last.getBaseName());
-			movie.setLast(last.getBaseName());
-		}
+            Collections.sort(moviesList);
+
+            List<Movie> trailerList = new ArrayList<Movie>();
+            
+            Movie first = null;
+            Movie last = null;
+            
+            // sort the trailers out of the movies
+            for (Movie m : moviesList) {
+                if (m.isTrailer()) {
+                    trailerList.add(m);
+                } else {
+                    if (first == null) {
+                        // set the first non-trailer movie
+                        first = m;
+                    }
+                    // set the last non-trailer movie
+                    last = m;
+                }
+            }
+
+            // ignore the trailers while sorting the other movies
+            for (int j = 0; j < moviesList.size(); j++) {
+                Movie movie = moviesList.get(j);
+                if (!movie.isTrailer()) {
+                    movie.setFirst(first.getBaseName());
+
+                    for (int p = j-1; p >= 0; p--) {
+                        Movie prev = moviesList.get(p);
+                        if (!prev.isTrailer()) {
+                            movie.setPrevious(prev.getBaseName());
+                            break;
+                        }
+                    }
+
+                    for (int n = j+1; n < moviesList.size(); n++) {
+                        Movie next = moviesList.get(n);
+                        if (!next.isTrailer()) {
+                            movie.setNext(next.getBaseName());
+                            break;
+                        }
+                    }
+
+                    movie.setLast(last.getBaseName());
+                }
+            }
+            
+            // sort the trailers separately
+            Movie firstTrailer = trailerList.get(0);
+            Movie lastTrailer = trailerList.get(trailerList.size()-1);
+            for (int i = 0; i < trailerList.size(); i++) {
+                Movie movie = trailerList.get(i);
+                movie.setFirst(firstTrailer.getBaseName());
+                movie.setPrevious(i>0?trailerList.get(i-1).getBaseName():firstTrailer.getBaseName());
+                movie.setNext(i<trailerList.size()-1?trailerList.get(i+1).getBaseName():lastTrailer.getBaseName());
+                movie.setLast(lastTrailer.getBaseName());
+            }
 	}
 
 	private void indexByTitle() {
