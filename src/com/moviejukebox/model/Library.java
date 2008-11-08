@@ -144,14 +144,16 @@ public class Library implements Map<String, Movie> {
             }
             
             // sort the trailers separately
-            Movie firstTrailer = trailerList.get(0);
-            Movie lastTrailer = trailerList.get(trailerList.size()-1);
-            for (int i = 0; i < trailerList.size(); i++) {
-                Movie movie = trailerList.get(i);
-                movie.setFirst(firstTrailer.getBaseName());
-                movie.setPrevious(i>0?trailerList.get(i-1).getBaseName():firstTrailer.getBaseName());
-                movie.setNext(i<trailerList.size()-1?trailerList.get(i+1).getBaseName():lastTrailer.getBaseName());
-                movie.setLast(lastTrailer.getBaseName());
+            if (!trailerList.isEmpty()) {
+                Movie firstTrailer = trailerList.get(0);
+                Movie lastTrailer = trailerList.get(trailerList.size()-1);
+                for (int i = 0; i < trailerList.size(); i++) {
+                    Movie movie = trailerList.get(i);
+                    movie.setFirst(firstTrailer.getBaseName());
+                    movie.setPrevious(i>0?trailerList.get(i-1).getBaseName():firstTrailer.getBaseName());
+                    movie.setNext(i<trailerList.size()-1?trailerList.get(i+1).getBaseName():lastTrailer.getBaseName());
+                    movie.setLast(lastTrailer.getBaseName());
+                }
             }
 	}
 
