@@ -28,6 +28,7 @@ public class MovieFilenameScanner {
 	
 	protected static String[] skipKeywords;
 	protected int firstKeywordIndex = 0;
+        protected static boolean languageDetection = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true"));
 
         static {
             StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
@@ -127,6 +128,7 @@ public class MovieFilenameScanner {
 	 * @param filename movie's filename to scan.
 	 */
 	protected String getLanguage(String filename) {
+            if (languageDetection) {
 		String f = filename.toUpperCase();
         
 		f = f.replace("-", ".");
@@ -168,8 +170,8 @@ public class MovieFilenameScanner {
 
 		if (hasKeyword(f, new String[] {".DL."}))
 			return "Dual Language";
-	   
-		return "Unknown";
+            }
+            return "Unknown";
 	}
 
 	/**
