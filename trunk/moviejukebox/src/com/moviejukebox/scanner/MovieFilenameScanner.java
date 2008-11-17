@@ -193,13 +193,15 @@ public class MovieFilenameScanner {
 	protected int getPart(String filename) {
 		String f = filename.toUpperCase();
 		
-		String keyword = "CD";
-		int index = f.indexOf(keyword);
+        // Issue 259 - Only the phrase CD with a space  before it(after getName has run)  will be counted
+		String keyword = " CD";
+		int index = f.lastIndexOf(keyword);
 
+        // Issue 259 - Only the phrase DISC with a space  before it(after getName has run)  will be counted
 		if ( index == -1 ) {
-			keyword = "DISC";
-			index = f.indexOf(keyword);
-		} 
+			keyword = " DISC";
+			index = f.lastIndexOf(keyword);
+		}
 		
 		if(index!= -1) {
 			updateFirstKeywordIndex(index);
