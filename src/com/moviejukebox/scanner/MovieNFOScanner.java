@@ -1,10 +1,7 @@
 package com.moviejukebox.scanner;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
@@ -13,6 +10,8 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLHelper;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +32,12 @@ public class MovieNFOScanner {
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
 
+    private static final String BOM1 = "" + (char)239 + (char)187 + (char)191;
+    private static final String BOM2 = "" + (char)254 + (char)255;
+    private static final String BOM3 = "" + (char)255 + (char)254;
+    private static final String BOM4 = "" + (char)00 + (char)00 + (char)254 + (char)255;
+    private static final String BOM5 = "" + (char)254 + (char)255 + (char)00 + (char)00;
+    
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
      * 
@@ -87,22 +92,28 @@ public class MovieNFOScanner {
 
         if (nfoFile.exists()) {
             logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
-            InputStream in = null;
-            ByteArrayOutputStream out = null;
+            BufferedReader in = null;
+            StringBuffer out = new StringBuffer();
             try {
-                in = new FileInputStream(nfoFile);
-                out = new ByteArrayOutputStream();
-                while (true) {
-                    synchronized (buffer) {
-                        int amountRead = in.read(buffer);
-                        if (amountRead == -1) {
-                            break;
-                        }
-                        out.write(buffer, 0, amountRead);
-                    }
+                in = new BufferedReader(new FileReader(nfoFile));
+                String line = in.readLine();
+                while (line != null) {
+                    out.append(line);
+                    line = in.readLine();
                 }
-
+                
                 String nfo = out.toString();
+                if (nfo.startsWith(BOM1)) {
+                    nfo = nfo.substring(BOM1.length());
+                } else if (nfo.startsWith(BOM2)) {
+                    nfo = nfo.substring(BOM2.length());
+                } else if (nfo.startsWith(BOM3)) {
+                    nfo = nfo.substring(BOM3.length());
+                } else if (nfo.startsWith(BOM4)) {
+                    nfo = nfo.substring(BOM4.length());
+                } else if (nfo.startsWith(BOM5)) {
+                    nfo = nfo.substring(BOM5.length());
+                }
 
                 if (!parseXMLNFO(nfo, movie)) {
                     movieDB.scanNFO(nfo, movie);
@@ -144,9 +155,6 @@ public class MovieNFOScanner {
                 try {
                     if (in != null) {
                         in.close();
-                    }
-                    if (out != null) {
-                        out.close();
                     }
                 } catch (IOException e) {
                     logger.severe("Failed closing: " + e.getMessage());
