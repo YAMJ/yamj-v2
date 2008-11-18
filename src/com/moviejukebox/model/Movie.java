@@ -77,6 +77,7 @@ public class Movie implements Comparable<Movie> {
     private boolean trailer = false;
     private String libraryPath = UNKNOWN;
     private String videoFilename = UNKNOWN;
+    private String audioChannels = UNKNOWN;
 
 	// Navigation data
 	private String first = UNKNOWN;
@@ -602,10 +603,11 @@ public class Movie implements Comparable<Movie> {
 		sb.append("[season=").append(season).append("]");
 		sb.append("[language=").append(language).append("]");
 		sb.append("[hasSubtitles=").append(hasSubtitles).append("]");
-		sb.append("[container=").append(container).append("]");  // AVI, MKV, TS, etc.
-		sb.append("[videoCodec=").append(videoCodec).append("]"); // DIVX, XVID, H.264, etc.
-		sb.append("[audioCodec=").append(audioCodec).append("]"); // MP3, AC3, DTS, etc.
-		sb.append("[resolution=").append(resolution).append("]"); // 1280x528
+		sb.append("[container=").append(container).append("]");         // AVI, MKV, TS, etc.
+		sb.append("[videoCodec=").append(videoCodec).append("]");       // DIVX, XVID, H.264, etc.
+		sb.append("[audioCodec=").append(audioCodec).append("]");       // MP3, AC3, DTS, etc.
+        sb.append("[audioChannels=").append(audioChannels).append("]"); // Number of audio channels
+		sb.append("[resolution=").append(resolution).append("]");       // 1280x528
 		sb.append("[videoSource=").append(videoSource).append("]");
 		sb.append("[videoOutput=").append(videoOutput).append("]");
 		sb.append("[fps=").append(fps).append("]");
@@ -682,5 +684,13 @@ public class Movie implements Comparable<Movie> {
     
     public void setLibraryPath(String libraryPath) {
         this.libraryPath = libraryPath;
+    }
+    
+    public String getAudioChannels() {
+        return audioChannels;
+    }
+    
+    public void setAudioChannels(String audioChannels) {
+        this.audioChannels = audioChannels;
     }
 }

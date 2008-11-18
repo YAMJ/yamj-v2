@@ -81,11 +81,11 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<releaseDate>")) { movie.setReleaseDate(parseCData(r)); }
 				if (tag.equals("<rating>")) { movie.setRating(Integer.parseInt(parseCData(r))); }
 				if (tag.equals("<posterURL>")) { movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r))); }
-                                if (tag.equals("<fanartURL>")) { movie.setFanartURL(HTMLTools.decodeUrl(parseCData(r))); }
+                if (tag.equals("<fanartURL>")) { movie.setFanartURL(HTMLTools.decodeUrl(parseCData(r))); }
 				if (tag.equals("<posterFile>")) { movie.setPosterFilename(HTMLTools.decodeUrl(parseCData(r))); }
-                                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(HTMLTools.decodeUrl(parseCData(r))); }
+                if (tag.equals("<detailPosterFile>")) { movie.setDetailPosterFilename(HTMLTools.decodeUrl(parseCData(r))); }
 				if (tag.equals("<thumbnail>")) { movie.setThumbnailFilename(HTMLTools.decodeUrl(parseCData(r))); }
-                                if (tag.equals("<fanartFile>")) { movie.setFanartFilename(HTMLTools.decodeUrl(parseCData(r))); }
+                if (tag.equals("<fanartFile>")) { movie.setFanartFilename(HTMLTools.decodeUrl(parseCData(r))); }
 				if (tag.equals("<plot>")) { movie.setPlot(parseCData(r)); }
 				if (tag.equals("<director>")) { movie.setDirector(parseCData(r)); }
 				if (tag.equals("<country>")) { movie.setCountry(parseCData(r)); }
@@ -100,6 +100,7 @@ public class MovieJukeboxXMLWriter {
 				if (tag.equals("<container>")) { movie.setContainer(parseCData(r)); }
 				if (tag.equals("<videoCodec>")) { movie.setVideoCodec(parseCData(r)); }
 				if (tag.equals("<audioCodec>")) { movie.setAudioCodec(parseCData(r)); }
+                if (tag.equals("<audioChannels>")) { movie.setAudioChannels(parseCData(r)); }
 				if (tag.equals("<resolution>")) { movie.setResolution(parseCData(r)); }
 				if (tag.equals("<videoSource>")) { movie.setVideoSource(parseCData(r)); }
 				if (tag.equals("<videoOutput>")) { movie.setVideoOutput(parseCData(r)); }
@@ -372,6 +373,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("container"); writer.writeCharacters(movie.getContainer()); writer.writeEndElement();  // AVI, MKV, TS, etc.
         writer.writeStartElement("videoCodec"); writer.writeCharacters(movie.getVideoCodec()); writer.writeEndElement(); // DIVX, XVID, H.264, etc.
         writer.writeStartElement("audioCodec"); writer.writeCharacters(movie.getAudioCodec()); writer.writeEndElement(); // MP3, AC3, DTS, etc.
+        writer.writeStartElement("audioChannels"); writer.writeCharacters(movie.getAudioChannels()); writer.writeEndElement(); // Number of audio channels
         writer.writeStartElement("resolution"); writer.writeCharacters(movie.getResolution()); writer.writeEndElement(); // 1280x528
         writer.writeStartElement("videoSource"); writer.writeCharacters(movie.getVideoSource()); writer.writeEndElement();
         writer.writeStartElement("videoOutput"); writer.writeCharacters(movie.getVideoOutput()); writer.writeEndElement();
