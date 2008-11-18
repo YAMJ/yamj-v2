@@ -31,8 +31,7 @@ public class MediaInfoScanner {
 	
 	//mediaInfo command line, depend on OS
 	private String[] mediaInfoExe;
-	private String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C",
-			"MediaInfo.exe", null };
+	private String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", null };
 	private String[] mediaInfoExeLinux = { "./mediainfo", null };
 
 	public final static String OS_NAME = System.getProperty("os.name");
@@ -400,10 +399,14 @@ public class MediaInfoScanner {
 				if (oldInfo.equals("UNKNOWN")) {
 					movie.setAudioCodec(infoValue + infoLanguage);
 				} else {
-					movie.setAudioCodec(oldInfo + " / " + infoValue
-							+ infoLanguage);
+					movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
 				}
 			}
+
+            infoValue = infosCurAudio.get("Channel(s)");
+            if (infoValue != null) {
+                movie.setAudioChannels(infoValue);
+            }
 
 		}
 		

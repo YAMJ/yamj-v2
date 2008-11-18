@@ -162,6 +162,7 @@ public class MovieNFOScanner {
      * @return blank string if not found, filename if found
      */
     private String checkNFO(String checkNFOfilename) {
+//        logger.finest("checkNFO = " + checkNFOfilename);
         File nfoFile = new File(checkNFOfilename + ".nfo");
         if (nfoFile.exists()) {
             return (checkNFOfilename + ".nfo");

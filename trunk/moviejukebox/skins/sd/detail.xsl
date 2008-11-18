@@ -125,6 +125,12 @@
               <td class="title3" width="5%">FPS</td>
               <td class="normal" width="45%"><xsl:value-of select="fps" /></td>
             </tr>
+            <tr>
+              <td class="title3" width="5%">Channels</td>
+              <td class="normal" width="45%"><xsl:value-of select="audioChannels" /></td>
+              <td class="title3" width="5%"></td>
+              <td class="normal" width="45%"></td>
+            </tr>
           </table></center></td>
         </tr>
         
