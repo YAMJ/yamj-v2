@@ -69,6 +69,7 @@ public class Movie implements Comparable<Movie> {
 	private String container = UNKNOWN;  // AVI, MKV, TS, etc.
 	private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
 	private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
+    private String audioChannels = UNKNOWN; // Number of audio channels
 	private String resolution = UNKNOWN; // 1280x528
 	private String videoSource = UNKNOWN;
 	private String videoOutput = UNKNOWN;
@@ -76,8 +77,6 @@ public class Movie implements Comparable<Movie> {
 	private String certification = UNKNOWN;
     private boolean trailer = false;
     private String libraryPath = UNKNOWN;
-    private String videoFilename = UNKNOWN;
-    private String audioChannels = UNKNOWN;
 
 	// Navigation data
 	private String first = UNKNOWN;
@@ -191,9 +190,9 @@ public class Movie implements Comparable<Movie> {
 		return movieFiles;
 	}
 
-        public Collection<TrailerFile> getTrailerFiles() {
-            return trailerFiles;
-        }
+    public Collection<TrailerFile> getTrailerFiles() {
+        return trailerFiles;
+    }
 
 	public String getCertification() {
 		return certification;

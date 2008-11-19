@@ -287,9 +287,12 @@ public class ImdbPlugin implements MovieDatabasePlugin
         try {
             String xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID));
 
-            if (movie.getTitle().equals(Movie.UNKNOWN)) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
-            }
+            // Issue 261 - The Movie Title will NEVER be UNKNOWN so that means that we should just set it to the IMDB title?
+//            if (movie.getTitle().equals(Movie.UNKNOWN)) {
+//                movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
+//            }
+            movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
+
             if (movie.getRating() == -1) {
                 movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 1)));
             }
