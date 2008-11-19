@@ -157,9 +157,9 @@ public class MovieJukeboxHTMLWriter {
 			File htmlFile = new File(rootPath, "index.htm");
 			htmlFile.getParentFile().mkdirs();
 
+            FileOutputStream fos = new FileOutputStream(htmlFile);
 			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(
-					new FileOutputStream(htmlFile), "UTF-8");
+			XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
 
 			writer.writeStartDocument();
 			writer.writeStartElement("html");
@@ -175,8 +175,10 @@ public class MovieJukeboxHTMLWriter {
 			writer.writeAttribute("content", "0; url=" + detailsDirName+ '/' + homePage );
 			writer.writeEndElement();
 
-			writer.writeEndElement();					
-			writer.writeEndElement();					
+			writer.writeEndElement();
+			writer.writeEndElement();
+            writer.close();
+            fos.close();
 		} catch (Exception e) {
 			System.err.println("Failed generating HTML library index.");
 			e.printStackTrace();
