@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.13 beta
 ------------------------
+  - Enhancement   #59 Use TheTVDB.com to look up TV series information
   - Enhancement   #76 Addition of a TV logo to TV Series
   - Enhancement   #86 Search NFO directory for nfo files as well
   - Enhancement  #101 Allow NFO file to override information from scanner
@@ -19,6 +20,7 @@ MovieJukebox 1.0.13 beta
   - Fixed defect #223 When the first fanart file is corrupt or has an error
   - Enhancement  #224 Trailer names...
   - Fixed Defect #228 Thumbnail and poster generation fails if the artwork is not downloaded as part of this run
+  - Enhancement  #229 Download fanart for TV Series
   - Fixed Defect #230 Ignore trailers in next & last entry
   - Fixed defect #235 Filmweb plugin - better url identifying in NFO files
   - Fixed Defect #237 Support for the playlist "PLAY ALL" function in myiHome

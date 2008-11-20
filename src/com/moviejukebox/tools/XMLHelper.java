@@ -15,7 +15,7 @@ import javax.xml.stream.XMLStreamException;
  * @author altman.matthew
  */
 public class XMLHelper {
-
+    
     public static XMLEventReader getEventReader(String url) throws IOException, XMLStreamException {
         InputStream in = (new URL(url)).openStream();
         return XMLInputFactory.newInstance().createXMLEventReader(in);
@@ -69,5 +69,6 @@ public class XMLHelper {
         }
         
         return result;
-    }    
+    }   
+        
 }

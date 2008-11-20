@@ -30,8 +30,10 @@ public interface MovieDatabasePlugin {
 	 * </ul>
 	 * 
 	 * @param movie a <tt>Movie</tt> object to update.
+         * @return boolean true if the movie was successfully scanned, or false if it needs to be rescanned by a different plugin
+         * if false, then the plugin should set appropriate type by calling movie.setMovieType() before returning
 	 */
-	public void scan(Movie movie);
+	public boolean scan(Movie movie);
 
 	/**
 	 * Called by jukebox when there are new episodes files added.

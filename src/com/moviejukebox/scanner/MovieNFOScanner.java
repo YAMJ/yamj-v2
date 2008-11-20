@@ -1,17 +1,15 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.TrailerFile;
+import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.plugin.MovieDatabasePlugin;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLHelper;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
@@ -31,12 +29,6 @@ public class MovieNFOScanner {
     private static Logger logger = Logger.getLogger("moviejukebox");
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
-
-    private static final String BOM1 = "" + (char)239 + (char)187 + (char)191;
-    private static final String BOM2 = "" + (char)254 + (char)255;
-    private static final String BOM3 = "" + (char)255 + (char)254;
-    private static final String BOM4 = "" + (char)00 + (char)00 + (char)254 + (char)255;
-    private static final String BOM5 = "" + (char)254 + (char)255 + (char)00 + (char)00;
     
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -44,7 +36,7 @@ public class MovieNFOScanner {
      * @param movie
      * @param movieDB
      */
-    public void scan(Movie movie, MovieDatabasePlugin movieDB) {
+    public void scan(Movie movie) {
         String fn = movie.getFile().getAbsolutePath();
 //		String localMovieName = movie.getTitle();
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator));	// the full directory that the video file is in
@@ -92,72 +84,37 @@ public class MovieNFOScanner {
 
         if (nfoFile.exists()) {
             logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
-            BufferedReader in = null;
-            StringBuffer out = new StringBuffer();
-            try {
-                in = new BufferedReader(new FileReader(nfoFile));
-                String line = in.readLine();
-                while (line != null) {
-                    out.append(line);
-                    line = in.readLine();
-                }
-                
-                String nfo = out.toString();
-                if (nfo.startsWith(BOM1)) {
-                    nfo = nfo.substring(BOM1.length());
-                } else if (nfo.startsWith(BOM2)) {
-                    nfo = nfo.substring(BOM2.length());
-                } else if (nfo.startsWith(BOM3)) {
-                    nfo = nfo.substring(BOM3.length());
-                } else if (nfo.startsWith(BOM4)) {
-                    nfo = nfo.substring(BOM4.length());
-                } else if (nfo.startsWith(BOM5)) {
-                    nfo = nfo.substring(BOM5.length());
-                }
+            
+            String nfo = FileTools.readFileToString(nfoFile);
 
-                if (!parseXMLNFO(nfo, movie)) {
-                    movieDB.scanNFO(nfo, movie);
+            if (!parseXMLNFO(nfo, movie)) {
+                DatabasePluginController.scanNFO(nfo, movie);
 
-                    logger.finest("Scanning NFO for Poster URL");
-                    int urlStartIndex = 0;
-                    while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
-    //					logger.finest("Looking for URL start found in nfo urlStartIndex  = " + urlStartIndex);
-                        int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
-                        if (currentUrlStartIndex >= 0) {
-    //						logger.finest("URL start found in nfo at pos=" + currentUrlStartIndex);
-                            int currentUrlEndIndex = nfo.indexOf("jpg", currentUrlStartIndex);
-                            if (currentUrlEndIndex < 0) {
-                                currentUrlEndIndex = nfo.indexOf("JPG", currentUrlStartIndex);
-                            }
-                            if (currentUrlEndIndex >= 0) {
-                                int nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex);
-                                // look for shortest http://
-                                while ((nextUrlStartIndex != -1) && (nextUrlStartIndex < currentUrlEndIndex + 3)) {
-                                    currentUrlStartIndex = nextUrlStartIndex;
-                                    nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex + 1);
-                                }
-                                logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-                                movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-                                urlStartIndex = -1;
-                            } else {
-                                urlStartIndex = currentUrlStartIndex + 3;
-                            }
-                        } else {
-                            urlStartIndex = -1;
+                logger.finest("Scanning NFO for Poster URL");
+                int urlStartIndex = 0;
+                while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
+                    int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
+                    if (currentUrlStartIndex >= 0) {
+                        int currentUrlEndIndex = nfo.indexOf("jpg", currentUrlStartIndex);
+                        if (currentUrlEndIndex < 0) {
+                            currentUrlEndIndex = nfo.indexOf("JPG", currentUrlStartIndex);
                         }
+                        if (currentUrlEndIndex >= 0) {
+                            int nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex);
+                            // look for shortest http://
+                            while ((nextUrlStartIndex != -1) && (nextUrlStartIndex < currentUrlEndIndex + 3)) {
+                                currentUrlStartIndex = nextUrlStartIndex;
+                                nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex + 1);
+                            }
+                            logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                            movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                            urlStartIndex = -1;
+                        } else {
+                            urlStartIndex = currentUrlStartIndex + 3;
+                        }
+                    } else {
+                        urlStartIndex = -1;
                     }
-                }
-
-            } catch (IOException e) {
-                logger.severe("Failed reading " + nfoFile.getName());
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException e) {
-                    logger.severe("Failed closing: " + e.getMessage());
                 }
             }
         }

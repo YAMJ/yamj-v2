@@ -22,7 +22,7 @@ public class FilmaffinityPlugin extends ImdbPlugin
     
   }
  @Override
-  public void scan( Movie mediaFile )
+  public boolean scan( Movie mediaFile )
   {    
   	String imdbId = mediaFile.getId( IMDB_PLUGIN_ID );     
   	
@@ -30,6 +30,7 @@ public class FilmaffinityPlugin extends ImdbPlugin
     String titleSpanish = "None";
     String plotSpanish = "None";   
     
+    boolean retval = true;
     if ( imdbId == null || imdbId.equalsIgnoreCase( Movie.UNKNOWN ) )
     {
     		// Save original title
@@ -38,7 +39,7 @@ public class FilmaffinityPlugin extends ImdbPlugin
     		String filmAffinityId = getFilmAffinityId( mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason() );
     		if (filmAffinityId.indexOf(".html") != -1)
     			// Update original title and plot (in Spanish)
-    			updateFilmAffinityMediaInfo ( mediaFile, filmAffinityId );
+    			retval = updateFilmAffinityMediaInfo ( mediaFile, filmAffinityId );
     		
     		// Save plot in Spanish    	   	
         plotSpanish = mediaFile.getPlot();    	
@@ -50,7 +51,8 @@ public class FilmaffinityPlugin extends ImdbPlugin
     // Update plot and title in Spanish   
     if (plotSpanish != "None" && plotSpanish != "UNKNOWN")
     	mediaFile.setPlot(plotSpanish);
-    mediaFile.setTitle(titleSpanish);   
+    mediaFile.setTitle(titleSpanish);  
+    return retval;
   }
   
   /**
@@ -97,13 +99,20 @@ public class FilmaffinityPlugin extends ImdbPlugin
  /**
   * Scan FilmAffinity html page for the specified movie
   */
- private void updateFilmAffinityMediaInfo( Movie movie, String filmAffinityId )
+ private boolean updateFilmAffinityMediaInfo( Movie movie, String filmAffinityId )
  {
    try
    {      
      String xml = webBrowser
          .request( "http://www.filmaffinity.com/es/film" + filmAffinityId );
 
+     if (xml.contains("Serie de TV")) {
+         if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+             movie.setMovieType(Movie.TYPE_TVSHOW);
+             return false;
+         }
+     }
+     
      movie.setTitle( HTMLTools.extractTag( xml, "<td ><b>", 0, "()><-" ) );
      String plot = "None";
      plot = HTMLTools.extractTag( xml, "SINOPSIS:", 0, "><|" );
@@ -119,6 +128,7 @@ public class FilmaffinityPlugin extends ImdbPlugin
      logger.severe( "Failed retreiving filmaffinity data movie : " + movie.getId( IMDB_PLUGIN_ID ) );
      e.printStackTrace();
    }
+   return true;
  }
  
  
