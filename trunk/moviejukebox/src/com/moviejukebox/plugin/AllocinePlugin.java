@@ -149,13 +149,20 @@ public class AllocinePlugin extends ImdbPlugin
   /**
    * Scan Allocine html page for the specified movie
    */
-  private void updateMovieInfo( Movie movie )
+  private boolean updateMovieInfo( Movie movie )
   {
     try
     {
       String xml = webBrowser.request( "http://www.allocine.fr/film/fichefilm_gen_cfilm="
           + movie.getId( ALLOCINE_PLUGIN_ID ) + ".html" );
 
+      if (xml.contains("Série créée")) {
+          if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+              movie.setMovieType(Movie.TYPE_TVSHOW);
+              return false;
+          }
+      }
+      
       movie.setTitle( extractTag( xml, "<title>", "</title>" ) );
       movie.setRating( parseRating( extractTag( xml, "<h4>Note moyenne :", "</h4>" ) ) );
       movie.setPlot( removeHtmlTags( extractTag( xml, "<h3><b>Synopsis</b></h3>", "</h4>" ) ) );
@@ -201,6 +208,7 @@ public class AllocinePlugin extends ImdbPlugin
           + movie.getId( ALLOCINE_PLUGIN_ID ) );
       e.printStackTrace();
     }
+    return true;
   }
 
   private void updatePoster( Movie movie )
@@ -314,8 +322,9 @@ public class AllocinePlugin extends ImdbPlugin
   }
 
   @Override
-  public void scan( Movie mediaFile )
+  public boolean scan( Movie mediaFile )
   {
+      boolean retval = true;
     try
     {
       String allocineId = mediaFile.getId( ALLOCINE_PLUGIN_ID );
@@ -338,24 +347,23 @@ public class AllocinePlugin extends ImdbPlugin
         }
         else
         {
-          updateMovieInfo( mediaFile );
+          retval = updateMovieInfo( mediaFile );
         }
       }
       else
       {
         // If no AllocineId found fallback to Imdb
         logger.finer( "No Allocine Id available, we fall back to ImdbPlugin" );
-        ImdbPlugin imdbPlugin = new ImdbPlugin();
-        imdbPlugin.scan( mediaFile );
+        retval = super.scan(mediaFile);
       }
     }
     catch ( ParseException e )
     {
       // If no AllocineId found fallback to Imdb
       logger.finer( "Parse error in AllocinePlugin we fall back to ImdbPlugin" );
-      ImdbPlugin imdbPlugin = new ImdbPlugin();
-      imdbPlugin.scan( mediaFile );
+      retval = super.scan(mediaFile);
     }
+      return retval;
   }
 
   /**

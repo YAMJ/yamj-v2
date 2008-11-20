@@ -50,19 +50,21 @@ public class FilmwebPlugin extends ImdbPlugin {
 		}
 	}
 
-	public void scan(Movie mediaFile) {
+	public boolean scan(Movie mediaFile) {
 		String filmwebUrl = mediaFile.getId(FILMWEB_PLUGIN_ID);
 		if (filmwebUrl == null || filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
 			filmwebUrl = getFilmwebUrl(mediaFile.getTitle(), mediaFile.getYear());
 			mediaFile.setId(FILMWEB_PLUGIN_ID, filmwebUrl);
 		}
 
+                boolean retval = true;
 		if (!filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-			updateMediaInfo(mediaFile);
+			retval = updateMediaInfo(mediaFile);
 		} else {
 			// use IMDB if filmweb doesn't know movie
-			super.scan(mediaFile);
+			retval = super.scan(mediaFile);
 		}
+                return retval;
 	}
 
 	/**
@@ -165,10 +167,17 @@ public class FilmwebPlugin extends ImdbPlugin {
 	/**
 	 * Scan IMDB html page for the specified movie
 	 */
-	protected void updateMediaInfo(Movie movie) {
+	protected boolean updateMediaInfo(Movie movie) {
 		try {
 			String xml = webBrowser.request(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
+                        if (xml.contains("Serial TV")) {
+                            if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+                                movie.setMovieType(Movie.TYPE_TVSHOW);
+                                return false;
+                            }
+                        }
+                        
 			movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
 			movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "film-rating-precise")));
 			movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria"));
@@ -220,6 +229,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 			logger.severe("Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 			e.printStackTrace();
 		}
+                return true;
 	}
 
 	private int parseRating(String rating) {
@@ -351,10 +361,8 @@ public class FilmwebPlugin extends ImdbPlugin {
 			}
 		}
 		if (found) {
-			System.out.println("Filmweb url found in nfo = " + movie.getId(FILMWEB_PLUGIN_ID));
 			logger.finer("Filmweb url found in nfo = " + movie.getId(FILMWEB_PLUGIN_ID));
 		} else {
-			System.out.println("Filmweb url not found in nfo = " + movie.getTitle());
 			logger.finer("No filmweb url found in nfo !");
 		}
 	}
