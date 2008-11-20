@@ -232,7 +232,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         try {
             String xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID) + "/");
 
-            if (xml.contains("TV series") || xml.contains("TV Series")) {
+            if (xml.contains("\"tv-extra\"")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                     return false;
