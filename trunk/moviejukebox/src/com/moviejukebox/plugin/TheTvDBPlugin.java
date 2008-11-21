@@ -146,9 +146,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 continue;
             }
             
-            Episode episode = tvDB.getEpisode(id, movie.getSeason(), file.getPart(), language);
-            if (episode != null) {
-                file.setTitle(episode.getEpisodeName());
+            if (movie.getSeason() > 0) {
+                Episode episode = tvDB.getEpisode(id, movie.getSeason(), file.getPart(), language);
+                if (episode != null) {
+                    file.setTitle(episode.getEpisodeName());
+                }
             }
         }
     }

@@ -338,7 +338,7 @@ public class Movie implements Comparable<Movie> {
 
     public boolean isTVShow() {
         //return (season != -1);
-        return this.movieType.equals(TYPE_TVSHOW);
+        return (this.movieType.equals(TYPE_TVSHOW) || this.season > 0);
     }
 
     public void setAudioCodec(String audioCodec) {
@@ -754,9 +754,6 @@ public class Movie implements Comparable<Movie> {
         if (!this.movieType.equals(movieType)) {
             this.isDirty = true;
             this.movieType = movieType;
-            if (movieType.equals(TYPE_TVSHOW) && this.season < 0) {
-                this.season = 1;
-            }
         }
     }
 
