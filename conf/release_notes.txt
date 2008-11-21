@@ -26,6 +26,7 @@ MovieJukebox 1.0.13 beta
   - Fixed Defect #237 Support for the playlist "PLAY ALL" function in myiHome
   - Fixed Defect #243 Trailer tag not removing ending ']'
   - Fixed Defect #251 Movies with IT in the title are incorectly labeled as Italian
+  - Enhancement  #257 Update to use the TheMovieDB.org API
   - Fixed Defect #259 Multipart movies (or music albums) with "CD" anywhere in the name generate improper details pages
   - Enhancement  #?   Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
 
