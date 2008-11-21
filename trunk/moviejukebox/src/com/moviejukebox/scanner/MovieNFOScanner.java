@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.TrailerFile;
+import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
@@ -13,8 +14,11 @@ import com.moviejukebox.tools.XMLHelper;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
+
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 
 /**
@@ -29,7 +33,7 @@ public class MovieNFOScanner {
     private static Logger logger = Logger.getLogger("moviejukebox");
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
-    
+
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
      * 
@@ -38,9 +42,9 @@ public class MovieNFOScanner {
      */
     public void scan(Movie movie) {
         String fn = movie.getFile().getAbsolutePath();
-//		String localMovieName = movie.getTitle();
-        String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator));	// the full directory that the video file is in
-        String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1);	// just the sub-directory the video file is in
+        // String localMovieName = movie.getTitle();
+        String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
+        String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // just the sub-directory the video file is in
         String checkedFN = "";
         String NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
 
@@ -84,7 +88,7 @@ public class MovieNFOScanner {
 
         if (nfoFile.exists()) {
             logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
-            
+
             String nfo = FileTools.readFileToString(nfoFile);
 
             if (!parseXMLNFO(nfo, movie)) {
@@ -123,11 +127,12 @@ public class MovieNFOScanner {
     /**
      * Check to see if the passed filename exists with nfo extensions
      * 
-     * @param checkNFOfilename (NO EXTENSION)
+     * @param checkNFOfilename
+     *            (NO EXTENSION)
      * @return blank string if not found, filename if found
      */
     private String checkNFO(String checkNFOfilename) {
-//        logger.finest("checkNFO = " + checkNFOfilename);
+        // logger.finest("checkNFO = " + checkNFOfilename);
         File nfoFile = new File(checkNFOfilename + ".nfo");
         if (nfoFile.exists()) {
             return (checkNFOfilename + ".nfo");
@@ -140,21 +145,21 @@ public class MovieNFOScanner {
             }
         }
     }
-    
+
     private boolean parseXMLNFO(String nfo, Movie movie) {
         boolean retval = true;
         if (nfo.indexOf("<movie>") > -1) {
             parseMovieNFO(nfo, movie);
-        //} else if (nfo.indexOf("<tvshow>") > -1) {
-        //    parseTVNFO(nfo, movie);
-        //} else if (nfo.indexOf("<episodedetails>") > -1) {
-        //    parseEpisodeNFO(nfo, movie);
+            // } else if (nfo.indexOf("<tvshow>") > -1) {
+            // parseTVNFO(nfo, movie);
+            // } else if (nfo.indexOf("<episodedetails>") > -1) {
+            // parseEpisodeNFO(nfo, movie);
         } else {
             retval = false;
         }
         return retval;
     }
-    
+
     /**
      * Used to parse out the XBMC nfo xml data for movies
      * 
@@ -169,71 +174,79 @@ public class MovieNFOScanner {
             boolean isMovieTag = false;
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
-                
+
                 if (e.isStartElement()) {
-                    String tag = e.toString();
-                    if (tag.equalsIgnoreCase("<movie>")) {
+                    String tag = e.asStartElement().getName().toString();
+                    // logger.finest("In parseMovieNFO found new startElement=" + tag);
+                    if (tag.equalsIgnoreCase("movie")) {
                         isMovieTag = true;
-                    } 
-                    
+                    }
+
                     if (isMovieTag) {
-                        if (tag.equalsIgnoreCase("<title>")) {
+                        if (tag.equalsIgnoreCase("title")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setTitle(val);
                             }
-                        } else if (tag.equalsIgnoreCase("<originaltitle>")) {
+                        } else if (tag.equalsIgnoreCase("originaltitle")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<rating>")) {
+                        } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
                             if (val != 0.0f) {
                                 movie.setRating(Math.round(val * 10f));
                             }
-                        } else if (tag.equalsIgnoreCase("<year>")) {
+                        } else if (tag.equalsIgnoreCase("year")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setYear(val);
                             }
-                        } else if (tag.equalsIgnoreCase("<top250>")) {
+                        } else if (tag.equalsIgnoreCase("top250")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<votes>")) {
+                        } else if (tag.equalsIgnoreCase("votes")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<outline>")) {
+                        } else if (tag.equalsIgnoreCase("outline")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<plot>")) {
+                        } else if (tag.equalsIgnoreCase("plot")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setPlot(val);
                             }
-                        } else if (tag.equalsIgnoreCase("<tagline>")) {
+                        } else if (tag.equalsIgnoreCase("tagline")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<runtime>")) {
+                        } else if (tag.equalsIgnoreCase("runtime")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setRuntime(val);
                             }
-                        } else if (tag.equalsIgnoreCase("<thumb>")) {
+                        } else if (tag.equalsIgnoreCase("thumb")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setPosterURL(val);
                             }
-                        } else if (tag.equalsIgnoreCase("<mpaa>")) {
+                        } else if (tag.equalsIgnoreCase("mpaa")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setCertification(val);
                             }
-                        } else if (tag.equalsIgnoreCase("<playcount>")) {
+                        } else if (tag.equalsIgnoreCase("playcount")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<watched>")) {
+                        } else if (tag.equalsIgnoreCase("watched")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<id>")) {
+                        } else if (tag.equalsIgnoreCase("id")) {
+                            Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
-                                movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, val);
+                                if (movieDbIdAttribute != null) { // if we have a moviedb attribute
+                                    movie.setId(movieDbIdAttribute.getValue(), val); // we store the Id for this movieDb
+                                    logger.finest("In parseMovieNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
+                                } else {
+                                    movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, val); // without attribute we assume it's an IMDB Id
+                                    logger.finest("In parseMovieNFO Id=" + val + " found for default IMDB");
+                                }
                             }
-                        } else if (tag.equalsIgnoreCase("<filenameandpath>")) {
+                        } else if (tag.equalsIgnoreCase("filenameandpath")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<trailer>")) {
+                        } else if (tag.equalsIgnoreCase("trailer")) {
                             String trailer = XMLHelper.getCData(r).trim();
                             if (!trailer.isEmpty()) {
                                 TrailerFile tf = new TrailerFile();
@@ -241,19 +254,19 @@ public class MovieNFOScanner {
                                 tf.setFilename(trailer);
                                 movie.addTrailerFile(tf);
                             }
-                        } else if (tag.equalsIgnoreCase("<genre>")) {
+                        } else if (tag.equalsIgnoreCase("genre")) {
                             Collection<String> genres = movie.getGenres();
                             List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
-                        } else if (tag.equalsIgnoreCase("<credits>")) {
+                        } else if (tag.equalsIgnoreCase("credits")) {
                             // ignored
-                        } else if (tag.equalsIgnoreCase("<director>")) {
+                        } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setDirector(val);
                             }
-                        } else if (tag.equalsIgnoreCase("<actor>")) {
+                        } else if (tag.equalsIgnoreCase("actor")) {
                             String event = r.nextEvent().toString();
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
@@ -273,7 +286,8 @@ public class MovieNFOScanner {
                         }
                     }
                 } else if (e.isEndElement()) {
-                    if (e.toString().equalsIgnoreCase("</movie>")) {
+                    // logger.finest("In parseMovieNFO found new endElement=" + e.asEndElement().getName().toString());
+                    if (e.asEndElement().getName().toString().equalsIgnoreCase("movie")) {
                         break;
                     }
                 }
@@ -282,7 +296,5 @@ public class MovieNFOScanner {
             e.printStackTrace();
             System.err.println("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
         }
-    }  
-    
-    
+    }
 }
