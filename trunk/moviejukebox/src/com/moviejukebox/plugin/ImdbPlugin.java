@@ -11,15 +11,18 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
-import java.awt.image.BufferedImage;
+import com.moviejukebox.tools.XMLHelper;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static String IMDB_PLUGIN_ID = "imdb";
+    private static final String THEMOVIEDB_API_KEY = "228c65452d6c1d823bbe69bd6859ebb8";
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected String preferredSearchEngine;
     protected String preferredPosterSearchEngine;
@@ -350,38 +353,23 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     protected String getFanartURL(Movie movie) {
-        String fanartURL = Movie.UNKNOWN;
-
+        String url = Movie.UNKNOWN;
+        
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            XMLEventReader xmlReader = null;
             try {
-                String response = webBrowser.request("http://api.themoviedb.org/backdrop.php?imdb=" + imdbID);
+                xmlReader = XMLHelper.getEventReader("http://api.themoviedb.org/2.0/Movie.imdbLookup?imdb_id=" + imdbID + "&api_key=" + THEMOVIEDB_API_KEY);
 
-                if (response != null && !response.isEmpty()) {
-
-                    BufferedImage fanartImage = null;
-                    int beginIdx = response.indexOf("<URL>");
-                    while (fanartImage == null && beginIdx > -1) {
-                        int endIdx = response.indexOf("</URL>", beginIdx);
-                        if (endIdx > -1) {
-                            fanartURL = response.substring(beginIdx + 5, endIdx);
-                            // test to see if the image url is valid
-                            // if not, then the loop will continue looking for the next valid url
-                            fanartImage = GraphicTools.loadJPEGImage(fanartURL);
-                            if (fanartImage == null) {
-                                fanartURL = Movie.UNKNOWN;
-                            }
-                        } else {
-                            break;
-                        }
-                        beginIdx = response.indexOf("<URL>", endIdx);
-                    }
-                }
-            } catch (IOException ignore) {
+                url = parseNextFanartURL(xmlReader);
+            } catch (Exception e) {
+                logger.severe("Error looking up fanart from TheMovieDB: " + e.getMessage());
+            } finally {
+                XMLHelper.closeEventReader(xmlReader);
             }
         }
-
-        return fanartURL;
+        
+        return url;
     }
 
     protected String getPosterURL(Movie movie, String xml) {
@@ -617,4 +605,22 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
     }
+    
+    
+    private String parseNextFanartURL(XMLEventReader xmlReader) throws XMLStreamException {
+        String url = Movie.UNKNOWN;
+        
+        while (xmlReader.hasNext()) {
+            XMLEvent event = xmlReader.nextEvent();
+            if (event.isStartElement()) {
+                String tag = event.toString();
+                if (tag.equalsIgnoreCase("<backdrop size=\"original\">") || tag.equalsIgnoreCase("<backdrop size='original'>")) {
+                    url = XMLHelper.getCData(xmlReader);
+                    break;
+                }
+            }
+        }
+        return url;
+    }
+    
 }
