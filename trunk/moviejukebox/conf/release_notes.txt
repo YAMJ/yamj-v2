@@ -28,6 +28,7 @@ MovieJukebox 1.0.13 beta
   - Fixed Defect #251 Movies with IT in the title are incorectly labeled as Italian
   - Enhancement  #257 Update to use the TheMovieDB.org API
   - Fixed Defect #259 Multipart movies (or music albums) with "CD" anywhere in the name generate improper details pages
+  - Fixed Defect #275 New Multipart Delimiters added: "DISK" and "PART"
   - Fixed Defect #277 Plot can be too long for AllocinePlugin. It's now trimmed to 600 chars.
   - Enhancement  #279 Add to Issu 101 : add attribute "moviedb" to <id> tag for other plugins
   - Enhancement  #?   Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
