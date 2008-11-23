@@ -84,6 +84,7 @@ public class MovieJukebox {
 
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
+        boolean jukeboxClean = false;
 
         if (args.length == 0) {
             help();
@@ -95,6 +96,8 @@ public class MovieJukebox {
                 String arg = (String) args[i];
                 if ("-o".equalsIgnoreCase(arg)) {
                     jukeboxRoot = args[++i];
+                } else if ("-c".equalsIgnoreCase(arg)) {
+                    jukeboxClean = true;
                 } else if (arg.startsWith("-")) {
                     help();
                     return;
@@ -130,7 +133,7 @@ public class MovieJukebox {
         }
 
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
-        ml.generateLibrary();
+        ml.generateLibrary(jukeboxClean);
     }
 
     private static void help() {
@@ -156,6 +159,11 @@ public class MovieJukebox {
         System.out.println("                          output directory (local or network directory)");
         System.out.println("                          This is where the jukebox file will be written to");
         System.out.println("                          by default the is the same as the movieLibraryRoot");
+        System.out.println("");
+        System.out.println("    -c                  : OPTIONAL");
+        System.out.println("                          Clean the jukebox directory after running.");
+        System.out.println("                          This will delete any unused files from the jukebox");
+        System.out.println("                          directory at the end of the run.");
     }
 
     private MovieJukebox(String source, String jukeboxRoot) {
@@ -182,7 +190,7 @@ public class MovieJukebox {
         }
     }
 
-    private void generateLibrary() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
+    private void generateLibrary(boolean jukeboxClean) throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
         MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
         MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
@@ -197,6 +205,8 @@ public class MovieJukebox {
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
         String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
+        
+        int nbFiles = 0;
 
         //////////////////////////////////////////////////////////////////
         /// PASS 0 : Preparing temporary environnement...
@@ -209,7 +219,7 @@ public class MovieJukebox {
         if (tempJukeboxDetailsRootFile.exists()) {
             //Clean up
             File[] isoList = tempJukeboxDetailsRootFile.listFiles();
-            for (int nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
+            for (nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
                 isoList[nbFiles].delete();
             }
             tempJukeboxDetailsRootFile.delete();
@@ -297,26 +307,96 @@ public class MovieJukebox {
 
         logger.fine("Clean up temporary files");
         File[] isoList = tempJukeboxDetailsRootFile.listFiles();
-        for (int nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
+        for (nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
             isoList[nbFiles].delete();
         }
         tempJukeboxDetailsRootFile.delete();
         File rootIndex = new File(tempJukeboxRoot + File.separator + "index.htm");
         rootIndex.delete();
 
+        //////////////////////////////////////////////////////////////////
+        /// PASS 4: Clean-up the jukebox directory 
+        /// If the command line argument "-c" was passed
+        //
+        if ( jukeboxClean ) {
+            logger.fine("Cleaning up the jukebox directory...");
+
+            File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+            File[] cleanList = tempJukeboxCleanFile.listFiles();
+            String cleanCurrent  = "";
+            int cleanDeletedTotal = 0;
+            
+            for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
+                // Scan each file in here
+                if ( cleanList[nbFiles].isFile() ) {
+                    cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
+                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
+                    
+                    if ( cleanCurrent.equals("CATEGORIES") ) {
+                        //logger.fine(cleanCurrent + " ignored");
+                    } else if ( (cleanList[nbFiles].getName().substring(cleanList[nbFiles].getName().lastIndexOf(".")).equals(".css")) ||
+                                (cleanCurrent.indexOf("GENRES_") >= 0) || 
+                                (cleanCurrent.indexOf("OTHER_")  >= 0) ||
+                                (cleanCurrent.indexOf("RATING_") >= 0) ||
+                                (cleanCurrent.indexOf("TITLE_")  >= 0) ) {
+                        //logger.fine(cleanCurrent + " ignored");
+                    } else {
+                        // Left with just the generated movie files in the directory now.
+                        // We should now check to see if they are in the current movie list
+                        // If they are not in this list, then we will delete them.
+                        
+                        if ( cleanCurrent.lastIndexOf(".PLAYLIST") > 0 ) {
+                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf(".PLAYLIST"));
+                        } else if ( cleanCurrent.lastIndexOf("_LARGE") > 0 ) {
+                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_LARGE"));
+                        } else if ( cleanCurrent.lastIndexOf("_SMALL") > 0 ) {
+                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_SMALL"));
+                        } else if ( cleanCurrent.lastIndexOf("FANART") > 0 ) {
+                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("FANART")-1);
+                        }
+                        
+                        if ( !searchLibrary(cleanCurrent, library) ) {
+                            logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
+                            cleanDeletedTotal++;
+                            cleanList[nbFiles].delete();
+                        }
+                    }
+                }
+            }
+            logger.fine(Integer.toString(nbFiles) + " files in the jukebox directory");
+            logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " files");
+        } else {
+            logger.fine("Jukebox cleaning skipped");
+        }
         logger.fine("Process terminated.");
     }
 
-    /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
-     * 
-     * When an XML file exists for the specified movie file, it is loaded into the 
-     * specified <tt>Movie</tt> object.
-     * 
-     * When no XML file exist, scanners are called in turn, in order to add information
-     * to the specified <tt>movie</tt> object. Once scanned, the <tt>movie</tt> object
-     * is persisted.
-     */
+/**
+  * Search the movie library for the passed movie name
+  * @param slMovieName - the name of the movie to match
+  * @param library - the library to search
+  * @return true if found, false if not.
+  */
+    private Boolean searchLibrary(String slMovieName, Library library) {
+        slMovieName = slMovieName.toUpperCase();
+        for (Movie movie : library.values()) {
+            if ( movie.getBaseName().toUpperCase().equals(slMovieName) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+/**
+  * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
+  * 
+  * When an XML file exists for the specified movie file, it is loaded into the 
+  * specified <tt>Movie</tt> object.
+  * 
+  * When no XML file exist, scanners are called in turn, in order to add information
+  * to the specified <tt>movie</tt> object. Once scanned, the <tt>movie</tt> object
+  * is persisted.
+  */
     private void updateMovieData(MovieJukeboxXMLWriter xmlWriter,
             MovieNFOScanner nfoScanner, MediaInfoScanner miScanner,
             String jukeboxDetailsRoot, Movie movie) throws FileNotFoundException, XMLStreamException {
