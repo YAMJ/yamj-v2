@@ -62,10 +62,15 @@ How does it work?
                                   Must point to an XML configuration file specifying one or
                                   many directories to be scanned for movies.
 
-            -o jukeboxRoot      : OPTIONAL"
+            -o jukeboxRoot      : OPTIONAL
                                   output directory (local or network directory)
                                   This is where the jukebox file will be written to
                                   by default the is the same as the movieLibraryRoot
+
+            -c                  : OPTIONAL
+                                  Clean the jukebox directory after running.
+                                  This will delete any unused files from the jukebox
+                                  directory at the end of the run.
 
       For instance, the following command will analyze video files from directory Z:\Video. The jukebox files
       will be stored into this directory as well. drive "Z:\" can be a local drive, a USB drive or a network drive. 
