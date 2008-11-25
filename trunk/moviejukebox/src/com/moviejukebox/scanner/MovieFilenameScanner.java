@@ -162,8 +162,8 @@ public class MovieFilenameScanner {
 		if (hasKeyword(f, new String[] {".POL.",".PL.",".POLISH.","PLDUB"}))
 			return "Polish";
                 
-                if (hasKeyword(f, new String[] {".HUN.",".HU.",".HUNGARIAN."}))
-                        return "Hungarian";
+        if (hasKeyword(f, new String[] {".HUN.",".HU.",".HUNGARIAN."}))
+            return "Hungarian";
 
 		if (hasKeyword(f, new String[] {".VO.", ".VOSTFR."}))
 			return "VO";
@@ -189,27 +189,58 @@ public class MovieFilenameScanner {
 		name = name.replace(")", " ");
 		return name.trim();
 	}
+    
+	/**
+	 * Searches the filename for the keyword, if found is checked to see if the
+	 * preceding character is a delimiter.
+	 * 
+	 * @return the index position of the part if found, -1 if not
+	 * @param filename to search
+	 * @param Keyword to look for
+	 */
+    protected int getPartKeyword(String gpFilename, String gpKeyword) {
+        String gpDelim = " ._-[]()"; // List of delimiters to check for
+        String gpPrev  = ""; // Previous character
+        int gpIndex = 0;
+        
+        // Search for the Keyword in the file name
+        gpIndex = gpFilename.indexOf(gpKeyword);
+        while (gpIndex > 0) {
+            // We've found the keyword, but is it preceded by a delimiter and therefore not part of a word
+            gpPrev = gpFilename.substring(gpIndex - 1, gpIndex);
+            if ( gpDelim.indexOf(gpPrev) <= 0 ) {
+                // We can't find the preceding char in the delimiter string
+                // so look for the next occurence of the keyword
+                gpIndex = gpFilename.indexOf(gpKeyword, gpIndex + 1);
+            } else {
+                // We've found the keyword, and it's preceded by a delimiter, so quit.
+                break;
+            }
+        }
+        return gpIndex;
+    }
 
 	protected int getPart(String filename) {
 		String f = filename.toUpperCase();
-        // Issue 259 - Only the phrase CD with a space  before it(after getName has run)  will be counted
-		String keyword = " CD";
-		int index = f.lastIndexOf(keyword);
+        int index = 0;
 
-        // Issue 259 - Only the phrase DISC with a space  before it(after getName has run)  will be counted
+        // Issue 259 & 286 - Only the keyword with a delimiter before it will be counted.
+		String keyword = "CD";
+        index = getPartKeyword(f, keyword);
+        
 		if ( index == -1 ) {
-			keyword = " DISC";
-			index = f.lastIndexOf(keyword);
+			keyword = "DISC";
+			index = getPartKeyword(f, keyword);
 		}
         
         if ( index == -1 ) {
-            keyword = " DISK";
-            index = f.lastIndexOf(keyword);
+            keyword = "DISK";
+            index = getPartKeyword(f, keyword);
         }
 		
         if ( index == -1 ) {
-            keyword = " PART";
-            index = f.lastIndexOf(keyword);
+            keyword = "PART";
+            index = getPartKeyword(f, keyword);
         }
 		
 		if(index!= -1) {
