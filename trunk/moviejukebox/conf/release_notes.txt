@@ -34,6 +34,7 @@ MovieJukebox 1.0.13 beta
   - Enhancement  #279 Add to Issu 101 : add attribute "moviedb" to <id> tag for other plugins
   - Fixed Defect #282 Add ".tbn" as supported cover art format for increased XBMC compatability
   - Fixed Defect #286 Better detection of multipart video files.
+  - Enhancement  #290 Added Hebrew language recognition to file names and flag
   - Enhancement  #?   Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
 
 
