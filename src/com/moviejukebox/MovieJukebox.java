@@ -207,10 +207,37 @@ public class MovieJukebox {
         String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
         
         int nbFiles = 0;
+        String cleanCurrent  = "";
+
 
         //////////////////////////////////////////////////////////////////
         /// PASS 0 : Preparing temporary environnement...
         //
+        
+        if ( jukeboxClean ) {
+            // Clear out the jukebox generated files to force them to be re-created.
+            File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+            File[] cleanList = tempJukeboxCleanFile.listFiles();
+            
+            for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
+                // Scan each file in here
+                if ( cleanList[nbFiles].isFile() ) {
+                    cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
+                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
+                    
+                    if ( cleanCurrent.equals("CATEGORIES") ) {
+                        cleanList[nbFiles].delete();
+                    } else if ( (cleanList[nbFiles].getName().substring(cleanList[nbFiles].getName().lastIndexOf(".")).equals(".css")) ||
+                                (cleanCurrent.indexOf("GENRES_") >= 0) || 
+                                (cleanCurrent.indexOf("OTHER_")  >= 0) ||
+                                (cleanCurrent.indexOf("RATING_") >= 0) ||
+                                (cleanCurrent.indexOf("TITLE_")  >= 0) ) {
+                        cleanList[nbFiles].delete();
+                    }
+                }
+            }
+        }
+        
         logger.fine("Initializing...");
         String tempJukeboxRoot = "./temp";
         String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
@@ -323,7 +350,6 @@ public class MovieJukebox {
 
             File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
             File[] cleanList = tempJukeboxCleanFile.listFiles();
-            String cleanCurrent  = "";
             int cleanDeletedTotal = 0;
             
             for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
