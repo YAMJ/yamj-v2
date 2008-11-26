@@ -35,7 +35,8 @@ MovieJukebox 1.0.13 beta
   - Fixed Defect #282 Add ".tbn" as supported cover art format for increased XBMC compatability
   - Fixed Defect #286 Better detection of multipart video files.
   - Enhancement  #290 Added Hebrew language recognition to file names and flag
-  - Enhancement  #?   Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
+  - Fixed Defect #292 Jukebox clean up "-C" does not delete jukebox files
+  - Enhancement(New)  Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
 
 
 MovieJukebox 1.0.12 beta
