@@ -165,6 +165,9 @@ public class MovieFilenameScanner {
         if (hasKeyword(f, new String[] {".HUN.",".HU.",".HUNGARIAN."}))
             return "Hungarian";
 
+        if (hasKeyword(f, new String[] {".HEB.",".HE.",".HEBDUB."}))
+            return "Hebrew";
+
 		if (hasKeyword(f, new String[] {".VO.", ".VOSTFR."}))
 			return "VO";
 
