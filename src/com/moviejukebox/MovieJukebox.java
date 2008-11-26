@@ -427,12 +427,14 @@ public class MovieJukebox {
             MovieNFOScanner nfoScanner, MediaInfoScanner miScanner,
             String jukeboxDetailsRoot, Movie movie) throws FileNotFoundException, XMLStreamException {
 
+        boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
+
         // For each movie in the library, if an XML file for this
         // movie already exist, then no need to search for movie
         // information, just parse the XML data.
         File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
 
-        if (xmlFile.exists()) {
+        if (xmlFile.exists() && !forceXMLOverwrite) {
             // parse the movie XML file
             logger.finer("movie XML file found for movie:" + movie.getBaseName());
             xmlWriter.parseMovieXML(xmlFile, movie);
