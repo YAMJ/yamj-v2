@@ -59,7 +59,7 @@ class FilePropertiesIFO extends FileProperties {
 
 			log.finest("Processing IFO file done.");
 		} else
-			log.finest("IFO type not supported.");
+			log.finest("IFO type (" + Integer.toString(streamType) + ") not supported. Expecting (" + Integer.toString(DVDVIDEO_VTS) + ")");
 	}
 
 	void processIfoFile(byte[] ifoFile) throws Exception {
