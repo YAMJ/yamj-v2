@@ -433,6 +433,16 @@ public class MovieJukebox {
         // movie already exist, then no need to search for movie
         // information, just parse the XML data.
         File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
+        
+        File nfoFile = new File(nfoScanner.locateNFO(movie));
+        
+        if (xmlFile.exists() && nfoFile.exists()) {
+            // check the dates to see if the nfo file is newer
+            if (xmlFile.lastModified() < nfoFile.lastModified()) {
+                logger.fine("Detected that NFO is newer. Rescanning file.");
+                forceXMLOverwrite = true;
+            }
+        }
 
         if (xmlFile.exists() && !forceXMLOverwrite) {
             // parse the movie XML file
@@ -454,7 +464,11 @@ public class MovieJukebox {
             // No XML file for this movie. We've got to find movie
             // information where we can (filename, IMDb, NFO, etc...)
             // Add here extra scanners if needed.
-            logger.finer("movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
+            if ( forceXMLOverwrite ) {
+                logger.finer("ForceXMLOverwrite On. Scanning Internet Data for file " + movie.getBaseName());
+            } else {
+                logger.finer("Movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
+            }
             nfoScanner.scan(movie);
             DatabasePluginController.scan(movie);
             miScanner.scan(movie);

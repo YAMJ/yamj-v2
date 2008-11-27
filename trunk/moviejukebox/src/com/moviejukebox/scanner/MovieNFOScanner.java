@@ -41,6 +41,47 @@ public class MovieNFOScanner {
      * @param movieDB
      */
     public void scan(Movie movie) {
+        File nfoFile = new File(locateNFO(movie));
+
+        if (nfoFile.exists()) {
+            logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
+
+            String nfo = FileTools.readFileToString(nfoFile);
+
+            if (!parseXMLNFO(nfo, movie)) {
+                DatabasePluginController.scanNFO(nfo, movie);
+
+                logger.finest("Scanning NFO for Poster URL");
+                int urlStartIndex = 0;
+                while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
+                    int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
+                    if (currentUrlStartIndex >= 0) {
+                        int currentUrlEndIndex = nfo.indexOf("jpg", currentUrlStartIndex);
+                        if (currentUrlEndIndex < 0) {
+                            currentUrlEndIndex = nfo.indexOf("JPG", currentUrlStartIndex);
+                        }
+                        if (currentUrlEndIndex >= 0) {
+                            int nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex);
+                            // look for shortest http://
+                            while ((nextUrlStartIndex != -1) && (nextUrlStartIndex < currentUrlEndIndex + 3)) {
+                                currentUrlStartIndex = nextUrlStartIndex;
+                                nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex + 1);
+                            }
+                            logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                            movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                            urlStartIndex = -1;
+                        } else {
+                            urlStartIndex = currentUrlStartIndex + 3;
+                        }
+                    } else {
+                        urlStartIndex = -1;
+                    }
+                }
+            }
+        }
+    }
+
+    public String locateNFO(Movie movie) {
         String fn = movie.getFile().getAbsolutePath();
         // String localMovieName = movie.getTitle();
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
@@ -83,47 +124,10 @@ public class MovieNFOScanner {
                 }
             }
         }
-
-        File nfoFile = new File(checkedFN);
-
-        if (nfoFile.exists()) {
-            logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
-
-            String nfo = FileTools.readFileToString(nfoFile);
-
-            if (!parseXMLNFO(nfo, movie)) {
-                DatabasePluginController.scanNFO(nfo, movie);
-
-                logger.finest("Scanning NFO for Poster URL");
-                int urlStartIndex = 0;
-                while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
-                    int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
-                    if (currentUrlStartIndex >= 0) {
-                        int currentUrlEndIndex = nfo.indexOf("jpg", currentUrlStartIndex);
-                        if (currentUrlEndIndex < 0) {
-                            currentUrlEndIndex = nfo.indexOf("JPG", currentUrlStartIndex);
-                        }
-                        if (currentUrlEndIndex >= 0) {
-                            int nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex);
-                            // look for shortest http://
-                            while ((nextUrlStartIndex != -1) && (nextUrlStartIndex < currentUrlEndIndex + 3)) {
-                                currentUrlStartIndex = nextUrlStartIndex;
-                                nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex + 1);
-                            }
-                            logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-                            movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-                            urlStartIndex = -1;
-                        } else {
-                            urlStartIndex = currentUrlStartIndex + 3;
-                        }
-                    } else {
-                        urlStartIndex = -1;
-                    }
-                }
-            }
-        }
+        
+        return checkedFN;
     }
-
+    
     /**
      * Check to see if the passed filename exists with nfo extensions
      * 
