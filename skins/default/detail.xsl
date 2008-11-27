@@ -11,6 +11,9 @@
   <title><xsl:value-of select="title"/></title>
 </head>
 
+<xsl:variable name="star_rating">true</xsl:variable>
+<xsl:variable name="full_rating">true</xsl:variable>
+
 <body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
@@ -43,9 +46,19 @@
           </td>
         </tr>
         <tr>
-          <td>
+          <td class="title2" valign="top">
             <xsl:if test="rating != -1">
-              <img><xsl:attribute name="src">pictures/rating_<xsl:value-of select="round(rating div 10)*10" />.png</xsl:attribute></img>
+              <xsl:if test="$star_rating = 'true'">
+                <img><xsl:attribute name="src">pictures/rating_<xsl:value-of select="round(rating div 10)*10" />.png</xsl:attribute></img>
+              </xsl:if>
+              <xsl:if test="$full_rating = 'true'">
+                <xsl:if test="$star_rating = 'true'">
+                   (<xsl:value-of select="rating div 10" />/10)
+                </xsl:if>
+                <xsl:if test="$star_rating = 'false'">
+                  IMDB Rating: <xsl:value-of select="rating div 10" />/10
+                </xsl:if>
+              </xsl:if>
             </xsl:if>
           </td>
         </tr>
