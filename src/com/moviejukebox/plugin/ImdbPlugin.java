@@ -242,7 +242,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
 
-            if (movie.getTitle().equals(Movie.UNKNOWN)) {
+            if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
             }
             if (movie.getRating() == -1) {

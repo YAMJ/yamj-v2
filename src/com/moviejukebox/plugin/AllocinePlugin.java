@@ -29,7 +29,9 @@ public class AllocinePlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request("http://www.allocine.fr/series/ficheserie_gen_cserie=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
 
-            movie.setTitle(extractTag(xml, "<title>", "</title>"));
+            if (!movie.isOverrideTitle()) {
+                movie.setTitle(extractTag(xml, "<title>", "</title>"));
+            }
             movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
             String tmpPlot = removeHtmlTags(extractTag(xml, "Synopsis</span> :", "</h5>"));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
@@ -135,7 +137,9 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
             }
 
-            movie.setTitle(extractTag(xml, "<title>", "</title>"));
+            if (!movie.isOverrideTitle()) {
+                movie.setTitle(extractTag(xml, "<title>", "</title>"));
+            }
             movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
             String tmpPlot = removeHtmlTags(extractTag(xml, "<h3><b>Synopsis</b></h3>", "</h4>"));

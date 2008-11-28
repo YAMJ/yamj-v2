@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.TrailerFile;
-import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
@@ -191,6 +190,7 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setTitle(val);
+                                movie.setOverrideTitle(true);
                             }
                         } else if (tag.equalsIgnoreCase("originaltitle")) {
                             // ignored
