@@ -149,6 +149,10 @@
                      <xsl:attribute name="zcd">2</xsl:attribute> 
                    </xsl:if>
                     
+                   <xsl:if test="//movie/container = 'IMG' or substring(.,string-length(.)-3,4) = '.IMG' or substring(.,string-length(.)-3,4) = '.img'">
+                     <xsl:attribute name="zcd">2</xsl:attribute> 
+                   </xsl:if>
+                    
                    <xsl:if test="substring(//movie/files/file[1],string-length(//movie/files/file[1])-7,8) = 'VIDEO_TS'">
                      <xsl:attribute name="zcd">2</xsl:attribute> 
                    </xsl:if>
@@ -180,6 +184,10 @@
                      </xsl:choose> 
                     
                      <xsl:if test="//movie/container = 'ISO' or substring(.,string-length(.)-3,4) = '.ISO' or substring(.,string-length(.)-3,4) = '.iso'">
+                       <xsl:attribute name="zcd">2</xsl:attribute> 
+                     </xsl:if>
+                    
+                     <xsl:if test="//movie/container = 'IMG' or substring(.,string-length(.)-3,4) = '.IMG' or substring(.,string-length(.)-3,4) = '.img'">
                        <xsl:attribute name="zcd">2</xsl:attribute> 
                      </xsl:if>
                     
@@ -244,6 +252,12 @@
                        <xsl:attribute name="zcd">2</xsl:attribute>
                      </xsl:if>
                      <xsl:if test="substring(.,string-length(.)-2) = 'iso'">
+                       <xsl:attribute name="zcd">2</xsl:attribute>
+                     </xsl:if>
+                     <xsl:if test="substring(.,string-length(.)-2) = 'IMG'">
+                       <xsl:attribute name="zcd">2</xsl:attribute>
+                     </xsl:if>
+                     <xsl:if test="substring(.,string-length(.)-2) = 'img'">
                        <xsl:attribute name="zcd">2</xsl:attribute>
                      </xsl:if>
                      <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
