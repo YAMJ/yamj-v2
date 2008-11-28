@@ -40,6 +40,7 @@ MovieJukebox 1.0.13 beta
   - Fixed Defect #291 forceXMLOverwrite does not seem to work
   - Fixed Defect #292 Jukebox clean up "-C" does not delete jukebox files
   - Enhancement  #293 Added full rating to default skin as an example. Can be turned of with skin variables.
+  - Fixed Defect #296 None of the skins recognise IMG format and therefore don't add the zcd="2" tag to the end
   - Enhancement(New)  Updated PosterScanner to search for the foldername.* and folder.* for coverart (for TV Series)
 
 
