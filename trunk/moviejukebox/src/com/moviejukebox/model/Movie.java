@@ -78,6 +78,7 @@ public class Movie implements Comparable<Movie> {
     private boolean trailer = false;
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE; 
+    private boolean overrideTitle = false;
     
     // Navigation data
     private String first = UNKNOWN;
@@ -797,5 +798,13 @@ public class Movie implements Comparable<Movie> {
 
     public void setAudioChannels(String audioChannels) {
         this.audioChannels = audioChannels;
+    }
+
+    public boolean isOverrideTitle() {
+        return overrideTitle;
+    }
+
+    public void setOverrideTitle(boolean overrideTitle) {
+        this.overrideTitle = overrideTitle;
     }
 }

@@ -49,9 +49,11 @@ public class FilmaffinityPlugin extends ImdbPlugin
     super.scan(mediaFile);
     
     // Update plot and title in Spanish   
-    if (plotSpanish != "None" && plotSpanish != "UNKNOWN")
+    if (!plotSpanish.equals("None") && !plotSpanish.equals("UNKNOWN"))
     	mediaFile.setPlot(plotSpanish);
-    mediaFile.setTitle(titleSpanish);  
+    if (!mediaFile.isOverrideTitle()) {
+        mediaFile.setTitle(titleSpanish);
+    }  
     return retval;
   }
   
@@ -113,7 +115,9 @@ public class FilmaffinityPlugin extends ImdbPlugin
          }
      }
      
-     movie.setTitle( HTMLTools.extractTag( xml, "<td ><b>", 0, "()><-" ) );
+     if (!movie.isOverrideTitle()) {
+         movie.setTitle( HTMLTools.extractTag( xml, "<td ><b>", 0, "()><-" ) );
+     }
      String plot = "None";
      plot = HTMLTools.extractTag( xml, "SINOPSIS:", 0, "><|" );
  

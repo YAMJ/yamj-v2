@@ -30,6 +30,7 @@ MovieJukebox 1.0.13 beta
   - Enhancement  #252 Issue with accented or otherwise non-english modified letters on index page
   - Enhancement  #257 Update to use the TheMovieDB.org API
   - Fixed Defect #259 Multipart movies (or music albums) with "CD" anywhere in the name generate improper details pages
+  - Fixed Defect #261 File name used as Title, instead of IMDB Title
   - Fixed Defect #275 New Multipart Delimiters added: "DISK" and "PART"
   - Fixed Defect #277 Plot can be too long for AllocinePlugin. It's now trimmed to 600 chars.
   - Enhancement  #279 Add to Issu 101 : add attribute "moviedb" to <id> tag for other plugins

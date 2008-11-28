@@ -66,7 +66,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 
                 Banners banners = tvDB.getBanners(id);
                 
-                if (movie.getTitle().equals(Movie.UNKNOWN)) {
+                if (!movie.isOverrideTitle()) {
                     movie.setTitle(series.getSeriesName());
                 }
                 if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {

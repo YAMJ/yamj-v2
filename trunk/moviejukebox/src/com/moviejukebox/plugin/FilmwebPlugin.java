@@ -178,7 +178,9 @@ public class FilmwebPlugin extends ImdbPlugin {
                             }
                         }
                         
-			movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
+                        if (!movie.isOverrideTitle()) {
+                            movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
+                        }
 			movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "film-rating-precise")));
 			movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria"));
 			movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "data premiery:"));
