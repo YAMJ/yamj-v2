@@ -13,8 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
-import java.text.DecimalFormat;			// Issue 190
+import java.text.DecimalFormat;			
 
+import java.util.StringTokenizer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
@@ -25,6 +26,7 @@ public class Library implements Map<String, Movie> {
 	private static boolean filterGenres;
 	private static List<String> certificationOrdering = new ArrayList<String>();
 	private static Map<String,String> genresMap = new HashMap<String, String>();
+        private static Map<Character,Character> charReplacementMap = new HashMap<Character,Character>();
 
 	private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
 	private List<Movie> moviesList = new ArrayList<Movie>();
@@ -42,6 +44,22 @@ public class Library implements Map<String, Movie> {
                 if (temp != null && !temp.isEmpty()) {
                     String[] certs = temp.split(",");
                     certificationOrdering.addAll(Arrays.asList(certs));
+                }
+            }
+            
+            String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
+            StringTokenizer tokenizer = new StringTokenizer(temp, ",");
+            while (tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken();
+                int idx = token.indexOf("-");
+                if (idx > 0) {
+                    try {
+                        String key = token.substring(0, idx).trim();
+                        String value = token.substring(idx+1).trim();
+                        if (key.length() == 1 && value.length() == 1) {
+                            charReplacementMap.put(new Character(key.charAt(0)), new Character(value.charAt(0)));
+                        }
+                    } catch (Exception ignore) {}
                 }
             }
         }
@@ -166,9 +184,13 @@ public class Library implements Map<String, Movie> {
 				Character c = Character.toUpperCase(title.charAt(0));
 			
 				if (!Character.isLetter(c)) {
-					addMovie(index, "09", movie);
+                                    addMovie(index, "09", movie);
 				} else {
-					addMovie(index, c.toString(), movie);
+                                    Character tempC = charReplacementMap.get(c);
+                                    if (tempC != null) {
+                                        c = tempC;
+                                    }
+                                    addMovie(index, c.toString(), movie);
 				} 
 			}
                     }
