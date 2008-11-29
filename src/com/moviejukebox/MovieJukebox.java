@@ -209,14 +209,14 @@ public class MovieJukebox {
         int nbFiles = 0;
         String cleanCurrent  = "";
 
-
         //////////////////////////////////////////////////////////////////
         /// PASS 0 : Preparing temporary environnement...
         //
         
-        if ( jukeboxClean ) {
+        File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+        if ( jukeboxClean && tempJukeboxCleanFile.exists()) {
             // Clear out the jukebox generated files to force them to be re-created.
-            File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+            
             File[] cleanList = tempJukeboxCleanFile.listFiles();
             
             for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
@@ -348,7 +348,7 @@ public class MovieJukebox {
         if ( jukeboxClean ) {
             logger.fine("Cleaning up the jukebox directory...");
 
-            File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+//            File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
             File[] cleanList = tempJukeboxCleanFile.listFiles();
             int cleanDeletedTotal = 0;
             
