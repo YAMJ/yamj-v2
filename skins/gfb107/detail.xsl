@@ -11,7 +11,8 @@
   <title><xsl:value-of select="title"/></title>
 </head>
 
-<body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
+<body bgproperties="fixed" background="pictures/background.jpg">
+<xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute>
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
 
