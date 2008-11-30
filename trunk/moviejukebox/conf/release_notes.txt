@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.14 beta
 ------------------------
+  - Fixed defect #196 Focus on alphabets or categories resets to 09 every time you press return on remote.
   - Fixed defect #299 Jukebox Cleanup causes null pointer failues
 
 MovieJukebox 1.0.13 beta

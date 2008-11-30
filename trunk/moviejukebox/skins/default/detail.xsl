@@ -14,7 +14,8 @@
 <xsl:variable name="star_rating">true</xsl:variable>
 <xsl:variable name="full_rating">true</xsl:variable>
 
-<body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
+<body bgproperties="fixed" background="pictures/background.jpg">
+<xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute>
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   
