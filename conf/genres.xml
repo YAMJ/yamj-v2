@@ -14,6 +14,7 @@
     <subgenre>Western</subgenre>
     <subgenre>Guerre</subgenre>
     <subgenre>Aventure</subgenre>
+    <subgenre>Action and Adventure</subgenre>
   </genre>
   <genre name="Drama">
     <subgenre>Drama</subgenre> 
@@ -31,6 +32,11 @@
     <subgenre>Short</subgenre> 
     <subgenre>Music</subgenre>
     <subgenre>Musical</subgenre>
+  </genre>
+  <genre name="Sci-Fi">
+    <subgenre>Sci-Fi</subgenre>
+    <subgenre>Science Fiction</subgenre>
+    <subgenre>Science-Fiction</subgenre>
   </genre>
 </genres>
   
