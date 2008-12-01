@@ -288,6 +288,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 String plot = Movie.UNKNOWN;
                 if (imdbPlot.equalsIgnoreCase("long")) {
                     plot = getLongPlot(movie);
+                    System.out.println(plot);
                 }
                 // even if "long" is set we will default to the "short" one if none
                 // was found
@@ -569,7 +570,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @return long plot
      */
     private String getLongPlot(Movie movie) {
-        String plot = "None";
+        String plot = Movie.UNKNOWN;
 
         try {
             String xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary");
