@@ -598,7 +598,7 @@ public class Movie implements Comparable<Movie> {
         if (name == null) {
             name = UNKNOWN;
         }
-        if (!name.equalsIgnoreCase(this.title)) {
+        if (!name.equals(this.title)) {
             this.isDirty = true;
             this.title = name;
 
@@ -610,7 +610,7 @@ public class Movie implements Comparable<Movie> {
         if (text == null) {
             text = UNKNOWN;
         }
-        if (!text.equalsIgnoreCase(this.titleSort)) {
+        if (!text.equals(this.titleSort)) {
             //  Automatically remove enclosing quotes
             if ((text.charAt(0) == '"') && (text.charAt(text.length() - 1) == '"')) {
                 text = text.substring(1, text.length() - 1);
