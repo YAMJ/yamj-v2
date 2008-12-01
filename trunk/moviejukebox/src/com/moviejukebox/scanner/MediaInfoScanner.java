@@ -15,10 +15,12 @@ import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.XMLHelper;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
+import java.util.List;
 /**
  * @author Grael
  */
@@ -257,7 +259,76 @@ public class MediaInfoScanner {
 
 		String infoValue;
 
-		// get Container from Genral Section
+        // update movie with meta tags if present
+        if (!movie.isOverrideTitle()) {
+            infoValue = infosGeneral.get("Movie");
+            if (infoValue == null) {
+                infoValue = infosGeneral.get("Movie name");
+            }
+            if (infoValue != null) {
+                movie.setTitle(infoValue);
+                movie.setOverrideTitle(true);
+            }
+        }
+        infoValue = infosGeneral.get("Director");
+        if (infoValue != null) {
+            movie.setDirector(infoValue);
+        }
+        infoValue = infosGeneral.get("Summary");
+        if (infoValue == null) {
+            infoValue = infosGeneral.get("Comment");
+        }
+        if (infoValue != null) {
+            movie.setPlot(infoValue);
+        }
+        infoValue = infosGeneral.get("Genre");
+        if (infoValue != null) {
+            List<String> list = XMLHelper.parseList(infoValue, "|/,");
+            if (!list.isEmpty()) {
+                movie.setGenres(list);
+            }
+        }
+        infoValue = infosGeneral.get("Actor");
+        if (infoValue == null) {
+            infoValue = infosGeneral.get("Performer");
+        }
+        if (infoValue != null) {
+            List<String> list = XMLHelper.parseList(infoValue, "|/,");
+            if (!list.isEmpty()) {
+                movie.setCast(list);
+            }
+        }
+        infoValue = infosGeneral.get("LawRating");
+        if (infoValue == null) {
+            infoValue = infosGeneral.get("Law rating");
+        }
+        if (infoValue != null) {
+            movie.setCertification(infoValue);
+        }
+        infoValue = infosGeneral.get("Rating");
+        if (infoValue != null) {
+            try {
+                float r = Float.parseFloat(infoValue);
+                r = r * 20.0f;
+                movie.setRating(Math.round(r));
+            } catch (Exception ignore) {}
+        }
+        infoValue = infosGeneral.get("Country");
+        if (infoValue == null) {
+            infoValue = infosGeneral.get("Movie/Country");
+        }
+        if (infoValue == null) {
+            infoValue = infosGeneral.get("Movie name/Country");
+        }
+        if (infoValue != null) {
+            movie.setCountry(infoValue);
+        }
+        infoValue = infosGeneral.get("Released_Date");
+        if (infoValue != null) {
+            movie.setReleaseDate(infoValue);
+        }
+
+		// get Container from General Section
 		infoValue = infosGeneral.get("Format");
 		if (infoValue != null) {
 			movie.setContainer(infoValue);
