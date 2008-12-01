@@ -92,7 +92,7 @@ public class MovieFilenameScanner {
 	protected String getAudioCodec(String filename) {
 		return findKeyword(
 				filename.toUpperCase(), 
-				new String[] { "AC3", "DTS" });
+				new String[] { "AC3", "DTS", "DD", "AAC" });
 	}
 		
 	/**
@@ -313,7 +313,8 @@ public class MovieFilenameScanner {
 	protected String getVideoSource(String filename) {
 		String f = filename.toUpperCase();
 		if (hasKeyword(f, "HDTV")) return "HDTV";
-		if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP" })) return "BluRay";
+		if (hasKeyword(f, "PDTV")) return "PDTV";
+		if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP", "BLU-RAY" })) return "BluRay";
 		if (hasKeyword(f, "DVDRIP")) return "DVDRip";
 		if (hasKeyword(f, "DVDSCR")) return "DVDSCR";
 		if (hasKeyword(f, "DSRIP")) return "DSRip";
@@ -323,7 +324,9 @@ public class MovieFilenameScanner {
 		if (hasKeyword(filename, "LINE")) return "LINE";
 		if (hasKeyword(filename, new String[] { "HDDVD", "HD-DVD", "HDDVDRIP"})) return "HDDVD";
 		if (hasKeyword(filename, new String[] { "DTH", "D-THEATER", "DTHEATER"})) return "D-THEATER";
-                if (hasKeyword(filename, "HD2DVD")) return "HD2DVD";
+        if (hasKeyword(filename, "HD2DVD")) return "HD2DVD";
+        if (hasKeyword(f, new String[] { "DVD", "NTSC", "PAL" })) return "DVD";
+        if (hasKeyword(f, new String[] { "720p", "1080p", "1080i" })) return "HDTV";
 		return "Unknown";
 	}
 	
@@ -331,18 +334,18 @@ public class MovieFilenameScanner {
 		String path = fileToScan.getAbsolutePath();
 		int index = path.lastIndexOf(".");
 		String basename = path.substring(0, index+1);
-		
+
 		if (index >= 0) {
 			return ( new File(basename + "srt").exists() || 
-					   new File(basename + "SRT").exists() || 
-					   new File(basename + "sub").exists() ||
-					   new File(basename + "SUB").exists() || 
-					   new File(basename + "smi").exists() ||
-					   new File(basename + "SMI").exists() || 
-					   new File(basename + "ssa").exists() ||
-					   new File(basename + "SSA").exists() );
+                     new File(basename + "SRT").exists() || 
+					 new File(basename + "sub").exists() ||
+					 new File(basename + "SUB").exists() || 
+					 new File(basename + "smi").exists() ||
+					 new File(basename + "SMI").exists() || 
+					 new File(basename + "ssa").exists() ||
+					 new File(basename + "SSA").exists() );
 		}
-		
+
 		String fn = path.toUpperCase();
 		if (hasKeyword(fn, "VOST")) return true;
 		return false;
@@ -381,11 +384,7 @@ public class MovieFilenameScanner {
 				String token = st.nextToken();
 				
 				// Year
-				if (token.length()==4 
-						&& Character.isDigit(token.charAt(0)) 
-						&& Character.isDigit(token.charAt(1)) 
-						&& Character.isDigit(token.charAt(2)) 
-						&& Character.isDigit(token.charAt(3))) {
+				if ((token.length() == 4) && token.matches("\\d{4}") && (Integer.parseInt(token) > 1919) && (Integer.parseInt(token) < 2399)) {
 					updateFirstKeywordIndex(filename.indexOf(token));
 					movie.setYear(token.substring(0,4));
 				}
@@ -410,132 +409,131 @@ public class MovieFilenameScanner {
 			StringTokenizer st = new StringTokenizer(filename,". []-_");
 			while(st.hasMoreTokens()) {
 				String origToken = st.nextToken();
-                                String token = origToken.toUpperCase();
+                String token = origToken.toUpperCase();
                                 
 				// S???E???? variable format
-                                int eIdx = token.indexOf("E");
-                                if (token.startsWith("S") && eIdx > 1 && eIdx < (token.length() - 1)) {
-                                    boolean isValid = true;
+                int eIdx = token.indexOf("E");
+                if (token.startsWith("S") && eIdx > 1 && eIdx < (token.length() - 1)) {
+                    boolean isValid = true;
+
+                    StringBuffer season = new StringBuffer();
+                    String sToken = token.substring(1, eIdx);
+                    for (char c : sToken.toCharArray()) {
+                        if (Character.isDigit(c)) {
+                            season.append(c);
+                        } else {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                
+                    StringBuffer episode = null;
+                    if (isValid) {
+                        episode = new StringBuffer();
+                        String eToken = token.substring(eIdx+1);
+                        for (char c : eToken.toCharArray()) {
+                            if (Character.isDigit(c)) {
+                                episode.append(c);
+                            } else {
+                                isValid = false;
+                                break;
+                            }
+                        }
+                    }
                                     
-                                    StringBuffer season = new StringBuffer();
-                                    String sToken = token.substring(1, eIdx);
-                                    for (char c : sToken.toCharArray()) {
-                                        if (Character.isDigit(c)) {
-                                            season.append(c);
-                                        } else {
-                                            isValid = false;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    StringBuffer episode = null;
-                                    if (isValid) {
-                                        episode = new StringBuffer();
-                                        String eToken = token.substring(eIdx+1);
-                                        for (char c : eToken.toCharArray()) {
-                                            if (Character.isDigit(c)) {
-                                                episode.append(c);
-                                            } else {
-                                                isValid = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    
-                                    if (isValid) {
-                                        updateFirstKeywordIndex(filename.indexOf(origToken));
-                                        movie.setSeason(Integer.parseInt(season.toString()));
-                                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
-                                        
-                                        int beginIndex = filename.lastIndexOf("-");
-					int endIndex = filename.lastIndexOf(".");
-					if ( beginIndex>=0 && endIndex>beginIndex ) {
-                                            if (!movie.isTrailer()) {
-						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
-                                            }
-					} else {
-                                            if (!movie.isTrailer()) {
-						movie.getFirstFile().setTitle(Movie.UNKNOWN);
-                                            }
-					}
-                                    }
-                                    
-                                }
-                                				
-				// ?x?? variable format
-                                int xIdx = token.indexOf("X");
+                    if (isValid) {
+                        updateFirstKeywordIndex(filename.indexOf(origToken));
+                        movie.setSeason(Integer.parseInt(season.toString()));
+                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
+                                            
+                        int beginIndex = filename.lastIndexOf("-");
+    					int endIndex = filename.lastIndexOf(".");
+    					if ( beginIndex>=0 && endIndex>beginIndex ) {
+                            if (!movie.isTrailer()) {
+                                movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
+                            }
+                        } else {
+                            if (!movie.isTrailer()) {
+                                movie.getFirstFile().setTitle(Movie.UNKNOWN);
+                            }
+    					}
+                    }
+                }
+
+                // ?x?? variable format
+                int xIdx = token.indexOf("X");
 				if (Character.isDigit(token.charAt(0)) && xIdx > 0 && xIdx < (token.length()-1) && Character.isDigit(token.charAt(token.length()-1))) {
-                                    boolean isValid = true;
+                    boolean isValid = true;
+
+                    StringBuffer season = new StringBuffer();
+                    String sToken = token.substring(0, xIdx);
+                    for (char c : sToken.toCharArray()) {
+                        if (Character.isDigit(c)) {
+                            season.append(c);
+                        } else {
+                            isValid = false;
+                            break;
+                        }
+                    }
                                     
-                                    StringBuffer season = new StringBuffer();
-                                    String sToken = token.substring(0, xIdx);
-                                    for (char c : sToken.toCharArray()) {
-                                        if (Character.isDigit(c)) {
-                                            season.append(c);
-                                        } else {
-                                            isValid = false;
-                                            break;
-                                        }
-                                    }
+                    StringBuffer episode = null;
+                    if (isValid) {
+                        episode = new StringBuffer();
+                        String eToken = token.substring(xIdx+1);
+                        for (char c : eToken.toCharArray()) {
+                            if (Character.isDigit(c)) {
+                                episode.append(c);
+                            } else {
+                                isValid = false;
+                                break;
+                            }
+                        }
+                    }
                                     
-                                    StringBuffer episode = null;
-                                    if (isValid) {
-                                        episode = new StringBuffer();
-                                        String eToken = token.substring(xIdx+1);
-                                        for (char c : eToken.toCharArray()) {
-                                            if (Character.isDigit(c)) {
-                                                episode.append(c);
-                                            } else {
-                                                isValid = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    
-                                    if (isValid) {
-                                        updateFirstKeywordIndex(filename.indexOf(origToken));
-                                        movie.setSeason(Integer.parseInt(season.toString()));
-                                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
+                    if (isValid) {
+                        updateFirstKeywordIndex(filename.indexOf(origToken));
+                        movie.setSeason(Integer.parseInt(season.toString()));
+                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
                                         
-                                        int beginIndex = filename.lastIndexOf("-");
-					int endIndex = filename.lastIndexOf(".");
-					if ( beginIndex>=0 && endIndex>beginIndex ) {
-                                            if (!movie.isTrailer()) {
-						movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
-                                            }
-					} else {
-                                            if (!movie.isTrailer()) {
-						movie.getFirstFile().setTitle(Movie.UNKNOWN);
-                                            }
-					}
-                                    }
-				}
-			}
-		} catch (Exception e) {
+                        int beginIndex = filename.lastIndexOf("-");
+                        int endIndex = filename.lastIndexOf(".");
+                        if ( beginIndex>=0 && endIndex>beginIndex ) {
+                            if (!movie.isTrailer()) {
+                                movie.getFirstFile().setTitle(filename.substring(beginIndex+1, endIndex).trim());
+                            }
+                        } else {
+                            if (!movie.isTrailer()) {
+                                movie.getFirstFile().setTitle(Movie.UNKNOWN);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
 			//
 		}
 	}
-	
+
 	protected String findKeyword(String filename, String[] strings) {
-            String name = filename.toUpperCase();
-            name = name.replace(".", " ");
-            name = name.replace("_", " ");
-            name = name.replace("-", " ");
-            name = name.replace("[", " ");
-            name = name.replace("]", " ");
-            name = name.replace("(", " ");
-            name = name.replace(")", " ");
-            
-            String val = "Unknown";
-            for (String keyword : strings) {
-                String upperKeyword = " " + keyword.toUpperCase() + " ";
-                int index = name.indexOf(upperKeyword);
-                if (index > 0) {
-                    updateFirstKeywordIndex(index);
-                    val = keyword;
-                }
+        String name = filename.toUpperCase();
+        name = name.replace(".", " ");
+        name = name.replace("_", " ");
+        name = name.replace("-", " ");
+        name = name.replace("[", " ");
+        name = name.replace("]", " ");
+        name = name.replace("(", " ");
+        name = name.replace(")", " ");
+        
+        String val = "Unknown";
+        for (String keyword : strings) {
+            String upperKeyword = " " + keyword.toUpperCase() + " ";
+            int index = name.indexOf(upperKeyword);
+            if (index > 0) {
+                updateFirstKeywordIndex(index);
+                val = keyword;
             }
-            return val;
+        }
+        return val;
 	}
 
 	/**
