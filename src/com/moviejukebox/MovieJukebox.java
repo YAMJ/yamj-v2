@@ -428,15 +428,17 @@ public class MovieJukebox {
             String jukeboxDetailsRoot, Movie movie) throws FileNotFoundException, XMLStreamException {
 
         boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
+        boolean checkNewer = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.checknewer", "true"));
 
         // For each movie in the library, if an XML file for this
         // movie already exist, then no need to search for movie
         // information, just parse the XML data.
         File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
         
+        // See if we can find the NFO associated with this video file.
         File nfoFile = new File(nfoScanner.locateNFO(movie));
         
-        if (xmlFile.exists() && nfoFile.exists()) {
+        if (xmlFile.exists() && nfoFile.exists() && checkNewer) {
             // check the dates to see if the nfo file is newer
             if (xmlFile.lastModified() < nfoFile.lastModified()) {
                 logger.fine("Detected that NFO is newer. Rescanning file.");
