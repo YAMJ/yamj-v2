@@ -112,7 +112,7 @@
           </td>
         </tr>
 
-        <tr class="divider"><td> </td></tr>
+        <tr class="divider"><td><xsl:text> </xsl:text></td></tr>
 
         <tr>
           <td width="85%" class="normal" colspan="4">
@@ -122,7 +122,7 @@
           </td>
         </tr>
 
-        <tr class="spacer"><td> </td></tr>
+        <tr class="spacer"><td><xsl:text> </xsl:text></td></tr>
 
         <tr>
           <td colspan="4"><center><table width="85%">

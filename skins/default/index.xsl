@@ -63,7 +63,7 @@
             </a>
           </td></tr>
         </xsl:for-each>
-        <tr><td><hr/></td></tr>
+        <tr><td><hr><xsl:text> </xsl:text></hr></td></tr>
 
         <xsl:if test="$lastIndex != 1">
            <tr><td align="right"><table><tr>
