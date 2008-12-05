@@ -136,8 +136,8 @@ public class PosterScanner {
             }
         }
         /***
-         * END OF Folder CoverArt
-         */
+                    * END OF Folder CoverArt
+                    */
 
         if (foundLocalCoverArt) {
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
@@ -145,12 +145,19 @@ public class PosterScanner {
 
             File finalDestinationFile = new File(finalDestinationFileName);
             File destFile = new File(destFileName);
-
-            if (!finalDestinationFile.exists() || finalDestinationFile.length() != localPosterFile.length()) {
+            boolean checkAgain = false;
+            
+            if ( ( finalDestinationFile.length() != localPosterFile.length() ) ||
+                 ( finalDestinationFile.lastModified() < localPosterFile.lastModified() ) ){
+                // Poster size is different OR Local Poster is newer
+                checkAgain = true;
+            }
+            
+            if (!finalDestinationFile.exists() || checkAgain) {
                 FileTools.copyFile(localPosterFile, destFile);
                 logger.finer("PosterScanner : " + fullPosterFilename + " has been copied to " + destFileName);
             } else {
-                logger.finer("PosterScanner : " + finalDestinationFileName + " already exists and has same size as " + fullPosterFilename);
+                logger.finer("PosterScanner : " + finalDestinationFileName + " is different to " + fullPosterFilename);
             }
         } else {
             logger.finer("PosterScanner : No local covertArt found for " + movie.getBaseName());
