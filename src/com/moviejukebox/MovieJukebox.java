@@ -304,13 +304,13 @@ public class MovieJukebox {
             logger.finest("Writing index data to movie: " + movie.getBaseName());
             xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-            // Create a thumbnail for each movie
-            logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-            createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
-
             // Create a detail poster for each movie
             logger.finest("Creating detail poster for movie: " + movie.getBaseName());
             createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+
+            // Create a thumbnail for each movie
+            logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
+            createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
             // write the movie details HTML		
             htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
@@ -656,13 +656,13 @@ public class MovieJukebox {
     public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forceThumbnailOverwrite) {
         try {
             // Issue 201 : we now download to local temp dire
-            String src = tempRootPath + File.separator + movie.getPosterFilename();
-            String oldsrc = rootPath + File.separator + movie.getPosterFilename();
-            String dst = tempRootPath + File.separator + movie.getThumbnailFilename();
-            String olddst = rootPath + File.separator + movie.getThumbnailFilename();
+            String src    = tempRootPath + File.separator + movie.getPosterFilename();
+            String oldsrc = rootPath     + File.separator + movie.getPosterFilename();
+            String dst    = tempRootPath + File.separator + movie.getThumbnailFilename();
+            String olddst = rootPath     + File.separator + movie.getThumbnailFilename();
             FileInputStream fis;
-
-            if (!(new File(olddst).exists()) || forceThumbnailOverwrite) {
+            
+            if (!(new File(olddst).exists()) || forceThumbnailOverwrite || (new File(src).exists())) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefor check to see if they exist in the original directory
                 if (new File(src).exists()) {
                     logger.finest("New file exists");
@@ -696,13 +696,13 @@ public class MovieJukebox {
     public static void createPoster(MovieImagePlugin posterManager, String rootPath, String tempRootPath, String skinHome, Movie movie, boolean forcePosterOverwrite) {
         try {
             // Issue 201 : we now download to local temp dire
-            String src = tempRootPath + File.separator + movie.getPosterFilename();
-            String oldsrc = rootPath + File.separator + movie.getPosterFilename();
-            String dst = tempRootPath + File.separator + movie.getDetailPosterFilename();
-            String olddst = rootPath + File.separator + movie.getDetailPosterFilename();
+            String src    = tempRootPath + File.separator + movie.getPosterFilename();
+            String oldsrc = rootPath     + File.separator + movie.getPosterFilename();
+            String dst    = tempRootPath + File.separator + movie.getDetailPosterFilename();
+            String olddst = rootPath     + File.separator + movie.getDetailPosterFilename();
             FileInputStream fis;
 
-            if (!(new File(olddst).exists()) || forcePosterOverwrite) {
+            if (!(new File(olddst).exists()) || forcePosterOverwrite || (new File(src).exists())) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefor check to see if they exist in the original directory
                 if (new File(src).exists()) {
                     logger.finest("New file exists");

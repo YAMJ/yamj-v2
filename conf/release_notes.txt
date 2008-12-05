@@ -6,6 +6,7 @@ MovieJukebox 1.0.14 beta
 ------------------------
   - Enhancement  #148 Enh: Get Metadata from tags
   - Fixed defect #196 Focus on alphabets or categories resets to 09 every time you press return on remote.
+  - Enhancement  #294 Regenerate image files if local copies are newer than jukebox versions
   - Enhancement  #298 Property to control the scanning of newer NFO files or not.
   - Fixed defect #299 Jukebox Cleanup causes null pointer failues
   - Fixed defect #303 Divider and spacer does not show up on the popcorn.
