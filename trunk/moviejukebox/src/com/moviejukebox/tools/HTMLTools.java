@@ -1,8 +1,12 @@
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Movie;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
-import java.util.*;
+import com.moviejukebox.model.Movie;
 
 public class HTMLTools {
 
@@ -325,7 +329,7 @@ public class HTMLTools {
                             radix = 16;
                         }
                         try {
-                            Character c = new Character((char) Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
+                            Character c = new Character((char)Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
                             result.append(c);
                         } // when the number of the entity can't be parsed, add
                         // the entity as-is
@@ -368,16 +372,17 @@ public class HTMLTools {
     }
 
     /**
-     * Example:
-     * src = "<a id="specialID"><br/><img src="a.gif"/>my text</a>
-     * findStr = "specialID"
-     * result = "my text"
-     *
-     * @param src			 html text
-     * @param findStr	 string to find in src
-     * @param skip			count of found texts to skip
-     * @param fromIndex begin index in src
-     * @return string	 from html text which is plain text without html tags
+     * Example: src = "<a id="specialID"><br/><img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
+     * 
+     * @param src
+     *            html text
+     * @param findStr
+     *            string to find in src
+     * @param skip
+     *            count of found texts to skip
+     * @param fromIndex
+     *            begin index in src
+     * @return string from html text which is plain text without html tags
      */
     public static String getTextAfterElem(String src, String findStr, int skip, int fromIndex) {
         int beginIndex = src.indexOf(findStr, fromIndex);
@@ -427,6 +432,10 @@ public class HTMLTools {
         }
 
         return value;
+    }
+
+    public static ArrayList<String> extractTags(String src, String sectionStart) {
+        return extractTags(src, sectionStart, "</div>");
     }
 
     public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd) {
@@ -486,28 +495,28 @@ public class HTMLTools {
         if (s == null || s.length() == 0) {
             return s;
         }
-        
+
         // remove white space and blanks
         String result = s.replaceAll(" ", "%20");
-        
+
         // remove semicolon
         result = result.replaceAll(";", "%3B");
-        
+
         return result;
     }
-    
+
     public static String decodeUrl(String s) {
         if (s == null || s.length() == 0) {
             return s;
         }
-        
+
         // white space and blanks
         String result = s.replaceAll("%20", " ");
-        
+
         // semicolon
         result = result.replaceAll("%3B", ";");
-        
+
         return result;
     }
-    
+
 }

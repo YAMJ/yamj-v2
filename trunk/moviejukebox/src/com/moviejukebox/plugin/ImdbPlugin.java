@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
+
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -15,9 +19,6 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.XMLHelper;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.XMLEvent;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -66,8 +67,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a IMDb
-     * request.
+     * retrieve the imdb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     protected String getImdbId(String movieName, String year) {
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
@@ -82,13 +82,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo
-     * request.
+     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo request.
      */
     private String getImdbIdFromYahoo(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer(
-                    "http://fr.search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
+            StringBuffer sb = new StringBuffer("http://fr.search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -116,8 +114,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a google
-     * request.
+     * retrieve the imdb matching the specified movie name and year. This routine is base on a google request.
      */
     private String getImdbIdFromGoogle(String movieName, String year) {
         try {
@@ -149,8 +146,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a IMDb
-     * request.
+     * retrieve the imdb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year) {
         try {
@@ -216,7 +212,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 text = text.substring(pos + 1);
             }
             if (country == null) {
-                if (value == null) {
+                if (value == Movie.UNKNOWN) {
                     value = text;
                 }
             } else {
@@ -262,7 +258,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(HTMLTools.extractTag(xml, "<h5>Runtime:</h5>"));
+                movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Runtime:</h5>")));
             }
 
             if (movie.getCountry().equals(Movie.UNKNOWN)) {
@@ -275,8 +271,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (movie.getGenres().isEmpty()) {
                 int count = 0;
-                for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>",
-                        "<a href=\"/Sections/Genres/", "</a>")) {
+                for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")) {
                     movie.addGenre(Library.getIndexingGenre(genre));
                     if (++count >= maxGenres) {
                         break;
@@ -301,13 +296,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getCertification().equals(Movie.UNKNOWN)) {
-                movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml,
-                        "<h5>Certification:</h5>", "</div>", "<a href=\"/List?certificates=", "</a>")));
+                movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Certification:</h5>", "</div>", "<a href=\"/List?certificates=",
+                                "</a>")));
                 if (movie.getCertification() == null || movie.getCertification().equalsIgnoreCase(Movie.UNKNOWN)) {
                     movie.setCertification(Movie.NOTRATED);
                 }
             }
-
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
@@ -317,8 +311,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getCast().isEmpty()) {
-                movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>",
-                        "<td class=\"nm\"><a href=\"/name/", "</a>"));
+                movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
             }
 
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -346,7 +339,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private int parseRating(String rating) {
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
         try {
-            return (int) (Float.parseFloat(st.nextToken()) * 10);
+            return (int)(Float.parseFloat(st.nextToken()) * 10);
         } catch (Exception e) {
             return -1;
         }
@@ -354,7 +347,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     protected String getFanartURL(Movie movie) {
         String url = Movie.UNKNOWN;
-        
+
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             XMLEventReader xmlReader = null;
@@ -368,7 +361,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 XMLHelper.closeEventReader(xmlReader);
             }
         }
-        
+
         return url;
     }
 
@@ -385,7 +378,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         else if (!(posterURL = this.testImpawardsPoster(movie.getId(IMDB_PLUGIN_ID))).equals(Movie.UNKNOWN)) {
             // Cover Found
         } // Check www.moviecovers.com (if set in property file)
-        else if ("moviecovers".equals(preferredPosterSearchEngine) && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals(Movie.UNKNOWN)) {
+        else if ("moviecovers".equals(preferredPosterSearchEngine)
+                        && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals(Movie.UNKNOWN)) {
             // Cover Found
         } else if (beginIndex < castIndex && beginIndex != -1) {
 
@@ -412,8 +406,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo
-     * request.
+     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo request.
      */
     protected String getPosterURLFromYahoo(String movieName) {
         try {
@@ -439,8 +432,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo
-     * request.
+     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo request.
      */
     protected String getPosterURLFromGoogle(String movieName) {
         try {
@@ -478,15 +470,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String returnString = Movie.UNKNOWN;
         String content = null;
         try {
-            content = webBrowser.request("http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/" + movieId);
+            content = webBrowser.request("http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/"
+                            + movieId);
         } catch (Exception e) {
         }
 
         if (content != null) {
             int indexMovieLink = content.indexOf("<span class=url>www.<b>impawards.com</b>/");
             if (indexMovieLink != -1) {
-                String finMovieUrl = content.substring(indexMovieLink + 41, content.indexOf("</span>",
-                        indexMovieLink));
+                String finMovieUrl = content.substring(indexMovieLink + 41, content.indexOf("</span>", indexMovieLink));
                 finMovieUrl = finMovieUrl.replaceAll("<wbr />", "");
 
                 int indexLastRep = finMovieUrl.lastIndexOf('/');
@@ -501,20 +493,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected String getPosterURLFromMoviecoversViaGoogle(String movieName) {
         try {
             String returnString = Movie.UNKNOWN;
-            StringBuffer sb = new StringBuffer(
-                    "http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
+            StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             String content = webBrowser.request(sb.toString());
             if (content != null) {
                 int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
                 if (indexMovieLink != -1) {
-                    String finMovieUrl = content.substring(indexMovieLink + 47, content.indexOf(
-                            "\" class=l>", indexMovieLink));
-                    returnString = "http://www.moviecovers.com/getjpg.html/" + finMovieUrl.substring(0, finMovieUrl.lastIndexOf('.')).replace("+", "%20") + ".jpg";
+                    String finMovieUrl = content.substring(indexMovieLink + 47, content.indexOf("\" class=l>", indexMovieLink));
+                    returnString = "http://www.moviecovers.com/getjpg.html/" + finMovieUrl.substring(0, finMovieUrl.lastIndexOf('.')).replace("+", "%20")
+                                    + ".jpg";
                 }
             }
-            
+
             return returnString;
 
         } catch (Exception e) {
@@ -590,26 +581,23 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         logger.finest("Scanning NFO for Imdb Id");
         int beginIndex = nfo.indexOf("/tt");
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1),
-                    "/ \n,:!&é\"'(--è_çà)=$");
+            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
             logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         } else {
             beginIndex = nfo.indexOf("/Title?");
             if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
-                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7),
-                        "/ \n,:!&é\"'(--è_çà)=$");
+                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
             } else {
                 logger.finer("No Imdb Id found in nfo !");
             }
         }
     }
-    
-    
+
     private String parseNextFanartURL(XMLEventReader xmlReader) throws XMLStreamException {
         String url = Movie.UNKNOWN;
-        
+
         while (xmlReader.hasNext()) {
             XMLEvent event = xmlReader.nextEvent();
             if (event.isStartElement()) {
@@ -622,5 +610,5 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
         return url;
     }
-    
+
 }
