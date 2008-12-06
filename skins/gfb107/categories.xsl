@@ -9,7 +9,7 @@
 </head>
 <body bgproperties="fixed" background="pictures/background.jpg">
 <table class="categories" cellpadding="8">
-  <tr align="center"><th class="title" colspan="2">Movie Jukebox<hr width="300"/></th></tr>
+  <tr align="center"><th class="title" colspan="2"><img src="pictures/yamj_logo.png" /></th></tr>
   <xsl:for-each select="library/category">
     <tr valign="top">
       <th width="10"><xsl:value-of select="@name"/></th>
