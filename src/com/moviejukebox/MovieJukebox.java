@@ -565,6 +565,13 @@ public class MovieJukebox {
                 // sub contains now all data about a single medialibrary node
                 String path = sub.getString("path");
                 String nmtpath = sub.getString("nmtpath");
+
+                // Check that the nmtpath terminates with a "/" or "\"
+                if ( !(nmtpath.endsWith("/") || nmtpath.endsWith("\\")) ) {
+                    // This is the NMTPATH so add the unix path separator rather than File.separator
+                    nmtpath = nmtpath + "/";
+                }
+
                 List<String> excludes = sub.getList("exclude[@name]");
 
                 if (new File(path).exists()) {
