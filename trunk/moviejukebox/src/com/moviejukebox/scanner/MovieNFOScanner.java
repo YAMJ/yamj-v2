@@ -44,6 +44,9 @@ public class MovieNFOScanner {
 
         if (nfoFile.exists()) {
             logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
+            // Not sure if this should be set here or elsewhere, may cause the nfo file to always be considered dirty.
+            // Possibly should only be set dirty when something has changed.
+            movie.setDirtyNFO(true);
 
             String nfo = FileTools.readFileToString(nfoFile);
 
@@ -69,6 +72,7 @@ public class MovieNFOScanner {
                             logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                             movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                             urlStartIndex = -1;
+                            movie.setDirtyPoster(true);
                         } else {
                             urlStartIndex = currentUrlStartIndex + 3;
                         }
@@ -82,7 +86,6 @@ public class MovieNFOScanner {
 
     public String locateNFO(Movie movie) {
         String fn = movie.getFile().getAbsolutePath();
-        // String localMovieName = movie.getTitle();
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
         String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // just the sub-directory the video file is in
         String checkedFN = "";
