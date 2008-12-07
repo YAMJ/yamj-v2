@@ -467,7 +467,7 @@ public class MovieJukebox {
             // information where we can (filename, IMDb, NFO, etc...)
             // Add here extra scanners if needed.
             if ( forceXMLOverwrite ) {
-                logger.finer("ForceXMLOverwrite On. Scanning Internet Data for file " + movie.getBaseName());
+                logger.finer("Rescanning Internet Data for file " + movie.getBaseName());
             } else {
                 logger.finer("Movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
             }
@@ -493,8 +493,8 @@ public class MovieJukebox {
         String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename();
         File tmpDestFile = new File(tmpDestFileName);
 
-        // Do not overwrite existing posters
-        if (!posterFile.exists() && !tmpDestFile.exists()) {
+        // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
+        if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster()) ) {
             posterFile.getParentFile().mkdirs();
 
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
