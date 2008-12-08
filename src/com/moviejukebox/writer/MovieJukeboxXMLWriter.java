@@ -274,11 +274,10 @@ public class MovieJukeboxXMLWriter {
 
             for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                 writer.writeStartElement("index");
-                writer.writeCharacters(index.getKey());
+                writer.writeAttribute("name", index.getKey());
                 if (includeMoviesInCategories) {
                     for (Movie movie : index.getValue()) {
                         writer.writeStartElement("movie");
-                        writer.writeAttribute("name", index.getKey());
                         writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
                         writer.writeEndElement();
                     }
