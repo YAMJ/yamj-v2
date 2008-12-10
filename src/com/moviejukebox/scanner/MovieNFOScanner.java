@@ -208,7 +208,10 @@ public class MovieNFOScanner {
                                 movie.setYear(val);
                             }
                         } else if (tag.equalsIgnoreCase("top250")) {
-                            // ignored
+                            int val = XMLHelper.parseInt(r);
+                            if (val > 0) {
+                                movie.setRating(val);
+                            }
                         } else if (tag.equalsIgnoreCase("votes")) {
                             // ignored
                         } else if (tag.equalsIgnoreCase("outline")) {

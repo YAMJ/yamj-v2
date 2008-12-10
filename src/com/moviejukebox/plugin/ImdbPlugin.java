@@ -244,7 +244,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (movie.getRating() == -1) {
                 movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 1)));
             }
-            // movie.setPlot(extractTag(xml, "<h5>Plot:</h5>"));
+
+            if (movie.getTop250() == -1) {
+                try {
+                    movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "Top 250: #")));
+                } catch (NumberFormatException e) {
+                    movie.setTop250(-1);
+                }
+            }
 
             if (movie.getDirector().equals(Movie.UNKNOWN)) {
                 movie.setDirector(HTMLTools.extractTag(xml, "<h5>Director:</h5>", 1));

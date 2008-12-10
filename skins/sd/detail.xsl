@@ -44,9 +44,12 @@
           </td>
         </tr>
         <tr>
-          <td>
+          <td class="title2">
             <xsl:if test="rating != -1">
               <img><xsl:attribute name="src">pictures/rating_<xsl:value-of select="round(rating div 10)*10" />.png</xsl:attribute></img>
+            </xsl:if>
+            <xsl:if test="top250 != -1">
+                <xsl:text>&#160;&#160;</xsl:text>Top 250: #<xsl:value-of select="top250" />
             </xsl:if>
           </td>
         </tr>

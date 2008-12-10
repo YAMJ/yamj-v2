@@ -93,6 +93,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equals("<rating>")) {
                     movie.setRating(Integer.parseInt(parseCData(r)));
                 }
+                if (tag.equals("<top250>")) {
+                    movie.setTop250(Integer.parseInt(parseCData(r)));
+                }
                 if (tag.equals("<posterURL>")) {
                     movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r)));
                 }
@@ -462,6 +465,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("rating");
         writer.writeCharacters(Integer.toString(movie.getRating()));
+        writer.writeEndElement();
+        writer.writeStartElement("top250");
+        writer.writeCharacters(Integer.toString(movie.getTop250()));
         writer.writeEndElement();
         writer.writeStartElement("details");
         writer.writeCharacters(movie.getBaseName() + ".html");
