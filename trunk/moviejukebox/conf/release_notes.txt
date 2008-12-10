@@ -14,6 +14,7 @@ MovieJukebox 1.0.14 beta
   - Fixed defect #302 Library path need to be standardised in the code, will now add a trailing "/" if needed
   - Fixed defect #303 Divider and spacer does not show up on the popcorn.
   - Fixed defect #304 When there is no full summary on IMDB the plot is set to NONE.
+  - Enhancement  #328 Enable or Disable reading metadata from media files (Issue 148)
   - Added new YAMJ logo to gfb107 skins
 
 MovieJukebox 1.0.13 beta

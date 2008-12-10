@@ -43,6 +43,7 @@ public class MediaInfoScanner {
 	public final static String OS_ARCH = System.getProperty("os.arch");
 	
 	private boolean activated;
+    private boolean enableMetadata;
 	
 	//Dvd rip infos Scanner
 	private DVDRipScanner localDVDRipScanner;
@@ -74,7 +75,8 @@ public class MediaInfoScanner {
 			activated = true;
 		}
 		localDVDRipScanner = new DVDRipScanner();
-		
+
+        enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "true"));
 	}
 
 	public void scan(Movie currentMovie) {
@@ -260,72 +262,74 @@ public class MediaInfoScanner {
 		String infoValue;
 
         // update movie with meta tags if present
-        if (!movie.isOverrideTitle()) {
-            infoValue = infosGeneral.get("Movie");
+        if (enableMetadata) {
+            if (!movie.isOverrideTitle()) {
+                infoValue = infosGeneral.get("Movie");
+                if (infoValue == null) {
+                    infoValue = infosGeneral.get("Movie name");
+                }
+                if (infoValue != null) {
+                    movie.setTitle(infoValue);
+                    movie.setOverrideTitle(true);
+                }
+            }
+            infoValue = infosGeneral.get("Director");
+            if (infoValue != null) {
+                movie.setDirector(infoValue);
+            }
+            infoValue = infosGeneral.get("Summary");
             if (infoValue == null) {
-                infoValue = infosGeneral.get("Movie name");
+                infoValue = infosGeneral.get("Comment");
             }
             if (infoValue != null) {
-                movie.setTitle(infoValue);
-                movie.setOverrideTitle(true);
+                movie.setPlot(infoValue);
             }
-        }
-        infoValue = infosGeneral.get("Director");
-        if (infoValue != null) {
-            movie.setDirector(infoValue);
-        }
-        infoValue = infosGeneral.get("Summary");
-        if (infoValue == null) {
-            infoValue = infosGeneral.get("Comment");
-        }
-        if (infoValue != null) {
-            movie.setPlot(infoValue);
-        }
-        infoValue = infosGeneral.get("Genre");
-        if (infoValue != null) {
-            List<String> list = XMLHelper.parseList(infoValue, "|/,");
-            if (!list.isEmpty()) {
-                movie.setGenres(list);
+            infoValue = infosGeneral.get("Genre");
+            if (infoValue != null) {
+                List<String> list = XMLHelper.parseList(infoValue, "|/,");
+                if (!list.isEmpty()) {
+                    movie.setGenres(list);
+                }
             }
-        }
-        infoValue = infosGeneral.get("Actor");
-        if (infoValue == null) {
-            infoValue = infosGeneral.get("Performer");
-        }
-        if (infoValue != null) {
-            List<String> list = XMLHelper.parseList(infoValue, "|/,");
-            if (!list.isEmpty()) {
-                movie.setCast(list);
+            infoValue = infosGeneral.get("Actor");
+            if (infoValue == null) {
+                infoValue = infosGeneral.get("Performer");
             }
-        }
-        infoValue = infosGeneral.get("LawRating");
-        if (infoValue == null) {
-            infoValue = infosGeneral.get("Law rating");
-        }
-        if (infoValue != null) {
-            movie.setCertification(infoValue);
-        }
-        infoValue = infosGeneral.get("Rating");
-        if (infoValue != null) {
-            try {
-                float r = Float.parseFloat(infoValue);
-                r = r * 20.0f;
-                movie.setRating(Math.round(r));
-            } catch (Exception ignore) {}
-        }
-        infoValue = infosGeneral.get("Country");
-        if (infoValue == null) {
-            infoValue = infosGeneral.get("Movie/Country");
-        }
-        if (infoValue == null) {
-            infoValue = infosGeneral.get("Movie name/Country");
-        }
-        if (infoValue != null) {
-            movie.setCountry(infoValue);
-        }
-        infoValue = infosGeneral.get("Released_Date");
-        if (infoValue != null) {
-            movie.setReleaseDate(infoValue);
+            if (infoValue != null) {
+                List<String> list = XMLHelper.parseList(infoValue, "|/,");
+                if (!list.isEmpty()) {
+                    movie.setCast(list);
+                }
+            }
+            infoValue = infosGeneral.get("LawRating");
+            if (infoValue == null) {
+                infoValue = infosGeneral.get("Law rating");
+            }
+            if (infoValue != null) {
+                movie.setCertification(infoValue);
+            }
+            infoValue = infosGeneral.get("Rating");
+            if (infoValue != null) {
+                try {
+                    float r = Float.parseFloat(infoValue);
+                    r = r * 20.0f;
+                    movie.setRating(Math.round(r));
+                } catch (Exception ignore) {}
+            }
+            infoValue = infosGeneral.get("Country");
+            if (infoValue == null) {
+                infoValue = infosGeneral.get("Movie/Country");
+            }
+            if (infoValue == null) {
+                infoValue = infosGeneral.get("Movie name/Country");
+            }
+            if (infoValue != null) {
+                movie.setCountry(infoValue);
+            }
+            infoValue = infosGeneral.get("Released_Date");
+            if (infoValue != null) {
+                movie.setReleaseDate(infoValue);
+            }
         }
 
 		// get Container from General Section
