@@ -79,6 +79,7 @@ public class Movie implements Comparable<Movie> {
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE; 
     private boolean overrideTitle = false;
+    private int top250 = -1;
     
     // Navigation data
     private String first = UNKNOWN;
@@ -699,6 +700,7 @@ public class Movie implements Comparable<Movie> {
         sb.append("[year=").append(year).append("]");
         sb.append("[releaseDate=").append(releaseDate).append("]");
         sb.append("[rating=").append(rating).append("]");
+        sb.append("[top250=").append(top250).append("]");
         sb.append("[posterURL=").append(posterURL).append("]");
         sb.append("[plot=").append(plot).append("]");
         sb.append("[director=").append(director).append("]");
@@ -826,5 +828,16 @@ public class Movie implements Comparable<Movie> {
 
     public void setOverrideTitle(boolean overrideTitle) {
         this.overrideTitle = overrideTitle;
+    }
+
+    public int getTop250() {
+        return top250;
+    }
+
+    public void setTop250(int top250) {
+        if (top250 != this.top250) {
+            this.isDirty = true;
+            this.top250 = top250;
+        }
     }
 }
