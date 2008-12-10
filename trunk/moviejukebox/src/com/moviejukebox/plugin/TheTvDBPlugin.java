@@ -112,8 +112,14 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
                 if (downloadFanart && movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                     String url = null;
-                    if (url == null && !banners.getFanartList().isEmpty()) {
-                        url = banners.getFanartList().get(0).getUrl();
+                    if (!banners.getFanartList().isEmpty()) {
+                        int index = movie.getSeason();
+                        while (index > banners.getFanartList().size()) {
+                            index -= banners.getFanartList().size();
+                        }
+                        index--;
+
+                        url = banners.getFanartList().get(index).getUrl();
                     }
                     if (url == null && series.getFanart() != null && !series.getFanart().isEmpty()) {
                         url = series.getFanart();
