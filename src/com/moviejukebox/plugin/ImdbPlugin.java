@@ -212,7 +212,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 text = text.substring(pos + 1);
             }
             if (country == null) {
-                if (value == Movie.UNKNOWN) {
+                if (value.equals(Movie.UNKNOWN)){
                     value = text;
                 }
             } else {
