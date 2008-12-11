@@ -13,6 +13,7 @@ MovieJukebox 1.0.14 beta
   - Enhancement  #298 Property to control the scanning of newer NFO files or not.
   - Fixed defect #299 Jukebox Cleanup causes null pointer failues
   - Enhancement  #300 Different Fanart for different tv seasons
+  - Enhancement  #301 Episode plots made available in the xsl file
   - Fixed defect #302 Library path need to be standardised in the code, will now add a trailing "/" if needed
   - Fixed defect #303 Divider and spacer does not show up on the popcorn.
   - Fixed defect #304 When there is no full summary on IMDB the plot is set to NONE.

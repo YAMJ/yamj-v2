@@ -21,11 +21,13 @@ public class TheTvDBPlugin extends ImdbPlugin {
     
     private TheTVDB tvDB;
     private String language;
+    private boolean includeEpisodePlots;
     
     public TheTvDBPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
         language = PropertiesUtil.getProperty("thetvdb.language", "en");
+        includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
     }
     
     @Override
@@ -156,6 +158,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 Episode episode = tvDB.getEpisode(id, movie.getSeason(), file.getPart(), language);
                 if (episode != null) {
                     file.setTitle(episode.getEpisodeName());
+                    if (includeEpisodePlots) {
+                        file.setPlot(episode.getOverview());
+                    }
                 }
             }
         }

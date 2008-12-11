@@ -41,6 +41,7 @@ public class MovieJukeboxXMLWriter {
     private String homePage;
     private boolean fullMovieInfoInIndexes;
     private boolean includeMoviesInCategories;
+    private boolean includeEpisodePlots;
 
     public MovieJukeboxXMLWriter() {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
@@ -49,6 +50,7 @@ public class MovieJukeboxXMLWriter {
         homePage = PropertiesUtil.getProperty("mjb.homePage", "Other_All_1") + ".html";
         fullMovieInfoInIndexes = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.fullMovieInfoInIndexes", "false"));
         includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
+        includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
     }
 
     /**
@@ -204,7 +206,15 @@ public class MovieJukeboxXMLWriter {
                         }
                     }
 
-                    mf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
+                    while (!r.peek().toString().equals("</file>")) {
+                        e = r.nextEvent();
+                        tag = e.toString();
+                        if (tag.equals("<fileURL>")) {
+                            mf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
+                        } else if (tag.equals("<filePlot>")) {
+                            mf.setPlot(parseCData(r));
+                        }
+                    }
                     // add or replace MovieFile based on XML data
                     movie.addMovieFile(mf);
                 }
@@ -581,7 +591,14 @@ public class MovieJukeboxXMLWriter {
             writer.writeStartElement("file");
             writer.writeAttribute("part", Integer.toString(mf.getPart()));
             writer.writeAttribute("title", mf.getTitle());
+            writer.writeStartElement("fileURL");
             writer.writeCharacters(HTMLTools.encodeUrl(mf.getFilename()));
+            writer.writeEndElement();
+            if (includeEpisodePlots) {
+                writer.writeStartElement("filePlot");
+                writer.writeCharacters(mf.getPlot());
+                writer.writeEndElement();
+            }
             writer.writeEndElement();
         }
         writer.writeEndElement();
