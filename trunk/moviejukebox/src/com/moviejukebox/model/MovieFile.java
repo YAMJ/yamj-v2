@@ -5,6 +5,7 @@ public class MovieFile implements Comparable<MovieFile> {
 	private String title = Movie.UNKNOWN;
 	private int part = 1; // #1, #2, CD1, CD2, etc.
 	private boolean newFile = true; // is new file or already exists in XML data
+    private String plot = Movie.UNKNOWN;
 
 	public String getFilename() {
 		return filename;
@@ -13,6 +14,17 @@ public class MovieFile implements Comparable<MovieFile> {
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
+
+    public String getPlot() {
+        return plot;
+    }
+
+    public void setPlot(String plot) {
+        if (plot == null || plot.isEmpty()) {
+            plot = Movie.UNKNOWN;
+        }
+        this.plot = plot;
+    }
 
 	public int getPart() {
 		return part;
