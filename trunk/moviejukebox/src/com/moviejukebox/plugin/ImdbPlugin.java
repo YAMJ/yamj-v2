@@ -277,10 +277,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getGenres().isEmpty()) {
-                int count = 0;
                 for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")) {
                     movie.addGenre(Library.getIndexingGenre(genre));
-                    if (++count >= maxGenres) {
+                    if (movie.getGenres().size() >= maxGenres) {
                         break;
                     }
                 }
