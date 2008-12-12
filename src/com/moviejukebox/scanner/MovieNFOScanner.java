@@ -1,7 +1,16 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.TrailerFile;
@@ -10,15 +19,6 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLHelper;
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.XMLEvent;
 
 /**
  * NFO file parser.
@@ -126,10 +126,10 @@ public class MovieNFOScanner {
                 }
             }
         }
-        
+
         return checkedFN;
     }
-    
+
     /**
      * Check to see if the passed filename exists with nfo extensions
      * 
@@ -236,6 +236,17 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("mpaa")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
+                                // Issue 333
+                                if (val.startsWith("Rated ")) {
+                                    int start = 6; // "Rated ".length()
+                                    int pos = val.indexOf(" on appeal for ", start);
+                                    if (pos == -1)
+                                        pos = val.indexOf(" for ", start);
+                                    if (pos > start)
+                                        val = val.substring(start, pos);
+                                    else
+                                        val = val.substring(start);
+                                }
                                 movie.setCertification(val);
                             }
                         } else if (tag.equalsIgnoreCase("playcount")) {
