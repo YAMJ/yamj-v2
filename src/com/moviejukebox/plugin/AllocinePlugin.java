@@ -211,7 +211,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 return;
             } // Check www.impawards.com
-            else if (!(posterURL = this.testImpawardsPoster(movie.getId(IMDB_PLUGIN_ID))).equalsIgnoreCase("Unknown")) {
+            else if (!(posterURL = this.testImpawardsPoster(movie.getTitle(), movie.getYear())).equalsIgnoreCase("Unknown")) {
                 logger.finest("Movie PosterURL : " + posterURL);
                 movie.setPosterURL(posterURL);
                 return;
