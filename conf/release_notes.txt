@@ -7,6 +7,7 @@ MovieJukebox 1.0.14 beta
   - Enhancement   #91 Ordered by IMDB-Ranking
   - Enhancement  #148 Enh: Get Metadata from tags
   - Fixed defect #196 Focus on alphabets or categories resets to 09 every time you press return on remote.
+  - Enhancement  #214 Support for local fanart files
   - Enhancement  #294 Regenerate image files if local copies are newer than jukebox versions
   - Enhancement  #297 Updating Jukebox files based on updated NFO file
                       Scanner will now check for an updated NFO file, if there is a poster URL, it will force the download and use of that poster.
