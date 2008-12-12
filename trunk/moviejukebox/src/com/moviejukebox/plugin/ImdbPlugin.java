@@ -381,7 +381,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (this.testMotechnetPoster(movie.getId(IMDB_PLUGIN_ID))) {
             posterURL = "http://posters.motechnet.com/covers/" + movie.getId(IMDB_PLUGIN_ID) + "_largeCover.jpg";
         } // Check www.impawards.com
-        else if (!(posterURL = this.testImpawardsPoster(movie.getId(IMDB_PLUGIN_ID))).equals(Movie.UNKNOWN)) {
+        else if (!(posterURL = this.testImpawardsPoster(movie.getTitle(), movie.getYear())).equals(Movie.UNKNOWN)) {
             // Cover Found
         } // Check www.moviecovers.com (if set in property file)
         else if ("moviecovers".equals(preferredPosterSearchEngine)
@@ -472,24 +472,34 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return content != null && content.contains("/covers/" + movieId + "_largeCover.jpg");
     }
 
-    public String testImpawardsPoster(String movieId) {
+    public String testImpawardsPoster(String title, String year) {
         String returnString = Movie.UNKNOWN;
         String content = null;
         try {
-            content = webBrowser.request("http://search.yahoo.com/search?fr=yfp-t-501&ei=UTF-8&rd=r1&p=site:impawards.com+link:http://www.imdb.com/title/"
-                            + movieId);
+            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q=" +
+                    URLEncoder.encode(title+" "+year, "UTF-8"));
         } catch (Exception e) {
         }
 
         if (content != null) {
-            int indexMovieLink = content.indexOf("<span class=url>www.<b>impawards.com</b>/");
+            int indexMovieLink = content.indexOf("<a href=\"http://www.impawards.com/" + year + "/");
             if (indexMovieLink != -1) {
-                String finMovieUrl = content.substring(indexMovieLink + 41, content.indexOf("</span>", indexMovieLink));
-                finMovieUrl = finMovieUrl.replaceAll("<wbr />", "");
+                String imageUrl = content.substring(indexMovieLink+9, indexMovieLink+39) + "posters/";
+                int endIndex = content.indexOf("\"", indexMovieLink+39);
+                if (endIndex != -1) {
+                    imageUrl += content.substring(indexMovieLink+39, endIndex);
+                    if (imageUrl.endsWith(".html")) {
+                        imageUrl = imageUrl.substring(0, imageUrl.length()-4) + "jpg";
+                    } else {
+                        imageUrl = null;
+                    }
+                } else {
+                    imageUrl = null;
+                }
 
-                int indexLastRep = finMovieUrl.lastIndexOf('/');
-                String imgRepUrl = "http://www.impawards.com/" + finMovieUrl.substring(0, indexLastRep) + "/posters";
-                returnString = imgRepUrl + finMovieUrl.substring(indexLastRep, finMovieUrl.lastIndexOf('.')) + ".jpg";
+                if (imageUrl != null) {
+                    returnString = imageUrl;
+                }
             }
         }
 
