@@ -36,6 +36,7 @@ import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.PosterScanner;
+import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -202,6 +203,7 @@ public class MovieJukebox {
         MovieNFOScanner nfoScanner = new MovieNFOScanner();
         MediaInfoScanner miScanner = new MediaInfoScanner();
         PosterScanner posterScanner = new PosterScanner();
+        FanartScanner fanartScanner = new FanartScanner();
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
         String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
@@ -287,8 +289,11 @@ public class MovieJukebox {
 
             // Get Fanart if requested
             if (fanartDownload) {
+                // Look for local fanart (MUST BE DONE BEFORE updateMovieFanart)
+                fanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+
                 logger.finer("Updating fanart for: " + movie.getTitle() + "...");
-                updateFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                updateMovieFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
         }
 
@@ -517,6 +522,48 @@ public class MovieJukebox {
         }
     }
 
+    /**
+     * Update the Fanart for the specified movie.
+     * 
+     * When existing fanart is found for the movie, it is not overwriten,
+     * unless the mjb.forceFanartOverwrite is set to true in the property file.
+     * 
+     * When the specified movie does not contain a valid URL for the poster, a 
+     * dummy image is used instead.
+     * @param tempJukeboxDetailsRoot 
+     */
+    private void updateMovieFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+        String posterFilename = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
+        File posterFile = new File(posterFilename);
+        String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename();
+        File tmpDestFile = new File(tmpDestFileName);
+
+        // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
+        if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster()) ) {
+            posterFile.getParentFile().mkdirs();
+
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
+                logger.finest("Dummy image used for " + movie.getBaseName());
+                FileTools.copyFile(
+                        new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+                        new File(tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
+            } else {
+                try {
+                    // Issue 201 : we now download to local temp dir
+                    logger.finest("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
+                    downloadImage(tmpDestFile, movie.getPosterURL());
+                } catch (Exception e) {
+                    logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
+                    FileTools.copyFile(
+                            new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+                            new File(tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
+                }
+            }
+        }
+    }
+
+    // Not used anymore
+    /*
     private void updateFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             String fanartFilename = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
@@ -546,7 +593,8 @@ public class MovieJukebox {
             }
         }
     }
-
+    */
+    
     @SuppressWarnings("unchecked")
     private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
         Collection<MediaLibraryPath> mlp = new ArrayList<MediaLibraryPath>();
@@ -628,6 +676,26 @@ public class MovieJukebox {
         return posterPlugin;
     }
 
+//* Not used for the time being
+/*
+    public MovieImagePlugin getFanartPlugin(String className) {
+        MovieImagePlugin fanartPlugin;
+
+        try {
+            Thread t = Thread.currentThread();
+            ClassLoader cl = t.getContextClassLoader();
+            Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
+            fanartPlugin = pluginClass.newInstance();
+        } catch (Exception e) {
+            fanartPlugin = new DefaultFanartPlugin();
+            logger.severe("Failed instanciating FanartPlugin: " + className);
+            logger.severe("Default fanart plugin will be used instead.");
+            e.printStackTrace();
+        }
+
+        return fanartPlugin;
+    }
+*/
     public MovieImagePlugin getBackgroundPlugin(String className) {
         MovieImagePlugin backgroundPlugin;
 

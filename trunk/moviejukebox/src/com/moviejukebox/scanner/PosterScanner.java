@@ -135,9 +135,9 @@ public class PosterScanner {
                 }
             }
         }
-        /***
-                    * END OF Folder CoverArt
-                    */
+        /*
+         * END OF Folder CoverArt
+         */
 
         if (foundLocalCoverArt) {
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
