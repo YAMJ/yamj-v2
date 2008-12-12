@@ -281,7 +281,9 @@ public class MovieJukebox {
             updateMovieData(xmlWriter, nfoScanner, miScanner, jukeboxDetailsRoot, movie);
 
             // Look for local file poster (MUST BE DONE BEFORE updateMoviePoster)
-            posterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                posterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            }
 
             // Then get this movie's poster
             logger.finer("Updating poster for: " + movie.getTitle() + "...");
@@ -290,7 +292,9 @@ public class MovieJukebox {
             // Get Fanart if requested
             if (fanartDownload) {
                 // Look for local fanart (MUST BE DONE BEFORE updateMovieFanart)
-                fanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                if (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    fanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                }
 
                 logger.finer("Updating fanart for: " + movie.getTitle() + "...");
                 updateMovieFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
