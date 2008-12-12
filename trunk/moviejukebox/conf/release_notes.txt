@@ -18,6 +18,7 @@ MovieJukebox 1.0.14 beta
   - Fixed defect #302 Library path need to be standardised in the code, will now add a trailing "/" if needed
   - Fixed defect #303 Divider and spacer does not show up on the popcorn.
   - Fixed defect #304 When there is no full summary on IMDB the plot is set to NONE.
+  - Fixed defect #324 File name in title instead of movie name
   - Enhancement  #328 Enable or Disable reading metadata from media files (Issue 148)
   - Fixed defect #329 thetvdb.com id in NFO files
   - Fixed defect #330 Genres collapsed too much
