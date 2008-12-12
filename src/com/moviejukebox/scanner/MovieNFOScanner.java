@@ -233,6 +233,12 @@ public class MovieNFOScanner {
                             if (!val.isEmpty()) {
                                 movie.setPosterURL(val);
                             }
+                        } else if (tag.equalsIgnoreCase("fanart")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setFanartURL(val);
+                                movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+                            }
                         } else if (tag.equalsIgnoreCase("mpaa")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
