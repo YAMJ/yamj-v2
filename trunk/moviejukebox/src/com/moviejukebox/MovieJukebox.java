@@ -297,7 +297,7 @@ public class MovieJukebox {
                 }
 
                 logger.finer("Updating fanart for: " + movie.getTitle() + "...");
-                updateMovieFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                updateMovieFanart(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
         }
 
@@ -532,35 +532,26 @@ public class MovieJukebox {
      * When existing fanart is found for the movie, it is not overwriten,
      * unless the mjb.forceFanartOverwrite is set to true in the property file.
      * 
-     * When the specified movie does not contain a valid URL for the poster, a 
-     * dummy image is used instead.
      * @param tempJukeboxDetailsRoot 
      */
-    private void updateMovieFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String posterFilename = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
-        File posterFile = new File(posterFilename);
-        String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename();
-        File tmpDestFile = new File(tmpDestFileName);
+    private void updateMovieFanart(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+        if (movie.getFanartFilename() != null && !movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
+            String fanartFilename = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
+            File fanartFile = new File(fanartFilename);
+            String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getFanartFilename();
+            File tmpDestFile = new File(tmpDestFileName);
 
-        // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
-        if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster()) ) {
-            posterFile.getParentFile().mkdirs();
+            // Do not overwrite existing fanart, unless there is a new fanart URL in the nfo file.
+            if ((!tmpDestFile.exists() && !fanartFile.exists())) {
+                fanartFile.getParentFile().mkdirs();
 
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
-                logger.finest("Dummy image used for " + movie.getBaseName());
-                FileTools.copyFile(
-                        new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
-                        new File(tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
-            } else {
-                try {
-                    // Issue 201 : we now download to local temp dir
-                    logger.finest("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
-                    downloadImage(tmpDestFile, movie.getPosterURL());
-                } catch (Exception e) {
-                    logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
-                    FileTools.copyFile(
-                            new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
-                            new File(tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename()));
+                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase("Unknown")) {
+                    try {
+                        logger.finest("Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
+                        downloadImage(tmpDestFile, movie.getFanartURL());
+                    } catch (Exception e) {
+                        logger.finer("Failed downloading movie fanart : " + movie.getFanartURL());
+                    }
                 }
             }
         }
