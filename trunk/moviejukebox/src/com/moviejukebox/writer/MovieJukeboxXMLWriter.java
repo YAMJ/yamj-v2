@@ -185,6 +185,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equals("<last>")) {
                     movie.setLast(HTMLTools.decodeUrl(parseCData(r)));
                 }
+                if (tag.equals("<libraryDescription>")) {
+                    movie.setLibraryDescription(parseCData(r));
+                }
 
                 if (tag.startsWith("<file ")) {
                     MovieFile mf = new MovieFile();
@@ -562,6 +565,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("last");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getLast()));
+        writer.writeEndElement();
+        writer.writeStartElement("libraryDescription");
+        writer.writeCharacters(movie.getLibraryDescription());
         writer.writeEndElement();
 
         Collection<String> items = movie.getGenres();

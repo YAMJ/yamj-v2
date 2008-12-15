@@ -7,6 +7,7 @@ public class MediaLibraryPath {
 	String path;
 	String nmtRootPath;
 	Collection<String> excludes;
+    String description;
 
 	public String getPath() {
 		return path;
@@ -35,6 +36,14 @@ public class MediaLibraryPath {
 			this.excludes = excludes;
 		}
 	}
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer("[MediaLibraryPath");

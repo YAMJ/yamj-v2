@@ -6,6 +6,7 @@ MovieJukebox 1.0.14 beta
 ------------------------
   - Fixed defect  #85 Exception thrown when IMPAwards image not found
   - Enhancement   #91 Ordered by IMDB-Ranking
+  - Enhancement  #100 New field on details page with a name specified in the libraries.xml to seperate different USB devices
   - Enhancement  #148 Enh: Get Metadata from tags
   - Fixed defect #196 Focus on alphabets or categories resets to 09 every time you press return on remote.
   - Enhancement  #214 Support for local fanart files

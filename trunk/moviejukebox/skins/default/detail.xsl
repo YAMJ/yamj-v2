@@ -154,10 +154,18 @@
               <td class="normal" width="45%"><xsl:value-of select="fps" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">Channels</td>
-              <td class="normal" width="45%"><xsl:value-of select="audioChannels" /></td>
-              <td class="title3" width="5%"></td>
-              <td class="normal" width="45%"></td>
+              <td class="title3" width="5%" valign="top">Channels</td>
+              <td class="normal" width="45%" valign="top"><xsl:value-of select="audioChannels" /></td>
+              <td class="title3" width="5%" valign="top">
+                <xsl:if test="libraryDescription != 'UNKNOWN'">
+                  Library
+                </xsl:if>
+              </td>
+              <td class="normal" width="45%" valign="top">
+                <xsl:if test="libraryDescription != 'UNKNOWN'">
+                  <xsl:value-of select="libraryDescription" />
+                </xsl:if>
+              </td>
             </tr>
           </table></center></td>
         </tr>

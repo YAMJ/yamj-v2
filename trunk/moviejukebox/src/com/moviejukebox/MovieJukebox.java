@@ -608,6 +608,7 @@ public class MovieJukebox {
                 // sub contains now all data about a single medialibrary node
                 String path = sub.getString("path");
                 String nmtpath = sub.getString("nmtpath");
+                String description = sub.getString("description");
 
                 // Check that the nmtpath terminates with a "/" or "\"
                 if ( !(nmtpath.endsWith("/") || nmtpath.endsWith("\\")) ) {
@@ -622,6 +623,7 @@ public class MovieJukebox {
                     medlib.setPath(path);
                     medlib.setNmtRootPath(nmtpath);
                     medlib.setExcludes(excludes);
+                    medlib.setDescription(description);
                     mlp.add(medlib);
                     logger.fine("Found media library: " + medlib);
                 } else {
