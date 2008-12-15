@@ -5,6 +5,10 @@
 <!-- path element contains local path                                                  -->
 <!-- nmtpath element contains nmtpath                                                  -->
 <!-- exclude element contains a file exclusion filter for the library                  -->
+<!-- description element contains freeform text describing this library                -->
+<!--             this description will show up on the detail page of every movie within-->
+<!--             that library (if supported by the skin). If this is undesired, then   -->
+<!--             leave the description blank.                                          -->
 <!--                                                                                   -->
 
 <libraries>
@@ -12,17 +16,20 @@
       <path>/media/HD1/Movies/</path>
       <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Movies/</nmtpath>
       <exclude name="sample,tmp/,temp/"/>
+      <description></description>
   </library>
 
   <library>
       <path>/media/HD1/TV/</path>
       <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/TV/</nmtpath>
       <exclude name="sample,tmp/,temp/"/>
+      <description></description>
   </library>
 
   <library>
       <path>/media/HD1/Misc/</path>
       <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Misc/</nmtpath>
       <exclude name="sample,tmp/,temp/"/>
+      <description></description>
   </library>
 </libraries>

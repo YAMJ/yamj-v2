@@ -80,6 +80,7 @@ public class Movie implements Comparable<Movie> {
     private String movieType = TYPE_MOVIE; 
     private boolean overrideTitle = false;
     private int top250 = -1;
+    private String libraryDescription = UNKNOWN;
     
     // Navigation data
     private String first = UNKNOWN;
@@ -718,9 +719,10 @@ public class Movie implements Comparable<Movie> {
         sb.append("[videoSource=").append(videoSource).append("]");
         sb.append("[videoOutput=").append(videoOutput).append("]");
         sb.append("[fps=").append(fps).append("]");
-        sb.append("[certification=").append(certification).append("] ");
-        sb.append("[cast=").append(cast).append("] ");
-        sb.append("[genres=").append(genres).append("] ");
+        sb.append("[certification=").append(certification).append("]");
+        sb.append("[cast=").append(cast).append("]");
+        sb.append("[genres=").append(genres).append("]");
+        sb.append("[libraryDescription=").append(libraryDescription).append("]");
         sb.append("]");
         return sb.toString();
     }
@@ -838,6 +840,20 @@ public class Movie implements Comparable<Movie> {
         if (top250 != this.top250) {
             this.isDirty = true;
             this.top250 = top250;
+        }
+    }
+
+    public String getLibraryDescription() {
+        return libraryDescription;
+    }
+
+    public void setLibraryDescription(String libraryDescription) {
+        if (libraryDescription == null || libraryDescription.isEmpty()) {
+            libraryDescription = UNKNOWN;
+        }
+        if (!libraryDescription.equals(this.libraryDescription)) {
+            this.libraryDescription = libraryDescription;
+            this.isDirty = true;
         }
     }
 }

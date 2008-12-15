@@ -99,6 +99,15 @@
           </td>
         </tr>
 
+        <xsl:if test="libraryDescription != 'UNKNOWN'">
+          <tr>
+            <td class="title2" valign="top" colspan="3">
+              Library:
+              <xsl:value-of select="libraryDescription" />
+            </td>
+          </tr>
+        </xsl:if>
+        
         <tr class="divider"><td colspan="4" /></tr>
 
         <xsl:if test="plot != 'UNKNOWN'">
