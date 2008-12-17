@@ -200,10 +200,7 @@ public class MovieJukebox {
         MovieImagePlugin backgroundPlugin = this.getBackgroundPlugin(PropertiesUtil.getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
 
         MovieDirectoryScanner mds = new MovieDirectoryScanner();
-        MovieNFOScanner nfoScanner = new MovieNFOScanner();
         MediaInfoScanner miScanner = new MediaInfoScanner();
-        PosterScanner posterScanner = new PosterScanner();
-        FanartScanner fanartScanner = new FanartScanner();
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
         String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
@@ -278,12 +275,7 @@ public class MovieJukebox {
         for (Movie movie : library.values()) {
             // First get movie data (title, year, director, genre, etc...)
             logger.fine("Updating data for: " + movie.getTitle());
-            updateMovieData(xmlWriter, nfoScanner, miScanner, jukeboxDetailsRoot, movie);
-
-            // Look for local file poster (MUST BE DONE BEFORE updateMoviePoster)
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                posterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-            }
+            updateMovieData(xmlWriter, miScanner, backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
             // Then get this movie's poster
             logger.finer("Updating poster for: " + movie.getTitle() + "...");
@@ -291,11 +283,6 @@ public class MovieJukebox {
 
             // Get Fanart if requested
             if (fanartDownload) {
-                // Look for local fanart (MUST BE DONE BEFORE updateMovieFanart)
-                if (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    fanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-                }
-
                 logger.finer("Updating fanart for: " + movie.getTitle() + "...");
                 updateMovieFanart(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
@@ -433,8 +420,9 @@ public class MovieJukebox {
   * is persisted.
   */
     private void updateMovieData(MovieJukeboxXMLWriter xmlWriter,
-            MovieNFOScanner nfoScanner, MediaInfoScanner miScanner,
-            String jukeboxDetailsRoot, Movie movie) throws FileNotFoundException, XMLStreamException {
+            MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin,
+            String jukeboxDetailsRoot, String tempJukeboxDetailsRoot,
+            Movie movie) throws FileNotFoundException, XMLStreamException {
 
         boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
         boolean checkNewer = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.checknewer", "true"));
@@ -445,7 +433,7 @@ public class MovieJukebox {
         File xmlFile = new File(jukeboxDetailsRoot + File.separator + movie.getBaseName() + ".xml");
         
         // See if we can find the NFO associated with this video file.
-        File nfoFile = new File(nfoScanner.locateNFO(movie));
+        File nfoFile = new File(MovieNFOScanner.locateNFO(movie));
         
         if (xmlFile.exists() && nfoFile.exists() && checkNewer) {
             // check the dates to see if the nfo file is newer
@@ -480,7 +468,19 @@ public class MovieJukebox {
             } else {
                 logger.finer("Movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
             }
-            nfoScanner.scan(movie);
+
+            MovieNFOScanner.scan(movie);
+
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            }
+
+            if (fanartDownload) {
+                if (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                }
+            }
+
             DatabasePluginController.scan(movie);
             miScanner.scan(movie);
         }
