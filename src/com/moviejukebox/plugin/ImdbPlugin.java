@@ -285,6 +285,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
 
+            boolean isIMDBOutline = false;
+            if (movie.getOutline().equals(Movie.UNKNOWN)) {
+                String outline = HTMLTools.extractTag(xml, "<h5>Plot:</h5>", 0, "><|");
+                if (outline.startsWith("a class=\"tn15more")) {
+                    outline = Movie.UNKNOWN;
+                }
+                movie.setOutline(outline);
+                isIMDBOutline = true;
+            }
+
             if (movie.getPlot().equals(Movie.UNKNOWN)) {
                 String plot = Movie.UNKNOWN;
                 if (imdbPlot.equalsIgnoreCase("long")) {
@@ -293,9 +303,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 // even if "long" is set we will default to the "short" one if none
                 // was found
                 if (imdbPlot.equalsIgnoreCase("short") || plot.equals(Movie.UNKNOWN)) {
-                    plot = HTMLTools.extractTag(xml, "<h5>Plot:</h5>", 0, "><|");
-                    if (plot.startsWith("a class=\"tn15more")) {
-                        plot = Movie.UNKNOWN;
+                    if (isIMDBOutline) {
+                        plot = movie.getOutline();
+                    } else {
+                        plot = HTMLTools.extractTag(xml, "<h5>Plot:</h5>", 0, "><|");
+                        if (plot.startsWith("a class=\"tn15more")) {
+                            plot = Movie.UNKNOWN;
+                        }
                     }
                 }
                 movie.setPlot(plot);
