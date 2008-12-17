@@ -42,49 +42,51 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 		ratio = (float)thumbWidth/(float)thumbHeight;
 	}
 
-	@Override
-	public BufferedImage generate(Movie movie, BufferedImage moviePoster) {
-		BufferedImage bi = moviePoster;
-		
-                int origWidth = moviePoster.getWidth();
-                int origHeight = moviePoster.getHeight();
-                boolean skipResize = false;
-                if (origWidth < thumbWidth && origHeight < thumbHeight && !addHDLogo && !addLanguage) {
-                    skipResize = true;
+    @Override
+    public BufferedImage generate(Movie movie, BufferedImage moviePoster) {
+        BufferedImage bi = moviePoster;
+
+        if (moviePoster != null) {
+            int origWidth = moviePoster.getWidth();
+            int origHeight = moviePoster.getHeight();
+            boolean skipResize = false;
+            if (origWidth < thumbWidth && origHeight < thumbHeight && !addHDLogo && !addLanguage) {
+                skipResize = true;
+            }
+
+            if (normalizeThumbnails) {
+                if (skipResize) {
+                    bi = GraphicTools.scaleToSizeNormalized((int) (origHeight * ratio), origHeight, bi);
+                } else {
+                    bi = GraphicTools.scaleToSizeNormalized(thumbWidth, thumbHeight, bi);
                 }
-                
-		if (normalizeThumbnails) {
-                        if (skipResize) {
-                            bi = GraphicTools.scaleToSizeNormalized((int)(origHeight*ratio), origHeight, bi);
-                        } else {
-                            bi = GraphicTools.scaleToSizeNormalized(thumbWidth, thumbHeight, bi);
-                        }
-		} else if (!skipResize) {
-			bi = GraphicTools.scaleToSize(thumbWidth, thumbHeight, bi);
-		}
+            } else if (!skipResize) {
+                bi = GraphicTools.scaleToSize(thumbWidth, thumbHeight, bi);
+            }
 
-		if (addHDLogo) {
-			bi = drawLogoHD(movie, bi, addTVLogo);
-		}
-                
-		if (addTVLogo) {
-			bi = drawLogoTV(movie, bi, addHDLogo);
-		}
-                
-		if (addLanguage) {
-				bi = drawLanguage(movie, bi);
-		}
+            if (addHDLogo) {
+                bi = drawLogoHD(movie, bi, addTVLogo);
+            }
 
-		if (addReflectionEffect) {
-			bi = GraphicTools.createReflectedPicture(bi);
-		}
-		
-		if (addPerspective) {
-			bi = GraphicTools.create3DPicture(bi);
-		}
+            if (addTVLogo) {
+                bi = drawLogoTV(movie, bi, addHDLogo);
+            }
 
-		return bi;
-	}
+            if (addLanguage) {
+                bi = drawLanguage(movie, bi);
+            }
+
+            if (addReflectionEffect) {
+                bi = GraphicTools.createReflectedPicture(bi);
+            }
+
+            if (addPerspective) {
+                bi = GraphicTools.create3DPicture(bi);
+            }
+        }
+
+        return bi;
+    }
 
 	private BufferedImage drawLogoHD(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
 		String videoOutput = movie.getVideoOutput();
