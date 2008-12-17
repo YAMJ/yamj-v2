@@ -11,6 +11,7 @@ MovieJukebox 1.0.14 beta
   - Enhancement  #148 Enh: Get Metadata from tags
   - Fixed defect #196 Focus on alphabets or categories resets to 09 every time you press return on remote.
   - Enhancement  #214 Support for local fanart files
+  - Fixed defect #272 Indexing Issue with shows with more than 10 seasons.
   - Enhancement  #285 Option to use outline field in XBMC NFO files for "Short" Plot Description
   - Enhancement  #294 Regenerate image files if local copies are newer than jukebox versions
   - Enhancement  #297 Updating Jukebox files based on updated NFO file
