@@ -57,6 +57,7 @@ public class Movie implements Comparable<Movie> {
     private String thumbnailFilename = UNKNOWN;
     private String fanartFilename = UNKNOWN;
     private String plot = UNKNOWN;
+    private String outline = UNKNOWN;
     private String director = UNKNOWN;
     private String country = UNKNOWN;
     private String company = UNKNOWN;
@@ -542,6 +543,20 @@ public class Movie implements Comparable<Movie> {
         }
     }
 
+    public String getOutline() {
+        return outline;
+    }
+
+    public void setOutline(String outline) {
+        if (outline == null) {
+            outline = UNKNOWN;
+        }
+        if (!outline.equalsIgnoreCase(outline)) {
+            this.isDirty = true;
+            this.outline = outline;
+        }
+    }
+
     public void setPosterURL(String url) {
         if (url == null) {
             url = UNKNOWN;
@@ -704,6 +719,7 @@ public class Movie implements Comparable<Movie> {
         sb.append("[top250=").append(top250).append("]");
         sb.append("[posterURL=").append(posterURL).append("]");
         sb.append("[plot=").append(plot).append("]");
+        sb.append("[outline=").append(outline).append("]");
         sb.append("[director=").append(director).append("]");
         sb.append("[country=").append(country).append("]");
         sb.append("[company=").append(company).append("]");

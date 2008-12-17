@@ -215,7 +215,10 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("votes")) {
                             // ignored
                         } else if (tag.equalsIgnoreCase("outline")) {
-                            // ignored
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setOutline(val);
+                            }
                         } else if (tag.equalsIgnoreCase("plot")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {

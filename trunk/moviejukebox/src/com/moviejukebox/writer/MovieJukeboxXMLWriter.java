@@ -119,6 +119,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equals("<plot>")) {
                     movie.setPlot(parseCData(r));
                 }
+                if (tag.equals("<outline>")) {
+                    movie.setOutline(parseCData(r));
+                }
                 if (tag.equals("<director>")) {
                     movie.setDirector(parseCData(r));
                 }
@@ -505,6 +508,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("plot");
         writer.writeCharacters(movie.getPlot());
+        writer.writeEndElement();
+        writer.writeStartElement("outline");
+        writer.writeCharacters(movie.getOutline());
         writer.writeEndElement();
         writer.writeStartElement("director");
         writer.writeCharacters(movie.getDirector());
