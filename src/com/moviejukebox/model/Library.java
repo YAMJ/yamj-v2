@@ -180,11 +180,7 @@ public class Library implements Map<String, Movie> {
             if (!movie.isTrailer()) {
                 String title = movie.getStrippedTitleSort();
                 if (title.length() > 0) {
-                    Character c = null;
-                    int idx = 0;
-                    while (idx < title.length() && (c == null || !Character.isLetterOrDigit(c))) {
-                        c = Character.toUpperCase(title.charAt(idx++));
-                    }
+                    Character c = Character.toUpperCase(title.charAt(0));
 
                     if (!Character.isLetter(c)) {
                         addMovie(index, "09", movie);
