@@ -72,7 +72,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     movie.setTitle(series.getSeriesName());
                 }
                 if (movie.getYear().equals(Movie.UNKNOWN)) {
-                    movie.setYear(tvDB.getSeasonYear(id, movie.getSeason()));
+                    String year = tvDB.getSeasonYear(id, movie.getSeason());
+                    if (year != null && !year.isEmpty()) {
+                        movie.setYear(year);
+                    }
                 }
                 if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
                     movie.setRating((int)(Float.parseFloat(series.getRating()) * 10));
