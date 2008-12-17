@@ -648,11 +648,12 @@ public class Movie implements Comparable<Movie> {
             text = UNKNOWN;
         }
         if (!text.equals(this.titleSort)) {
-            //  Automatically remove enclosing quotes
-            if ((text.charAt(0) == '"') && (text.charAt(text.length() - 1) == '"')) {
-                text = text.substring(1, text.length() - 1);
+            int idx = 0;
+            while (idx < text.length() && !Character.isLetterOrDigit(text.charAt(idx))) {
+                idx++;
             }
-            this.titleSort = text;
+
+            this.titleSort = text.substring(idx);
             this.isDirty = true;
         }
     }
