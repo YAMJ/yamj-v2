@@ -24,7 +24,11 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     
     @Override
     public BufferedImage generate(Movie movie, BufferedImage backgroundImage) {
-        return GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
+        BufferedImage img = null;
+        if (backgroundImage != null) {
+            img = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
+        }
+        return img;
     }
 
 }
