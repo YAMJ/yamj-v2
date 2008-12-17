@@ -39,7 +39,7 @@ public class MovieNFOScanner {
      * @param movie
      * @param movieDB
      */
-    public void scan(Movie movie) {
+    public static void scan(Movie movie) {
         File nfoFile = new File(locateNFO(movie));
 
         if (nfoFile.exists()) {
@@ -84,7 +84,7 @@ public class MovieNFOScanner {
         }
     }
 
-    public String locateNFO(Movie movie) {
+    public static String locateNFO(Movie movie) {
         String fn = movie.getFile().getAbsolutePath();
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
         String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // just the sub-directory the video file is in
@@ -137,7 +137,7 @@ public class MovieNFOScanner {
      *            (NO EXTENSION)
      * @return blank string if not found, filename if found
      */
-    private String checkNFO(String checkNFOfilename) {
+    private static String checkNFO(String checkNFOfilename) {
         // logger.finest("checkNFO = " + checkNFOfilename);
         File nfoFile = new File(checkNFOfilename + ".nfo");
         if (nfoFile.exists()) {
@@ -152,7 +152,7 @@ public class MovieNFOScanner {
         }
     }
 
-    private boolean parseXMLNFO(String nfo, Movie movie) {
+    private static boolean parseXMLNFO(String nfo, Movie movie) {
         boolean retval = true;
         if (nfo.indexOf("<movie>") > -1) {
             parseMovieNFO(nfo, movie);
@@ -172,7 +172,7 @@ public class MovieNFOScanner {
      * @param xmlFile
      * @param movie
      */
-    private void parseMovieNFO(String nfo, Movie movie) {
+    private static void parseMovieNFO(String nfo, Movie movie) {
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
             XMLEventReader r = factory.createXMLEventReader(new StringReader(nfo));

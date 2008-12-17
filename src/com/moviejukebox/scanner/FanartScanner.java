@@ -29,10 +29,10 @@ public class FanartScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
 
-    protected String[] fanartExtensions;
-    protected String fanartToken;
+    protected static String[] fanartExtensions;
+    protected static String fanartToken;
 
-    public FanartScanner() {
+    static {
 
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.fanartExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
@@ -45,7 +45,7 @@ public class FanartScanner {
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
     }
 
-    public void scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static void scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
 
         String localFanartBaseFilename = movie.getBaseName();
         String fullFanartFilename = null;
@@ -120,7 +120,7 @@ public class FanartScanner {
         }
     }
     
-    private void downloadFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    private static void downloadFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             String fanartFilename = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
             File fanartFile = new File(fanartFilename);
@@ -159,7 +159,7 @@ public class FanartScanner {
      * @param   extensions
      * @return  extension of fanart that was found
      */
-    private String findFanartFile(String fullFanartFilename, String[] fanartExtensions) {
+    private static String findFanartFile(String fullFanartFilename, String[] fanartExtensions) {
         File localFanartFile;
         boolean foundLocalFanart = false;
         

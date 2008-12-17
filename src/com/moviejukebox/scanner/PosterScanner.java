@@ -23,13 +23,13 @@ public class PosterScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
 
-    protected String[] coverArtExtensions;
-    protected String searchForExistingCoverArt;
-    protected String fixedCoverArtName;
-    protected String coverArtDirectory;
-    protected Boolean useFolderImage;
+    protected static String[] coverArtExtensions;
+    protected static String searchForExistingCoverArt;
+    protected static String fixedCoverArtName;
+    protected static String coverArtDirectory;
+    protected static Boolean useFolderImage;
 
-    public PosterScanner() {
+    static {
         // We get covert art scanner behaviour
         searchForExistingCoverArt = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
         // We get the fixed name property
@@ -49,7 +49,7 @@ public class PosterScanner {
         coverArtDirectory = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");
     }
 
-    public void scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static void scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
 
         if (searchForExistingCoverArt.equalsIgnoreCase("no")) {
             // nothing to do we return
