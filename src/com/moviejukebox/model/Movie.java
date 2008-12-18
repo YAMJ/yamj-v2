@@ -556,7 +556,7 @@ public class Movie implements Comparable<Movie> {
         if (outline == null) {
             outline = UNKNOWN;
         }
-        if (!outline.equalsIgnoreCase(outline)) {
+        if (!outline.equalsIgnoreCase(this.outline)) {
             this.isDirty = true;
             this.outline = outline;
         }
