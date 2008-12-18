@@ -711,6 +711,10 @@ public class Movie implements Comparable<Movie> {
         this.file = file;
     }
 
+    public long getLastModifiedTimestamp() {
+        return this.file.lastModified();
+    }
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("[Movie ");

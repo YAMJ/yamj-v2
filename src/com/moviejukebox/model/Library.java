@@ -229,15 +229,22 @@ public class Library implements Map<String, Movie> {
         // long oneMonth = oneDay * 30;
 
         String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
+        String newCountParam = PropertiesUtil.getProperty("mjb.newcount", "0");
         long newDays;
+        int newCount;
 
         try {
             newDays = Long.parseLong(newDaysParam.trim());
         } catch (NumberFormatException nfe) {
             newDays = 7;
         }
+        try {
+            newCount = Integer.parseInt(newCountParam.trim());
+        } catch (NumberFormatException nfe) {
+            newCount = 0;
+        }
 
-        logger.finest("New category will have the last " + newDays + " days");
+        logger.finest("New category will have " + (newCount>0?newCount:"all of the") + " most recent videos in the last " + newDays + " days");
         newDays = newDays * oneDay;
 
         TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
@@ -253,8 +260,7 @@ public class Library implements Map<String, Movie> {
                     addMovie(index, "Top250", movie);
                 }
 
-                File f = movie.getFile();
-                long delay = System.currentTimeMillis() - f.lastModified();
+                long delay = System.currentTimeMillis() - movie.getLastModifiedTimestamp();
 
                 if (delay <= newDays) {
                     addMovie(index, "New", movie);
@@ -271,6 +277,17 @@ public class Library implements Map<String, Movie> {
                 }
             }
         }
+
+        // sort New category by lastModifiedTimestamp and then limit to the count
+        List<Movie> newList = index.get("New");
+        if (newList != null) {
+            Collections.sort(newList, new LastModifiedComparator());
+            if (newCount > 0 && newCount < newList.size()) {
+                newList = newList.subList(0, newCount);
+                index.put("New", newList);
+            }
+        }
+
         // sort top250 by rating instead of by title
         List<Movie> top250List = index.get("Top250");
         if (top250List != null) {
