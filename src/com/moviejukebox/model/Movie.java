@@ -15,6 +15,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Movie bean
+ * $Revision$
  * @author jjulien
  */
 public class Movie implements Comparable<Movie> {
