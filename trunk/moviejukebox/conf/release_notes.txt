@@ -10,6 +10,7 @@ MovieJukebox 1.0.14 beta
   - Enhancement  #128 Better detection of TV series air dates.
   - Enhancement  #148 Enh: Get Metadata from tags
   - Fixed defect #196 Focus on alphabets or categories resets to 09 every time you press return on remote.
+  - Enhancement  #197 Latest X movies in Y days
   - Enhancement  #214 Support for local fanart files
   - Fixed defect #272 Indexing Issue with shows with more than 10 seasons.
   - Enhancement  #285 Option to use outline field in XBMC NFO files for "Short" Plot Description
