@@ -31,6 +31,7 @@ MovieJukebox 1.0.14 beta
   - Enhancement  #335 ability to override fanart using the NFO xml file
   - Fixed defect #340 NullPointerException handling dummy thumbnail
   - Fixed defect #344 MovieJukebox doesn't use poster file in movie folder
+  - Fixed defect #345 No plot summary
   - Added new YAMJ logo to gfb107 skins
 
 MovieJukebox 1.0.13 beta
