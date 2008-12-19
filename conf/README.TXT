@@ -38,39 +38,47 @@ How does it work?
     
     - Edit the file moviejukebox.properties and setup according to your needs
 
-    - Select the desired skin from the skin directory and set in the mjb.skin.dir property in the moviejukebox.properties file
-      default is a HD skin. An SD skin is also available.
+    - Select the desired skin from the skin directory and set in the 
+      mjb.skin.dir property in the moviejukebox.properties file default is 
+      a HD skin. An SD skin is also available.
 
     - Edit the skin.properties in the selected skin dir and setup according to your needs
     
     - In a command shell, Execute the MovieJukebox command. 
       The syntax for the MovieJukebox command is the following:
       
-              MOVIELIB movieLibraryRoot [-o jukeboxRoot]
+              MovieJukebox [movieLibrary] [-o jukeboxRoot]
             
-              or
-              
-              MOVIELIB movieLibraryXMLFile -o jukeboxRoot
-
       Where parameters are:
 
-            movieLibraryRoot    : MANDATORY
-                                  Must point to an existing directory (local or network
-                                  This is where your movie files are stored.
-                                    
-            movieLibraryXMLFile : MANDATORY
-                                  Must point to an XML configuration file specifying one or
-                                  many directories to be scanned for movies.
+            movieLibrary        : OPTIONAL
+                                  The directory (local or network)
+                                  where your movie files are stored.
+                                  - or -   
+                                  The XML configuration file specifying one or
+                                  more to be scanned for movies.  See 
+                                  "Using a libraries XML file as input" below.
+                                  
+                                  If not specified on the command line, the 
+                                  mjb.movieLibrary property  from the properties file
+                                  will be used.
 
             -o jukeboxRoot      : OPTIONAL
                                   output directory (local or network directory)
-                                  This is where the jukebox file will be written to
-                                  by default the is the same as the movieLibraryRoot
+                                  This is where the jukebox files will be written.
+                                  If not specified on the the command line, the 
+                                  mjb.jukeboxRoot property from the properties file will be used.
+                                  If that property also isn't defined, it'll default to the value of  
+                                  movieLibrary.
 
             -c                  : OPTIONAL
                                   Clean the jukebox directory after running.
                                   This will delete any unused files from the jukebox
                                   directory at the end of the run.
+                                  
+            -p propertiesFile   : OPTIONAL      
+                                  The properties file to use instead of the default
+                                  moviejukebox.properties                            
 
       For instance, the following command will analyze video files from directory Z:\Video. The jukebox files
       will be stored into this directory as well. drive "Z:\" can be a local drive, a USB drive or a network drive. 
@@ -79,7 +87,7 @@ How does it work?
                 
       If you want the Jukebox files to be generated separately, you may use the following command:
       
-                  MovieJukebox Z:\Video -o C:\MyJukebox
+                MovieJukebox Z:\Video -o C:\MyJukebox
                 
       In this case, all generated file will go to the C:\MyJukebox directory
         
@@ -139,7 +147,7 @@ Using a libraries XML file as input
         exclude: a comma separated list of excluded strings. when found in the filename, the file is excluded.
 
 
-    Once this file is creatte, you may run moviejukebox. 
+    Once this file is created, you may run moviejukebox. 
     For instance:
 
          MovieJukebox libraries.xml -o MyJukebox
@@ -198,7 +206,7 @@ Things you should know about
          one into the Jukebox directory.
       
          If you then delete the correspondng thumbail file (XXXXX_small.jpg), and relaunch the 
-         Movie lib tool, the thumbnail file will be regenerated with you new poster.
+         Movie jukebox tool, the thumbnail file will be regenerated with you new poster.
       
 
 
