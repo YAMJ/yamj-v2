@@ -229,13 +229,11 @@
 
                      <xsl:attribute name="vod"/>
 
-                     <xsl:text>&#160;</xsl:text>
-
-                     <xsl:choose>
-                       <xsl:when test="position() = 1"> 
+                     <xsl:if test="position() = 1"> 
                          <xsl:attribute name="class">firstMovie</xsl:attribute> 
-                       </xsl:when>
-                     </xsl:choose>
+                     </xsl:if>
+					   
+                     <xsl:text>&#160;</xsl:text>
 
                      <xsl:choose>
                        <xsl:when test="/details/movie/season!=-1">
