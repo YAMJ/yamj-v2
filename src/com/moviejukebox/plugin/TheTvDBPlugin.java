@@ -10,6 +10,10 @@ import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * 
@@ -19,6 +23,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = "2805AD2873519EC5";
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private TheTVDB tvDB;
     private String language;
@@ -47,8 +52,20 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 Series series = null;
                 for (Series s : seriesList) {
                     if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
-                        series = s;
-                        break;
+                        if (movie.getYear() != null && !movie.getYear().equals(Movie.UNKNOWN)) {
+                            try {
+                                Date firstAired = dateFormat.parse(s.getFirstAired());
+                                Calendar cal = Calendar.getInstance();
+                                cal.setTime(firstAired);
+                                if (cal.get(Calendar.YEAR) == Integer.parseInt(movie.getYear())) {
+                                    series = s;
+                                    break;
+                                }
+                            } catch (Exception ignore) {}
+                        } else {
+                            series = s;
+                            break;
+                        }
                     }
                 }
                 if (series == null) {
