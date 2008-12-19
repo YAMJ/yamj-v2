@@ -33,6 +33,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected String imdbPlot;
     protected WebBrowser webBrowser;
     protected boolean downloadFanart;
+    protected boolean extractCertificationFromMPAA;
 
     public ImdbPlugin() {
         webBrowser = new WebBrowser();
@@ -42,9 +43,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+        extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
         try {
             String temp = PropertiesUtil.getProperty("imdb.genres.max", "9");
-            System.out.println("imdb.genres.max=" + temp);
             maxGenres = Integer.parseInt(temp);
         } catch (NumberFormatException ex) {
             maxGenres = 9;
@@ -211,13 +212,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 country = text.substring(0, pos);
                 text = text.substring(pos + 1);
             }
+            pos = text.indexOf('(');
+            if (pos != -1)
+                text = text.substring(0, pos).trim();
+
             if (country == null) {
-                if (value.equals(Movie.UNKNOWN)){
+                if (value.equals(Movie.UNKNOWN)) {
                     value = text;
                 }
             } else {
                 if (country.equals(preferredCountry)) {
-                    return text;
+                    value = text;
                 }
             }
         }
@@ -315,12 +320,30 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setPlot(plot);
             }
 
-            if (movie.getCertification().equals(Movie.UNKNOWN)) {
-                movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml, "<h5>Certification:</h5>", "</div>", "<a href=\"/List?certificates=",
-                                "</a>")));
-                if (movie.getCertification() == null || movie.getCertification().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    movie.setCertification(Movie.NOTRATED);
+            String certification = movie.getCertification();
+            if (certification.equals(Movie.UNKNOWN)) {
+                if (extractCertificationFromMPAA) {
+                    String mpaa = HTMLTools.extractTag(xml, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>");
+                    if (!mpaa.equals(Movie.UNKNOWN)) {
+                        String key = "Rated ";
+                        int pos = mpaa.indexOf(key);
+                        if (pos != -1) {
+                            int start = key.length();
+                            pos = mpaa.indexOf(" on appeal for ", start);
+                            if (pos == -1)
+                                pos = mpaa.indexOf(" for ", start);
+                            if (pos != -1)
+                                certification = mpaa.substring(start, pos);
+                        }
+                    }
                 }
+                if (certification.equals(Movie.UNKNOWN)) {
+                    certification = getPreferredValue(HTMLTools.extractTags(xml, "<h5>Certification:</h5>", "</div>", "<a href=\"/List?certificates=", "</a>"));
+                }
+                if (certification == null || certification.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    certification = Movie.NOTRATED;
+                }
+                movie.setCertification(certification);
             }
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -490,20 +513,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String returnString = Movie.UNKNOWN;
         String content = null;
         try {
-            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q=" +
-                    URLEncoder.encode(title+" "+year, "UTF-8"));
+            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q=" + URLEncoder.encode(title + " " + year, "UTF-8"));
         } catch (Exception e) {
         }
 
         if (content != null) {
             int indexMovieLink = content.indexOf("<a href=\"http://www.impawards.com/" + year + "/");
             if (indexMovieLink != -1) {
-                String imageUrl = content.substring(indexMovieLink+9, indexMovieLink+39) + "posters/";
-                int endIndex = content.indexOf("\"", indexMovieLink+39);
+                String imageUrl = content.substring(indexMovieLink + 9, indexMovieLink + 39) + "posters/";
+                int endIndex = content.indexOf("\"", indexMovieLink + 39);
                 if (endIndex != -1) {
-                    imageUrl += content.substring(indexMovieLink+39, endIndex);
+                    imageUrl += content.substring(indexMovieLink + 39, endIndex);
                     if (imageUrl.endsWith(".html")) {
-                        imageUrl = imageUrl.substring(0, imageUrl.length()-4) + "jpg";
+                        imageUrl = imageUrl.substring(0, imageUrl.length() - 4) + "jpg";
                     } else {
                         imageUrl = null;
                     }
