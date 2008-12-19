@@ -33,8 +33,8 @@ public class MediaInfoScanner {
 	
 	//mediaInfo command line, depend on OS
 	private String[] mediaInfoExe;
-	private String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", null };
-	private String[] mediaInfoExeLinux = { "./mediainfo", null };
+	private String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null };
+	private String[] mediaInfoExeLinux = { "./mediainfo", "-f", null };
 
 	public final static String OS_NAME = System.getProperty("os.name");
 
@@ -85,7 +85,7 @@ public class MediaInfoScanner {
 			FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
 			if (mainMovieIFO != null) {
 			  scan(currentMovie, mainMovieIFO.getLocation());
-			  currentMovie.setRuntime(localDVDRipScanner.formatDuration(mainMovieIFO));
+			  currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
 			}
 		}
 		else 
@@ -119,7 +119,7 @@ public class MediaInfoScanner {
 				FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
 				if (mainMovieIFO != null) {
 				  scan(currentMovie, mainMovieIFO.getLocation());
-				  currentMovie.setRuntime(localDVDRipScanner.formatDuration(mainMovieIFO));
+				  currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
 				}
 				
 				// Clean up
@@ -195,8 +195,9 @@ public class MediaInfoScanner {
 					while (line.charAt(longueurUtile) == ' ') {
 						longueurUtile--;
 					}
-					infosGeneral.put(line.substring(0, longueurUtile + 1), line
-							.substring(indexSeparateur + 3));
+					if (infosGeneral.get(line.substring(0, longueurUtile + 1)) == null)
+						infosGeneral.put(line.substring(0, longueurUtile + 1), line
+								.substring(indexSeparateur + 3));
 				}
 			}
 			else if (line.startsWith("Video")) {
@@ -209,8 +210,9 @@ public class MediaInfoScanner {
 					while (line.charAt(longueurUtile) == ' ') {
 						longueurUtile--;
 					}
-					vidCourante.put(line.substring(0, longueurUtile + 1), line
-							.substring(indexSeparateur + 3));
+					if (vidCourante.get(line.substring(0, longueurUtile + 1)) == null)
+						vidCourante.put(line.substring(0, longueurUtile + 1), line
+								.substring(indexSeparateur + 3));
 				}
 				infosVideo.add(vidCourante);
 			}
@@ -224,8 +226,9 @@ public class MediaInfoScanner {
 					while (line.charAt(longueurUtile) == ' ') {
 						longueurUtile--;
 					}
-					audioCourant.put(line.substring(0, longueurUtile + 1), line
-							.substring(indexSeparateur + 3));
+					if (audioCourant.get(line.substring(0, longueurUtile + 1)) == null)
+						audioCourant.put(line.substring(0, longueurUtile + 1), line
+								.substring(indexSeparateur + 3));
 				}
 				infosAudio.add(audioCourant);
 			}
@@ -345,7 +348,10 @@ public class MediaInfoScanner {
 			HashMap<String, String> infosMainVideo = infosVideo.get(0);
 			infoValue = infosMainVideo.get("Duration");
 			if (infoValue != null) {
-				movie.setRuntime(infoValue);
+				int duration;
+				duration=Integer.parseInt(infoValue)/1000;
+
+				movie.setRuntime(formatDuration(duration));
 			}
 
 			//Codec (most relevant Info depending on mediainfo result)
@@ -369,13 +375,11 @@ public class MediaInfoScanner {
 
 			infoValue = infosMainVideo.get("Width");
 			if (infoValue != null) {
-				width = Integer.parseInt(infoValue.substring(0, infoValue
-						.lastIndexOf(" ")).replaceAll(" ", ""));
+				width = Integer.parseInt(infoValue);
 
 				infoValue = infosMainVideo.get("Height");
 				if (infoValue != null) {
-					movie.setResolution(width + "x"
-							+ infoValue.substring(0, infoValue.lastIndexOf(" ")).replaceAll(" ", ""));
+					movie.setResolution(width + "x" + infoValue);
 				}
 
 			}
@@ -383,8 +387,10 @@ public class MediaInfoScanner {
 			//Frames per second
 			infoValue = infosMainVideo.get("Frame rate");
 			if (infoValue != null) {
-				movie.setFps(Integer.parseInt(infoValue.substring(0, infoValue
-						.indexOf("."))));
+				Float fps;
+				fps=Float.parseFloat(infoValue);
+				
+				movie.setFps(Math.round(fps));
 			}
 
 			
@@ -411,23 +417,14 @@ public class MediaInfoScanner {
 			} else {
 				String videoOutput;
 				switch (movie.getFps()) {
-				case 23:
-					videoOutput = "NTSC 23";
-					break;
 				case 24:
-					videoOutput = "NTSC 24";
+					videoOutput = "24";
 					break;
 				case 25:
 					videoOutput = "PAL 25";
 					break;
-				case 29:
-					videoOutput = "NTSC 29";
-					break;
 				case 30:
 					videoOutput = "NTSC 30";
-					break;
-				case 49:
-					videoOutput = "PAL 49";
 					break;
 				case 50:
 					videoOutput = "PAL 50";
@@ -466,7 +463,7 @@ public class MediaInfoScanner {
 
 			infoValue = infosCurAudio.get("Codec ID/Hint");
 			if (infoValue == null) {
-				infoValue = infosCurAudio.get("Format");
+				infoValue = infosCurAudio.get("Codec");
 			}
 			
 			if (infoValue != null) {
@@ -480,7 +477,12 @@ public class MediaInfoScanner {
 
             infoValue = infosCurAudio.get("Channel(s)");
             if (infoValue != null) {
-                movie.setAudioChannels(infoValue);
+				String oldInfo = movie.getAudioChannels();
+				if (oldInfo.equals("UNKNOWN")) {
+					movie.setAudioChannels(infoValue);
+				} else {
+					movie.setAudioChannels(oldInfo + " / " + infoValue);
+				}
             }
 
 		}
@@ -489,4 +491,24 @@ public class MediaInfoScanner {
 		if (infosText.size()>0)
 			movie.setSubtitles(true);
 	}
+
+	public String formatDuration(int duration) {
+		StringBuffer returnString = new StringBuffer("");
+
+		int nbHours = duration / 3600;
+		if (nbHours != 0) {
+			returnString.append(nbHours).append("h");
+			duration = duration - nbHours * 3600;
+		}
+
+		int nbMinutes = duration / 60;
+		if (nbMinutes != 0) {
+			if (nbHours != 0)
+				returnString.append(" ");
+			returnString.append(nbMinutes).append("mn");
+		}
+
+		return returnString.toString();
+	}
+	
 }
