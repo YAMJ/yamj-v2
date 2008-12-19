@@ -44,7 +44,7 @@ public class MovieFilenameScanner {
 	
 	public void scan(Movie movie) {
 		File fileToScan = movie.getFile();
-		String filename = movie.getBaseName();
+		String filename = fileToScan.getName();
 		
 		firstKeywordIndex = filename.indexOf("[");
 		firstKeywordIndex = (firstKeywordIndex==-1)?filename.length():firstKeywordIndex;
@@ -79,7 +79,7 @@ public class MovieFilenameScanner {
 		findKeyword(filename, skipKeywords);
 		
 		// Update the movie file with interpreted movie data
-                updateTrailer(filename, movie);
+        updateTrailer(filename, movie);
 		updateTVShow(filename, movie);
 		updateMovie(filename, movie);
 	}
