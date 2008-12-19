@@ -210,16 +210,15 @@
                      </xsl:if>
 
                      <xsl:attribute name="vod"/>               
+
+					 <xsl:if test="position() = 1">
+                             <xsl:attribute name="class">firstMovie</xsl:attribute>
+                     </xsl:if>
+
                      <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                      
                      <xsl:text>&#160;</xsl:text>
                      
-                     <xsl:choose>
-                             <xsl:when test="position() = 1">
-                                     <xsl:attribute name="class">firstMovie</xsl:attribute>
-                             </xsl:when>
-                     </xsl:choose>
-
                      <xsl:choose>
                              <xsl:when test="/details/movie/season!=-1">
                                      Episode <xsl:value-of select="@part"/>
