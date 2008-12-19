@@ -100,6 +100,12 @@
 			</fileset>
 		</copy>
 
+		<copy todir="dist/notices">
+			<fileset dir="notices">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+
 		<zip basedir="dist" destfile="dist/moviejukebox_${version}.zip" excludes="mediaInfo/"/>
 	</target>
 
