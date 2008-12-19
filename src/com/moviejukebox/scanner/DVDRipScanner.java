@@ -54,8 +54,7 @@ public class DVDRipScanner {
 				video_ts = list[i].getName();
 
 			if (!video_ts.equalsIgnoreCase("VIDEO_TS"))
-				throw new Exception(
-						"DVD drive not found:" + mediaRep);
+				return null;
 
 			selectedFile = new File(selectedFile.getAbsolutePath(), video_ts);
 

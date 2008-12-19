@@ -28,11 +28,16 @@ public class MovieDirectoryScanner {
     private String postersFormat;
 	
 	private static Logger logger = Logger.getLogger("moviejukebox");
+
+	//BD rip infos Scanner
+	private BDRipScanner localBDRipScanner;
 	
 	public MovieDirectoryScanner() {
             supportedExtensions = PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
             thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
             postersFormat = PropertiesUtil.getProperty("posters.format", "png");
+            
+			localBDRipScanner = new BDRipScanner();
 	}
 
 	/**
@@ -67,6 +72,8 @@ public class MovieDirectoryScanner {
 
 				for (File file : files) {
 					if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
+						scanFile(srcPath, file.getParentFile(), collection);
+					} else if (file.isDirectory() && file.getName().equalsIgnoreCase("BDMV")) {
 						scanFile(srcPath, file.getParentFile(), collection);
 					} else if (file.isDirectory()) {
 						scanDirectory(srcPath, file, collection);
@@ -109,6 +116,17 @@ public class MovieDirectoryScanner {
 	
 	protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
 		
+		File contentFile=file;
+		
+		if (file.isDirectory()) {
+			//Scan BD M2TS files
+			File bdMainMovie = localBDRipScanner.executeGetBDInfo(file);
+			
+			if (bdMainMovie!=null)
+				contentFile=bdMainMovie;
+		}
+
+		
 		// Compute the baseFilename: This is the filename with no the extension
 		String baseFileName = file.getName();
 		if (!file.isDirectory()) {
@@ -116,7 +134,7 @@ public class MovieDirectoryScanner {
 		}
 		
 		// Compute the relative filename
-		String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
+		String relativeFilename = contentFile.getAbsolutePath().substring(mediaLibraryRootPathIndex);
 		if ( relativeFilename.startsWith(File.separator) ) {
 			 relativeFilename = relativeFilename.substring(1); 
 		}
@@ -124,7 +142,7 @@ public class MovieDirectoryScanner {
 		MovieFile movieFile = new MovieFile();
 		relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
 		
-		if (file.isDirectory()) {
+		if (contentFile.isDirectory()) {
 			// For DVD images
 			movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename + "/VIDEO_TS");
 		} else {
@@ -134,7 +152,7 @@ public class MovieDirectoryScanner {
 					
 		Movie m = new Movie();
 		m.addMovieFile(movieFile);
-		m.setFile(file);
+		m.setFile(contentFile);
 		m.setBaseName(baseFileName);
 		m.setLibraryPath(srcPath.getPath());
 		m.setPosterFilename(baseFileName + ".jpg");
@@ -144,6 +162,7 @@ public class MovieDirectoryScanner {
         
 		MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
 		filenameScanner.scan(m);
+		
 		
 		library.addMovie(m);
 	}	
