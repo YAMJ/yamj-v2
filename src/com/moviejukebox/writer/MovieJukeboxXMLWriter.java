@@ -432,6 +432,7 @@ public class MovieJukeboxXMLWriter {
 
     private void writeMovieForIndex(XMLStreamWriter writer, Movie movie) throws XMLStreamException {
         writer.writeStartElement("movie");
+        writer.writeAttribute("isTrailer", Boolean.toString(movie.isTrailer()));
         writer.writeStartElement("details");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getBaseName() + ".html"));
         writer.writeEndElement();
@@ -458,6 +459,7 @@ public class MovieJukeboxXMLWriter {
 
     private void writeMovie(XMLStreamWriter writer, Movie movie) throws XMLStreamException {
         writer.writeStartElement("movie");
+        writer.writeAttribute("isTrailer", Boolean.toString(movie.isTrailer()));
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
             writer.writeStartElement("id");
             writer.writeAttribute("movieDatabase", e.getKey());
