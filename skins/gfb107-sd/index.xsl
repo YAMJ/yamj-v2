@@ -86,7 +86,12 @@
 
 <table class="title"><tr><td id="title" align="center">&#160;</td></tr></table>
 <xsl:for-each select="library/movies/movie">
-<div class="title"><xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute><xsl:if test="season!=-1">&quot;</xsl:if><xsl:value-of select="title"/><xsl:if test="season!=-1">&quot; Season <xsl:value-of select="season"/></xsl:if> (<xsl:value-of select="certification" />)</div>
+<div class="title">
+	<xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute>
+	<xsl:if test="season!=-1">&quot;</xsl:if><xsl:value-of select="title"/>
+	<xsl:if test="season!=-1">&quot; Season <xsl:value-of select="season"/></xsl:if>
+	<xsl:if test="certification!='' and certification!='UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
+</div>
 </xsl:for-each>
   <div class="title">
     <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>

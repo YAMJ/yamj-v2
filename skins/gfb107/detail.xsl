@@ -64,7 +64,7 @@
               <xsl:if test="director != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="company" />
             </xsl:if>
-            <xsl:if test="company != 'UNKNOWN'">
+            <xsl:if test="country != 'UNKNOWN'">
               (<xsl:value-of select="country" />)
             </xsl:if>
           </td>
@@ -114,7 +114,14 @@
         <tr class="spacer"><td colspan="4" /></tr>
         <tr>
           <td class="normal" colspan="4">
-              <xsl:value-of select="plot" />
+			  <xsl:choose>
+				  <xsl:when test="string-length(plot)&lt;350">
+					  <xsl:value-of select="plot"/>
+			      </xsl:when>
+				  <xsl:otherwise>
+                      <xsl:value-of select="substring(plot,1,346)"/>...
+				  </xsl:otherwise>
+              </xsl:choose>
           </td>
         </tr>
         </xsl:if>
@@ -215,7 +222,14 @@
                          </xsl:if>
                        </xsl:when>
                        <xsl:otherwise>
-                         <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
+						 <xsl:choose>
+						   <xsl:when test="@title='UNKNOWN'">
+                             <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
+						   </xsl:when>
+						   <xsl:otherwise>
+							 <xsl:value-of select="@title"/>
+						   </xsl:otherwise>
+						 </xsl:choose> 
                        </xsl:otherwise>
                      </xsl:choose>
                    </a>
@@ -232,7 +246,6 @@
                    </a>
                  </td>
                </tr>
-               
               </table>
             </td>
           </tr>
