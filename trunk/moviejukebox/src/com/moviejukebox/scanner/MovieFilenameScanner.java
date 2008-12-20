@@ -45,6 +45,9 @@ public class MovieFilenameScanner {
 	public void scan(Movie movie) {
 		File fileToScan = movie.getFile();
 		String filename = fileToScan.getName();
+        if (filename.toUpperCase().endsWith(".M2TS")) {
+            filename = movie.getBaseName();
+        }
 		
 		firstKeywordIndex = filename.indexOf("[");
 		firstKeywordIndex = (firstKeywordIndex==-1)?filename.length():firstKeywordIndex;
