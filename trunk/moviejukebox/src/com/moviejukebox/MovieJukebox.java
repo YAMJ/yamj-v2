@@ -229,6 +229,7 @@ public class MovieJukebox {
 
         int nbFiles = 0;
         String cleanCurrent = "";
+        String cleanCurrentExt = "";
 
         // ////////////////////////////////////////////////////////////////
         // / PASS 0 : Preparing temporary environnement...
@@ -242,13 +243,19 @@ public class MovieJukebox {
 
             for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                 // Scan each file in here
+                System.err.println(nbFiles + " - " + cleanList[nbFiles].getName());
                 if (cleanList[nbFiles].isFile()) {
                     cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
-                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
+                    if (cleanCurrent.indexOf(".") > 0) {
+                        cleanCurrentExt = cleanCurrent.substring(cleanCurrent.lastIndexOf("."));
+                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
+                    } else {
+                        cleanCurrentExt = "";
+                    }
 
                     if (cleanCurrent.equals("CATEGORIES")) {
                         cleanList[nbFiles].delete();
-                    } else if ((cleanList[nbFiles].getName().substring(cleanList[nbFiles].getName().lastIndexOf(".")).equals(".css"))
+                    } else if ((cleanCurrentExt.equals(".css"))
                                     || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0)
                                     || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0)) {
                         cleanList[nbFiles].delete();
@@ -372,11 +379,16 @@ public class MovieJukebox {
                 // Scan each file in here
                 if (cleanList[nbFiles].isFile()) {
                     cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
-                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
+                    if (cleanCurrent.indexOf(".") > 0) {
+                        cleanCurrentExt = cleanCurrent.substring(cleanCurrent.lastIndexOf("."));
+                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
+                    } else {
+                        cleanCurrentExt = "";
+                    }
 
                     if (cleanCurrent.equals("CATEGORIES")) {
                         // logger.fine(cleanCurrent + " ignored");
-                    } else if ((cleanList[nbFiles].getName().substring(cleanList[nbFiles].getName().lastIndexOf(".")).equals(".css"))
+                    } else if ((cleanCurrentExt.equals(".css"))
                                     || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0)
                                     || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0)) {
                         // logger.fine(cleanCurrent + " ignored");
