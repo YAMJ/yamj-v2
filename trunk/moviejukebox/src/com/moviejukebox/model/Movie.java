@@ -82,6 +82,7 @@ public class Movie implements Comparable<Movie> {
     private boolean overrideTitle = false;
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
+    private long prebuf = -1;
     
     // Navigation data
     private String first = UNKNOWN;
@@ -749,6 +750,7 @@ public class Movie implements Comparable<Movie> {
         sb.append("[cast=").append(cast).append("]");
         sb.append("[genres=").append(genres).append("]");
         sb.append("[libraryDescription=").append(libraryDescription).append("]");
+        sb.append("[prebuf=").append(prebuf).append("]");
         sb.append("]");
         return sb.toString();
     }
@@ -881,5 +883,13 @@ public class Movie implements Comparable<Movie> {
             this.libraryDescription = libraryDescription;
             this.isDirty = true;
         }
+    }
+
+    public long getPrebuf() {
+        return prebuf;
+    }
+
+    public void setPrebuf(long prebuf) {
+        this.prebuf = prebuf;
     }
 }

@@ -194,7 +194,12 @@
                      <xsl:attribute name="zcd">2</xsl:attribute> 
                    </xsl:if>
 
-                   <xsl:attribute name="vod"/>               
+                   <xsl:attribute name="vod"/>
+
+                   <xsl:if test="//movie/prebuf != '-1'">
+                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                   </xsl:if>
+
                    <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
                  </a>
                 </center>
@@ -235,6 +240,10 @@
 
                      <xsl:attribute name="vod"/>               
 
+                     <xsl:if test="//movie/prebuf != '-1'">
+                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                     </xsl:if>
+
 					 <xsl:if test="position() = 1"> 
                          <xsl:attribute name="class">firstMovie</xsl:attribute> 
                      </xsl:if>
@@ -263,6 +272,9 @@
                    <a class="link">
                        <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
                        <xsl:attribute name="vod">playlist</xsl:attribute>
+                       <xsl:if test="//movie/prebuf != '-1'">
+                           <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                       </xsl:if>
                        <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                        <xsl:text>&#160;</xsl:text>PLAY ALL
                    </a>
@@ -299,6 +311,10 @@
                      </xsl:if>
                      <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
                        <xsl:attribute name="zcd">2</xsl:attribute>
+                     </xsl:if>
+
+                     <xsl:if test="//movie/prebuf != '-1'">
+                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                      </xsl:if>
 
                      <xsl:attribute name="vod"/>

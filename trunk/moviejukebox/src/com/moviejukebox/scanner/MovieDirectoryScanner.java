@@ -159,6 +159,7 @@ public class MovieDirectoryScanner {
 		m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
         m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
         m.setLibraryDescription(srcPath.getDescription());
+        m.setPrebuf(srcPath.getPrebuf());
         
 		MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
 		filenameScanner.scan(m);

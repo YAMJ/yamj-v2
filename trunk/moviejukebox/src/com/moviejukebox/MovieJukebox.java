@@ -632,6 +632,13 @@ public class MovieJukebox {
                 String path = sub.getString("path");
                 String nmtpath = sub.getString("nmtpath");
                 String description = sub.getString("description");
+                long prebuf = -1;
+                String prebufString = sub.getString("prebuf");
+                if (prebufString != null && !prebufString.isEmpty()) {
+                    try {
+                        prebuf = Long.parseLong(prebufString);
+                    } catch (Exception ignore) {}
+                }
 
                 // Check that the nmtpath terminates with a "/" or "\"
                 if (!(nmtpath.endsWith("/") || nmtpath.endsWith("\\"))) {
@@ -647,6 +654,7 @@ public class MovieJukebox {
                     medlib.setNmtRootPath(nmtpath);
                     medlib.setExcludes(excludes);
                     medlib.setDescription(description);
+                    medlib.setPrebuf(prebuf);
                     mlp.add(medlib);
                     logger.fine("Found media library: " + medlib);
                 } else {
