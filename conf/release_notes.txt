@@ -44,6 +44,7 @@ MovieJukebox 1.0.14 beta
   - Enhancement  #334 Add command line option to specify a properties file other than moviejukebox.properties
   - Enhancement  #335 ability to override fanart using the NFO xml file
   - Fixed defect #340 NullPointerException handling dummy thumbnail
+  - Enhancement  #342 Movie subset
   - Fixed defect #344 MovieJukebox doesn't use poster file in movie folder
   - Fixed defect #345 No plot summary
   - Fixed defect #347 Media Info displayed is inaccurate
