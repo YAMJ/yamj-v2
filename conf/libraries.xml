@@ -9,7 +9,9 @@
 <!--             this description will show up on the detail page of every movie within-->
 <!--             that library (if supported by the skin). If this is undesired, then   -->
 <!--             leave the description blank.                                          -->
-<!--                                                                                   -->
+<!-- prebuf element is for specifying the prebuffer size (in bytes). If this is        -->
+<!--             undesired, then leave the prebuf blank and it will use the            -->
+<!--             default of 16777216 (16MB)                                            -->
 
 <libraries>
   <library>
@@ -17,6 +19,7 @@
       <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Movies/</nmtpath>
       <exclude name="sample,tmp/,temp/"/>
       <description></description>
+      <prebuf></prebuf>
   </library>
 
   <library>
@@ -24,6 +27,7 @@
       <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/TV/</nmtpath>
       <exclude name="sample,tmp/,temp/"/>
       <description></description>
+      <prebuf></prebuf>
   </library>
 
   <library>
@@ -31,5 +35,6 @@
       <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Misc/</nmtpath>
       <exclude name="sample,tmp/,temp/"/>
       <description></description>
+      <prebuf></prebuf>
   </library>
 </libraries>

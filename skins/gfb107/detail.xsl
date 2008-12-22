@@ -164,6 +164,11 @@
                    </xsl:if>
 
                    <xsl:attribute name="vod"/>
+
+                   <xsl:if test="//movie/prebuf != '-1'">
+                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                   </xsl:if>
+
                    <img src="pictures/play.png" onfocussrc="pictures/play_selected.png">
                        <xsl:attribute name="onmouseover">this.src='pictures/play_selected.png';</xsl:attribute>
                        <xsl:attribute name="onmouseout">this.src='pictures/play.png';</xsl:attribute>
@@ -208,6 +213,11 @@
                      </xsl:if>
 
                      <xsl:attribute name="vod"/>
+
+                     <xsl:if test="//movie/prebuf != '-1'">
+                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                     </xsl:if>
+
                      <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">
                        <xsl:attribute name="onmouseover">this.src='pictures/play_selected_small.png';</xsl:attribute>
                        <xsl:attribute name="onmouseout">this.src='pictures/play_small.png';</xsl:attribute>
@@ -241,6 +251,9 @@
                    <a class="link">
                        <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
                        <xsl:attribute name="vod">playlist</xsl:attribute>
+                       <xsl:if test="//movie/prebuf != '-1'">
+                           <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                       </xsl:if>
                        <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                        <xsl:text>&#160;</xsl:text>PLAY ALL
                    </a>
@@ -280,6 +293,11 @@
                      </xsl:if>
 
                      <xsl:attribute name="vod"/>
+
+                     <xsl:if test="//movie/prebuf != '-1'">
+                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                     </xsl:if>
+
                      <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">
                        <xsl:attribute name="onmouseover">this.src='pictures/play_selected_small.png';</xsl:attribute>
                        <xsl:attribute name="onmouseout">this.src='pictures/play_small.png';</xsl:attribute>

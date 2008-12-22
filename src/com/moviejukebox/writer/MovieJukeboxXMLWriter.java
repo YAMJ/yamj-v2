@@ -191,6 +191,14 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equals("<libraryDescription>")) {
                     movie.setLibraryDescription(parseCData(r));
                 }
+                if (tag.equals("<prebuf>")) {
+                    String prebuf = parseCData(r);
+                    if (prebuf != null) {
+                        try {
+                            movie.setPrebuf(Long.parseLong(prebuf));
+                        } catch (Exception ignore) {}
+                    }
+                }
 
                 if (tag.startsWith("<file ")) {
                     MovieFile mf = new MovieFile();
@@ -578,6 +586,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("libraryDescription");
         writer.writeCharacters(movie.getLibraryDescription());
+        writer.writeEndElement();
+        writer.writeStartElement("prebuf");
+        writer.writeCharacters(Long.toString(movie.getPrebuf()));
         writer.writeEndElement();
 
         Collection<String> items = movie.getGenres();

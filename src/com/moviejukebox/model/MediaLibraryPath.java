@@ -8,6 +8,7 @@ public class MediaLibraryPath {
 	String nmtRootPath;
 	Collection<String> excludes;
     String description;
+    long prebuf = -1;
 
 	public String getPath() {
 		return path;
@@ -55,4 +56,12 @@ public class MediaLibraryPath {
 		sb.append("]");
 		return sb.toString();
 	}
+
+    public long getPrebuf() {
+        return prebuf;
+    }
+
+    public void setPrebuf(long prebuf) {
+        this.prebuf = prebuf;
+    }
 }
