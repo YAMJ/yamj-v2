@@ -72,9 +72,12 @@ public class MovieJukeboxHTMLWriter {
                     // Use the file in the original directory
                     xmlSource = new StreamSource(new FileInputStream(oldXmlFile));
                 }
-                Result xmlResult = new StreamResult(new FileOutputStream(tempHtmlFile));
+                FileOutputStream outStream = new FileOutputStream(tempHtmlFile);
+                Result xmlResult = new StreamResult(outStream);
 
                 transformer.transform(xmlSource, xmlResult);
+                outStream.flush();
+                outStream.close();
             }
         } catch (Exception e) {
             System.err.println("Failed generating HTML for movie " + movie);
@@ -126,9 +129,12 @@ public class MovieJukeboxHTMLWriter {
             Transformer transformer = tranformerFactory.newTransformer(xslSource);
 
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
-            Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
+            FileOutputStream outStream = new FileOutputStream(htmlFile);
+            Result xmlResult = new StreamResult(outStream);
 
             transformer.transform(xmlSource, xmlResult);
+            outStream.flush();
+            outStream.close();
         } catch (Exception e) {
             System.err.println("Failed generating HTML library category index.");
             e.printStackTrace();
@@ -204,10 +210,13 @@ public class MovieJukeboxHTMLWriter {
             Source xslSource = new StreamSource(new File(skinHome, "index.xsl"));
             Transformer transformer = tranformerFactory.newTransformer(xslSource);
 
+            FileOutputStream outStream = new FileOutputStream(htmlFile);
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
-            Result xmlResult = new StreamResult(new FileOutputStream(htmlFile));
+            Result xmlResult = new StreamResult(outStream);
 
             transformer.transform(xmlSource, xmlResult);
+            outStream.flush();
+            outStream.close();
         } catch (Exception e) {
             System.err.println("Failed generating HTML library index.");
             e.printStackTrace();

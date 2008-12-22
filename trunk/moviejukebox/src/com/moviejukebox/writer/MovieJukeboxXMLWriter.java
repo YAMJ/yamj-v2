@@ -310,6 +310,7 @@ public class MovieJukeboxXMLWriter {
         }
         writer.writeEndElement(); // library
         writer.writeEndDocument();
+        writer.flush();
         writer.close();
     }
 
@@ -427,6 +428,7 @@ public class MovieJukeboxXMLWriter {
 
         writer.writeEndElement(); // library
         writer.writeEndDocument();
+        writer.flush();
         writer.close();
     }
 
@@ -671,6 +673,7 @@ public class MovieJukeboxXMLWriter {
             writeMovie(writer, movie);
             writer.writeEndElement();
             writer.writeEndDocument();
+            writer.flush();
             writer.close();
         }
     }
