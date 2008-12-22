@@ -243,7 +243,6 @@ public class MovieJukebox {
 
             for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                 // Scan each file in here
-                System.err.println(nbFiles + " - " + cleanList[nbFiles].getName());
                 if (cleanList[nbFiles].isFile()) {
                     cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
                     if (cleanCurrent.indexOf(".") > 0) {
