@@ -2,6 +2,10 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.0.15 beta
+------------------------
+  - Fixed defect #352 Fanart not being resized
+
 MovieJukebox 1.0.14 beta
 ------------------------
   - Fixed defect  #85 Exception thrown when IMPAwards image not found
