@@ -302,9 +302,11 @@ public class MovieJukebox {
 
             // Get Fanart if requested
             if (fanartDownload) {
-                logger.finer("Updating fanart for: " + movie.getTitle() + "...");
-                updateMovieFanart(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                }
             }
+
         }
 
         // ////////////////////////////////////////////////////////////////
@@ -494,12 +496,6 @@ public class MovieJukebox {
                 PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
 
-            if (fanartDownload) {
-                if (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-                }
-            }
-
             DatabasePluginController.scan(movie);
             miScanner.scan(movie);
         }
@@ -550,7 +546,7 @@ public class MovieJukebox {
      * 
      * @param tempJukeboxDetailsRoot 
      */
-    private void updateMovieFanart(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    private void updateMovieFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (movie.getFanartFilename() != null && !movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
             String fanartFilename = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
             File fanartFile = new File(fanartFilename);
@@ -564,7 +560,7 @@ public class MovieJukebox {
                 if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase("Unknown")) {
                     try {
                         logger.finest("Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
-                        downloadImage(tmpDestFile, movie.getFanartURL());
+                        FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                     } catch (Exception e) {
                         logger.finer("Failed downloading movie fanart : " + movie.getFanartURL());
                     }
