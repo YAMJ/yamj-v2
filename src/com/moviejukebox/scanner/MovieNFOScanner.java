@@ -16,9 +16,13 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.TrailerFile;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLHelper;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * NFO file parser.
@@ -32,6 +36,7 @@ public class MovieNFOScanner {
     private static Logger logger = Logger.getLogger("moviejukebox");
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -156,8 +161,8 @@ public class MovieNFOScanner {
         boolean retval = true;
         if (nfo.indexOf("<movie>") > -1) {
             parseMovieNFO(nfo, movie);
-            // } else if (nfo.indexOf("<tvshow>") > -1) {
-            // parseTVNFO(nfo, movie);
+        } else if (nfo.indexOf("<tvshow>") > -1) {
+            parseTVNFO(nfo, movie);
             // } else if (nfo.indexOf("<episodedetails>") > -1) {
             // parseEpisodeNFO(nfo, movie);
         } else {
@@ -325,6 +330,155 @@ public class MovieNFOScanner {
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+        }
+    }
+
+    /**
+     * Used to parse out the XBMC nfo xml data for tv series
+     *
+     * @param xmlFile
+     * @param movie
+     */
+    private static void parseTVNFO(String nfo, Movie movie) {
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLEventReader r = factory.createXMLEventReader(new StringReader(nfo));
+
+            boolean isTVTag = false;
+            while (r.hasNext()) {
+                XMLEvent e = r.nextEvent();
+
+                if (e.isStartElement()) {
+                    String tag = e.asStartElement().getName().toString();
+                    if (tag.equalsIgnoreCase("tvshow")) {
+                        isTVTag = true;
+                    }
+
+                    if (isTVTag) {
+                        if (tag.equalsIgnoreCase("title")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setTitle(val);
+                                movie.setOverrideTitle(true);
+                            }
+                        } else if (tag.equalsIgnoreCase("id")) {
+                            Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                if (movieDbIdAttribute != null) { // if we have a moviedb attribute
+                                    movie.setId(movieDbIdAttribute.getValue(), val); // we store the Id for this movieDb
+                                    logger.finest("In parseTVNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
+                                } else {
+                                    movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, val); // without attribute we assume it's a TheTVDB Id
+                                    logger.finest("In parseTVNFO Id=" + val + " found for default TheTVDB");
+                                }
+                            }
+                        } else if (tag.equalsIgnoreCase("rating")) {
+                            float val = XMLHelper.parseFloat(r);
+                            if (val != 0.0f) {
+                                movie.setRating(Math.round(val * 10f));
+                            }
+                        } else if (tag.equalsIgnoreCase("mpaa")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                // Issue 333
+                                if (val.startsWith("Rated ")) {
+                                    int start = 6; // "Rated ".length()
+                                    int pos = val.indexOf(" on appeal for ", start);
+                                    if (pos == -1)
+                                        pos = val.indexOf(" for ", start);
+                                    if (pos > start)
+                                        val = val.substring(start, pos);
+                                    else
+                                        val = val.substring(start);
+                                }
+                                movie.setCertification(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("season")) {
+                            // ignored
+                        } else if (tag.equalsIgnoreCase("episode")) {
+                            // ignored
+                        } else if (tag.equalsIgnoreCase("votes")) {
+                            // ignored
+                        } else if (tag.equalsIgnoreCase("displayseason")) {
+                            // ignored
+                        } else if (tag.equalsIgnoreCase("displayepisode")) {
+                            // ignored
+                        } else if (tag.equalsIgnoreCase("plot")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setPlot(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("genre")) {
+                            Collection<String> genres = movie.getGenres();
+                            List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
+                            genres.addAll(newGenres);
+                            movie.setGenres(genres);
+                        } else if (tag.equalsIgnoreCase("premiered")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                try {
+                                    movie.setReleaseDate(val);
+                                    Date date = dateFormat.parse(val);
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.setTime(date);
+                                    movie.setYear(""+cal.get(Calendar.YEAR));
+                                } catch (Exception ignore) {}
+                            }
+                        } else if (tag.equalsIgnoreCase("studio")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setCompany(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("thumb")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setPosterURL(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("fanart")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setFanartURL(val);
+                                movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+                            }
+                        } else if (tag.equalsIgnoreCase("trailer")) {
+                            String trailer = XMLHelper.getCData(r).trim();
+                            if (!trailer.isEmpty()) {
+                                TrailerFile tf = new TrailerFile();
+                                tf.setNewFile(false);
+                                tf.setFilename(trailer);
+                                movie.addTrailerFile(tf);
+                            }
+                        } else if (tag.equalsIgnoreCase("actor")) {
+                            String event = r.nextEvent().toString();
+                            while (!event.equalsIgnoreCase("</actor>")) {
+                                if (event.equalsIgnoreCase("<name>")) {
+                                    String val = XMLHelper.getCData(r);
+                                    if (!val.isEmpty()) {
+                                        movie.addActor(val);
+                                    }
+                                } else if (event.equalsIgnoreCase("<role>")) {
+                                    // ignored
+                                } else if (event.equalsIgnoreCase("<thumb>")) {
+                                    // ignored
+                                }
+                                if (r.hasNext()) {
+                                    event = r.nextEvent().toString();
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } else if (e.isEndElement()) {
+                    if (e.asEndElement().getName().toString().equalsIgnoreCase("tvshow")) {
+                        isTVTag = false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Failed parsing NFO file for tvshow: " + movie.getTitle() + ". Please fix or remove it.");
         }
     }
 }
