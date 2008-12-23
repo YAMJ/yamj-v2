@@ -252,7 +252,14 @@
                          <xsl:value-of select="@part"/> קרפ
                        </xsl:when>
                        <xsl:otherwise>
-                         <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
+						 <xsl:choose>
+						   <xsl:when test="@title='UNKNOWN'">
+                             <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
+						   </xsl:when>
+						   <xsl:otherwise>
+							 <xsl:value-of select="@title"/>
+						   </xsl:otherwise>
+						 </xsl:choose> 
                        </xsl:otherwise>
                      </xsl:choose>
 
