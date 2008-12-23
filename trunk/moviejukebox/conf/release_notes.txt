@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.15 beta
 ------------------------
+  - Enhancement  #254 Use XBMC tvshow nfo layout to override scraper info
   - Enhancement  #343 Allowing prebuf to be set
   - Fixed defect #352 Fanart not being resized
   - Fixed defect #353 Some of the html files are not getting copied from the temp dir to the jukebox dir
