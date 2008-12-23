@@ -109,6 +109,7 @@ public class Library implements Map<String, Movie> {
             indexByGenres();
             indexByTitle();
             indexByCertification();
+            indexByYear();
         }
     }
 
@@ -195,6 +196,22 @@ public class Library implements Map<String, Movie> {
             }
         }
         indexes.put("Title", index);
+    }
+
+    private void indexByYear() {
+        TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
+        for (Movie movie : moviesList) {
+            String year = movie.getYear();
+            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                try {
+                    String beginYear = year.substring(0, year.length()-1) + "0";
+                    String endYear = year.substring(0, year.length()-1) + "9";
+                    String category = beginYear + "-" + endYear.substring(endYear.length()-2);
+                    addMovie(index, category, movie);
+                } catch (Exception ignore) {}
+            }
+        }
+        indexes.put("Year", index);
     }
 
     private void indexByGenres() {
