@@ -32,6 +32,7 @@ public class FanartScanner {
 
     protected static String[] fanartExtensions;
     protected static String fanartToken;
+    protected static boolean fanartOverwrite;
 
     static {
 
@@ -44,6 +45,8 @@ public class FanartScanner {
         fanartExtensions = extensions.toArray(new String[] {});
         
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+        
+        fanartOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceFanartOverwrite", "false"));
     }
 
     public static void scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
@@ -101,8 +104,8 @@ public class FanartScanner {
             File fullFanartFile = new File(fullFanartFilename);
             boolean checkAgain = false;
             
-            if ( ( finalDestinationFile.lastModified() < fullFanartFile.lastModified() ) ){
-                // Fanart size is different OR Local Fanart is newer
+            if ( ( finalDestinationFile.lastModified() < fullFanartFile.lastModified() ) || fanartOverwrite) {
+                // Local Fanart is newer OR ForceFanartOverwrite = True
                 checkAgain = true;
             }
             
@@ -121,7 +124,7 @@ public class FanartScanner {
                     logger.finer("Failed loading fanart : " + fullFanartFilename);
                 }
             } else {
-                logger.finer("FanartScanner : " + finalDestinationFileName + " is different to " + fullFanartFilename);
+                logger.finer("FanartScanner : " + finalDestinationFileName + " already exists");
             }
         } else {
             logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
@@ -136,8 +139,8 @@ public class FanartScanner {
             String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getFanartFilename();
             File tmpDestFile = new File(tmpDestFileName);
 
-            // Do not overwrite existing fanart
-            if (!fanartFile.exists() && !tmpDestFile.exists()) {
+            // Do not overwrite existing fanart unless ForceFanartOverwrite = true
+            if ( (!fanartFile.exists() && !tmpDestFile.exists()) || fanartOverwrite ) {
                 fanartFile.getParentFile().mkdirs();
 
                 try {

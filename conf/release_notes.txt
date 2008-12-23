@@ -8,6 +8,7 @@ MovieJukebox 1.0.15 beta
   - Fixed defect #352 Fanart not being resized
   - Fixed defect #353 Some of the html files are not getting copied from the temp dir to the jukebox dir
   - Fixed defect #354 Jukebox clean-up doesn't handle files with no extension cleanly
+  - Fixed defect #356 ForceFanartOverwrite setting doesn't work
 
 MovieJukebox 1.0.14 beta
 ------------------------
