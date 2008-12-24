@@ -149,6 +149,7 @@ public class MovieDirectoryScanner {
 			movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename);
 		}
 		movieFile.setPart(1);
+        movieFile.setFile(contentFile);
 					
 		Movie m = new Movie();
 		m.addMovieFile(movieFile);
@@ -163,7 +164,6 @@ public class MovieDirectoryScanner {
         
 		MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
 		filenameScanner.scan(m);
-		
 		
 		library.addMovie(m);
 	}	

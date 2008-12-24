@@ -112,6 +112,11 @@ public class Movie implements Comparable<Movie> {
         if (movieFile != null) {
             this.isDirty = true;
             // always replace MovieFile
+            for (MovieFile mf : this.movieFiles) {
+                if (mf.compareTo(movieFile) == 0) {
+                    movieFile.setFile(mf.getFile());
+                }
+            }
             this.movieFiles.remove(movieFile);
             this.movieFiles.add(movieFile);
         }
@@ -713,7 +718,19 @@ public class Movie implements Comparable<Movie> {
     }
 
     public long getLastModifiedTimestamp() {
-        return this.file.lastModified();
+        long tmstmp = 0;
+        if (getMovieFiles().size() == 1) {
+            tmstmp = this.file.lastModified();
+        } else {
+            for (MovieFile mf : getMovieFiles()) {
+                try {
+                    if (mf.getFile() != null && mf.getFile().lastModified() > tmstmp) {
+                        tmstmp = mf.getFile().lastModified();
+                    }
+                } catch (Exception ignore) {}
+            }
+        }
+        return tmstmp;
     }
 
     @Override
