@@ -201,17 +201,26 @@ public class TheTvDBPlugin extends ImdbPlugin {
         int idx = compareString.indexOf("THETVDB.COM");
         if (idx > -1) {
             int beginIdx = compareString.indexOf("&ID=");
+            int length = 4;
             if (beginIdx < idx) {
                 beginIdx = compareString.indexOf("?ID=");
+            }
+            if (beginIdx < idx) {
+                beginIdx = compareString.indexOf("&SERIESID=");
+                length = 10;
+            }
+            if (beginIdx < idx) {
+                beginIdx = compareString.indexOf("?SERIESID=");
+                length = 10;
             }
 
             if (beginIdx > idx) {
                 int endIdx = compareString.indexOf("&", beginIdx + 1);
                 String id = null;
                 if (endIdx > -1) {
-                    id = compareString.substring(beginIdx+4, endIdx);
+                    id = compareString.substring(beginIdx+length, endIdx);
                 } else {
-                    id = compareString.substring(beginIdx+4);
+                    id = compareString.substring(beginIdx+length);
                 }
                 if (id != null && !id.isEmpty()) {
                     movie.setId(THETVDB_PLUGIN_ID, id);
