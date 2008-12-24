@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.text.DecimalFormat;
 
+import java.util.Calendar;
 import java.util.StringTokenizer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -30,6 +31,7 @@ public class Library implements Map<String, Movie> {
     private List<Movie> moviesList = new ArrayList<Movie>();
     private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000");	// Issue 190
+    private static final Calendar currentCal = Calendar.getInstance();
 
 
     static {
@@ -208,6 +210,13 @@ public class Library implements Map<String, Movie> {
                     String endYear = year.substring(0, year.length()-1) + "9";
                     String category = beginYear + "-" + endYear.substring(endYear.length()-2);
                     addMovie(index, category, movie);
+
+                    int currentYear = currentCal.get(Calendar.YEAR);
+                    if (year.equals(""+currentYear)) {
+                        addMovie(index, "This Year", movie);
+                    } else if (year.equals(""+(currentYear-1))) {
+                        addMovie(index, "Last Year", movie);
+                    }
                 } catch (Exception ignore) {}
             }
         }
