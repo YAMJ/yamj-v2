@@ -1,11 +1,14 @@
 package com.moviejukebox.model;
 
+import java.io.File;
+
 public class MovieFile implements Comparable<MovieFile> {
 	private String filename = Movie.UNKNOWN;
 	private String title = Movie.UNKNOWN;
 	private int part = 1; // #1, #2, CD1, CD2, etc.
 	private boolean newFile = true; // is new file or already exists in XML data
     private String plot = Movie.UNKNOWN;
+    private File file;
 
 	public String getFilename() {
 		return filename;
@@ -87,4 +90,12 @@ public class MovieFile implements Comparable<MovieFile> {
 	public int compareTo(MovieFile anotherMovieFile) {
 		return this.getPart() - anotherMovieFile.getPart();
 	}
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
 }
