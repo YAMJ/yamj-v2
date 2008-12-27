@@ -104,7 +104,7 @@ public class FanartScanner {
             File fullFanartFile = new File(fullFanartFilename);
             boolean checkAgain = false;
             
-            if ( ( finalDestinationFile.lastModified() < fullFanartFile.lastModified() ) || fanartOverwrite) {
+            if ( ( finalDestinationFile.lastModified() < fullFanartFile.lastModified() ) || fanartOverwrite || movie.isDirtyFanart()) {
                 // Local Fanart is newer OR ForceFanartOverwrite = True
                 checkAgain = true;
             }

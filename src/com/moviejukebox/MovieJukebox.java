@@ -254,9 +254,10 @@ public class MovieJukebox {
 
                     if (cleanCurrent.equals("CATEGORIES")) {
                         cleanList[nbFiles].delete();
-                    } else if ((cleanCurrentExt.equals(".css"))
-                                    || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0)
-                                    || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0)) {
+                    } else if ( (cleanCurrentExt.equals(".CSS"))
+                             || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0)
+                             || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0)
+                             || (cleanCurrent.indexOf("YEAR_") >= 0) ) {
                         cleanList[nbFiles].delete();
                     }
                 }
@@ -387,9 +388,10 @@ public class MovieJukebox {
 
                     if (cleanCurrent.equals("CATEGORIES")) {
                         // logger.fine(cleanCurrent + " ignored");
-                    } else if ((cleanCurrentExt.equals(".CSS"))
-                                    || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0)
-                                    || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0)) {
+                    } else if ( (cleanCurrentExt.equals(".CSS"))
+                             || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0)
+                             || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0)
+                             || (cleanCurrent.indexOf("YEAR_") >= 0) ) {
                         // logger.fine(cleanCurrent + " ignored");
                     } else {
                         // Left with just the generated movie files in the directory now.
@@ -470,7 +472,10 @@ public class MovieJukebox {
         if (xmlFile.exists() && nfoFile.exists() && checkNewer) {
             // check the dates to see if the nfo file is newer
             if (xmlFile.lastModified() < nfoFile.lastModified()) {
-                logger.fine("Detected that NFO is newer. Rescanning file.");
+                logger.fine("NFO has changed, will rescan file.");
+                movie.setDirtyNFO(true);
+                movie.setDirtyPoster(true);
+                movie.setDirtyFanart(true);
                 forceXMLOverwrite = true;
             }
         }
@@ -503,7 +508,8 @@ public class MovieJukebox {
 
             MovieNFOScanner.scan(movie);
 
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            // Added forceXMLOverwrite for issue 366
+            if ( movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || forceXMLOverwrite ) {
                 PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
 

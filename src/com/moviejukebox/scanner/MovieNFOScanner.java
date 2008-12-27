@@ -49,8 +49,7 @@ public class MovieNFOScanner {
 
         if (nfoFile.exists()) {
             logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
-            // Not sure if this should be set here or elsewhere, may cause the nfo file to always be considered dirty.
-            // Possibly should only be set dirty when something has changed.
+            // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirtyNFO(true);
 
             String nfo = FileTools.readFileToString(nfoFile);
