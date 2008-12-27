@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -20,139 +21,83 @@ public class SratimPlugin extends ImdbPlugin {
 	public static String SRATIM_PLUGIN_ID = "sratim";
 
 	private static Logger logger = Logger.getLogger("moviejukebox");
-	private static Pattern googlePattern = Pattern.compile("\"(http://[^\"/?&]*sratim.co.il[^\"]*)\"");
-	private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*sratim.co.il[^\"]*)\"");
-	private static Pattern sratimPattern = Pattern
-			.compile("searchResultTitle[^>]+\"(http://[^\"/?&]*sratim.co.il[^\"]*)\"");
 	private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
-	private static Pattern longPlotUrlPattern = Pattern
-			.compile("http://[^\"/?&]*sratim.co.il[^\"]*/opisy");
-	private static Pattern posterUrlPattern = Pattern
-			.compile("artshow[^>]+(http://www.sratim.co.il[^\"]+)\"");
-	private static Pattern episodesUrlPattern = Pattern
-			.compile("http://[^\"/?&]*sratim.co.il[^\"]*/odcinki");
 
 	protected String sratimPreferredSearchEngine;
 	protected String sratimPlot;
+	
+	protected TheTvDBPlugin tvdb;
 
 	public SratimPlugin() {
 		super(); // use IMDB if sratim doesn't know movie
+		
+		tvdb = new TheTvDBPlugin(); // use TVDB if sratim doesn't know series
 	}
 
 	public boolean scan(Movie mediaFile) {
 
-        String imdbId = mediaFile.getId(IMDB_PLUGIN_ID);
-        if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            imdbId = getImdbId(mediaFile.getTitle(), mediaFile.getYear());
-            mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
-        }
+		String sratimUrl = mediaFile.getId(SRATIM_PLUGIN_ID);
+		if (sratimUrl == null || sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+			sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
+			mediaFile.setId(SRATIM_PLUGIN_ID, sratimUrl);
+		}
+
 
         boolean retval = true;
-        if (!imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            retval = updateMediaInfo(mediaFile);
-		} else {
-			// use IMDB if sratim doesn't know movie
+        
+		// collect missing information from IMDB or TVDB before sratim
+		if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW))
 			retval = super.scan(mediaFile);
-        }
+		else
+			retval = tvdb.scan(mediaFile);
+
+        
+        if (!sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+            retval = updateMediaInfo(mediaFile);
+		}
+				
         return retval;
 	}
 
 	/**
-	 * retrieve the sratim url matching the specified movie name and year.
-	 */
-	protected String getSratimUrl(String movieName, String year) {
-		if ("google".equalsIgnoreCase(preferredSearchEngine)) {
-			return getSratimUrlFromGoogle(movieName, year);
-		} else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
-			return getSratimUrlFromYahoo(movieName, year);
-		} else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
-			return Movie.UNKNOWN;
-		} else {
-			return getSratimUrlFromSratim(movieName, year);
-		}
-	}
+	* retrieve the sratim url matching the specified movie name and year.
+	*/
+	protected String getSratimUrl(Movie mediaFile, String movieName, String year) {
 
-	/**
-	 * retrieve the sratim url matching the specified movie name and year. This routine is base on a yahoo request.
-	 */
-	private String getSratimUrlFromYahoo(String movieName, String year) {
 		try {
-			StringBuffer sb = new StringBuffer("http://search.yahoo.com/search?p=");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));
-
-			if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-				sb.append("+%28").append(year).append("%29");
+			String imdbId = mediaFile.getId(IMDB_PLUGIN_ID);
+			if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+				imdbId = getImdbId(mediaFile.getTitle(), mediaFile.getYear());
+				mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
 			}
 
-			sb.append("+site%3Asratim.co.il&ei=UTF-8");
-
-			String xml = webBrowser.request(sb.toString());
-			Matcher m = yahooPattern.matcher(xml);
-			if (m.find()) {
-				return "http:" + m.group(1);
-			} else {
+			if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN))
 				return Movie.UNKNOWN;
-			}
 
+
+			String sratimUrl;
+
+			String xml = webBrowser.request("http://www.sratim.co.il/movies/search.aspx?Keyword=" + mediaFile.getId(IMDB_PLUGIN_ID));
+
+			String detailsUrl = HTMLTools.extractTag(xml, "cellpadding=\"0\" cellspacing=\"0\" onclick=\"document.location='", 0, "'");
+
+			if (detailsUrl.equalsIgnoreCase(Movie.UNKNOWN))
+				return Movie.UNKNOWN;
+				
+			sratimUrl = "http://www.sratim.co.il/" + detailsUrl;
+
+			
+			return sratimUrl;
+			
 		} catch (Exception e) {
-			logger.severe("Failed retreiving sratim url for movie : " + movieName);
+			logger.severe("Failed retreiving sratim informations for movie : " + movieName);
 			logger.severe("Error : " + e.getMessage());
-			return Movie.UNKNOWN;
+			return Movie.UNKNOWN;			
 		}
 	}
 
-	/**
-	 * retrieve the sratim url matching the specified movie name and year. This routine is base on a google request.
-	 */
-	private String getSratimUrlFromGoogle(String movieName, String year) {
-		try {
-			StringBuffer sb = new StringBuffer("http://www.google.pl/search?hl=pl&q=");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-			if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-				sb.append("+%28").append(year).append("%29");
-			}
 
-			sb.append("+site%3Asratim.co.il");
-
-			String xml = webBrowser.request(sb.toString());
-			Matcher m = googlePattern.matcher(xml);
-			if (m.find()) {
-				return m.group(1);
-			} else {
-				return Movie.UNKNOWN;
-			}
-		} catch (Exception e) {
-			logger.severe("Failed retreiving sratim url for movie : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return Movie.UNKNOWN;
-		}
-	}
-
-	/**
-	 * retrieve the sratim url matching the specified movie name and year. This routine is base on a sratim request.
-	 */
-	private String getSratimUrlFromSratim(String movieName, String year) {
-		try {
-			StringBuffer sb = new StringBuffer("http://www.sratim.pl/szukaj/film?q=");
-			sb.append(URLEncoder.encode(movieName, "UTF-8"));
-
-			if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-				sb.append("&startYear=").append(year).append("&endYear=").append(year);
-			}
-			String xml = webBrowser.request(sb.toString());
-			Matcher m = sratimPattern.matcher(xml);
-			if (m.find()) {
-				return m.group(1);
-			} else {
-				return Movie.UNKNOWN;
-			}
-		} catch (Exception e) {
-			logger.severe("Failed retreiving sratim url for movie : " + movieName);
-			logger.severe("Error : " + e.getMessage());
-			return Movie.UNKNOWN;
-		}
-	}
 
 	// Porting from my old code in c++
 	public static final int BCT_L = 0;
@@ -446,16 +391,7 @@ public class SratimPlugin extends ImdbPlugin {
 
 			if (CharType[Pos]==BCT_EN)
 			{
-//				if (Pos==0)
-					Level[Pos]=2;
-/*					
-				else
-					// Check if the previous char
-					if (CharType[Pos]==BCT_R)
-						Level[Pos]=1;
-					else
-						Level[Pos]=0;
-*/
+				Level[Pos]=2;
 			}
 
 			Pos++;
@@ -646,22 +582,25 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
 	/**
-	 * Scan IMDB html page for the specified movie
+	 * Scan Sratim html page for the specified movie
 	 */
 	protected boolean updateMediaInfo(Movie movie) {
 		try {
-			String xml = webBrowser.request("http://www.sratim.co.il/movies/search.aspx?Keyword=" + movie.getId(IMDB_PLUGIN_ID));
+			if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+				// Try to find hebrew poster using sub-baba.com web site and the movie english name
+				String posterURL = getSubBabaPosterURL(movie.getTitleSort());
+				
+				if (posterURL != null && !posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+					movie.setPosterURL(posterURL);
+				}
+			}
+		
+			String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
 
-			String detailsUrl = HTMLTools.extractTag(xml, "cellpadding=\"0\" cellspacing=\"0\" onclick=\"document.location='", 0, "'");
-
-			if (detailsUrl.equalsIgnoreCase(Movie.UNKNOWN))
-				return false;
-
-
-			xml = webBrowser.request("http://www.sratim.co.il/" + detailsUrl);
+			String xml = webBrowser.request(sratimUrl);
 			
 
-            if (detailsUrl.contains("series")) {
+            if (sratimUrl.contains("series")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                 }
@@ -683,6 +622,8 @@ public class SratimPlugin extends ImdbPlugin {
 			int count = 0;
 			String genres = HTMLTools.getTextAfterElem(xml, "ז'אנר:");
 			if (!Movie.UNKNOWN.equals(genres)) {
+				// Clear IMDB genres
+				movie.setGenres(new TreeSet<String>());
 				for (String genre : genres.split(" *, *")) {
 					movie.addGenre(logicalToVisual(Library.getIndexingGenre(genre)));
 					if (++count >= maxGenres) {
@@ -699,15 +640,18 @@ public class SratimPlugin extends ImdbPlugin {
 					movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
 					
 				
-				if (detailsUrl.contains("series"))
+				if (sratimUrl.contains("series"))
 					movie.setYear(HTMLTools.extractTag(xml, "<span style=\"font-weight:normal\">(", 0, ")"));
 				else					
 					movie.setYear(HTMLTools.getTextAfterElem(xml, "<span id=\"ctl00_ctl00_Body_Body_Box_ProductionYear\">"));
 			}
 
 			movie.setCast(logicalToVisual(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>")));
-			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-				movie.setPosterURL( "http://www.sratim.co.il/movies/" + HTMLTools.extractTag(xml, "<img src=\"/movies/", 0, "\""));
+
+
+			// As last resort use sratim low quality poster
+			if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || ("sratim".equals(preferredPosterSearchEngine)) ) {
+				movie.setPosterURL("http://www.sratim.co.il/movies/" + HTMLTools.extractTag(xml, "<img src=\"/movies/", 0, "\""));
 			}
 
 			if (movie.isTVShow()) {
@@ -722,40 +666,39 @@ public class SratimPlugin extends ImdbPlugin {
                 return true;
 	}
 
+	/**
+	* retrieve the sub-baba.com poster url matching the specified movie name.
+	*/
+	protected String getSubBabaPosterURL(String movieName) {
+
+		String posterURL = Movie.UNKNOWN;
+		
+		try {
+			String searchURL = "http://www.sub-baba.com/site/search.php?type=1&search=" + URLEncoder.encode(movieName, "iso-8859-8");
+
+			String xml = webBrowser.request(searchURL);
+
+			String posterID = HTMLTools.extractTag(xml, "<a href=\"poco.php?Id=", 0, "\">");
+
+			if (!Movie.UNKNOWN.equals(posterID)) {
+				posterURL = "http://www.sub-baba.com/site/download.php?type=1&id=" + posterID;
+			}
+			
+			return posterURL;
+
+		} catch (Exception e) {
+			return Movie.UNKNOWN;			
+		}
+
+	}
+
+
 	private int parseRating(String rating) {
 		try {
 			return Math.round(Float.parseFloat(rating.replace(",", "."))) * 10;
 		} catch (Exception e) {
 			return -1;
 		}
-	}
-
-	/**
-	 * Retrieves the long plot description from sratim if it exists, else "None"
-	 *
-	 * @return long plot
-	 */
-	private String getLongPlot(String mainXML) {
-		String plot;
-		try {
-			// searchs for long plot url
-			String longPlotUrl;
-			Matcher m = longPlotUrlPattern.matcher(mainXML);
-			if (m.find()) {
-				longPlotUrl = m.group();
-			} else {
-				return "None";
-			}
-			String xml = webBrowser.request(longPlotUrl);
-			plot = HTMLTools.getTextAfterElem(xml, "opisy-header", 2);
-			if (plot.equalsIgnoreCase(Movie.UNKNOWN)) {
-				plot = "None";
-			}
-		} catch (Exception e) {
-			plot = "None";
-		}
-
-		return plot;
 	}
 
 	private String updateImdbId(Movie movie) {
@@ -796,47 +739,6 @@ public class SratimPlugin extends ImdbPlugin {
 				file.setTitle(episodeName);
 			}
 		}
-
-/*
-		try {
-			if (mainXML == null) {
-				String startimUrl = movie.getId(SRATIM_PLUGIN_ID);
-				if (sratimUrl == null || sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-					// use IMDB if sratim doesn't know episodes titles
-					super.scanTVShowTitles(movie);
-					return;
-				}
-					
-				mainXML = webBrowser.request(sratimUrl);
-				
-			}
-			
-			// searchs for episodes url
-			Matcher m = episodesUrlPattern.matcher(mainXML);
-			if (m.find()) {
-				String episodesUrl = m.group();
-				String xml = webBrowser.request(episodesUrl);
-				for (MovieFile file : movie.getMovieFiles()) {
-					if (!file.isNewFile()) {
-						// don't scan episode title if it exists in XML data
-						continue;
-					}
-					int fromIndex = xml.indexOf("seria" + movie.getSeason());
-					String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + file.getPart(), 1, fromIndex);
-					if (!episodeName.equals(Movie.UNKNOWN)) {
-						file.setTitle(episodeName);
-					}
-				}
-			} else {
-				// use IMDB if sratim doesn't know episodes titles
-				updateImdbId(movie);
-				super.scanTVShowTitles(movie);
-			}
-		} catch (IOException e) {
-			logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
-			logger.severe("Error : " + e.getMessage());
-		}
-		*/
 	}
 
 	protected void updateTVShowInfo(Movie movie, String mainXML) throws MalformedURLException, IOException {
