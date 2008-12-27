@@ -98,6 +98,7 @@ public class Movie implements Comparable<Movie> {
     private boolean isDirty = false;
     private boolean isDirtyNFO = false;
     private boolean isDirtyPoster = false;
+    private boolean isDirtyFanart = false;
     private File file;
 
     public void addGenre(String genre) {
@@ -357,6 +358,10 @@ public class Movie implements Comparable<Movie> {
         return isDirtyPoster;
     }
 
+    public boolean isDirtyFanart() {
+        return isDirtyFanart;
+    }
+
     public boolean isHasSubtitles() {
         return hasSubtitles;
     }
@@ -450,6 +455,11 @@ public class Movie implements Comparable<Movie> {
         // Set when the poster URL is scanned as part of the NFO scanning routine.
         // Will be used to check if the poster has changed or the URL changed to force a re-download of the poster.
         this.isDirtyPoster = isDirtyPoster;
+    }
+
+    public void setDirtyFanart(boolean isDirtyFanart) {
+        // Used to check if the fanart has changed or the URL changed to force a re-download of the poster.
+        this.isDirtyFanart = isDirtyFanart;
     }
 
     public void setFirst(String first) {

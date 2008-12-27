@@ -17,6 +17,7 @@ MovieJukebox 1.0.15 beta
                         1) Support for NFO with sratim.co.il URL in it
                         2) High resolution Hebrew posters form sub-baba.com
                         3) Complete missing data with data from IMDB or TVDB
+  - Fixed defect #366 When the NFO changes force download/update of content
 
 
 MovieJukebox 1.0.14 beta
