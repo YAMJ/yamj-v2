@@ -17,14 +17,12 @@
     <subgenre>Action and Adventure</subgenre>
   </genre>
   <genre name="Drama">
-    <subgenre>Drama</subgenre> 
     <subgenre>Biography</subgenre>
     <subgenre>Romance</subgenre>
     <subgenre>History</subgenre>
     <subgenre>Crime</subgenre>
   </genre>
   <genre name="Thriller">
-    <subgenre>Thriller</subgenre> 
     <subgenre>Horror</subgenre>
     <subgenre>Mystery</subgenre>
   </genre>
@@ -34,7 +32,6 @@
     <subgenre>Musical</subgenre>
   </genre>
   <genre name="Sci-Fi">
-    <subgenre>Sci-Fi</subgenre>
     <subgenre>Science Fiction</subgenre>
     <subgenre>Science-Fiction</subgenre>
   </genre>
