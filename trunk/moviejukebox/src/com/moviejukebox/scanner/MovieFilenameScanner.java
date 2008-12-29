@@ -41,17 +41,15 @@ public class MovieFilenameScanner {
 
     public void scan(Movie movie) {
         File fileToScan = movie.getFile();
-        String filename = fileToScan.getName();
-        if (filename.toUpperCase().endsWith(".M2TS")) {
-            filename = movie.getBaseName();
-        }
+        String filename = movie.getContainerFile().getName();
 
         firstKeywordIndex = filename.indexOf("[");
         firstKeywordIndex = (firstKeywordIndex == -1) ? filename.length() : firstKeywordIndex;
 
         Collection<MovieFile> movieFiles = movie.getFiles();
         for (MovieFile movieFile : movieFiles) {
-            movieFile.setPart(getPart(filename));
+			if (movieFile.getPart() == 1)
+	            movieFile.setPart(getPart(filename));
         }
 
         if (fileToScan.isFile()) {

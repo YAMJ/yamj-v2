@@ -89,14 +89,14 @@ public class MovieNFOScanner {
     }
 
     public static String locateNFO(Movie movie) {
-        String fn = movie.getFile().getAbsolutePath();
+        String fn = movie.getContainerFile().getAbsolutePath();
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
         String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // just the sub-directory the video file is in
         String checkedFN = "";
         String NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
 
         // If "fn" is a file then strip the extension from the file.
-        if (movie.getFile().isFile()) {
+        if (movie.getContainerFile().isFile()) {
             fn = fn.substring(0, fn.lastIndexOf("."));
         } else {
             // *** First step is to check for VIDEO_TS

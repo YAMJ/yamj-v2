@@ -344,14 +344,19 @@ public class MediaInfoScanner {
 		// get Infos from first Video Stream
 		// - can evolve to get info from longuest Video Stream
 		if (infosVideo.size() > 0) {
-			//Duration
 			HashMap<String, String> infosMainVideo = infosVideo.get(0);
-			infoValue = infosMainVideo.get("Duration");
-			if (infoValue != null) {
-				int duration;
-				duration=Integer.parseInt(infoValue)/1000;
+		
+			// Check that movie is not multi part
+			if (movie.getMovieFiles().size() == 1) {
+				//Duration
+				infoValue = infosMainVideo.get("Duration");
+				if (infoValue != null) {
+				
+					int duration;
+					duration=Integer.parseInt(infoValue)/1000;
 
-				movie.setRuntime(formatDuration(duration));
+					movie.setRuntime(formatDuration(duration));
+				}
 			}
 
 			//Codec (most relevant Info depending on mediainfo result)
@@ -492,7 +497,7 @@ public class MediaInfoScanner {
 			movie.setSubtitles(true);
 	}
 
-	public String formatDuration(int duration) {
+	public static String formatDuration(int duration) {
 		StringBuffer returnString = new StringBuffer("");
 
 		int nbHours = duration / 3600;
