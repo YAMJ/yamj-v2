@@ -11,6 +11,7 @@ import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
 
 /**
  * DirectoryScanner
@@ -116,55 +117,70 @@ public class MovieDirectoryScanner {
 	
 	protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
 		
-		File contentFile=file;
+		File contentFiles[];
+		int bdDuration=0;
+
+		contentFiles = new File[1];
+		contentFiles[0]=file;
+		
 		
 		if (file.isDirectory()) {
-			//Scan BD M2TS files
-			File bdMainMovie = localBDRipScanner.executeGetBDInfo(file);
-			
-			if (bdMainMovie!=null)
-				contentFile=bdMainMovie;
-		}
+			//Scan BD Playlist files
+			BDFilePropertiesMovie bdPropertiesMovie = localBDRipScanner.executeGetBDInfo(file);
 
-		
-		// Compute the baseFilename: This is the filename with no the extension
-		String baseFileName = file.getName();
-		if (!file.isDirectory()) {
-			baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
+			if (bdPropertiesMovie!=null)
+			{
+				bdDuration=bdPropertiesMovie.duration;
+				contentFiles=bdPropertiesMovie.fileList;
+			}
 		}
 		
-		// Compute the relative filename
-		String relativeFilename = contentFile.getAbsolutePath().substring(mediaLibraryRootPathIndex);
-		if ( relativeFilename.startsWith(File.separator) ) {
-			 relativeFilename = relativeFilename.substring(1); 
+		for (int i = 0; i < contentFiles.length; i++) {
+			// Compute the baseFilename: This is the filename with no the extension
+			String baseFileName = file.getName();
+			
+			if (!file.isDirectory()) {
+				baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
+			}
+			
+			// Compute the relative filename
+			String relativeFilename = contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex);
+			if ( relativeFilename.startsWith(File.separator) ) {
+				 relativeFilename = relativeFilename.substring(1); 
+			}
+			
+			MovieFile movieFile = new MovieFile();
+			relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
+			
+			if (contentFiles[i].isDirectory()) {
+				// For DVD images
+				movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename + "/VIDEO_TS");
+			} else {
+				movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename);
+			}
+			movieFile.setPart(i+1);
+						
+			Movie m = new Movie();
+			m.addMovieFile(movieFile);
+			m.setFile(contentFiles[i]);
+			m.setContainerFile(file);
+			m.setBaseName(baseFileName);
+			m.setLibraryPath(srcPath.getPath());
+			m.setPosterFilename(baseFileName + ".jpg");
+			m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
+			m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
+			m.setLibraryDescription(srcPath.getDescription());
+
+			// Set duration for BD disks using the data in the playlist
+			if (bdDuration!=0)
+				m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
+	        
+	        
+			MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
+			filenameScanner.scan(m);
+			
+			
+			library.addMovie(m);
 		}
-		
-		MovieFile movieFile = new MovieFile();
-		relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
-		
-		if (contentFile.isDirectory()) {
-			// For DVD images
-			movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename + "/VIDEO_TS");
-		} else {
-			movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename);
-		}
-		movieFile.setPart(1);
-        movieFile.setFile(contentFile);
-					
-		Movie m = new Movie();
-		m.addMovieFile(movieFile);
-		m.setFile(contentFile);
-		m.setBaseName(baseFileName);
-		m.setLibraryPath(srcPath.getPath());
-		m.setPosterFilename(baseFileName + ".jpg");
-		m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
-        m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
-        m.setLibraryDescription(srcPath.getDescription());
-        m.setPrebuf(srcPath.getPrebuf());
-        
-		MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
-		filenameScanner.scan(m);
-		
-		library.addMovie(m);
 	}	
 }

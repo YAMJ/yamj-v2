@@ -100,6 +100,7 @@ public class Movie implements Comparable<Movie> {
     private boolean isDirtyPoster = false;
     private boolean isDirtyFanart = false;
     private File file;
+    private File containerFile;
 
     public void addGenre(String genre) {
         if (genre != null && !trailer) {
@@ -725,6 +726,14 @@ public class Movie implements Comparable<Movie> {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public File getContainerFile() {
+        return containerFile;
+    }
+
+    public void setContainerFile(File containerFile) {
+        this.containerFile = containerFile;
     }
 
     public long getLastModifiedTimestamp() {

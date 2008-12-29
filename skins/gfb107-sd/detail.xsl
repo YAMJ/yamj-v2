@@ -179,6 +179,27 @@
             </td>
           </tr>
         </xsl:when>
+        <xsl:when test="//movie/container = 'BDAV'">
+          <tr>
+            <td>
+                <center>
+                 <a class="link">
+                   <xsl:attribute name="href">
+                     <xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" />
+                   </xsl:attribute>
+                   <xsl:attribute name="TVID">Play</xsl:attribute>
+                   <xsl:attribute name="name">1</xsl:attribute>
+
+                   <xsl:attribute name="vod">playlist</xsl:attribute>
+                   <img src="pictures/play.png" onfocussrc="pictures/play_selected.png">
+                     <xsl:attribute name="onmouseover">this.src='pictures/play_selected.png';</xsl:attribute>
+                     <xsl:attribute name="onmouseout">this.src='pictures/play.png';</xsl:attribute>
+                   </img>
+                 </a>
+                </center>
+            </td>
+          </tr>
+        </xsl:when>
         <xsl:otherwise>
           <tr>
             <td>

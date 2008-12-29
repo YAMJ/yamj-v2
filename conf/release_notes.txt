@@ -8,6 +8,7 @@ MovieJukebox 1.0.15 beta
   - Enhancement  #254 Use XBMC tvshow nfo layout to override scraper info
   - Enhancement  #331 FilmUp.it scraper (Italian Plug-In)
   - Enhancement  #343 Allowing prebuf to be set
+  - Enhancement  #348 Enhanced BD-50 Disk RIP Scanner
   - Fixed defect #352 Fanart not being resized
   - Fixed defect #353 Some of the html files are not getting copied from the temp dir to the jukebox dir
   - Fixed defect #354 Jukebox clean-up doesn't handle files with no extension cleanly
