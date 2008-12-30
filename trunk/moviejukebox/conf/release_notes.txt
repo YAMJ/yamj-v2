@@ -21,6 +21,7 @@ MovieJukebox 1.0.15 beta
                         2) High resolution Hebrew posters form sub-baba.com
                         3) Complete missing data with data from IMDB or TVDB
   - Fixed defect #366 When the NFO changes force download/update of content
+  - Fixed defect #370 Add missing prebuf lines to BD-50 Disk RIP Scanner
 
 
 MovieJukebox 1.0.14 beta

@@ -159,6 +159,7 @@ public class MovieDirectoryScanner {
 				movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename);
 			}
 			movieFile.setPart(i+1);
+			movieFile.setFile(contentFiles[i]);
 						
 			Movie m = new Movie();
 			m.addMovieFile(movieFile);
@@ -170,7 +171,8 @@ public class MovieDirectoryScanner {
 			m.setThumbnailFilename(baseFileName + "_small."+ thumbnailsFormat);
 			m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
 			m.setLibraryDescription(srcPath.getDescription());
-
+			m.setPrebuf(srcPath.getPrebuf());
+			
 			// Set duration for BD disks using the data in the playlist
 			if (bdDuration!=0)
 				m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
