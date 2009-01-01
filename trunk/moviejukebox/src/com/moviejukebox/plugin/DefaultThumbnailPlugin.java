@@ -160,7 +160,7 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 				Graphics g = bi.getGraphics();
 				g.drawImage(biLang, 1, 1, null);
 			} catch (IOException e) {
-				logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific png is in the resources/languages directory.");
+				logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
 			}
 		}
 		

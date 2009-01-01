@@ -160,7 +160,7 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 				Graphics g = bi.getGraphics();
 				g.drawImage(biLang, 2, 2, null);
 			} catch (IOException e) {
-				logger.warning("Failed drawing Language logo to poster file: Please check that language specific png is in the resources/languages directory.");
+				logger.warning("Failed drawing Language logo to poster file: Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
 			}
 		}
 		
