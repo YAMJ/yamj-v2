@@ -50,7 +50,6 @@ public class PosterScanner {
     }
 
     public static void scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-
         if (searchForExistingCoverArt.equalsIgnoreCase("no")) {
             // nothing to do we return
             return;
@@ -147,8 +146,21 @@ public class PosterScanner {
             File destFile = new File(destFileName);
             boolean checkAgain = false;
             
-            if ( ( finalDestinationFile.length() != localPosterFile.length() ) ||
-                 ( finalDestinationFile.lastModified() < localPosterFile.lastModified() ) ){
+            // Overwrite the jukebox files if the local file is newer
+            // First check the temp jukebox file
+            if ( localPosterFile.exists() && destFile.exists() ) {
+                if ( !FileTools.isNewer(localPosterFile, destFile) ) {
+                    checkAgain = true;
+                }
+            } else if ( localPosterFile.exists() && finalDestinationFile.exists() ) {
+                // Check the target jukebox file
+                if ( !FileTools.isNewer(localPosterFile, finalDestinationFile) ){
+                    checkAgain = true;
+                }
+            }
+            
+            if ( ( localPosterFile.length() != finalDestinationFile.length() ) ||
+                 ( FileTools.isNewer(localPosterFile, finalDestinationFile) ) ){
                 // Poster size is different OR Local Poster is newer
                 checkAgain = true;
             }

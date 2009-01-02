@@ -156,5 +156,34 @@ public class FileTools {
         }
         return stripBOM(out.toString());
     }
-    
+ 
+    /***
+     *  @author Stuart Boston
+     *  @param  file1 - first file to compare
+     *  @param  file2 - second file to compare
+     *  @return true if the files exist and file2 is older, false otherwise.
+     *
+     * Note that file1 will be checked to see if it's newer than file2
+     */
+    public static boolean isNewer(File file1, File file2) {
+        // If file1 exists and file2 doesn't then return true
+        if ( file1.exists() ) {
+            // If file2 doesn't exist then file1 is newer 
+            if ( !file2.exists() ) {
+                return true;
+            }
+        } else {
+            // File1 doesn't exist so return false
+            return false;
+        }
+
+        // Compare the file dates. This is only true if the first file is newer than the second, as the second file is the file2 file
+        if ( file1.lastModified() < file2.lastModified() ) {
+            // file1 is older than the file2.
+            return false;
+        }
+
+        // They seem to be the same.
+        return true;
+    }
 }

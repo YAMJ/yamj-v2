@@ -22,6 +22,7 @@ MovieJukebox 1.0.15 beta
                         3) Complete missing data with data from IMDB or TVDB
   - Fixed defect #366 When the NFO changes force download/update of content
   - Fixed defect #370 Add missing prebuf lines to BD-50 Disk RIP Scanner
+  - Fixed defect #372 Scanner does not recognise changed local poster file
 
 
 MovieJukebox 1.0.14 beta
