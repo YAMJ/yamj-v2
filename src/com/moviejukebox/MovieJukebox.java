@@ -313,7 +313,6 @@ public class MovieJukebox {
                     FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
             }
-
         }
 
         // ////////////////////////////////////////////////////////////////
@@ -469,20 +468,18 @@ public class MovieJukebox {
         // See if we can find the NFO associated with this video file.
         File nfoFile = new File(MovieNFOScanner.locateNFO(movie));
 
-        if (xmlFile.exists() && nfoFile.exists() && checkNewer) {
-            // check the dates to see if the nfo file is newer
-            if (xmlFile.lastModified() < nfoFile.lastModified()) {
-                logger.fine("NFO has changed, will rescan file.");
-                movie.setDirtyNFO(true);
-                movie.setDirtyPoster(true);
-                movie.setDirtyFanart(true);
-                forceXMLOverwrite = true;
-            }
+        // Only re-scan the nfo file if the NFO is newer and the xml file exists (2nd run or greater)
+        if ( FileTools.isNewer(nfoFile, xmlFile) && checkNewer && xmlFile.exists() ) {
+            logger.fine("NFO for " + movie.getTitle() + " has changed, will rescan file.");
+            movie.setDirtyNFO(true);
+            movie.setDirtyPoster(true);
+            movie.setDirtyFanart(true);
+            forceXMLOverwrite = true;
         }
 
         if (xmlFile.exists() && !forceXMLOverwrite) {
-            // parse the movie XML file
-            logger.finer("movie XML file found for movie:" + movie.getBaseName());
+            // parse the XML file
+            logger.finer("XML file found for " + movie.getBaseName());
             xmlWriter.parseMovieXML(xmlFile, movie);
 
             // update new episodes titles if new MovieFiles were added
@@ -494,22 +491,24 @@ public class MovieJukebox {
             // Update poster format if needed
             String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
             movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
+            
+            // Check for local CoverArt
+            PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
         } else {
-
             // No XML file for this movie. We've got to find movie
             // information where we can (filename, IMDb, NFO, etc...)
             // Add here extra scanners if needed.
             if (forceXMLOverwrite) {
-                logger.finer("Rescanning Internet Data for file " + movie.getBaseName());
+                logger.finer("Rescanning internet for information on " + movie.getBaseName());
             } else {
-                logger.finer("Movie XML file not found. Scanning Internet Data for file " + movie.getBaseName());
+                logger.finer("XML file not found. Scanning internet for information on " + movie.getBaseName());
             }
 
             MovieNFOScanner.scan(movie);
 
             // Added forceXMLOverwrite for issue 366
-            if ( movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || forceXMLOverwrite ) {
+            if ( movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster() ) {
                 PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
 
@@ -529,11 +528,20 @@ public class MovieJukebox {
      * @param tempJukeboxDetailsRoot
      */
     private void updateMoviePoster(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String posterFilename = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
-        File posterFile = new File(posterFilename);
+        String posterFilename  =     jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
         String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename();
+        File posterFile  = new File( posterFilename);
         File tmpDestFile = new File(tmpDestFileName);
 
+        
+        // Check to see if there is a local poster.
+        // Check to see if there are posters in the jukebox directories (target and temp)
+        // Check to see if the local poster is newer than either of the jukebox posters
+        // Download poster
+        
+        
+        
+        
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster())) {
             posterFile.getParentFile().mkdirs();
