@@ -49,9 +49,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
             for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>").split(",")) {
                 for (String genre : tmp_genre.split("/")) {
                 		movie.addGenre(genre.trim());
-                		if (++count >= maxGenres) {
-		                    break;
-                		}
                 }
             }
 

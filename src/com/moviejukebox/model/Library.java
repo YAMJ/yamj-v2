@@ -32,12 +32,17 @@ public class Library implements Map<String, Movie> {
     private Map<String, Map<String, List<Movie>>> indexes = new LinkedHashMap<String, Map<String, List<Movie>>>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000");	// Issue 190
     private static final Calendar currentCal = Calendar.getInstance();
+    private static int maxGenres = 9;
 
 
     static {
         filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
         String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres.xml");
         fillGenreMap(xmlGenreFile);
+
+        try {
+            maxGenres = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "9"));
+        } catch (Exception ignore) {}
 
         {
             String temp = PropertiesUtil.getProperty("certification.ordering");
@@ -226,8 +231,13 @@ public class Library implements Map<String, Movie> {
     private void indexByGenres() {
         TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
         for (Movie movie : moviesList) {
+            int count = 0;
             for (String genre : movie.getGenres()) {
                 addMovie(index, getIndexingGenre(genre), movie);
+                count++;
+                if (count >= maxGenres) {
+                    break;
+                }
             }
         }
         indexes.put("Genres", index);

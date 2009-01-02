@@ -28,7 +28,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected String preferredSearchEngine;
     protected String preferredPosterSearchEngine;
     protected boolean perfectMatch;
-    protected int maxGenres;
     protected String preferredCountry;
     protected String imdbPlot;
     protected WebBrowser webBrowser;
@@ -44,12 +43,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
-        try {
-            String temp = PropertiesUtil.getProperty("imdb.genres.max", "9");
-            maxGenres = Integer.parseInt(temp);
-        } catch (NumberFormatException ex) {
-            maxGenres = 9;
-        }
     }
 
     @Override
@@ -284,9 +277,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (movie.getGenres().isEmpty()) {
                 for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")) {
                     movie.addGenre(Library.getIndexingGenre(genre));
-                    if (movie.getGenres().size() >= maxGenres) {
-                        break;
-                    }
                 }
             }
 

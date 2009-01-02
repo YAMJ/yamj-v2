@@ -46,9 +46,6 @@ public class AllocinePlugin extends ImdbPlugin {
             int count = 0;
             for (String genre : extractTags(xml, "Genre</span> :", "-", " ", ",")) {
                 movie.addGenre(Library.getIndexingGenre(removeOpenedHtmlTags(genre)));
-                if (++count >= maxGenres) {
-                    break;
-                }
             }
 
             // movie.setCertification(getPreferredValue(extractTags(xml,
@@ -156,9 +153,6 @@ public class AllocinePlugin extends ImdbPlugin {
             int count = 0;
             for (String genre : extractTags(xml, "<h4>Genre : ", "</h4>", "film/alaffiche_genre_gen_genre", "</a>")) {
                 movie.addGenre(removeOpenedHtmlTags(genre));
-                if (++count >= maxGenres) {
-                    break;
-                }
             }
 
             // movie.setCertification(getPreferredValue(extractTags(xml,

@@ -71,7 +71,7 @@
         <tr>
           <td class="title2" valign="top" colspan="3">
             <xsl:if test="count(genres) != 0">
-              <xsl:for-each select="genres/genre">
+              <xsl:for-each select="genres/genre[position() &lt;= //preferences/genres.max]">
                 <xsl:if test="position()!= 1">, </xsl:if>
                 <xsl:value-of select="." />
 			  </xsl:for-each>
