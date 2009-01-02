@@ -75,7 +75,7 @@
               <xsl:if test="director != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="company" /> 
             </xsl:if>
-            <xsl:if test="company != 'UNKNOWN'">
+            <xsl:if test="country != 'UNKNOWN'">
               (<xsl:value-of select="country" />) 
             </xsl:if>
           </td>

@@ -29,6 +29,7 @@ MovieJukebox 1.0.15 beta
                         3) Prefer IMDB genre over Sratim genre
                         4) Translate IMDB genre from English to Hebrew
                         5) Fix for NFO poster priority over sub-baba.com poster
+  - Fixed defect #376 Bug in default skin detail.xsl cause extra () signs on page when no country name exist
 
 MovieJukebox 1.0.14 beta
 ------------------------
