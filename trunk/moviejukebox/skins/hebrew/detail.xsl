@@ -50,6 +50,9 @@
         </tr>
         <tr>
           <td class="title2" valign="top" align="right">
+            <xsl:if test="top250 != -1">
+              <xsl:text>&#160;&#160;</xsl:text>#<xsl:value-of select="top250" /> :ץלמומ 
+            </xsl:if>
             <xsl:if test="rating != -1">
               <xsl:if test="$full_rating = 'true'">
                 <xsl:if test="$star_rating = 'true'">

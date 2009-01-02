@@ -23,6 +23,69 @@ public class SratimPlugin extends ImdbPlugin {
 	private static Logger logger = Logger.getLogger("moviejukebox");
 	private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
 
+	private static String[] genereStringEnglish = {
+		"Action",
+		"Adult",
+		"Adventure",
+		"Animation",
+		"Biography",
+		"Comedy",
+		"Crime",
+		"Documentary",
+		"Drama",
+		"Family",
+		"Fantasy",
+		"Film-Noir",
+		"Game-Show",
+		"History",
+		"Horror",
+		"Music",
+		"Musical",
+		"Mystery",
+		"News",
+		"Reality-TV",
+		"Romance",
+		"Sci-Fi",
+		"Short",
+		"Sport",
+		"Talk-Show",
+		"Thriller",
+		"War",
+		"Western"
+	};
+
+	private static String[] genereStringHebrew = {
+		"הלועפ",
+		"םירגובמ",
+		"תואקתפרה",
+		"היצמינא",
+		"היפרגויב",
+		"הידמוק",
+		"עשפ",
+		"ידועית",
+		"המרד",
+		"החפשמ",
+		"היזטנפ",
+		"לפא",
+		"ןועושעש",
+		"הירוטסיה",
+		"המיא",
+		"הקיזומ",
+		"רמזחמ",
+		"ןירותסימ",
+		"תושדח",
+		"יטילאיר",
+		"הקיטנמור",
+		"ינוידב עדמ",
+		"רצק",
+		"טרופס",
+		"חוריא",
+		"חתמ",
+		"המחלמ",
+		"ןוברעמ"
+	};
+							
+
 	protected String sratimPreferredSearchEngine;
 	protected String sratimPlot;
 	
@@ -36,20 +99,21 @@ public class SratimPlugin extends ImdbPlugin {
 
 	public boolean scan(Movie mediaFile) {
 
+        boolean retval = true;
+
 		String sratimUrl = mediaFile.getId(SRATIM_PLUGIN_ID);
 		if (sratimUrl == null || sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
 			sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
 			mediaFile.setId(SRATIM_PLUGIN_ID, sratimUrl);
+			
+			// collect missing information from IMDB or TVDB before sratim
+			if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW))
+				retval = super.scan(mediaFile);
+			else
+				retval = tvdb.scan(mediaFile);
+				
+			translateGenres(mediaFile);
 		}
-
-
-        boolean retval = true;
-        
-		// collect missing information from IMDB or TVDB before sratim
-		if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW))
-			retval = super.scan(mediaFile);
-		else
-			retval = tvdb.scan(mediaFile);
 
         
         if (!sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -97,6 +161,29 @@ public class SratimPlugin extends ImdbPlugin {
 	}
 
 
+	// Translate IMDB genres to hebrew
+	protected void translateGenres(Movie movie)
+	{
+		TreeSet<String> genresHeb = new TreeSet<String>();
+		
+		// Translate genres to hebrew
+		for (String genre : movie.getGenres()) {
+
+			int i;				
+			for(i = 0; i < genereStringEnglish.length; i++){
+				if (genre.equals(genereStringEnglish[i]))
+					break;
+			}
+
+			if (i < genereStringEnglish.length)
+				genresHeb.add(genereStringHebrew[i]);
+			else
+				genresHeb.add("רחא");
+		}
+		
+		// Set translated IMDB genres
+		movie.setGenres(genresHeb);
+	}
 
 
 	// Porting from my old code in c++
@@ -535,14 +622,16 @@ public class SratimPlugin extends ImdbPlugin {
 					// Hard break on this location
 					lastBreakPos=scanPos;
 				
-				ret = ret + logicalToVisual(text.substring(lineStart,lastBreakPos).trim()) + "{br}";
-				
+				lineCount++;
+				if (lineCount==lineMax)
+					return ret = ret + "..." + logicalToVisual(text.substring(lineStart,lastBreakPos).trim());
+					
+				ret = ret + logicalToVisual(text.substring(lineStart,lastBreakPos).trim());					
+
 				lineStart = lastBreakPos;
 				lastBreakPos=0;
-				lineCount++;
-				
-				if (lineCount==lineMax)
-					return ret + "...";
+					
+				ret = ret + "{br}";
 			}
 			
 			scanPos++;
@@ -586,12 +675,17 @@ public class SratimPlugin extends ImdbPlugin {
 	 */
 	protected boolean updateMediaInfo(Movie movie) {
 		try {
-			if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-				// Try to find hebrew poster using sub-baba.com web site and the movie english name
-				String posterURL = getSubBabaPosterURL(movie.getTitleSort());
-				
-				if (posterURL != null && !posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-					movie.setPosterURL(posterURL);
+			String imdbId = movie.getId(IMDB_PLUGIN_ID);
+			if (imdbId != null && !imdbId.equalsIgnoreCase(Movie.UNKNOWN) && !movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+			
+				if (movie.getPosterURL() == null || movie.getPosterURL().startsWith("http://") ) {
+
+					// Try to find hebrew poster using sub-baba.com web site and the movie english name
+					String posterURL = getSubBabaPosterURL(movie.getTitleSort());
+					
+					if (posterURL != null && !posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+						movie.setPosterURL(posterURL);
+					}
 				}
 			}
 		
@@ -612,22 +706,27 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.setTitle(logicalToVisual(title));
                 movie.setTitleSort(title);
             }
-                        
-			movie.setRating(parseRating(HTMLTools.extractTag(xml, "<span style=\"font-size:12pt;font-weight:bold\"><img alt=\"", 0, "/")));
+
+			// Prefer IMDB rating
+			if (movie.getRating() == -1) {                        
+				movie.setRating(parseRating(HTMLTools.extractTag(xml, "<span style=\"font-size:12pt;font-weight:bold\"><img alt=\"", 0, "/")));
+			}
+			
 			movie.setDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "במאי:")));
 			movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "תאריך יציאה לקולנוע בחו\"ל:"));
 			movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך:"))));
 			movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")));
 
-			int count = 0;
-			String genres = HTMLTools.getTextAfterElem(xml, "ז'אנר:");
-			if (!Movie.UNKNOWN.equals(genres)) {
-				// Clear IMDB genres
-				movie.setGenres(new TreeSet<String>());
-				for (String genre : genres.split(" *, *")) {
-					movie.addGenre(logicalToVisual(Library.getIndexingGenre(genre)));
-					if (++count >= maxGenres) {
-						break;
+			// Prefer IMDB genres
+            if (movie.getGenres().isEmpty()) {
+				int count = 0;
+				String genres = HTMLTools.getTextAfterElem(xml, "ז'אנר:");
+				if (!Movie.UNKNOWN.equals(genres)) {
+					for (String genre : genres.split(" *, *")) {
+						movie.addGenre(logicalToVisual(Library.getIndexingGenre(genre)));
+						if (++count >= maxGenres) {
+							break;
+						}
 					}
 				}
 			}
