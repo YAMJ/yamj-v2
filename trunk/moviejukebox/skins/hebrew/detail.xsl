@@ -89,7 +89,7 @@
         <xsl:if test="count(cast/actor)!=0">
         <tr>
             <td class="title2" colspan="4" align="right"> 
-              <xsl:for-each select="cast/actor[position()&lt;3]">
+              <xsl:for-each select="cast/actor[position() &lt;= //preferences/actors.max]">
                  <xsl:if test="position()!=1"> ,</xsl:if>
                  <xsl:value-of select="." />
               </xsl:for-each> םע
@@ -112,7 +112,7 @@
               <xsl:if test="count(genres) != 0"> ,</xsl:if>
             </xsl:if>
             <xsl:if test="count(genres) != 0">
-              <xsl:for-each select="genres/genre">
+              <xsl:for-each select="genres/genre[position() &lt;= //preferences/genres.max]">
                 <xsl:if test="position()!= 1"> ,</xsl:if>
                 <xsl:value-of select="." />
               </xsl:for-each>

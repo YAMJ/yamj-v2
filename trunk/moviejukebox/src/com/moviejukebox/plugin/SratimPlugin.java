@@ -724,9 +724,6 @@ public class SratimPlugin extends ImdbPlugin {
 				if (!Movie.UNKNOWN.equals(genres)) {
 					for (String genre : genres.split(" *, *")) {
 						movie.addGenre(logicalToVisual(Library.getIndexingGenre(genre)));
-						if (++count >= maxGenres) {
-							break;
-						}
 					}
 				}
 			}

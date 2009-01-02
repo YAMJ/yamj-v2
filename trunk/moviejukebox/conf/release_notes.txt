@@ -23,6 +23,7 @@ MovieJukebox 1.0.15 beta
   - Fixed defect #366 When the NFO changes force download/update of content
   - Fixed defect #370 Add missing prebuf lines to BD-50 Disk RIP Scanner
   - Fixed defect #372 Scanner does not recognise changed local poster file
+  - Enhancement  #374 Store all genres and actors in xml file but make number displayed more configurable
   - Enhancement  #375 Updated Sratim plugin code
                         1) Hebrew translation for the Top250 feature
                         2) Prefer IMDB rating over Sratim rating

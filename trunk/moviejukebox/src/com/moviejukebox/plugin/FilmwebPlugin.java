@@ -192,9 +192,6 @@ public class FilmwebPlugin extends ImdbPlugin {
 			if (!Movie.UNKNOWN.equals(genres)) {
 				for (String genre : genres.split(" *, *")) {
 					movie.addGenre(Library.getIndexingGenre(genre));
-					if (++count >= maxGenres) {
-						break;
-					}
 				}
 			}
 

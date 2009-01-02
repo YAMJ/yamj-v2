@@ -73,7 +73,7 @@
         <tr>
           <td class="title2" valign="top" colspan="3">
             <xsl:if test="count(genres) != 0">
-              <xsl:for-each select="genres/genre">
+              <xsl:for-each select="genres/genre[position() &lt;= //preferences/genres.max]">
                 <xsl:if test="position()!= 1">, </xsl:if>
                 <a>
                   <xsl:attribute name="href">Genres_<xsl:value-of select="." />_1.html</xsl:attribute>
@@ -131,7 +131,7 @@
         <tr><td class="title2" colspan="4">Cast</td></tr>
         <tr>
           <td class="normal" colspan="4">
-            <xsl:for-each select="cast/actor">
+            <xsl:for-each select="cast/actor[position() &lt;= //preferences/actors.max]">
               <xsl:if test="position()!=1">, </xsl:if>
               <xsl:value-of select="." />
             </xsl:for-each>
