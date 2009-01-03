@@ -308,10 +308,9 @@ public class MovieJukebox {
             updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
             // Get Fanart if requested
+            // Note that the FanartScanner will check if the file is newer / different
             if (fanartDownload) {
-                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-                }
+                FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
         }
 

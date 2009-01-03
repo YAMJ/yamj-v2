@@ -31,6 +31,7 @@ MovieJukebox 1.0.15 beta
                         4) Translate IMDB genre from English to Hebrew
                         5) Fix for NFO poster priority over sub-baba.com poster
   - Fixed defect #376 Bug in default skin detail.xsl cause extra () signs on page when no country name exist
+  - Fixed defect #377 Scanner does not recognise changed local Fanart file
 
 MovieJukebox 1.0.14 beta
 ------------------------
