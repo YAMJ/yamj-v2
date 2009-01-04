@@ -467,6 +467,10 @@ public class MovieFilenameScanner {
             String partTitle = getPartTitle(filename);
             if (partTitle != null) {
                 movie.getFirstFile().setTitle(partTitle);
+            }
+
+            partTitle = movie.getFirstFile().getTitle();
+            if ((partTitle != null) && !partTitle.equals(Movie.UNKNOWN)) {
                 int dash = filename.lastIndexOf('-');
                 if (dash != -1)
                     filename = filename.substring(0, dash);

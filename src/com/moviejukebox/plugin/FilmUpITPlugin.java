@@ -6,9 +6,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -38,17 +36,21 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
             }
             movie.setPlot(tmpPlot);
-            
-            movie.setDirector(removeHtmlTags(extractTag(xml, "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
-            movie.setReleaseDate(extractTag(xml, "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+
+            movie.setDirector(removeHtmlTags(extractTag(xml, "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                "</font></td></tr>")));
+            movie.setReleaseDate(extractTag(xml, "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                "</font></td></tr>"));
             movie.setRuntime(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
             movie.setCountry(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
-            movie.setCompany(removeHtmlTags(extractTag(xml, "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
+            movie.setCompany(removeHtmlTags(extractTag(xml, "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                "</font></td></tr>")));
 
             int count = 0;
-            for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>").split(",")) {
+            for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                "</font></td></tr>").split(",")) {
                 for (String genre : tmp_genre.split("/")) {
-                		movie.addGenre(genre.trim());
+                    movie.addGenre(genre.trim());
                 }
             }
 
@@ -56,20 +58,21 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 movie.setYear(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
             }
 
-            for (String actor : removeHtmlTags(extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(",")) {
-								movie.addActor(actor.trim());
+            for (String actor : removeHtmlTags(
+                extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(",")) {
+                movie.addActor(actor.trim());
             }
 
             String posterPageUrl = extractTag(xml, "href=\"posters/locp/", "\"");
             if (!posterPageUrl.equalsIgnoreCase("Unknown")) {
-								updatePoster(movie, posterPageUrl);
+                updatePoster(movie, posterPageUrl);
             }
-            
+
             String opinionsPageID = extractTag(xml, "/opinioni/op.php?uid=", "\"");
             if (!opinionsPageID.equalsIgnoreCase("Unknown")) {
-            	int PageID = Integer.parseInt(opinionsPageID);
-            	updateRate(movie, PageID);
-            	logger.finest("Opinions page UID = "+PageID);
+                int PageID = Integer.parseInt(opinionsPageID);
+                updateRate(movie, PageID);
+                logger.finest("Opinions page UID = " + PageID);
             }
         } catch (IOException e) {
             logger.severe("Failed retreiving FilmUP infos for movie : " + movie.getId(FILMUPIT_PLUGIN_ID));
@@ -82,7 +85,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         String baseUrl = "http://filmup.leonardo.it/opinioni/op.php?uid=";
         try {
             String xml = webBrowser.request(baseUrl + opinionsPageID);
-            float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>"))*10;
+            float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
             movie.setRating((int)rating);
         } catch (IOException e) {
             logger.severe("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
@@ -107,7 +110,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 xml = webBrowser.request(baseUrl + pageUrl);
                 String tmpPosterURL = extractTag(xml, "\"../loc/", "\"");
                 if (!tmpPosterURL.equalsIgnoreCase("Unknown")) {
-                		posterURL = "http://filmup.leonardo.it/posters/loc/"+tmpPosterURL;
+                    posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
                     logger.finest("Movie PosterURL : " + posterURL);
                     movie.setPosterURL(posterURL);
                     return;
@@ -120,11 +123,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 return;
             } // Check www.impawards.com
-/*            else if (!(posterURL = this.testImpawardsPoster(movie.getId(FILMUPIT_PLUGIN_ID))).equalsIgnoreCase("Unknown")) {
-                logger.finest("Movie PosterURL : " + posterURL);
-                movie.setPosterURL(posterURL);
-                return;
-            } */
+            /*
+             * else if (!(posterURL = this.testImpawardsPoster(movie.getId(FILMUPIT_PLUGIN_ID))).equalsIgnoreCase("Unknown")) {
+             * logger.finest("Movie PosterURL : " + posterURL); movie.setPosterURL(posterURL); return; }
+             */
+
             // Check www.moviecovers.com (if set in property file)
             else if ("moviecovers".equals(preferredPosterSearchEngine)
                             && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
@@ -214,7 +217,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
      */
     private String getFilmUpITId(String movieName, String year, Movie mediaFile) throws ParseException {
         String FilmUpITId = Movie.UNKNOWN;
-        
+
         try {
             StringBuffer sb = new StringBuffer("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
             sb.append(URLEncoder.encode(movieName.replace(' ', '+'), "iso-8859-1"));
@@ -230,10 +233,10 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 // logger.finest("SearchResult = " + searchResult);
                 return searchResult;
             }
-            
+
             logger.finer("No ID Found with request : " + sb.toString());
             return Movie.UNKNOWN;
-            
+
         } catch (Exception e) {
             logger.severe("Failed to retrieve FilmUp ID for movie : " + movieName);
             logger.severe("We fall back to ImdbPlugin");
@@ -244,20 +247,20 @@ public class FilmUpITPlugin extends ImdbPlugin {
     protected String extractTag(String src, String tagStart, String tagEnd) {
         int beginIndex = src.indexOf(tagStart);
         if (beginIndex < 0) {
-          //  logger.finest("extractTag value= Unknown");
+            // logger.finest("extractTag value= Unknown");
             return Movie.UNKNOWN;
         }
         try {
             String subString = src.substring(beginIndex + tagStart.length());
             int endIndex = subString.indexOf(tagEnd);
             if (endIndex < 0) {
-           //     logger.finest("extractTag value= Unknown");
+                // logger.finest("extractTag value= Unknown");
                 return Movie.UNKNOWN;
             }
             subString = subString.substring(0, endIndex);
 
             String value = HTMLTools.decodeHtml(subString.trim());
-      //      logger.finest("extractTag value=" + value);
+            // logger.finest("extractTag value=" + value);
             return value;
         } catch (Exception e) {
             logger.severe("extractTag an exception occurred during tag extraction : " + e);
@@ -280,13 +283,13 @@ public class FilmUpITPlugin extends ImdbPlugin {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
-          //  logger.finest("extractTags no sectionStart Tags found");
+            // logger.finest("extractTags no sectionStart Tags found");
             return tags;
         }
         index += sectionStart.length();
         int endIndex = src.indexOf(sectionEnd, index);
         if (endIndex == -1) {
-        //    logger.finest("extractTags no sectionEnd Tags found");
+            // logger.finest("extractTags no sectionEnd Tags found");
             return tags;
         }
 
@@ -300,9 +303,9 @@ public class FilmUpITPlugin extends ImdbPlugin {
             index = sectionText.indexOf(startTag);
             startLen = startTag.length();
         }
-   //     logger.finest("extractTags sectionText = " + sectionText);
-   //     logger.finest("extractTags startTag = " + startTag);
-   //     logger.finest("extractTags startTag index = " + index);
+        // logger.finest("extractTags sectionText = " + sectionText);
+        // logger.finest("extractTags startTag = " + startTag);
+        // logger.finest("extractTags startTag index = " + index);
         while (index != -1) {
             index += startLen;
             endIndex = sectionText.indexOf(endTag, index);
@@ -311,7 +314,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 endIndex = lastIndex;
             }
             String text = sectionText.substring(index, endIndex);
-   //         logger.finest("extractTags Tag found text = [" + text+"]");
+            // logger.finest("extractTags Tag found text = [" + text+"]");
 
             // replaceAll used because trim() does not trim unicode space
             tags.add(HTMLTools.decodeHtml(text.trim()).replaceAll("^[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*\\b(.*)\\b[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*$", "$1"));

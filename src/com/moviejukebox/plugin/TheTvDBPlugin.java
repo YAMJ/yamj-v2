@@ -1,5 +1,8 @@
 package com.moviejukebox.plugin;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import com.moviejukebox.model.Movie;
@@ -10,10 +13,6 @@ import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * 
@@ -28,7 +27,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private TheTVDB tvDB;
     private String language;
     private boolean includeEpisodePlots;
-    
+
     public TheTvDBPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
@@ -61,7 +60,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                     series = s;
                                     break;
                                 }
-                            } catch (Exception ignore) {}
+                            } catch (Exception ignore) {
+                            }
                         } else {
                             series = s;
                             break;
@@ -218,9 +218,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 int endIdx = compareString.indexOf("&", beginIdx + 1);
                 String id = null;
                 if (endIdx > -1) {
-                    id = compareString.substring(beginIdx+length, endIdx);
+                    id = compareString.substring(beginIdx + length, endIdx);
                 } else {
-                    id = compareString.substring(beginIdx+length);
+                    id = compareString.substring(beginIdx + length);
                 }
                 if (id != null && !id.isEmpty()) {
                     movie.setId(THETVDB_PLUGIN_ID, id);
