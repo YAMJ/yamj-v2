@@ -320,6 +320,9 @@ public class MovieJukebox {
             // Get subtitle
             subtitlePlugin.generate(movie);
         }
+        
+        subtitlePlugin.logOut();
+
 
         // ////////////////////////////////////////////////////////////////
         // / PASS 3 : Indexing the library

@@ -51,17 +51,6 @@ public class OpenSubtitlesPlugin {
         }
 	}
 
-	protected void finalize() throws Throwable
-	{
-		try {
-			if (token.equals("")) {
-				logOut();
-			}
-		} finally {
-			super.finalize();
-		}
-	}
-
 	
 	private static void logIn() {
 		try {
@@ -80,7 +69,16 @@ public class OpenSubtitlesPlugin {
 		};
 	}
 
-	private static void logOut() {
+	public static void logOut() {
+	
+		// Check if subtitle language was selected
+		if (sublanguageid.equals(""))
+			return;
+		
+		// Check that the login was successful
+		if (token.equals(""))
+			return;
+	
 		try {
 			String p1[]={token};
 			String xml=generateXMLRPC("LogOut", p1);
@@ -190,25 +188,29 @@ public class OpenSubtitlesPlugin {
 
 			String subDownloadLink= getVaule("SubDownloadLink",ret);
 
-			if (subDownloadLink.equals(""))
-			{
-				// Try to find the subtitle using file name
-				String subfilename = subtitleFile.getName();
-				int index = subfilename.lastIndexOf(".");
+			if (subDownloadLink.equals(""))	{
+				String moviefilename = movieFile.getName();
+
+				// Do not search by file name for BD rip files in the format 0xxxx.m2ts
+				if (!(moviefilename.toUpperCase().endsWith(".M2TS") && moviefilename.startsWith("0"))) {
 				
-				String query = subfilename.substring(0, index);
-				
-				xml=generateXMLRPCSS(query);
-				ret=sendRPC(xml);
+					// Try to find the subtitle using file name
+					String subfilename = subtitleFile.getName();
+					int index = subfilename.lastIndexOf(".");
+					
+					String query = subfilename.substring(0, index);
+					
+					xml=generateXMLRPCSS(query);
+					ret=sendRPC(xml);
 
-				subDownloadLink= getVaule("SubDownloadLink",ret);
-
-
-				if (subDownloadLink.equals(""))
-				{
-					logger.finer("OpenSubtitles Plugin: Subtitle not found " + movie.getTitle());
-					return;
+					subDownloadLink= getVaule("SubDownloadLink",ret);
 				}
+			}
+
+
+			if (subDownloadLink.equals("")) {
+				logger.finer("OpenSubtitles Plugin: Subtitle not found " + movie.getTitle());
+				return;
 			}
 
 
