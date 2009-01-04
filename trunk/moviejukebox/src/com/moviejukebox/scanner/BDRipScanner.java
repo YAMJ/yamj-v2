@@ -174,6 +174,9 @@ public class BDRipScanner {
         byte[] data = new byte[(int)fileReader.length()];
         int dataLength = fileReader.read(data, 0, data.length);
 
+		fileReader.close();
+
+
         byte[] fileType = new byte[8];
         System.arraycopy(data, 0, fileType, 0, fileType.length);
 		
