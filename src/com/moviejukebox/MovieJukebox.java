@@ -32,6 +32,7 @@ import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultPosterPlugin;
 import com.moviejukebox.plugin.DefaultThumbnailPlugin;
+import com.moviejukebox.plugin.OpenSubtitlesPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
@@ -55,6 +56,7 @@ public class MovieJukebox {
     private boolean forceThumbnailOverwrite;
     private boolean forcePosterOverwrite;
     private boolean fanartDownload;
+    private OpenSubtitlesPlugin subtitlePlugin;
 
     public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
         // Send logger output to our FileHandler.
@@ -227,6 +229,8 @@ public class MovieJukebox {
         File mediaLibraryRoot = new File(movieLibraryRoot);
         String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
 
+        subtitlePlugin = new OpenSubtitlesPlugin();
+        
         int nbFiles = 0;
         String cleanCurrent = "";
         String cleanCurrentExt = "";
@@ -312,6 +316,9 @@ public class MovieJukebox {
             if (fanartDownload) {
                 FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
+            
+            // Get subtitle
+            subtitlePlugin.generate(movie);
         }
 
         // ////////////////////////////////////////////////////////////////

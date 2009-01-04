@@ -16,6 +16,8 @@ MovieJukebox 1.0.15 beta
   - Fixed defect #359 Allow either Series url or Season url in NFO for TheTVDB
   - Fixed defect #361 TV Shows with new episodes do not show in the YAMJ "new" html output
   - Fixed defect #362 Genres.xml has un-necessary entries
+  - Enhancement  #363 Subtitle download as part of movie information collection
+                      NOTE: YAMJ needs write access to the video directory for this enhancement to work
   - Enhancement  #365 Updated Stratim plugin:
                         1) Support for NFO with sratim.co.il URL in it
                         2) High resolution Hebrew posters form sub-baba.com
