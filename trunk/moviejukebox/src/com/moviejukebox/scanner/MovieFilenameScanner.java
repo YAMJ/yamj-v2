@@ -48,8 +48,8 @@ public class MovieFilenameScanner {
 
         Collection<MovieFile> movieFiles = movie.getFiles();
         for (MovieFile movieFile : movieFiles) {
-			if (movieFile.getPart() == 1)
-	            movieFile.setPart(getPart(filename));
+            if (movieFile.getPart() == 1)
+                movieFile.setPart(getPart(filename));
         }
 
         if (fileToScan.isFile()) {
@@ -464,6 +464,14 @@ public class MovieFilenameScanner {
 
     protected void updateMovie(String filename, Movie movie) {
         try {
+            String partTitle = getPartTitle(filename);
+            if (partTitle != null) {
+                movie.getFirstFile().setTitle(partTitle);
+                int dash = filename.lastIndexOf('-');
+                if (dash != -1)
+                    filename = filename.substring(0, dash);
+            }
+            // Extract the 4 digit year from the file name
             StringTokenizer st = new StringTokenizer(filename, ". []()-");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
@@ -484,10 +492,6 @@ public class MovieFilenameScanner {
             }
 
             movie.setTitle(getName(filename));
-            String partTitle = getPartTitle(filename);
-            if (partTitle != null) {
-                movie.getFirstFile().setTitle(partTitle);
-            }
         } catch (Exception e) {
             movie.setTitle(Movie.UNKNOWN);
         }
