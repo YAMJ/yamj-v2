@@ -514,7 +514,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 int endIndex = content.indexOf("\"", indexMovieLink + 39);
                 if (endIndex != -1) {
                     imageUrl += content.substring(indexMovieLink + 39, endIndex);
-                    if (imageUrl.endsWith(".html")) {
+                    if (imageUrl.endsWith("standard.html")) {
+                        imageUrl = null;
+                    } else if (imageUrl.endsWith(".html")) {
                         imageUrl = imageUrl.substring(0, imageUrl.length() - 4) + "jpg";
                     } else {
                         imageUrl = null;
