@@ -77,7 +77,7 @@ public class MediaInfoScanner {
         }
         localDVDRipScanner = new DVDRipScanner();
 
-        enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "true"));
+        enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "false"));
     }
 
     public void scan(Movie currentMovie) {
