@@ -1,0 +1,49 @@
+<!--                                                                                   -->
+<!-- Category elements should not be removed or added                                  -->
+<!--                                                                                   -->
+<!-- This is for the enabling and disabling, as well as renaming of currently          -->
+<!-- existing categories only.                                                         -->
+<!-- By default, all categories are enabled.                                           -->
+<!--                                                                                   -->
+<!-- Example of renaming:                                                              -->
+<!--  <category name="New">                                                            -->
+<!--    <enable>true</enable>                                                          -->
+<!--    <rename>Recent</rename>                                                        -->
+<!--  </category>                                                                      -->
+<!--                                                                                   -->
+<!-- Example of disabling:                                                             -->
+<!--  <category name="Top250">                                                         -->
+<!--    <enable>false</enable>                                                         -->
+<!--    <rename>Top250</rename>                                                        -->
+<!--  </category>                                                                      -->
+
+<categories>
+  <category name="All">
+    <enable>true</enable>
+    <rename>All</rename>
+  </category>
+  <category name="New">
+    <enable>true</enable>
+    <rename>New</rename>
+  </category>
+  <category name="Movies">
+    <enable>true</enable>
+    <rename>Movies</rename>
+  </category>
+  <category name="Trailers">
+    <enable>true</enable>
+    <rename>Trailers</rename>
+  </category>
+  <category name="TV Shows">
+    <enable>true</enable>
+    <rename>TV Shows</rename>
+  </category>
+  <category name="HD">
+    <enable>true</enable>
+    <rename>HD</rename>
+  </category>
+  <category name="Top250">
+    <enable>true</enable>
+    <rename>Top250</rename>
+  </category>
+</categories>
