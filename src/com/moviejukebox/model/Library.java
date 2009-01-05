@@ -26,6 +26,7 @@ public class Library implements Map<String, Movie> {
     private static boolean filterGenres;
     private static List<String> certificationOrdering = new ArrayList<String>();
     private static Map<String, String> genresMap = new HashMap<String, String>();
+    private static Map<String, String> categoriesMap = new HashMap<String, String>();
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
@@ -51,6 +52,9 @@ public class Library implements Map<String, Movie> {
                 certificationOrdering.addAll(Arrays.asList(certs));
             }
         }
+
+        String xmlCategoryFile = PropertiesUtil.getProperty("mjb.xmlCategoryFile", "categories.xml");
+        fillCategoryMap(xmlCategoryFile);
 
         String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
         StringTokenizer tokenizer = new StringTokenizer(temp, ",");
@@ -286,48 +290,64 @@ public class Library implements Map<String, Movie> {
         TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
         for (Movie movie : moviesList) {
             if (movie.isTrailer()) {
-                addMovie(index, "Trailers", movie);
+                if (categoriesMap.get("Trailers") != null) {
+                    addMovie(index, categoriesMap.get("Trailers"), movie);
+                }
             } else {
                 if (movie.getVideoOutput().indexOf("720") != -1 || movie.getVideoOutput().indexOf("1080") != -1) {
-                    addMovie(index, "HD", movie);
+                    if (categoriesMap.get("HD") != null) {
+                        addMovie(index, categoriesMap.get("HD"), movie);
+                    }
                 }
 
                 if (movie.getTop250() > 0) {
-                    addMovie(index, "Top250", movie);
+                    if (categoriesMap.get("Top250") != null) {
+                        addMovie(index, categoriesMap.get("Top250"), movie);
+                    }
                 }
 
                 long delay = System.currentTimeMillis() - movie.getLastModifiedTimestamp();
 
                 if (delay <= newDays) {
-                    addMovie(index, "New", movie);
-                } /* else if (delay < oneMonth) {
-                addMovie(index, "New this month", movie);
-                } */
+                    if (categoriesMap.get("New") != null) {
+                        addMovie(index, categoriesMap.get("New"), movie);
+                    }
+                }
 
-                addMovie(index, "All", movie);
+                if (categoriesMap.get("All") != null) {
+                    addMovie(index, categoriesMap.get("All"), movie);
+                }
 
                 if (movie.isTVShow()) {
-                    addMovie(index, "TV Shows", movie);
+                    if (categoriesMap.get("TV Shows") != null) {
+                        addMovie(index, categoriesMap.get("TV Shows"), movie);
+                    }
                 } else {
-                    addMovie(index, "Movies", movie);
+                    if (categoriesMap.get("Movies") != null) {
+                        addMovie(index, categoriesMap.get("Movies"), movie);
+                    }
                 }
             }
         }
 
         // sort New category by lastModifiedTimestamp and then limit to the count
-        List<Movie> newList = index.get("New");
-        if (newList != null) {
-            Collections.sort(newList, new LastModifiedComparator());
-            if (newCount > 0 && newCount < newList.size()) {
-                newList = newList.subList(0, newCount);
-                index.put("New", newList);
+        if (categoriesMap.get("New") != null) {
+            List<Movie> newList = index.get(categoriesMap.get("New"));
+            if (newList != null) {
+                Collections.sort(newList, new LastModifiedComparator());
+                if (newCount > 0 && newCount < newList.size()) {
+                    newList = newList.subList(0, newCount);
+                    index.put(categoriesMap.get("New"), newList);
+                }
             }
         }
 
         // sort top250 by rating instead of by title
-        List<Movie> top250List = index.get("Top250");
-        if (top250List != null) {
-            Collections.sort(top250List, new Top250Comparator());
+        if (categoriesMap.get("Top250") != null) {
+            List<Movie> top250List = index.get(categoriesMap.get("Top250"));
+            if (top250List != null) {
+                Collections.sort(top250List, new Top250Comparator());
+            }
         }
 
         indexes.put("Other", index);
@@ -477,6 +497,32 @@ public class Library implements Map<String, Movie> {
             }
         } else {
             logger.severe("The moviejukebox library input file you specified is invalid: " + f.getName());
+        }
+    }
+
+    private static void fillCategoryMap(String xmlCategoryFile) {
+        File f = new File(xmlCategoryFile);
+        if (f.exists() && f.isFile() && xmlCategoryFile.toUpperCase().endsWith("XML")) {
+
+            try {
+                XMLConfiguration c = new XMLConfiguration(f);
+
+                List<HierarchicalConfiguration> categories = c.configurationsAt("category");
+                for (HierarchicalConfiguration category : categories) {
+                    String origName = category.getString("[@name]");
+                    boolean enabled = Boolean.parseBoolean(category.getString("enable", "true"));
+                    String newName = category.getString("rename", origName);
+
+                    if (enabled) {
+                        categoriesMap.put(origName, newName);
+                    }
+                }
+            } catch (Exception e) {
+                logger.severe("Failed parsing moviejukebox category input file: " + f.getName());
+                e.printStackTrace();
+            }
+        } else {
+            logger.severe("The moviejukebox category input file you specified is invalid: " + f.getName());
         }
     }
 }
