@@ -282,6 +282,8 @@ public class OpenSubtitlesPlugin {
 				MessageDigest md = MessageDigest.getInstance("MD5");
 				byte s[] = new byte[f.available()];
 				f.read(s);
+				f.close();
+				
 				md.update(s);
 				subhash[i] = hashstring(md.digest()) ;
 				ByteArrayOutputStream baos=new ByteArrayOutputStream();
@@ -586,6 +588,12 @@ public class OpenSubtitlesPlugin {
 		FileInputStream fis = new FileInputStream(f);
 		FileChannel fc = fis.getChannel();
 		long sz = fc.size();
+		
+		if (sz < 65536)
+		{
+			fc.close();
+			return "NoHash";
+		}
 	   
 		MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, 65536);
 		long sum=sz;
