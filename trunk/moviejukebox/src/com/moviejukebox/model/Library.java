@@ -496,7 +496,7 @@ public class Library implements Map<String, Movie> {
                 e.printStackTrace();
             }
         } else {
-            logger.severe("The moviejukebox library input file you specified is invalid: " + f.getName());
+            logger.severe("The moviejukebox genre input file you specified is invalid: " + f.getName());
         }
     }
 
