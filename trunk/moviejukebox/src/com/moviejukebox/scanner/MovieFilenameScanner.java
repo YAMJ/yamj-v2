@@ -277,6 +277,8 @@ public class MovieFilenameScanner {
         int dot = f.lastIndexOf('.');
         if (dot != -1)
             f = f.substring(0, dot);
+        else
+            dot = f.length();
 
         String[] keywords = { "CD", "DISC", "DISK", "PART" };
         for (String keyword : keywords) {
