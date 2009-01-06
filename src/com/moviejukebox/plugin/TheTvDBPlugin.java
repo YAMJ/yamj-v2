@@ -27,12 +27,14 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private TheTVDB tvDB;
     private String language;
     private boolean includeEpisodePlots;
+    private boolean dvdEpisodes = false;
 
     public TheTvDBPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
         language = PropertiesUtil.getProperty("thetvdb.language", "en");
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+        dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
     }
 
     @Override
@@ -181,7 +183,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
             }
 
             if (movie.getSeason() > 0) {
-                Episode episode = tvDB.getEpisode(id, movie.getSeason(), file.getPart(), language);
+                Episode episode = null;
+                if (!dvdEpisodes) {
+                    tvDB.getEpisode(id, movie.getSeason(), file.getPart(), language);
+                } else {
+                    tvDB.getDVDEpisode(id, movie.getSeason(), file.getPart(), language);
+                }
                 if (episode != null) {
                     file.setTitle(episode.getEpisodeName());
                     if (includeEpisodePlots) {

@@ -7,6 +7,7 @@ MovieJukebox 1.0.15 beta
   - Enhancement  #225 Improved sorting of movies (by IMdB rating and by year)
   - Enhancement  #250 So how do we customize the categories?
   - Enhancement  #254 Use XBMC tvshow nfo layout to override scraper info
+  - Enhancement  #281 Support DVD order from TheTVDB.com
   - Enhancement  #331 FilmUp.it scraper (Italian Plug-In)
   - Enhancement  #343 Allowing prebuf to be set
   - Enhancement  #348 Enhanced BD-50 Disk RIP Scanner
