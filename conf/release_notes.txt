@@ -38,6 +38,7 @@ MovieJukebox 1.0.15 beta
   - Fixed defect #376 Bug in default skin detail.xsl cause extra () signs on page when no country name exist
   - Fixed defect #377 Scanner does not recognise changed local Fanart file
   - Fixed defect #385 BD Rip scanner does not close files
+  - Issues 346, 381, 389 - Part title support for movies
 
 MovieJukebox 1.0.14 beta
 ------------------------
