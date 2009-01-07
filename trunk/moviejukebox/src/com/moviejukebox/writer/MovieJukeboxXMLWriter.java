@@ -218,6 +218,11 @@ public class MovieJukeboxXMLWriter {
                             mf.setPart(Integer.parseInt(attr.getValue()));
                             continue;
                         }
+                        
+                        if ("subtitlesExchange".equals(ns)) {
+                            mf.setSubtitlesExchange(attr.getValue().equalsIgnoreCase("YES"));
+                            continue;
+                        }
                     }
 
                     while (!r.peek().toString().equals("</file>")) {
@@ -618,6 +623,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeStartElement("file");
             writer.writeAttribute("part", Integer.toString(mf.getPart()));
             writer.writeAttribute("title", mf.getTitle());
+            writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
             writer.writeStartElement("fileURL");
             writer.writeCharacters(HTMLTools.encodeUrl(mf.getFilename()));
             writer.writeEndElement();

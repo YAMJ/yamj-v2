@@ -101,10 +101,14 @@ public class OpenSubtitlesPlugin {
 		
 		// Check if all files have subtitle
 		boolean allSubtitleExist = true;
+		boolean allSubtitleExchange = true;
 		
 		
 		// Go over all the movie files and check subtitle status
 		for (MovieFile mf : movie.getMovieFiles()) {
+		
+			if (!mf.isSubtitlesExchange())
+				allSubtitleExchange = false;
         
 			// Check if this movie already have subtitles for it
 			String path = mf.getFile().getAbsolutePath();
@@ -114,10 +118,14 @@ public class OpenSubtitlesPlugin {
 			File subtitleFile = new File(basename + "srt");
 			
 			if (!subtitleFile.exists()) {
+				allSubtitleExchange = false;
 				allSubtitleExist = false;
 				break;
 			}
 		}
+		
+		if (allSubtitleExchange)
+			return;
 				
 
 		// Check if all files have subtitle , or this is a tv show, that each episode is by itself
@@ -134,18 +142,25 @@ public class OpenSubtitlesPlugin {
 				File subtitleFile = new File(basename + "srt");
 				
 				if (!subtitleFile.exists()) {
-					subtitleDownload(movie, mf.getFile(), subtitleFile);
+					if (subtitleDownload(movie, mf.getFile(), subtitleFile)==true) {
+						movie.setDirty(true);
+						mf.setSubtitlesExchange(true);
+					}
 				}
 				else {
-					File movieFileArray[] = new File[1];
-					File subtitleFileArray[] = new File[1];
+					if (!mf.isSubtitlesExchange()) {
+						File movieFileArray[] = new File[1];
+						File subtitleFileArray[] = new File[1];
 
-					movieFileArray[0] = mf.getFile();
-					subtitleFileArray[0] = subtitleFile;
+						movieFileArray[0] = mf.getFile();
+						subtitleFileArray[0] = subtitleFile;
 
-					subtitleUpload(movie, movieFileArray, subtitleFileArray);
+						if (subtitleUpload(movie, movieFileArray, subtitleFileArray)==true) {
+							movie.setDirty(true);
+							mf.setSubtitlesExchange(true);
+						}
+					}
 				}
-	        
 			}
 		}
 		else
@@ -170,11 +185,18 @@ public class OpenSubtitlesPlugin {
 				i++;
 			}
 			
-			subtitleUpload(movie, movieFileArray, subtitleFileArray);
+			if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
+				movie.setDirty(true);
+			
+				// Go over all the movie files and mark the exchange
+				for (MovieFile mf : movie.getMovieFiles()) {
+					mf.setSubtitlesExchange(true);
+				}
+			}
 		}
 	}
 
-	private void subtitleDownload(Movie movie, File movieFile, File subtitleFile) {
+	private boolean subtitleDownload(Movie movie, File movieFile, File subtitleFile) {
 		try {
 
 			String ret;
@@ -209,9 +231,11 @@ public class OpenSubtitlesPlugin {
 
 
 			if (subDownloadLink.equals("")) {
-				logger.finer("OpenSubtitles Plugin: Subtitle not found " + movie.getTitle());
-				return;
+				logger.finer("OpenSubtitles Plugin: Subtitle not found for " + movie.getBaseName());
+				return false;
 			}
+			
+			logger.finer("OpenSubtitles Plugin: Download subtitle for " + movie.getBaseName());
 
 
 			URL url = new URL(subDownloadLink);
@@ -223,7 +247,7 @@ public class OpenSubtitlesPlugin {
 			if (code != HttpURLConnection.HTTP_OK)
 			{
 				logger.severe("OpenSubtitles Plugin: Download Failed");
-				return;
+				return false;
 			}
 
 			GZIPInputStream  a = new GZIPInputStream(inputStream);
@@ -237,14 +261,17 @@ public class OpenSubtitlesPlugin {
 
 
 			movie.setSubtitles(true);
+			
+			return true;
 	 
 		} catch(Exception e) {
-			logger.severe("OpenSubtitles Plugin: Download Exception");
-		};
+			logger.severe("OpenSubtitles Plugin: Download Exception (Movie Not Found)");
+			return false;
+		}
 	
 	}
 	
-	private void subtitleUpload(Movie movie, File movieFile[], File subtitleFile[]) {
+	private boolean subtitleUpload(Movie movie, File movieFile[], File subtitleFile[]) {
 		try {
 
 			String ret="";
@@ -302,18 +329,23 @@ public class OpenSubtitlesPlugin {
             String alreadyindb=getIntVaule("alreadyindb",ret);
 
 			if(!alreadyindb.equals("0")) {
-				return;
+				logger.finer("OpenSubtitles Plugin: Subtitle already in db for " + movie.getBaseName());
+				return true;
 			}
 			
+			logger.finer("OpenSubtitles Plugin: Upload Subtitle for " + movie.getBaseName());
 			
 			// Upload the subtitle
 			xml=generateXMLRPCUS(idmovieimdb, subhash, subcontent, subfilename, moviehash, moviebytesize, movietimems, movieframes, moviefps, moviefilename);
 			
 			ret=sendRPC(xml);
+			
+			return true;
 	 
 		} catch(Exception e) {
 			logger.severe("OpenSubtitles Plugin: Update Failed");
-		};
+			return false;
+		}
  	}
 
 	private static String generateXMLRPCSS(String moviehash, String moviebytesize) {
