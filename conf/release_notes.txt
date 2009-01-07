@@ -10,6 +10,7 @@ MovieJukebox 1.0.15 beta
   - Enhancement  #281 Support DVD order from TheTVDB.com
   - Enhancement  #331 FilmUp.it scraper (Italian Plug-In)
   - Enhancement  #343 Allowing prebuf to be set
+  - Fixed defect #346 Errors on multiple part movies - empty details html file
   - Enhancement  #348 Enhanced BD-50 Disk RIP Scanner
   - Fixed defect #352 Fanart not being resized
   - Fixed defect #353 Some of the html files are not getting copied from the temp dir to the jukebox dir
@@ -37,8 +38,11 @@ MovieJukebox 1.0.15 beta
                         5) Fix for NFO poster priority over sub-baba.com poster
   - Fixed defect #376 Bug in default skin detail.xsl cause extra () signs on page when no country name exist
   - Fixed defect #377 Scanner does not recognise changed local Fanart file
+  - Fixed defect #381 Year in part title breaks multipart video scanner
   - Fixed defect #385 BD Rip scanner does not close files
-  - Issues 346, 381, 389 - Part title support for movies
+  - Fixed defect #389 Part Title issues with VIDEO_TS / BDMV folders
+  - Fixed defect #391 OpenSubtitles Plugin hits the server on every scan
+  
 
 MovieJukebox 1.0.14 beta
 ------------------------

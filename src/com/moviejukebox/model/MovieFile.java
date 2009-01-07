@@ -7,6 +7,7 @@ public class MovieFile implements Comparable<MovieFile> {
 	private String title = Movie.UNKNOWN;
 	private int part = 1; // #1, #2, CD1, CD2, etc.
 	private boolean newFile = true; // is new file or already exists in XML data
+	private boolean subtitlesExchange = false; // is the subtitles for this file already downloaded/uploaded to the server
     private String plot = Movie.UNKNOWN;
     private File file;
 
@@ -51,6 +52,14 @@ public class MovieFile implements Comparable<MovieFile> {
 
 	public void setNewFile(boolean newFile) {
 		this.newFile = newFile;
+	}
+
+	public boolean isSubtitlesExchange() {
+		return subtitlesExchange;
+	}
+
+	public void setSubtitlesExchange(boolean subtitlesExchange) {
+		this.subtitlesExchange = subtitlesExchange;
 	}
 
 	/*
