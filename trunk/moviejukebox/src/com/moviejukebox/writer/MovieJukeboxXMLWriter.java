@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.net.URLEncoder;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -337,7 +338,14 @@ public class MovieJukeboxXMLWriter {
             Map<String, List<Movie>> index = category.getValue();
 
             for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
-                String key = group.getKey();
+				String key = "";
+                try {
+                    key = URLEncoder.encode(group.getKey(), "UTF-8").replace('%','$');
+                } catch (Exception e) {
+					System.err.println("Failed generating HTML library index.");
+					e.printStackTrace();
+				}
+
                 List<Movie> movies = group.getValue();
 
                 int previous = 1;
@@ -402,13 +410,20 @@ public class MovieJukeboxXMLWriter {
             }
 
             for (String akey : index.keySet()) {
-                prefix = createPrefix(categoryKey, akey);
+				String encakey="";
+                try {
+                    encakey = URLEncoder.encode(akey, "UTF-8").replace('%','$');
+                } catch (Exception e) {
+					System.err.println("Failed generating HTML library index.");
+					e.printStackTrace();
+				}
+                prefix = createPrefix(categoryKey, encakey);
 
                 writer.writeStartElement("index");
                 writer.writeAttribute("name", akey);
 
                 // if currently writing this page then add current attribute with value true
-                if (akey.equals(key)) {
+                if (encakey.equals(key)) {
                     writer.writeAttribute("current", "true");
                     writer.writeAttribute("first", prefix + '1');
                     writer.writeAttribute("previous", prefix + previous);

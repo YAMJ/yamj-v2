@@ -40,6 +40,7 @@ MovieJukebox 1.0.15 beta
   - Fixed defect #377 Scanner does not recognise changed local Fanart file
   - Fixed defect #381 Year in part title breaks multipart video scanner
   - Fixed defect #385 BD Rip scanner does not close files
+  - Fixed defect #388 MyIHome does not support foreign language links 
   - Fixed defect #389 Part Title issues with VIDEO_TS / BDMV folders
   - Fixed defect #391 OpenSubtitles Plugin hits the server on every scan
   
