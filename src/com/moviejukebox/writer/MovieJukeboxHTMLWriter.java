@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+import java.net.URLEncoder;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -147,7 +148,14 @@ public class MovieJukeboxHTMLWriter {
             Map<String, List<Movie>> index = category.getValue();
 
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
-                String key = indexEntry.getKey();
+				String key = "";
+                try {
+                    key = URLEncoder.encode(indexEntry.getKey(), "UTF-8").replace('%','$');
+                } catch (Exception e) {
+					System.err.println("Failed generating HTML library index.");
+					e.printStackTrace();
+				}
+				
                 List<Movie> movies = indexEntry.getValue();
                 int nbPages;
                 int movieCount = movies.size();
