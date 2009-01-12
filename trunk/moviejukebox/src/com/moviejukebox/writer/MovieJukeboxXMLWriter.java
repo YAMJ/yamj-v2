@@ -3,7 +3,6 @@ package com.moviejukebox.writer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -13,9 +12,7 @@ import java.net.URLEncoder;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
@@ -28,6 +25,7 @@ import com.moviejukebox.model.TrailerFile;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.XMLWriter;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -283,10 +281,9 @@ public class MovieJukeboxXMLWriter {
 
         File xmlFile = new File(folder, "Categories.xml");
 
-        XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-        XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
+        XMLWriter writer = new XMLWriter(xmlFile);
 
-        writer.writeStartDocument();
+        writer.writeStartDocument("UTF-8", "1.0");
         writer.writeStartElement("library");
 
         writePreferences(writer, rootPath);
@@ -395,8 +392,7 @@ public class MovieJukeboxXMLWriter {
         File xmlFile = new File(rootPath, prefix + current + ".xml");
         xmlFile.getParentFile().mkdirs();
 
-        XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-        XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
+        XMLWriter writer = new XMLWriter(xmlFile);
 
         writer.writeStartDocument("UTF-8", "1.0");
         writer.writeStartElement("library");
@@ -462,7 +458,7 @@ public class MovieJukeboxXMLWriter {
         writer.close();
     }
 
-    private void writeMovieForIndex(XMLStreamWriter writer, Movie movie) throws XMLStreamException {
+    private void writeMovieForIndex(XMLWriter writer, Movie movie) throws XMLStreamException {
         writer.writeStartElement("movie");
         writer.writeAttribute("isTrailer", Boolean.toString(movie.isTrailer()));
         writer.writeStartElement("details");
@@ -489,7 +485,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
     }
 
-    private void writeMovie(XMLStreamWriter writer, Movie movie) throws XMLStreamException {
+    private void writeMovie(XMLWriter writer, Movie movie) throws XMLStreamException {
         writer.writeStartElement("movie");
         writer.writeAttribute("isTrailer", Boolean.toString(movie.isTrailer()));
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
@@ -668,7 +664,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
     }
 
-    public void writePreferences(XMLStreamWriter writer, String rootPath) throws XMLStreamException {
+    public void writePreferences(XMLWriter writer, String rootPath) throws XMLStreamException {
         writer.writeStartElement("preferences");
         writer.writeStartElement("homePage");
         writer.writeCharacters(homePage);
@@ -698,8 +694,7 @@ public class MovieJukeboxXMLWriter {
 
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
 
-            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer = outputFactory.createXMLStreamWriter(new FileOutputStream(tempXmlFile), "UTF-8");
+            XMLWriter writer = new XMLWriter(tempXmlFile);
 
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("details");

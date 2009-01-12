@@ -44,6 +44,7 @@ MovieJukebox 1.0.15 beta
   - Fixed defect #389 Part Title issues with VIDEO_TS / BDMV folders
   - Fixed defect #391 OpenSubtitles Plugin hits the server on every scan
   - Enhancement  #398 Ability to turn off internet scraping for a video file
+  - Enhancement  #402 XML line breaks
   - Enhancement  #403 Source clean up of spaces vs tabs.
   
 
