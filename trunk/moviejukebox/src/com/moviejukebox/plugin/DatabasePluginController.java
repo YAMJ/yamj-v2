@@ -22,16 +22,28 @@ public class DatabasePluginController {
     }
 
     public static void scan(Movie movie) {
-        // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
-        String origType = movie.getMovieType();
-        if (!origType.equals(Movie.TYPE_UNKNOWN)) {
-            boolean isScanned = PLUGIN_MAP.get(origType).scan(movie);
-            String newType = movie.getMovieType();
-            // so if the movie wasn't scanned and it is now a different valid type, then rescan
-            if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(origType)) {
-                isScanned = PLUGIN_MAP.get(newType).scan(movie);
-                if (!isScanned) {
-                    LOG.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+        // if the movie id was set to 0 or -1 then do not continue with database scanning.
+        // the user has disabled scanning for this movie
+        boolean ignore = false;
+        for (String id : movie.getIdMap().values()) {
+            if (id.equals("0") || id.equals("-1")) {
+                ignore = true;
+                break;
+            }
+        }
+
+        if (!ignore) {
+            // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
+            String origType = movie.getMovieType();
+            if (!origType.equals(Movie.TYPE_UNKNOWN)) {
+                boolean isScanned = PLUGIN_MAP.get(origType).scan(movie);
+                String newType = movie.getMovieType();
+                // so if the movie wasn't scanned and it is now a different valid type, then rescan
+                if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(origType)) {
+                    isScanned = PLUGIN_MAP.get(newType).scan(movie);
+                    if (!isScanned) {
+                        LOG.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                    }
                 }
             }
         }
