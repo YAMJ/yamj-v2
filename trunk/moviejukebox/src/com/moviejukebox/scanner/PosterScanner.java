@@ -22,12 +22,12 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class PosterScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
-
     protected static String[] coverArtExtensions;
     protected static String searchForExistingCoverArt;
     protected static String fixedCoverArtName;
     protected static String coverArtDirectory;
     protected static Boolean useFolderImage;
+
 
     static {
         // We get covert art scanner behaviour
@@ -43,7 +43,7 @@ public class PosterScanner {
         while (st.hasMoreTokens()) {
             extensions.add(st.nextToken());
         }
-        coverArtExtensions = extensions.toArray(new String[] {});
+        coverArtExtensions = extensions.toArray(new String[]{});
 
         // We get coverart Directory if needed
         coverArtDirectory = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");
@@ -145,26 +145,26 @@ public class PosterScanner {
             File finalDestinationFile = new File(finalDestinationFileName);
             File destFile = new File(destFileName);
             boolean checkAgain = false;
-            
+
             // Overwrite the jukebox files if the local file is newer
             // First check the temp jukebox file
-            if ( localPosterFile.exists() && destFile.exists() ) {
-                if ( !FileTools.isNewer(localPosterFile, destFile) ) {
+            if (localPosterFile.exists() && destFile.exists()) {
+                if (!FileTools.isNewer(localPosterFile, destFile)) {
                     checkAgain = true;
                 }
-            } else if ( localPosterFile.exists() && finalDestinationFile.exists() ) {
+            } else if (localPosterFile.exists() && finalDestinationFile.exists()) {
                 // Check the target jukebox file
-                if ( !FileTools.isNewer(localPosterFile, finalDestinationFile) ){
+                if (!FileTools.isNewer(localPosterFile, finalDestinationFile)) {
                     checkAgain = true;
                 }
             }
-            
-            if ( ( localPosterFile.length() != finalDestinationFile.length() ) ||
-                 ( FileTools.isNewer(localPosterFile, finalDestinationFile) ) ){
+
+            if ((localPosterFile.length() != finalDestinationFile.length()) ||
+                    (FileTools.isNewer(localPosterFile, finalDestinationFile))) {
                 // Poster size is different OR Local Poster is newer
                 checkAgain = true;
             }
-            
+
             if (!finalDestinationFile.exists() || checkAgain) {
                 FileTools.copyFile(localPosterFile, destFile);
                 logger.finer("PosterScanner : " + fullPosterFilename + " has been copied to " + destFileName);

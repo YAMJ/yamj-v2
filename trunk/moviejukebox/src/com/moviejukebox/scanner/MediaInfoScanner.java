@@ -34,15 +34,11 @@ public class MediaInfoScanner {
 
     // mediaInfo command line, depend on OS
     private String[] mediaInfoExe;
-    private String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null };
-    private String[] mediaInfoExeLinux = { "./mediainfo", "-f", null };
-
+    private String[] mediaInfoExeWindows = {"cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null};
+    private String[] mediaInfoExeLinux = {"./mediainfo", "-f", null};
     public final static String OS_NAME = System.getProperty("os.name");
-
     public final static String OS_VERSION = System.getProperty("os.version");
-
     public final static String OS_ARCH = System.getProperty("os.arch");
-
     private boolean activated;
     private boolean enableMetadata;
 
@@ -98,7 +94,7 @@ public class MediaInfoScanner {
                 Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
-                    ArchiveEntry currentArchiveEntry = (ArchiveEntry)parcoursEntries.next();
+                    ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
                     if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
                         File currentIFO = new File("./isoTEMP/VIDEO_TS/" + currentArchiveEntry.getName());
                         FileOutputStream fosCurrentIFO = new FileOutputStream(currentIFO);
@@ -121,8 +117,9 @@ public class MediaInfoScanner {
 
             // Clean up
             File[] isoList = tempRep.listFiles();
-            for (int nbFiles = 0; nbFiles < isoList.length; nbFiles++)
+            for (int nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
                 isoList[nbFiles].delete();
+            }
             tempRep.delete();
         } else {
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
@@ -132,8 +129,9 @@ public class MediaInfoScanner {
 
     public void scan(Movie currentMovie, String movieFilePath) {
 
-        if (!activated)
+        if (!activated) {
             return;
+        }
 
         try {
             String[] commandMedia = mediaInfoExe;
@@ -171,7 +169,7 @@ public class MediaInfoScanner {
     }
 
     private void parseMediaInfo(Process p, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
+            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
 
         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
@@ -185,8 +183,9 @@ public class MediaInfoScanner {
                     while (line.charAt(longueurUtile) == ' ') {
                         longueurUtile--;
                     }
-                    if (infosGeneral.get(line.substring(0, longueurUtile + 1)) == null)
+                    if (infosGeneral.get(line.substring(0, longueurUtile + 1)) == null) {
                         infosGeneral.put(line.substring(0, longueurUtile + 1), line.substring(indexSeparateur + 3));
+                    }
                 }
             } else if (line.startsWith("Video")) {
                 HashMap<String, String> vidCourante = new HashMap<String, String>();
@@ -197,8 +196,9 @@ public class MediaInfoScanner {
                     while (line.charAt(longueurUtile) == ' ') {
                         longueurUtile--;
                     }
-                    if (vidCourante.get(line.substring(0, longueurUtile + 1)) == null)
+                    if (vidCourante.get(line.substring(0, longueurUtile + 1)) == null) {
                         vidCourante.put(line.substring(0, longueurUtile + 1), line.substring(indexSeparateur + 3));
+                    }
                 }
                 infosVideo.add(vidCourante);
             } else if (line.startsWith("Audio")) {
@@ -210,8 +210,9 @@ public class MediaInfoScanner {
                     while (line.charAt(longueurUtile) == ' ') {
                         longueurUtile--;
                     }
-                    if (audioCourant.get(line.substring(0, longueurUtile + 1)) == null)
+                    if (audioCourant.get(line.substring(0, longueurUtile + 1)) == null) {
                         audioCourant.put(line.substring(0, longueurUtile + 1), line.substring(indexSeparateur + 3));
+                    }
                 }
                 infosAudio.add(audioCourant);
             } else if (line.startsWith("Text")) {
@@ -236,7 +237,7 @@ public class MediaInfoScanner {
     }
 
     private void updateMovieInfo(Movie movie, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) {
+            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) {
 
         String infoValue;
 
@@ -398,24 +399,24 @@ public class MediaInfoScanner {
             } else {
                 String videoOutput;
                 switch (movie.getFps()) {
-                case 24:
-                    videoOutput = "24";
-                    break;
-                case 25:
-                    videoOutput = "PAL 25";
-                    break;
-                case 30:
-                    videoOutput = "NTSC 30";
-                    break;
-                case 50:
-                    videoOutput = "PAL 50";
-                    break;
-                case 60:
-                    videoOutput = "NTSC 60";
-                    break;
-                default:
-                    videoOutput = "NTSC";
-                    break;
+                    case 24:
+                        videoOutput = "24";
+                        break;
+                    case 25:
+                        videoOutput = "PAL 25";
+                        break;
+                    case 30:
+                        videoOutput = "NTSC 30";
+                        break;
+                    case 50:
+                        videoOutput = "PAL 50";
+                        break;
+                    case 60:
+                        videoOutput = "NTSC 60";
+                        break;
+                    default:
+                        videoOutput = "NTSC";
+                        break;
                 }
                 infoValue = infosMainVideo.get("Scan type");
                 if (infoValue != null) {
@@ -469,8 +470,9 @@ public class MediaInfoScanner {
         }
 
         // Subtitles ?
-        if (infosText.size() > 0)
+        if (infosText.size() > 0) {
             movie.setSubtitles(true);
+        }
     }
 
     public static String formatDuration(int duration) {
@@ -484,12 +486,12 @@ public class MediaInfoScanner {
 
         int nbMinutes = duration / 60;
         if (nbMinutes != 0) {
-            if (nbHours != 0)
+            if (nbHours != 0) {
                 returnString.append(" ");
+            }
             returnString.append(nbMinutes).append("mn");
         }
 
         return returnString.toString();
     }
-
 }

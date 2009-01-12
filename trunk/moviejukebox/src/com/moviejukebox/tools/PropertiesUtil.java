@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 public class PropertiesUtil {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-
     private static Properties props = null;
 
     public static boolean setPropertiesStreamName(String streamName) {
@@ -38,17 +37,14 @@ public class PropertiesUtil {
         logger.finer(props.toString());
 
         String skinHome = props.getProperty(
-            "mjb.skin.dir", "./skins/default");
+                "mjb.skin.dir", "./skins/default");
 
         File skinProperties = new File(skinHome, "skin.properties");
         try {
             propertiesStream = new FileInputStream(skinProperties);
             props.load(propertiesStream);
         } catch (Exception e) {
-            logger
-                .severe("Failed loading file "
-                                + skinProperties.getAbsolutePath()
-                                + ": Please check your configuration. The moviejukebox.properties should be in the classpath, and define a property called mjb.skin.dir which point to the skin directory.");
+            logger.severe("Failed loading file " + skinProperties.getAbsolutePath() + ": Please check your configuration. The moviejukebox.properties should be in the classpath, and define a property called mjb.skin.dir which point to the skin directory.");
             return false;
         }
         return true;
@@ -60,7 +56,7 @@ public class PropertiesUtil {
 
     public static String getProperty(String key, String defaultValue) {
         return props.getProperty(
-            key, defaultValue);
+                key, defaultValue);
     }
 
     // Issue 309

@@ -18,12 +18,11 @@ public class FileTools {
     private static Logger logger = Logger.getLogger("moviejukebox");
     final static int BUFF_SIZE = 100000;
     final static byte[] buffer = new byte[BUFF_SIZE];
-
-    private static final String BOM1 = "" + (char)239 + (char)187 + (char)191;
-    private static final String BOM2 = "" + (char)254 + (char)255;
-    private static final String BOM3 = "" + (char)255 + (char)254;
-    private static final String BOM4 = "" + (char)00 + (char)00 + (char)254 + (char)255;
-    private static final String BOM5 = "" + (char)254 + (char)255 + (char)00 + (char)00;
+    private static final String BOM1 = "" + (char) 239 + (char) 187 + (char) 191;
+    private static final String BOM2 = "" + (char) 254 + (char) 255;
+    private static final String BOM3 = "" + (char) 255 + (char) 254;
+    private static final String BOM4 = "" + (char) 00 + (char) 00 + (char) 254 + (char) 255;
+    private static final String BOM5 = "" + (char) 254 + (char) 255 + (char) 00 + (char) 00;
 
     public static void copy(InputStream is, OutputStream os) throws IOException {
         try {
@@ -114,7 +113,7 @@ public class FileTools {
             e.printStackTrace();
         }
     }
-    
+
     public static String stripBOM(String input) {
         String output = input;
         if (input != null) {
@@ -132,7 +131,7 @@ public class FileTools {
         }
         return output;
     }
-    
+
     public static String readFileToString(File file) {
         StringBuffer out = new StringBuffer();
         if (file != null) {
@@ -156,7 +155,7 @@ public class FileTools {
         }
         return stripBOM(out.toString());
     }
- 
+
     /***
      *  @author Stuart Boston
      *  @param  file1 - first file to compare
@@ -167,9 +166,9 @@ public class FileTools {
      */
     public static boolean isNewer(File file1, File file2) {
         // If file1 exists and file2 doesn't then return true
-        if ( file1.exists() ) {
+        if (file1.exists()) {
             // If file2 doesn't exist then file1 is newer 
-            if ( !file2.exists() ) {
+            if (!file2.exists()) {
                 return true;
             }
         } else {
@@ -178,7 +177,7 @@ public class FileTools {
         }
 
         // Compare the file dates. This is only true if the first file is newer than the second, as the second file is the file2 file
-        if ( file1.lastModified() < file2.lastModified() ) {
+        if (file1.lastModified() < file2.lastModified()) {
             // file1 is older than the file2.
             return false;
         }

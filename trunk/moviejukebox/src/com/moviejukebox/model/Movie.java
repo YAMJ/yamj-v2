@@ -26,7 +26,7 @@ public class Movie implements Comparable<Movie> {
     public static String TYPE_TVSHOW = "TVSHOW";
     public static String TYPE_UNKNOWN = "UNKNOWN";
     private static ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
-    
+
 
     static {
         String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
@@ -41,8 +41,7 @@ public class Movie implements Comparable<Movie> {
             }
         }
     }
-    private String baseName;    
-    
+    private String baseName;
     // Movie properties
     private Map<String, String> idMap = new HashMap<String, String>(2);
     private String title = UNKNOWN;
@@ -78,22 +77,19 @@ public class Movie implements Comparable<Movie> {
     private String certification = UNKNOWN;
     private boolean trailer = false;
     private String libraryPath = UNKNOWN;
-    private String movieType = TYPE_MOVIE; 
+    private String movieType = TYPE_MOVIE;
     private boolean overrideTitle = false;
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
-    
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
     private String next = UNKNOWN;
-    private String last = UNKNOWN;    
-    
+    private String last = UNKNOWN;
     // Media file properties
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
-    Collection<TrailerFile> trailerFiles = new TreeSet<TrailerFile>();    
-    
+    Collection<TrailerFile> trailerFiles = new TreeSet<TrailerFile>();
     // Caching
     private boolean isDirty = false;
     private boolean isDirtyNFO = false;
@@ -350,7 +346,7 @@ public class Movie implements Comparable<Movie> {
     public boolean isDirty() {
         return isDirty;
     }
-    
+
     public boolean isDirtyNFO() {
         return isDirtyNFO;
     }
@@ -447,7 +443,7 @@ public class Movie implements Comparable<Movie> {
     public void setDirty(boolean isDirty) {
         this.isDirty = isDirty;
     }
-    
+
     public void setDirtyNFO(boolean isDirtyNFO) {
         this.isDirtyNFO = isDirtyNFO;
     }
@@ -746,7 +742,8 @@ public class Movie implements Comparable<Movie> {
                     if (mf.getFile() != null && mf.getFile().lastModified() > tmstmp) {
                         tmstmp = mf.getFile().lastModified();
                     }
-                } catch (Exception ignore) {}
+                } catch (Exception ignore) {
+                }
             }
         }
         return tmstmp;
@@ -797,7 +794,7 @@ public class Movie implements Comparable<Movie> {
         }
         this.thumbnailFilename = thumbnailFilename;
     }
-    
+
     public String getThumbnailFilename() {
         return this.thumbnailFilename;
     }

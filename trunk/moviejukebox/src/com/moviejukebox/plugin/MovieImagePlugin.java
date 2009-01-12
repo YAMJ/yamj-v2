@@ -6,5 +6,5 @@ import com.moviejukebox.model.Movie;
 
 public interface MovieImagePlugin {
 
-	public BufferedImage generate(Movie movie, BufferedImage moviePoster);
+    public BufferedImage generate(Movie movie, BufferedImage moviePoster);
 }

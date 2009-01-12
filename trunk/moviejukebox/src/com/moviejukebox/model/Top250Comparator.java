@@ -12,5 +12,4 @@ public class Top250Comparator implements Comparator<Movie> {
     public int compare(Movie movie1, Movie movie2) {
         return movie1.getTop250() - movie2.getTop250();
     }
-
 }

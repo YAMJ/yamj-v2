@@ -21,7 +21,6 @@
  * - org.apache.log4j.Logger switched to java.util.logging.Logger
  * - removed all unused code
  **/
-
 package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.BufferedReader;
@@ -33,238 +32,236 @@ import java.util.logging.Logger;
 
 abstract class FileProperties {
 
-	static Logger log = Logger.getLogger("moviejukebox");
+    static Logger log = Logger.getLogger("moviejukebox");
+    protected boolean supported = false;
+    protected boolean errorOccured = false;
+    /**
+     * The video duration (seconds).
+     */
+    private int _duration = -1;
+    protected String filePath = "";
 
-	protected boolean supported = false;
+    /**
+     * Returns the duration.
+     */
+    protected int getDuration() {
+        return _duration;
+    }
 
-	protected boolean errorOccured = false;
+    /**
+     * Sets the duration.
+     */
+    protected void setDuration(int duration) {
+        _duration = duration;
+    }
 
-	/**
-	 * The video duration (seconds).
-	 */
-	private int _duration = -1;
+    protected boolean isSupported() {
+        return supported;
+    }
 
-	protected String filePath = "";
+    /**
+     * Processes a file from the given DataInputStream.
+     */
+    protected void process(RandomAccessFile dataStream) throws Exception {
+    }
 
-	/**
-	 * Returns the duration.
-	 */
-	protected int getDuration() {
-		return _duration;
-	}
+    /**
+     * Reads an unsigned 8-bit integer.
+     */
+    protected int readUnsignedByte(byte[] b, int offset) throws Exception {
+        return b[offset];
+    }
 
-	/**
-	 * Sets the duration.
-	 */
-	protected void setDuration(int duration) {
-		_duration = duration;
-	}
+    /**
+     * Reads an unsigned 16-bit integer.
+     */
+    protected int readUnsignedInt16(byte[] b, int offset) throws Exception {
+        return (b[offset] | (b[offset + 1] << 8));
+    }
 
-	protected boolean isSupported() {
-		return supported;
-	}
+    /**
+     * Reads an unsigned 32-bit integer.
+     */
+    protected int readUnsignedInt32(byte[] b, int offset) throws Exception {
+        return (readUnsignedInt16(b, offset) | (readUnsignedInt16(b, offset + 2) << 16));
+    }
 
-	/**
-	 * Processes a file from the given DataInputStream.
-	 */
-	protected void process(RandomAccessFile dataStream) throws Exception {
-	}
+    /**
+     * Returns a 16-bit integer.
+     */
+    protected int getUnsignedInt16(int byte1, int byte2) throws Exception {
+        return (byte2 | (byte1 << 8));
+    }
 
-	/**
-	 * Reads an unsigned 8-bit integer.
-	 */
-	protected int readUnsignedByte(byte[] b, int offset) throws Exception {
-		return b[offset];
-	}
+    /**
+     * Returns a 16-bit integer.
+     */
+    protected int getUnsignedInt16(byte byte1, byte byte2) throws Exception {
+        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 8);
+    }
 
-	/**
-	 * Reads an unsigned 16-bit integer.
-	 */
-	protected int readUnsignedInt16(byte[] b, int offset) throws Exception {
-		return (b[offset] | (b[offset + 1] << 8));
-	}
+    /**
+     * Returns an unsigned 32-bit integer.
+     */
+    protected int getUnsignedInt32(byte byte1, byte byte2) throws Exception {
+        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 16);
+    }
 
-	/**
-	 * Reads an unsigned 32-bit integer.
-	 */
-	protected int readUnsignedInt32(byte[] b, int offset) throws Exception {
-		return (readUnsignedInt16(b, offset) | (readUnsignedInt16(b, offset + 2) << 16));
-	}
+    /**
+     * Returns an unsigned 32-bit integer.
+     */
+    protected int getUnsignedInt32(int byte1, int byte2) throws Exception {
+        return (byte1 | byte2 << 16);
+    }
 
-	/**
-	 * Returns a 16-bit integer.
-	 */
-	protected int getUnsignedInt16(int byte1, int byte2) throws Exception {
-		return (byte2 | (byte1 << 8));
-	}
+    /**
+     * Reads an unsigned byte and returns its int representation.
+     */
+    protected int readUnsignedByte(RandomAccessFile dataStream)
+            throws Exception {
+        int data = dataStream.readUnsignedByte();
+        if (data == -1) {
+            throw new Exception("Unexpected end of stream.");
+        }
+        return data;
+    }
 
-	/**
-	 * Returns a 16-bit integer.
-	 */
-	protected int getUnsignedInt16(byte byte1, byte byte2) throws Exception {
-		return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 8);
-	}
+    /**
+     * Reads n unsigned bytes and returns it in an int[n].
+     */
+    protected int[] readUnsignedBytes(RandomAccessFile dataStream, int n)
+            throws Exception {
+        int[] data = new int[n];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = readUnsignedByte(dataStream);
+        }
+        return data;
+    }
 
-	/**
-	 * Returns an unsigned 32-bit integer.
-	 */
-	protected int getUnsignedInt32(byte byte1, byte byte2) throws Exception {
-		return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 16);
-	}
+    /**
+     * Reads an unsigned 16-bit integer.
+     */
+    protected int readUnsignedInt16(RandomAccessFile dataStream)
+            throws Exception {
+        return (readUnsignedByte(dataStream) | (readUnsignedByte(dataStream) << 8));
+    }
 
-	/**
-	 * Returns an unsigned 32-bit integer.
-	 */
-	protected int getUnsignedInt32(int byte1, int byte2) throws Exception {
-		return (byte1 | byte2 << 16);
-	}
+    /**
+     * Reads an unsigned 32-bit integer.
+     */
+    protected int readUnsignedInt32(RandomAccessFile dataStream)
+            throws Exception {
+        return (readUnsignedInt16(dataStream) | (readUnsignedInt16(dataStream) << 16));
+    }
 
-	/**
-	 * Reads an unsigned byte and returns its int representation.
-	 */
-	protected int readUnsignedByte(RandomAccessFile dataStream)
-			throws Exception {
-		int data = dataStream.readUnsignedByte();
-		if (data == -1) {
-			throw new Exception("Unexpected end of stream.");
-		}
-		return data;
-	}
+    /**
+     * Discards n bytes.
+     */
+    protected boolean skipBytes(RandomAccessFile dataStream, int n)
+            throws Exception {
 
-	/**
-	 * Reads n unsigned bytes and returns it in an int[n].
-	 */
-	protected int[] readUnsignedBytes(RandomAccessFile dataStream, int n)
-			throws Exception {
-		int[] data = new int[n];
-		for (int i = 0; i < data.length; i++) {
-			data[i] = readUnsignedByte(dataStream);
-		}
-		return data;
-	}
+        int len = (int) (dataStream.length() - dataStream.getFilePointer());
 
-	/**
-	 * Reads an unsigned 16-bit integer.
-	 */
-	protected int readUnsignedInt16(RandomAccessFile dataStream)
-			throws Exception {
-		return (readUnsignedByte(dataStream) | (readUnsignedByte(dataStream) << 8));
-	}
+        if (n > 0 && n < 10000 && len > n) {
+            readUnsignedBytes(dataStream, n);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * Reads an unsigned 32-bit integer.
-	 */
-	protected int readUnsignedInt32(RandomAccessFile dataStream)
-			throws Exception {
-		return (readUnsignedInt16(dataStream) | (readUnsignedInt16(dataStream) << 16));
-	}
+    /**
+     * Reverses the byte order
+     */
+    int changeEndianness(int num) {
+        return (num >>> 24) | (num << 24) | ((num << 8) & 0x00FF0000 | ((num >> 8) & 0x0000FF00));
+    }
 
-	/**
-	 * Discards n bytes.
-	 */
-	protected boolean skipBytes(RandomAccessFile dataStream, int n)
-			throws Exception {
+    /**
+     * Returns the ascii value of id
+     */
+    String fromByteToAscii(int id, int numberOfBytes) throws Exception {
+        /* Transforms the id in a string... */
+        StringBuffer buffer = new StringBuffer(4);
 
-		int len = (int) (dataStream.length() - dataStream.getFilePointer());
+        for (int i = 0; i < numberOfBytes; i++) {
+            int c = id & 0xff;
+            buffer.append((char) c);
+            id >>= 8;
+        }
+        return new String(buffer);
+    }
 
-		if (n > 0 && n < 10000 && len > n) {
-			readUnsignedBytes(dataStream, n);
-			return true;
-		} else
-			return false;
-	}
+    /**
+     * Returns the decimal value of a specified number of bytes from a specific
+     * part of a byte.
+     */
+    int getDecimalValue(int[] bits, int start, int stop, boolean printBits) {
 
-	/**
-	 * Reverses the byte order
-	 */
-	int changeEndianness(int num) {
-		return (num >>> 24) | (num << 24)
-				| ((num << 8) & 0x00FF0000 | ((num >> 8) & 0x0000FF00));
-	}
+        String dec = "";
 
-	/**
-	 * Returns the ascii value of id
-	 */
-	String fromByteToAscii(int id, int numberOfBytes) throws Exception {
-		/* Transforms the id in a string... */
-		StringBuffer buffer = new StringBuffer(4);
+        for (int i = start; i >= stop; i--) {
+            dec += bits[i];
+        }
 
-		for (int i = 0; i < numberOfBytes; i++) {
-			int c = id & 0xff;
-			buffer.append((char) c);
-			id >>= 8;
-		}
-		return new String(buffer);
-	}
+        if (printBits) {
+            log.finest("dec:" + dec);
+        }
 
-	/**
-	 * Returns the decimal value of a specified number of bytes from a specific
-	 * part of a byte.
-	 */
-	int getDecimalValue(int[] bits, int start, int stop, boolean printBits) {
+        return Integer.parseInt(dec, 2);
+    }
 
-		String dec = "";
+    /**
+     * Returns an array containing the bits from the value.
+     */
+    int[] getBits(int value, int numberOfBytes) {
 
-		for (int i = start; i >= stop; i--)
-			dec += bits[i];
+        int[] bits = new int[numberOfBytes * 8];
 
-		if (printBits)
-			log.finest("dec:" + dec);
+        for (int i = bits.length - 1; i >= 0; i--) {
+            bits[i] = (value >>> i) & 1;
+        }
+        return bits;
+    }
 
-		return Integer.parseInt(dec, 2);
-	}
+    /**
+     * Debugging.
+     */
+    void printBits(int[] bits) {
 
-	/**
-	 * Returns an array containing the bits from the value.
-	 */
-	int[] getBits(int value, int numberOfBytes) {
+        for (int i = bits.length - 1; i >= 0; i--) {
+            System.out.print(bits[i]);
 
-		int[] bits = new int[numberOfBytes * 8];
+            if ((i) % 8 == 0) {
+                System.out.print(" ");
+            }
+        }
 
-		for (int i = bits.length - 1; i >= 0; i--) {
-			bits[i] = (value >>> i) & 1;
-		}
-		return bits;
-	}
+        System.out.print(" ");
+    }
 
-	/**
-	 * Debugging.
-	 */
-	void printBits(int[] bits) {
+    /**
+     * Searchs in the inputStream stream the name following the string id
+     * (seperated by a \t).
+     */
+    protected String findName(InputStream stream, String id) throws Exception {
 
-		for (int i = bits.length - 1; i >= 0; i--) {
-			System.out.print(bits[i]);
+        if (stream == null || id == null) {
+            return "";
+        }
 
-			if ((i) % 8 == 0)
-				System.out.print(" ");
-		}
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(stream));
+        String line = null;
 
-		System.out.print(" ");
-	}
-
-	/**
-	 * Searchs in the inputStream stream the name following the string id
-	 * (seperated by a \t).
-	 */
-	protected String findName(InputStream stream, String id) throws Exception {
-
-		if (stream == null || id == null)
-			return "";
-
-		BufferedReader reader = new BufferedReader(
-				new InputStreamReader(stream));
-		String line = null;
-
-		while ((line = reader.readLine()) != null) {
-			if (line.length() > 0) {
-				StringTokenizer tokenizer = new StringTokenizer(line, "\t");
-				if (tokenizer.countTokens() > 0
-						&& id.compareToIgnoreCase(tokenizer.nextToken()) == 0) {
-					return tokenizer.nextToken();
-				}
-			}
-		}
-		return "";
-	}
-
+        while ((line = reader.readLine()) != null) {
+            if (line.length() > 0) {
+                StringTokenizer tokenizer = new StringTokenizer(line, "\t");
+                if (tokenizer.countTokens() > 0 && id.compareToIgnoreCase(tokenizer.nextToken()) == 0) {
+                    return tokenizer.nextToken();
+                }
+            }
+        }
+        return "";
+    }
 }
