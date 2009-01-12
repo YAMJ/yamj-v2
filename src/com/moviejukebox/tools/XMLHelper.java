@@ -15,12 +15,12 @@ import javax.xml.stream.XMLStreamException;
  * @author altman.matthew
  */
 public class XMLHelper {
-    
+
     public static XMLEventReader getEventReader(String url) throws IOException, XMLStreamException {
         InputStream in = (new URL(url)).openStream();
         return XMLInputFactory.newInstance().createXMLEventReader(in);
     }
-    
+
     public static void closeEventReader(XMLEventReader reader) {
         if (reader != null) {
             try {
@@ -38,7 +38,7 @@ public class XMLHelper {
         }
         return sb.toString().trim();
     }
-    
+
     public static int parseInt(XMLEventReader r) throws XMLStreamException {
         int i = 0;
         String val = getCData(r);
@@ -47,7 +47,7 @@ public class XMLHelper {
         }
         return i;
     }
-    
+
     public static float parseFloat(XMLEventReader r) throws XMLStreamException {
         float f = 0.0f;
         String val = getCData(r);
@@ -56,10 +56,10 @@ public class XMLHelper {
         }
         return f;
     }
-    
+
     public static List<String> parseList(String input, String delim) {
         List<String> result = new ArrayList<String>();
-        
+
         StringTokenizer st = new StringTokenizer(input, delim);
         while (st.hasMoreTokens()) {
             String token = st.nextToken().trim();
@@ -67,8 +67,7 @@ public class XMLHelper {
                 result.add(token);
             }
         }
-        
+
         return result;
-    }   
-        
+    }
 }

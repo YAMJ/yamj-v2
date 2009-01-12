@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-
     private int backgroundWidth;
     private int backgroundHeight;
 
@@ -21,7 +20,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         backgroundWidth = Integer.parseInt(PropertiesUtil.getProperty("background.width", "1280"));
         backgroundHeight = Integer.parseInt(PropertiesUtil.getProperty("background.height", "720"));
     }
-    
+
     @Override
     public BufferedImage generate(Movie movie, BufferedImage backgroundImage) {
         BufferedImage img = null;
@@ -30,5 +29,4 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         }
         return img;
     }
-
 }

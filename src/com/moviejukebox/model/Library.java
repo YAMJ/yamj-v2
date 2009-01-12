@@ -43,7 +43,8 @@ public class Library implements Map<String, Movie> {
 
         try {
             maxGenres = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "9"));
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
 
         {
             String temp = PropertiesUtil.getProperty("certification.ordering");
@@ -215,18 +216,19 @@ public class Library implements Map<String, Movie> {
             String year = movie.getYear();
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
                 try {
-                    String beginYear = year.substring(0, year.length()-1) + "0";
-                    String endYear = year.substring(0, year.length()-1) + "9";
-                    String category = beginYear + "-" + endYear.substring(endYear.length()-2);
+                    String beginYear = year.substring(0, year.length() - 1) + "0";
+                    String endYear = year.substring(0, year.length() - 1) + "9";
+                    String category = beginYear + "-" + endYear.substring(endYear.length() - 2);
                     addMovie(index, category, movie);
 
                     int currentYear = currentCal.get(Calendar.YEAR);
-                    if (year.equals(""+currentYear)) {
+                    if (year.equals("" + currentYear)) {
                         addMovie(index, "This Year", movie);
-                    } else if (year.equals(""+(currentYear-1))) {
+                    } else if (year.equals("" + (currentYear - 1))) {
                         addMovie(index, "Last Year", movie);
                     }
-                } catch (Exception ignore) {}
+                } catch (Exception ignore) {
+                }
             }
         }
         indexes.put("Year", index);
@@ -284,7 +286,7 @@ public class Library implements Map<String, Movie> {
             newCount = 0;
         }
 
-        logger.finest("New category will have " + (newCount>0?newCount:"all of the") + " most recent videos in the last " + newDays + " days");
+        logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
         newDays = newDays * oneDay;
 
         TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();

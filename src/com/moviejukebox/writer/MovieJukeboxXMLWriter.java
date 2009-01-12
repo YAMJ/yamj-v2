@@ -197,7 +197,8 @@ public class MovieJukeboxXMLWriter {
                     if (prebuf != null) {
                         try {
                             movie.setPrebuf(Long.parseLong(prebuf));
-                        } catch (Exception ignore) {}
+                        } catch (Exception ignore) {
+                        }
                     }
                 }
 
@@ -219,7 +220,7 @@ public class MovieJukeboxXMLWriter {
                             mf.setPart(Integer.parseInt(attr.getValue()));
                             continue;
                         }
-                        
+
                         if ("subtitlesExchange".equals(ns)) {
                             mf.setSubtitlesExchange(attr.getValue().equalsIgnoreCase("YES"));
                             continue;
@@ -294,10 +295,11 @@ public class MovieJukeboxXMLWriter {
 
         if (includeMoviesInCategories) {
             for (Movie movie : library.getMoviesList()) {
-                if (fullMovieInfoInIndexes)
+                if (fullMovieInfoInIndexes) {
                     writeMovie(writer, movie);
-                else
+                } else {
                     writeMovieForIndex(writer, movie);
+                }
             }
         }
 
@@ -338,13 +340,13 @@ public class MovieJukeboxXMLWriter {
             Map<String, List<Movie>> index = category.getValue();
 
             for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
-				String key = "";
+                String key = "";
                 try {
-                    key = URLEncoder.encode(group.getKey(), "UTF-8").replace('%','$');
+                    key = URLEncoder.encode(group.getKey(), "UTF-8").replace('%', '$');
                 } catch (Exception e) {
-					System.err.println("Failed generating HTML library index.");
-					e.printStackTrace();
-				}
+                    System.err.println("Failed generating HTML library index.");
+                    e.printStackTrace();
+                }
 
                 List<Movie> movies = group.getValue();
 
@@ -388,7 +390,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
-                    int next, int last) throws FileNotFoundException, XMLStreamException {
+            int next, int last) throws FileNotFoundException, XMLStreamException {
         String prefix = createPrefix(categoryName, key);
         File xmlFile = new File(rootPath, prefix + current + ".xml");
         xmlFile.getParentFile().mkdirs();
@@ -410,13 +412,13 @@ public class MovieJukeboxXMLWriter {
             }
 
             for (String akey : index.keySet()) {
-				String encakey="";
+                String encakey = "";
                 try {
-                    encakey = URLEncoder.encode(akey, "UTF-8").replace('%','$');
+                    encakey = URLEncoder.encode(akey, "UTF-8").replace('%', '$');
                 } catch (Exception e) {
-					System.err.println("Failed generating HTML library index.");
-					e.printStackTrace();
-				}
+                    System.err.println("Failed generating HTML library index.");
+                    e.printStackTrace();
+                }
                 prefix = createPrefix(categoryKey, encakey);
 
                 writer.writeStartElement("index");
@@ -678,8 +680,8 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         // Issue 309
         for (Map.Entry<Object, Object> entry : PropertiesUtil.getEntrySet()) {
-            writer.writeStartElement((String)entry.getKey());
-            writer.writeCharacters((String)entry.getValue());
+            writer.writeStartElement((String) entry.getKey());
+            writer.writeCharacters((String) entry.getValue());
             writer.writeEndElement();
         }
         writer.writeEndElement();

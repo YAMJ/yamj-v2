@@ -13,13 +13,14 @@ import java.util.logging.Logger;
 public class DatabasePluginController {
 
     private static final Logger LOG = Logger.getLogger("moviejukebox");
-    private static final Map<String,MovieDatabasePlugin> PLUGIN_MAP = new HashMap<String,MovieDatabasePlugin>(2);
+    private static final Map<String, MovieDatabasePlugin> PLUGIN_MAP = new HashMap<String, MovieDatabasePlugin>(2);
+
+
     static {
         PLUGIN_MAP.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin")));
         PLUGIN_MAP.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin")));
     }
-    
-    
+
     public static void scan(Movie movie) {
         // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
         String origType = movie.getMovieType();
@@ -35,15 +36,15 @@ public class DatabasePluginController {
             }
         }
     }
-    
+
     public static void scanNFO(String nfo, Movie movie) {
         PLUGIN_MAP.get(movie.getMovieType()).scanNFO(nfo, movie);
     }
-    
+
     public static void scanTVShowTitles(Movie movie) {
         PLUGIN_MAP.get(Movie.TYPE_TVSHOW).scanTVShowTitles(movie);
     }
-    
+
     private static MovieDatabasePlugin getMovieDatabasePlugin(String className) {
         MovieDatabasePlugin movieDB = null;
 
@@ -58,5 +59,4 @@ public class DatabasePluginController {
         }
         return movieDB;
     }
-    
 }

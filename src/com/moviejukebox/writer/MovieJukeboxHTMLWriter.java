@@ -148,14 +148,14 @@ public class MovieJukeboxHTMLWriter {
             Map<String, List<Movie>> index = category.getValue();
 
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
-				String key = "";
+                String key = "";
                 try {
-                    key = URLEncoder.encode(indexEntry.getKey(), "UTF-8").replace('%','$');
+                    key = URLEncoder.encode(indexEntry.getKey(), "UTF-8").replace('%', '$');
                 } catch (Exception e) {
-					System.err.println("Failed generating HTML library index.");
-					e.printStackTrace();
-				}
-				
+                    System.err.println("Failed generating HTML library index.");
+                    e.printStackTrace();
+                }
+
                 List<Movie> movies = indexEntry.getValue();
                 int nbPages;
                 int movieCount = movies.size();
@@ -202,7 +202,7 @@ public class MovieJukeboxHTMLWriter {
     }
 
     private void writeSingleIndexPage(String rootPath, String detailsDirName, String categoryName, String key, int page)
-                    throws TransformerFactoryConfigurationError {
+            throws TransformerFactoryConfigurationError {
         try {
             File detailsDir = new File(rootPath, detailsDirName);
             detailsDir.mkdirs();

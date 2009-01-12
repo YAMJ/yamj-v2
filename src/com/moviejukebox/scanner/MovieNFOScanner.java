@@ -162,8 +162,8 @@ public class MovieNFOScanner {
             parseMovieNFO(nfo, movie);
         } else if (nfo.indexOf("<tvshow>") > -1) {
             parseTVNFO(nfo, movie);
-            // } else if (nfo.indexOf("<episodedetails>") > -1) {
-            // parseEpisodeNFO(nfo, movie);
+        // } else if (nfo.indexOf("<episodedetails>") > -1) {
+        // parseEpisodeNFO(nfo, movie);
         } else {
             retval = false;
         }
@@ -253,12 +253,14 @@ public class MovieNFOScanner {
                                 if (val.startsWith("Rated ")) {
                                     int start = 6; // "Rated ".length()
                                     int pos = val.indexOf(" on appeal for ", start);
-                                    if (pos == -1)
+                                    if (pos == -1) {
                                         pos = val.indexOf(" for ", start);
-                                    if (pos > start)
+                                    }
+                                    if (pos > start) {
                                         val = val.substring(start, pos);
-                                    else
+                                    } else {
                                         val = val.substring(start);
+                                    }
                                 }
                                 movie.setCertification(val);
                             }
@@ -384,12 +386,14 @@ public class MovieNFOScanner {
                                 if (val.startsWith("Rated ")) {
                                     int start = 6; // "Rated ".length()
                                     int pos = val.indexOf(" on appeal for ", start);
-                                    if (pos == -1)
+                                    if (pos == -1) {
                                         pos = val.indexOf(" for ", start);
-                                    if (pos > start)
+                                    }
+                                    if (pos > start) {
                                         val = val.substring(start, pos);
-                                    else
+                                    } else {
                                         val = val.substring(start);
+                                    }
                                 }
                                 movie.setCertification(val);
                             }
@@ -421,8 +425,9 @@ public class MovieNFOScanner {
                                     Date date = dateFormat.parse(val);
                                     Calendar cal = Calendar.getInstance();
                                     cal.setTime(date);
-                                    movie.setYear(""+cal.get(Calendar.YEAR));
-                                } catch (Exception ignore) {}
+                                    movie.setYear("" + cal.get(Calendar.YEAR));
+                                } catch (Exception ignore) {
+                                }
                             }
                         } else if (tag.equalsIgnoreCase("studio")) {
                             String val = XMLHelper.getCData(r);

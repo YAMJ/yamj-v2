@@ -23,7 +23,6 @@
  * - won't use mediainfo here
  * - removed all unused code
  **/
-
 package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.File;
@@ -35,150 +34,145 @@ import java.util.logging.Logger;
  */
 public class FilePropertiesMovie {
 
-	static Logger log = Logger.getLogger("moviejukebox");
+    static Logger log = Logger.getLogger("moviejukebox");
+    /**
+     * The filesize.
+     */
+    private int _fileSize = -1;
+    /**
+     * The video duration (seconds).
+     */
+    private int _duration = -1;
+    /**
+     * The file location.
+     */
+    private String _location = "";
+    protected String fileName = "";
+    private boolean infoAvailable = false;
+    private boolean supported = false;
 
-	/**
-	 * The filesize.
-	 */
-	private int _fileSize = -1;
+    /**
+     * Class gets all info available from the media file.
+     *
+     * Class constructor specifying number of objects to create.
+     *
+     * @param filePath
+     *            a path for the file.
+     */
+    public FilePropertiesMovie(String filePath) throws Exception {
 
-	/**
-	 * The video duration (seconds).
-	 */
-	private int _duration = -1;
+        FileProperties fileProperties = null;
 
-	/**
-	 * The file location.
-	 */
-	private String _location = "";
+        /**
+         * The respective objects.
+         */
+        fileProperties = new FilePropertiesIFO();
 
-	protected String fileName = "";
+        _fileSize = Math.round((new File(filePath).length()) / 1024F / 1024F);
 
-	private boolean infoAvailable = false;
+        /* The input stream... */
+        RandomAccessFile dataStream = new RandomAccessFile(filePath, "r");
 
-	private boolean supported = false;
+        /* Gets the header for filetype identification... */
+        int[] header = new int[4];
 
-	/**
-	 * Class gets all info available from the media file.
-	 * 
-	 * Class constructor specifying number of objects to create.
-	 * 
-	 * @param filePath
-	 *            a path for the file.
-	 */
-	public FilePropertiesMovie(String filePath) throws Exception {
+        for (int i = 0; i < header.length; i++) {
+            header[i] = dataStream.readUnsignedByte();
+        }
 
-		FileProperties fileProperties = null;
+        try {
 
-		/**
-		 * The respective objects.
-		 */
-		fileProperties = new FilePropertiesIFO();
+            /* Starts parsing the file... */
+            fileProperties.process(dataStream);
 
-		_fileSize = Math.round((new File(filePath).length()) / 1024F / 1024F);
+            supported = fileProperties.isSupported();
 
-		/* The input stream... */
-		RandomAccessFile dataStream = new RandomAccessFile(filePath, "r");
+            if (supported) {
+                infoAvailable = true;
+            } else {
+                throw new Exception("Unable to retrieve info");
+            }
 
-		/* Gets the header for filetype identification... */
-		int[] header = new int[4];
+            /* Gets the processed info... */
+            _duration = fileProperties.getDuration();
+            _location = filePath;
 
-		for (int i = 0; i < header.length; i++)
-			header[i] = dataStream.readUnsignedByte();
+            fileName = new File(filePath).getName();
 
-		try {
+            /* Closes the input stream... */
+            dataStream.close();
 
-			/* Starts parsing the file... */
-			fileProperties.process(dataStream);
+        } catch (Exception e) {
+            log.info("Exception: " + e.getMessage());
 
-			supported = fileProperties.isSupported();
+            /*
+             * The file is corrupted, tries to save the info that may have been
+             * found
+             */
+            if (fileProperties != null) {
+                _duration = fileProperties.getDuration();
+                _location = filePath;
 
-			if (supported)
-				infoAvailable = true;
-			else
-				throw new Exception("Unable to retrieve info");
+                fileName = new File(filePath).getName();
+            }
+            throw new Exception(
+                    "File could be corrupted. Some info may have been saved.");
+        }
+    }
 
-			/* Gets the processed info... */
-			_duration = fileProperties.getDuration();
-			_location = filePath;
+    /**
+     * @return all the info in a string
+     */
+    public String toString() {
+        return "MovieProperties [ fileSize:" + _fileSize + ", " + "duration:(" + _duration + ") " + "  ]";
+    }
 
-			fileName = new File(filePath).getName();
+    /**
+     * @return if the info is available
+     */
+    public boolean getInfoAvailable() {
+        return infoAvailable;
+    }
 
-			/* Closes the input stream... */
-			dataStream.close();
+    /**
+     * @return if the info is available
+     */
+    public boolean getFileFormatSupported() {
+        return supported;
+    }
 
-		} catch (Exception e) {
-			log.info("Exception: " + e.getMessage());
+    /**
+     * @return the filesize in MiB
+     */
+    public int getFileSize() {
+        return _fileSize;
+    }
 
-			/*
-			 * The file is corrupted, tries to save the info that may have been
-			 * found
-			 */
-			if (fileProperties != null) {
-				_duration = fileProperties.getDuration();
-				_location = filePath;
+    /**
+     * @return gets the file name
+     */
+    public String getFileName() {
+        return fileName;
+    }
 
-				fileName = new File(filePath).getName();
-			}
-			throw new Exception(
-					"File could be corrupted. Some info may have been saved.");
-		}
-	}
+    /**
+     * sets the file name
+     */
+    public void setFileName(String newName) {
+        fileName = newName;
+    }
 
-	/**
-	 * @return all the info in a string
-	 */
-	public String toString() {
-		return "MovieProperties [ fileSize:" + _fileSize + ", " + "duration:(" + _duration + ") " + "  ]";
-	}
+    /**
+     * @return the duration in seconds
+     */
+    public int getDuration() {
+        return _duration;
+    }
 
-	/**
-	 * @return if the info is available
-	 */
-	public boolean getInfoAvailable() {
-		return infoAvailable;
-	}
-
-	/**
-	 * @return if the info is available
-	 */
-	public boolean getFileFormatSupported() {
-		return supported;
-	}
-
-	/**
-	 * @return the filesize in MiB
-	 */
-	public int getFileSize() {
-		return _fileSize;
-	}
-
-	/**
-	 * @return gets the file name
-	 */
-	public String getFileName() {
-		return fileName;
-	}
-
-	/**
-	 * sets the file name
-	 */
-	public void setFileName(String newName) {
-		fileName = newName;
-	}
-
-	/**
-	 * @return the duration in seconds
-	 */
-	public int getDuration() {
-		return _duration;
-	}
-
-	/**
-	 * @return the file location
-	 */
-	public String getLocation() {
-		return _location;
-	}
-
+    /**
+     * @return the file location
+     */
+    public String getLocation() {
+        return _location;
+    }
 }

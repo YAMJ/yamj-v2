@@ -15,22 +15,18 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 
 public class SratimPlugin extends ImdbPlugin {
-    public static String SRATIM_PLUGIN_ID = "sratim";
 
+    public static String SRATIM_PLUGIN_ID = "sratim";
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
-
-    private static String[] genereStringEnglish = { "Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
-                    "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
-                    "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western" };
-
-    private static String[] genereStringHebrew = { "הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
-                    "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
-                    "חתמ", "המחלמ", "ןוברעמ" };
-
+    private static String[] genereStringEnglish = {"Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
+        "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
+        "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western"};
+    private static String[] genereStringHebrew = {"הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
+        "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
+        "חתמ", "המחלמ", "ןוברעמ"};
     protected String sratimPreferredSearchEngine;
     protected String sratimPlot;
-
     protected TheTvDBPlugin tvdb;
 
     public SratimPlugin() {
@@ -49,10 +45,11 @@ public class SratimPlugin extends ImdbPlugin {
             mediaFile.setId(SRATIM_PLUGIN_ID, sratimUrl);
 
             // collect missing information from IMDB or TVDB before sratim
-            if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW))
+            if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                 retval = super.scan(mediaFile);
-            else
+            } else {
                 retval = tvdb.scan(mediaFile);
+            }
 
             translateGenres(mediaFile);
         }
@@ -76,8 +73,9 @@ public class SratimPlugin extends ImdbPlugin {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
             }
 
-            if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN))
+            if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 return Movie.UNKNOWN;
+            }
 
             String sratimUrl;
 
@@ -85,8 +83,9 @@ public class SratimPlugin extends ImdbPlugin {
 
             String detailsUrl = HTMLTools.extractTag(xml, "cellpadding=\"0\" cellspacing=\"0\" onclick=\"document.location='", 0, "'");
 
-            if (detailsUrl.equalsIgnoreCase(Movie.UNKNOWN))
+            if (detailsUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
                 return Movie.UNKNOWN;
+            }
 
             sratimUrl = "http://www.sratim.co.il/" + detailsUrl;
 
@@ -108,14 +107,16 @@ public class SratimPlugin extends ImdbPlugin {
 
             int i;
             for (i = 0; i < genereStringEnglish.length; i++) {
-                if (genre.equals(genereStringEnglish[i]))
+                if (genre.equals(genereStringEnglish[i])) {
                     break;
+                }
             }
 
-            if (i < genereStringEnglish.length)
+            if (i < genereStringEnglish.length) {
                 genresHeb.add(genereStringHebrew[i]);
-            else
+            } else {
                 genresHeb.add("רחא");
+            }
         }
 
         // Set translated IMDB genres
@@ -133,24 +134,29 @@ public class SratimPlugin extends ImdbPlugin {
 
     // Return the type of a specific charcter
     private static int GetCharType(char C) {
-        if (((C >= 'א') && (C <= 'ת')))
+        if (((C >= 'א') && (C <= 'ת'))) {
             return BCT_R;
+        }
 
-        if ((C == 0x26) || (C == 0x40) || ((C >= 0x41) && (C <= 0x5A)) || ((C >= 0x61) && (C <= 0x7A)) || ((C >= 0xC0) && (C <= 0xD6))
-                        || ((C >= 0xD8) && (C <= 0xDF)))
+        if ((C == 0x26) || (C == 0x40) || ((C >= 0x41) && (C <= 0x5A)) || ((C >= 0x61) && (C <= 0x7A)) || ((C >= 0xC0) && (C <= 0xD6)) || ((C >= 0xD8) && (C <= 0xDF))) {
             return BCT_L;
+        }
 
-        if (((C >= 0x30) && (C <= 0x39)))
+        if (((C >= 0x30) && (C <= 0x39))) {
             return BCT_EN;
+        }
 
-        if ((C == 0x2E) || (C == 0x2F))
+        if ((C == 0x2E) || (C == 0x2F)) {
             return BCT_ES;
+        }
 
-        if ((C == 0x23) || (C == 0x24) || ((C >= 0xA2) && (C <= 0xA5)) || (C == 0x25) || (C == 0x2B) || (C == 0x2D) || (C == 0xB0) || (C == 0xB1))
+        if ((C == 0x23) || (C == 0x24) || ((C >= 0xA2) && (C <= 0xA5)) || (C == 0x25) || (C == 0x2B) || (C == 0x2D) || (C == 0xB0) || (C == 0xB1)) {
             return BCT_ET;
+        }
 
-        if ((C == 0x2C) || (C == 0x3A))
+        if ((C == 0x2C) || (C == 0x3A)) {
             return BCT_CS;
+        }
 
         // Default Natural
         return BCT_N;
@@ -181,10 +187,11 @@ public class SratimPlugin extends ImdbPlugin {
             CharType[Pos] = GetCharType(String[Pos]);
 
             // Fix "(" and ")"
-            if (String[Pos] == ')')
+            if (String[Pos] == ')') {
                 String[Pos] = '(';
-            else if (String[Pos] == '(')
+            } else if (String[Pos] == '(') {
                 String[Pos] = ')';
+            }
 
             Pos++;
         }
@@ -199,40 +206,45 @@ public class SratimPlugin extends ImdbPlugin {
 
         while (Pos < String.length) {
             // Check that we have at least 3 chars
-            if (String.length - Pos >= 3)
-                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 2] == BCT_EN) && ((CharType[Pos + 1] == BCT_ES) || (CharType[Pos + 1] == BCT_CS)))
-                    // Change the char type
+            if (String.length - Pos >= 3) {
+                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 2] == BCT_EN) && ((CharType[Pos + 1] == BCT_ES) || (CharType[Pos + 1] == BCT_CS))) // Change the char type
+                {
                     CharType[Pos + 1] = BCT_EN;
+                }
+            }
 
             if (String.length - Pos >= 2) {
-                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 1] == BCT_ET))
-                    // Change the char type
+                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 1] == BCT_ET)) // Change the char type
+                {
                     CharType[Pos + 1] = BCT_EN;
+                }
 
-                if ((CharType[Pos] == BCT_ET) && (CharType[Pos + 1] == BCT_EN))
-                    // Change the char type
+                if ((CharType[Pos] == BCT_ET) && (CharType[Pos + 1] == BCT_EN)) // Change the char type
+                {
                     CharType[Pos] = BCT_EN;
+                }
             }
 
             // Default change all the terminators to natural
-            if ((CharType[Pos] == BCT_ES) || (CharType[Pos] == BCT_ET) || (CharType[Pos] == BCT_CS))
+            if ((CharType[Pos] == BCT_ES) || (CharType[Pos] == BCT_ET) || (CharType[Pos] == BCT_CS)) {
                 CharType[Pos] = BCT_N;
+            }
 
             Pos++;
         }
 
-        /*
-         * - European Numbers (FOR ES,ET,CS)
-         * 
-         * EN,ES,EN -> EN,EN,EN EN,CS,EN -> EN,EN,EN
-         * 
-         * EN,ET -> EN,EN ET,EN -> EN,EN ->>>>> ET=EN
-         * 
-         * 
-         * else for ES,ET,CS (??)
-         * 
-         * L,??,EN -> L,N,EN
-         */
+    /*
+     * - European Numbers (FOR ES,ET,CS)
+     *
+     * EN,ES,EN -> EN,EN,EN EN,CS,EN -> EN,EN,EN
+     *
+     * EN,ET -> EN,EN ET,EN -> EN,EN ->>>>> ET=EN
+     *
+     *
+     * else for ES,ET,CS (??)
+     *
+     * L,??,EN -> L,N,EN
+     */
     }
 
     // Resolving Natural Types
@@ -292,22 +304,23 @@ public class SratimPlugin extends ImdbPlugin {
                 }
 
                 // Change the natural depanded on the strong type before and after
-                if ((Before == BCT_R) && (After == BCT_R))
+                if ((Before == BCT_R) && (After == BCT_R)) {
                     CharType[Pos] = BCT_R;
-                else if ((Before == BCT_L) && (After == BCT_L))
+                } else if ((Before == BCT_L) && (After == BCT_L)) {
                     CharType[Pos] = BCT_L;
-                else
+                } else {
                     CharType[Pos] = DefaultDirection;
+                }
             }
 
             Pos++;
         }
 
-        /*
-         * R N R -> R R R L N L -> L L L
-         * 
-         * L N R -> L e R (e=default) R N L -> R e L (e=default)
-         */
+    /*
+     * R N R -> R R R L N L -> L L L
+     *
+     * L N R -> L e R (e=default) R N L -> R e L (e=default)
+     */
     }
 
     // Resolving Implicit Levels
@@ -317,11 +330,13 @@ public class SratimPlugin extends ImdbPlugin {
         Pos = 0;
 
         while (Pos < String.length) {
-            if (CharType[Pos] == BCT_L)
+            if (CharType[Pos] == BCT_L) {
                 Level[Pos] = 2;
+            }
 
-            if (CharType[Pos] == BCT_R)
+            if (CharType[Pos] == BCT_R) {
                 Level[Pos] = 1;
+            }
 
             if (CharType[Pos] == BCT_EN) {
                 Level[Pos] = 2;
@@ -345,8 +360,9 @@ public class SratimPlugin extends ImdbPlugin {
                     StartPos = Pos;
 
                     // Search for the end
-                    while ((Pos + 1 != String.length) && (Level[Pos + 1] >= Count))
+                    while ((Pos + 1 != String.length) && (Level[Pos + 1] >= Count)) {
                         Pos++;
+                    }
 
                     EndPos = Pos;
 
@@ -389,8 +405,9 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     private static boolean isCharNatural(char c) {
-        if ((c == ' ') || (c == '-'))
+        if ((c == ' ') || (c == '-')) {
             return true;
+        }
 
         return false;
     }
@@ -419,8 +436,9 @@ public class SratimPlugin extends ImdbPlugin {
     private static String removeTrailDot(String text) {
         int dot = text.lastIndexOf(".");
 
-        if (dot == -1)
+        if (dot == -1) {
             return text;
+        }
 
         return text.substring(0, dot);
     }
@@ -428,8 +446,9 @@ public class SratimPlugin extends ImdbPlugin {
     private static String removeTrailBracket(String text) {
         int bracket = text.lastIndexOf(" (");
 
-        if (bracket == -1)
+        if (bracket == -1) {
             return text;
+        }
 
         return text.substring(0, bracket);
     }
@@ -443,18 +462,21 @@ public class SratimPlugin extends ImdbPlugin {
         int lineCount = 0;
 
         while (scanPos < text.length()) {
-            if (isCharNatural(text.charAt(scanPos)))
+            if (isCharNatural(text.charAt(scanPos))) {
                 lastBreakPos = scanPos;
+            }
 
             if (scanPos - lineStart > lineMaxChar) {
                 // Check if no break position found
-                if (lastBreakPos == 0)
-                    // Hard break on this location
+                if (lastBreakPos == 0) // Hard break on this location
+                {
                     lastBreakPos = scanPos;
+                }
 
                 lineCount++;
-                if (lineCount == lineMax)
+                if (lineCount == lineMax) {
                     return ret = ret + "..." + logicalToVisual(text.substring(lineStart, lastBreakPos).trim());
+                }
 
                 ret = ret + logicalToVisual(text.substring(lineStart, lastBreakPos).trim());
 
@@ -563,10 +585,11 @@ public class SratimPlugin extends ImdbPlugin {
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
 
-                if (sratimUrl.contains("series"))
+                if (sratimUrl.contains("series")) {
                     movie.setYear(HTMLTools.extractTag(xml, "<span style=\"font-weight:normal\">(", 0, ")"));
-                else
+                } else {
                     movie.setYear(HTMLTools.getTextAfterElem(xml, "<span id=\"ctl00_ctl00_Body_Body_Box_ProductionYear\">"));
+                }
             }
 
             movie.setCast(logicalToVisual(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>")));

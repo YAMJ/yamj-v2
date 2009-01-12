@@ -210,8 +210,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 return;
             } // Check www.moviecovers.com (if set in property file)
-            else if ("moviecovers".equals(preferredPosterSearchEngine)
-                            && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
+            else if ("moviecovers".equals(preferredPosterSearchEngine) && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
                 logger.finest("Movie PosterURL : " + posterURL);
                 movie.setPosterURL(posterURL);
                 return;
@@ -253,7 +252,7 @@ public class AllocinePlugin extends ImdbPlugin {
     private int parseRating(String rating) {
         int index = rating.indexOf("etoile_");
         try {
-            return (int)(Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100);
+            return (int) (Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100);
         } catch (Exception e) {
             return -1;
         }

@@ -18,5 +18,4 @@ public class LastModifiedComparator implements Comparator<Movie> {
         }
         return retVal;
     }
-
 }

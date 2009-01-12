@@ -38,17 +38,17 @@ public class FilmUpITPlugin extends ImdbPlugin {
             movie.setPlot(tmpPlot);
 
             movie.setDirector(removeHtmlTags(extractTag(xml, "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                "</font></td></tr>")));
+                    "</font></td></tr>")));
             movie.setReleaseDate(extractTag(xml, "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                "</font></td></tr>"));
+                    "</font></td></tr>"));
             movie.setRuntime(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
             movie.setCountry(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
             movie.setCompany(removeHtmlTags(extractTag(xml, "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                "</font></td></tr>")));
+                    "</font></td></tr>")));
 
             int count = 0;
             for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                "</font></td></tr>").split(",")) {
+                    "</font></td></tr>").split(",")) {
                 for (String genre : tmp_genre.split("/")) {
                     movie.addGenre(genre.trim());
                 }
@@ -59,7 +59,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
             for (String actor : removeHtmlTags(
-                extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(",")) {
+                    extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(",")) {
                 movie.addActor(actor.trim());
             }
 
@@ -86,7 +86,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request(baseUrl + opinionsPageID);
             float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
-            movie.setRating((int)rating);
+            movie.setRating((int) rating);
         } catch (IOException e) {
             logger.severe("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
             e.printStackTrace();
@@ -126,11 +126,8 @@ public class FilmUpITPlugin extends ImdbPlugin {
             /*
              * else if (!(posterURL = this.testImpawardsPoster(movie.getId(FILMUPIT_PLUGIN_ID))).equalsIgnoreCase("Unknown")) {
              * logger.finest("Movie PosterURL : " + posterURL); movie.setPosterURL(posterURL); return; }
-             */
-
-            // Check www.moviecovers.com (if set in property file)
-            else if ("moviecovers".equals(preferredPosterSearchEngine)
-                            && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
+             */ // Check www.moviecovers.com (if set in property file)
+            else if ("moviecovers".equals(preferredPosterSearchEngine) && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
                 logger.finest("Movie PosterURL : " + posterURL);
                 movie.setPosterURL(posterURL);
                 return;
@@ -171,7 +168,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
     private int parseRating(String rating) {
         int index = rating.indexOf("etoile_");
         try {
-            return (int)(Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100);
+            return (int) (Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100);
         } catch (Exception e) {
             return -1;
         }

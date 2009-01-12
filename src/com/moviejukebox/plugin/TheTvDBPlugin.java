@@ -23,7 +23,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = "2805AD2873519EC5";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
     private TheTVDB tvDB;
     private String language;
     private boolean includeEpisodePlots;
@@ -98,7 +97,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
                 if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
-                    movie.setRating((int)(Float.parseFloat(series.getRating()) * 10));
+                    movie.setRating((int) (Float.parseFloat(series.getRating()) * 10));
                 }
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                     movie.setRuntime(series.getRuntime());
@@ -190,7 +189,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 if (episode == null) {
                     episode = tvDB.getEpisode(id, movie.getSeason(), file.getPart(), language);
                 }
-                
+
                 if (episode != null) {
                     file.setTitle(episode.getEpisodeName());
                     if (includeEpisodePlots) {
@@ -238,5 +237,4 @@ public class TheTvDBPlugin extends ImdbPlugin {
             }
         }
     }
-
 }
