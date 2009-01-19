@@ -50,6 +50,7 @@ public class Movie implements Comparable<Movie> {
     private String releaseDate = UNKNOWN;
     private int rating = -1;
     private String posterURL = UNKNOWN;
+    private String posterSubimage = UNKNOWN;
     private String fanartURL = UNKNOWN;
     private String posterFilename = UNKNOWN;
     private String detailPosterFilename = UNKNOWN;
@@ -289,6 +290,10 @@ public class Movie implements Comparable<Movie> {
 
     public String getPosterURL() {
         return posterURL;
+    }
+
+    public String getPosterSubimage() {
+        return posterSubimage;
     }
 
     public String getPrevious() {
@@ -582,6 +587,16 @@ public class Movie implements Comparable<Movie> {
         if (!url.equalsIgnoreCase(this.posterURL)) {
             this.isDirty = true;
             this.posterURL = url;
+        }
+    }
+
+    public void setPosterSubimage(String subimage) {
+        if (subimage == null) {
+            subimage = UNKNOWN;
+        }
+        if (!subimage.equalsIgnoreCase(this.posterSubimage)) {
+            this.isDirty = true;
+            this.posterSubimage = subimage;
         }
     }
 

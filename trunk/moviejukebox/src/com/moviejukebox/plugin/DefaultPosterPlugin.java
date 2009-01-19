@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
+import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 
@@ -53,6 +54,22 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
                 skipResize = true;
             }
 
+            // Check if we need to cut the poster into a sub image            
+            String posterSubimage = movie.getPosterSubimage();
+
+            if (posterSubimage != null && !posterSubimage.isEmpty() && !posterSubimage.equalsIgnoreCase("Unknown")) {
+                StringTokenizer st = new StringTokenizer(posterSubimage, ", ");
+                int x = Integer.parseInt(st.nextToken());
+                int y = Integer.parseInt(st.nextToken());
+                int l = Integer.parseInt(st.nextToken());
+                int h = Integer.parseInt(st.nextToken());
+
+                double pWidth = (double) bi.getWidth() / 100;
+                double pHeight = (double) bi.getHeight() / 100;
+
+                bi = bi.getSubimage((int)(x*pWidth), (int)(y*pHeight), (int)(l*pWidth), (int)(h*pHeight));
+            }
+            
             if (normalizePosters) {
                 if (skipResize) {
                     bi = GraphicTools.scaleToSizeNormalized((int) (origHeight * ratio), origHeight, bi);

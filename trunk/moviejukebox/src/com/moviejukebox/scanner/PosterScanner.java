@@ -171,6 +171,9 @@ public class PosterScanner {
             } else {
                 logger.finer("PosterScanner : " + finalDestinationFileName + " is different to " + fullPosterFilename);
             }
+            
+            // Update poster url with local poster
+            movie.setPosterURL(localPosterFile.toURI().toString());
         } else {
             logger.finer("PosterScanner : No local covertArt found for " + movie.getBaseName());
         }

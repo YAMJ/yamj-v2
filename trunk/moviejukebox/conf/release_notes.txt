@@ -47,6 +47,7 @@ MovieJukebox 1.0.15 beta
   - Enhancement  #402 XML line breaks
   - Enhancement  #403 Source clean up of spaces vs tabs.
   - Fixed defect #415 Exclude files from the Recycle Bin (In example library.xml file)
+  - Fixed defect #417 Sratim plugin poster fix
   
 
 MovieJukebox 1.0.14 beta
