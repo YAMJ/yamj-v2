@@ -533,11 +533,7 @@ public class SratimPlugin extends ImdbPlugin {
                 if (movie.getPosterURL() == null || movie.getPosterURL().startsWith("http://")) {
 
                     // Try to find hebrew poster using sub-baba.com web site and the movie english name
-                    String posterURL = getSubBabaPosterURL(movie.getTitleSort());
-
-                    if (posterURL != null && !posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-                        movie.setPosterURL(posterURL);
-                    }
+                    getSubBabaPosterURL(movie);
                 }
             }
 
@@ -613,25 +609,92 @@ public class SratimPlugin extends ImdbPlugin {
     /**
      * retrieve the sub-baba.com poster url matching the specified movie name.
      */
-    protected String getSubBabaPosterURL(String movieName) {
+    protected void getSubBabaPosterURL(Movie movie) {
 
-        String posterURL = Movie.UNKNOWN;
+        String movieName = movie.getTitleSort();
 
         try {
-            String searchURL = "http://www.sub-baba.com/site/search.php?type=1&search=" + URLEncoder.encode(movieName, "iso-8859-8");
+            String searchURL = "http://www.sub-baba.com/site/search.php?type=0&search=" + URLEncoder.encode(movieName, "iso-8859-8");
 
             String xml = webBrowser.request(searchURL);
 
-            String posterID = HTMLTools.extractTag(xml, "<a href=\"poco.php?Id=", 0, "\">");
+            String posterID = Movie.UNKNOWN;
+            boolean dvdCover = false;
 
-            if (!Movie.UNKNOWN.equals(posterID)) {
-                posterURL = "http://www.sub-baba.com/site/download.php?type=1&id=" + posterID;
+            int index = 0;
+            int endIndex = 0;
+            while (true) {
+                index = xml.indexOf("<a href=\"poco.php?Id=", index);
+                if (index == -1)
+                    break;
+
+                index += 21;
+
+                endIndex = xml.indexOf("\">", index);
+                if (endIndex == -1)
+                    break;
+
+                String scanPosterID = xml.substring(index, endIndex);
+
+                index = endIndex + 2;
+
+
+
+                index = xml.indexOf("alt=\"", index);
+                if (index == -1)
+                    break;
+
+                index += 5;
+
+                endIndex = xml.indexOf(":", index);
+                if (endIndex == -1)
+                    break;
+
+                String scanType = xml.substring(index, endIndex);
+
+                index = endIndex + 1;
+
+
+
+                index = xml.indexOf("<span dir=\"ltr\">", index);
+                if (index == -1)
+                    break;
+
+                index += 16;
+
+                endIndex = xml.indexOf("</span>", index);
+                if (endIndex == -1)
+                    break;
+
+                String scanName = xml.substring(index, endIndex);
+
+                index = endIndex + 7;
+
+
+
+                if (scanName.equalsIgnoreCase(movieName)){
+                    posterID = scanPosterID;
+
+                    //equals("עטיפת דיוידי לסרט") does not work on all platforms because of language problems
+                    if (scanType.length() == 17)
+                        dvdCover = true;
+                    else
+                        dvdCover = false;
+                }
             }
 
-            return posterURL;
+            if (!Movie.UNKNOWN.equals(posterID)) {
+                String posterURL = "http://www.sub-baba.com/site/download.php?type=1&id=" + posterID;
+                movie.setPosterURL(posterURL);
+
+                if ( dvdCover ) {
+                    // Cut the dvd cover into normal poster using the left side of the image
+                    movie.setPosterSubimage("0, 0, 47, 100");
+                }
+            }
 
         } catch (Exception e) {
-            return Movie.UNKNOWN;
+            return;
         }
 
     }
