@@ -369,7 +369,14 @@ public class MovieJukeboxXMLWriter {
                     nbMoviesLeft--;
 
                     if (nbMoviesLeft == 0) {
-                        writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                        if (current == 1) {
+                            // If this is the first page, link the previous page to the last page.
+                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last);    
+                        } else {
+                            // This is a "middle" page, so process as normal.
+                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                        }
+                        //*/writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
                         moviesInASinglePage = new ArrayList<Movie>();
                         previous = current;
                         current = Math.min(current + 1, last);
@@ -379,7 +386,7 @@ public class MovieJukeboxXMLWriter {
                 }
 
                 if (moviesInASinglePage.size() > 0) {
-                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last);
                 }
             }
         }
