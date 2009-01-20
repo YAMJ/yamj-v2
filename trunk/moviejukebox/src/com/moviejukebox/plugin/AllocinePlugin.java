@@ -43,7 +43,6 @@ public class AllocinePlugin extends ImdbPlugin {
             movie.setRuntime(extractTag(xml, "Format</span> : ", "."));
             movie.setCountry(extractTag(xml, "Nationalité</span> :", "</h5>"));
 
-            int count = 0;
             for (String genre : extractTags(xml, "Genre</span> :", "-", " ", ",")) {
                 movie.addGenre(Library.getIndexingGenre(removeOpenedHtmlTags(genre)));
             }
@@ -99,7 +98,7 @@ public class AllocinePlugin extends ImdbPlugin {
                         // logger.finest("The right Season IdI = " + seasonId);
                         xml = webBrowser.request("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId + "&cserie=" + allocineId + ".html");
                         for (MovieFile file : movie.getFiles()) {
-                            if (!file.isNewFile()) {
+                            if (!file.isNewFile() || file.hasTitle()) {
                                 // don't scan episode title if it exists in XML data
                                 continue;
                             }
@@ -150,7 +149,6 @@ public class AllocinePlugin extends ImdbPlugin {
             movie.setCountry(extractTag(xml, "<h4>Film", "."));
             movie.setCompany(removeHtmlTags(extractTag(xml, "<h4>Distribué par ", "</h4>")));
 
-            int count = 0;
             for (String genre : extractTags(xml, "<h4>Genre : ", "</h4>", "film/alaffiche_genre_gen_genre", "</a>")) {
                 movie.addGenre(removeOpenedHtmlTags(genre));
             }
@@ -210,7 +208,8 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 return;
             } // Check www.moviecovers.com (if set in property file)
-            else if ("moviecovers".equals(preferredPosterSearchEngine) && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
+            else if ("moviecovers".equals(preferredPosterSearchEngine)
+                            && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
                 logger.finest("Movie PosterURL : " + posterURL);
                 movie.setPosterURL(posterURL);
                 return;
@@ -252,7 +251,7 @@ public class AllocinePlugin extends ImdbPlugin {
     private int parseRating(String rating) {
         int index = rating.indexOf("etoile_");
         try {
-            return (int) (Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100);
+            return (int)(Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100);
         } catch (Exception e) {
             return -1;
         }

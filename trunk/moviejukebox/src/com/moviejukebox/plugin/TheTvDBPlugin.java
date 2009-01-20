@@ -99,7 +99,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
                 if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
-                    movie.setRating((int) (Float.parseFloat(series.getRating()) * 10));
+                    movie.setRating((int)(Float.parseFloat(series.getRating()) * 10));
                 }
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                     movie.setRuntime(series.getRuntime());
@@ -193,7 +193,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
 
                 if (episode != null) {
-                    file.setTitle(episode.getEpisodeName());
+                    if (!file.hasTitle()) {
+                        file.setTitle(episode.getEpisodeName());
+                    }
                     if (includeEpisodePlots) {
                         file.setPlot(episode.getOverview());
                     }

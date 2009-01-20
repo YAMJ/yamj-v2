@@ -377,7 +377,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private int parseRating(String rating) {
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
         try {
-            return (int) (Float.parseFloat(st.nextToken()) * 10);
+            return (int)(Float.parseFloat(st.nextToken()) * 10);
         } catch (Exception e) {
             return -1;
         }
@@ -416,7 +416,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         else if (!(posterURL = this.testImpawardsPoster(movie.getTitle(), movie.getYear())).equals(Movie.UNKNOWN)) {
             // Cover Found
         } // Check www.moviecovers.com (if set in property file)
-        else if ("moviecovers".equals(preferredPosterSearchEngine) && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals(Movie.UNKNOWN)) {
+        else if ("moviecovers".equals(preferredPosterSearchEngine)
+                        && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals(Movie.UNKNOWN)) {
             // Cover Found
         } else if (beginIndex < castIndex && beginIndex != -1) {
 
@@ -549,7 +550,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
                 if (indexMovieLink != -1) {
                     String finMovieUrl = content.substring(indexMovieLink + 47, content.indexOf("\" class=l>", indexMovieLink));
-                    returnString = "http://www.moviecovers.com/getjpg.html/" + finMovieUrl.substring(0, finMovieUrl.lastIndexOf('.')).replace("+", "%20") + ".jpg";
+                    returnString = "http://www.moviecovers.com/getjpg.html/" + finMovieUrl.substring(0, finMovieUrl.lastIndexOf('.')).replace("+", "%20")
+                                    + ".jpg";
                 }
             }
 
@@ -580,7 +582,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 int episode = file.getPart();
                 String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
 
-                if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1) {
+                if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1 && !file.hasTitle()) {
                     file.setTitle(episodeName);
                 }
             }

@@ -11,8 +11,7 @@
   <title><xsl:value-of select="title"/></title>
 </head>
 
-<body bgproperties="fixed" background="pictures/background.jpg">
-<xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute>
+<body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
 
@@ -218,7 +217,6 @@
 
                      <xsl:choose>
                        <xsl:when test="position() = 1">
-                         <xsl:attribute name="class">firstMovie</xsl:attribute>
                          <xsl:attribute name="TVID">Play</xsl:attribute>
                        </xsl:when>
                        <xsl:otherwise>
@@ -251,22 +249,14 @@
                      <xsl:text>&#160;</xsl:text>
 
                      <xsl:choose>
-                       <xsl:when test="/details/movie/season!=-1">
-                         Episode <xsl:value-of select="@part"/>
-                         <xsl:if test="@title!='UNKNOWN'">
-                           - <xsl:value-of select="@title"/>
-                         </xsl:if>
-                       </xsl:when>
-                       <xsl:otherwise>
+                       <xsl:when test="@title='UNKNOWN'">
 						 <xsl:choose>
-						   <xsl:when test="@title='UNKNOWN'">
-                             <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
-						   </xsl:when>
-						   <xsl:otherwise>
-							 <xsl:value-of select="@title"/>
-						   </xsl:otherwise>
-						 </xsl:choose> 
-                       </xsl:otherwise>
+                           <xsl:when test="/details/movie/season!=-1">Episode</xsl:when>
+						   <xsl:otherwise>Part</xsl:otherwise>	 
+					     </xsl:choose>
+						 <xsl:text> </xsl:text><xsl:value-of select="@part"/>
+					   </xsl:when>	 
+                       <xsl:otherwise><xsl:value-of select="@title"/></xsl:otherwise>
                      </xsl:choose>
                    </a>
                  </td>
