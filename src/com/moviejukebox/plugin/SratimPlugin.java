@@ -19,12 +19,12 @@ public class SratimPlugin extends ImdbPlugin {
     public static String SRATIM_PLUGIN_ID = "sratim";
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
-    private static String[] genereStringEnglish = {"Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
-        "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
-        "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western"};
-    private static String[] genereStringHebrew = {"הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
-        "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
-        "חתמ", "המחלמ", "ןוברעמ"};
+    private static String[] genereStringEnglish = { "Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
+                    "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
+                    "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western" };
+    private static String[] genereStringHebrew = { "הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
+                    "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
+                    "חתמ", "המחלמ", "ןוברעמ" };
     protected String sratimPreferredSearchEngine;
     protected String sratimPlot;
     protected TheTvDBPlugin tvdb;
@@ -138,7 +138,8 @@ public class SratimPlugin extends ImdbPlugin {
             return BCT_R;
         }
 
-        if ((C == 0x26) || (C == 0x40) || ((C >= 0x41) && (C <= 0x5A)) || ((C >= 0x61) && (C <= 0x7A)) || ((C >= 0xC0) && (C <= 0xD6)) || ((C >= 0xD8) && (C <= 0xDF))) {
+        if ((C == 0x26) || (C == 0x40) || ((C >= 0x41) && (C <= 0x5A)) || ((C >= 0x61) && (C <= 0x7A)) || ((C >= 0xC0) && (C <= 0xD6))
+                        || ((C >= 0xD8) && (C <= 0xDF))) {
             return BCT_L;
         }
 
@@ -207,7 +208,9 @@ public class SratimPlugin extends ImdbPlugin {
         while (Pos < String.length) {
             // Check that we have at least 3 chars
             if (String.length - Pos >= 3) {
-                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 2] == BCT_EN) && ((CharType[Pos + 1] == BCT_ES) || (CharType[Pos + 1] == BCT_CS))) // Change the char type
+                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 2] == BCT_EN) && ((CharType[Pos + 1] == BCT_ES) || (CharType[Pos + 1] == BCT_CS))) // Change
+                // the char
+                // type
                 {
                     CharType[Pos + 1] = BCT_EN;
                 }
@@ -233,18 +236,18 @@ public class SratimPlugin extends ImdbPlugin {
             Pos++;
         }
 
-    /*
-     * - European Numbers (FOR ES,ET,CS)
-     *
-     * EN,ES,EN -> EN,EN,EN EN,CS,EN -> EN,EN,EN
-     *
-     * EN,ET -> EN,EN ET,EN -> EN,EN ->>>>> ET=EN
-     *
-     *
-     * else for ES,ET,CS (??)
-     *
-     * L,??,EN -> L,N,EN
-     */
+        /*
+         * - European Numbers (FOR ES,ET,CS)
+         * 
+         * EN,ES,EN -> EN,EN,EN EN,CS,EN -> EN,EN,EN
+         * 
+         * EN,ET -> EN,EN ET,EN -> EN,EN ->>>>> ET=EN
+         * 
+         * 
+         * else for ES,ET,CS (??)
+         * 
+         * L,??,EN -> L,N,EN
+         */
     }
 
     // Resolving Natural Types
@@ -316,11 +319,11 @@ public class SratimPlugin extends ImdbPlugin {
             Pos++;
         }
 
-    /*
-     * R N R -> R R R L N L -> L L L
-     *
-     * L N R -> L e R (e=default) R N L -> R e L (e=default)
-     */
+        /*
+         * R N R -> R R R L N L -> L L L
+         * 
+         * L N R -> L e R (e=default) R N L -> R e L (e=default)
+         */
     }
 
     // Resolving Implicit Levels
@@ -566,7 +569,6 @@ public class SratimPlugin extends ImdbPlugin {
 
             // Prefer IMDB genres
             if (movie.getGenres().isEmpty()) {
-                int count = 0;
                 String genres = HTMLTools.getTextAfterElem(xml, "ז'אנר:");
                 if (!Movie.UNKNOWN.equals(genres)) {
                     for (String genre : genres.split(" *, *")) {
@@ -638,8 +640,6 @@ public class SratimPlugin extends ImdbPlugin {
 
                 index = endIndex + 2;
 
-
-
                 index = xml.indexOf("alt=\"", index);
                 if (index == -1)
                     break;
@@ -653,8 +653,6 @@ public class SratimPlugin extends ImdbPlugin {
                 String scanType = xml.substring(index, endIndex);
 
                 index = endIndex + 1;
-
-
 
                 index = xml.indexOf("<span dir=\"ltr\">", index);
                 if (index == -1)
@@ -670,12 +668,10 @@ public class SratimPlugin extends ImdbPlugin {
 
                 index = endIndex + 7;
 
-
-
-                if (scanName.equalsIgnoreCase(movieName)){
+                if (scanName.equalsIgnoreCase(movieName)) {
                     posterID = scanPosterID;
 
-                    //equals("עטיפת דיוידי לסרט") does not work on all platforms because of language problems
+                    // equals("עטיפת דיוידי לסרט") does not work on all platforms because of language problems
                     if (scanType.length() == 17)
                         dvdCover = true;
                     else
@@ -687,7 +683,7 @@ public class SratimPlugin extends ImdbPlugin {
                 String posterURL = "http://www.sub-baba.com/site/download.php?type=1&id=" + posterID;
                 movie.setPosterURL(posterURL);
 
-                if ( dvdCover ) {
+                if (dvdCover) {
                     // Cut the dvd cover into normal poster using the left side of the image
                     movie.setPosterSubimage("0, 0, 47, 100");
                 }
@@ -732,7 +728,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         for (MovieFile file : movie.getMovieFiles()) {
-            if (!file.isNewFile()) {
+            if (!file.isNewFile() || file.hasTitle()) {
                 // don't scan episode title if it exists in XML data
                 continue;
             }

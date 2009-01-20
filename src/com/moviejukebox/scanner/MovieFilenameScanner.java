@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -27,6 +30,9 @@ public class MovieFilenameScanner {
     protected int firstKeywordIndex = 0;
     protected static boolean languageDetection = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true"));
 
+    protected Pattern tvPattern = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
+    protected Pattern episodePattern = Pattern.compile("[EeXx]([0-9]+)");
+    protected static Logger logger = Logger.getLogger("moviejukebox");
 
     static {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
@@ -34,7 +40,7 @@ public class MovieFilenameScanner {
         while (st.hasMoreTokens()) {
             keywords.add(st.nextToken());
         }
-        skipKeywords = keywords.toArray(new String[]{});
+        skipKeywords = keywords.toArray(new String[] {});
     }
 
     public MovieFilenameScanner() {
@@ -92,7 +98,7 @@ public class MovieFilenameScanner {
      * @return the audio codec name or Unknown if not found
      */
     protected String getAudioCodec(String filename) {
-        return findKeyword(filename.toUpperCase(), new String[]{"AC3", "DTS", "DD", "AAC"});
+        return findKeyword(filename.toUpperCase(), new String[] { "AC3", "DTS", "DD", "AAC" });
     }
 
     /**
@@ -114,28 +120,28 @@ public class MovieFilenameScanner {
      *            movie's filename to scan
      */
     protected int getFPS(String filename) {
-        if (hasKeyword(filename, new String[]{"23p", "p23"})) {
+        if (hasKeyword(filename, new String[] { "23p", "p23" })) {
             return 23;
         }
-        if (hasKeyword(filename, new String[]{"24p", "p24"})) {
+        if (hasKeyword(filename, new String[] { "24p", "p24" })) {
             return 24;
         }
-        if (hasKeyword(filename, new String[]{"25p", "p25"})) {
+        if (hasKeyword(filename, new String[] { "25p", "p25" })) {
             return 25;
         }
-        if (hasKeyword(filename, new String[]{"29p", "p29"})) {
+        if (hasKeyword(filename, new String[] { "29p", "p29" })) {
             return 29;
         }
-        if (hasKeyword(filename, new String[]{"30p", "p30"})) {
+        if (hasKeyword(filename, new String[] { "30p", "p30" })) {
             return 30;
         }
-        if (hasKeyword(filename, new String[]{"50p", "p50"})) {
+        if (hasKeyword(filename, new String[] { "50p", "p50" })) {
             return 50;
         }
-        if (hasKeyword(filename, new String[]{"59p", "p59"})) {
+        if (hasKeyword(filename, new String[] { "59p", "p59" })) {
             return 59;
         }
-        if (hasKeyword(filename, new String[]{"60p", "p60"})) {
+        if (hasKeyword(filename, new String[] { "60p", "p60" })) {
             return 60;
         }
         return 60;
@@ -157,51 +163,51 @@ public class MovieFilenameScanner {
             f = f.replace("(", ".");
             f = f.replace(")", ".");
 
-            if (hasKeyword(f, new String[]{".FRA.", ".FR.", ".FRENCH.", ".VF.", " VF "})) {
+            if (hasKeyword(f, new String[] { ".FRA.", ".FR.", ".FRENCH.", ".VF.", " VF " })) {
                 return "French";
             }
 
-            if (hasKeyword(f, new String[]{".GER.", ".DE.", ".GERMAN."})) {
+            if (hasKeyword(f, new String[] { ".GER.", ".DE.", ".GERMAN." })) {
                 return "German";
             }
 
-            if (hasKeyword(f, new String[]{".ITA.", ".IT.", ".ITALIAN."})) {
+            if (hasKeyword(f, new String[] { ".ITA.", ".IT.", ".ITALIAN." })) {
                 return "Italian";
             }
 
-            if (hasKeyword(f, new String[]{".SPA.", ".ES.", ".SPANISH."})) {
+            if (hasKeyword(f, new String[] { ".SPA.", ".ES.", ".SPANISH." })) {
                 return "Spanish";
             }
 
-            if (hasKeyword(f, new String[]{".ENG.", ".EN.", ".ENGLISH."})) {
+            if (hasKeyword(f, new String[] { ".ENG.", ".EN.", ".ENGLISH." })) {
                 return "English";
             }
 
-            if (hasKeyword(f, new String[]{".POR.", ".PT.", ".PORTUGUESE."})) {
+            if (hasKeyword(f, new String[] { ".POR.", ".PT.", ".PORTUGUESE." })) {
                 return "Portuguese";
             }
 
-            if (hasKeyword(f, new String[]{".RUS.", ".RU.", ".RUSSIAN."})) {
+            if (hasKeyword(f, new String[] { ".RUS.", ".RU.", ".RUSSIAN." })) {
                 return "Russian";
             }
 
-            if (hasKeyword(f, new String[]{".POL.", ".PL.", ".POLISH.", "PLDUB"})) {
+            if (hasKeyword(f, new String[] { ".POL.", ".PL.", ".POLISH.", "PLDUB" })) {
                 return "Polish";
             }
 
-            if (hasKeyword(f, new String[]{".HUN.", ".HU.", ".HUNGARIAN."})) {
+            if (hasKeyword(f, new String[] { ".HUN.", ".HU.", ".HUNGARIAN." })) {
                 return "Hungarian";
             }
 
-            if (hasKeyword(f, new String[]{".HEB.", ".HE.", ".HEBDUB."})) {
+            if (hasKeyword(f, new String[] { ".HEB.", ".HE.", ".HEBDUB." })) {
                 return "Hebrew";
             }
 
-            if (hasKeyword(f, new String[]{".VO.", ".VOSTFR."})) {
+            if (hasKeyword(f, new String[] { ".VO.", ".VOSTFR." })) {
                 return "VO";
             }
 
-            if (hasKeyword(f, new String[]{".DL."})) {
+            if (hasKeyword(f, new String[] { ".DL." })) {
                 return "Dual Language";
             }
         }
@@ -304,7 +310,7 @@ public class MovieFilenameScanner {
             dot = f.length();
         }
 
-        String[] keywords = {"CD", "DISC", "DISK", "PART"};
+        String[] keywords = { "CD", "DISC", "DISK", "PART" };
         for (String keyword : keywords) {
             int index = getPartKeyword(f, keyword);
 
@@ -329,7 +335,7 @@ public class MovieFilenameScanner {
         if (hasKeyword(f, "DIVX")) {
             return "DivX";
         }
-        if (hasKeyword(f, new String[]{"H264", "H.264", "X264"})) {
+        if (hasKeyword(f, new String[] { "H264", "H.264", "X264" })) {
             return "H.264";
         }
         return "Unknown";
@@ -337,67 +343,67 @@ public class MovieFilenameScanner {
 
     protected String getVideoOutput(String filename) {
 
-        String videoOutput = findKeyword(filename, new String[]{"720p", "1080i", "1080p"});
+        String videoOutput = findKeyword(filename, new String[] { "720p", "1080i", "1080p" });
 
         int fps = getFPS(filename);
         if (!videoOutput.equalsIgnoreCase("Unknown")) {
             switch (fps) {
-                case 23:
-                    videoOutput = "1080p 23.976Hz";
-                    break;
-                case 24:
-                    videoOutput = "1080p 24Hz";
-                    break;
-                case 25:
-                    videoOutput = "1080p 25Hz";
-                    break;
-                case 29:
-                    videoOutput = "1080p 29.97Hz";
-                    break;
-                case 30:
-                    videoOutput = "1080p 30Hz";
-                    break;
-                case 50:
-                    videoOutput += " 50Hz";
-                    break;
-                case 59:
-                    videoOutput += "1080p 59.94Hz";
-                    break;
-                case 60:
-                    videoOutput += " 60Hz";
-                    break;
-                default:
-                    videoOutput += " 60Hz";
+            case 23:
+                videoOutput = "1080p 23.976Hz";
+                break;
+            case 24:
+                videoOutput = "1080p 24Hz";
+                break;
+            case 25:
+                videoOutput = "1080p 25Hz";
+                break;
+            case 29:
+                videoOutput = "1080p 29.97Hz";
+                break;
+            case 30:
+                videoOutput = "1080p 30Hz";
+                break;
+            case 50:
+                videoOutput += " 50Hz";
+                break;
+            case 59:
+                videoOutput += "1080p 59.94Hz";
+                break;
+            case 60:
+                videoOutput += " 60Hz";
+                break;
+            default:
+                videoOutput += " 60Hz";
             }
         } else {
             switch (fps) {
-                case 23:
-                    videoOutput = "23p";
-                    break;
-                case 24:
-                    videoOutput = "24p";
-                    break;
-                case 25:
-                    videoOutput = "PAL";
-                    break;
-                case 29:
-                    videoOutput = "NTSC";
-                    break;
-                case 30:
-                    videoOutput = "NTSC";
-                    break;
-                case 49:
-                    videoOutput = "PAL";
-                    break;
-                case 50:
-                    videoOutput = "PAL";
-                    break;
-                case 60:
-                    videoOutput = "NTSC";
-                    break;
-                default:
-                    videoOutput = "NTSC";
-                    break;
+            case 23:
+                videoOutput = "23p";
+                break;
+            case 24:
+                videoOutput = "24p";
+                break;
+            case 25:
+                videoOutput = "PAL";
+                break;
+            case 29:
+                videoOutput = "NTSC";
+                break;
+            case 30:
+                videoOutput = "NTSC";
+                break;
+            case 49:
+                videoOutput = "PAL";
+                break;
+            case 50:
+                videoOutput = "PAL";
+                break;
+            case 60:
+                videoOutput = "NTSC";
+                break;
+            default:
+                videoOutput = "NTSC";
+                break;
             }
         }
 
@@ -421,7 +427,7 @@ public class MovieFilenameScanner {
         if (hasKeyword(f, "PDTV")) {
             return "PDTV";
         }
-        if (hasKeyword(f, new String[]{"BLURAY", "BDRIP", "BLURAYRIP", "BLU-RAY"})) {
+        if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP", "BLU-RAY" })) {
             return "BluRay";
         }
         if (hasKeyword(f, "DVDRIP")) {
@@ -433,7 +439,7 @@ public class MovieFilenameScanner {
         if (hasKeyword(f, "DSRIP")) {
             return "DSRip";
         }
-        if (hasKeyword(filename, new String[]{" TS ", ".TS."})) {
+        if (hasKeyword(filename, new String[] { " TS ", ".TS." })) {
             return "TS";
         }
         if (hasKeyword(filename, "CAM")) {
@@ -445,19 +451,19 @@ public class MovieFilenameScanner {
         if (hasKeyword(filename, "LINE")) {
             return "LINE";
         }
-        if (hasKeyword(filename, new String[]{"HDDVD", "HD-DVD", "HDDVDRIP"})) {
+        if (hasKeyword(filename, new String[] { "HDDVD", "HD-DVD", "HDDVDRIP" })) {
             return "HDDVD";
         }
-        if (hasKeyword(filename, new String[]{"DTH", "D-THEATER", "DTHEATER"})) {
+        if (hasKeyword(filename, new String[] { "DTH", "D-THEATER", "DTHEATER" })) {
             return "D-THEATER";
         }
         if (hasKeyword(filename, "HD2DVD")) {
             return "HD2DVD";
         }
-        if (hasKeyword(f, new String[]{"DVD", "NTSC", "PAL"})) {
+        if (hasKeyword(f, new String[] { "DVD", "NTSC", "PAL" })) {
             return "DVD";
         }
-        if (hasKeyword(f, new String[]{"720p", "1080p", "1080i"})) {
+        if (hasKeyword(f, new String[] { "720p", "1080p", "1080i" })) {
             return "HDTV";
         }
         return "Unknown";
@@ -469,7 +475,9 @@ public class MovieFilenameScanner {
         String basename = path.substring(0, index + 1);
 
         if (index >= 0) {
-            return (new File(basename + "srt").exists() || new File(basename + "SRT").exists() || new File(basename + "sub").exists() || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists() || new File(basename + "ssa").exists() || new File(basename + "SSA").exists());
+            return (new File(basename + "srt").exists() || new File(basename + "SRT").exists() || new File(basename + "sub").exists()
+                            || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists()
+                            || new File(basename + "ssa").exists() || new File(basename + "SSA").exists());
         }
 
         String fn = path.toUpperCase();
@@ -547,107 +555,66 @@ public class MovieFilenameScanner {
 
     protected void updateTVShow(String filename, Movie movie) {
         try {
-            StringTokenizer st = new StringTokenizer(filename, ". []-_");
-            while (st.hasMoreTokens()) {
-                String origToken = st.nextToken();
-                String token = origToken.toUpperCase();
+            Matcher matcher = tvPattern.matcher(filename);
+            if (matcher.find()) {
+                String group0 = matcher.group(0);
 
-                // S???E???? variable format
-                int eIdx = token.indexOf("E");
-                if (token.startsWith("S") && eIdx > 1 && eIdx < (token.length() - 1)) {
-                    boolean isValid = true;
+                logger.finest("It's a TV Show: " + group0);
 
-                    StringBuffer season = new StringBuffer();
-                    String sToken = token.substring(1, eIdx);
-                    for (char c : sToken.toCharArray()) {
-                        if (Character.isDigit(c)) {
-                            season.append(c);
-                        } else {
-                            isValid = false;
-                            break;
-                        }
-                    }
+                updateFirstKeywordIndex(matcher.start());
 
-                    StringBuffer episode = null;
-                    if (isValid) {
-                        episode = new StringBuffer();
-                        String eToken = token.substring(eIdx + 1);
-                        for (char c : eToken.toCharArray()) {
-                            if (Character.isDigit(c)) {
-                                episode.append(c);
-                            } else {
-                                isValid = false;
-                                break;
-                            }
-                        }
-                    }
+                ArrayList<Integer> episodes = new ArrayList<Integer>();
 
-                    if (isValid) {
-                        updateFirstKeywordIndex(filename.indexOf(origToken));
-                        movie.setSeason(Integer.parseInt(season.toString()));
-                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
+                String fileTitle = null;
 
-                        int beginIndex = filename.lastIndexOf("-");
-                        int endIndex = filename.lastIndexOf(".");
-                        if (beginIndex >= 0 && endIndex > beginIndex) {
-                            if (!movie.isTrailer()) {
-                                movie.getFirstFile().setTitle(filename.substring(beginIndex + 1, endIndex).trim());
-                            }
-                        } else {
-                            if (!movie.isTrailer()) {
-                                movie.getFirstFile().setTitle(Movie.UNKNOWN);
-                            }
-                        }
-                    }
+                int end = matcher.end(0);
+                int dash = filename.lastIndexOf('-');
+                if ((dash != -1) && (dash >= end)) {
+                    int dot = filename.lastIndexOf('.');
+                    if ((dot == -1) || (dot < dash))
+                        dot = filename.length();
+                    fileTitle = filename.substring(dash + 1, dot);
+                    logger.finest("Found file title: " + fileTitle);
                 }
 
-                // ?x?? variable format
-                int xIdx = token.indexOf("X");
-                if (Character.isDigit(token.charAt(0)) && xIdx > 0 && xIdx < (token.length() - 1) && Character.isDigit(token.charAt(token.length() - 1))) {
-                    boolean isValid = true;
+                int season = Integer.parseInt(matcher.group(1));
+                if (season > 99) {
+                    episodes.add(season % 100);
+                    season /= 100;
+                }
 
-                    StringBuffer season = new StringBuffer();
-                    String sToken = token.substring(0, xIdx);
-                    for (char c : sToken.toCharArray()) {
-                        if (Character.isDigit(c)) {
-                            season.append(c);
-                        } else {
-                            isValid = false;
-                            break;
-                        }
+                logger.finest("Season=" + season);
+                movie.setSeason(season);
+
+                matcher = episodePattern.matcher(group0);
+                while (matcher.find()) {
+                    episodes.add(Integer.parseInt(matcher.group(1)));
+                }
+
+                StringBuilder sb = new StringBuilder("Episode numbers are:");
+                for (int episode : episodes) {
+                    sb.append(' ');
+                    sb.append(episode);
+                }
+                logger.finest(sb.toString());
+
+                movie.getFirstFile().setPart(episodes.get(0));
+
+                if (fileTitle == null && episodes.size() > 1) {
+                    logger.finest("Building a file title from the episode numbers");
+                    sb = new StringBuilder("Episodes ");
+                    boolean first = true;
+                    for (int episode : episodes) {
+                        if (first)
+                            first = false;
+                        else
+                            sb.append(", ");
+                        sb.append(episode);
                     }
-
-                    StringBuffer episode = null;
-                    if (isValid) {
-                        episode = new StringBuffer();
-                        String eToken = token.substring(xIdx + 1);
-                        for (char c : eToken.toCharArray()) {
-                            if (Character.isDigit(c)) {
-                                episode.append(c);
-                            } else {
-                                isValid = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (isValid) {
-                        updateFirstKeywordIndex(filename.indexOf(origToken));
-                        movie.setSeason(Integer.parseInt(season.toString()));
-                        movie.getFirstFile().setPart(Integer.parseInt(episode.toString()));
-
-                        int beginIndex = filename.lastIndexOf("-");
-                        int endIndex = filename.lastIndexOf(".");
-                        if (beginIndex >= 0 && endIndex > beginIndex) {
-                            if (!movie.isTrailer()) {
-                                movie.getFirstFile().setTitle(filename.substring(beginIndex + 1, endIndex).trim());
-                            }
-                        } else {
-                            if (!movie.isTrailer()) {
-                                movie.getFirstFile().setTitle(Movie.UNKNOWN);
-                            }
-                        }
-                    }
+                    fileTitle = sb.toString();
+                }
+                if (fileTitle != null && !movie.isTrailer()) {
+                    movie.getFirstFile().setTitle(fileTitle.trim());
                 }
             }
         } catch (Exception e) {
@@ -681,7 +648,7 @@ public class MovieFilenameScanner {
      * @return true when the specified keyword exist in the specified filename
      */
     protected boolean hasKeyword(String filename, String keyword) {
-        return hasKeyword(filename, new String[]{keyword});
+        return hasKeyword(filename, new String[] { keyword });
     }
 
     /**

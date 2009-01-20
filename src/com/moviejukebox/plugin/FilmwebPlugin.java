@@ -182,7 +182,6 @@ public class FilmwebPlugin extends ImdbPlugin {
             movie.setRuntime(HTMLTools.getTextAfterElem(xml, "czas trwania:"));
             movie.setCountry(StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "gatunek", "<a ", "</a>"), ", "));
 
-            int count = 0;
             String genres = HTMLTools.getTextAfterElem(xml, "gatunek:");
             if (!Movie.UNKNOWN.equals(genres)) {
                 for (String genre : genres.split(" *, *")) {
@@ -204,8 +203,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
             movie.setPlot(plot);
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() ||
-                    movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(HTMLTools.extractTag(xml, "<title>", 1, "()><"));
             }
 
@@ -236,7 +234,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     /**
      * Retrieves the long plot description from filmweb if it exists, else "None"
-     *
+     * 
      * @return long plot
      */
     private String getLongPlot(String mainXML) {
@@ -316,7 +314,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                 String episodesUrl = m.group();
                 String xml = webBrowser.request(episodesUrl);
                 for (MovieFile file : movie.getMovieFiles()) {
-                    if (!file.isNewFile()) {
+                    if (!file.isNewFile() || file.hasTitle()) {
                         // don't scan episode title if it exists in XML data
                         continue;
                     }
@@ -348,8 +346,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         boolean found = false;
         while (m.find()) {
             String url = m.group();
-            if (!url.endsWith(".jpg") && !url.endsWith(".jpeg") &&
-                    !url.endsWith(".gif") && !url.endsWith(".png") && !url.endsWith(".bmp")) {
+            if (!url.endsWith(".jpg") && !url.endsWith(".jpeg") && !url.endsWith(".gif") && !url.endsWith(".png") && !url.endsWith(".bmp")) {
                 found = true;
                 movie.setId(FILMWEB_PLUGIN_ID, url);
             }
