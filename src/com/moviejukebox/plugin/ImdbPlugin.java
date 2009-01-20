@@ -33,6 +33,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected WebBrowser webBrowser;
     protected boolean downloadFanart;
     protected boolean extractCertificationFromMPAA;
+    protected static String fanartToken;
 
     public ImdbPlugin() {
         webBrowser = new WebBrowser();
@@ -42,6 +43,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+        fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
     }
 
@@ -361,7 +363,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
 
