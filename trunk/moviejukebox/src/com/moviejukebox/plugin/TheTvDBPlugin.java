@@ -27,6 +27,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private String language;
     private boolean includeEpisodePlots;
     private boolean dvdEpisodes = false;
+    protected static String fanartToken;
 
     public TheTvDBPlugin() {
         super();
@@ -34,6 +35,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         language = PropertiesUtil.getProperty("thetvdb.language", "en");
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
         dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
+        fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
     }
 
     @Override
@@ -158,7 +160,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (movie.getFanartURL() != null && !movie.getFanartURL().isEmpty() && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                        movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+                        movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                     }
                 }
                 scanTVShowTitles(movie);

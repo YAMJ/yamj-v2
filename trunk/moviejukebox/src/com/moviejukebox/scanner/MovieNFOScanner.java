@@ -37,6 +37,7 @@ public class MovieNFOScanner {
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    protected static String fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -244,7 +245,7 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setFanartURL(val);
-                                movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+                                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                             }
                         } else if (tag.equalsIgnoreCase("mpaa")) {
                             String val = XMLHelper.getCData(r);
@@ -443,7 +444,7 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setFanartURL(val);
-                                movie.setFanartFilename(movie.getBaseName() + ".fanart.jpg");
+                                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                             }
                         } else if (tag.equalsIgnoreCase("trailer")) {
                             String trailer = XMLHelper.getCData(r).trim();
