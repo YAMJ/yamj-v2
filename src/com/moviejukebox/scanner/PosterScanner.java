@@ -149,12 +149,12 @@ public class PosterScanner {
             // Overwrite the jukebox files if the local file is newer
             // First check the temp jukebox file
             if (localPosterFile.exists() && destFile.exists()) {
-                if (!FileTools.isNewer(localPosterFile, destFile)) {
+                if (FileTools.isNewer(localPosterFile, destFile)) {
                     checkAgain = true;
                 }
             } else if (localPosterFile.exists() && finalDestinationFile.exists()) {
                 // Check the target jukebox file
-                if (!FileTools.isNewer(localPosterFile, finalDestinationFile)) {
+                if (FileTools.isNewer(localPosterFile, finalDestinationFile)) {
                     checkAgain = true;
                 }
             }

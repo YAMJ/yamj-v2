@@ -177,12 +177,12 @@ public class FileTools {
         }
 
         // Compare the file dates. This is only true if the first file is newer than the second, as the second file is the file2 file
-        if (file1.lastModified() > file2.lastModified()) {
+        if (file1.lastModified() <= file2.lastModified()) {
             // file1 is older than the file2.
             return false;
+        } else {
+            // file1 is newer than file2
+            return true;
         }
-
-        // They seem to be the same.
-        return true;
     }
 }
