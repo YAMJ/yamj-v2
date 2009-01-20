@@ -49,6 +49,7 @@ MovieJukebox 1.0.15 beta
   - Enhancement  #403 Source clean up of spaces vs tabs.
   - Fixed defect #415 Exclude files from the Recycle Bin (In example library.xml file)
   - Fixed defect #417 Sratim plugin poster fix
+  - Fixed defect #419 Re-run of YAMJ causes jpg/png files to always be re-created
   
 
 MovieJukebox 1.0.14 beta
