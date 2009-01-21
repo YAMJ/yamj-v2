@@ -275,22 +275,14 @@
                      <xsl:text>&#160;</xsl:text>
                      
                      <xsl:choose>
-                       <xsl:when test="/details/movie/season!=-1">
-                         Episode <xsl:value-of select="@part"/>
-                         <xsl:if test="@title!='UNKNOWN'">
-                           - <xsl:value-of select="@title"/>
-                         </xsl:if>
-                       </xsl:when>
-                       <xsl:otherwise>
+                       <xsl:when test="@title='UNKNOWN'">
 						 <xsl:choose>
-						   <xsl:when test="@title='UNKNOWN'">
-                             <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
-						   </xsl:when>
-						   <xsl:otherwise>
-							 <xsl:value-of select="@title"/>
-						   </xsl:otherwise>
-						 </xsl:choose> 
-                       </xsl:otherwise>
+                           <xsl:when test="/details/movie/season!=-1">Episode</xsl:when>
+						   <xsl:otherwise>Part</xsl:otherwise>	 
+					     </xsl:choose>
+						 <xsl:text> </xsl:text><xsl:value-of select="@part"/>
+					   </xsl:when>	 
+                       <xsl:otherwise><xsl:value-of select="@title"/></xsl:otherwise>
                      </xsl:choose>
                    </a>
                  </td>

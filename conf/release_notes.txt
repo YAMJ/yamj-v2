@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.15 beta
 ------------------------
+  - Enhancement   #72 Support for multi-episode files and folders
   - Enhancement   #90 Skins now have the ability to wrap around from the last index page to the first and vice versa 
   - Enhancement  #225 Improved sorting of movies (by IMdB rating and by year)
   - Enhancement  #250 So how do we customize the categories?
