@@ -101,7 +101,7 @@ public class FanartScanner {
                 movie.setFanartFilename(localFanartFile.getName());
             }
             if ( movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN) ) {
-                movie.setFanartURL("file:/" + fullFanartFilename);
+                movie.setFanartURL(localFanartFile.toURI().toString());
             }
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
             String destFileName = tempJukeboxDetailsRoot + File.separator + movie.getFanartFilename();
