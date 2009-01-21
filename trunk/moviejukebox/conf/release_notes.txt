@@ -53,7 +53,7 @@ MovieJukebox 1.0.15 beta
   - Fixed defect #417 Sratim plugin poster fix
   - Fixed defect #419 Re-run of YAMJ causes jpg/png files to always be re-created
   - Fixed defect #423 Broken navigation on first and last movies. Details page. 
-  
+  - Fixed defect #430 typo on line 24 of detail.xsl
 
 MovieJukebox 1.0.14 beta
 ------------------------

@@ -16,7 +16,7 @@
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
 
   <tr height="30">
-    <td heigth="50" align="center" colspan="2">
+    <td height="50" align="center" colspan="2">
         <!-- Navigation using remote keys: Home, PageUP/PageDown (First/Last), Prev/Next & Left/Right (Previous/Next) -->
         <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="//preferences/homePage"/></xsl:attribute></a>
 
