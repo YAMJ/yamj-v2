@@ -98,7 +98,8 @@ public class FanartScanner {
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
         if (foundLocalFanart) {
             if ( movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN) ) {
-                movie.setFanartFilename(localFanartFile.getName());
+                //movie.setFanartFilename(localFanartFile.getName());
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
             }
             if ( movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN) ) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
