@@ -308,16 +308,26 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("name", category.getKey());
 
             for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
+                String key = "";
+                try {
+                    key = URLEncoder.encode(index.getKey(), "UTF-8").replace("%", "$");
+                } catch (Exception e) {
+                    System.err.println("Failed generating the category index");
+                    e.printStackTrace();
+                }
+
                 writer.writeStartElement("index");
+
                 if (includeMoviesInCategories) {
-                    writer.writeAttribute("name", index.getKey());
+                    writer.writeAttribute("name", key);
+                    
                     for (Movie movie : index.getValue()) {
                         writer.writeStartElement("movie");
                         writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
                         writer.writeEndElement();
                     }
                 } else {
-                    writer.writeCharacters(index.getKey());
+                    writer.writeCharacters(key);
                 }
 
                 writer.writeEndElement();
