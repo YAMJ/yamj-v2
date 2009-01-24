@@ -27,6 +27,8 @@ public class MovieDirectoryScanner {
     private String supportedExtensions;
     private String thumbnailsFormat;
     private String postersFormat;
+    private String opensubtitles;
+    private Boolean excludeFilesWithoutExternalSubtitles;
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     //BD rip infos Scanner
@@ -36,6 +38,8 @@ public class MovieDirectoryScanner {
         supportedExtensions = PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
         thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
         postersFormat = PropertiesUtil.getProperty("posters.format", "png");
+        excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
+        opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
 
         localBDRipScanner = new BDRipScanner();
     }
@@ -103,6 +107,15 @@ public class MovieDirectoryScanner {
             relativeFilename = relativeFilename.substring(1);
         }
 
+        //exclude files without external subtitles
+        if (opensubtitles.equals("")) {    // We are not downloading subtitles, so exclude those that don't have any.
+            MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
+            if (excludeFilesWithoutExternalSubtitles && !filenameScanner.hasSubtitles(file)) {
+                logger.fine("File " + filename + " excluded. (no external subtitles)");
+                return true;
+            }
+        }
+        
         for (String excluded : srcPath.getExcludes()) {
             excluded = excluded.replace("/", File.separator);
             excluded = excluded.replace("\\", File.separator);
