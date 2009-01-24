@@ -99,6 +99,15 @@ public class Movie implements Comparable<Movie> {
     private File file;
     private File containerFile;
 
+    private String encodeText(String text) {
+        try {
+            return new String(text.getBytes(), "UTF-8");
+        }
+        catch ( java.io.UnsupportedEncodingException e) {
+            return text;
+        }
+    }
+    
     public void addGenre(String genre) {
         if (genre != null && !trailer) {
             this.isDirty = true;
@@ -168,7 +177,8 @@ public class Movie implements Comparable<Movie> {
             }
         }
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
-        return text + " (" + this.getYear() + ") " + season;
+        
+        return encodeText(text + " (" + this.getYear() + ") " + season);
     }
 
     @Override
@@ -177,11 +187,11 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getAudioCodec() {
-        return audioCodec;
+        return encodeText(audioCodec);
     }
 
     public String getBaseName() {
-        return baseName;
+        return encodeText(baseName);
     }
 
     public Collection<String> getCast() {
@@ -189,19 +199,19 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getCompany() {
-        return company;
+        return encodeText(company);
     }
 
     public String getContainer() {
-        return container;
+        return encodeText(container);
     }
 
     public String getCountry() {
-        return country;
+        return encodeText(country);
     }
 
     public String getDirector() {
-        return director;
+        return encodeText(director);
     }
 
     public Collection<MovieFile> getFiles() {
@@ -213,11 +223,11 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getCertification() {
-        return certification;
+        return encodeText(certification);
     }
 
     public String getFirst() {
-        return first;
+        return encodeText(first);
     }
 
     public MovieFile getFirstFile() {
@@ -269,7 +279,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getLanguage() {
-        return language;
+        return encodeText(language);
     }
 
     public String getLast() {
@@ -285,7 +295,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getPlot() {
-        return plot;
+        return encodeText(plot);
     }
 
     public String getPosterURL() {
@@ -305,15 +315,15 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getReleaseDate() {
-        return releaseDate;
+        return encodeText(releaseDate);
     }
 
     public String getResolution() {
-        return resolution;
+        return encodeText(resolution);
     }
 
     public String getRuntime() {
-        return runtime;
+        return encodeText(runtime);
     }
 
     public int getSeason() {
@@ -321,27 +331,27 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getTitle() {
-        return title;
+        return encodeText(title);
     }
 
     public String getTitleSort() {
-        return titleSort;
+        return encodeText(titleSort);
     }
 
     public String getVideoCodec() {
-        return videoCodec;
+        return encodeText(videoCodec);
     }
 
     public String getVideoOutput() {
-        return videoOutput;
+        return encodeText(videoOutput);
     }
 
     public String getVideoSource() {
-        return videoSource;
+        return encodeText(videoSource);
     }
 
     public String getYear() {
-        return year;
+        return encodeText(year);
     }
 
     public boolean hasSubtitles() {
@@ -567,7 +577,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getOutline() {
-        return outline;
+        return encodeText(outline);
     }
 
     public void setOutline(String outline) {
@@ -893,7 +903,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getAudioChannels() {
-        return audioChannels;
+        return encodeText(audioChannels);
     }
 
     public void setAudioChannels(String audioChannels) {
