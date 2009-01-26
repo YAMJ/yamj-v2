@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.Base64;
 
 /**
  * Web browser with simple cookies support
@@ -23,10 +25,27 @@ public class WebBrowser {
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;
 
+    private String mjbProxyHost;
+    private String mjbProxyPort;
+    private String mjbProxyUsername;
+    private String mjbProxyPassword;
+    private String mjbEncodedPassword;
+    
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
         cookies = new HashMap<String, Map<String, String>>();
+        
+        mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost", null);
+        mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort", null);
+        mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
+        mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
+        
+        if ( mjbProxyUsername != null ) {
+            mjbEncodedPassword = mjbProxyUsername + ":" + mjbProxyPassword;
+            mjbEncodedPassword = Base64.base64Encode(mjbEncodedPassword);
+        }
+        
     }
 
     public String request(String url) throws IOException {
@@ -41,7 +60,18 @@ public class WebBrowser {
 
             BufferedReader in = null;
             try {
+                if ( mjbProxyHost != null ) {
+                    System.getProperties().put( "proxySet", "true" );
+                    System.getProperties().put( "proxyHost", mjbProxyHost );
+                    System.getProperties().put( "proxyPort", mjbProxyPort );
+                }
+            
                 URLConnection cnx = url.openConnection();
+                
+                if ( mjbProxyUsername != null ) {
+                    cnx.setRequestProperty( "Proxy-Authorization", mjbEncodedPassword );
+                }
+                
                 sendHeader(cnx);
                 readHeader(cnx);
 
