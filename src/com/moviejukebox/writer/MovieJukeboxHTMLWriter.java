@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
-import java.net.URLEncoder;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -103,7 +103,7 @@ public class MovieJukeboxHTMLWriter {
                     // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is the the normal method for standalone YAMJ
                     for (MovieFile part : movie.getFiles()) {
                         // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the title
-                        writer.println(movie.getTitle().replace('|', ' ') + " " + part.getPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
+                        writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
                     }
                     writer.flush();
                     writer.close();
@@ -202,7 +202,7 @@ public class MovieJukeboxHTMLWriter {
     }
 
     private void writeSingleIndexPage(String rootPath, String detailsDirName, String categoryName, String key, int page)
-            throws TransformerFactoryConfigurationError {
+                    throws TransformerFactoryConfigurationError {
         try {
             File detailsDir = new File(rootPath, detailsDirName);
             detailsDir.mkdirs();

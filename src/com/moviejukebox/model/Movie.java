@@ -15,6 +15,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Movie bean
+ * 
  * @author jjulien
  */
 public class Movie implements Comparable<Movie> {
@@ -26,7 +27,6 @@ public class Movie implements Comparable<Movie> {
     public static String TYPE_TVSHOW = "TVSHOW";
     public static String TYPE_UNKNOWN = "UNKNOWN";
     private static ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
-
 
     static {
         String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
@@ -67,7 +67,7 @@ public class Movie implements Comparable<Movie> {
     private boolean hasSubtitles = false;
     private Collection<String> genres = new TreeSet<String>();
     private Collection<String> cast = new ArrayList<String>();
-    private String container = UNKNOWN;  // AVI, MKV, TS, etc.
+    private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
     private String audioChannels = UNKNOWN; // Number of audio channels
@@ -102,12 +102,11 @@ public class Movie implements Comparable<Movie> {
     private String encodeText(String text) {
         try {
             return new String(text.getBytes(), "UTF-8");
-        }
-        catch ( java.io.UnsupportedEncodingException e) {
+        } catch (java.io.UnsupportedEncodingException e) {
             return text;
         }
     }
-    
+
     public void addGenre(String genre) {
         if (genre != null && !trailer) {
             this.isDirty = true;
@@ -177,7 +176,7 @@ public class Movie implements Comparable<Movie> {
             }
         }
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
-        
+
         return encodeText(text + " (" + this.getYear() + ") " + season);
     }
 
@@ -233,7 +232,7 @@ public class Movie implements Comparable<Movie> {
     public MovieFile getFirstFile() {
 
         for (MovieFile part : movieFiles) {
-            if (part.getPart() == 1) {
+            if (part.getFirstPart() == 1) {
                 return part;
             }
         }
@@ -255,10 +254,9 @@ public class Movie implements Comparable<Movie> {
     }
 
     /**
-     *
-     * @deprecated replaced by getId(String key). This method is kept for compatibility purpose. But you should use
-     *             getId(String key, String id) instead. Ex: movie.getId(ImdbPlugin.IMDB_PLUGIN_ID) {@link getId(String
-     *             key)}
+     * 
+     * @deprecated replaced by getId(String key). This method is kept for compatibility purpose. But you should use getId(String key, String id) instead. Ex:
+     *             movie.getId(ImdbPlugin.IMDB_PLUGIN_ID) {@link getId(String key)}
      */
     @Deprecated
     public String getId() {
@@ -379,7 +377,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public boolean isTVShow() {
-        //return (season != -1);
+        // return (season != -1);
         return (this.movieType.equals(TYPE_TVSHOW) || this.season > 0);
     }
 
@@ -499,10 +497,9 @@ public class Movie implements Comparable<Movie> {
     }
 
     /**
-     *
-     * @deprecated replaced by setId(String key, String id). This method is kept for compatibility purpose. But you
-     *             should use setId(String key, String id) instead. Ex: movie.setId(ImdbPlugin.IMDB_PLUGIN_ID,"tt12345")
-     *             {@link setId(String key, String id)}
+     * 
+     * @deprecated replaced by setId(String key, String id). This method is kept for compatibility purpose. But you should use setId(String key, String id)
+     *             instead. Ex: movie.setId(ImdbPlugin.IMDB_PLUGIN_ID,"tt12345") {@link setId(String key, String id)}
      */
     @Deprecated
     public void setId(String id) {
@@ -796,11 +793,11 @@ public class Movie implements Comparable<Movie> {
         sb.append("[season=").append(season).append("]");
         sb.append("[language=").append(language).append("]");
         sb.append("[hasSubtitles=").append(hasSubtitles).append("]");
-        sb.append("[container=").append(container).append("]");         // AVI, MKV, TS, etc.
-        sb.append("[videoCodec=").append(videoCodec).append("]");       // DIVX, XVID, H.264, etc.
-        sb.append("[audioCodec=").append(audioCodec).append("]");       // MP3, AC3, DTS, etc.
+        sb.append("[container=").append(container).append("]"); // AVI, MKV, TS, etc.
+        sb.append("[videoCodec=").append(videoCodec).append("]"); // DIVX, XVID, H.264, etc.
+        sb.append("[audioCodec=").append(audioCodec).append("]"); // MP3, AC3, DTS, etc.
         sb.append("[audioChannels=").append(audioChannels).append("]"); // Number of audio channels
-        sb.append("[resolution=").append(resolution).append("]");       // 1280x528
+        sb.append("[resolution=").append(resolution).append("]"); // 1280x528
         sb.append("[videoSource=").append(videoSource).append("]");
         sb.append("[videoOutput=").append(videoOutput).append("]");
         sb.append("[fps=").append(fps).append("]");

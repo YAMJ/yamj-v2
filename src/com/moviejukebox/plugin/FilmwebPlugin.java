@@ -314,14 +314,27 @@ public class FilmwebPlugin extends ImdbPlugin {
                 String episodesUrl = m.group();
                 String xml = webBrowser.request(episodesUrl);
                 for (MovieFile file : movie.getMovieFiles()) {
-                    if (!file.isNewFile() || file.hasTitle()) {
+                    if (!file.isNewFile()) {
                         // don't scan episode title if it exists in XML data
                         continue;
                     }
                     int fromIndex = xml.indexOf("seria" + movie.getSeason());
-                    String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + file.getPart(), 1, fromIndex);
-                    if (!episodeName.equals(Movie.UNKNOWN)) {
-                        file.setTitle(episodeName);
+                    boolean first = true;
+                    StringBuilder sb = new StringBuilder();
+                    for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
+                        String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + part, 1, fromIndex);
+                        if (!episodeName.equals(Movie.UNKNOWN)) {
+                            if (first) {
+                                first = false;
+                            } else {
+                                sb.append(" / ");
+                            }
+                            sb.append(episodeName);
+                        }
+                    }
+                    String title = sb.toString();
+                    if (!"".equals(title)) {
+                        file.setTitle(title);
                     }
                 }
             } else {

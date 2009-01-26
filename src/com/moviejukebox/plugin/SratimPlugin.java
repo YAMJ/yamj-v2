@@ -728,14 +728,26 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         for (MovieFile file : movie.getMovieFiles()) {
-            if (!file.isNewFile() || file.hasTitle()) {
+            if (!file.isNewFile()) {
                 // don't scan episode title if it exists in XML data
                 continue;
             }
-
-            String episodeName = logicalToVisual(HTMLTools.getTextAfterElem(mainXML, "<b>פרק " + file.getPart() + "</b> - "));
-            if (!episodeName.equals(Movie.UNKNOWN)) {
-                file.setTitle(episodeName);
+            StringBuilder sb = new StringBuilder();
+            boolean first = true;
+            for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
+                String episodeName = logicalToVisual(HTMLTools.getTextAfterElem(mainXML, "<b>פרק " + part + "</b> - "));
+                if (!episodeName.equals(Movie.UNKNOWN)) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        sb.append(" / ");
+                    }
+                    sb.append(episodeName);
+                }
+            }
+            String title = sb.toString();
+            if (!"".equals(title)) {
+                file.setTitle(title);
             }
         }
     }

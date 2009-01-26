@@ -579,11 +579,23 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     // don't scan episode title if it exists in XML data
                     continue;
                 }
-                int episode = file.getPart();
-                String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
+                StringBuilder sb = new StringBuilder();
+                boolean first = true;
+                for (int episode = file.getFirstPart(); episode <= file.getLastPart(); ++episode) {
+                    String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
 
-                if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1 && !file.hasTitle()) {
-                    file.setTitle(episodeName);
+                    if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            sb.append(" / ");
+                        }
+                        sb.append(episodeName);
+                    }
+                }
+                String title = sb.toString();
+                if (!"".equals(title)) {
+                    file.setTitle(title);
                 }
             }
         } catch (IOException e) {
