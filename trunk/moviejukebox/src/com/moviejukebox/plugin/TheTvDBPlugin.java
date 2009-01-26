@@ -184,21 +184,33 @@ public class TheTvDBPlugin extends ImdbPlugin {
             }
 
             if (movie.getSeason() > 0) {
-                Episode episode = null;
-                if (dvdEpisodes) {
-                    episode = tvDB.getDVDEpisode(id, movie.getSeason(), file.getPart(), language);
-                }
-                if (episode == null) {
-                    episode = tvDB.getEpisode(id, movie.getSeason(), file.getPart(), language);
-                }
+                StringBuilder sb = new StringBuilder();
+                boolean first = true;
+                for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
+                    Episode episode = null;
+                    if (dvdEpisodes) {
+                        episode = tvDB.getDVDEpisode(id, movie.getSeason(), part, language);
+                    }
+                    if (episode == null) {
+                        episode = tvDB.getEpisode(id, movie.getSeason(), part, language);
+                    }
 
-                if (episode != null) {
-                    if (!file.hasTitle()) {
-                        file.setTitle(episode.getEpisodeName());
+                    if (episode != null) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            sb.append(" / ");
+                        }
+                        sb.append(episode.getEpisodeName());
+
+                        if (includeEpisodePlots) {
+                            file.setPlot(part, episode.getOverview());
+                        }
                     }
-                    if (includeEpisodePlots) {
-                        file.setPlot(episode.getOverview());
-                    }
+                }
+                String title = sb.toString();
+                if (!"".equals(sb)) {
+                    file.setTitle(title);
                 }
             }
         }

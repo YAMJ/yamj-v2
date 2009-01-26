@@ -1,7 +1,7 @@
 package com.moviejukebox.model;
 
 /**
- *
+ * 
  * @author altman.matthew
  */
 public class TrailerFile extends MovieFile {
@@ -11,7 +11,7 @@ public class TrailerFile extends MovieFile {
 
     public TrailerFile(MovieFile mf) {
         this.setFilename(mf.getFilename());
-        this.setPart(mf.getPart());
+        this.setPart(mf.getFirstPart());
         this.setTitle(mf.getTitle());
         this.setNewFile(mf.isNewFile());
     }

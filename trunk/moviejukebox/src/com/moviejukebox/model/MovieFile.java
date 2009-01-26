@@ -1,15 +1,17 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 
 public class MovieFile implements Comparable<MovieFile> {
 
     private String filename = Movie.UNKNOWN;
     private String title = Movie.UNKNOWN;
-    private int part = 1; // #1, #2, CD1, CD2, etc.
+    private int firstPart = 1; // #1, #2, CD1, CD2, etc.
+    private int lastPart = 1;
     private boolean newFile = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // is the subtitles for this file already downloaded/uploaded to the server
-    private String plot = Movie.UNKNOWN;
+    private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
     private File file;
 
     public String getFilename() {
@@ -20,23 +22,37 @@ public class MovieFile implements Comparable<MovieFile> {
         this.filename = filename;
     }
 
-    public String getPlot() {
-        return plot;
+    public String getPlot(int part) {
+        return plots.get(part);
     }
 
-    public void setPlot(String plot) {
+    public void setPlot(int part, String plot) {
         if (plot == null || plot.isEmpty()) {
             plot = Movie.UNKNOWN;
         }
-        this.plot = plot;
+        plots.put(part, plot);
     }
 
-    public int getPart() {
-        return part;
+    public int getFirstPart() {
+        return firstPart;
+    }
+
+    public int getLastPart() {
+        return lastPart;
     }
 
     public void setPart(int part) {
-        this.part = part;
+        firstPart = lastPart = part;
+    }
+
+    public void setFirstPart(int part) {
+        firstPart = part;
+        if (firstPart > lastPart)
+            lastPart = firstPart;
+    }
+
+    public void setLastPart(int part) {
+        lastPart = part;
     }
 
     public String getTitle() {
@@ -91,7 +107,7 @@ public class MovieFile implements Comparable<MovieFile> {
      */
     @Override
     public int compareTo(MovieFile anotherMovieFile) {
-        return this.getPart() - anotherMovieFile.getPart();
+        return this.getFirstPart() - anotherMovieFile.getFirstPart();
     }
 
     public File getFile() {

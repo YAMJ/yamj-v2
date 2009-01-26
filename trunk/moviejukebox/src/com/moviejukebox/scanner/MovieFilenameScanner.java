@@ -55,7 +55,7 @@ public class MovieFilenameScanner {
 
         Collection<MovieFile> movieFiles = movie.getFiles();
         for (MovieFile movieFile : movieFiles) {
-            if (movieFile.getPart() == 1) {
+            if (movieFile.getFirstPart() == 1) {
                 movieFile.setPart(getPart(filename));
             }
         }
@@ -559,11 +559,9 @@ public class MovieFilenameScanner {
             if (matcher.find()) {
                 String group0 = matcher.group(0);
 
-//                logger.finest("It's a TV Show: " + group0);
+                // logger.finest("It's a TV Show: " + group0);
 
                 updateFirstKeywordIndex(matcher.start());
-
-                ArrayList<Integer> episodes = new ArrayList<Integer>();
 
                 String fileTitle = null;
 
@@ -574,44 +572,35 @@ public class MovieFilenameScanner {
                     if ((dot == -1) || (dot < dash))
                         dot = filename.length();
                     fileTitle = filename.substring(dash + 1, dot);
-//                    logger.finest("Found file title: " + fileTitle);
                 }
 
                 int season = Integer.parseInt(matcher.group(1));
+                int firstPart = -1;
+                int lastPart = -1;
+
                 if (season > 99) {
-                    episodes.add(season % 100);
+                    firstPart = season % 100;
                     season /= 100;
                 }
 
-//                logger.finest("Season=" + season);
                 movie.setSeason(season);
 
                 matcher = episodePattern.matcher(group0);
                 while (matcher.find()) {
-                    episodes.add(Integer.parseInt(matcher.group(1)));
+                    int episode = Integer.parseInt(matcher.group(1));
+                    if (firstPart == -1)
+                        firstPart = lastPart = episode;
+
+                    else
+                        lastPart = episode;
                 }
 
-                StringBuilder sb = new StringBuilder("Episode numbers are:");
-                for (int episode : episodes) {
-                    sb.append(' ');
-                    sb.append(episode);
-                }
-//                logger.finest(sb.toString());
+                MovieFile firstFile = movie.getFirstFile();
+                firstFile.setPart(firstPart);
+                firstFile.setLastPart(lastPart);
 
-                movie.getFirstFile().setPart(episodes.get(0));
-
-                if (fileTitle == null && episodes.size() > 1) {
-//                    logger.finest("Building a file title from the episode numbers");
-                    sb = new StringBuilder("Episodes ");
-                    boolean first = true;
-                    for (int episode : episodes) {
-                        if (first)
-                            first = false;
-                        else
-                            sb.append(", ");
-                        sb.append(episode);
-                    }
-                    fileTitle = sb.toString();
+                if (fileTitle == null && firstPart != lastPart) {
+                    fileTitle = String.format("Episodes %d - %d", firstPart, lastPart);
                 }
                 if (fileTitle != null && !movie.isTrailer()) {
                     movie.getFirstFile().setTitle(fileTitle.trim());

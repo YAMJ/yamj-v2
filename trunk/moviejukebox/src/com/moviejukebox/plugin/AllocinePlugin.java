@@ -98,14 +98,22 @@ public class AllocinePlugin extends ImdbPlugin {
                         // logger.finest("The right Season IdI = " + seasonId);
                         xml = webBrowser.request("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId + "&cserie=" + allocineId + ".html");
                         for (MovieFile file : movie.getFiles()) {
-                            if (!file.isNewFile() || file.hasTitle()) {
+                            if (!file.isNewFile()) {
                                 // don't scan episode title if it exists in XML data
                                 continue;
                             }
-                            int episode = file.getPart();
-                            String episodeName = removeHtmlTags(extractTag(xml, "<b>Episode " + episode + "</b></h4>&nbsp;-&nbsp;", "<span id="));
-                            // logger.finest("episodeName = " + episodeName);
-                            file.setTitle(episodeName);
+                            StringBuilder sb = new StringBuilder();
+                            boolean first = true;
+                            for (int episode = file.getFirstPart(); episode < file.getLastPart(); ++episode) {
+                                String episodeName = removeHtmlTags(extractTag(xml, "<b>Episode " + episode + "</b></h4>&nbsp;-&nbsp;", "<span id="));
+                                if (first) {
+                                    first = false;
+                                } else {
+                                    sb.append(" / ");
+                                }
+                                sb.append(episodeName);
+                            }
+                            file.setTitle(sb.toString());
                         }
                     }
                 } catch (Exception e) {

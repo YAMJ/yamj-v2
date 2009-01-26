@@ -3,12 +3,12 @@ package com.moviejukebox.writer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.net.URLEncoder;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -217,8 +217,13 @@ public class MovieJukeboxXMLWriter {
                             continue;
                         }
 
-                        if ("part".equals(ns)) {
+                        if ("firstPart".equals(ns)) {
                             mf.setPart(Integer.parseInt(attr.getValue()));
+                            continue;
+                        }
+
+                        if ("lastPart".equals(ns)) {
+                            mf.setLastPart(Integer.parseInt(attr.getValue()));
                             continue;
                         }
 
@@ -234,7 +239,7 @@ public class MovieJukeboxXMLWriter {
                         if (tag.equals("<fileURL>")) {
                             mf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
                         } else if (tag.equals("<filePlot>")) {
-                            mf.setPlot(parseCData(r));
+                            // mf.setPlot(parseCData(r));
                         }
                     }
                     // add or replace MovieFile based on XML data
@@ -320,7 +325,7 @@ public class MovieJukeboxXMLWriter {
 
                 if (includeMoviesInCategories) {
                     writer.writeAttribute("name", key);
-                    
+
                     for (Movie movie : index.getValue()) {
                         writer.writeStartElement("movie");
                         writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
@@ -381,12 +386,12 @@ public class MovieJukeboxXMLWriter {
                     if (nbMoviesLeft == 0) {
                         if (current == 1) {
                             // If this is the first page, link the previous page to the last page.
-                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last);    
+                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last);
                         } else {
                             // This is a "middle" page, so process as normal.
                             writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
                         }
-                        //*/writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                        // */writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
                         moviesInASinglePage = new ArrayList<Movie>();
                         previous = current;
                         current = Math.min(current + 1, last);
@@ -407,7 +412,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
-            int next, int last) throws FileNotFoundException, XMLStreamException {
+                    int next, int last) throws FileNotFoundException, XMLStreamException {
         String prefix = createPrefix(categoryName, key);
         File xmlFile = new File(rootPath, prefix + current + ".xml");
         xmlFile.getParentFile().mkdirs();
@@ -657,16 +662,20 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("files");
         for (MovieFile mf : movie.getFiles()) {
             writer.writeStartElement("file");
-            writer.writeAttribute("part", Integer.toString(mf.getPart()));
+            writer.writeAttribute("firstPart", Integer.toString(mf.getFirstPart()));
+            writer.writeAttribute("lastPart", Integer.toString(mf.getLastPart()));
             writer.writeAttribute("title", mf.getTitle());
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
             writer.writeStartElement("fileURL");
             writer.writeCharacters(HTMLTools.encodeUrl(mf.getFilename()));
             writer.writeEndElement();
             if (includeEpisodePlots) {
-                writer.writeStartElement("filePlot");
-                writer.writeCharacters(mf.getPlot());
-                writer.writeEndElement();
+                for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
+                    writer.writeStartElement("filePlot");
+                    writer.writeAttribute("part", Integer.toString(part));
+                    writer.writeCharacters(mf.getPlot(part));
+                    writer.writeEndElement();
+                }
             }
             writer.writeEndElement();
         }
@@ -699,8 +708,8 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         // Issue 309
         for (Map.Entry<Object, Object> entry : PropertiesUtil.getEntrySet()) {
-            writer.writeStartElement((String) entry.getKey());
-            writer.writeCharacters((String) entry.getValue());
+            writer.writeStartElement((String)entry.getKey());
+            writer.writeCharacters((String)entry.getValue());
             writer.writeEndElement();
         }
         writer.writeEndElement();
