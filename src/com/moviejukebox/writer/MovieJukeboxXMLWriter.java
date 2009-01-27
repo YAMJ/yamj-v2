@@ -238,8 +238,18 @@ public class MovieJukeboxXMLWriter {
                         tag = e.toString();
                         if (tag.equals("<fileURL>")) {
                             mf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
-                        } else if (tag.equals("<filePlot>")) {
-                            // mf.setPlot(parseCData(r));
+                        } else if (tag.startsWith("<filePlot")) {
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if ("part".equals(ns)) {
+                                    part = Integer.parseInt(attr.getValue());
+                                }
+                            }
+                            mf.setPlot(part, parseCData(r));
                         }
                     }
                     // add or replace MovieFile based on XML data
