@@ -101,7 +101,7 @@ public class Movie implements Comparable<Movie> {
 
     private String encodeText(String text) {
         try {
-            return new String(text.getBytes(), "UTF-8");
+            return java.net.URLDecoder.decode(text, "UTF-8");
         } catch (java.io.UnsupportedEncodingException e) {
             return text;
         }

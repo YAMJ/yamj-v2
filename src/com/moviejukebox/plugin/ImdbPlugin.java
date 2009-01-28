@@ -669,6 +669,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         }
+        
+        if ( url.equals(Movie.UNKNOWN) ) {
+            logger.finest("No fanart found");
+        } else {
+            logger.finest("Fanart URL: " + url);
+        }
+
         return url;
     }
 }
