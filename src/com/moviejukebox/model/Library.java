@@ -213,21 +213,23 @@ public class Library implements Map<String, Movie> {
     private void indexByYear() {
         TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
         for (Movie movie : moviesList) {
-            String year = movie.getYear();
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                try {
-                    String beginYear = year.substring(0, year.length() - 1) + "0";
-                    String endYear = year.substring(0, year.length() - 1) + "9";
-                    String category = beginYear + "-" + endYear.substring(endYear.length() - 2);
-                    addMovie(index, category, movie);
+            if (!movie.isTrailer()) {
+                String year = movie.getYear();
+                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    try {
+                        String beginYear = year.substring(0, year.length() - 1) + "0";
+                        String endYear = year.substring(0, year.length() - 1) + "9";
+                        String category = beginYear + "-" + endYear.substring(endYear.length() - 2);
+                        addMovie(index, category, movie);
 
-                    int currentYear = currentCal.get(Calendar.YEAR);
-                    if (year.equals("" + currentYear)) {
-                        addMovie(index, "This Year", movie);
-                    } else if (year.equals("" + (currentYear - 1))) {
-                        addMovie(index, "Last Year", movie);
+                        int currentYear = currentCal.get(Calendar.YEAR);
+                        if (year.equals("" + currentYear)) {
+                            addMovie(index, "This Year", movie);
+                        } else if (year.equals("" + (currentYear - 1))) {
+                            addMovie(index, "Last Year", movie);
+                        }
+                    } catch (Exception ignore) {
                     }
-                } catch (Exception ignore) {
                 }
             }
         }
@@ -237,12 +239,14 @@ public class Library implements Map<String, Movie> {
     private void indexByGenres() {
         TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
         for (Movie movie : moviesList) {
-            int count = 0;
-            for (String genre : movie.getGenres()) {
-                addMovie(index, getIndexingGenre(genre), movie);
-                count++;
-                if (count >= maxGenres) {
-                    break;
+            if (!movie.isTrailer()) {
+                int count = 0;
+                for (String genre : movie.getGenres()) {
+                    addMovie(index, getIndexingGenre(genre), movie);
+                    count++;
+                    if (count >= maxGenres) {
+                        break;
+                    }
                 }
             }
         }
