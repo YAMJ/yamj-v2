@@ -274,12 +274,12 @@
                          <xsl:if test="@title!='UNKNOWN'">
                            <xsl:value-of select="@title"/> -
                          </xsl:if>
-                         <xsl:value-of select="@part"/> קרפ
+                         <xsl:value-of select="@firstPart"/> קרפ
                        </xsl:when>
                        <xsl:otherwise>
 						 <xsl:choose>
 						   <xsl:when test="@title='UNKNOWN'">
-                             <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@part"/>)
+                             <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@firstPart"/>)
 						   </xsl:when>
 						   <xsl:otherwise>
 							 <xsl:value-of select="@title"/>
