@@ -30,16 +30,16 @@ public class AllocinePlugin extends ImdbPlugin {
             String xml = webBrowser.request("http://www.allocine.fr/series/ficheserie_gen_cserie=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
 
             if (!movie.isOverrideTitle()) {
-                movie.setTitle(extractTag(xml, "<title>", "</title>"));
+                movie.setTitle(extractTag(xml, "<h1 style='color:#D20000;font-weight:bold'>", "</h1>"));
             }
             movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
-            String tmpPlot = removeHtmlTags(extractTag(xml, "Synopsis</span> :", "</h5>"));
+            String tmpPlot = removeHtmlTags(extractTag(xml, "Synopsis</span>&nbsp;&nbsp;&nbsp;", "</h5>"));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
             if (tmpPlot.length() > ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT) {
                 tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
             }
             movie.setPlot(tmpPlot);
-            movie.setDirector(removeHtmlTags(extractTag(xml, "<h4>Série créée par", "</a> en")));
+            movie.setDirector(removeHtmlTags(extractTag(xml, "<h4>Série créée par ", "</a> en")));
             movie.setRuntime(extractTag(xml, "Format</span> : ", "."));
             movie.setCountry(extractTag(xml, "Nationalité</span> :", "</h5>"));
 
@@ -81,7 +81,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
             String xml = webBrowser.request("http://www.allocine.fr/series/episodes_gen_cserie=" + allocineId + ".html");
 
-            for (String seasonTag : extractHtmlTags(xml, "<h4><b>Choisir une saison</b>", "<table", "<a href=\"/series/episodes_gen_csaison", "</a>")) {
+            for (String seasonTag : extractHtmlTags(xml, "Sélectionner un numéro de saison", "<table", "<a href=\"/series/episodes_gen_csaison", "</a>")) {
                 try {
                     String seasonIdString = removeHtmlTags(seasonTag);
                     // logger.finest("New Season detected = " + seasonIdString);
@@ -142,22 +142,26 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideTitle()) {
-                movie.setTitle(extractTag(xml, "<title>", "</title>"));
+                movie.setTitle(extractTag(xml, "<h1 class=\"TitleFilm\">", "</h1>"));
             }
             movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
-            String tmpPlot = removeHtmlTags(extractTag(xml, "<h3><b>Synopsis</b></h3>", "</h4>"));
+            String tmpPlot = removeHtmlTags(extractTag(xml, "<h2 class=\"SpBlocTitle\" >Synopsis", "</h4>"));
             if (tmpPlot.length() > ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT) {
                 tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
             }
             movie.setPlot(tmpPlot);
-            movie.setDirector(removeHtmlTags(extractTag(xml, "<h4>Réalisé par ", "</h4>")));
-            movie.setReleaseDate(extractTag(xml, "<h4>Date de sortie : <b>", "</b>"));
-            movie.setRuntime(extractTag(xml, "<h4>Durée : ", "</h4>"));
-            movie.setCountry(extractTag(xml, "<h4>Film", "."));
-            movie.setCompany(removeHtmlTags(extractTag(xml, "<h4>Distribué par ", "</h4>")));
+            movie.setDirector(removeHtmlTags(extractTag(xml, "<h3 class=\"SpProse\">Réalisé par ", "</h3>")));
+//            logger.finest("Movie Director = " + movie.getDirector());
 
-            for (String genre : extractTags(xml, "<h4>Genre : ", "</h4>", "film/alaffiche_genre_gen_genre", "</a>")) {
+            movie.setReleaseDate(extractTag(xml, "Date de sortie : <b>", "</b>"));
+            movie.setRuntime(extractTag(xml, "Durée : ", "."));
+//            logger.finest("Durée = " + movie.getRuntime());
+            movie.setCountry(extractTag(xml, "<h3 class=\"SpProse\">Film", "."));
+//            logger.finest("Movie Country = " + movie.getCountry());
+            movie.setCompany(removeHtmlTags(extractTag(xml, "Distribué par ", "</h3>")));
+
+            for (String genre : extractTags(xml, "Genre : ", "</h3>", "film/alaffiche_genre_gen_genre", "</a>")) {
                 movie.addGenre(removeOpenedHtmlTags(genre));
             }
 
@@ -166,10 +170,10 @@ public class AllocinePlugin extends ImdbPlugin {
             // "<a href=\"/List?certificates=", "</a>")));
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase("Unknown")) {
-                movie.setYear(extractTag(xml, "<h4>Année de production : ", "</h4>"));
+                movie.setYear(extractTag(xml, "Année de production : ", "</h3>"));
             }
 
-            for (String acteur : extractTags(xml, "<h4>Avec", "</h4>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
+            for (String acteur : extractTags(xml, "<h3 class=\"SpProse\">Avec ", "</h3>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
                 movie.addActor(removeOpenedHtmlTags(acteur));
             }
 
@@ -315,10 +319,10 @@ public class AllocinePlugin extends ImdbPlugin {
             String alloCineStartResult;
             String alloCineMediaPrefix;
             if (mediaFile.isTVShow()) {
-                alloCineStartResult = "<h3><b>Séries TV <h4>";
+                alloCineStartResult = "Séries TV <h4>";
                 alloCineMediaPrefix = "/series/ficheserie_gen_cserie=";
             } else {
-                alloCineStartResult = "<h3><b>Films <h4>";
+                alloCineStartResult = "Films <h4>";
                 alloCineMediaPrefix = "/film/fichefilm_gen_cfilm=";
             }
 
@@ -371,7 +375,9 @@ public class AllocinePlugin extends ImdbPlugin {
     }
 
     protected String removeHtmlTags(String src) {
-        return src.replaceAll("\\<.*?>", "");
+        String result = src.replaceAll("\\<.*?>", "");
+//        logger.finest("removeHtmlTags before=[" + src + "], after=["+ result + "]");
+        return result;
     }
 
     protected String removeOpenedHtmlTags(String src) {
