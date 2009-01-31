@@ -33,6 +33,7 @@ import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultPosterPlugin;
 import com.moviejukebox.plugin.DefaultThumbnailPlugin;
 import com.moviejukebox.plugin.OpenSubtitlesPlugin;
+import com.moviejukebox.plugin.AppleTrailersPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
@@ -57,6 +58,7 @@ public class MovieJukebox {
     private boolean forcePosterOverwrite;
     private boolean fanartDownload;
     private OpenSubtitlesPlugin subtitlePlugin;
+    private AppleTrailersPlugin trailerPlugin;
 
     public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException {
         // Send logger output to our FileHandler.
@@ -232,6 +234,7 @@ public class MovieJukebox {
         String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
 
         subtitlePlugin = new OpenSubtitlesPlugin();
+        trailerPlugin = new AppleTrailersPlugin();
 
         int nbFiles = 0;
         String cleanCurrent = "";
@@ -318,6 +321,9 @@ public class MovieJukebox {
 
             // Get subtitle
             subtitlePlugin.generate(movie);
+            
+            // Get Trailer
+            trailerPlugin.generate(movie);
         }
 
         subtitlePlugin.logOut();

@@ -91,6 +91,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 if (!movie.isOverrideTitle()) {
                     movie.setTitle(series.getSeriesName());
+                    movie.setOriginalTitle(series.getSeriesName());
                 }
                 if (movie.getYear().equals(Movie.UNKNOWN)) {
                     String year = tvDB.getSeasonYear(id, movie.getSeason());

@@ -85,6 +85,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equals("<titleSort>")) {
                     movie.setTitleSort(parseCData(r));
                 }
+                if (tag.equals("<originalTitle>")) {
+                    movie.setOriginalTitle(parseCData(r));
+                }
                 if (tag.equals("<year>")) {
                     movie.setYear(parseCData(r));
                 }
@@ -153,6 +156,9 @@ public class MovieJukeboxXMLWriter {
                 }
                 if (tag.equals("<subtitles>")) {
                     movie.setSubtitles(parseCData(r).equalsIgnoreCase("YES"));
+                }
+                if (tag.equals("<trailerExchange>")) {
+                    movie.setTrailerExchange(parseCData(r).equalsIgnoreCase("YES"));
                 }
                 if (tag.equals("<container>")) {
                     movie.setContainer(parseCData(r));
@@ -505,6 +511,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("titleSort");
         writer.writeCharacters(movie.getTitleSort());
         writer.writeEndElement();
+        writer.writeStartElement("originalTitle");
+        writer.writeCharacters(movie.getOriginalTitle());
+        writer.writeEndElement();
         writer.writeStartElement("detailPosterFile");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
         writer.writeEndElement();
@@ -537,6 +546,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("titleSort");
         writer.writeCharacters(movie.getTitleSort());
+        writer.writeEndElement();
+        writer.writeStartElement("originalTitle");
+        writer.writeCharacters(movie.getOriginalTitle());
         writer.writeEndElement();
         writer.writeStartElement("year");
         writer.writeCharacters(movie.getYear());
@@ -603,6 +615,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("subtitles");
         writer.writeCharacters(movie.hasSubtitles() ? "YES" : "NO");
+        writer.writeEndElement();
+        writer.writeStartElement("trailerExchange");
+        writer.writeCharacters(movie.isTrailerExchange() ? "YES" : "NO");
         writer.writeEndElement();
         writer.writeStartElement("container");
         writer.writeCharacters(movie.getContainer());
