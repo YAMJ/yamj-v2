@@ -46,6 +46,7 @@ public class Movie implements Comparable<Movie> {
     private Map<String, String> idMap = new HashMap<String, String>(2);
     private String title = UNKNOWN;
     private String titleSort = UNKNOWN;
+    private String originalTitle = UNKNOWN;
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
     private int rating = -1;
@@ -77,6 +78,7 @@ public class Movie implements Comparable<Movie> {
     private int fps = 60;
     private String certification = UNKNOWN;
     private boolean trailer = false;
+    private boolean trailerExchange = false;
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
     private boolean overrideTitle = false;
@@ -334,6 +336,10 @@ public class Movie implements Comparable<Movie> {
 
     public String getTitleSort() {
         return encodeText(titleSort);
+    }
+
+    public String getOriginalTitle() {
+        return encodeText(originalTitle);
     }
 
     public String getVideoCodec() {
@@ -680,6 +686,9 @@ public class Movie implements Comparable<Movie> {
             this.title = name;
 
             setTitleSort(name);
+            
+            if (originalTitle.equals(UNKNOWN))
+                setOriginalTitle(name);
         }
     }
 
@@ -695,6 +704,16 @@ public class Movie implements Comparable<Movie> {
 
             this.titleSort = text.substring(idx);
             this.isDirty = true;
+        }
+    }
+
+    public void setOriginalTitle(String name) {
+        if (name == null) {
+            name = UNKNOWN;
+        }
+        if (!name.equals(this.originalTitle)) {
+            this.isDirty = true;
+            this.originalTitle = name;
         }
     }
 
@@ -851,8 +870,17 @@ public class Movie implements Comparable<Movie> {
         }
     }
 
+    public void setTrailerExchange(boolean trailerExchange) {
+        this.isDirty = true;
+        this.trailerExchange = trailerExchange;
+    }
+
     public boolean isTrailer() {
         return trailer;
+    }
+
+    public boolean isTrailerExchange() {
+        return trailerExchange;
     }
 
     public void setMovieType(String movieType) {

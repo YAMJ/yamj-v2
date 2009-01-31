@@ -166,7 +166,7 @@ public class WebBrowser {
         String contentType = cnx.getContentType();
         if (contentType != null) {
         	// changed 'charset' to 'harset' in regexp because some sites send 'Charset'
-            Matcher m = Pattern.compile("harset *=[ '\"]*([^ '\"]+)[ '\"]*").matcher(contentType);
+            Matcher m = Pattern.compile("harset *=[ '\"]*([^ '\"]+)[ '\"]*;").matcher(contentType);
             if (m.find()) {
                 String encoding = m.group(1);
                 try {

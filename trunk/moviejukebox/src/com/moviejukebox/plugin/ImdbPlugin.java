@@ -241,6 +241,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
+                movie.setOriginalTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
             }
             if (movie.getRating() == -1) {
                 movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 1)));
