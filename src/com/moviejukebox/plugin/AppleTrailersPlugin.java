@@ -113,12 +113,23 @@ public class AppleTrailersPlugin {
 
                 
                 File trailerFile = new File(trailerFileName);
-            
-                if (trailerDownload(movie,trailerRealUrl,trailerFile)) {
+                
+                // Check if the file already exist - after jukebox directory was deleted for example
+                if (trailerFile.exists()) {
+                
+                    logger.finer("AppleTrailers Plugin: Trailer file already exist for " + movie.getBaseName());
                 
                     tmf.setFilename(trailerPlayFileName);
                     movie.addTrailerFile(new TrailerFile(tmf));
                     //movie.setTrailer(true);
+                }
+                else {
+                    if (trailerDownload(movie,trailerRealUrl,trailerFile)) {
+                    
+                        tmf.setFilename(trailerPlayFileName);
+                        movie.addTrailerFile(new TrailerFile(tmf));
+                        //movie.setTrailer(true);
+                    }
                 }
                 
             }
@@ -203,6 +214,12 @@ public class AppleTrailersPlugin {
             getTrailerMovieUrl(xml, trailersUrl);
             
 
+            String trailerPageUrlHD = getAbsUrl(trailerPageUrl, "hd");
+            String xmlHD = webBrowser.request(trailerPageUrlHD);
+
+            // Try to find the movie link on the HD page
+            getTrailerMovieUrl(xmlHD, trailersUrl);
+
             // Go over the href links and check the sub pages
             
             int index = 0;
@@ -236,7 +253,7 @@ public class AppleTrailersPlugin {
 
 
         } catch (Exception e) {
-            logger.severe("Error : " + e.getMessage());
+            // Too many errors displayed due to apple missing page links
             return;
         }
     }
