@@ -98,7 +98,7 @@ public class AllocinePlugin extends ImdbPlugin {
                         // logger.finest("The right Season IdI = " + seasonId);
                         xml = webBrowser.request("http://www.allocine.fr/series/episodes_gen_csaison=" + seasonAllocineId + "&cserie=" + allocineId + ".html");
                         for (MovieFile file : movie.getFiles()) {
-                            if (!file.isNewFile()) {
+                            if (!file.isNewFile() || file.hasTitle()) {
                                 // don't scan episode title if it exists in XML data
                                 continue;
                             }

@@ -553,6 +553,15 @@ public class MovieFilenameScanner {
         }
     }
 
+    private int indexOfAny(String text, int startPos, String delims) {
+        char[] chars = text.toCharArray();
+        for (int index = startPos; index < chars.length; ++index) {
+            if (delims.indexOf(chars[index]) != -1)
+                return index;
+        }
+        return -1;
+    }
+
     protected void updateTVShow(String filename, Movie movie) {
         try {
             Matcher matcher = tvPattern.matcher(filename);
@@ -566,12 +575,13 @@ public class MovieFilenameScanner {
                 String fileTitle = null;
 
                 int end = matcher.end(0);
-                int dash = filename.lastIndexOf('-');
-                if ((dash != -1) && (dash >= end)) {
-                    int dot = filename.lastIndexOf('.');
-                    if ((dot == -1) || (dot < dash))
-                        dot = filename.length();
-                    fileTitle = filename.substring(dash + 1, dot);
+                int dash = filename.indexOf('-', end);
+                if ((dash == end) || (dash == end + 1)) {
+                    char[] delims = { '.', '[', ']', '(', ')' };
+                    int delim = indexOfAny(filename, dash, ".[]()");
+                    if (delim == -1)
+                        delim = filename.length();
+                    fileTitle = filename.substring(dash + 1, delim);
                 }
 
                 int season = Integer.parseInt(matcher.group(1));
@@ -588,20 +598,17 @@ public class MovieFilenameScanner {
                 matcher = episodePattern.matcher(group0);
                 while (matcher.find()) {
                     int episode = Integer.parseInt(matcher.group(1));
-                    if (firstPart == -1)
+                    if (firstPart == -1) {
                         firstPart = lastPart = episode;
-
-                    else
+                    } else {
                         lastPart = episode;
+                    }
                 }
 
                 MovieFile firstFile = movie.getFirstFile();
                 firstFile.setPart(firstPart);
                 firstFile.setLastPart(lastPart);
 
-                if (fileTitle == null && firstPart != lastPart) {
-                    fileTitle = String.format("Episodes %d - %d", firstPart, lastPart);
-                }
                 if (fileTitle != null && !movie.isTrailer()) {
                     movie.getFirstFile().setTitle(fileTitle.trim());
                 }

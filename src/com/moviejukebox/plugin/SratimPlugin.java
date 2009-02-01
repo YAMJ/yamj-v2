@@ -728,7 +728,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         for (MovieFile file : movie.getMovieFiles()) {
-            if (!file.isNewFile()) {
+            if (!file.isNewFile() || file.hasTitle()) {
                 // don't scan episode title if it exists in XML data
                 continue;
             }
