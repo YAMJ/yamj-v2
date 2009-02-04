@@ -154,7 +154,7 @@ public class AllocinePlugin extends ImdbPlugin {
             movie.setDirector(removeHtmlTags(extractTag(xml, "<h3 class=\"SpProse\">Réalisé par ", "</h3>")));
 //            logger.finest("Movie Director = " + movie.getDirector());
 
-            movie.setReleaseDate(extractTag(xml, "Date de sortie : <b>", "</b>"));
+            movie.setReleaseDate(removeHtmlTags(extractTag(xml, "Date de sortie : <b>", "</b>")));
             movie.setRuntime(extractTag(xml, "Durée : ", "."));
 //            logger.finest("Durée = " + movie.getRuntime());
             movie.setCountry(extractTag(xml, "<h3 class=\"SpProse\">Film", "."));
@@ -375,7 +375,7 @@ public class AllocinePlugin extends ImdbPlugin {
     }
 
     protected String removeHtmlTags(String src) {
-        String result = src.replaceAll("\\<.*?>", "");
+        String result = src.replaceAll("\\<.*?>", "").trim();
 //        logger.finest("removeHtmlTags before=[" + src + "], after=["+ result + "]");
         return result;
     }
