@@ -103,12 +103,14 @@ public class Movie implements Comparable<Movie> {
 
     private String encodeText(String text) {
         try {
-            return java.net.URLDecoder.decode(text, "UTF-8");
+            byte[] textUTF8 = text.getBytes("UTF-8");
+            String encodedText = new String(textUTF8, "UTF-8");
+            return encodedText;
         } catch (java.io.UnsupportedEncodingException e) {
             return text;
         }
     }
-
+    
     public void addGenre(String genre) {
         if (genre != null && !trailer) {
             this.isDirty = true;
