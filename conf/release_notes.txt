@@ -14,6 +14,7 @@ MovieJukebox 1.0.16 beta
   - Enhancement  #444 New plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
   - Fixed defect #449 Trailers are not excluded from the Year categories
   - Fixed defect #451 Allocine Plugin didn't work anymore.
+  - Fixed defect #479 XML <releaseDate> not correct with allocine Plugin
   
 MovieJukebox 1.0.15 beta
 ------------------------
