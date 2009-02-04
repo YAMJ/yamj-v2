@@ -208,14 +208,14 @@ public class AppleTrailersPlugin {
     
     private void getTrailerSubUrl(String trailerPageUrl, ArrayList<String> trailersUrl) {
         try {
+        
             String xml = webBrowser.request(trailerPageUrl);
 
             // Try to find the movie link on the main page
             getTrailerMovieUrl(xml, trailersUrl);
-            
 
             String trailerPageUrlHD = getAbsUrl(trailerPageUrl, "hd");
-            String xmlHD = webBrowser.request(trailerPageUrlHD);
+            String xmlHD = getSubPage(trailerPageUrlHD);
 
             // Try to find the movie link on the HD page
             getTrailerMovieUrl(xmlHD, trailersUrl);
@@ -244,7 +244,7 @@ public class AppleTrailersPlugin {
                 // Check if this href is a sub page of this trailer
                 if (absHref.startsWith(trailerPageUrl)) {
 
-                    String subXml = webBrowser.request(absHref);
+                    String subXml = getSubPage(absHref);
                     
                     // Try to find the movie link on the sub page
                     getTrailerMovieUrl(subXml, trailersUrl);
@@ -253,8 +253,23 @@ public class AppleTrailersPlugin {
 
 
         } catch (Exception e) {
-            // Too many errors displayed due to apple missing page links
+            logger.severe("Error : " + e.getMessage());
             return;
+        }
+    }
+
+    // Get sub page url - if error return empty page
+    private String getSubPage(String url) {
+    
+        String ret="";
+        
+        try {
+        
+            ret = webBrowser.request(url);
+            return ret;
+            
+        } catch (Exception e) {
+            return ret;
         }
     }
 
