@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.FileTools;
 
 /**
  * Movie bean
@@ -101,16 +102,6 @@ public class Movie implements Comparable<Movie> {
     private File file;
     private File containerFile;
 
-    private String encodeText(String text) {
-        try {
-            byte[] textUTF8 = text.getBytes("UTF-8");
-            String encodedText = new String(textUTF8, "UTF-8");
-            return encodedText;
-        } catch (java.io.UnsupportedEncodingException e) {
-            return text;
-        }
-    }
-    
     public void addGenre(String genre) {
         if (genre != null && !trailer) {
             this.isDirty = true;
@@ -181,7 +172,7 @@ public class Movie implements Comparable<Movie> {
         }
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
 
-        return encodeText(text + " (" + this.getYear() + ") " + season);
+        return FileTools.encodeText(text + " (" + this.getYear() + ") " + season);
     }
 
     @Override
@@ -190,11 +181,11 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getAudioCodec() {
-        return encodeText(audioCodec);
+        return FileTools.encodeText(audioCodec);
     }
 
     public String getBaseName() {
-        return encodeText(baseName);
+        return FileTools.encodeText(baseName);
     }
 
     public Collection<String> getCast() {
@@ -202,19 +193,19 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getCompany() {
-        return encodeText(company);
+        return FileTools.encodeText(company);
     }
 
     public String getContainer() {
-        return encodeText(container);
+        return FileTools.encodeText(container);
     }
 
     public String getCountry() {
-        return encodeText(country);
+        return FileTools.encodeText(country);
     }
 
     public String getDirector() {
-        return encodeText(director);
+        return FileTools.encodeText(director);
     }
 
     public Collection<MovieFile> getFiles() {
@@ -226,11 +217,11 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getCertification() {
-        return encodeText(certification);
+        return FileTools.encodeText(certification);
     }
 
     public String getFirst() {
-        return encodeText(first);
+        return FileTools.encodeText(first);
     }
 
     public MovieFile getFirstFile() {
@@ -281,7 +272,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getLanguage() {
-        return encodeText(language);
+        return FileTools.encodeText(language);
     }
 
     public String getLast() {
@@ -297,7 +288,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getPlot() {
-        return encodeText(plot);
+        return FileTools.encodeText(plot);
     }
 
     public String getPosterURL() {
@@ -317,15 +308,15 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getReleaseDate() {
-        return encodeText(releaseDate);
+        return FileTools.encodeText(releaseDate);
     }
 
     public String getResolution() {
-        return encodeText(resolution);
+        return FileTools.encodeText(resolution);
     }
 
     public String getRuntime() {
-        return encodeText(runtime);
+        return FileTools.encodeText(runtime);
     }
 
     public int getSeason() {
@@ -333,31 +324,31 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getTitle() {
-        return encodeText(title);
+        return FileTools.encodeText(title);
     }
 
     public String getTitleSort() {
-        return encodeText(titleSort);
+        return FileTools.encodeText(titleSort);
     }
 
     public String getOriginalTitle() {
-        return encodeText(originalTitle);
+        return FileTools.encodeText(originalTitle);
     }
 
     public String getVideoCodec() {
-        return encodeText(videoCodec);
+        return FileTools.encodeText(videoCodec);
     }
 
     public String getVideoOutput() {
-        return encodeText(videoOutput);
+        return FileTools.encodeText(videoOutput);
     }
 
     public String getVideoSource() {
-        return encodeText(videoSource);
+        return FileTools.encodeText(videoSource);
     }
 
     public String getYear() {
-        return encodeText(year);
+        return FileTools.encodeText(year);
     }
 
     public boolean hasSubtitles() {
@@ -582,7 +573,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getOutline() {
-        return encodeText(outline);
+        return FileTools.encodeText(outline);
     }
 
     public void setOutline(String outline) {
@@ -930,7 +921,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getAudioChannels() {
-        return encodeText(audioChannels);
+        return FileTools.encodeText(audioChannels);
     }
 
     public void setAudioChannels(String audioChannels) {
