@@ -141,7 +141,7 @@ public class AppleTrailersPlugin {
     private String GetTrailerPageUrl(String movieName) {
         try {
         
-            String searchURL = "http://www.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q=" + URLEncoder.encode(movieName, "iso-8859-8");
+            String searchURL = "http://www.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q=" + URLEncoder.encode(movieName, "UTF-8");
 
             String xml = webBrowser.request(searchURL);
 

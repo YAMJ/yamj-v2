@@ -18,6 +18,7 @@ MovieJukebox 1.0.16 beta
   - Fixed defect #468 Accentuated character with allocine plugin no more correctly dispalyed with version beta 700
   - Fixed defect #476 XBMC NFO movie xml encoding is ignored
   - Fixed defect #479 XML <releaseDate> not correct with allocine Plugin
+  - Fixed defect #480 AppleTrailerPlugin uses a charset not universally supported.
   
 MovieJukebox 1.0.15 beta
 ------------------------
