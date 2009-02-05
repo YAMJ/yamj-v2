@@ -134,6 +134,7 @@ public class FileTools {
 
     public static String readFileToString(File file) {
         StringBuffer out = new StringBuffer();
+        
         if (file != null) {
             try {
                 BufferedReader in = null;
@@ -153,7 +154,24 @@ public class FileTools {
                 logger.severe("Failed reading file " + file.getName());
             }
         }
-        return stripBOM(out.toString());
+        
+        return encodeText(stripBOM(out.toString()));
+    }
+    
+    /***
+     * @author Stuart Boston
+     * @param  text - unencoded string
+     * @return UTF-8 encoded string
+     */
+    
+    public static String encodeText(String text) {
+        try {
+            byte[] textUTF8 = text.getBytes("UTF-8");
+            String encodedText = new String(textUTF8, "UTF-8");
+            return encodedText;
+        } catch (java.io.UnsupportedEncodingException e) {
+            return text;
+        }
     }
 
     /***
