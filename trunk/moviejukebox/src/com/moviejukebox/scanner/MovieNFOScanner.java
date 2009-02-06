@@ -215,7 +215,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("top250")) {
                             int val = XMLHelper.parseInt(r);
                             if (val > 0) {
-                                movie.setRating(val);
+                                movie.setTop250(val);
                             }
                         } else if (tag.equalsIgnoreCase("votes")) {
                             // ignored
