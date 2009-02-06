@@ -373,7 +373,7 @@ public class MediaInfoScanner {
                 Float fps;
                 fps = Float.parseFloat(infoValue);
 
-                movie.setFps(Math.round(fps));
+                movie.setFps(fps);
             }
 
             // Guessing Video Output
@@ -394,11 +394,11 @@ public class MediaInfoScanner {
                         normeHD += "i";
                     }
                 }
-                movie.setVideoOutput(normeHD + " " + movie.getFps() + "Hz");
+                movie.setVideoOutput(normeHD + " " + Math.round(movie.getFps()) + "Hz");
 
             } else {
                 String videoOutput;
-                switch (movie.getFps()) {
+                switch (Math.round(movie.getFps())) {
                     case 24:
                         videoOutput = "24";
                         break;

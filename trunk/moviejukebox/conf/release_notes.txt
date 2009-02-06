@@ -14,11 +14,12 @@ MovieJukebox 1.0.16 beta
   - Enhancement  #444 New plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
   - Fixed defect #449 Trailers are not excluded from the Year categories
   - Fixed defect #450 Percentage (%) in movie details causes error
-  - Fixed defect #451 Allocine Plugin didn't work anymore.
+  - Fixed defect #451 Allocine Plugin didn't work anymore
+  - Fixed defext #454 Use full float value for FPS
   - Fixed defect #468 Accentuated character with allocine plugin no more correctly dispalyed with version beta 700
   - Fixed defect #476 XBMC NFO movie xml encoding is ignored
   - Fixed defect #479 XML <releaseDate> not correct with allocine Plugin
-  - Fixed defect #480 AppleTrailerPlugin uses a charset not universally supported.
+  - Fixed defect #480 AppleTrailerPlugin uses a charset not universally supported
   
 MovieJukebox 1.0.15 beta
 ------------------------
