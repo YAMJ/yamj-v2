@@ -7,7 +7,7 @@
  is updated.
  
  It is possible to specify URL of the movie page on kinopoisk in 
- the .nfo file. In this case movie data will be retrieved from this  page only.  
+ the .nfo file. In this case movie data will be retrieved from this page only.  
 */
 
 package com.moviejukebox.plugin;
@@ -42,13 +42,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean retval = true;
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
         if (kinopoiskId == null || kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) { 
-            kinopoiskId = getKinopoiskId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
-            mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
             // Get base info from imdb or tvdb
             if (!mediaFile.isTVShow())  
             	super.scan(mediaFile);
             else
             	tvdb.scan(mediaFile);
+                
+            kinopoiskId = getKinopoiskId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
+            mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
         }
         else {
         	// If ID is specified in NFO, set original title to unknown
@@ -73,6 +74,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         } else {
             logger.finer("No Kinopoisk Id found in nfo !");
         }
+        super.scanNFO(nfo, movie);
     }
     
     /**
@@ -212,7 +214,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
             
         } catch (Exception e) {
-            logger.severe("Failed retreiving movie data from Filmz.ru : " + kinopoiskId);
+            logger.severe("Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
             e.printStackTrace();
         }
         return true;
