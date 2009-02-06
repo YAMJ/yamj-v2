@@ -182,7 +182,7 @@ public class MovieJukeboxXMLWriter {
                     movie.setVideoOutput(parseCData(r));
                 }
                 if (tag.equals("<fps>")) {
-                    movie.setFps(Integer.parseInt(parseCData(r)));
+                    movie.setFps(Float.parseFloat(parseCData(r)));
                 }
                 if (tag.equals("<first>")) {
                     movie.setFirst(HTMLTools.decodeUrl(parseCData(r)));
@@ -641,7 +641,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getVideoOutput());
         writer.writeEndElement();
         writer.writeStartElement("fps");
-        writer.writeCharacters(Integer.toString(movie.getFps()));
+        writer.writeCharacters(Float.toString(movie.getFps()));
         writer.writeEndElement();
         writer.writeStartElement("first");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getFirst()));

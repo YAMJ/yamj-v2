@@ -76,7 +76,7 @@ public class Movie implements Comparable<Movie> {
     private String resolution = UNKNOWN; // 1280x528
     private String videoSource = UNKNOWN;
     private String videoOutput = UNKNOWN;
-    private int fps = 60;
+    private float fps = 60;
     private String certification = UNKNOWN;
     private boolean trailer = false;
     private boolean trailerExchange = false;
@@ -240,7 +240,7 @@ public class Movie implements Comparable<Movie> {
         }
     }
 
-    public int getFps() {
+    public float getFps() {
         return fps;
     }
 
@@ -481,7 +481,7 @@ public class Movie implements Comparable<Movie> {
         }
     }
 
-    public void setFps(int fps) {
+    public void setFps(float fps) {
         if (fps != this.fps) {
             this.isDirty = true;
             this.fps = fps;
