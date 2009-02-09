@@ -19,6 +19,12 @@ table.main {
     font-weight : normal;
 }
 
+.title1sub {
+    color: #ff8000;
+    font-size: 14pt;
+    font-weight : normal;
+}
+
 .title2 {
     color: #AAAAAA;
     font-size: 16pt;
@@ -31,20 +37,32 @@ table.main {
     font-weight: normal;
 }
 
+.title3info {
+    color: #AAAAAA;
+    font-size: 12pt;
+    font-weight: normal;
+}
+
 .normal {
     color: #888888;
-    font-size: 14pt;
+    font-size: 16pt;
+    font-weight: normal;
+}
+
+.normalinfo {
+    color: #888888;
+    font-size: 12pt;
     font-weight: normal;
 }
 
 .firstMovie {
     color: #4444FF;
-    font-size: 14pt;
+    font-size: 16pt;
     font-weight: normal;
 }
 
 a { 
-    font-size: 14pt; 
+    font-size: 16pt; 
     color: #AAAAAA; 
     text-decoration: none; 
 }

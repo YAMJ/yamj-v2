@@ -13,6 +13,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class SratimPlugin extends ImdbPlugin {
 
@@ -25,14 +26,17 @@ public class SratimPlugin extends ImdbPlugin {
     private static String[] genereStringHebrew = { "הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
                     "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
                     "חתמ", "המחלמ", "ןוברעמ" };
-    protected String sratimPreferredSearchEngine;
-    protected String sratimPlot;
+    protected int plotLineMaxChar;
+    protected int plotLineMax;
     protected TheTvDBPlugin tvdb;
 
     public SratimPlugin() {
         super(); // use IMDB if sratim doesn't know movie
 
         tvdb = new TheTvDBPlugin(); // use TVDB if sratim doesn't know series
+        
+        plotLineMaxChar = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMaxChar", "50"));        
+        plotLineMax = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMax", "2"));        
     }
 
     public boolean scan(Movie mediaFile) {
@@ -579,7 +583,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             String tmpPlot = removeHtmlTags(extractTag(xml, "<b><u>תקציר:</u></b><br />", "</div>"));
 
-            movie.setPlot(breakLongLines(tmpPlot, 65, 10));
+            movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
 
@@ -728,7 +732,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         for (MovieFile file : movie.getMovieFiles()) {
-            if (!file.isNewFile() || file.hasTitle()) {
+            if (!file.isNewFile()) {
                 // don't scan episode title if it exists in XML data
                 continue;
             }
