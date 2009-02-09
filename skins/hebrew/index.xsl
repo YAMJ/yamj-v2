@@ -57,6 +57,7 @@
               <xsl:when test="@name='New'">שדח</xsl:when>
               <xsl:when test="@name='TV Shows'">תורדס</xsl:when>
               <xsl:when test="@name='Top250'">םיצלמומ</xsl:when>
+              <xsl:when test="@name='Trailers'">םירליירט</xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="@name" />
               </xsl:otherwise>

@@ -41,7 +41,7 @@
     </td>
     
     <td>
-      <table border="0" width="85%" align="right">
+      <table border="0" width="95%" align="right">
         <tr>
           <td class="title1" valign="top" colspan="4" align="right">
             <xsl:if test="year != 'UNKNOWN'">
@@ -53,6 +53,13 @@
             <xsl:value-of select="title"/>
           </td>
         </tr>
+        <xsl:if test="originalTitle != title">
+        <tr>
+          <td class="title1sub" valign="top" colspan="4" align="right">
+            <xsl:value-of select="originalTitle"/>
+          </td>
+        </tr>
+        </xsl:if>
         <tr>
           <td class="title2" valign="top" align="right">
             <xsl:if test="top250 != -1">
@@ -70,9 +77,6 @@
               <xsl:if test="$star_rating = 'true'">
                 <img><xsl:attribute name="src">pictures/rating_<xsl:value-of select="round(rating div 10)*10" />.png</xsl:attribute></img>
               </xsl:if>
-            </xsl:if>
-            <xsl:if test="top250 != -1">
-                <xsl:text>&#160;&#160;</xsl:text>Top 250: #<xsl:value-of select="top250" />
             </xsl:if>
           </td>
         </tr>
@@ -128,7 +132,7 @@
         <tr class="divider"><td><xsl:text> </xsl:text></td></tr>
 
         <tr>
-          <td width="85%" class="normal" colspan="4" align="right">
+          <td width="95%" class="normal" colspan="4" align="right">
             <xsl:if test="plot != 'UNKNOWN'">
               <xsl:value-of disable-output-escaping="yes" select='translate(plot,"{}","&lt;&gt;")' />
             </xsl:if>
@@ -138,36 +142,36 @@
         <tr class="spacer"><td><xsl:text> </xsl:text></td></tr>
 
         <tr>
-          <td colspan="4"><center><table width="85%">
+          <td colspan="4"><center><table width="95%">
             <tr>
-              <td class="title3" width="5%">Source</td>
-              <td class="normal" width="45%"><xsl:value-of select="videoSource" /></td>
-              <td class="title3" width="5%">Subtitles</td>
-              <td class="normal" width="45%"><xsl:value-of select="subtitles" /></td>
+              <td class="title3info" width="5%">Source</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="videoSource" /></td>
+              <td class="title3info" width="5%">Subtitles</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="subtitles" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">System</td>
-              <td class="normal" width="45%"><xsl:value-of select="container" /></td>
-              <td class="title3" width="5%">Dimension</td>
-              <td class="normal" width="45%"><xsl:value-of select="resolution" /></td>
+              <td class="title3info" width="5%">System</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="container" /></td>
+              <td class="title3info" width="5%">Dimension</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="resolution" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">Video</td>
-              <td class="normal" width="45%"><xsl:value-of select="videoCodec" /></td>
-              <td class="title3" width="5%">Output</td>
-              <td class="normal" width="45%"><xsl:value-of select="videoOutput" /></td>
+              <td class="title3info" width="5%">Video</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="videoCodec" /></td>
+              <td class="title3info" width="5%">Output</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="videoOutput" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">Audio</td>
-              <td class="normal" width="45%"><xsl:value-of select="audioCodec" /></td>
-              <td class="title3" width="5%">FPS</td>
-              <td class="normal" width="45%"><xsl:value-of select="fps" /></td>
+              <td class="title3info" width="5%">Audio</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="audioCodec" /></td>
+              <td class="title3info" width="5%">FPS</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="fps" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">Channels</td>
-              <td class="normal" width="45%"><xsl:value-of select="audioChannels" /></td>
-              <td class="title3" width="5%"></td>
-              <td class="normal" width="45%"></td>
+              <td class="title3info" width="5%">Channels</td>
+              <td class="normalinfo" width="45%"><xsl:value-of select="audioChannels" /></td>
+              <td class="title3info" width="5%"></td>
+              <td class="normalinfo" width="45%"></td>
             </tr>
           </table></center></td>
         </tr>
@@ -316,8 +320,8 @@
         <xsl:if test="count(trailers) != 0">
           <tr>
             <td>
-              <table>
-               <tr><td class="title2">Trailers</td></tr>
+              <table align="right">
+               <tr><td class="title2" align="right">םירליירט</td></tr>
                <xsl:for-each select="trailers/trailer">
                <tr>
                  <td class="normal">
@@ -344,12 +348,14 @@
                      <xsl:if test="//movie/prebuf != '-1'">
                        <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                      </xsl:if>
+
+                     <xsl:value-of select="@title"/>
+                     <xsl:text>&#160;</xsl:text>
+
                      <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">
                        <xsl:attribute name="onmouseover">this.src='pictures/play_selected_small.png';</xsl:attribute>
                        <xsl:attribute name="onmouseout">this.src='pictures/play_small.png';</xsl:attribute>
                      </img>
-                     <xsl:text>&#160;</xsl:text>
-                     <xsl:value-of select="@title"/>
                    </a>
                  </td>
                </tr>
