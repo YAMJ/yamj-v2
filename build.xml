@@ -53,6 +53,7 @@
 				</fileset>
 				<pathelement path="build/classes"/>
 				<pathelement path="build/test"/>
+				<pathelement path="conf"/>
 			</classpath>
 			<formatter type="xml"/>
 			<formatter type="plain"/>
