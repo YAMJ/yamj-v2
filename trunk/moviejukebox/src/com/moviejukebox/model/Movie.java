@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.FileTools;
 
 /**
  * Movie bean
