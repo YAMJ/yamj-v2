@@ -166,7 +166,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
-            if (xml.contains("Serial TV")) {
+            if (HTMLTools.extractTag(xml, "<title>").contains("Serial")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                     return false;
@@ -318,7 +318,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                         // don't scan episode title if it exists in XML data
                         continue;
                     }
-                    int fromIndex = xml.indexOf("seria" + movie.getSeason());
+                    int fromIndex = xml.indexOf("sezon " + movie.getSeason());
                     boolean first = true;
                     StringBuilder sb = new StringBuilder();
                     for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
