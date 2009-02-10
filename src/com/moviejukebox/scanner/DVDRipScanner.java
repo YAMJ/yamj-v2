@@ -86,7 +86,7 @@ public class DVDRipScanner {
                     try {
                         fileProperties[i] = new FilePropertiesMovie(ifo[i].getAbsolutePath());
 
-                        if (fileProperties[i].getDuration() > longestDuration) {
+                        if (longestDuration == 0 || fileProperties[i].getDuration() > longestDuration) {
                             longestDuration = fileProperties[i].getDuration();
                             longestDurationIndex = i;
                         }
