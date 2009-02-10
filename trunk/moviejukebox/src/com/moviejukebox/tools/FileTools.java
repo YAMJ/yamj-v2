@@ -18,11 +18,6 @@ public class FileTools {
     private static Logger logger = Logger.getLogger("moviejukebox");
     final static int BUFF_SIZE = 100000;
     final static byte[] buffer = new byte[BUFF_SIZE];
-    private static final String BOM1 = "" + (char) 239 + (char) 187 + (char) 191;
-    private static final String BOM2 = "" + (char) 254 + (char) 255;
-    private static final String BOM3 = "" + (char) 255 + (char) 254;
-    private static final String BOM4 = "" + (char) 00 + (char) 00 + (char) 254 + (char) 255;
-    private static final String BOM5 = "" + (char) 254 + (char) 255 + (char) 00 + (char) 00;
 
     public static void copy(InputStream is, OutputStream os) throws IOException {
         try {
@@ -114,24 +109,6 @@ public class FileTools {
         }
     }
 
-    public static String stripBOM(String input) {
-        String output = input;
-        if (input != null) {
-            if (output.startsWith(BOM1)) {
-                output = output.substring(BOM1.length());
-            } else if (output.startsWith(BOM2)) {
-                output = output.substring(BOM2.length());
-            } else if (output.startsWith(BOM3)) {
-                output = output.substring(BOM3.length());
-            } else if (output.startsWith(BOM4)) {
-                output = output.substring(BOM4.length());
-            } else if (output.startsWith(BOM5)) {
-                output = output.substring(BOM5.length());
-            }
-        }
-        return output;
-    }
-
     public static String readFileToString(File file) {
         StringBuffer out = new StringBuffer();
         
@@ -155,23 +132,7 @@ public class FileTools {
             }
         }
         
-        return encodeText(stripBOM(out.toString()));
-    }
-    
-    /***
-     * @author Stuart Boston
-     * @param  text - unencoded string
-     * @return UTF-8 encoded string
-     */
-    
-    public static String encodeText(String text) {
-        try {
-            byte[] textUTF8 = text.getBytes("UTF-8");
-            String encodedText = new String(textUTF8, "UTF-8");
-            return encodedText;
-        } catch (java.io.UnsupportedEncodingException e) {
-            return text;
-        }
+        return out.toString();
     }
 
     /***
