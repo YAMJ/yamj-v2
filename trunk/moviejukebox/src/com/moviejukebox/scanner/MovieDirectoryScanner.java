@@ -1,17 +1,16 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * DirectoryScanner
@@ -24,7 +23,7 @@ public class MovieDirectoryScanner {
 
     protected int mediaLibraryRootPathIndex;
     private String mediaLibraryRoot;
-    private String supportedExtensions;
+    private final Set<String> supportedExtensions = new HashSet<String>();
     private String thumbnailsFormat;
     private String postersFormat;
     private String opensubtitles;
@@ -35,7 +34,11 @@ public class MovieDirectoryScanner {
     private BDRipScanner localBDRipScanner;
 
     public MovieDirectoryScanner() {
-        supportedExtensions = PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV");
+        for (String ext : PropertiesUtil.getProperty(
+    		"mjb.extensions", 
+    		"AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")) {
+    			supportedExtensions.add(ext);
+    		}
         thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
         postersFormat = PropertiesUtil.getProperty("posters.format", "png");
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
@@ -69,11 +72,14 @@ public class MovieDirectoryScanner {
         if (directory.isFile()) {
             scanFile(srcPath, directory, collection);
         } else {
-            File[] contentList = directory.listFiles();
-            if (contentList != null) {
-                List<File> files = Arrays.asList(contentList);
-                Collections.sort(files);
-
+            File[] files = directory.listFiles();
+            if (files != null && files.length > 0) {
+                // Prescan files list. Ignore directory if file with predefined name is found.
+            	// TODO May be read the file and exclude files by mask (similar to .cvsignore)
+                //for (File file : files) {
+                //	if (file.getName().equalsIgnoreCase(".mjbignore")) return;
+                //}
+                
                 for (File file : files) {
                     if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
                         scanFile(srcPath, file.getParentFile(), collection);
@@ -97,7 +103,7 @@ public class MovieDirectoryScanner {
         }
 
         String extension = file.getName().substring(index + 1).toUpperCase();
-        if (supportedExtensions.indexOf(extension) == -1) {
+        if (!supportedExtensions.contains(extension)) {
             return true;
         }
 
