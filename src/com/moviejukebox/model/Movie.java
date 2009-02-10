@@ -172,7 +172,7 @@ public class Movie implements Comparable<Movie> {
         }
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
 
-        return FileTools.encodeText(text + " (" + this.getYear() + ") " + season);
+        return text + " (" + this.getYear() + ") " + season;
     }
 
     @Override
@@ -181,11 +181,11 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getAudioCodec() {
-        return FileTools.encodeText(audioCodec);
+        return audioCodec;
     }
 
     public String getBaseName() {
-        return FileTools.encodeText(baseName);
+        return baseName;
     }
 
     public Collection<String> getCast() {
@@ -193,19 +193,19 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getCompany() {
-        return FileTools.encodeText(company);
+        return company;
     }
 
     public String getContainer() {
-        return FileTools.encodeText(container);
+        return container;
     }
 
     public String getCountry() {
-        return FileTools.encodeText(country);
+        return country;
     }
 
     public String getDirector() {
-        return FileTools.encodeText(director);
+        return director;
     }
 
     public Collection<MovieFile> getFiles() {
@@ -217,11 +217,11 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getCertification() {
-        return FileTools.encodeText(certification);
+        return certification;
     }
 
     public String getFirst() {
-        return FileTools.encodeText(first);
+        return first;
     }
 
     public MovieFile getFirstFile() {
@@ -272,7 +272,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getLanguage() {
-        return FileTools.encodeText(language);
+        return language;
     }
 
     public String getLast() {
@@ -288,7 +288,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getPlot() {
-        return FileTools.encodeText(plot);
+        return plot;
     }
 
     public String getPosterURL() {
@@ -308,15 +308,15 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getReleaseDate() {
-        return FileTools.encodeText(releaseDate);
+        return releaseDate;
     }
 
     public String getResolution() {
-        return FileTools.encodeText(resolution);
+        return resolution;
     }
 
     public String getRuntime() {
-        return FileTools.encodeText(runtime);
+        return runtime;
     }
 
     public int getSeason() {
@@ -324,31 +324,31 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getTitle() {
-        return FileTools.encodeText(title);
+        return title;
     }
 
     public String getTitleSort() {
-        return FileTools.encodeText(titleSort);
+        return titleSort;
     }
 
     public String getOriginalTitle() {
-        return FileTools.encodeText(originalTitle);
+        return originalTitle;
     }
 
     public String getVideoCodec() {
-        return FileTools.encodeText(videoCodec);
+        return videoCodec;
     }
 
     public String getVideoOutput() {
-        return FileTools.encodeText(videoOutput);
+        return videoOutput;
     }
 
     public String getVideoSource() {
-        return FileTools.encodeText(videoSource);
+        return videoSource;
     }
 
     public String getYear() {
-        return FileTools.encodeText(year);
+        return year;
     }
 
     public boolean hasSubtitles() {
@@ -573,7 +573,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getOutline() {
-        return FileTools.encodeText(outline);
+        return outline;
     }
 
     public void setOutline(String outline) {
@@ -921,7 +921,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public String getAudioChannels() {
-        return FileTools.encodeText(audioChannels);
+        return audioChannels;
     }
 
     public void setAudioChannels(String audioChannels) {
