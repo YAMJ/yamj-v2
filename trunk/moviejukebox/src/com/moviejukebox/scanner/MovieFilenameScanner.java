@@ -23,16 +23,21 @@ import com.moviejukebox.tools.PropertiesUtil;
  * 
  * @author jjulien
  * @author quickfinga
+ * @author artem.gratchev
  */
 public class MovieFilenameScanner {
 
-    protected static String[] skipKeywords;
-    protected int firstKeywordIndex = 0;
-    protected static boolean languageDetection = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true"));
+    protected static final String[] SKIP_KEYWORDS;
+    protected static final boolean LANGUAGE_DETECTION = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true"));
 
-    protected Pattern tvPattern = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
-    protected Pattern episodePattern = Pattern.compile("[EeXx]([0-9]+)");
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static final Pattern TV_PATTERN = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
+    protected static final Pattern EPISODE_PATTERN = Pattern.compile("[EeXx]([0-9]+)");
+    protected static final Logger LOGGER = Logger.getLogger("moviejukebox");
+    protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
+    protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
+    protected static final String WORD_DELIMITERS_STRING = TOKEN_DELIMITERS_STRING + " _-";
+    protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
+    protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = Pattern.compile("[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]");
 
     static {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
@@ -40,8 +45,10 @@ public class MovieFilenameScanner {
         while (st.hasMoreTokens()) {
             keywords.add(st.nextToken());
         }
-        skipKeywords = keywords.toArray(new String[] {});
+        SKIP_KEYWORDS = keywords.toArray(new String[] {});
     }
+
+    protected int firstKeywordIndex = 0;
 
     public MovieFilenameScanner() {
     }
@@ -51,7 +58,7 @@ public class MovieFilenameScanner {
         String filename = movie.getContainerFile().getName();
 
         firstKeywordIndex = filename.indexOf("[");
-        firstKeywordIndex = (firstKeywordIndex == -1) ? filename.length() : firstKeywordIndex;
+        firstKeywordIndex = (firstKeywordIndex < 2) ? filename.length() : firstKeywordIndex;
 
         Collection<MovieFile> movieFiles = movie.getFiles();
         for (MovieFile movieFile : movieFiles) {
@@ -82,7 +89,7 @@ public class MovieFilenameScanner {
         }
 
         // Skip some keywords
-        findKeyword(filename, skipKeywords);
+        findKeyword(filename, SKIP_KEYWORDS);
 
         // Update the movie file with interpreted movie data
         updateTrailer(filename, movie);
@@ -153,17 +160,12 @@ public class MovieFilenameScanner {
      *            movie's filename to scan.
      */
     protected String getLanguage(String filename) {
-        if (languageDetection) {
+        if (LANGUAGE_DETECTION) {
             String f = filename.toUpperCase();
 
-            f = f.replace("-", ".");
-            f = f.replace("_", ".");
-            f = f.replace("[", ".");
-            f = f.replace("]", ".");
-            f = f.replace("(", ".");
-            f = f.replace(")", ".");
+            f = replaceWordDelimiters(f, '.');
 
-            if (hasKeyword(f, new String[] { ".FRA.", ".FR.", ".FRENCH.", ".VF.", " VF " })) {
+            if (hasKeyword(f, new String[] { ".FRA.", ".FR.", ".FRENCH.", ".VF." })) {
                 return "French";
             }
 
@@ -221,15 +223,19 @@ public class MovieFilenameScanner {
      */
     protected String getName(String filename) {
         String name = filename.substring(0, firstKeywordIndex);
-        name = name.replace(".", " ");
-        name = name.replace("_", " ");
-        name = name.replace("-", " ");
-        name = name.replace("[", " ");
-        name = name.replace("]", " ");
-        name = name.replace("(", " ");
-        name = name.replace(")", " ");
+        if (name.charAt(0) == '[' && name.indexOf(']',1) > 0) {
+        	name = name.substring(name.indexOf(']', 1) + 1);
+        }
+        name = replaceWordDelimiters(name, ' ');
         return name.trim();
     }
+
+	private String replaceWordDelimiters(String str, char newChar) {
+		for (char c : WORD_DELIMITERS_ARRAY) {
+            str = str.replace(c, newChar);
+		}
+		return str;
+	}
 
     /**
      * Searches the filename for the keyword, if found is checked to see if the preceding character is a delimiter.
@@ -241,7 +247,6 @@ public class MovieFilenameScanner {
      *            to look for
      */
     protected int getPartKeyword(String gpFilename, String gpKeyword) {
-        String gpDelim = " ._-[]()"; // List of delimiters to check for
         String gpPrev = ""; // Previous character
         int gpIndex = 0;
 
@@ -250,7 +255,7 @@ public class MovieFilenameScanner {
         while (gpIndex > 0) {
             // We've found the keyword, but is it preceded by a delimiter and therefore not part of a word
             gpPrev = gpFilename.substring(gpIndex - 1, gpIndex);
-            if (gpDelim.indexOf(gpPrev) <= 0) {
+            if (WORD_DELIMITERS_STRING.indexOf(gpPrev) <= 0) {
                 // We can't find the preceding char in the delimiter string
                 // so look for the next occurence of the keyword
                 gpIndex = gpFilename.indexOf(gpKeyword, gpIndex + 1);
@@ -264,6 +269,19 @@ public class MovieFilenameScanner {
 
     protected int getPart(String filename) {
         String f = filename.toUpperCase();
+        
+        final Pattern testPattern = Pattern.compile("_([0-9]+)_DVD_");
+        Matcher matcher = testPattern.matcher(replaceWordDelimiters(f, '_'));
+		if (matcher.find()) {
+			updateFirstKeywordIndex(matcher.start(0));
+            try {
+                return Integer.parseInt(matcher.group(1));
+            } catch (Exception e) {
+                return 1;
+            }
+        }
+        
+        
         int index = 0;
 
         // Issue 259 & 286 - Only the keyword with a delimiter before it will be counted.
@@ -528,7 +546,7 @@ public class MovieFilenameScanner {
                 }
             }
             // Extract the 4 digit year from the file name
-            StringTokenizer st = new StringTokenizer(filename, ". []()-");
+            StringTokenizer st = new StringTokenizer(filename, WORD_DELIMITERS_STRING);
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
 
@@ -564,7 +582,7 @@ public class MovieFilenameScanner {
 
     protected void updateTVShow(String filename, Movie movie) {
         try {
-            Matcher matcher = tvPattern.matcher(filename);
+            Matcher matcher = TV_PATTERN.matcher(filename);
             if (matcher.find()) {
                 String group0 = matcher.group(0);
 
@@ -577,31 +595,29 @@ public class MovieFilenameScanner {
                 int end = matcher.end(0);
                 int dash = filename.indexOf('-', end);
                 if ((dash == end) || (dash == end + 1)) {
-                    char[] delims = { '.', '[', ']', '(', ')' };
-                    int delim = indexOfAny(filename, dash, ".[]()");
+                    int delim = indexOfAny(filename, dash, TOKEN_DELIMITERS_STRING);
                     if (delim == -1)
                         delim = filename.length();
-                    fileTitle = filename.substring(dash + 1, delim);
+                    fileTitle = replaceWordDelimiters(filename.substring(dash + 1, delim), ' ').trim();
                 }
 
                 int season = Integer.parseInt(matcher.group(1));
+                movie.setSeason(season);
+
                 int firstPart = -1;
                 int lastPart = -1;
 
-                if (season > 99) {
-                    firstPart = season % 100;
-                    season /= 100;
-                }
-
-                movie.setSeason(season);
-
-                matcher = episodePattern.matcher(group0);
+                matcher = EPISODE_PATTERN.matcher(group0);
                 while (matcher.find()) {
                     int episode = Integer.parseInt(matcher.group(1));
                     if (firstPart == -1) {
                         firstPart = lastPart = episode;
                     } else {
-                        lastPart = episode;
+                    	if (episode < firstPart) {
+                    		firstPart = episode;
+                    	} else if (episode > lastPart) {
+                    		lastPart = episode;
+                    	}
                     }
                 }
 
@@ -619,14 +635,7 @@ public class MovieFilenameScanner {
     }
 
     protected String findKeyword(String filename, String[] strings) {
-        String name = filename.toUpperCase();
-        name = name.replace(".", " ");
-        name = name.replace("_", " ");
-        name = name.replace("-", " ");
-        name = name.replace("[", " ");
-        name = name.replace("]", " ");
-        name = name.replace("(", " ");
-        name = name.replace(")", " ");
+        String name = replaceWordDelimiters(filename.toUpperCase(), ' ');
 
         String val = "Unknown";
         for (String keyword : strings) {
