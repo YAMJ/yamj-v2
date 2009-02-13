@@ -335,7 +335,12 @@ public class MovieJukebox {
         logger.fine("Indexing libraries...");
         library.buildIndex();
 
-        for (Movie movie : library.values()) {
+        Collection<Movie> movies = new ArrayList<Movie>();
+        movies.addAll(library.values());
+        for (List<Movie> lm : library.getIndexes().get("TV Series").values())
+            movies.addAll(lm);
+
+        for (Movie movie : movies) {
             // Update movie XML files with computed index information
             logger.finest("Writing index data to movie: " + movie.getBaseName());
             xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
