@@ -9,13 +9,10 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.Base64;
 
 /**
  * Web browser with simple cookies support
@@ -107,19 +104,20 @@ public class WebBrowser {
 
     private String createCookieHeader(URLConnection cnx) {
         String host = cnx.getURL().getHost();
-        StringBuffer cookiesHeader = new StringBuffer();
+        StringBuilder cookiesHeader = new StringBuilder();
         for (Map.Entry<String, Map<String, String>> domainCookies : cookies.entrySet()) {
             if (host.endsWith(domainCookies.getKey())) {
-                for (Iterator<Map.Entry<String, String>> it = domainCookies.getValue().entrySet().iterator(); it.hasNext();) {
-                    Map.Entry<String, String> cookie = it.next();
+                for (Map.Entry<String, String> cookie : domainCookies.getValue().entrySet()) {
                     cookiesHeader.append(cookie.getKey());
                     cookiesHeader.append("=");
                     cookiesHeader.append(cookie.getValue());
-                    if (it.hasNext()) {
-                        cookiesHeader.append(";");
-                    }
+                    cookiesHeader.append(";");
                 }
             }
+        }
+        if (cookiesHeader.length() > 0) {
+            // remove last ; char
+            cookiesHeader.deleteCharAt(cookiesHeader.length() - 1);
         }
         return cookiesHeader.toString();
     }
