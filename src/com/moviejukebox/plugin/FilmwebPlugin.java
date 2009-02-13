@@ -52,7 +52,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             mediaFile.setId(FILMWEB_PLUGIN_ID, filmwebUrl);
         }
 
-        boolean retval = true;
+        boolean retval;
         if (!filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
             retval = updateMediaInfo(mediaFile);
         } else {
@@ -175,39 +175,76 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
-            }
-            movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "film-rating-precise")));
-            movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria"));
-            movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "data premiery:"));
-            movie.setRuntime(HTMLTools.getTextAfterElem(xml, "czas trwania:"));
-            movie.setCountry(StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "gatunek", "<a ", "</a>"), ", "));
-
-            String genres = HTMLTools.getTextAfterElem(xml, "gatunek:");
-            if (!Movie.UNKNOWN.equals(genres)) {
-                for (String genre : genres.split(" *, *")) {
-                    movie.addGenre(Library.getIndexingGenre(genre));
+                String metaTitle = HTMLTools.extractTag(xml, "<title>");
+                if (metaTitle.contains("/")) {
+                    String originalTitle = HTMLTools.extractTag(metaTitle, "/", 0, "()><");
+                    if (originalTitle.endsWith(", The")) {
+                        originalTitle = "The " + originalTitle.substring(0, originalTitle.length() - 5);
+                    }
+                    movie.setOriginalTitle(originalTitle);
                 }
             }
 
-            String plot = "None";
-            if (filmwebPlot.equalsIgnoreCase("long")) {
-                plot = getLongPlot(xml);
+            if (movie.getRating() == -1) {
+                movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "film-rating-precise")));
             }
-            // even if "long" is set we will default to the "short" one if none
-            // was found
-            if (filmwebPlot.equalsIgnoreCase("short") || plot.equals("None")) {
-                plot = HTMLTools.getTextAfterElem(xml, "o-filmie-header", 1);
-                if (plot.equals(Movie.UNKNOWN)) {
-                    plot = "None";
+
+            if (movie.getTop250() == -1) {
+                try {
+                    movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "top świat: #")));
+                } catch (NumberFormatException e) {
+                    movie.setTop250(-1);
                 }
             }
-            movie.setPlot(plot);
+
+            if (Movie.UNKNOWN.equals(movie.getDirector())) {
+                movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria"));
+            }
+
+            if (Movie.UNKNOWN.equals(movie.getReleaseDate())) {
+                movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "data premiery:"));
+            }
+
+            if (Movie.UNKNOWN.equals(movie.getRuntime())) {
+                movie.setRuntime(HTMLTools.getTextAfterElem(xml, "czas trwania:"));
+            }
+
+            if (Movie.UNKNOWN.equals(movie.getCountry())) {
+                movie.setCountry(StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "gatunek", "<a ", "</a>"), ", "));
+            }
+
+            if (movie.getGenres().isEmpty()) {
+                String genres = HTMLTools.getTextAfterElem(xml, "gatunek:");
+                if (!Movie.UNKNOWN.equals(genres)) {
+                    for (String genre : genres.split(" *, *")) {
+                        movie.addGenre(Library.getIndexingGenre(genre));
+                    }
+                }
+            }
+
+            if (Movie.UNKNOWN.equals(movie.getOutline())) {
+                movie.setOutline(HTMLTools.getTextAfterElem(xml, "o-filmie-header", 1));
+            }
+
+            if (Movie.UNKNOWN.equals(movie.getPlot())) {
+                String plot = Movie.UNKNOWN;
+                if (filmwebPlot.equalsIgnoreCase("long")) {
+                    plot = getLongPlot(xml);
+                }
+                // even if "long" is set we will default to the "short" one if none was found
+                if (filmwebPlot.equalsIgnoreCase("short") || Movie.UNKNOWN.equals(plot)) {
+                    plot = movie.getOutline();
+                }
+                movie.setPlot(plot);
+            }
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(HTMLTools.extractTag(xml, "<title>", 1, "()><"));
             }
 
-            movie.setCast(HTMLTools.extractTags(xml, "film-starring", "</table>", "<img ", "</a>"));
+            if (movie.getCast().isEmpty()) {
+                movie.setCast(HTMLTools.extractTags(xml, "film-starring", "</table>", "<img ", "</a>"));
+            }
 
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setPosterURL(getFilmwebPosterURL(movie, xml));
@@ -215,6 +252,13 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
+            }
+
+            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+                movie.setFanartURL(getFanartURL(movie));
+                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                }
             }
 
         } catch (Exception e) {
@@ -226,14 +270,14 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     private int parseRating(String rating) {
         try {
-            return Math.round(Float.parseFloat(rating.replace(",", "."))) * 10;
+            return Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
         } catch (Exception e) {
             return -1;
         }
     }
 
     /**
-     * Retrieves the long plot description from filmweb if it exists, else "None"
+     * Retrieves the long plot description from filmweb if it exists, else Movie.UNKNOWN
      * 
      * @return long plot
      */
@@ -246,15 +290,15 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (m.find()) {
                 longPlotUrl = m.group();
             } else {
-                return "None";
+                return Movie.UNKNOWN;
             }
             String xml = webBrowser.request(longPlotUrl);
             plot = HTMLTools.getTextAfterElem(xml, "opisy-header", 2);
             if (plot.equalsIgnoreCase(Movie.UNKNOWN)) {
-                plot = "None";
+                plot = Movie.UNKNOWN;
             }
         } catch (Exception e) {
-            plot = "None";
+            plot = Movie.UNKNOWN;
         }
 
         return plot;
