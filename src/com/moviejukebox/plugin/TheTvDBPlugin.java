@@ -83,7 +83,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         if (id != null && !id.equals(Movie.UNKNOWN)) {
-
             Series series = tvDB.getSeries(id, language);
             if (series != null) {
 
@@ -179,11 +178,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         for (MovieFile file : movie.getMovieFiles()) {
-            if (!file.isNewFile() || file.hasTitle()) {
-                // don't scan episode title if it exists in XML data
-                continue;
-            }
-
             if (movie.getSeason() > 0) {
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
@@ -202,6 +196,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         } else {
                             sb.append(" / ");
                         }
+                        
                         sb.append(episode.getEpisodeName());
 
                         if (includeEpisodePlots) {
@@ -210,7 +205,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
                 String title = sb.toString();
-                if (!"".equals(sb)) {
+                if (!"".equals(sb) && !file.hasTitle()) {
                     file.setTitle(title);
                 }
             }
