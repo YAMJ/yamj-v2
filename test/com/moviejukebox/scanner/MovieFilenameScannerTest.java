@@ -2,17 +2,10 @@ package com.moviejukebox.scanner;
 
 import java.util.regex.Matcher;
 
-import com.moviejukebox.tools.PropertiesUtil;
-
 import junit.framework.TestCase;
 
 
 public class MovieFilenameScannerTest extends TestCase {
-
-	@Override
-	protected void setUp() throws Exception {
-		PropertiesUtil.setPropertiesStreamName("moviejukebox.properties");
-	}
 
 	public void testPatterns() {
 		Matcher matcher = MovieFilenameScanner.TOKEN_DELIMITERS_MATCH_PATTERN.matcher("a]bc.def");

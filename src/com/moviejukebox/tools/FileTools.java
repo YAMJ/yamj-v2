@@ -8,6 +8,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -164,4 +166,20 @@ public class FileTools {
             return true;
         }
     }
+
+    public static String createCategoryKey(String key2) {
+		try {
+			return URLEncoder.encode(key2, "UTF-8").replace('%', '$');
+		} catch (UnsupportedEncodingException e) {
+	        System.err.println("Failed generating HTML library index.");
+	        System.err.println(key2);
+	        e.printStackTrace();
+	        return "FAILED";
+		}
+	}
+
+    public static String createPrefix(String category, String key) {
+        return category + '_' + key + '_';
+    }
+
 }

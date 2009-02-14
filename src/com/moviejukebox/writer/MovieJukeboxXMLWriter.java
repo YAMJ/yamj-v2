@@ -23,6 +23,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.TrailerFile;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLWriter;
@@ -324,7 +325,7 @@ public class MovieJukeboxXMLWriter {
             }
         }
 
-        for (Map.Entry<String, Map<String, List<Movie>>> category : library.getIndexes().entrySet()) {
+        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             writer.writeStartElement("category");
             writer.writeAttribute("name", category.getKey());
 
@@ -366,18 +367,12 @@ public class MovieJukeboxXMLWriter {
      */
     public void writeIndexXML(String rootPath, String detailsDirName, Library library) throws FileNotFoundException, XMLStreamException {
 
-        for (Map.Entry<String, Map<String, List<Movie>>> category : library.getIndexes().entrySet()) {
+        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             String categoryName = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
 
             for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
-                String key = "";
-                try {
-                    key = URLEncoder.encode(group.getKey(), "UTF-8").replace('%', '$');
-                } catch (Exception e) {
-                    System.err.println("Failed generating HTML library index.");
-                    e.printStackTrace();
-                }
+                String key = FileTools.createCategoryKey(group.getKey());
 
                 List<Movie> movies = group.getValue();
 
@@ -423,13 +418,9 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
-    private String createPrefix(String category, String key) {
-        return category + '_' + key + '_';
-    }
-
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
                     int next, int last) throws FileNotFoundException, XMLStreamException {
-        String prefix = createPrefix(categoryName, key);
+        String prefix = FileTools.createPrefix(categoryName, key);
         File xmlFile = new File(rootPath, prefix + current + ".xml");
         xmlFile.getParentFile().mkdirs();
 
@@ -439,7 +430,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("library");
         writePreferences(writer, rootPath);
 
-        for (Map.Entry<String, Map<String, List<Movie>>> category : library.getIndexes().entrySet()) {
+        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             String categoryKey = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
             writer.writeStartElement("category");
@@ -449,14 +440,9 @@ public class MovieJukeboxXMLWriter {
             }
 
             for (String akey : index.keySet()) {
-                String encakey = "";
-                try {
-                    encakey = URLEncoder.encode(akey, "UTF-8").replace('%', '$');
-                } catch (Exception e) {
-                    System.err.println("Failed generating HTML library index.");
-                    e.printStackTrace();
-                }
-                prefix = createPrefix(categoryKey, encakey);
+                String encakey = FileTools.createCategoryKey(akey);
+
+                prefix = FileTools.createPrefix(categoryKey, encakey);
 
                 writer.writeStartElement("index");
                 writer.writeAttribute("name", akey);

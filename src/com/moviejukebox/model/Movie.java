@@ -6,12 +6,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Movie bean
@@ -26,21 +24,8 @@ public class Movie implements Comparable<Movie> {
     public static String TYPE_MOVIE = "MOVIE";
     public static String TYPE_TVSHOW = "TVSHOW";
     public static String TYPE_UNKNOWN = "UNKNOWN";
-    private static ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
+    private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
-    static {
-        String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
-        if (temp != null) {
-            StringTokenizer st = new StringTokenizer(temp, ",");
-            while (st.hasMoreTokens()) {
-                String token = st.nextToken();
-                if (token.startsWith("\"") && token.endsWith("\"")) {
-                    token = token.substring(1, token.length() - 1);
-                }
-                sortIgnorePrefixes.add(token.toLowerCase());
-            }
-        }
-    }
     private String baseName;
     // Movie properties
     private Map<String, String> idMap = new HashMap<String, String>(2);
@@ -967,4 +952,9 @@ public class Movie implements Comparable<Movie> {
     public void setPrebuf(long prebuf) {
         this.prebuf = prebuf;
     }
+
+    public static ArrayList<String> getSortIgnorePrefixes() {
+		return sortIgnorePrefixes;
+	}
+
 }

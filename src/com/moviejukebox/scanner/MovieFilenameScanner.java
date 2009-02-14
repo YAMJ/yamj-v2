@@ -1,7 +1,6 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -27,8 +26,8 @@ import com.moviejukebox.tools.PropertiesUtil;
  */
 public class MovieFilenameScanner {
 
-    protected static final String[] SKIP_KEYWORDS;
-    protected static final boolean LANGUAGE_DETECTION = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true"));
+    protected static String[] skipKeywords;
+	protected static final boolean LANGUAGE_DETECTION = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true"));
 
     protected static final Pattern TV_PATTERN = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
     protected static final Pattern EPISODE_PATTERN = Pattern.compile("[EeXx]([0-9]+)");
@@ -39,19 +38,7 @@ public class MovieFilenameScanner {
     protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
     protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = Pattern.compile("[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]");
 
-    static {
-        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
-        Collection<String> keywords = new ArrayList<String>();
-        while (st.hasMoreTokens()) {
-            keywords.add(st.nextToken());
-        }
-        SKIP_KEYWORDS = keywords.toArray(new String[] {});
-    }
-
     protected int firstKeywordIndex = 0;
-
-    public MovieFilenameScanner() {
-    }
 
     public void scan(Movie movie) {
         File fileToScan = movie.getFile();
@@ -89,7 +76,7 @@ public class MovieFilenameScanner {
         }
 
         // Skip some keywords
-        findKeyword(filename, SKIP_KEYWORDS);
+        findKeyword(filename, skipKeywords);
 
         // Update the movie file with interpreted movie data
         updateTrailer(filename, movie);
@@ -682,4 +669,13 @@ public class MovieFilenameScanner {
         }
         return false;
     }
+
+    public static String[] getSkipKeywords() {
+		return skipKeywords;
+	}
+
+	public static void setSkipKeywords(String[] skipKeywords) {
+		MovieFilenameScanner.skipKeywords = skipKeywords;
+	}
+
 }
