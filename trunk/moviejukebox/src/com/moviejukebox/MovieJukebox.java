@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -37,6 +38,7 @@ import com.moviejukebox.plugin.AppleTrailersPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
+import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.scanner.FanartScanner;
@@ -122,6 +124,25 @@ public class MovieJukebox {
 
         if (!PropertiesUtil.setPropertiesStreamName(propertiesName)) {
             return;
+        }
+
+        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
+        Collection<String> keywords = new ArrayList<String>();
+        while (st.hasMoreTokens()) {
+            keywords.add(st.nextToken());
+        }
+        MovieFilenameScanner.setSkipKeywords(keywords.toArray(new String[] {}));
+
+        String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
+        if (temp != null) {
+            st = new StringTokenizer(temp, ",");
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                if (token.startsWith("\"") && token.endsWith("\"")) {
+                    token = token.substring(1, token.length() - 1);
+                }
+                Movie.getSortIgnorePrefixes().add(token.toLowerCase());
+            }
         }
 
         if (movieLibraryRoot == null) {
@@ -327,7 +348,7 @@ public class MovieJukebox {
             trailerPlugin.generate(movie);
         }
 
-        subtitlePlugin.logOut();
+        OpenSubtitlesPlugin.logOut();
 
 
         // ////////////////////////////////////////////////////////////////
@@ -336,30 +357,25 @@ public class MovieJukebox {
         logger.fine("Indexing libraries...");
         library.buildIndex();
 				
-        Collection<Collection<Movie>> movie_cols = new ArrayList<Collection<Movie>>();
-        movie_cols.add(library.values());
-        movie_cols.addAll(library.getIndexes().get("TV Series").values());
 
-        for (Collection<Movie> col : movie_cols) {
-            for (Movie movie : col) {
-                // Update movie XML files with computed index information 
-                logger.finest("Writing index data to movie: " + movie.getBaseName());
-                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+        for (Movie movie : library.getMoviesList()) {
+            // Update movie XML files with computed index information 
+            logger.finest("Writing index data to movie: " + movie.getBaseName());
+            xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-                // Create a detail poster for each movie
-                logger.finest("Creating detail poster for movie: " + movie.getBaseName());
-                createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+            // Create a detail poster for each movie
+            logger.finest("Creating detail poster for movie: " + movie.getBaseName());
+            createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 
-                // Create a thumbnail for each movie
-                logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-                createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+            // Create a thumbnail for each movie
+            logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
+            createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
-                // write the movie details HTML
-                htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            // write the movie details HTML
+            htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-                // write the playlist for the movie if needed
-                htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-            }
+            // write the playlist for the movie if needed
+            htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
         }
 
         logger.fine("Generating Indexes...");

@@ -143,7 +143,7 @@ public class MovieJukeboxHTMLWriter {
     }
 
     public void generateMoviesIndexHTML(String rootPath, String detailsDirName, Library library) {
-        for (Map.Entry<String, Map<String, List<Movie>>> category : library.getIndexes().entrySet()) {
+        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             String categoryName = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
 
