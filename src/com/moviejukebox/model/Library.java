@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Iterator;
 import java.util.logging.Logger;
 import java.text.DecimalFormat;
 
@@ -117,6 +118,7 @@ public class Library implements Map<String, Movie> {
         moviesList.addAll(library.values());
         if (moviesList.size() > 0) {
             sortMovieDetails();
+            indexBySeries(); // do this after the sort (to get navigation order), but before the others
             indexByProperties();
             indexByGenres();
             indexByTitle();
@@ -185,6 +187,80 @@ public class Library implements Map<String, Movie> {
                 movie.setLast(lastTrailer.getBaseName());
             }
         }
+    }
+    
+    private String makeSeriesIndexKey(Movie m) {
+        // Replace all non-alpha-numeric characters in the title sort
+        // with underscores. This is for two reasons:
+        // 1. eliminates characters not allowed in Windows filenames
+        // 2. the index page filename and movie page links are encod them differently (why?)
+        return m.getTitleSort().replaceAll("\\W", "_");
+    }
+
+    private void indexBySeries() {
+        TreeMap<String, List<Movie>> index = new TreeMap<String, List<Movie>>();
+        List<Movie> series_movies = new ArrayList<Movie>();
+
+        if (PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true")) {
+            for (Movie movie : moviesList) {
+                if (!movie.isTrailer() && movie.isTVShow()) {
+                    String key = makeSeriesIndexKey(movie);
+                    if (!index.containsKey(key)) {
+                        Movie series_movie = new Movie();
+                        series_movie.setTitle(movie.getTitle());
+                        series_movie.setBaseName("TV Series_" + key + "_1");
+                        series_movie.setContainerFile(movie.getContainerFile());
+                        series_movie.setLibraryPath(movie.getLibraryPath());
+                        series_movie.setPosterFilename(movie.getPosterFilename());
+                        series_movie.setThumbnailFilename(movie.getThumbnailFilename());
+                        series_movie.setDetailPosterFilename(movie.getDetailPosterFilename());
+                        series_movie.setMovieType(movie.getMovieType());
+                        series_movie.setTop250(movie.getTop250());
+                        series_movie.setLibraryDescription(movie.getLibraryDescription());
+                        series_movie.setGenres(movie.getGenres());
+                        // TODO: Set runtime, and anything else
+                        // We'll set the navigation properties (first, last, prev, next) later, after we've collected all seasons
+                        
+                        series_movies.add(series_movie);
+                    }
+
+                    addMovie(index, key, movie);
+                }
+            }
+
+            // Prune out series where we only have one season
+            Iterator<Movie> sit = series_movies.iterator();
+            while (sit.hasNext()) {
+                Movie m = sit.next();
+                String key = makeSeriesIndexKey(m);
+                List<Movie> ml = index.get(key);
+                if(ml.size() < 2) {
+                    index.remove(key);
+                    sit.remove();
+                }
+                else {
+                    // Set the navigation properties
+                    // Note: this relies on the seasons having been added in alpha order; if that changes, change this
+                    m.setFirst(ml.get(0).getFirst());
+                    m.setPrevious(ml.get(0).getPrevious());
+                    m.setLast(ml.get(ml.size() - 1).getLast());
+                    m.setNext(ml.get(ml.size() - 1).getNext());
+                }
+            }
+
+            // Remove all the seasons from the library and replace them with a single series entry
+            // which serves as a placeholder during category generation -- then the xml and html
+            // files get overwritten with the series index page (because they have the same filename).
+            // Make sure to add the series-placeholder movie in the spot where the old seasons were
+            // to maintain alpha order without having to re-sort. I hate this code.
+            sit = series_movies.iterator();
+            for(List<Movie> s : index.values()) {
+                int loc = moviesList.indexOf(s.get(0));
+                moviesList.removeAll(s);
+                moviesList.add(loc, sit.next());
+            }
+        }
+        indexes.put("TV Series", index);
     }
 
     private void indexByTitle() {

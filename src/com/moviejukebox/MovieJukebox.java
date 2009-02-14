@@ -263,7 +263,8 @@ public class MovieJukebox {
 
                     if (cleanCurrent.equals("CATEGORIES")) {
                         cleanList[nbFiles].delete();
-                    } else if ((cleanCurrentExt.equals(".CSS")) || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0)) {
+                    } else if (cleanCurrentExt.equals(".CSS") || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
+                    (cleanCurrent.indexOf("TV SERIES_") >= 0)) {
                         cleanList[nbFiles].delete();
                     }
                 }
@@ -334,25 +335,31 @@ public class MovieJukebox {
         //
         logger.fine("Indexing libraries...");
         library.buildIndex();
+				
+        Collection<Collection<Movie>> movie_cols = new ArrayList<Collection<Movie>>();
+        movie_cols.add(library.values());
+        movie_cols.addAll(library.getIndexes().get("TV Series").values());
 
-        for (Movie movie : library.values()) {
-            // Update movie XML files with computed index information 
-            logger.finest("Writing index data to movie: " + movie.getBaseName());
-            xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+        for (Collection<Movie> col : movie_cols) {
+            for (Movie movie : col) {
+                // Update movie XML files with computed index information 
+                logger.finest("Writing index data to movie: " + movie.getBaseName());
+                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-            // Create a detail poster for each movie
-            logger.finest("Creating detail poster for movie: " + movie.getBaseName());
-            createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                // Create a detail poster for each movie
+                logger.finest("Creating detail poster for movie: " + movie.getBaseName());
+                createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 
-            // Create a thumbnail for each movie
-            logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-            createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                // Create a thumbnail for each movie
+                logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
+                createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
-            // write the movie details HTML
-            htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                // write the movie details HTML
+                htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-            // write the playlist for the movie if needed
-            htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                // write the playlist for the movie if needed
+                htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            }
         }
 
         logger.fine("Generating Indexes...");
@@ -401,7 +408,8 @@ public class MovieJukebox {
 
                     if (cleanCurrent.equals("CATEGORIES")) {
                         // logger.fine(cleanCurrent + " ignored");
-                    } else if ((cleanCurrentExt.equals(".CSS")) || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0)) {
+                    } else if ((cleanCurrentExt.equals(".CSS")) || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
+                    (cleanCurrent.indexOf("TV SERIES_") >= 0)) {
                         // logger.fine(cleanCurrent + " ignored");
                     } else {
                         // Left with just the generated movie files in the directory now.
