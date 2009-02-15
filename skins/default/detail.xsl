@@ -27,25 +27,9 @@
         <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="first"/>.html</xsl:attribute></a>
         <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="last"/>.html</xsl:attribute></a>
    
-   		
-	    <a name="goright" onfocusload="">
-	    	<xsl:if test="count(files/file) = 1">
-	    		<xsl:attribute name="TVID">RIGHT</xsl:attribute>
-	    	</xsl:if>
-	    	<xsl:attribute name="href">
-	    		<xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose>
-	    	</xsl:attribute>
-	    </a>
-	    <a name="goleft" onfocusload="">
-	    	<xsl:if test="count(files/file) = 1">
-		    	<xsl:attribute name="TVID">LEFT</xsl:attribute>
-	    	</xsl:if>
-	    	<xsl:attribute name="href">
-	    		<xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose>
-	    	</xsl:attribute>
-	    </a>
-		
-			
+        <a><xsl:attribute name="TVID">RIGHT</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
+        <a><xsl:attribute name="TVID">LEFT</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
+
         <a><xsl:attribute name="TVID">PREV</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
         <a><xsl:attribute name="TVID">NEXT</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
     </td>
@@ -270,27 +254,16 @@
           <tr>
             <td>
               <table>
-				<xsl:variable name="groupSize" select="7"/>
-				<xsl:variable name="nColumns" select="ceiling(count(files/file) div $groupSize)"/>
-               <xsl:for-each select="files/file[position() le $groupSize]">
+               <xsl:for-each select="files/file">
                <tr valign="top">
-               		<xsl:variable name="posOff"><xsl:value-of select="position()"/></xsl:variable>
-					<xsl:for-each select=".|following-sibling::file[(position() mod $groupSize) = 0]">
 			     <td align="right" class="normal">
                    <xsl:value-of select="@firstPart"/><xsl:if test="@firstPart!=@lastPart">-<xsl:value-of select="@lastPart"/></xsl:if>.
                  </td>
                  <td class="normal">
                    <a class="link">
-						<xsl:attribute name="name">p<xsl:value-of select="(position()-1)*$groupSize+$posOff" /></xsl:attribute>
-						<xsl:if test="position() = 1">
-							<xsl:attribute name="onkeyleftset">goleft</xsl:attribute>
-						</xsl:if>
-						<xsl:if test="position() = $nColumns">
-							<xsl:attribute name="onkeyrightset">goright</xsl:attribute>
-						</xsl:if>
                      <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                      <xsl:choose>                    
-                       <xsl:when test="(position() + $posOff) = 2">
+                       <xsl:when test="position() = 1">
                          <xsl:attribute name="TVID">Play</xsl:attribute>
                        </xsl:when>
 					   <xsl:otherwise>	 
@@ -315,7 +288,7 @@
                        <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                      </xsl:if>
 
-					 <xsl:if test="(position() + $posOff) = 2"> 
+					 <xsl:if test="position() = 1"> 
                          <xsl:attribute name="class">firstMovie</xsl:attribute> 
                      </xsl:if>
 
@@ -347,12 +320,11 @@
                      </xsl:choose>
                    </a>
                  </td>
-	               </xsl:for-each>
                </tr>
                </xsl:for-each>
                <tr>
 				 <td>&#160;</td>
-                 <td class="normal" colspan="4">
+                 <td class="normal">
                    <a class="link">
                        <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
                        <xsl:attribute name="vod">playlist</xsl:attribute>
