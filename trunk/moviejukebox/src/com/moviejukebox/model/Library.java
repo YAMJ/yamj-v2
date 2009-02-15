@@ -198,9 +198,7 @@ public class Library implements Map<String, Movie> {
             			seasonMaster.setDetailPosterFilename(firstMovie.getDetailPosterFilename());
             			seasonMaster.setCertification(firstMovie.getCertification());
             			seasonMaster.setLanguage(firstMovie.getLanguage());
-            			seasonMaster.setBaseName(
-            					FileTools.createPrefix(TV_SERIES, 
-            							FileTools.createCategoryKey(firstMovie.getTitle())) + "1");
+            			seasonMaster.setBaseName(FileTools.createPrefix(TV_SERIES, FileTools.createCategoryKey(entry.getKey())) + "1");
             			seasonMaster.setThumbnailFilename(firstMovie.getThumbnailFilename());
             			seasonMaster.setMovieType(firstMovie.getMovieType());
             			seasonMaster.setTop250(firstMovie.getTop250());
@@ -458,19 +456,20 @@ public class Library implements Map<String, Movie> {
     }
     
     protected static Index indexByTVShowSeasons(List<Movie> list) {
-    	Index index = new Index();
+        Index index = new Index();
         for (Movie movie : list) {
             if (!movie.isTrailer() && movie.isTVShow()) {
-            	index.addMovie(movie.getTitle(), movie);
+                // URLEncoder won't encode '*' chars, and Windows doesn't allow them in the filename
+                index.addMovie(movie.getTitle().replace('*', '_'), movie);
             }
         }
         
         for (Iterator<List<Movie>> iterator = index.values().iterator(); iterator.hasNext();) {
-			List<Movie> movies = iterator.next();
-			if (movies.size() <= 1) {
-				iterator.remove();
-			}
-		}
+            List<Movie> movies = iterator.next();
+            if (movies.size() <= 1) {
+                iterator.remove();
+            }
+        }
         return index; 
     }
 
