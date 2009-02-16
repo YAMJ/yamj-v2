@@ -1,9 +1,13 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
@@ -74,13 +78,16 @@ public class MovieDirectoryScanner {
         } else {
             File[] files = directory.listFiles();
             if (files != null && files.length > 0) {
+                List<File> fileList = Arrays.asList(files);
+                Collections.sort(fileList);
+
                 // Prescan files list. Ignore directory if file with predefined name is found.
             	// TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 //for (File file : files) {
                 //	if (file.getName().equalsIgnoreCase(".mjbignore")) return;
                 //}
                 
-                for (File file : files) {
+                for (File file : fileList) {
                     if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
                         scanFile(srcPath, file.getParentFile(), collection);
                     } else if (file.isDirectory() && file.getName().equalsIgnoreCase("BDMV")) {
