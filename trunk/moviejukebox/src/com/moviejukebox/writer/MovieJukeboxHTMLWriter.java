@@ -176,8 +176,10 @@ public class MovieJukeboxHTMLWriter {
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
             XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
 
-            String homePage = PropertiesUtil.getProperty("mjb.homePage",
-                FileTools.createPrefix("Other", library.getDefaultCategory()) + "1") + ".html";
+            String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
+            if (homePage.length() == 0) {
+                homePage = FileTools.createPrefix("Other", library.getDefaultCategory()) + "1.html";
+            }
 
             writer.writeStartDocument();
             writer.writeStartElement("html");
