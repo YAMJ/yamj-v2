@@ -38,7 +38,6 @@ public class MovieJukeboxXMLWriter {
     private boolean forceXMLOverwrite;
     private int nbMoviesPerPage;
     private int nbMoviesPerLine;
-    private String homePage;
     private boolean fullMovieInfoInIndexes;
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
@@ -47,7 +46,6 @@ public class MovieJukeboxXMLWriter {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
         nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
         nbMoviesPerLine = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerLine", "5"));
-        homePage = PropertiesUtil.getProperty("mjb.homePage", "Other_All_1") + ".html";
         fullMovieInfoInIndexes = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.fullMovieInfoInIndexes", "false"));
         includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
@@ -710,7 +708,9 @@ public class MovieJukeboxXMLWriter {
     public void writePreferences(XMLWriter writer, String rootPath) throws XMLStreamException {
         writer.writeStartElement("preferences");
         writer.writeStartElement("homePage");
-        writer.writeCharacters(homePage);
+        // Issue 436: Bounce off the index.htm to get to the real homePage
+        // since homePage is now calculated by the Library.
+        writer.writeCharacters("../index.htm");
         writer.writeEndElement();
         // Issue 310
         writer.writeStartElement("rootPath");

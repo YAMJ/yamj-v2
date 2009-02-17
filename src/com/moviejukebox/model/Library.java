@@ -79,7 +79,7 @@ public class Library implements Map<String, Movie> {
     private static boolean singleSeriesPage;
     private static List<String> certificationOrdering = new ArrayList<String>();
     private static Map<String, String> genresMap = new HashMap<String, String>();
-    private static Map<String, String> categoriesMap = new HashMap<String, String>();
+    private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
@@ -631,5 +631,18 @@ public class Library implements Map<String, Movie> {
         } else {
             logger.severe("The moviejukebox category input file you specified is invalid: " + f.getName());
         }
+    }
+    
+    // Issue 436
+    public String getDefaultCategory() {
+        // Find the first category in the first index that has any movies in it
+        for (Index index : indexes.values()) {
+            for (String cat : categoriesMap.values()) {
+                if (index.containsKey(cat) && index.get(cat).size() > 0) {
+                    return cat;
+                }
+            }
+        }
+        return null;
     }
 }
