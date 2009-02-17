@@ -21,6 +21,7 @@ import javax.xml.transform.stream.StreamSource;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 /**
@@ -33,13 +34,11 @@ public class MovieJukeboxHTMLWriter {
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
     private String skinHome;
-    private String homePage;
 
     public MovieJukeboxHTMLWriter() {
         forceHTMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceHTMLOverwrite", "false"));
         nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        homePage = PropertiesUtil.getProperty("mjb.homePage", "Other_All_1") + ".html";
 
         // Issue 310
         String transformerFactory = PropertiesUtil.getProperty("javax.xml.transform.TransformerFactory", null);
@@ -177,6 +176,9 @@ public class MovieJukeboxHTMLWriter {
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
             XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
 
+            String homePage = PropertiesUtil.getProperty("mjb.homePage",
+                FileTools.createPrefix("Other", library.getDefaultCategory()) + "1") + ".html";
+
             writer.writeStartDocument();
             writer.writeStartElement("html");
             writer.writeStartElement("head");
@@ -207,8 +209,7 @@ public class MovieJukeboxHTMLWriter {
             File detailsDir = new File(rootPath, detailsDirName);
             detailsDir.mkdirs();
 
-            String prefix = categoryName + '_' + key + '_';
-            String filename = prefix + page;
+            String filename = FileTools.createPrefix(categoryName, key) + page;
 
             File xmlFile = new File(detailsDir, filename + ".xml");
             File htmlFile = new File(detailsDir, filename + ".html");
