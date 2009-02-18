@@ -47,6 +47,8 @@ import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
+import com.moviejukebox.plugin.MovieListingPlugin;
+import com.moviejukebox.plugin.MovieListingPluginBase;
 
 public class MovieJukebox {
 
@@ -59,6 +61,7 @@ public class MovieJukebox {
     private boolean forceThumbnailOverwrite;
     private boolean forcePosterOverwrite;
     private boolean fanartDownload;
+    private boolean moviejukeboxListing;
     private OpenSubtitlesPlugin subtitlePlugin;
     private AppleTrailersPlugin trailerPlugin;
 
@@ -257,6 +260,11 @@ public class MovieJukebox {
         subtitlePlugin = new OpenSubtitlesPlugin();
         trailerPlugin = new AppleTrailersPlugin();
 
+//JDGJr
+        MovieListingPlugin listingPlugin = this.getListingPlugin(PropertiesUtil.getProperty("mjb.listing.plugin",
+            "com.moviejukebox.plugin.MovieListingPluginBase"));
+        this.moviejukeboxListing = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.generate", "false"));
+
         int nbFiles = 0;
         String cleanCurrent = "";
         String cleanCurrentExt = "";
@@ -343,13 +351,12 @@ public class MovieJukebox {
 
             // Get subtitle
             subtitlePlugin.generate(movie);
-            
+
             // Get Trailer
             trailerPlugin.generate(movie);
         }
 
         OpenSubtitlesPlugin.logOut();
-
 
         // ////////////////////////////////////////////////////////////////
         // / PASS 3 : Indexing the library
@@ -455,7 +462,14 @@ public class MovieJukebox {
         } else {
             logger.fine("Jukebox cleaning skipped");
         }
-        logger.fine("Process terminated.");
+
+//JDGJr
+        if (moviejukeboxListing) {
+            logger.fine("Generating listing output...");
+            listingPlugin.generate(tempJukeboxRoot, jukeboxRoot, library);
+        }
+
+      logger.fine("Process terminated.");
     }
 
     /**
@@ -488,9 +502,9 @@ public class MovieJukebox {
      * is persisted.
      */
     private void updateMovieData(MovieJukeboxXMLWriter xmlWriter,
-            MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin,
-            String jukeboxDetailsRoot, String tempJukeboxDetailsRoot,
-            Movie movie) throws FileNotFoundException, XMLStreamException {
+                                 MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin,
+                                 String jukeboxDetailsRoot, String tempJukeboxDetailsRoot,
+                                 Movie movie) throws FileNotFoundException, XMLStreamException {
 
         boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
         boolean checkNewer = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.checknewer", "true"));
@@ -568,14 +582,10 @@ public class MovieJukebox {
         File posterFile = new File(posterFilename);
         File tmpDestFile = new File(tmpDestFileName);
 
-
         // Check to see if there is a local poster.
         // Check to see if there are posters in the jukebox directories (target and temp)
         // Check to see if the local poster is newer than either of the jukebox posters
         // Download poster
-
-
-
 
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster())) {
@@ -709,6 +719,24 @@ public class MovieJukebox {
         return backgroundPlugin;
     }
 
+//JDGJr
+  public MovieListingPlugin getListingPlugin(String className) {
+      MovieListingPlugin listingPlugin;
+      try {
+          Thread t = Thread.currentThread();
+          ClassLoader cl = t.getContextClassLoader();
+          Class<? extends MovieListingPlugin> pluginClass = cl.loadClass(className).asSubclass(MovieListingPlugin.class);
+          listingPlugin = pluginClass.newInstance();
+      } catch (Exception e) {
+          listingPlugin = new MovieListingPluginBase();
+          logger.severe("Failed instantiating ListingPlugin: " + className);
+          logger.severe("NULL listing plugin will be used instead.");
+          e.printStackTrace();
+      }
+
+      return listingPlugin;
+  } // getListingPlugin()
+
     /**
      * Download the image for the specified url into the specified file.
      * 
@@ -725,7 +753,7 @@ public class MovieJukebox {
     }
 
     public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie,
-            boolean forceThumbnailOverwrite) {
+                                       boolean forceThumbnailOverwrite) {
         try {
             // Issue 201 : we now download to local temp dire
             String src = tempRootPath + File.separator + movie.getPosterFilename();
@@ -764,7 +792,7 @@ public class MovieJukebox {
     }
 
     public static void createPoster(MovieImagePlugin posterManager, String rootPath, String tempRootPath, String skinHome, Movie movie,
-            boolean forcePosterOverwrite) {
+                                    boolean forcePosterOverwrite) {
         try {
             // Issue 201 : we now download to local temp dire
             String src = tempRootPath + File.separator + movie.getPosterFilename();
