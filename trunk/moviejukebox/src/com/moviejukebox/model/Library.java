@@ -86,7 +86,7 @@ public class Library implements Map<String, Movie> {
     private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000");	// Issue 190
     private static final Calendar currentCal = Calendar.getInstance();
-    private static int maxGenres = 9;
+    private static int maxGenresPerMovie = 3;
 
 
     static {
@@ -96,7 +96,7 @@ public class Library implements Map<String, Movie> {
         fillGenreMap(xmlGenreFile);
 
         try {
-            maxGenres = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "9"));
+            maxGenresPerMovie = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "" + maxGenresPerMovie));
         } catch (Exception ignore) {
         }
 
@@ -337,12 +337,15 @@ public class Library implements Map<String, Movie> {
     }
 
     private static Index indexByGenres(Iterable<Movie> moviesList) {
-    	Index index = new Index();
-    	index.maxCategories = maxGenres;
+        Index index = new Index();
         for (Movie movie : moviesList) {
             if (!movie.isTrailer()) {
+                int cntGenres = 0;
                 for (String genre : movie.getGenres()) {
-                    index.addMovie(getIndexingGenre(genre), movie);
+                    if (cntGenres < maxGenresPerMovie) {
+                        index.addMovie(getIndexingGenre(genre), movie);
+                        ++cntGenres;
+                    }
                 }
             }
         }
