@@ -144,6 +144,9 @@ public class AllocinePlugin extends ImdbPlugin {
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(extractTag(xml, "<h1 class=\"TitleFilm\">", "</h1>"));
             }
+
+            movie.setOriginalTitle(removeHtmlTags(extractTag(xml, "Titre original : <i>", "</i>")));
+            
             movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
             String tmpPlot = removeHtmlTags(extractTag(xml, "<h2 class=\"SpBlocTitle\" >Synopsis", "</h4>"));
