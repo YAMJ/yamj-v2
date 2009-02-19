@@ -41,6 +41,7 @@ MovieJukebox 1.0.16 beta
   - Fixed defect #511 Sending cookies to subdomains
   - Fixed defect #514 Episode plots not loaded for files with episode titles.
   - Fixed defect #519 R721 broke tv show nfo
+  - Fixed defect #526 R738 mis-used the max.genres property.
   - Enhancement  #532 Update for FilmDeltaSEPlugin
                         1) Improved scan-function to get more filmdelta matches
                         2) If only imdbId is found in nfo this is used to get movie title and search filmdelta with that title
