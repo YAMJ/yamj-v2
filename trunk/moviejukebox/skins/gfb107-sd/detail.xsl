@@ -144,9 +144,11 @@
         </xsl:if>
         <tr class="spacer"><td colspan="2" /></tr>
 
+        <xsl:variable name="episodeSortOrder" select="if (/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season!=-1) then 'descending' else 'ascending'" />
         <xsl:choose>
         <xsl:when test="count(files/file) = 1">
           <xsl:for-each select="files/file">
+          <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
             <tr>
 			  <xsl:if test="//movie/season!=-1">
 			    <td align="right" class="normal">
