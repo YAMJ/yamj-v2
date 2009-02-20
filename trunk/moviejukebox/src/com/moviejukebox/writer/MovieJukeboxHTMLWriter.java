@@ -178,7 +178,7 @@ public class MovieJukeboxHTMLWriter {
 
             String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
             if (homePage.length() == 0) {
-                homePage = FileTools.createPrefix("Other", library.getDefaultCategory()) + "1.html";
+                homePage = FileTools.createPrefix("Other", library.getDefaultCategory()) + "1";
             }
 
             writer.writeStartDocument();
@@ -192,7 +192,7 @@ public class MovieJukeboxHTMLWriter {
 
             writer.writeStartElement("meta");
             writer.writeAttribute("HTTP-EQUIV", "REFRESH");
-            writer.writeAttribute("content", "0; url=" + detailsDirName + '/' + homePage);
+            writer.writeAttribute("content", "0; url=" + detailsDirName + '/' + homePage + ".html");
             writer.writeEndElement();
 
             writer.writeEndElement();
