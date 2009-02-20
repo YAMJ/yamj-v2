@@ -178,11 +178,13 @@
         
         <tr class="spacer"><td> </td></tr>
 
+        <xsl:variable name="episodeSortOrder" select="if (/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season!=-1) then 'descending' else 'ascending'" />
         <xsl:choose>                                
         <xsl:when test="count(files/file) = 1">
           <tr>
             <td>
                 <xsl:for-each select="files/file">
+                <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
                 <center>
                  <a class="link">
                    <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
