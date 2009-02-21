@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -96,6 +95,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             String xml = webBrowser.request(sb.toString());
             int beginIndex = xml.indexOf("kinopoisk.ru/level/1/film/");
+            if (beginIndex == -1)
+                return Movie.UNKNOWN;
             StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 26), "/\"");
             String kinopoiskId = st.nextToken();
 
@@ -158,6 +159,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
             		newGenres.add(genre);
             }
             if (newGenres.size() > 0) {
+                // Limit genres count
+                int maxGenres = 9;
+                try {
+                    maxGenres = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "9"));
+                } catch (Exception ignore) {
+                    //
+                }
+                while (newGenres.size() > maxGenres)  
+                    newGenres.removeLast(); 
+
             	movie.setGenres(newGenres);
             }
             
