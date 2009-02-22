@@ -24,17 +24,28 @@ table.main {
     font-size: 16pt;
     font-weight: bold;
 }
-
+	
 .title3 {
     color: #AAAAAA;
     font-size: 14pt;
     font-weight: bold;
 }
 
-.normal {
+.normal, .plot, .large-plot, .xlarge-plot {
     color: #888888;
-    font-size: 14pt;
     font-weight: normal;
+}
+
+.normal, .plot {
+    font-size: 14pt;
+}
+
+.large-plot {
+    font-size: 12pt;
+}
+
+.xlarge-plot {
+    font-size: 10pt;
 }
 
 .firstMovie {
