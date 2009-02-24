@@ -141,6 +141,23 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equals("<genre>")) {
                     movie.addGenre(parseCData(r));
                 }
+                if (tag.startsWith("<set ") || tag.equals("<set>")) {
+                    String set = null;
+                    Integer order = null;
+                    
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if ("order".equals(ns)) {
+                            order = Integer.parseInt(attr.getValue());
+                            continue;
+                        }
+                    }
+                        
+                    movie.addSet(parseCData(r), order);
+                }
                 if (tag.equals("<actor>")) {
                     movie.addActor(parseCData(r));
                 }
@@ -330,7 +347,7 @@ public class MovieJukeboxXMLWriter {
             for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                 String key = "";
                 try {
-                    key = URLEncoder.encode(index.getKey(), "UTF-8").replace("%", "$");
+                    key = URLEncoder.encode(index.getKey(), "UTF-8").replace("%", "$").replace('*', '_');
                 } catch (Exception e) {
                     System.err.println("Failed generating the category index");
                     e.printStackTrace();
@@ -418,7 +435,7 @@ public class MovieJukeboxXMLWriter {
 
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
                     int next, int last) throws FileNotFoundException, XMLStreamException {
-        String prefix = FileTools.createPrefix(categoryName, key);
+        String prefix = HTMLTools.encodeUrl(FileTools.createPrefix(categoryName, key));
         File xmlFile = new File(rootPath, prefix + current + ".xml");
         xmlFile.getParentFile().mkdirs();
 
@@ -511,6 +528,18 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(Integer.toString(movie.getSeason()));
         writer.writeEndElement();
         writer.writeEndElement();
+    }
+    
+    private void writeElementSet(XMLWriter writer, String set, String element, Collection<String> items) throws XMLStreamException {
+        if (items.size() > 0) {
+            writer.writeStartElement(set);
+            for (String item : items) {
+                writer.writeStartElement(element);
+                writer.writeCharacters(item);
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+        }
     }
 
     private void writeMovie(XMLWriter writer, Movie movie) throws XMLStreamException {
@@ -646,27 +675,22 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(Long.toString(movie.getPrebuf()));
         writer.writeEndElement();
 
-        Collection<String> items = movie.getGenres();
+        writeElementSet(writer, "genres", "genre", movie.getGenres());
+        Collection<String> items = movie.getSets();
         if (items.size() > 0) {
-            writer.writeStartElement("genres");
-            for (String genre : items) {
-                writer.writeStartElement("genre");
-                writer.writeCharacters(genre);
+            writer.writeStartElement("sets");
+            for (String item : items) {
+                writer.writeStartElement("set");
+                Integer order = movie.getSetOrder(item);
+                if (null != order) {
+                    writer.writeAttribute("order", order.toString());
+                }
+                writer.writeCharacters(item);
                 writer.writeEndElement();
             }
             writer.writeEndElement();
         }
-
-        items = movie.getCast();
-        if (items.size() > 0) {
-            writer.writeStartElement("cast");
-            for (String genre : items) {
-                writer.writeStartElement("actor");
-                writer.writeCharacters(genre);
-                writer.writeEndElement();
-            }
-            writer.writeEndElement();
-        }
+        writeElementSet(writer, "cast", "actor", movie.getCast());
 
         writer.writeStartElement("files");
         for (MovieFile mf : movie.getFiles()) {
@@ -731,8 +755,8 @@ public class MovieJukeboxXMLWriter {
      * forceXMLOverwrite is true.
      */
     public void writeMovieXML(String rootPath, String tempRootPath, Movie movie) throws FileNotFoundException, XMLStreamException {
-        File finalXmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
-        File tempXmlFile = new File(tempRootPath + File.separator + movie.getBaseName() + ".xml");
+        File finalXmlFile = new File(rootPath + File.separator + HTMLTools.encodeUrl(movie.getBaseName()) + ".xml");
+        File tempXmlFile = new File(tempRootPath + File.separator + HTMLTools.encodeUrl(movie.getBaseName()) + ".xml");
         tempXmlFile.getParentFile().mkdirs();
 
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {

@@ -80,6 +80,7 @@ public class MovieFilenameScanner {
 
         // Update the movie file with interpreted movie data
         updateTrailer(filename, movie);
+        updateSets(filename, movie);
         updateTVShow(filename, movie);
         updateMovie(filename, movie);
     }
@@ -514,6 +515,29 @@ public class MovieFilenameScanner {
                 break;
             }
 
+            beginIdx = filename.indexOf("[", endIdx + 1);
+        }
+    }
+    
+    protected void updateSets(String filename, Movie movie) {
+        int beginIdx = filename.indexOf("[");
+        while (beginIdx > -1) {
+            int endIdx = filename.indexOf("]", beginIdx);
+            if (endIdx > -1) {
+                String token = filename.substring(beginIdx + 1, endIdx);
+                if (token.substring(0, 4).toUpperCase().equals("SET ")) {
+                    String setPart = token.substring(4);
+                    int dash = setPart.indexOf("-");
+                    if (dash > -1) {
+                        movie.addSet(setPart.substring(0, dash), Integer.parseInt(setPart.substring(dash+1)));
+                    } else {
+                        movie.addSet(setPart);
+                    }
+                }
+            } else {
+                break;
+            }
+            
             beginIdx = filename.indexOf("[", endIdx + 1);
         }
     }

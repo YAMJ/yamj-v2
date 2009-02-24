@@ -502,6 +502,9 @@ public class HTMLTools {
 
         // remove semicolon
         result = result.replaceAll(";", "%3B");
+        
+        // replace '*' with '_', since the former aren't allowed in Windows filenames
+        result = result.replace('*', '_');
 
         return result;
     }

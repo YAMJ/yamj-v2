@@ -44,6 +44,7 @@ import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
@@ -293,7 +294,7 @@ public class MovieJukebox {
                     if (cleanCurrent.equals("CATEGORIES")) {
                         cleanList[nbFiles].delete();
                     } else if (cleanCurrentExt.equals(".CSS") || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
-                    (cleanCurrent.indexOf("TV SERIES_") >= 0)) {
+                    (cleanCurrent.indexOf("TVSERIES_") >= 0) || (cleanCurrent.indexOf("SET_") >= 0)) {
                         cleanList[nbFiles].delete();
                     }
                 }
@@ -363,7 +364,19 @@ public class MovieJukebox {
         //
         logger.fine("Indexing libraries...");
         library.buildIndex();
-				
+
+        List<Movie> indexMasters = new ArrayList<Movie>();
+        indexMasters.addAll(library.getMoviesList());
+        indexMasters.removeAll(library.values());
+        for (Movie movie : indexMasters) {
+            logger.finer("Updating poster for index master: " + movie.getTitle() + "...");
+            PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            String thumbnailExtension = PropertiesUtil.getProperty("thumbnails.format", "png");
+            movie.setThumbnailFilename(HTMLTools.encodeUrl(movie.getBaseName()) + "_small." + thumbnailExtension);
+            String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
+            movie.setDetailPosterFilename(HTMLTools.encodeUrl(movie.getBaseName()) + "_large." + posterExtension);
+            updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+        }
 
         for (Movie movie : library.getMoviesList()) {
             // Update movie XML files with computed index information 
@@ -432,7 +445,7 @@ public class MovieJukebox {
                     if (cleanCurrent.equals("CATEGORIES")) {
                         // logger.fine(cleanCurrent + " ignored");
                     } else if ((cleanCurrentExt.equals(".CSS")) || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
-                    (cleanCurrent.indexOf("TV SERIES_") >= 0)) {
+                    (cleanCurrent.indexOf("TVSERIES_") >= 0) || (cleanCurrent.indexOf("SET_") >= 0)) {
                         // logger.fine(cleanCurrent + " ignored");
                     } else {
                         // Left with just the generated movie files in the directory now.
