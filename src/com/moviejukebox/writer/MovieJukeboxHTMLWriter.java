@@ -22,6 +22,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 /**
@@ -49,10 +50,10 @@ public class MovieJukeboxHTMLWriter {
 
     public void generateMovieDetailsHTML(String rootPath, String tempRootPath, Movie movie) {
         try {
-            String tempFilename = tempRootPath + File.separator + movie.getBaseName();
+            String tempFilename = tempRootPath + File.separator + HTMLTools.encodeUrl(movie.getBaseName());
             File tempXmlFile = new File(tempFilename + ".xml");
-            File oldXmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
-            File finalHtmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".html");
+            File oldXmlFile = new File(rootPath + File.separator + HTMLTools.encodeUrl(movie.getBaseName()) + ".xml");
+            File finalHtmlFile = new File(rootPath + File.separator + HTMLTools.encodeUrl(movie.getBaseName()) + ".html");
             File tempHtmlFile = new File(tempFilename + ".html");
             Source xmlSource;
 
@@ -149,7 +150,7 @@ public class MovieJukeboxHTMLWriter {
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
                 String key = "";
                 try {
-                    key = URLEncoder.encode(indexEntry.getKey(), "UTF-8").replace('%', '$');
+                    key = URLEncoder.encode(indexEntry.getKey(), "UTF-8").replace('%', '$').replace('*', '_');
                 } catch (Exception e) {
                     System.err.println("Failed generating HTML library index.");
                     e.printStackTrace();

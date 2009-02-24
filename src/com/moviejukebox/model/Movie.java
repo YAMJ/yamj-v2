@@ -16,7 +16,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
  * 
  * @author jjulien
  */
-public class Movie implements Comparable<Movie> {
+public class Movie implements Comparable<Movie>, Cloneable {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     public static String UNKNOWN = "UNKNOWN";
@@ -52,6 +52,7 @@ public class Movie implements Comparable<Movie> {
     private int season = -1;
     private boolean hasSubtitles = false;
     private Collection<String> genres = new TreeSet<String>();
+    private Map<String, Integer> sets = new HashMap<String, Integer>();
     private Collection<String> cast = new ArrayList<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
@@ -91,6 +92,18 @@ public class Movie implements Comparable<Movie> {
             this.isDirty = true;
             logger.finest("Genre added : " + genre);
             genres.add(genre);
+        }
+    }
+    
+    public void addSet(String set) {
+        addSet(set, null);
+    }
+    
+    public void addSet(String set, Integer order) {
+        if (set != null) {
+            this.isDirty = true;
+            logger.finest("Set added : " + set + ", order : " + order);
+            sets.put(set, order);
         }
     }
 
@@ -230,6 +243,14 @@ public class Movie implements Comparable<Movie> {
 
     public Collection<String> getGenres() {
         return genres;
+    }
+    
+    public Collection<String> getSets() {
+        return sets.keySet();
+    }
+    
+    public Integer getSetOrder(String set) {
+        return sets.get(set);
     }
 
     /**
@@ -478,6 +499,11 @@ public class Movie implements Comparable<Movie> {
             this.genres = genres;
         }
     }
+    
+    public void setSets(Map<String, Integer> sets) {
+        this.isDirty = true;
+        this.sets = sets;
+    }
 
     /**
      * 
@@ -639,7 +665,7 @@ public class Movie implements Comparable<Movie> {
 
     public void setSeason(int season) {
         if (season != this.season) {
-            if (season > 0) {
+            if (season >= 0) {
                 this.setMovieType(Movie.TYPE_TVSHOW);
             }
             this.isDirty = true;
@@ -957,4 +983,11 @@ public class Movie implements Comparable<Movie> {
 		return sortIgnorePrefixes;
 	}
 
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch(CloneNotSupportedException ignored) {
+            return null;
+        }
+    }
 }

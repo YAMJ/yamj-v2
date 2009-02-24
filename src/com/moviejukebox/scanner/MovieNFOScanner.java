@@ -189,7 +189,7 @@ public class MovieNFOScanner {
 
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
-                    // logger.finest("In parseMovieNFO found new startElement=" + tag);
+                    logger.finest("In parseMovieNFO found new startElement=" + tag);
                     if (tag.equalsIgnoreCase("movie")) {
                         isMovieTag = true;
                     }
@@ -297,6 +297,10 @@ public class MovieNFOScanner {
                             List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
+                        } else if (tag.equalsIgnoreCase("set")) {
+                            String set = XMLHelper.getCData(r);
+                            Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
+                            movie.addSet(set, orderAttribute == null ? null : Integer.parseInt(orderAttribute.getValue()));
                         } else if (tag.equalsIgnoreCase("credits")) {
                             // ignored
                         } else if (tag.equalsIgnoreCase("director")) {

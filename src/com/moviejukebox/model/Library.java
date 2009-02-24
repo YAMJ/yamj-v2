@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.logging.Logger;
@@ -26,53 +27,87 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 public class Library implements Map<String, Movie> {
 	
-	public static final String TV_SERIES = "TV Series";
+    public static final String TV_SERIES = "TVSeries";
+    public static final String SET = "Set";
 
-	public static class Index extends TreeMap<String, List<Movie>> {
-		private int maxCategories = -1;
+    public static class Index extends TreeMap<String, List<Movie>> {
+        private int maxCategories = -1;
 		
-		private static final long serialVersionUID = -6240040588085931654L;
+        private static final long serialVersionUID = -6240040588085931654L;
 
-		public Index(Comparator<? super String> comparator) {
-			super(comparator);
-		}
+        public Index(Comparator<? super String> comparator) {
+            super(comparator);
+        }
 		
-		public Index() {
-			super();
-		}
+        public Index() {
+            super();
+        }
 
-		protected void addMovie(String category, Movie movie) {
-	        if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("UNKNOWN")) {
-	            return;
-	        }
 
-	        if (movie == null) {
-	            return;
-	        }
+        protected void addMovie(String category, Movie movie) {
+            if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("UNKNOWN")) {
+                return;
+            }
 
-	        List<Movie> list = get(category);
+            if (movie == null) {
+                return;
+            }
 
-	        if (list == null) {
-	        	if (maxCategories > 0 && size() >= maxCategories) {
-	        		return;
-	        	}
-	            list = new ArrayList<Movie>();
-	            put(category, list);
-	        }
-	        if (!list.contains(movie)) {
-	            list.add(movie);
-	        }
-	    }
+            List<Movie> list = get(category);
 
-		public int getMaxCategories() {
-			return maxCategories;
-		}
+            if (list == null) {
+            if (maxCategories > 0 && size() >= maxCategories) {
+                return;
+            }
+                list = new ArrayList<Movie>();
+                put(category, list);
+            }
+            if (!list.contains(movie)) {
+                list.add(movie);
+            }
+        }
 
-		public void setMaxCategories(int maxCategories) {
-			this.maxCategories = maxCategories;
-		}
+        public int getMaxCategories() {
+            return maxCategories;
+        }
 
-	}
+        public void setMaxCategories(int maxCategories) {
+            this.maxCategories = maxCategories;
+        }
+
+    }
+    
+    private static class MovieSetComparator implements Comparator {
+        private String set;
+        
+        private MovieSetComparator(String set) {
+            this.set = set;
+        }
+        
+        public int compare(Object left, Object right) {
+            Movie m1 = (Movie)left;
+            Movie m2 = (Movie)right;
+            Integer o1 = m1.getSetOrder(set);
+            Integer o2 = m2.getSetOrder(set);
+            
+            // If one is explicitly ordered and the other isn't, the ordered one comes first
+            if (o1 == null && o2 != null || o1 != null && o2 == null) {
+                return o2 == null ? -1 : 1;
+            
+            // If they're both ordered and the value is different, order by that
+            } else if (o1 != null && !o1.equals(o2)) {
+                return o1.compareTo(o2);
+            
+            // Either the order is the same, or neither have an order, so fall back to releaseDate, then titleSort
+            } else {
+                int c = m1.getYear().compareTo(m2.getYear());
+                if (c == 0) {
+                    c = m1.getTitleSort().compareTo(m2.getTitleSort());
+                }
+                return c;
+            }
+        }
+    }
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean filterGenres;
@@ -171,63 +206,54 @@ public class Library implements Map<String, Movie> {
         List<Movie> indexMovies = new ArrayList<Movie>(library.values());
         moviesList.addAll(library.values());
         
+        Map<String, Index> dynamic_indexes = new HashMap<String, Index>();
         if (indexMovies.size() > 0) {
             if (singleSeriesPage) {
-            	Index index = indexByTVShowSeasons(indexMovies);
-            	if (index.size() > 0) {
-            		indexes.put(TV_SERIES, index);
-            		for (Map.Entry<String, List<Movie>> entry : index.entrySet()) {
-            			List<Movie> list = entry.getValue();
-            			Movie firstMovie = null;
-            			for (Movie movie : list) {
-            				if (firstMovie == null || firstMovie.getSeason() > movie.getSeason()) {
-            					firstMovie = movie;
-            				}
-            				
-            				indexMovies.remove(movie);
-            			}
-            			
-            			Movie seasonMaster = new Movie();
-            			seasonMaster.setTitle(firstMovie.getTitle());
-            			seasonMaster.setTitleSort(firstMovie.getTitleSort());
-            			seasonMaster.setOriginalTitle(firstMovie.getOriginalTitle());
-            			seasonMaster.setGenres(firstMovie.getGenres());
-            			seasonMaster.setCountry(firstMovie.getCountry());
-            			seasonMaster.setFanartFilename(firstMovie.getFanartFilename());
-            			seasonMaster.setFanartURL(firstMovie.getFanartURL());
-            			seasonMaster.setDetailPosterFilename(firstMovie.getDetailPosterFilename());
-            			seasonMaster.setCertification(firstMovie.getCertification());
-            			seasonMaster.setLanguage(firstMovie.getLanguage());
-            			seasonMaster.setBaseName(FileTools.createPrefix(TV_SERIES, FileTools.createCategoryKey(entry.getKey())) + "1");
-            			seasonMaster.setThumbnailFilename(firstMovie.getThumbnailFilename());
-            			seasonMaster.setMovieType(firstMovie.getMovieType());
-            			seasonMaster.setTop250(firstMovie.getTop250());
-            			seasonMaster.setLibraryDescription(firstMovie.getLibraryDescription());
-            			seasonMaster.setPlot(firstMovie.getPlot());
-            			seasonMaster.setPosterURL(firstMovie.getPosterURL());
-            			seasonMaster.setPosterFilename(firstMovie.getPosterFilename());
-            			seasonMaster.setPosterSubimage(firstMovie.getPosterSubimage());
-            			seasonMaster.setYear(firstMovie.getYear());
-
-            			sortMovieDetails(list);
-
-            			indexMovies.add(seasonMaster);
-            			moviesList.add(seasonMaster);            		}
-            	}
+                Index series = indexByTVShowSeasons(indexMovies);
+                dynamic_indexes.put(TV_SERIES, series);
             }
             
-            sortMovieDetails(indexMovies);
+            Index sets = indexBySets(indexMovies);
+            dynamic_indexes.put(SET, sets);
+            
+            for (Map.Entry<String, Index> indexes_entry : dynamic_indexes.entrySet()) {
+                for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
+                    String index_name = index_entry.getKey();
+                    List<Movie> index_list = index_entry.getValue();
+                    setMovieListNavigation(index_list);
+                    
+                    Movie indexMaster = (Movie)index_list.get(0).clone();
+                    
+                    indexMaster.setTitle(index_name);
+                    indexMaster.setSeason(-1);
+                    indexMaster.setTitleSort(index_name);
+                    indexMaster.setOriginalTitle(index_name);
+                    indexMaster.setBaseName(
+                        FileTools.createPrefix(
+                            indexes_entry.getKey(),
+                            FileTools.createCategoryKey(index_name)
+                        ) + "1"
+                    );
+                    indexMaster.setPosterFilename(indexMaster.getBaseName() + ".jpg");
+
+                    indexMovies.removeAll(index_list);
+                    indexMovies.add(indexMaster);
+                    moviesList.add(indexMaster);
+                }
+            }
+            
+            Collections.sort(indexMovies);
+            setMovieListNavigation(indexMovies);
             indexes.put("Other", indexByProperties(indexMovies));
             indexes.put("Genres", indexByGenres(indexMovies));
             indexes.put("Title", indexByTitle(indexMovies));
             indexes.put("Rating", indexByCertification(indexMovies));
             indexes.put("Year", indexByYear(indexMovies));
+            indexes.putAll(dynamic_indexes);
         }
     }
 
-    private static void sortMovieDetails(List<Movie> moviesList) {
-        Collections.sort(moviesList);
-
+    private static void setMovieListNavigation(List<Movie> moviesList) {
         List<Movie> trailerList = new ArrayList<Movie>();
 
         Movie first = null;
@@ -462,8 +488,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index();
         for (Movie movie : list) {
             if (!movie.isTrailer() && movie.isTVShow()) {
-                // URLEncoder won't encode '*' chars, and Windows doesn't allow them in the filename
-                index.addMovie(movie.getTitle().replace('*', '_'), movie);
+                index.addMovie(movie.getTitle(), movie);
             }
         }
         
@@ -473,11 +498,29 @@ public class Library implements Map<String, Movie> {
                 iterator.remove();
             }
         }
+        
+        for (List<Movie> series_list : index.values()) {
+            Collections.sort(series_list);
+        }
+        
         return index; 
     }
-
     
-
+    protected static Index indexBySets(List<Movie> list) {
+        Index index = new Index();
+        for (Movie movie : list) {
+            for (String set_key : movie.getSets()) {
+                index.addMovie(set_key, movie);
+            }
+        }
+        
+        for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
+            Collections.sort(index_entry.getValue(), new MovieSetComparator(index_entry.getKey()));
+        }
+        
+        return index;
+    }
+    
     /**
      * Checks if there is a master (will be shown in the index) genre for the specified one.
      * @param genre Genre to find the master.
