@@ -523,7 +523,7 @@ public class MovieFilenameScanner {
         int beginIdx = filename.indexOf("[");
         while (beginIdx > -1) {
             int endIdx = filename.indexOf("]", beginIdx);
-            if (endIdx > -1) {
+            if (endIdx > -1 && endIdx - beginIdx > 4) {
                 String token = filename.substring(beginIdx + 1, endIdx);
                 if (token.substring(0, 4).toUpperCase().equals("SET ")) {
                     String setPart = token.substring(4);
