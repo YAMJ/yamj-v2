@@ -347,7 +347,7 @@ public class MovieJukeboxXMLWriter {
             for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                 String key = "";
                 try {
-                    key = URLEncoder.encode(index.getKey(), "UTF-8").replace("%", "$").replace('*', '_');
+                    key = URLEncoder.encode(index.getKey(), "UTF-8").replace("%", "$");
                 } catch (Exception e) {
                     System.err.println("Failed generating the category index");
                     e.printStackTrace();
@@ -435,7 +435,7 @@ public class MovieJukeboxXMLWriter {
 
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
                     int next, int last) throws FileNotFoundException, XMLStreamException {
-        String prefix = HTMLTools.encodeUrl(FileTools.createPrefix(categoryName, key));
+        String prefix = FileTools.createPrefix(categoryName, key);
         File xmlFile = new File(rootPath, prefix + current + ".xml");
         xmlFile.getParentFile().mkdirs();
 
@@ -755,8 +755,8 @@ public class MovieJukeboxXMLWriter {
      * forceXMLOverwrite is true.
      */
     public void writeMovieXML(String rootPath, String tempRootPath, Movie movie) throws FileNotFoundException, XMLStreamException {
-        File finalXmlFile = new File(rootPath + File.separator + HTMLTools.encodeUrl(movie.getBaseName()) + ".xml");
-        File tempXmlFile = new File(tempRootPath + File.separator + HTMLTools.encodeUrl(movie.getBaseName()) + ".xml");
+        File finalXmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
+        File tempXmlFile = new File(tempRootPath + File.separator + movie.getBaseName() + ".xml");
         tempXmlFile.getParentFile().mkdirs();
 
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
