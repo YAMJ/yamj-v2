@@ -198,6 +198,32 @@ public class Library implements Map<String, Movie> {
             }
         }
     }
+    
+    public void buildIndexMaster(String prefix, Index index, List<Movie> indexMovies) {
+        for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
+            String index_name = index_entry.getKey();
+            List<Movie> index_list = index_entry.getValue();
+            setMovieListNavigation(index_list);
+            
+            Movie indexMaster = (Movie)index_list.get(0).clone();
+            
+            indexMaster.setTitle(index_name);
+            indexMaster.setSeason(-1);
+            indexMaster.setTitleSort(index_name);
+            indexMaster.setOriginalTitle(index_name);
+            indexMaster.setBaseName(
+                FileTools.createPrefix(
+                    prefix,
+                    FileTools.createCategoryKey(index_name)
+                ) + "1"
+            );
+            indexMaster.setPosterFilename(indexMaster.getBaseName() + ".jpg");
+            
+            indexMovies.removeAll(index_list);
+            indexMovies.add(indexMaster);
+            moviesList.add(indexMaster);
+        }
+    }
 
     public void buildIndex() {
         moviesList.clear();
@@ -208,39 +234,14 @@ public class Library implements Map<String, Movie> {
         
         Map<String, Index> dynamic_indexes = new HashMap<String, Index>();
         if (indexMovies.size() > 0) {
+            Index series = null;
             if (singleSeriesPage) {
-                Index series = indexByTVShowSeasons(indexMovies);
-                dynamic_indexes.put(TV_SERIES, series);
+                series = indexByTVShowSeasons(indexMovies);
+                buildIndexMaster(TV_SERIES, series, indexMovies);
             }
             
             Index sets = indexBySets(indexMovies);
-            dynamic_indexes.put(SET, sets);
-            
-            for (Map.Entry<String, Index> indexes_entry : dynamic_indexes.entrySet()) {
-                for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
-                    String index_name = index_entry.getKey();
-                    List<Movie> index_list = index_entry.getValue();
-                    setMovieListNavigation(index_list);
-                    
-                    Movie indexMaster = (Movie)index_list.get(0).clone();
-                    
-                    indexMaster.setTitle(index_name);
-                    indexMaster.setSeason(-1);
-                    indexMaster.setTitleSort(index_name);
-                    indexMaster.setOriginalTitle(index_name);
-                    indexMaster.setBaseName(
-                        FileTools.createPrefix(
-                            indexes_entry.getKey(),
-                            FileTools.createCategoryKey(index_name)
-                        ) + "1"
-                    );
-                    indexMaster.setPosterFilename(indexMaster.getBaseName() + ".jpg");
-
-                    indexMovies.removeAll(index_list);
-                    indexMovies.add(indexMaster);
-                    moviesList.add(indexMaster);
-                }
-            }
+            buildIndexMaster(SET, sets, indexMovies);
             
             Collections.sort(indexMovies);
             setMovieListNavigation(indexMovies);
@@ -249,7 +250,10 @@ public class Library implements Map<String, Movie> {
             indexes.put("Title", indexByTitle(indexMovies));
             indexes.put("Rating", indexByCertification(indexMovies));
             indexes.put("Year", indexByYear(indexMovies));
-            indexes.putAll(dynamic_indexes);
+            if (null != series) {
+                indexes.put(TV_SERIES, series);
+            }
+            indexes.put(SET, sets);
         }
     }
 
