@@ -488,7 +488,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index();
         for (Movie movie : list) {
             if (!movie.isTrailer() && movie.isTVShow()) {
-                index.addMovie(movie.getTitle(), movie);
+                index.addMovie(movie.getTitle().replace('*', '_'), movie);
             }
         }
         
@@ -510,7 +510,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index();
         for (Movie movie : list) {
             for (String set_key : movie.getSets()) {
-                index.addMovie(set_key, movie);
+                index.addMovie(set_key.replace('*', '_'), movie);
             }
         }
         
