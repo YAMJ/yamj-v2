@@ -52,6 +52,7 @@ MovieJukebox 1.0.16 beta
                         4) Added properties to moviejukebox.properties
   - Enhancement  #536 Moviejukebox Listing plugin. Creates a CSV file with information about the movies in the jukebox.
   - Fixed defect #537 Kinopoisk plugin fixes
+  - Fixed defect #556 Ignores dashes before the final ']' when searching for part name
 
 
 MovieJukebox 1.0.15 beta
