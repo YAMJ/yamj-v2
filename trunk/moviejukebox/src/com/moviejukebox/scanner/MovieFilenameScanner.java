@@ -323,7 +323,10 @@ public class MovieFilenameScanner {
             if (index != -1) {
                 int dash = f.lastIndexOf('-');
 
-                if (dash != -1 && dot > dash) {
+                // Make sure the dash isn't part of a [SET name-order] keyword!
+                int lastCloseBracket = f.lastIndexOf(']');
+
+                if (dash != -1 && dot > dash && lastCloseBracket < dash) {
                     String partTitle = filename.substring(dash + 1, dot).trim();
                     return partTitle;
                 }
