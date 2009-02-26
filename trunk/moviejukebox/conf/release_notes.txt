@@ -53,6 +53,7 @@ MovieJukebox 1.0.16 beta
   - Enhancement  #536 Moviejukebox Listing plugin. Creates a CSV file with information about the movies in the jukebox.
   - Fixed defect #537 Kinopoisk plugin fixes
   - Fixed defect #556 Ignores dashes before the final ']' when searching for part name
+  - Fixed defect #561 Since R725 it ignored '.' as part keyword delimiter and accepted ' '; the behavior is now inverted
 
 
 MovieJukebox 1.0.15 beta

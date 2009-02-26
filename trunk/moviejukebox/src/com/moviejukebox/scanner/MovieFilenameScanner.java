@@ -34,7 +34,7 @@ public class MovieFilenameScanner {
     protected static final Logger LOGGER = Logger.getLogger("moviejukebox");
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
-    protected static final String WORD_DELIMITERS_STRING = TOKEN_DELIMITERS_STRING + " _-";
+    protected static final String WORD_DELIMITERS_STRING = " _-" + TOKEN_DELIMITERS_STRING;
     protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
     protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = Pattern.compile("[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]");
 
@@ -243,6 +243,8 @@ public class MovieFilenameScanner {
         while (gpIndex > 0) {
             // We've found the keyword, but is it preceded by a delimiter and therefore not part of a word
             gpPrev = gpFilename.substring(gpIndex - 1, gpIndex);
+
+            // Less-equal because we don't want to match space, which is the first char in WORD_DELIMITERS_STRING
             if (WORD_DELIMITERS_STRING.indexOf(gpPrev) <= 0) {
                 // We can't find the preceding char in the delimiter string
                 // so look for the next occurence of the keyword
@@ -290,7 +292,7 @@ public class MovieFilenameScanner {
             keyword = "PART";
             index = getPartKeyword(f, keyword);
         }
-
+        
         if (index != -1) {
             updateFirstKeywordIndex(index);
             index += keyword.length();
