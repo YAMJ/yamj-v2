@@ -176,8 +176,8 @@
 			<tr>
 				<td width="85%" colspan="2">
 					<xsl:attribute name="class">
-						<!-- xsl:if test="string-length(plot) >= 400">x</xsl:if>
-						<xsl:if test="string-length(plot) >= 200">large-</xsl:if-->normal</xsl:attribute>
+						<xsl:if test="string-length(plot) >= 700">x</xsl:if>
+						<xsl:if test="string-length(plot) >= 250">large-</xsl:if>plot</xsl:attribute>
 		            <xsl:value-of select="plot" />
 				</td>
 			</tr>
@@ -403,33 +403,37 @@
         </xsl:if>
         
       </table>
-               <xsl:for-each select="files/file">
-			     <div class="title">
-			       <xsl:attribute name="id">title<xsl:value-of select="@firstPart"/></xsl:attribute>
-                     <xsl:choose>
-                       <xsl:when test="@title='UNKNOWN'">
-						 <xsl:choose>
-						   <xsl:when test="@firstPart!=@lastPart">
-						      <xsl:choose>
-                                 <xsl:when test="/details/movie/season!=-1">Episodes </xsl:when>
-						         <xsl:otherwise>Parts </xsl:otherwise>
-						      </xsl:choose>
-							  <xsl:value-of select="@firstPart"/> - <xsl:value-of select="@lastPart"/>
-						   </xsl:when>	 
-						   <xsl:otherwise>
-						      <xsl:choose>
-                                 <xsl:when test="/details/movie/season!=-1">Episode </xsl:when>
-						         <xsl:otherwise>Part </xsl:otherwise>
-						      </xsl:choose>
-							  <xsl:value-of select="@firstPart"/>
-						   </xsl:otherwise>	 
-					     </xsl:choose>
-						 <xsl:value-of select="@part"/>
-					   </xsl:when>	 
-                       <xsl:otherwise><xsl:value-of select="@title"/></xsl:otherwise>
-                     </xsl:choose>
-			     </div>
-			   </xsl:for-each>
+<xsl:for-each select="files/file">
+	<div class="title">
+		<xsl:attribute name="id">title<xsl:value-of	select="@firstPart" /></xsl:attribute>
+		<xsl:choose>
+			<xsl:when test="@title='UNKNOWN'">
+				<xsl:choose>
+					<xsl:when test="@firstPart!=@lastPart">
+						<xsl:choose>
+							<xsl:when test="/details/movie/season!=-1">Episodes </xsl:when>
+							<xsl:otherwise>Parts </xsl:otherwise>
+						</xsl:choose>
+						<xsl:value-of select="@firstPart" /> - <xsl:value-of select="@lastPart" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:choose>
+							<xsl:when test="/details/movie/season!=-1">Episode </xsl:when>
+							<xsl:otherwise>Part </xsl:otherwise>
+						</xsl:choose>
+						<xsl:value-of select="@firstPart" />
+					</xsl:otherwise>
+				</xsl:choose>
+				<xsl:value-of select="@part" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="@firstPart" />
+				<xsl:if test="@firstPart!=@lastPart"> -	<xsl:value-of select="@lastPart" /></xsl:if>. 
+				<xsl:value-of select="@title" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</div>
+</xsl:for-each>
     </td>
   </tr>
 </table>

@@ -31,21 +31,34 @@ table.main {
     font-weight: bold;
 }
 
-.normal, .plot, .large-plot, .xlarge-plot {
+.normal {
     color: #888888;
     font-weight: normal;
-}
-
-.normal, .plot {
     font-size: 14pt;
 }
 
+.plot {
+    color: #888888;
+    font-weight: normal;
+	font-size: 14pt;
+}
+
 .large-plot {
-    font-size: 12pt;
+    color: #888888;
+    font-weight: normal;
+	font-size: 12pt;
 }
 
 .xlarge-plot {
-    font-size: 10pt;
+    color: #888888;
+    font-weight: normal;
+	font-size: 10pt;
+}
+
+.normal {
+    color: #888888;
+    font-weight: normal;
+    font-size: 14pt;
 }
 
 .firstMovie {
@@ -65,5 +78,5 @@ tr.divider {
     height: 1px;
 }
 
-div.title{ visibility:hidden; }
+div.title { visibility:hidden; }
 tr.spacer { height: 10px; }
