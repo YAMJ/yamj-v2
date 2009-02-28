@@ -65,4 +65,5 @@ tr.divider {
     height: 1px;
 }
 
+div.title{ visibility:hidden; }
 tr.spacer { height: 10px; }
