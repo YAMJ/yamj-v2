@@ -50,7 +50,7 @@ public class FanartScanner {
     }
 
     public static void scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String localFanartBaseFilename = movie.getBaseName();
+        String localFanartBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
         String fullFanartFilename = null;
         String foundExtension = null;
         File localFanartFile = null;
@@ -104,8 +104,9 @@ public class FanartScanner {
             if ( movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN) ) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
             }
-            String finalDestinationFileName = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
-            String destFileName = tempJukeboxDetailsRoot + File.separator + movie.getFanartFilename();
+            String fanartFilename = FileTools.makeSafeFilename(movie.getFanartFilename());
+            String finalDestinationFileName = jukeboxDetailsRoot + File.separator + fanartFilename;
+            String destFileName = tempJukeboxDetailsRoot + File.separator + fanartFilename;
 
             File finalDestinationFile = new File(finalDestinationFileName);
             File fullFanartFile = new File(fullFanartFilename);
@@ -138,9 +139,10 @@ public class FanartScanner {
 
     private static void downloadFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-            String fanartFilename = jukeboxDetailsRoot + File.separator + movie.getFanartFilename();
+            String safeFanartFilename = FileTools.makeSafeFilename(movie.getFanartFilename());
+            String fanartFilename = jukeboxDetailsRoot + File.separator + safeFanartFilename;
             File fanartFile = new File(fanartFilename);
-            String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + movie.getFanartFilename();
+            String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + safeFanartFilename;
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing fanart unless ForceFanartOverwrite = true
