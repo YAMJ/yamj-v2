@@ -31,7 +31,7 @@ public class MovieFilenameScanner {
 
     protected static final Pattern TV_PATTERN = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
     protected static final Pattern EPISODE_PATTERN = Pattern.compile("[EeXx]([0-9]+)");
-    protected static final Logger LOGGER = Logger.getLogger("moviejukebox");
+    protected static final Logger logger = Logger.getLogger("moviejukebox");
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
     protected static final String WORD_DELIMITERS_STRING = " _-" + TOKEN_DELIMITERS_STRING;
@@ -611,7 +611,7 @@ public class MovieFilenameScanner {
                 int end = matcher.end(0);
                 int dash = filename.indexOf('-', end);
                 if ((dash == end) || (dash == end + 1)) {
-                    int delim = indexOfAny(filename, dash, TOKEN_DELIMITERS_STRING);
+                    int delim = filename.lastIndexOf('.');
                     if (delim == -1)
                         delim = filename.length();
                     fileTitle = replaceWordDelimiters(filename.substring(dash + 1, delim), ' ').trim();
