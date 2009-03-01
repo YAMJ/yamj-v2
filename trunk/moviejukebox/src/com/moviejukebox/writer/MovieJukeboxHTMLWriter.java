@@ -49,10 +49,11 @@ public class MovieJukeboxHTMLWriter {
 
     public void generateMovieDetailsHTML(String rootPath, String tempRootPath, Movie movie) {
         try {
-            String tempFilename = tempRootPath + File.separator + movie.getBaseName();
+            String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+            String tempFilename = tempRootPath + File.separator + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
-            File oldXmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".xml");
-            File finalHtmlFile = new File(rootPath + File.separator + movie.getBaseName() + ".html");
+            File oldXmlFile = new File(rootPath + File.separator + baseName + ".xml");
+            File finalHtmlFile = new File(rootPath + File.separator + baseName + ".html");
             File tempHtmlFile = new File(tempFilename + ".html");
             Source xmlSource;
 
@@ -89,8 +90,9 @@ public class MovieJukeboxHTMLWriter {
         try {
             String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
             if (movie.getFiles().size() > 1) {
-                String tempFilename = tempRootPath + File.separator + movie.getBaseName();
-                File finalPlaylistFile = new File(rootPath + File.separator + movie.getBaseName() + ".playlist.jsp");
+                String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+                String tempFilename = tempRootPath + File.separator + baseName;
+                File finalPlaylistFile = new File(rootPath + File.separator + baseName + ".playlist.jsp");
                 File tempPlaylistFile = new File(tempFilename + ".playlist.jsp");
 
                 if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
@@ -147,22 +149,9 @@ public class MovieJukeboxHTMLWriter {
             Map<String, List<Movie>> index = category.getValue();
 
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
-                String key = "";
-                try {
-                    key = URLEncoder.encode(indexEntry.getKey(), "UTF-8").replace('%', '$');
-                } catch (Exception e) {
-                    System.err.println("Failed generating HTML library index.");
-                    e.printStackTrace();
-                }
-
+                String key = indexEntry.getKey();
                 List<Movie> movies = indexEntry.getValue();
-                int nbPages;
-                int movieCount = movies.size();
-                if (movieCount % nbMoviesPerPage != 0) {
-                    nbPages = 1 + movieCount / nbMoviesPerPage;
-                } else {
-                    nbPages = movieCount / nbMoviesPerPage;
-                }
+                int nbPages = 1 + (movies.size() - 1) / nbMoviesPerPage;
                 for (int page = 1; page <= nbPages; page++) {
                     writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
                 }
@@ -178,7 +167,7 @@ public class MovieJukeboxHTMLWriter {
 
             String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
             if (homePage.length() == 0) {
-                homePage = FileTools.createPrefix("Other", library.getDefaultCategory()) + "1";
+                homePage = FileTools.createPrefix("Other", FileTools.makeSafeFilenameURL(library.getDefaultCategory())) + "1";
             }
 
             writer.writeStartDocument();
@@ -211,7 +200,7 @@ public class MovieJukeboxHTMLWriter {
             File detailsDir = new File(rootPath, detailsDirName);
             detailsDir.mkdirs();
 
-            String filename = FileTools.createPrefix(categoryName, key) + page;
+            String filename = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key)) + page;
 
             File xmlFile = new File(detailsDir, filename + ".xml");
             File htmlFile = new File(detailsDir, filename + ".html");

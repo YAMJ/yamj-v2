@@ -168,17 +168,38 @@ public class FileTools {
     }
 
     public static String createCategoryKey(String key2) {
-        try {
-            return URLEncoder.encode(key2, "UTF-8").replace('%', '$');
-        } catch (UnsupportedEncodingException e) {
-            System.err.println("Failed generating HTML library index.");
-            System.err.println(key2);
-        e.printStackTrace();
-            return "FAILED";
-        }
+        return key2;
     }
 
     public static String createPrefix(String category, String key) {
         return category + '_' + key + '_';
+    }
+    
+    public static String makeSafeFilename(String filename) {
+        // First, url-encode to remove all special chars
+        String result = null;
+        try {
+            result = URLEncoder.encode(filename, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException ignored) {
+        }
+        
+        // Now remove '+', since it triggers a double-decode in IIS
+        result = result.replaceAll("\\+", "%20");
+        
+        // Now url-encode '*', which is disallowed in Windows filenames
+        result = result.replaceAll("\\*", "%2A");
+        
+        // Undo the encoding of '$' and replace '%' with '$'-- they're safe in URLs, so we don't have to encode them
+        // and we'll use it as a replacement for '%', which is not.
+        // This makes the function "stable", meaning f(f(x)) == f(x), which makes re-parsing the XMLs easier,
+        // and it removes any necessity for a method to "unMakeSafeFilename".
+        result = result.replaceAll("%24", "\\$");
+        result = result.replace('%', '$');
+
+        return result;
+    }
+    
+    public static String makeSafeFilenameURL(String filename) {
+        return makeSafeFilename(filename);
     }
 }
