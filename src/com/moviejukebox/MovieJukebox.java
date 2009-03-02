@@ -329,160 +329,162 @@ public class MovieJukebox {
         }
 
         logger.fine("Found " + library.size() + " movies in your media library");
+        
+        if (library.size() > 0) {
+            // ////////////////////////////////////////////////////////////////
+            // / PASS 2 : Scan movie libraries for files...
+            //
+            logger.fine("Searching for movies information...");
 
-        // ////////////////////////////////////////////////////////////////
-        // / PASS 2 : Scan movie libraries for files...
-        //
-        logger.fine("Searching for movies information...");
+            for (Movie movie : library.values()) {
+                // First get movie data (title, year, director, genre, etc...)
+                logger.fine("Updating data for: " + movie.getTitle());
+                updateMovieData(xmlWriter, miScanner, backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-        for (Movie movie : library.values()) {
-            // First get movie data (title, year, director, genre, etc...)
-            logger.fine("Updating data for: " + movie.getTitle());
-            updateMovieData(xmlWriter, miScanner, backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                // Then get this movie's poster
+                logger.finer("Updating poster for: " + movie.getTitle() + "...");
+                updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-            // Then get this movie's poster
-            logger.finer("Updating poster for: " + movie.getTitle() + "...");
-            updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                // Get Fanart if requested
+                // Note that the FanartScanner will check if the file is newer / different
+                if (fanartDownload) {
+                    FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                }
 
-            // Get Fanart if requested
-            // Note that the FanartScanner will check if the file is newer / different
-            if (fanartDownload) {
-                FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                // Get subtitle
+                subtitlePlugin.generate(movie);
+
+                // Get Trailer
+                trailerPlugin.generate(movie);
             }
 
-            // Get subtitle
-            subtitlePlugin.generate(movie);
+            OpenSubtitlesPlugin.logOut();
+            
+            // ////////////////////////////////////////////////////////////////
+            // / PASS 3 : Indexing the library
+            //
+            logger.fine("Indexing libraries...");
+            library.buildIndex();
 
-            // Get Trailer
-            trailerPlugin.generate(movie);
-        }
+            List<Movie> indexMasters = new ArrayList<Movie>();
+            indexMasters.addAll(library.getMoviesList());
+            indexMasters.removeAll(library.values());
+            for (Movie movie : indexMasters) {
+                logger.finer("Updating poster for index master: " + movie.getTitle() + "...");
+                PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                String thumbnailExtension = PropertiesUtil.getProperty("thumbnails.format", "png");
+                movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
+                String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
+                movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
+                updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            }
 
-        OpenSubtitlesPlugin.logOut();
+            for (Movie movie : library.getMoviesList()) {
+                // Update movie XML files with computed index information 
+                logger.finest("Writing index data to movie: " + movie.getBaseName());
+                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-        // ////////////////////////////////////////////////////////////////
-        // / PASS 3 : Indexing the library
-        //
-        logger.fine("Indexing libraries...");
-        library.buildIndex();
+                // Create a detail poster for each movie
+                logger.finest("Creating detail poster for movie: " + movie.getBaseName());
+                createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 
-        List<Movie> indexMasters = new ArrayList<Movie>();
-        indexMasters.addAll(library.getMoviesList());
-        indexMasters.removeAll(library.values());
-        for (Movie movie : indexMasters) {
-            logger.finer("Updating poster for index master: " + movie.getTitle() + "...");
-            PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-            String thumbnailExtension = PropertiesUtil.getProperty("thumbnails.format", "png");
-            movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
-            String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
-            movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
-            updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-        }
+                // Create a thumbnail for each movie
+                logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
+                createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
-        for (Movie movie : library.getMoviesList()) {
-            // Update movie XML files with computed index information 
-            logger.finest("Writing index data to movie: " + movie.getBaseName());
-            xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                // write the movie details HTML
+                htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
-            // Create a detail poster for each movie
-            logger.finest("Creating detail poster for movie: " + movie.getBaseName());
-            createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                // write the playlist for the movie if needed
+                htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            }
 
-            // Create a thumbnail for each movie
-            logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-            createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+            logger.fine("Generating Indexes...");
+            xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
+            xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
+            htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
+            htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
 
-            // write the movie details HTML
-            htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            logger.fine("Copying new files to Jukebox directory...");
+            FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);
+            FileTools.copyFile(new File(tempJukeboxRoot + File.separator + "index.htm"), new File(jukeboxRoot + File.separator + "index.htm"));
 
-            // write the playlist for the movie if needed
-            htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-        }
+            logger.fine("Copying resources to Jukebox directory...");
+            FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
 
-        logger.fine("Generating Indexes...");
-        xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
-        xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
-        htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
-        htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
+            logger.fine("Clean up temporary files");
+            File[] isoList = tempJukeboxDetailsRootFile.listFiles();
+            for (nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
+                isoList[nbFiles].delete();
+            }
+            tempJukeboxDetailsRootFile.delete();
+            File rootIndex = new File(tempJukeboxRoot + File.separator + "index.htm");
+            rootIndex.delete();
 
-        logger.fine("Copying new files to Jukebox directory...");
-        FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);
-        FileTools.copyFile(new File(tempJukeboxRoot + File.separator + "index.htm"), new File(jukeboxRoot + File.separator + "index.htm"));
+            // ////////////////////////////////////////////////////////////////
+            // / PASS 4: Clean-up the jukebox directory
+            // / If the command line argument "-c" was passed
+            //
+            if (jukeboxClean) {
+                logger.fine("Cleaning up the jukebox directory...");
 
-        logger.fine("Copying resources to Jukebox directory...");
-        FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
+                // File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+                File[] cleanList = tempJukeboxCleanFile.listFiles();
+                int cleanDeletedTotal = 0;
 
-        logger.fine("Clean up temporary files");
-        File[] isoList = tempJukeboxDetailsRootFile.listFiles();
-        for (nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
-            isoList[nbFiles].delete();
-        }
-        tempJukeboxDetailsRootFile.delete();
-        File rootIndex = new File(tempJukeboxRoot + File.separator + "index.htm");
-        rootIndex.delete();
-
-        // ////////////////////////////////////////////////////////////////
-        // / PASS 4: Clean-up the jukebox directory
-        // / If the command line argument "-c" was passed
-        //
-        if (jukeboxClean) {
-            logger.fine("Cleaning up the jukebox directory...");
-
-            // File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
-            File[] cleanList = tempJukeboxCleanFile.listFiles();
-            int cleanDeletedTotal = 0;
-
-            for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
-                // Scan each file in here
-                if (cleanList[nbFiles].isFile()) {
-                    cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
-                    if (cleanCurrent.indexOf(".") > 0) {
-                        cleanCurrentExt = cleanCurrent.substring(cleanCurrent.lastIndexOf("."));
-                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
-                    } else {
-                        cleanCurrentExt = "";
-                    }
-
-                    if (cleanCurrent.equals("CATEGORIES")) {
-                        // logger.fine(cleanCurrent + " ignored");
-                    } else if ((cleanCurrentExt.equals(".CSS")) || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
-                    (cleanCurrent.indexOf("TVSERIES_") >= 0) || (cleanCurrent.indexOf("SET_") >= 0)) {
-                        // logger.fine(cleanCurrent + " ignored");
-                    } else {
-                        // Left with just the generated movie files in the directory now.
-                        // We should now check to see if they are in the current movie list
-                        // If they are not in this list, then we will delete them.
-
-                        if (cleanCurrent.lastIndexOf(".PLAYLIST") > 0) {
-                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf(".PLAYLIST"));
-                        } else if (cleanCurrent.lastIndexOf("_LARGE") > 0) {
-                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_LARGE"));
-                        } else if (cleanCurrent.lastIndexOf("_SMALL") > 0) {
-                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_SMALL"));
-                        } else if (cleanCurrent.lastIndexOf("FANART") > 0) {
-                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("FANART") - 1);
+                for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
+                    // Scan each file in here
+                    if (cleanList[nbFiles].isFile()) {
+                        cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
+                        if (cleanCurrent.indexOf(".") > 0) {
+                            cleanCurrentExt = cleanCurrent.substring(cleanCurrent.lastIndexOf("."));
+                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
+                        } else {
+                            cleanCurrentExt = "";
                         }
 
-                        if (!searchLibrary(cleanCurrent, library)) {
-                            logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
-                            cleanDeletedTotal++;
-                            cleanList[nbFiles].delete();
+                        if (cleanCurrent.equals("CATEGORIES")) {
+                            // logger.fine(cleanCurrent + " ignored");
+                        } else if ((cleanCurrentExt.equals(".CSS")) || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
+                        (cleanCurrent.indexOf("TVSERIES_") >= 0) || (cleanCurrent.indexOf("SET_") >= 0)) {
+                            // logger.fine(cleanCurrent + " ignored");
+                        } else {
+                            // Left with just the generated movie files in the directory now.
+                            // We should now check to see if they are in the current movie list
+                            // If they are not in this list, then we will delete them.
+
+                            if (cleanCurrent.lastIndexOf(".PLAYLIST") > 0) {
+                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf(".PLAYLIST"));
+                            } else if (cleanCurrent.lastIndexOf("_LARGE") > 0) {
+                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_LARGE"));
+                            } else if (cleanCurrent.lastIndexOf("_SMALL") > 0) {
+                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_SMALL"));
+                            } else if (cleanCurrent.lastIndexOf("FANART") > 0) {
+                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("FANART") - 1);
+                            }
+
+                            if (!searchLibrary(cleanCurrent, library)) {
+                                logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
+                                cleanDeletedTotal++;
+                                cleanList[nbFiles].delete();
+                            }
                         }
                     }
                 }
+                logger.fine(Integer.toString(nbFiles) + " files in the jukebox directory");
+                logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " files");
+            } else {
+                logger.fine("Jukebox cleaning skipped");
             }
-            logger.fine(Integer.toString(nbFiles) + " files in the jukebox directory");
-            logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " files");
-        } else {
-            logger.fine("Jukebox cleaning skipped");
+
+    //JDGJr
+            if (moviejukeboxListing) {
+                logger.fine("Generating listing output...");
+                listingPlugin.generate(tempJukeboxRoot, jukeboxRoot, library);
+            }
         }
 
-//JDGJr
-        if (moviejukeboxListing) {
-            logger.fine("Generating listing output...");
-            listingPlugin.generate(tempJukeboxRoot, jukeboxRoot, library);
-        }
-
-      logger.fine("Process terminated.");
+        logger.fine("Process terminated.");
     }
 
     /**
