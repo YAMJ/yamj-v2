@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,6 +32,7 @@ import com.moviejukebox.tools.PropertiesUtil;
  */
 public class MovieJukeboxHTMLWriter {
 
+    private static Logger logger = Logger.getLogger("moviejukebox");
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
     private String skinHome;
@@ -167,7 +169,13 @@ public class MovieJukeboxHTMLWriter {
 
             String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
             if (homePage.length() == 0) {
-                homePage = FileTools.createPrefix("Other", FileTools.makeSafeFilenameURL(library.getDefaultCategory())) + "1";
+                String defCat = library.getDefaultCategory();
+                if (defCat != null) {
+                    homePage = FileTools.createPrefix("Other", FileTools.makeSafeFilenameURL(defCat)) + "1";
+                } else {
+                    // figure out something better to do here
+                    logger.fine("No categories were found, so you should specify mjb.homePage in the config file.");
+                }
             }
 
             writer.writeStartDocument();
