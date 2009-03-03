@@ -521,12 +521,17 @@ public class MovieFilenameScanner {
                 String token = filename.substring(beginIdx + 1, endIdx);
                 if (token.substring(0, 4).toUpperCase().equals("SET ")) {
                     String setPart = token.substring(4);
-                    int dash = setPart.indexOf("-");
+                    int dash = setPart.lastIndexOf("-");
+                    Integer order = null;
                     if (dash > -1) {
-                        movie.addSet(setPart.substring(0, dash), Integer.parseInt(setPart.substring(dash+1)));
-                    } else {
-                        movie.addSet(setPart);
+                        try {
+                            order = Integer.parseInt(setPart.substring(dash+1).trim());
+                            setPart = setPart.substring(0, dash);
+                        } catch(NumberFormatException ignored) {
+                        }
                     }
+                        
+                    movie.addSet(setPart.trim(), order);
                 }
             } else {
                 break;
