@@ -713,9 +713,9 @@ public class Library implements Map<String, Movie> {
         if (category.equals(SET)) {
             c = new MovieSetComparator(key);
 
-        } else if (category.equals(categoriesMap.get("Other"))) {
+        } else if (category.equals("Other")) {
         
-            if (key.equals("New")) {
+            if (key.equals(categoriesMap.get("New"))) {
                 c = new LastModifiedComparator();
                 
             } else if (key.equals(categoriesMap.get("Top250"))) {
