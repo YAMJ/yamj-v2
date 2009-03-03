@@ -144,42 +144,65 @@ public class AllocinePlugin extends ImdbPlugin {
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(extractTag(xml, "<h1 class=\"TitleFilm\">", "</h1>"));
             }
-
-            movie.setOriginalTitle(removeHtmlTags(extractTag(xml, "Titre original : <i>", "</i>")));
             
-            movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
-            // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
-            String tmpPlot = removeHtmlTags(extractTag(xml, "<h2 class=\"SpBlocTitle\" >Synopsis", "</h4>"));
-            if (tmpPlot.length() > ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT) {
-                tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
+            if (movie.getOriginalTitle().equalsIgnoreCase(Movie.UNKNOWN)){
+            	movie.setOriginalTitle(removeHtmlTags(extractTag(xml, "Titre original : <i>", "</i>")));
             }
-            movie.setPlot(tmpPlot);
-            movie.setDirector(removeHtmlTags(extractTag(xml, "<h3 class=\"SpProse\">Réalisé par ", "</h3>")));
+            
+            if (movie.getRating() == -1){
+            	movie.setRating(parseRating(extractTag(xml, "<h4>Note moyenne :", "</h4>")));
+            }
+
+            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)){
+            	// limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
+            	String tmpPlot = removeHtmlTags(extractTag(xml, "<h2 class=\"SpBlocTitle\" >Synopsis", "</h4>"));
+            	if (tmpPlot.length() > ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT) {
+            		tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
+            	}
+            	movie.setPlot(tmpPlot);
+            }
+
+            if (movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)){
+            	movie.setDirector(removeHtmlTags(extractTag(xml, "<h3 class=\"SpProse\">Réalisé par ", "</h3>")));
 //            logger.finest("Movie Director = " + movie.getDirector());
-
-            movie.setReleaseDate(removeHtmlTags(extractTag(xml, "Date de sortie : <b>", "</b>")));
-            movie.setRuntime(extractTag(xml, "Durée : ", "."));
+            }
+            
+            if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
+            	movie.setReleaseDate(removeHtmlTags(extractTag(xml, "Date de sortie : <b>", "</b>")));
+            }
+            
+            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+            	movie.setRuntime(extractTag(xml, "Durée : ", "."));
 //            logger.finest("Durée = " + movie.getRuntime());
-            movie.setCountry(extractTag(xml, "<h3 class=\"SpProse\">Film", "."));
-//            logger.finest("Movie Country = " + movie.getCountry());
-            movie.setCompany(removeHtmlTags(extractTag(xml, "Distribué par ", "</h3>")));
-
-            for (String genre : extractTags(xml, "Genre : ", "</h3>", "film/alaffiche_genre_gen_genre", "</a>")) {
-                movie.addGenre(removeOpenedHtmlTags(genre));
             }
 
+            if (movie.getCountry().equals(Movie.UNKNOWN)) {
+            	movie.setCountry(extractTag(xml, "<h3 class=\"SpProse\">Film", "."));
+            	//            logger.finest("Movie Country = " + movie.getCountry());
+            }
+
+            if (movie.getCompany().equals(Movie.UNKNOWN)) {
+            	movie.setCompany(removeHtmlTags(extractTag(xml, "Distribué par ", "</h3>")));
+            }
+
+            if (movie.getGenres().isEmpty()) {
+            	for (String genre : extractTags(xml, "Genre : ", "</h3>", "film/alaffiche_genre_gen_genre", "</a>")) {
+            		movie.addGenre(removeOpenedHtmlTags(genre));
+            	}
+            }
             // movie.setCertification(getPreferredValue(extractTags(xml,
             // "<h5>Certification:</h5>", "</div>",
             // "<a href=\"/List?certificates=", "</a>")));
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase("Unknown")) {
+            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(extractTag(xml, "Année de production : ", "</h3>"));
             }
 
-            for (String acteur : extractTags(xml, "<h3 class=\"SpProse\">Avec ", "</h3>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
-                movie.addActor(removeOpenedHtmlTags(acteur));
+            if (movie.getCast().isEmpty()) {
+            	for (String acteur : extractTags(xml, "<h3 class=\"SpProse\">Avec ", "</h3>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
+            		movie.addActor(removeOpenedHtmlTags(acteur));
+            	}
             }
-
             updatePoster(movie);
 
         } catch (IOException e) {
