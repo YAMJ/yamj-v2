@@ -27,17 +27,19 @@ import com.moviejukebox.model.MovieFile;
  */
 public class MovieFilenameScanner {
 
-    protected static String[] skipKeywords;
+	protected static String[] skipKeywords;
 	protected static boolean languageDetection = true; 
 
+    private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
 	private static final char PART_PATTERNS_WORD_DELIMITER_SUBST = ' ';
-	private static final String[] PART_PATTERNS_ARRAY = {
+	private static final List<Pattern> PART_PATTERNS = toPatternList(new String[] {
 		"(?i) CD ([0-9]+) ", 
 		"(?i) (?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+) ", 
-		"(?i) ([0-9]+) DVD "};
-	private static final List<Pattern> PART_PATTERNS;
-	protected static final Pattern TV_PATTERN = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
-    protected static final Pattern EPISODE_PATTERN = Pattern.compile("[EeXx]([0-9]+)");
+		"(?i) ([0-9]+) DVD "}
+		);
+	protected static final Pattern TV_PATTERN = 
+		Pattern.compile("(?i)(?<![0-9])s{0,1}([0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
+	protected static final Pattern EPISODE_PATTERN =Pattern.compile("(?i)[ex]([0-9]+)");
     protected static final Logger logger = Logger.getLogger("moviejukebox");
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
@@ -47,11 +49,12 @@ public class MovieFilenameScanner {
 
     protected int firstKeywordIndex = 0;
     
-    static {
-    	PART_PATTERNS = new ArrayList<Pattern>();
-    	for (String p : PART_PATTERNS_ARRAY) {
-    		PART_PATTERNS.add(Pattern.compile(p));
+    private static List<Pattern> toPatternList(String[] array) {
+    	List<Pattern> list = new ArrayList<Pattern>();
+    	for (String p : array) {
+    		list.add(Pattern.compile(p));
     	}
+    	return list;
     }
 
     public void scan(Movie movie) {
@@ -107,7 +110,7 @@ public class MovieFilenameScanner {
      * @return the audio codec name or Unknown if not found
      */
     protected String getAudioCodec(String filename) {
-        return findKeyword(filename.toUpperCase(), new String[] { "AC3", "DTS", "DD", "AAC" });
+        return findKeyword(filename.toUpperCase(), AUDIO_CODECS_ARRAY);
     }
 
     /**
@@ -581,67 +584,60 @@ public class MovieFilenameScanner {
         }
     }
 
-//    private int indexOfAny(String text, int startPos, String delims) {
-//        char[] chars = text.toCharArray();
-//        for (int index = startPos; index < chars.length; ++index) {
-//            if (delims.indexOf(chars[index]) != -1)
-//                return index;
-//        }
-//        return -1;
-//    }
 
+    /**
+     * Search season and episodes numbers in the given file name. Update given
+     * Movie accordingly (Movie.setSeason(), MovieFile.setPart(), 
+     * MovieFile.setLastPart(), MovieFile.setTitle()). 
+     * @param filename File name
+     * @param movie Movie to update season/episode numbers
+     */
     protected void updateTVShow(String filename, Movie movie) {
-        try {
-            Matcher matcher = TV_PATTERN.matcher(filename);
-            if (matcher.find()) {
-                String group0 = matcher.group(0);
+        Matcher matcher = TV_PATTERN.matcher(filename);
+        if (matcher.find()) {
+            // logger.finest("It's a TV Show: " + group0);
 
-                // logger.finest("It's a TV Show: " + group0);
+            updateFirstKeywordIndex(matcher.start());
 
-                updateFirstKeywordIndex(matcher.start());
+            String fileTitle = null;
 
-                String fileTitle = null;
+            int end = matcher.end(0);
+            int dash = filename.indexOf('-', end);
+            if ((dash == end) || (dash == end + 1)) {
+                int delim = filename.lastIndexOf('.');
+                if (delim == -1)
+                    delim = filename.length();
+                fileTitle = replaceWordDelimiters(filename.substring(dash + 1, delim), ' ').trim();
+            }
 
-                int end = matcher.end(0);
-                int dash = filename.indexOf('-', end);
-                if ((dash == end) || (dash == end + 1)) {
-                    int delim = filename.lastIndexOf('.');
-                    if (delim == -1)
-                        delim = filename.length();
-                    fileTitle = replaceWordDelimiters(filename.substring(dash + 1, delim), ' ').trim();
-                }
+            int season = Integer.parseInt(matcher.group(1));
+            movie.setSeason(season);
 
-                int season = Integer.parseInt(matcher.group(1));
-                movie.setSeason(season);
-
-                int firstPart = -1;
-                int lastPart = -1;
-
-                matcher = EPISODE_PATTERN.matcher(group0);
-                while (matcher.find()) {
-                    int episode = Integer.parseInt(matcher.group(1));
-                    if (firstPart == -1) {
-                        firstPart = lastPart = episode;
-                    } else {
-                    	if (episode < firstPart) {
-                    		firstPart = episode;
-                    	} else if (episode > lastPart) {
-                    		lastPart = episode;
-                    	}
-                    }
-                }
-
-                MovieFile firstFile = movie.getFirstFile();
-                firstFile.setPart(firstPart);
-                firstFile.setLastPart(lastPart);
-
-                if (fileTitle != null && !movie.isTrailer()) {
-                    movie.getFirstFile().setTitle(fileTitle.trim());
+            int firstPart = -1;
+            int lastPart = -1;
+            matcher = EPISODE_PATTERN.matcher(matcher.group(2));
+            while (matcher.find()) {
+                int episode = Integer.parseInt(matcher.group(1));
+                if (firstPart == -1) {
+                    firstPart = lastPart = episode;
+                } else {
+                	if (episode < firstPart) {
+                		firstPart = episode;
+                	} else if (episode > lastPart) {
+                		lastPart = episode;
+                	}
                 }
             }
-        } catch (Exception e) {
-            //
+
+            MovieFile firstFile = movie.getFirstFile();
+            firstFile.setPart(firstPart);
+            firstFile.setLastPart(lastPart);
+
+            if (fileTitle != null && !movie.isTrailer()) {
+                movie.getFirstFile().setTitle(fileTitle.trim());
+            }
         }
+
     }
 
     protected String findKeyword(String filename, String[] strings) {
