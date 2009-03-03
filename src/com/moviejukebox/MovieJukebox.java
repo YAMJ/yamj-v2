@@ -29,27 +29,26 @@ import org.apache.commons.configuration.XMLConfiguration;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.AppleTrailersPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultPosterPlugin;
 import com.moviejukebox.plugin.DefaultThumbnailPlugin;
-import com.moviejukebox.plugin.OpenSubtitlesPlugin;
-import com.moviejukebox.plugin.AppleTrailersPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.plugin.MovieListingPlugin;
+import com.moviejukebox.plugin.MovieListingPluginBase;
+import com.moviejukebox.plugin.OpenSubtitlesPlugin;
+import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.PosterScanner;
-import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
-import com.moviejukebox.plugin.MovieListingPlugin;
-import com.moviejukebox.plugin.MovieListingPluginBase;
 
 public class MovieJukebox {
 
@@ -136,6 +135,9 @@ public class MovieJukebox {
             keywords.add(st.nextToken());
         }
         MovieFilenameScanner.setSkipKeywords(keywords.toArray(new String[] {}));
+        MovieFilenameScanner.setLanguageDetection(
+        		Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", 
+        				"true")));
 
         String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
         if (temp != null) {

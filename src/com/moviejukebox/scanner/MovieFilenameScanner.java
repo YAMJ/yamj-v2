@@ -1,7 +1,9 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -9,7 +11,6 @@ import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -27,9 +28,15 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class MovieFilenameScanner {
 
     protected static String[] skipKeywords;
-	protected static final boolean LANGUAGE_DETECTION = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true"));
+	protected static boolean languageDetection = true; 
 
-    protected static final Pattern TV_PATTERN = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
+	private static final char PART_PATTERNS_WORD_DELIMITER_SUBST = ' ';
+	private static final String[] PART_PATTERNS_ARRAY = {
+		"(?i) CD ([0-9]+) ", 
+		"(?i) (?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+) ", 
+		"(?i) ([0-9]+) DVD "};
+	private static final List<Pattern> PART_PATTERNS;
+	protected static final Pattern TV_PATTERN = Pattern.compile("[Ss]{0,1}([0-9]+)([EeXx][0-9]+)+");
     protected static final Pattern EPISODE_PATTERN = Pattern.compile("[EeXx]([0-9]+)");
     protected static final Logger logger = Logger.getLogger("moviejukebox");
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
@@ -39,6 +46,13 @@ public class MovieFilenameScanner {
     protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = Pattern.compile("[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]");
 
     protected int firstKeywordIndex = 0;
+    
+    static {
+    	PART_PATTERNS = new ArrayList<Pattern>();
+    	for (String p : PART_PATTERNS_ARRAY) {
+    		PART_PATTERNS.add(Pattern.compile(p));
+    	}
+    }
 
     public void scan(Movie movie) {
         File fileToScan = movie.getFile();
@@ -148,7 +162,7 @@ public class MovieFilenameScanner {
      *            movie's filename to scan.
      */
     protected String getLanguage(String filename) {
-        if (LANGUAGE_DETECTION) {
+        if (languageDetection) {
             String f = filename.toUpperCase();
 
             f = replaceWordDelimiters(f, '.');
@@ -218,7 +232,7 @@ public class MovieFilenameScanner {
         return name.trim();
     }
 
-	private String replaceWordDelimiters(String str, char newChar) {
+	private static String replaceWordDelimiters(String str, char newChar) {
 		for (char c : WORD_DELIMITERS_ARRAY) {
             str = str.replace(c, newChar);
 		}
@@ -234,7 +248,7 @@ public class MovieFilenameScanner {
      * @param Keyword
      *            to look for
      */
-    protected int getPartKeyword(String gpFilename, String gpKeyword) {
+    protected static int getPartKeyword(String gpFilename, String gpKeyword) {
         String gpPrev = ""; // Previous character
         int gpIndex = 0;
 
@@ -257,84 +271,59 @@ public class MovieFilenameScanner {
         return gpIndex;
     }
 
+    /**
+     * Find the movie part number in the file name using the part matching patterns.
+     * Update <code>firstKeywordIndex</code>.
+     * @param filename File name
+     * @return Part number or 1 if nothing found.
+     */
     protected int getPart(String filename) {
-        String f = filename.toUpperCase();
-        
-        final Pattern testPattern = Pattern.compile("_([0-9]+)_DVD_");
-        Matcher matcher = testPattern.matcher(replaceWordDelimiters(f, '_'));
-		if (matcher.find()) {
-			updateFirstKeywordIndex(matcher.start(0));
-            try {
-                return Integer.parseInt(matcher.group(1));
-            } catch (Exception e) {
-                return 1;
-            }
-        }
-        
-        
-        int index = 0;
-
-        // Issue 259 & 286 - Only the keyword with a delimiter before it will be counted.
-        String keyword = "CD";
-        index = getPartKeyword(f, keyword);
-
-        if (index == -1) {
-            keyword = "DISC";
-            index = getPartKeyword(f, keyword);
-        }
-
-        if (index == -1) {
-            keyword = "DISK";
-            index = getPartKeyword(f, keyword);
-        }
-
-        if (index == -1) {
-            keyword = "PART";
-            index = getPartKeyword(f, keyword);
-        }
-        
-        if (index != -1) {
-            updateFirstKeywordIndex(index);
-            index += keyword.length();
-            int end = index;
-            while (end < filename.length() && Character.isDigit(filename.charAt(end))) {
-                ++end;
-            }
-            try {
-                return Integer.parseInt(filename.substring(index, end));
-            } catch (Exception e) {
-                return 1;
-            }
-        }
+    	for (Pattern pattern : PART_PATTERNS) {
+	        Matcher matcher = pattern.matcher(
+	        		replaceWordDelimiters(filename, PART_PATTERNS_WORD_DELIMITER_SUBST));
+			if (matcher.find()) {
+				updateFirstKeywordIndex(matcher.start(0));
+	            try {
+	                return Integer.parseInt(matcher.group(1));
+	            } catch (Exception e) {
+	                return 1;
+	            }
+	        }
+    	}
         return 1;
     }
 
+    /**
+     * Find movie part title if provided in file name.
+     * @param filename File name
+     * @return Part title or null if nothing found.
+     */
     protected String getPartTitle(String filename) {
-        String f = filename.toUpperCase();
-        int dot = f.lastIndexOf('.');
+        int dot = filename.lastIndexOf('.');
+        String f;
         if (dot != -1) {
-            f = f.substring(0, dot);
+            f = filename.substring(0, dot);
         } else {
-            dot = f.length();
+            f = filename;
         }
 
-        String[] keywords = { "CD", "DISC", "DISK", "PART" };
-        for (String keyword : keywords) {
-            int index = getPartKeyword(f, keyword);
-
-            if (index != -1) {
-                int dash = f.lastIndexOf('-');
+    	for (Pattern pattern : PART_PATTERNS) {
+	        Matcher matcher = pattern.matcher(
+	        		replaceWordDelimiters(filename, PART_PATTERNS_WORD_DELIMITER_SUBST));
+			if (matcher.find()) {
+				f = f.substring(matcher.end(1));
+				int dash = f.lastIndexOf('-');
 
                 // Make sure the dash isn't part of a [SET name-order] keyword!
                 int lastCloseBracket = f.lastIndexOf(']');
 
                 if (dash != -1 && dot > dash && lastCloseBracket < dash) {
-                    String partTitle = filename.substring(dash + 1, dot).trim();
+                    String partTitle = f.substring(dash + 1).trim();
                     return partTitle;
                 }
                 return null;
-            }
-        }
+	        }
+    	}
         return null;
     }
 
@@ -587,14 +576,14 @@ public class MovieFilenameScanner {
         }
     }
 
-    private int indexOfAny(String text, int startPos, String delims) {
-        char[] chars = text.toCharArray();
-        for (int index = startPos; index < chars.length; ++index) {
-            if (delims.indexOf(chars[index]) != -1)
-                return index;
-        }
-        return -1;
-    }
+//    private int indexOfAny(String text, int startPos, String delims) {
+//        char[] chars = text.toCharArray();
+//        for (int index = startPos; index < chars.length; ++index) {
+//            if (delims.indexOf(chars[index]) != -1)
+//                return index;
+//        }
+//        return -1;
+//    }
 
     protected void updateTVShow(String filename, Movie movie) {
         try {
@@ -705,6 +694,14 @@ public class MovieFilenameScanner {
 
 	public static void setSkipKeywords(String[] skipKeywords) {
 		MovieFilenameScanner.skipKeywords = skipKeywords;
+	}
+
+	public static boolean isLanguageDetection() {
+		return languageDetection;
+	}
+
+	public static void setLanguageDetection(boolean languageDetection) {
+		MovieFilenameScanner.languageDetection = languageDetection;
 	}
 
 }
