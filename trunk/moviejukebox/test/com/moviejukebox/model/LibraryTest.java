@@ -60,7 +60,7 @@ public class LibraryTest extends TestCase {
 
 	public void testIndexByTVShowSeasons() {
 		Index index = Library.indexByTVShowSeasons(movies);
-		assertEquals(3, index.size());
+		assertEquals(4, index.size());
 		assertTrue(index.containsKey("The Sopranos"));
 		assertTrue(index.containsKey("Star Trek"));
     //assertTrue(index.containsKey("M_A_S_H"));

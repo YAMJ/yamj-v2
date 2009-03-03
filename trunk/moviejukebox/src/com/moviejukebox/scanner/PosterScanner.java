@@ -49,10 +49,10 @@ public class PosterScanner {
         coverArtDirectory = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");
     }
 
-    public static void scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static boolean scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (searchForExistingCoverArt.equalsIgnoreCase("no")) {
             // nothing to do we return
-            return;
+            return false;
         }
 
         String localPosterBaseFilename = Movie.UNKNOWN;
@@ -65,7 +65,7 @@ public class PosterScanner {
             localPosterBaseFilename = fixedCoverArtName;
         } else {
             logger.fine("Wrong value for poster.scanner.searchForExistingCoverArt properties !");
-            return;
+            return false;
         }
 
         boolean foundLocalCoverArt = false;
@@ -139,8 +139,9 @@ public class PosterScanner {
          */
 
         if (foundLocalCoverArt) {
-            String finalDestinationFileName = jukeboxDetailsRoot + File.separator + movie.getPosterFilename();
-            String destFileName = tempJukeboxDetailsRoot + File.separator + movie.getPosterFilename();
+            String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
+            String finalDestinationFileName = jukeboxDetailsRoot + File.separator + safePosterFilename;
+            String destFileName = tempJukeboxDetailsRoot + File.separator + safePosterFilename;
 
             File finalDestinationFile = new File(finalDestinationFileName);
             File destFile = new File(destFileName);
@@ -174,8 +175,10 @@ public class PosterScanner {
             
             // Update poster url with local poster
             movie.setPosterURL(localPosterFile.toURI().toString());
+            return true;
         } else {
             logger.finer("PosterScanner : No local covertArt found for " + movie.getBaseName());
+            return false;
         }
     }
 }

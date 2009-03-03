@@ -24,6 +24,8 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public static String TYPE_MOVIE = "MOVIE";
     public static String TYPE_TVSHOW = "TVSHOW";
     public static String TYPE_UNKNOWN = "UNKNOWN";
+    public static String TYPE_VIDEO_UNKNOWN = UNKNOWN;
+    public static String TYPE_VIDEO_HD = "HD";
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
     private String baseName;
@@ -49,6 +51,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String company = UNKNOWN;
     private String runtime = UNKNOWN;
     private String language = UNKNOWN;
+    private String videoType = UNKNOWN;
     private int season = -1;
     private boolean hasSubtitles = false;
     private Collection<String> genres = new TreeSet<String>();
@@ -384,6 +387,10 @@ public class Movie implements Comparable<Movie>, Cloneable {
         // return (season != -1);
         return (this.movieType.equals(TYPE_TVSHOW) || this.season > 0);
     }
+    
+    public boolean isHD() {
+        return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
+    }    
 
     public void setAudioCodec(String audioCodec) {
         if (audioCodec == null) {
@@ -895,9 +902,23 @@ public class Movie implements Comparable<Movie>, Cloneable {
             this.movieType = movieType;
         }
     }
-
+    
     public String getMovieType() {
         return this.movieType;
+    }
+
+    public void setVideoType(String videoType) {
+        if (videoType == null) {
+            videoType = UNKNOWN;
+        }
+        if (!this.videoType.equals(videoType)) {
+            this.isDirty = true;
+            this.videoType = videoType;
+        }
+    }
+    
+    public String getVideoType() {
+        return this.videoType;
     }
 
     public String getFanartFilename() {
