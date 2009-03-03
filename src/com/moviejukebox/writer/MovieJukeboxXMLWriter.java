@@ -546,7 +546,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
         }
         writer.writeStartElement("baseFilename");
-        writer.writeCharacters(FileTools.makeSafeFilename(movie.getBaseName()));
+        writer.writeCharacters(movie.getBaseName());
         writer.writeEndElement();
         writer.writeStartElement("title");
         writer.writeCharacters(movie.getTitle());

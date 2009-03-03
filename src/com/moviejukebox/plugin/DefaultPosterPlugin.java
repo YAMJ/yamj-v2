@@ -105,15 +105,14 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
     }
 
     private BufferedImage drawLogoHD(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
-        String videoOutput = movie.getVideoOutput();
-        if (videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1) {
+        if (movie.isHD()) {
 
             try {
                 InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "hd.png");
                 BufferedImage biHd = ImageIO.read(in);
                 Graphics g = bi.getGraphics();
 
-                if (addOtherLogo && (movie.getSeason() > 0)) {
+                if (addOtherLogo && (movie.isTVShow())) {
                     // Both logos are required, so put the HD logo on the LEFT
                     g.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
                 } else {
@@ -132,22 +131,13 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
 
     // Drawing a TV label on the TV Series
     private BufferedImage drawLogoTV(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
-        String videoOutput = movie.getVideoOutput();
-        Boolean isHD = false;
-
-        if (videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1) {
-            isHD = true;
-        } else {
-            isHD = false;
-        }
-
-        if (movie.getSeason() > 0) {
+        if (movie.isTVShow()) {
             try {
                 InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "tv.png");
                 BufferedImage biTV = ImageIO.read(in);
                 Graphics g = bi.getGraphics();
 
-                if (addOtherLogo && isHD) {
+                if (addOtherLogo && movie.isHD()) {
                     // Both logos are required, so put the TV logo on the RIGHT
                     g.drawImage(biTV, bi.getWidth() - biTV.getWidth() - 5, bi.getHeight() - biTV.getHeight() - 5, null);
                 } else {

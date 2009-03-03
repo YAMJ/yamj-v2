@@ -35,15 +35,14 @@ public class Library implements Map<String, Movie> {
 		
         private static final long serialVersionUID = -6240040588085931654L;
 
-        public Index(Comparator<? super String> comparator) {
-            super(comparator);
+        public Index(Comparator<? super String> comp) {
+            super(comp);
         }
 		
         public Index() {
             super();
         }
-
-
+        
         protected void addMovie(String category, Movie movie) {
             if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("UNKNOWN")) {
                 return;
@@ -199,14 +198,14 @@ public class Library implements Map<String, Movie> {
         }
     }
     
-    public void buildIndexMaster(String prefix, Index index, List<Movie> indexMovies) {
+    protected static Map<String, Movie> buildIndexMasters(String prefix, Index index, List<Movie> indexMovies) {
+        Map<String, Movie> masters = new HashMap<String, Movie>();
+    
         for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
             String index_name = index_entry.getKey();
             List<Movie> index_list = index_entry.getValue();
-            setMovieListNavigation(index_list);
             
             Movie indexMaster = (Movie)index_list.get(0).clone();
-            
             indexMaster.setTitle(index_name);
             indexMaster.setSeason(-1);
             indexMaster.setTitleSort(index_name);
@@ -217,11 +216,47 @@ public class Library implements Map<String, Movie> {
                     FileTools.createCategoryKey(index_name)
                 ) + "1"
             );
-            indexMaster.setPosterFilename(indexMaster.getBaseName() + ".jpg");
-            
-            indexMovies.removeAll(index_list);
-            indexMovies.add(indexMaster);
-            moviesList.add(indexMaster);
+            // set TV and HD properties of the master
+            int cntTV = 0;
+            int cntHD = 0;
+            for (Movie m : index_list) {
+                if (m.isTVShow()) {
+                    ++cntTV;
+                }
+                if (m.isHD()) {
+                    ++cntHD;
+                }
+            }
+            indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
+            indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
+            logger.finest("Setting index master " + indexMaster.getTitle() +
+                " to isTV: " + indexMaster.isTVShow() + " and isHD: " + indexMaster.isHD());
+            masters.put(index_name, indexMaster);
+        }
+        
+        return masters;
+    }
+    
+    protected static void compressSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters) {
+        // Construct an index that includes only the intersection of movies and index
+        Index in_movies = new Index();
+        for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
+            for (Movie m : index_entry.getValue()) {
+                if (movies.contains(m)) {
+                    in_movies.addMovie(index_entry.getKey(), m);
+                }
+            }
+        }
+        
+        // Now, for each list of movies in in_movies, if the list has more than one movie,
+        // remove them all from the movies list, and insert the corresponding master
+        // This number should probably become configurable.
+        for (Map.Entry<String, List<Movie>> in_movies_entry : in_movies.entrySet()) {
+            List<Movie> lm = in_movies_entry.getValue();
+            if (lm.size() > 1) {
+                movies.removeAll(lm);
+                movies.add(masters.get(in_movies_entry.getKey()));
+            }
         }
     }
 
@@ -232,28 +267,67 @@ public class Library implements Map<String, Movie> {
         List<Movie> indexMovies = new ArrayList<Movie>(library.values());
         moviesList.addAll(library.values());
         
-        Map<String, Index> dynamic_indexes = new HashMap<String, Index>();
         if (indexMovies.size() > 0) {
-            Index series = null;
+            Map<String, Index> dynamic_indexes = new LinkedHashMap<String, Index>();
+            // Add the sets FIRST! That allows users to put series inside sets
+            dynamic_indexes.put(SET, indexBySets(indexMovies));
             if (singleSeriesPage) {
-                series = indexByTVShowSeasons(indexMovies);
-                buildIndexMaster(TV_SERIES, series, indexMovies);
+                dynamic_indexes.put(TV_SERIES, indexByTVShowSeasons(indexMovies));
             }
             
-            Index sets = indexBySets(indexMovies);
-            buildIndexMaster(SET, sets, indexMovies);
-            
-            Collections.sort(indexMovies);
-            setMovieListNavigation(indexMovies);
             indexes.put("Other", indexByProperties(indexMovies));
             indexes.put("Genres", indexByGenres(indexMovies));
             indexes.put("Title", indexByTitle(indexMovies));
             indexes.put("Rating", indexByCertification(indexMovies));
             indexes.put("Year", indexByYear(indexMovies));
-            if (null != series) {
-                indexes.put(TV_SERIES, series);
+            
+            Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
+            for (Map.Entry<String, Index> dyn_entry : dynamic_indexes.entrySet()) {
+                Map<String, Movie> indexMasters = buildIndexMasters(
+                    dyn_entry.getKey(),
+                    dyn_entry.getValue(),
+                    indexMovies
+                );
+                dyn_index_masters.put(dyn_entry.getKey(), indexMasters);
+                
+                for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
+                    for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
+                        compressSetMovies(
+                            index_entry.getValue(), dyn_entry.getValue(),
+                            indexMasters
+                        );
+                    }
+                }
+                indexes.put(dyn_entry.getKey(), dyn_entry.getValue());
+                moviesList.addAll(indexMasters.values()); // so the driver knows what's an index master
             }
-            indexes.put(SET, sets);
+
+            // OK, now that all the index masters are in-place, sort everything.
+            for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
+                for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
+                    Comparator<Movie> comp = getComparator(indexes_entry.getKey(), index_entry.getKey());
+                    if (null != comp) {
+                        Collections.sort(index_entry.getValue(), comp);
+                    } else {
+                        Collections.sort(index_entry.getValue());
+                    }
+                }
+            }
+            
+            // Now set up the index masters' posters
+            for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
+                for (Map.Entry<String, Movie> masters_entry : dyn_index_masters_entry.getValue().entrySet()) {
+                    masters_entry.getValue().setPosterFilename(
+                        dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(
+                            masters_entry.getKey()
+                        ).get(0).getBaseName() + ".jpg"
+                    );
+                }
+            }
+            
+            limitNewMovies(indexes.get("Other"));
+            Collections.sort(indexMovies);
+            setMovieListNavigation(indexMovies);
         }
     }
 
@@ -399,29 +473,6 @@ public class Library implements Map<String, Movie> {
     }
 
     private static Index indexByProperties(Iterable<Movie> moviesList) {
-        long oneDay = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
-        // long oneWeek = oneDay * 7;
-        // long oneMonth = oneDay * 30;
-
-        String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
-        String newCountParam = PropertiesUtil.getProperty("mjb.newcount", "0");
-        long newDays;
-        int newCount;
-
-        try {
-            newDays = Long.parseLong(newDaysParam.trim());
-        } catch (NumberFormatException nfe) {
-            newDays = 7;
-        }
-        try {
-            newCount = Integer.parseInt(newCountParam.trim());
-        } catch (NumberFormatException nfe) {
-            newCount = 0;
-        }
-
-        logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
-        newDays = newDays * oneDay;
-
         Index index = new Index();
         for (Movie movie : moviesList) {
             if (movie.isTrailer()) {
@@ -441,12 +492,8 @@ public class Library implements Map<String, Movie> {
                     }
                 }
 
-                long delay = System.currentTimeMillis() - movie.getLastModifiedTimestamp();
-
-                if (delay <= newDays) {
-                    if (categoriesMap.get("New") != null) {
-                        index.addMovie(categoriesMap.get("New"), movie);
-                    }
+                if (categoriesMap.get("New") != null) {
+                    index.addMovie(categoriesMap.get("New"), movie);
                 }
 
                 if (categoriesMap.get("All") != null) {
@@ -465,26 +512,6 @@ public class Library implements Map<String, Movie> {
             }
         }
 
-        // sort New category by lastModifiedTimestamp and then limit to the count
-        if (categoriesMap.get("New") != null) {
-            List<Movie> newList = index.get(categoriesMap.get("New"));
-            if (newList != null) {
-                Collections.sort(newList, new LastModifiedComparator());
-                if (newCount > 0 && newCount < newList.size()) {
-                    newList = newList.subList(0, newCount);
-                    index.put(categoriesMap.get("New"), newList);
-                }
-            }
-        }
-
-        // sort top250 by rating instead of by title
-        if (categoriesMap.get("Top250") != null) {
-            List<Movie> top250List = index.get(categoriesMap.get("Top250"));
-            if (top250List != null) {
-                Collections.sort(top250List, new Top250Comparator());
-            }
-        }
-
         return index;
     }
     
@@ -496,17 +523,6 @@ public class Library implements Map<String, Movie> {
             }
         }
         
-        for (Iterator<List<Movie>> iterator = index.values().iterator(); iterator.hasNext();) {
-            List<Movie> movies = iterator.next();
-            if (movies.size() <= 1) {
-                iterator.remove();
-            }
-        }
-        
-        for (List<Movie> series_list : index.values()) {
-            Collections.sort(series_list);
-        }
-        
         return index; 
     }
     
@@ -516,10 +532,6 @@ public class Library implements Map<String, Movie> {
             for (String set_key : movie.getSets()) {
                 index.addMovie(set_key, movie);
             }
-        }
-        
-        for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
-            Collections.sort(index_entry.getValue(), new MovieSetComparator(index_entry.getKey()));
         }
         
         return index;
@@ -694,5 +706,67 @@ public class Library implements Map<String, Movie> {
             }
         }
         return null;
+    }
+    
+    protected Comparator<Movie> getComparator(String category, String key) {
+        Comparator<Movie> c = null;
+        if (category.equals(SET)) {
+            c = new MovieSetComparator(key);
+
+        } else if (category.equals(categoriesMap.get("Other"))) {
+        
+            if (key.equals("New")) {
+                c = new LastModifiedComparator();
+                
+            } else if (key.equals(categoriesMap.get("Top250"))) {
+                c = new Top250Comparator();
+            }
+        }
+
+        return c;
+    }
+    
+    protected void limitNewMovies(Index index) {
+        // Limit entries in the Other/New index
+        if (categoriesMap.get("New") != null) {
+            long oneDay = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+
+            String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
+            String newCountParam = PropertiesUtil.getProperty("mjb.newcount", "0");
+            long newDays;
+            int newCount;
+
+            try {
+                newDays = Long.parseLong(newDaysParam.trim());
+            } catch (NumberFormatException nfe) {
+                newDays = 7;
+            }
+            try {
+                newCount = Integer.parseInt(newCountParam.trim());
+            } catch (NumberFormatException nfe) {
+                newCount = 0;
+            }
+
+            logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
+            newDays = newDays * oneDay;
+
+            List<Movie> newList = index.get(categoriesMap.get("New"));
+            if (newList != null) {
+                // Remove all the movies that are older than newDays
+                Iterator<Movie> it = newList.iterator();
+                while (it.hasNext()) {
+                    Movie movie = it.next();
+                    long delay = System.currentTimeMillis() - movie.getLastModifiedTimestamp();
+                    if (delay > newDays) {
+                        it.remove();
+                    }
+                }
+                
+                if (newCount > 0 && newCount < newList.size()) {
+                    newList = newList.subList(0, newCount);
+                    index.put(categoriesMap.get("New"), newList);
+                }
+            }
+        }
     }
 }
