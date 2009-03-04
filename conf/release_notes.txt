@@ -45,7 +45,7 @@ MovieJukebox 1.0.16 beta
   - Fixed defect #519 R721 broke tv show nfo
   - Enhancement  #524 Grouping movies into "boxed sets"
   - Fixed defect #526 R738 mis-used the max.genres property.
-  - Fixed defect #532 TV/HD logos not showing up on set/series masters
+  - Fixed defect #531 TV/HD logos not showing up on set/series masters
   - Enhancement  #532 Update for FilmDeltaSEPlugin
                         1) Improved scan-function to get more filmdelta matches
                         2) If only imdbId is found in nfo this is used to get movie title and search filmdelta with that title
@@ -59,6 +59,7 @@ MovieJukebox 1.0.16 beta
   - Fixed defect #557 Allocine plugin override systematically NFO information
   - Fixed defect #558 Set grouping now applies to all category/genre screens
   - Fixed defect #561 Since R725 it ignored '.' as part keyword delimiter and accepted ' '; the behavior is now inverted
+  - Fixed defect #573 Don't make safe filenames out of the trailer file URLs anymore
   - Enhancement  #231 Default skin details show TV episodes/parts list in compact form in order to avoid slow scrolling. 
   					  The episode names are shown in the dynamic status bar by selecting particular episode (like on index page). 
 

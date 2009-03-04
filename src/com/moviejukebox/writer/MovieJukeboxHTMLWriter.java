@@ -153,9 +153,11 @@ public class MovieJukeboxHTMLWriter {
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
                 String key = indexEntry.getKey();
                 List<Movie> movies = indexEntry.getValue();
-                int nbPages = 1 + (movies.size() - 1) / nbMoviesPerPage;
-                for (int page = 1; page <= nbPages; page++) {
-                    writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
+                if (!movies.isEmpty()) {
+                    int nbPages = 1 + (movies.size() - 1) / nbMoviesPerPage;
+                    for (int page = 1; page <= nbPages; page++) {
+                        writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
+                    }
                 }
             }
         }
