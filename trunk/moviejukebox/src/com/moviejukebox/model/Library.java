@@ -10,11 +10,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.logging.Logger;
@@ -29,7 +31,7 @@ public class Library implements Map<String, Movie> {
 	
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
-
+    
     public static class Index extends TreeMap<String, List<Movie>> {
         private int maxCategories = -1;
 		
@@ -121,8 +123,9 @@ public class Library implements Map<String, Movie> {
     private static DecimalFormat paddedFormat = new DecimalFormat("000");	// Issue 190
     private static final Calendar currentCal = Calendar.getInstance();
     private static int maxGenresPerMovie = 3;
-
-
+    private static int newCount = 0;
+    private static long newDays = 7;
+    
     static {
         filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
         singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");
@@ -161,6 +164,22 @@ public class Library implements Map<String, Movie> {
                 }
             }
         }
+        
+        String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
+        try {
+            newDays = Long.parseLong(newDaysParam.trim());
+        } catch (NumberFormatException nfe) {
+            newDays = 7;
+        }
+        newDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+        String newCountParam = PropertiesUtil.getProperty("mjb.newcount", "0");
+        try {
+            newCount = Integer.parseInt(newCountParam.trim());
+        } catch (NumberFormatException nfe) {
+            newCount = 0;
+        }
+        logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") +
+                      " most recent videos in the last " + newDays + " days");
     }
 
     public Library() {
@@ -219,6 +238,10 @@ public class Library implements Map<String, Movie> {
             // set TV and HD properties of the master
             int cntTV = 0;
             int cntHD = 0;
+            
+            // We Can't use a TreeSet because MF.compareTo just compares part #
+            // so it fails when we combine multiple seasons into one collection
+            Collection<MovieFile> master_mf_col = new LinkedList<MovieFile>();
             for (Movie m : index_list) {
                 if (m.isTVShow()) {
                     ++cntTV;
@@ -226,11 +249,18 @@ public class Library implements Map<String, Movie> {
                 if (m.isHD()) {
                     ++cntHD;
                 }
+                
+                Collection<MovieFile> mf_col = m.getMovieFiles();
+                if (mf_col != null) {
+                    master_mf_col.addAll(mf_col);
+                }
             }
+            
             indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
             indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
             logger.finest("Setting index master " + indexMaster.getTitle() +
                 " to isTV: " + indexMaster.isTVShow() + " and isHD: " + indexMaster.isHD());
+            indexMaster.setMovieFiles(master_mf_col);
             masters.put(index_name, indexMaster);
         }
         
@@ -258,6 +288,41 @@ public class Library implements Map<String, Movie> {
                 movies.add(masters.get(in_movies_entry.getKey()));
             }
         }
+    }
+    
+    protected static void compressNewSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters) {
+        // warning: even though this starts with a sort, the result is not sorted!
+        Collections.sort(movies, getComparator("Other", categoriesMap.get("New")));
+        
+        // Remove all movies that don't meet the time criteria
+        ListIterator<Movie> it = movies.listIterator();
+        long now = System.currentTimeMillis();
+        while (it.hasNext()) {
+            Movie m = it.next();
+            long delay = now - m.getLastModifiedTimestamp();
+            if (delay > newDays) {
+                it.remove();
+                if (it.hasNext()) {
+                    movies.removeAll(movies.subList(it.nextIndex(), movies.size()));
+                }
+            }
+        }
+        
+        List<Movie> newList = new ArrayList<Movie>(newCount > 0 ? newCount : movies.size());
+        List<Movie> pool = movies;
+        while ((newCount == 0 || newList.size() < newCount) && !pool.isEmpty()) {
+            // There's more room, so add some more movies
+            int additionalMoviesCount = newCount == 0 ? pool.size() : Math.min(pool.size(), newCount - newList.size());
+            newList.addAll(pool.subList(0, additionalMoviesCount));
+            pool = pool.subList(additionalMoviesCount, pool.size());
+            
+            // Each time through the loop, compress just the movies in the newList
+            // This ensures that the index list doesn't show more movies than it should
+            compressSetMovies(newList, index, masters);
+        }
+        
+        movies.clear();
+        movies.addAll(newList);
     }
 
     public void buildIndex() {
@@ -292,10 +357,11 @@ public class Library implements Map<String, Movie> {
                 
                 for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
                     for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
-                        compressSetMovies(
-                            index_entry.getValue(), dyn_entry.getValue(),
-                            indexMasters
-                        );
+                        if (indexes_entry.getKey().equals("Other") && index_entry.getKey().equals(categoriesMap.get("New"))) {
+                            compressNewSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
+                        } else {
+                            compressSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
+                        }
                     }
                 }
                 indexes.put(dyn_entry.getKey(), dyn_entry.getValue());
@@ -325,7 +391,6 @@ public class Library implements Map<String, Movie> {
                 }
             }
             
-            limitNewMovies(indexes.get("Other"));
             Collections.sort(indexMovies);
             setMovieListNavigation(indexMovies);
         }
@@ -708,7 +773,7 @@ public class Library implements Map<String, Movie> {
         return null;
     }
     
-    protected Comparator<Movie> getComparator(String category, String key) {
+    protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> c = null;
         if (category.equals(SET)) {
             c = new MovieSetComparator(key);
@@ -724,49 +789,5 @@ public class Library implements Map<String, Movie> {
         }
 
         return c;
-    }
-    
-    protected void limitNewMovies(Index index) {
-        // Limit entries in the Other/New index
-        if (categoriesMap.get("New") != null) {
-            long oneDay = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
-
-            String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
-            String newCountParam = PropertiesUtil.getProperty("mjb.newcount", "0");
-            long newDays;
-            int newCount;
-
-            try {
-                newDays = Long.parseLong(newDaysParam.trim());
-            } catch (NumberFormatException nfe) {
-                newDays = 7;
-            }
-            try {
-                newCount = Integer.parseInt(newCountParam.trim());
-            } catch (NumberFormatException nfe) {
-                newCount = 0;
-            }
-
-            logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
-            newDays = newDays * oneDay;
-
-            List<Movie> newList = index.get(categoriesMap.get("New"));
-            if (newList != null) {
-                // Remove all the movies that are older than newDays
-                Iterator<Movie> it = newList.iterator();
-                while (it.hasNext()) {
-                    Movie movie = it.next();
-                    long delay = System.currentTimeMillis() - movie.getLastModifiedTimestamp();
-                    if (delay > newDays) {
-                        it.remove();
-                    }
-                }
-                
-                if (newCount > 0 && newCount < newList.size()) {
-                    newList = newList.subList(0, newCount);
-                    index.put(categoriesMap.get("New"), newList);
-                }
-            }
-        }
     }
 }
