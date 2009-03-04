@@ -2,7 +2,6 @@ package com.moviejukebox.scanner;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -27,9 +26,9 @@ import com.moviejukebox.tools.XMLHelper;
 
 /**
  * NFO file parser.
- * 
+ *
  * Search a NFO file for IMDb URL.
- * 
+ *
  * @author jjulien
  */
 public class MovieNFOScanner {
@@ -42,7 +41,7 @@ public class MovieNFOScanner {
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
-     * 
+     *
      * @param movie
      * @param movieDB
      */
@@ -138,7 +137,7 @@ public class MovieNFOScanner {
 
     /**
      * Check to see if the passed filename exists with nfo extensions
-     * 
+     *
      * @param checkNFOfilename
      *            (NO EXTENSION)
      * @return blank string if not found, filename if found
@@ -163,7 +162,7 @@ public class MovieNFOScanner {
         if (nfo.indexOf("<movie>") > -1) {
             parseMovieNFO(nfoFile, movie);
         } else if (nfo.indexOf("<tvshow>") > -1) {
-            parseTVNFO(nfo, movie);
+            parseTVNFO(nfoFile, movie);
         // } else if (nfo.indexOf("<episodedetails>") > -1) {
         // parseEpisodeNFO(nfo, movie);
         } else {
@@ -174,7 +173,7 @@ public class MovieNFOScanner {
 
     /**
      * Used to parse out the XBMC nfo xml data for movies
-     * 
+     *
      * @param xmlFile
      * @param movie
      */
@@ -346,10 +345,10 @@ public class MovieNFOScanner {
      * @param xmlFile
      * @param movie
      */
-    private static void parseTVNFO(String nfo, Movie movie) {
+    private static void parseTVNFO(File nfoFile, Movie movie) {
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(new StringReader(nfo));
+            XMLEventReader r = factory.createXMLEventReader(new FileInputStream(nfoFile));
 
             boolean isTVTag = false;
             while (r.hasNext()) {
