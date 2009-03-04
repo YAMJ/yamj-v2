@@ -290,41 +290,6 @@ public class Library implements Map<String, Movie> {
         }
     }
     
-    protected static void compressNewSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters) {
-        // warning: even though this starts with a sort, the result is not sorted!
-        Collections.sort(movies, getComparator("Other", categoriesMap.get("New")));
-        
-        // Remove all movies that don't meet the time criteria
-        ListIterator<Movie> it = movies.listIterator();
-        long now = System.currentTimeMillis();
-        while (it.hasNext()) {
-            Movie m = it.next();
-            long delay = now - m.getLastModifiedTimestamp();
-            if (delay > newDays) {
-                it.remove();
-                if (it.hasNext()) {
-                    movies.removeAll(movies.subList(it.nextIndex(), movies.size()));
-                }
-            }
-        }
-        
-        List<Movie> newList = new ArrayList<Movie>(newCount > 0 ? newCount : movies.size());
-        List<Movie> pool = movies;
-        while ((newCount == 0 || newList.size() < newCount) && !pool.isEmpty()) {
-            // There's more room, so add some more movies
-            int additionalMoviesCount = newCount == 0 ? pool.size() : Math.min(pool.size(), newCount - newList.size());
-            newList.addAll(pool.subList(0, additionalMoviesCount));
-            pool = pool.subList(additionalMoviesCount, pool.size());
-            
-            // Each time through the loop, compress just the movies in the newList
-            // This ensures that the index list doesn't show more movies than it should
-            compressSetMovies(newList, index, masters);
-        }
-        
-        movies.clear();
-        movies.addAll(newList);
-    }
-
     public void buildIndex() {
         moviesList.clear();
         indexes.clear();
@@ -357,11 +322,7 @@ public class Library implements Map<String, Movie> {
                 
                 for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
                     for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
-                        if (indexes_entry.getKey().equals("Other") && index_entry.getKey().equals(categoriesMap.get("New"))) {
-                            compressNewSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
-                        } else {
-                            compressSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
-                        }
+                        compressSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
                     }
                 }
                 indexes.put(dyn_entry.getKey(), dyn_entry.getValue());
@@ -377,6 +338,16 @@ public class Library implements Map<String, Movie> {
                     } else {
                         Collections.sort(index_entry.getValue());
                     }
+                }
+            }
+            
+            // Cut off the Other/New list if it's too long
+            String newcat = categoriesMap.get("New");
+            if (newCount > 0 && newcat != null) {
+                List<Movie> newList = indexes.get("Other").get("New");
+                if (newList != null && newList.size() > newCount) {
+                    newList = newList.subList(0, newCount);
+                    indexes.get("Other").put(newcat, newList);
                 }
             }
             
@@ -539,6 +510,7 @@ public class Library implements Map<String, Movie> {
 
     private static Index indexByProperties(Iterable<Movie> moviesList) {
         Index index = new Index();
+        long now = System.currentTimeMillis();
         for (Movie movie : moviesList) {
             if (movie.isTrailer()) {
                 if (categoriesMap.get("Trailers") != null) {
@@ -557,7 +529,7 @@ public class Library implements Map<String, Movie> {
                     }
                 }
 
-                if (categoriesMap.get("New") != null) {
+                if ((now - movie.getLastModifiedTimestamp() < newDays) && categoriesMap.get("New") != null) {
                     index.addMovie(categoriesMap.get("New"), movie);
                 }
 
