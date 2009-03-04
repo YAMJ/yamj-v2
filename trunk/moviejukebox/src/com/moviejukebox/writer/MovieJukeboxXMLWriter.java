@@ -694,7 +694,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("title", mf.getTitle());
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
             writer.writeStartElement("fileURL");
-            writer.writeCharacters(mf.getFilename());
+            writer.writeCharacters(HTMLTools.encodeUrl(mf.getFilename()));
             writer.writeEndElement();
             if (includeEpisodePlots) {
                 for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
@@ -714,7 +714,7 @@ public class MovieJukeboxXMLWriter {
             for (TrailerFile tf : trailerFiles) {
                 writer.writeStartElement("trailer");
                 writer.writeAttribute("title", tf.getTitle());
-                writer.writeCharacters(FileTools.makeSafeFilenameURL(tf.getFilename()));
+                writer.writeCharacters(HTMLTools.encodeUrl(tf.getFilename()));
                 writer.writeEndElement();
             }
             writer.writeEndElement();
