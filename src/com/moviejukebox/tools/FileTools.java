@@ -13,13 +13,37 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Logger;
+
+import com.moviejukebox.tools.HTMLTools;
 
 public class FileTools {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     final static int BUFF_SIZE = 100000;
     final static byte[] buffer = new byte[BUFF_SIZE];
+    static Map<CharSequence, CharSequence> unsafeChars = new HashMap<CharSequence, CharSequence>();
+    static String encodeEscapeChar = PropertiesUtil.getProperty("mjb.charset.filenameEncodingEscapeChar", "$");
+    
+    static {
+        // What to do if the user specifies a blank encodeEscapeChar? I guess disable encoding.
+        if (encodeEscapeChar.length() > 0) {
+            // What to do if the user specifies a >1 character long string? I guess just use the first char.
+            if (encodeEscapeChar.length() > 1) {
+                encodeEscapeChar = encodeEscapeChar.substring(0, 1);
+            }
+        
+            String repChars = PropertiesUtil.getProperty("mjb.charset.unsafeFilenameChars", "<>:\"/\\|?*") + encodeEscapeChar;
+            for (String repChar : repChars.split("")) {
+                if (repChar.length() > 0) {
+                    String hex = Integer.toHexString(repChar.charAt(0)).toUpperCase();
+                    unsafeChars.put(repChar, encodeEscapeChar + hex);
+                }
+            }
+        }
+    }
 
     public static void copy(InputStream is, OutputStream os) throws IOException {
         try {
@@ -176,30 +200,20 @@ public class FileTools {
     }
     
     public static String makeSafeFilename(String filename) {
-        // First, url-encode to remove all special chars
-        String result = null;
-        try {
-            result = URLEncoder.encode(filename, "UTF-8");
-        } catch (java.io.UnsupportedEncodingException ignored) {
+        for (Map.Entry<CharSequence, CharSequence> rep : unsafeChars.entrySet()) {
+            filename = filename.replace(rep.getKey(), rep.getValue());
         }
-        
-        // Now remove '+', since it triggers a double-decode in IIS
-        result = result.replaceAll("\\+", "%20");
-        
-        // Now url-encode '*', which is disallowed in Windows filenames
-        result = result.replaceAll("\\*", "%2A");
-        
-        // Undo the encoding of '$' and replace '%' with '$'-- they're safe in URLs, so we don't have to encode them
-        // and we'll use it as a replacement for '%', which is not.
-        // This makes the function "stable", meaning f(f(x)) == f(x), which makes re-parsing the XMLs easier,
-        // and it removes any necessity for a method to "unMakeSafeFilename".
-        result = result.replaceAll("%24", "\\$");
-        result = result.replace('%', '$');
-
-        return result;
+        return filename;
     }
     
     public static String makeSafeFilenameURL(String filename) {
-        return makeSafeFilename(filename);
+        filename = makeSafeFilename(filename);
+        try {
+            filename = URLEncoder.encode(filename, "UTF-8");
+            filename = filename.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
+        } catch(UnsupportedEncodingException ignored) {
+            logger.fine("Error URL-encoding " + filename + ", will proceed with unencoded string and hope for the best.");
+        }
+        return filename;
     }
 }
