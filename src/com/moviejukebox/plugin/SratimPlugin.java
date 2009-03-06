@@ -620,7 +620,7 @@ public class SratimPlugin extends ImdbPlugin {
         String movieName = movie.getTitleSort();
 
         try {
-            String searchURL = "http://www.sub-baba.com/site/search.php?type=0&search=" + URLEncoder.encode(movieName, "iso-8859-8");
+            String searchURL = "http://www.sub-baba.com/index.php?page=search&type=all&submit=%E7%F4%F9&search=" + URLEncoder.encode(movieName, "iso-8859-8");
 
             String xml = webBrowser.request(searchURL);
 
@@ -630,11 +630,27 @@ public class SratimPlugin extends ImdbPlugin {
             int index = 0;
             int endIndex = 0;
             while (true) {
-                index = xml.indexOf("<a href=\"poco.php?Id=", index);
+
+                index = xml.indexOf("class=\"pic_border\" alt=\"", index);
                 if (index == -1)
                     break;
 
-                index += 21;
+                index += 25;
+
+                endIndex = xml.indexOf("\"", index);
+                if (endIndex == -1)
+                    break;
+
+                String scanType = xml.substring(index, endIndex);
+
+                index = endIndex + 1;
+
+            
+                index = xml.indexOf("<a href=\"index.php?page=content&amp;id=", index);
+                if (index == -1)
+                    break;
+
+                index += 39;
 
                 endIndex = xml.indexOf("\">", index);
                 if (endIndex == -1)
@@ -643,20 +659,6 @@ public class SratimPlugin extends ImdbPlugin {
                 String scanPosterID = xml.substring(index, endIndex);
 
                 index = endIndex + 2;
-
-                index = xml.indexOf("alt=\"", index);
-                if (index == -1)
-                    break;
-
-                index += 5;
-
-                endIndex = xml.indexOf(":", index);
-                if (endIndex == -1)
-                    break;
-
-                String scanType = xml.substring(index, endIndex);
-
-                index = endIndex + 1;
 
                 index = xml.indexOf("<span dir=\"ltr\">", index);
                 if (index == -1)
@@ -668,15 +670,14 @@ public class SratimPlugin extends ImdbPlugin {
                 if (endIndex == -1)
                     break;
 
-                String scanName = xml.substring(index, endIndex);
+                String scanName = xml.substring(index, endIndex).trim();
 
                 index = endIndex + 7;
 
                 if (scanName.equalsIgnoreCase(movieName)) {
                     posterID = scanPosterID;
 
-                    // equals("עטיפת דיוידי לסרט") does not work on all platforms because of language problems
-                    if (scanType.length() == 17)
+                    if (scanType.indexOf("עטיפה לסרט") == -1 )
                         dvdCover = true;
                     else
                         dvdCover = false;
