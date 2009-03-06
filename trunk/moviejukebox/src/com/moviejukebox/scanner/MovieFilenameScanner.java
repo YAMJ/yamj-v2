@@ -210,10 +210,14 @@ public class MovieFilenameScanner {
                 return "Hebrew";
             }
 
+            if (hasKeyword(f, new String[] { ".JP.", ".JPN.", ".JAPANESE." })) {
+                return "Japanese";
+            }
+
             if (hasKeyword(f, new String[] { ".VO.", ".VOSTFR." })) {
                 return "VO";
             }
-
+            
             if (hasKeyword(f, new String[] { ".DL." })) {
                 return "Dual Language";
             }
