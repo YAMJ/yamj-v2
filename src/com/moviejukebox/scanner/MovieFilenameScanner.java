@@ -2,15 +2,16 @@ package com.moviejukebox.scanner;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.MovieFileNameDTO;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -25,480 +26,456 @@ import com.moviejukebox.model.MovieFile;
  * @author quickfinga
  * @author artem.gratchev
  */
+@SuppressWarnings("serial")
 public class MovieFilenameScanner {
 
-	protected static String[] skipKeywords;
-	protected static boolean languageDetection = true; 
+	protected static final Logger logger = Logger.getLogger("moviejukebox");
 
+	private static String[] skipKeywords;
+	private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
+	private static boolean languageDetection = true; 
+
+	/** All symbols within brackets [] if there is 'trailer' word */
+	private static final Pattern TRAILER_PATTERN = ipatt("\\[([^\\[\\]]*trailer[^\\[]*)\\]");
+	
+	/** Everyting in format [SET something] */
+	private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
+	
+	/** Number at the end of string preceded with '-' */
+	private static final Pattern SET_INDEX_PATTERN = patt("-([0-9])$");
+	
     private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
-	private static final char PART_PATTERNS_WORD_DELIMITER_SUBST = ' ';
-	private static final List<Pattern> PART_PATTERNS = toPatternList(new String[] {
-		"(?i) CD ([0-9]+) ", 
-		"(?i) (?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+) ", 
-		"(?i) ([0-9]+) DVD "}
-		);
-	protected static final Pattern TV_PATTERN = 
-		Pattern.compile("(?i)(?<![0-9])s{0,1}([0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
-	protected static final Pattern EPISODE_PATTERN =Pattern.compile("(?i)[ex]([0-9]+)");
-    protected static final Logger logger = Logger.getLogger("moviejukebox");
+	
+    
+    protected static final Pattern TV_PATTERN = 
+		ipatt("(?<![0-9])s{0,1}([0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
+    protected static final Pattern EPISODE_PATTERN = patt("(?i)[ex]([0-9]+)");
+    
+    
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
     protected static final String WORD_DELIMITERS_STRING = " _-" + TOKEN_DELIMITERS_STRING;
     protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
-    protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = Pattern.compile("[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]");
-
-    protected int firstKeywordIndex = 0;
+    protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = 
+    	patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
+    protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = 
+    	patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
     
-    private static List<Pattern> toPatternList(String[] array) {
-    	List<Pattern> list = new ArrayList<Pattern>();
-    	for (String p : array) {
-    		list.add(Pattern.compile(p));
+    /** Last 4 digits or last 4 digits in parenthesis.*/
+    protected static final Pattern MOVIE_YEAR_PATTERN = patt("[^0-9]\\({0,1}([0-9]{4})\\){0,1}$");
+    
+    /** One or more '.[]_ ' */
+    protected static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
+    
+    /** '-' or '(' at the end */
+    protected static final Pattern TITLE_CLEANUP_CUT_PATTERN = patt("-$|\\($");
+    
+    /** All symbols between '-' and '/' but not after '/TVSHOW/' or  '/PART/'*/
+    protected static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
+
+    private static final List<Pattern> PART_PATTERNS = new ArrayList<Pattern>() {
+		{
+			add(iwpatt("CD ([0-9]+)")); 
+			add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)")); 
+			add(iwpatt("([0-9]+)[ \\.]{0,1}DVD"));
+		}
+	};
+		
+    
+    private static final Map<String, Pattern> STRICT_LANGUAGES_MAP = new HashMap<String, Pattern>() {
+    	private void put(String key, String tokens) {
+    		String[] ts = tokens.split(" ");
+    		StringBuilder sb = new StringBuilder();
+    		boolean first = true;
+    		for (String s : ts) {
+    			if (!first) {
+    				sb.append('|');
+    			}
+    			sb.append(Pattern.quote(s));
+				first = false;
+    		}
+    		put(key, tpatt(sb.toString()));
     	}
-    	return list;
+    	
+		{
+			put("French", "FRA FR FRENCH VF fra fr french vf Fra");
+			put("German", "GER DE GERMAN ger de german Ger");
+			put("Italian", "ITA IT ITALIAN ita it italian Ita");
+			put("Spanish", "SPA ES SPANISH spa es spanish Spa");
+			put("English", "ENG EN ENGLISH eng en english Eng");
+			put("Portuguese", "POR PT PORTUGUESE por pt portuguese Por");
+			put("Russian", "RUS RU RUSSIAN rus ru russian Rus");
+			put("Polish", "POL PL POLISH PLDUB pol pl polish pldub Pol");
+			put("Hungarian", "HUN HU HUNGARIAN hun hu hungarian");
+			put("Hebrew", "HEB HE HEBREW EBDUB heb he hebrew ebdub Heb");
+			put("Japanese", "JPN JP JAPANESE jpn jp japanese Jpn");
+			put("VO", "VO VOSTFR vo vostfr");
+			put("Dual Language", "DL dl");
+		}
+	};
+
+    private static final Map<String, Pattern> LOOSE_LANGUAGES_MAP = new HashMap<String, Pattern>() {
+    	private void put(String key, String tokens) {
+    		String[] ts = tokens.split(" ");
+    		StringBuilder sb = new StringBuilder();
+    		boolean first = true;
+    		for (String s : ts) {
+    			if (!first) {
+    				sb.append('|');
+    			}
+    			sb.append(Pattern.quote(s));
+				first = false;
+    		}
+    		put(key, iwpatt(sb.toString()));
+    	}
+    	
+		{
+			put("French", "FRA FR FRENCH");
+			put("German", "GER DE GERMAN");
+			put("Italian", "ITA IT ITALIAN");
+			put("Spanish", "SPA ES SPANISH");
+			put("English", "ENG EN ENGLISH");
+			put("Portuguese", "POR PT PORTUGUESE");
+			put("Russian", "RUS RU RUSSIAN");
+			put("Polish", "POL PL POLISH PLDUB");
+			put("Hungarian", "HUN HU HUNGARIAN");
+			put("Hebrew", "HEB HE HEBREW EBDUB");
+			put("Japanese", "JPN JP JAPANESE");
+			put("VO", "VO VOSTFR");
+			put("Dual Language", "DL");
+		}
+	};
+
+    private static final Map<Integer, Pattern> FPS_MAP = new HashMap<Integer, Pattern>() {
+		{
+        	for (int i : new int[] {23, 24, 25, 29, 30, 50, 59, 60}) {
+        		put(i, iwpatt("p" + i + "|" + i + "p"));
+        	}
+		}
+	};
+
+	private static final Map<String, Pattern> AUDIO_CODEC_MAP = new HashMap<String, Pattern>() {
+		{
+        	for (String s : AUDIO_CODECS_ARRAY) {
+        		put(s, iwpatt(s));
+        	}
+		}
+	};
+
+	private static final Map<String, Pattern> VIDEO_CODEC_MAP = new HashMap<String, Pattern>() {
+		{
+        	put("XviD", iwpatt("XVID"));
+        	put("DivX", iwpatt("DIVX|DIVX6"));
+        	put("H.264", iwpatt("H264|H\\.264|X264"));
+		}
+	};
+
+	private static final Map<String, Pattern> HD_RESOLUTION_MAP = new HashMap<String, Pattern>() {
+		{
+        	for (String s : new String[] {"720p", "1080i", "1080p", "HD"}) {
+        		put(s, iwpatt(s));
+        	}
+		}
+	};
+	
+	private static final Map<String, Pattern> VIDEO_SOURCE_MAP = new HashMap<String, Pattern>() {
+		{
+        	for (String s : new String[] {
+        			"HDTV", "PDTV", "DVDRip", "DVDSCR", "DSRip", "CAM", "R5",
+        			"LINE", "HD2DVD", "DVD", "HRHDTV", "MVCD", "VCD"
+        			}) {
+        		put(s, iwpatt(s));
+        	}
+        	put("BluRay", iwpatt("BLURAY|BDRIP|BLURAYRIP|BLU-RAY"));
+        	put("TS", iwpatt("TS"));
+        	put("HDDVD", iwpatt("HDDVD|HD-DVD|HDDVDRIP"));
+        	put("D-THEATER", iwpatt("DTH|D-THEATER|DTHEATER"));
+		}
+	};
+	
+	private final MovieFileNameDTO dto = new MovieFileNameDTO();
+	private final File file;
+	private final String filename;
+	private String rest;
+	
+	
+    /**
+     * @param regex
+     * @return Exact pattern
+     */
+    private static final Pattern patt(String regex) {
+    	return Pattern.compile(regex);
     }
 
-    public void scan(Movie movie) {
-        File fileToScan = movie.getFile();
-        String filename = movie.getContainerFile().getName();
+    /**
+     * @param regex
+     * @return Case insensitive pattern
+     */
+    private static final Pattern ipatt(String regex) {
+    	return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+    }
 
-        firstKeywordIndex = filename.indexOf("[");
-        firstKeywordIndex = (firstKeywordIndex < 2) ? filename.length() : firstKeywordIndex;
+    /**
+     * @param regex
+     * @return Case insensitive pattern with word delimiters around
+     */
+    private static final Pattern iwpatt(String regex) {
+    	return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN 
+    			+ "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN, Pattern.CASE_INSENSITIVE);
+    }
 
-        Collection<MovieFile> movieFiles = movie.getFiles();
-        for (MovieFile movieFile : movieFiles) {
-            if (movieFile.getFirstPart() == 1) {
-                movieFile.setPart(getPart(filename));
-            }
-        }
+    /**
+     * @param regex
+     * @return Case insensitive pattern with word delimiters around
+     */
+    private static final Pattern wpatt(String regex) {
+    	return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN 
+    			+ "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN);
+    }
 
-        if (fileToScan.isFile()) {
-            movie.setAudioCodec(getAudioCodec(filename));
-            movie.setContainer(getContainer(filename));
-            movie.setFps(getFPS(filename));
-            movie.setSubtitles(hasSubtitles(fileToScan));
-            movie.setVideoCodec(getVideoCodec(filename));
-            movie.setVideoOutput(getVideoOutput(filename));
-            movie.setVideoSource(getVideoSource(filename));
-            movie.setLanguage(getLanguage(filename));
+    /**
+     * @param regex
+     * @return Case sensitive pattern with token delimiters around
+     */
+    private static final Pattern tpatt(String regex) {
+    	return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + TOKEN_DELIMITERS_MATCH_PATTERN);
+    }
+    
+    private MovieFilenameScanner(File file) {
+    	this.file = file;
+    	this.filename = file.getName();
+    	
+    	rest = filename;
+    	
+    	// EXTENSION AND CONTAINER
+        if (file.isFile()) {
+        	// Extract and strip extension
+        	int i = rest.lastIndexOf('.');
+        	if (i > 0) {
+        		dto.setExtension(rest.substring(i+1));
+        		rest = rest.substring(0, i);
+        	}
+            dto.setContainer(dto.getExtension().toUpperCase());
         } else {
             // For DVD images
-            movie.setAudioCodec(getAudioCodec(filename));
-            movie.setContainer("DVD");
-            movie.setFps(getFPS(filename));
-            movie.setSubtitles(hasSubtitles(fileToScan));
-            movie.setVideoCodec("MPEG2");
-            movie.setVideoOutput(getVideoOutput(filename));
-            movie.setVideoSource("DVD");
-            movie.setLanguage(getLanguage(filename));
+        	// no extension
+            dto.setContainer("DVD");
+            dto.setVideoSource("DVD");
         }
 
-        // Skip some keywords
-        findKeyword(filename, skipKeywords);
-
-        // Update the movie file with interpreted movie data
-        updateTrailer(filename, movie);
-        updateSets(filename, movie);
-        updateTVShow(filename, movie);
-        updateMovie(filename, movie);
-    }
-
-    /**
-     * Get the main audio track codec if any
-     * 
-     * @param filename
-     *            movie's filename to scan
-     * @return the audio codec name or Unknown if not found
-     */
-    protected String getAudioCodec(String filename) {
-        return findKeyword(filename.toUpperCase(), AUDIO_CODECS_ARRAY);
-    }
-
-    /**
-     * Get the specified filenames video container. Simply return the movie file's extension.
-     * 
-     * @param filename
-     *            movie's filename to scan
-     * @return the container
-     */
-    protected String getContainer(String filename) {
-        int lastDotIndex = filename.lastIndexOf(".");
-        updateFirstKeywordIndex(lastDotIndex);
-        return filename.substring(lastDotIndex + 1).toUpperCase();
-    }
-
-    /**
-     * @return the movie file frame rate when specified in the filename.
-     * @param filename
-     *            movie's filename to scan
-     */
-    protected int getFPS(String filename) {
-        if (hasKeyword(filename, new String[] { "23p", "p23" })) {
-            return 23;
-        }
-        if (hasKeyword(filename, new String[] { "24p", "p24" })) {
-            return 24;
-        }
-        if (hasKeyword(filename, new String[] { "25p", "p25" })) {
-            return 25;
-        }
-        if (hasKeyword(filename, new String[] { "29p", "p29" })) {
-            return 29;
-        }
-        if (hasKeyword(filename, new String[] { "30p", "p30" })) {
-            return 30;
-        }
-        if (hasKeyword(filename, new String[] { "50p", "p50" })) {
-            return 50;
-        }
-        if (hasKeyword(filename, new String[] { "59p", "p59" })) {
-            return 59;
-        }
-        if (hasKeyword(filename, new String[] { "60p", "p60" })) {
-            return 60;
-        }
-        return 60;
-    }
-
-    /**
-     * @return the movie file language when specified in the filename.
-     * @param filename
-     *            movie's filename to scan.
-     */
-    protected String getLanguage(String filename) {
-        if (languageDetection) {
-            String f = filename.toUpperCase();
-
-            f = replaceWordDelimiters(f, '.');
-
-            if (hasKeyword(f, new String[] { ".FRA.", ".FR.", ".FRENCH.", ".VF." })) {
-                return "French";
-            }
-
-            if (hasKeyword(f, new String[] { ".GER.", ".DE.", ".GERMAN." })) {
-                return "German";
-            }
-
-            if (hasKeyword(f, new String[] { ".ITA.", ".IT.", ".ITALIAN." })) {
-                return "Italian";
-            }
-
-            if (hasKeyword(f, new String[] { ".SPA.", ".ES.", ".SPANISH." })) {
-                return "Spanish";
-            }
-
-            if (hasKeyword(f, new String[] { ".ENG.", ".EN.", ".ENGLISH." })) {
-                return "English";
-            }
-
-            if (hasKeyword(f, new String[] { ".POR.", ".PT.", ".PORTUGUESE." })) {
-                return "Portuguese";
-            }
-
-            if (hasKeyword(f, new String[] { ".RUS.", ".RU.", ".RUSSIAN." })) {
-                return "Russian";
-            }
-
-            if (hasKeyword(f, new String[] { ".POL.", ".PL.", ".POLISH.", "PLDUB" })) {
-                return "Polish";
-            }
-
-            if (hasKeyword(f, new String[] { ".HUN.", ".HU.", ".HUNGARIAN." })) {
-                return "Hungarian";
-            }
-
-            if (hasKeyword(f, new String[] { ".HEB.", ".HE.", ".HEBDUB." })) {
-                return "Hebrew";
-            }
-
-            if (hasKeyword(f, new String[] { ".JP.", ".JPN.", ".JAPANESE." })) {
-                return "Japanese";
-            }
-
-            if (hasKeyword(f, new String[] { ".VO.", ".VOSTFR." })) {
-                return "VO";
-            }
-            
-            if (hasKeyword(f, new String[] { ".DL." })) {
-                return "Dual Language";
-            }
-        }
-        return "Unknown";
-    }
-
-    /**
-     * @return the specified movie file's title.
-     * @param filename
-     *            movie's filename to scan.
-     */
-    protected String getName(String filename) {
-        String name = filename.substring(0, firstKeywordIndex);
-        if (name.charAt(0) == '[' && name.indexOf(']',1) > 0) {
-        	name = name.substring(name.indexOf(']', 1) + 1);
-        }
-        name = replaceWordDelimiters(name, ' ');
-        return name.trim();
-    }
-
-	private static String replaceWordDelimiters(String str, char newChar) {
-		for (char c : WORD_DELIMITERS_ARRAY) {
-            str = str.replace(c, newChar);
+		// SKIP 
+		for (Pattern p : skipPatterns) {
+			rest = p.matcher(rest).replaceAll("./.");
 		}
-		return str;
+
+		// TRAILER
+        {
+	        final Matcher matcher = TRAILER_PATTERN.matcher(rest);
+	    	dto.setTrailer(matcher.find());
+	        if (dto.isTrailer()) {
+	        	dto.setTrailerTitle(matcher.group(1));
+	        	rest = cutMatch(rest, matcher,  "./TRAILER/.");
+	        }
+        }
+        
+        // SEASON + EPISODES
+        {
+	        final Matcher matcher = TV_PATTERN.matcher(rest);
+	        if (matcher.find()) {
+	            // logger.finest("It's a TV Show: " + group0);
+	        	rest = cutMatch(rest, matcher, "./TVSHOW/.");
+	
+	            int season = Integer.parseInt(matcher.group(1));
+	            dto.setSeason(season);
+	
+	            final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(2));
+	            while (ematcher.find()) {
+	                dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
+	            }
+	            
+	        }
+        }
+        
+        // PART
+        {
+        	for (Pattern pattern : PART_PATTERNS) {
+    	        Matcher matcher = pattern.matcher(rest);
+    			if (matcher.find()) {
+    				rest = cutMatch(rest, matcher, " /PART/ ");
+   	                dto.setPart(Integer.parseInt(matcher.group(1)));
+	            	break;
+    	        }
+        	}
+        }
+
+        // SETS
+        {
+	        for (;;) {
+		        final Matcher matcher = SET_PATTERN.matcher(rest);
+		        if (!matcher.find()) {
+		        	break;
+		        }
+	        	rest = cutMatch(rest, matcher, " / ");
+	
+	        	MovieFileNameDTO.Set set = new MovieFileNameDTO.Set();
+	            dto.getSets().add(set);
+
+	        	String n = matcher.group(1);
+	        	Matcher nmatcher = SET_INDEX_PATTERN.matcher(n);
+	        	if (nmatcher.find()) {
+	        		set.setIndex(Integer.parseInt(nmatcher.group(1)));
+	        		n = cutMatch(n, nmatcher);
+	        	}
+	            set.setTitle(n.trim());
+	        }
+        }
+        
+		dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
+		dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
+		dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
+		dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
+		dto.setVideoSource(seekPatternAndUpdateRest(VIDEO_SOURCE_MAP, dto.getVideoSource()));
+
+		// LANGUAGES
+		if (languageDetection) {
+			for(;;) {
+				String language = seekPatternAndUpdateRest(STRICT_LANGUAGES_MAP, null);
+				if (language == null) {
+					break;
+				}
+				dto.getLanguages().add(language);
+			}
+		}
+    	
+		// TITLE
+		{
+			int itrailer = dto.isTrailer() ? rest.indexOf("/TRAILER/") : rest.length();
+			int itvshow = dto.getSeason() >= 0 ? rest.indexOf("/TVSHOW/") : rest.length();
+			int ipart = dto.getPart() >=0 ? rest.indexOf("/PART/") : rest.length();
+			
+			{
+				int min = itrailer < itvshow ? itrailer : itvshow;
+				min = min < ipart ? min : ipart;
+				
+				// Find first token before trailer, TV show and part
+				// Name should not start with '-' (exclude wrongly marked part/episode titles)
+				String title = "";
+				StringTokenizer t = new StringTokenizer(rest.substring(0, min), "/[]");
+				while (t.hasMoreElements()) {
+					String token = t.nextToken();
+					token = cleanUpTitle(token);
+					if (token.length() >= 2 
+							&& token.charAt(0) != '-' ) {
+						title = token;
+						break;
+					}
+				}
+				
+				boolean first = true;
+				while (t.hasMoreElements()) {
+					String token = t.nextToken();
+					token = cleanUpTitle(token);
+					// Search year (must be next non-empty token)
+					if (first) {
+						if (token.length() > 0) {
+							try {
+								int year = Integer.parseInt(token);
+								if (year >= 1800 && year <= 3000) {
+									dto.setYear(year);
+								}
+							} catch (NumberFormatException e) {}
+						}
+						first = false;
+					}
+					
+					if (!languageDetection) {
+						break;
+					}
+					
+					// Loose language search
+					if (token.length() >= 2 && token.indexOf('-') < 0 ) {
+				    	for (Map.Entry<String, Pattern> e : LOOSE_LANGUAGES_MAP.entrySet()) {
+				    		Matcher matcher = e.getValue().matcher(token);
+							if (matcher.find()) {
+								dto.getLanguages().add(e.getKey());
+							}
+				    	}
+					}
+				}
+				
+				// Search year within title (last 4 digits or 4 digits in parenthesis)
+				if (dto.getYear() < 0) {
+					Matcher ymatcher = MOVIE_YEAR_PATTERN.matcher(title);
+					if (ymatcher.find()) {
+						int year = Integer.parseInt(ymatcher.group(1));
+						if (year >= 1919 && year <= 2099) {
+							dto.setYear(year);
+							title = cutMatch(title, ymatcher);
+						}
+					}
+				}
+				dto.setTitle(title);
+			}
+
+			// EPISODE TITLE
+			if (dto.getSeason() >= 0) {
+				itvshow += 8;
+				Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(itvshow));
+				while (matcher.find()) {
+					String title = cleanUpTitle(matcher.group(1));
+					if (title.length() > 0) {
+						dto.setEpisodeTitle(title);
+						break;
+					}
+				}
+			}
+
+			// PART TITLE
+			if (dto.getPart() >= 0) {
+				ipart += 6;
+				Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(ipart));
+				while (matcher.find()) {
+					String title = cleanUpTitle(matcher.group(1));
+					if (title.length() > 0) {
+						dto.setPartTitle(title);
+						break;
+					}
+				}
+			}
+		
+		}
+	
+    }
+
+	private String cleanUpTitle(String token) {
+		String title = TITLE_CLEANUP_DIV_PATTERN.matcher(token).replaceAll(" ").trim();
+		return TITLE_CLEANUP_CUT_PATTERN.matcher(title).replaceAll("").trim();
+	}
+    
+    private <T> T seekPatternAndUpdateRest(Map<T, Pattern> map, T oldValue) {
+    	for (Map.Entry<T, Pattern> e : map.entrySet()) {
+    		Matcher matcher = e.getValue().matcher(rest);
+			if (matcher.find()) {
+				rest = cutMatch(rest, matcher, "./.");
+				return e.getKey();
+    		}
+    	}
+    	return oldValue;
+    }
+
+	private static String cutMatch(String rest, Matcher matcher) {
+		return rest.substring(0, matcher.start()) + rest.substring(matcher.end());
 	}
 
-    /**
-     * Searches the filename for the keyword, if found is checked to see if the preceding character is a delimiter.
-     * 
-     * @return the index position of the part if found, -1 if not
-     * @param filename
-     *            to search
-     * @param Keyword
-     *            to look for
-     */
-    protected static int getPartKeyword(String gpFilename, String gpKeyword) {
-        String gpPrev = ""; // Previous character
-        int gpIndex = 0;
-
-        // Search for the Keyword in the file name
-        gpIndex = gpFilename.indexOf(gpKeyword);
-        while (gpIndex > 0) {
-            // We've found the keyword, but is it preceded by a delimiter and therefore not part of a word
-            gpPrev = gpFilename.substring(gpIndex - 1, gpIndex);
-
-            // Less-equal because we don't want to match space, which is the first char in WORD_DELIMITERS_STRING
-            if (WORD_DELIMITERS_STRING.indexOf(gpPrev) <= 0) {
-                // We can't find the preceding char in the delimiter string
-                // so look for the next occurence of the keyword
-                gpIndex = gpFilename.indexOf(gpKeyword, gpIndex + 1);
-            } else {
-                // We've found the keyword, and it's preceded by a delimiter, so quit.
-                break;
-            }
-        }
-        return gpIndex;
+	private static String cutMatch(String rest, Matcher matcher, String divider) {
+		return rest.substring(0, matcher.start()) + divider + rest.substring(matcher.end());
+	}
+    
+    public static MovieFileNameDTO scan(File file) {
+    	
+    	return new MovieFilenameScanner(file).getDto();
     }
-
-    /**
-     * Find the movie part number in the file name using the part matching patterns.
-     * Update <code>firstKeywordIndex</code>.
-     * @param filename File name
-     * @return Part number or 1 if nothing found.
-     */
-    protected int getPart(String filename) {
-    	for (Pattern pattern : PART_PATTERNS) {
-	        Matcher matcher = pattern.matcher(
-	        		replaceWordDelimiters(filename, PART_PATTERNS_WORD_DELIMITER_SUBST));
-			if (matcher.find()) {
-				updateFirstKeywordIndex(matcher.start(0));
-	            try {
-	                return Integer.parseInt(matcher.group(1));
-	            } catch (Exception e) {
-	                return 1;
-	            }
-	        }
-    	}
-        return 1;
-    }
-
-    /**
-     * Find movie part title if provided in file name.
-     * @param filename File name
-     * @return Part title or null if nothing found.
-     */
-    protected String getPartTitle(String filename) {
-        int dot = filename.lastIndexOf('.');
-        String f;
-        if (dot != -1) {
-            f = filename.substring(0, dot);
-        } else {
-            f = filename;
-        }
-
-    	for (Pattern pattern : PART_PATTERNS) {
-	        Matcher matcher = pattern.matcher(
-	        		replaceWordDelimiters(filename, PART_PATTERNS_WORD_DELIMITER_SUBST));
-			if (matcher.find()) {
-				f = f.substring(matcher.end(1));
-				int dash = f.lastIndexOf('-');
-
-                // Make sure the dash isn't part of a [SET name-order] keyword!
-                int lastCloseBracket = f.lastIndexOf(']');
-
-                if (dash != -1 && dot > dash && lastCloseBracket < dash) {
-                    String partTitle = f.substring(dash + 1).trim();
-                    return partTitle;
-                }
-                return null;
-	        }
-    	}
-        return null;
-    }
-
-    protected String getVideoCodec(String filename) {
-        String f = filename.toUpperCase();
-        if (hasKeyword(f, "XVID")) {
-            return "XviD";
-        }
-        if (hasKeyword(f, "DIVX")) {
-            return "DivX";
-        }
-        if (hasKeyword(f, new String[] { "H264", "H.264", "X264" })) {
-            return "H.264";
-        }
-        return "Unknown";
-    }
-
-    protected String getVideoOutput(String filename) {
-
-        String videoOutput = findKeyword(filename, new String[] { "720p", "1080i", "1080p" });
-
-        int fps = getFPS(filename);
-        if (!videoOutput.equalsIgnoreCase("Unknown")) {
-            switch (fps) {
-            case 23:
-                videoOutput = "1080p 23.976Hz";
-                break;
-            case 24:
-                videoOutput = "1080p 24Hz";
-                break;
-            case 25:
-                videoOutput = "1080p 25Hz";
-                break;
-            case 29:
-                videoOutput = "1080p 29.97Hz";
-                break;
-            case 30:
-                videoOutput = "1080p 30Hz";
-                break;
-            case 50:
-                videoOutput += " 50Hz";
-                break;
-            case 59:
-                videoOutput += "1080p 59.94Hz";
-                break;
-            case 60:
-                videoOutput += " 60Hz";
-                break;
-            default:
-                videoOutput += " 60Hz";
-            }
-        } else {
-            switch (fps) {
-            case 23:
-                videoOutput = "23p";
-                break;
-            case 24:
-                videoOutput = "24p";
-                break;
-            case 25:
-                videoOutput = "PAL";
-                break;
-            case 29:
-                videoOutput = "NTSC";
-                break;
-            case 30:
-                videoOutput = "NTSC";
-                break;
-            case 49:
-                videoOutput = "PAL";
-                break;
-            case 50:
-                videoOutput = "PAL";
-                break;
-            case 60:
-                videoOutput = "NTSC";
-                break;
-            default:
-                videoOutput = "NTSC";
-                break;
-            }
-        }
-
-        return videoOutput;
-    }
-
-    /**
-     * Get the file's video source as specified in the filename.
-     * 
-     * @param filename
-     *            filename of the movie file.
-     * @return the video source as a string
-     * 
-     * @author jjulien, quickfinga
-     */
-    protected String getVideoSource(String filename) {
-        String f = filename.toUpperCase();
-        if (hasKeyword(f, "HDTV")) {
-            return "HDTV";
-        }
-        if (hasKeyword(f, "PDTV")) {
-            return "PDTV";
-        }
-        if (hasKeyword(f, new String[] { "BLURAY", "BDRIP", "BLURAYRIP", "BLU-RAY" })) {
-            return "BluRay";
-        }
-        if (hasKeyword(f, "DVDRIP")) {
-            return "DVDRip";
-        }
-        if (hasKeyword(f, "DVDSCR")) {
-            return "DVDSCR";
-        }
-        if (hasKeyword(f, "DSRIP")) {
-            return "DSRip";
-        }
-        if (hasKeyword(filename, new String[] { " TS ", ".TS." })) {
-            return "TS";
-        }
-        if (hasKeyword(filename, "CAM")) {
-            return "CAM";
-        }
-        if (hasKeyword(filename, "R5")) {
-            return "R5";
-        }
-        if (hasKeyword(filename, "LINE")) {
-            return "LINE";
-        }
-        if (hasKeyword(filename, new String[] { "HDDVD", "HD-DVD", "HDDVDRIP" })) {
-            return "HDDVD";
-        }
-        if (hasKeyword(filename, new String[] { "DTH", "D-THEATER", "DTHEATER" })) {
-            return "D-THEATER";
-        }
-        if (hasKeyword(filename, "HD2DVD")) {
-            return "HD2DVD";
-        }
-        if (hasKeyword(f, new String[] { "DVD", "NTSC", "PAL" })) {
-            return "DVD";
-        }
-        if (hasKeyword(f, new String[] { "720p", "1080p", "1080i" })) {
-            return "HDTV";
-        }
-        return "Unknown";
-    }
-
-    protected boolean hasSubtitles(File fileToScan) {
-        String path = fileToScan.getAbsolutePath();
-        int index = path.lastIndexOf(".");
-        String basename = path.substring(0, index + 1);
-
-        if (index >= 0) {
-            return (new File(basename + "srt").exists() || new File(basename + "SRT").exists() || new File(basename + "sub").exists()
-                            || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists()
-                            || new File(basename + "ssa").exists() || new File(basename + "SSA").exists());
-        }
-
-        String fn = path.toUpperCase();
-        if (hasKeyword(fn, "VOST")) {
-            return true;
-        }
-        return false;
-    }
-
-    protected void updateFirstKeywordIndex(int index) {
-        if (index > 0) {
-            firstKeywordIndex = (firstKeywordIndex > index) ? index : firstKeywordIndex;
-        }
-    }
+    
 
     protected void updateTrailer(String filename, Movie movie) {
         int beginIdx = filename.indexOf("[");
@@ -519,179 +496,6 @@ public class MovieFilenameScanner {
             beginIdx = filename.indexOf("[", endIdx + 1);
         }
     }
-    
-    protected void updateSets(String filename, Movie movie) {
-        int beginIdx = filename.indexOf("[");
-        while (beginIdx > -1) {
-            int endIdx = filename.indexOf("]", beginIdx);
-            if (endIdx > -1 && endIdx - beginIdx > 4) {
-                String token = filename.substring(beginIdx + 1, endIdx);
-                if (token.substring(0, 4).toUpperCase().equals("SET ")) {
-                    String setPart = token.substring(4);
-                    int dash = setPart.lastIndexOf("-");
-                    Integer order = null;
-                    if (dash > -1) {
-                        try {
-                            order = Integer.parseInt(setPart.substring(dash+1).trim());
-                            setPart = setPart.substring(0, dash);
-                        } catch(NumberFormatException ignored) {
-                        }
-                    }
-                        
-                    movie.addSet(setPart.trim(), order);
-                }
-            } else {
-                break;
-            }
-            
-            beginIdx = filename.indexOf("[", endIdx + 1);
-        }
-    }
-
-    protected void updateMovie(String filename, Movie movie) {
-        try {
-            String partTitle = getPartTitle(filename);
-            if (partTitle != null) {
-                movie.getFirstFile().setTitle(partTitle);
-            }
-
-            partTitle = movie.getFirstFile().getTitle();
-            if ((partTitle != null) && !partTitle.equals(Movie.UNKNOWN)) {
-                int dash = filename.lastIndexOf('-');
-                if (dash != -1) {
-                    filename = filename.substring(0, dash);
-                }
-            }
-            // Extract the 4 digit year from the file name
-            StringTokenizer st = new StringTokenizer(filename, WORD_DELIMITERS_STRING);
-            while (st.hasMoreTokens()) {
-                String token = st.nextToken();
-
-                // Year
-                if ((token.length() == 4) && token.matches("\\d{4}") && (Integer.parseInt(token) > 1919) && (Integer.parseInt(token) < 2399)) {
-                    updateFirstKeywordIndex(filename.indexOf(token));
-                    movie.setYear(token.substring(0, 4));
-                }
-            }
-
-            st = new StringTokenizer(filename, "-");
-            while (st.hasMoreTokens()) {
-                String token = st.nextToken();
-                if (token.startsWith(" ")) {
-                    updateFirstKeywordIndex(filename.indexOf(token));
-                }
-            }
-
-            movie.setTitle(getName(filename));
-        } catch (Exception e) {
-            movie.setTitle(Movie.UNKNOWN);
-        }
-    }
-
-
-    /**
-     * Search season and episodes numbers in the given file name. Update given
-     * Movie accordingly (Movie.setSeason(), MovieFile.setPart(), 
-     * MovieFile.setLastPart(), MovieFile.setTitle()). 
-     * @param filename File name
-     * @param movie Movie to update season/episode numbers
-     */
-    protected void updateTVShow(String filename, Movie movie) {
-        Matcher matcher = TV_PATTERN.matcher(filename);
-        if (matcher.find()) {
-            // logger.finest("It's a TV Show: " + group0);
-
-            updateFirstKeywordIndex(matcher.start());
-
-            String fileTitle = null;
-
-            int end = matcher.end(0);
-            int dash = filename.indexOf('-', end);
-            if ((dash == end) || (dash == end + 1)) {
-                int delim = filename.lastIndexOf('.');
-                if (delim == -1)
-                    delim = filename.length();
-                fileTitle = replaceWordDelimiters(filename.substring(dash + 1, delim), ' ').trim();
-            }
-
-            int season = Integer.parseInt(matcher.group(1));
-            movie.setSeason(season);
-
-            int firstPart = -1;
-            int lastPart = -1;
-            matcher = EPISODE_PATTERN.matcher(matcher.group(2));
-            while (matcher.find()) {
-                int episode = Integer.parseInt(matcher.group(1));
-                if (firstPart == -1) {
-                    firstPart = lastPart = episode;
-                } else {
-                	if (episode < firstPart) {
-                		firstPart = episode;
-                	} else if (episode > lastPart) {
-                		lastPart = episode;
-                	}
-                }
-            }
-
-            MovieFile firstFile = movie.getFirstFile();
-            firstFile.setPart(firstPart);
-            firstFile.setLastPart(lastPart);
-
-            if (fileTitle != null && !movie.isTrailer()) {
-                movie.getFirstFile().setTitle(fileTitle.trim());
-            }
-        }
-
-    }
-
-    protected String findKeyword(String filename, String[] strings) {
-        String name = replaceWordDelimiters(filename.toUpperCase(), ' ');
-
-        String val = "Unknown";
-        for (String keyword : strings) {
-            String upperKeyword = " " + keyword.toUpperCase() + " ";
-            int index = name.indexOf(upperKeyword);
-            if (index > 0) {
-                updateFirstKeywordIndex(index);
-                val = keyword;
-            }
-        }
-        return val;
-    }
-
-    /**
-     * @return true when the specified keyword exist in the specified filename
-     */
-    protected boolean hasKeyword(String filename, String keyword) {
-        return hasKeyword(filename, new String[] { keyword });
-    }
-
-    /**
-     * @return true when one of the specified keywords exist in the specified filename
-     */
-    protected boolean hasKeyword(String filename, String[] keywords) {
-        for (String keyword : keywords) {
-            int index = filename.indexOf(keyword);
-            if (index > 0) {
-                updateFirstKeywordIndex(index);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return true when one of the specified keywords exist in the specified filename
-     */
-    protected boolean hasKeywordAfterTitle(String filename, String[] keywords) {
-        for (String keyword : keywords) {
-            int index = filename.indexOf(keyword);
-            if (index >= firstKeywordIndex) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static String[] getSkipKeywords() {
 		return skipKeywords;
@@ -699,6 +503,10 @@ public class MovieFilenameScanner {
 
 	public static void setSkipKeywords(String[] skipKeywords) {
 		MovieFilenameScanner.skipKeywords = skipKeywords;
+		skipPatterns.clear();
+		for (String s : skipKeywords) {
+			skipPatterns.add(ipatt(Pattern.quote(s)));
+		}
 	}
 
 	public static boolean isLanguageDetection() {
@@ -707,6 +515,18 @@ public class MovieFilenameScanner {
 
 	public static void setLanguageDetection(boolean languageDetection) {
 		MovieFilenameScanner.languageDetection = languageDetection;
+	}
+
+	public MovieFileNameDTO getDto() {
+		return dto;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public String getFilename() {
+		return filename;
 	}
 
 }
