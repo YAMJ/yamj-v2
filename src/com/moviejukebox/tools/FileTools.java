@@ -25,21 +25,25 @@ public class FileTools {
     final static int BUFF_SIZE = 100000;
     final static byte[] buffer = new byte[BUFF_SIZE];
     static Map<CharSequence, CharSequence> unsafeChars = new HashMap<CharSequence, CharSequence>();
-    static String encodeEscapeChar = PropertiesUtil.getProperty("mjb.charset.filenameEncodingEscapeChar", "$");
+    static Character encodeEscapeChar = null;
     
     static {
         // What to do if the user specifies a blank encodeEscapeChar? I guess disable encoding.
-        if (encodeEscapeChar.length() > 0) {
+        String encodeEscapeCharString = PropertiesUtil.getProperty("mjb.charset.filenameEncodingEscapeChar", "$");
+        if (encodeEscapeCharString.length() > 0) {
             // What to do if the user specifies a >1 character long string? I guess just use the first char.
-            if (encodeEscapeChar.length() > 1) {
-                encodeEscapeChar = encodeEscapeChar.substring(0, 1);
-            }
+            encodeEscapeChar = encodeEscapeCharString.charAt(0);
         
-            String repChars = PropertiesUtil.getProperty("mjb.charset.unsafeFilenameChars", "<>:\"/\\|?*") + encodeEscapeChar;
+            String repChars = PropertiesUtil.getProperty("mjb.charset.unsafeFilenameChars", "<>:\"/\\|?*");
             for (String repChar : repChars.split("")) {
                 if (repChar.length() > 0) {
-                    String hex = Integer.toHexString(repChar.charAt(0)).toUpperCase();
-                    unsafeChars.put(repChar, encodeEscapeChar + hex);
+                    char ch = repChar.charAt(0);
+                    // Skip alphanumeric characters -- hex digits aren't safe to encode, and why bother?
+                    // Also, don't encode the escape char -- it is safe by definition!
+                    if (!Character.isLetterOrDigit(ch) && !encodeEscapeChar.equals(ch)) {
+                        String hex = Integer.toHexString(repChar.charAt(0)).toUpperCase();
+                        unsafeChars.put(repChar, encodeEscapeChar + hex);
+                    }
                 }
             }
         }
@@ -202,17 +206,6 @@ public class FileTools {
     public static String makeSafeFilename(String filename) {
         for (Map.Entry<CharSequence, CharSequence> rep : unsafeChars.entrySet()) {
             filename = filename.replace(rep.getKey(), rep.getValue());
-        }
-        return filename;
-    }
-    
-    public static String makeSafeFilenameURL(String filename) {
-        filename = makeSafeFilename(filename);
-        try {
-            filename = URLEncoder.encode(filename, "UTF-8");
-            filename = filename.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
-        } catch(UnsupportedEncodingException ignored) {
-            logger.fine("Error URL-encoding " + filename + ", will proceed with unencoded string and hope for the best.");
         }
         return filename;
     }

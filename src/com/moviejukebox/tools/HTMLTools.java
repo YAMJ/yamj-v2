@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 
@@ -13,7 +17,7 @@ public class HTMLTools {
     private static final Map<Character, String> AGGRESSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
     private static final Map<Character, String> DEFENSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
     private static final Map<String, Character> HTML_DECODE_MAP = new HashMap<String, Character>();
-
+    private static Logger logger = Logger.getLogger("moviejukebox");
 
     static {
         // Html encoding mapping according to the HTML 4.0 spec
@@ -493,30 +497,25 @@ public class HTMLTools {
     }
 
     public static String encodeUrl(String s) {
-        if (s == null || s.length() == 0) {
-            return s;
+        if (s != null && s.length() != 0) {
+            try {
+                s = URLEncoder.encode(s, "UTF-8");
+                s = s.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
+            } catch(UnsupportedEncodingException ignored) {
+                logger.fine("Could not decode URL string: " + s + ", will proceed with undecoded string.");
+            }
         }
-
-        // remove white space and blanks
-        String result = s.replaceAll(" ", "%20");
-
-        // remove semicolon
-        result = result.replaceAll(";", "%3B");
-        
-        return result;
+        return s;
     }
 
     public static String decodeUrl(String s) {
-        if (s == null || s.length() == 0) {
-            return s;
+        if (s != null && s.length() != 0) {
+            try {
+                s = URLDecoder.decode(s, "UTF-8");
+            } catch(UnsupportedEncodingException ignored) {
+                logger.fine("Could not decode URL string: " + s + ", will proceed with undecoded string.");
+            }
         }
-
-        // white space and blanks
-        String result = s.replaceAll("%20", " ");
-
-        // semicolon
-        result = result.replaceAll("%3B", ";");
-
-        return result;
+        return s;
     }
 }

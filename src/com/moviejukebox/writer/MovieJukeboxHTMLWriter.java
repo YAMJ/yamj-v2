@@ -23,6 +23,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 /**
@@ -173,7 +174,10 @@ public class MovieJukeboxHTMLWriter {
             if (homePage.length() == 0) {
                 String defCat = library.getDefaultCategory();
                 if (defCat != null) {
-                    homePage = FileTools.createPrefix("Other", FileTools.makeSafeFilenameURL(defCat)) + "1";
+                    homePage = FileTools.createPrefix(
+                        "Other",
+                        HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))
+                    ) + "1";
                 } else {
                     // figure out something better to do here
                     logger.fine("No categories were found, so you should specify mjb.homePage in the config file.");
