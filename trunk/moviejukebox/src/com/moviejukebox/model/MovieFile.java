@@ -60,7 +60,11 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+    	if (title == null) {
+    		this.title = Movie.UNKNOWN;
+    	} else {
+    		this.title = title;
+    	}
     }
 
     public boolean hasTitle() {
@@ -117,4 +121,34 @@ public class MovieFile implements Comparable<MovieFile> {
     public void setFile(File file) {
         this.file = file;
     }
+
+	public void mergeFileNameDTO(MovieFileNameDTO dto) {
+		// TODO do not skip titles (store all provided)
+		setTitle(dto.isTrailer() ? dto.getTrailerTitle() 
+				: (dto.getSeason() > 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
+		
+		if (dto.getEpisodes().size() > 0) {
+			lastPart = 1;
+			firstPart = Integer.MAX_VALUE;
+			for (int e : dto.getEpisodes()) {
+				if (e >= lastPart) {
+					lastPart = e;
+				}
+				if (e <= firstPart) {
+					firstPart = e;
+				}
+			}
+			
+			// TODO bulletproof? :)
+			if (firstPart > lastPart) {
+				firstPart = lastPart;
+			}
+			
+		} else if (dto.getPart() > 0){
+			firstPart = lastPart = dto.getPart();
+		} else {
+			firstPart = 1;
+			lastPart = 1;
+		}
+	}
 }

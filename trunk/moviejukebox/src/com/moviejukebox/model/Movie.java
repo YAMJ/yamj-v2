@@ -66,6 +66,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String videoOutput = UNKNOWN;
     private float fps = 60;
     private String certification = UNKNOWN;
+    // TODO Move trailer flag to movie file
     private boolean trailer = false;
     private boolean trailerExchange = false;
     private String libraryPath = UNKNOWN;
@@ -1011,4 +1012,82 @@ public class Movie implements Comparable<Movie>, Cloneable {
             return null;
         }
     }
+
+	public void mergeFileNameDTO(MovieFileNameDTO dto) {
+		setTitle(dto.getTitle());
+		setTrailer(dto.isTrailer());
+		setAudioCodec(dto.getAudioCodec());
+		setVideoCodec(dto.getVideoCodec());
+		setVideoSource(dto.getVideoSource());
+		setContainer(dto.getContainer());
+		setFps(dto.getFps() > 0 ? dto.getFps() : 60);
+		setSeason(dto.getSeason());
+		for (MovieFileNameDTO.Set set : dto.getSets()) {
+			addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
+		}
+		setYear(dto.getYear() > 0 ? "" + dto.getYear() : null);
+		setLanguage(dto.getLanguages().size() > 0 ? dto.getLanguages().get(0) : null);
+
+        if (dto.getHdResolution() != null) {
+            switch (dto.getFps()) {
+            case 23:
+                videoOutput = "1080p 23.976Hz";
+                break;
+            case 24:
+                videoOutput = "1080p 24Hz";
+                break;
+            case 25:
+                videoOutput = "1080p 25Hz";
+                break;
+            case 29:
+                videoOutput = "1080p 29.97Hz";
+                break;
+            case 30:
+                videoOutput = "1080p 30Hz";
+                break;
+            case 50:
+                videoOutput += " 50Hz";
+                break;
+            case 59:
+                videoOutput += "1080p 59.94Hz";
+                break;
+            case 60:
+                videoOutput += " 60Hz";
+                break;
+            default:
+                videoOutput += " 60Hz";
+            }
+        } else {
+            switch (dto.getFps()) {
+            case 23:
+                videoOutput = "23p";
+                break;
+            case 24:
+                videoOutput = "24p";
+                break;
+            case 25:
+                videoOutput = "PAL";
+                break;
+            case 29:
+                videoOutput = "NTSC";
+                break;
+            case 30:
+                videoOutput = "NTSC";
+                break;
+            case 49:
+                videoOutput = "PAL";
+                break;
+            case 50:
+                videoOutput = "PAL";
+                break;
+            case 60:
+                videoOutput = "NTSC";
+                break;
+            default:
+                videoOutput = "NTSC";
+                break;
+            }
+        }
+		
+	}
 }

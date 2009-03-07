@@ -13,6 +13,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.HTMLTools;
@@ -84,9 +85,9 @@ public class MovieDirectoryScanner {
 
                 // Prescan files list. Ignore directory if file with predefined name is found.
             	// TODO May be read the file and exclude files by mask (similar to .cvsignore)
-                //for (File file : files) {
-                //	if (file.getName().equalsIgnoreCase(".mjbignore")) return;
-                //}
+                for (File file : files) {
+                	if (file.getName().equalsIgnoreCase(".mjbignore")) return;
+                }
                 
                 for (File file : fileList) {
                     if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
@@ -123,8 +124,7 @@ public class MovieDirectoryScanner {
 
         //exclude files without external subtitles
         if (opensubtitles.equals("")) {    // We are not downloading subtitles, so exclude those that don't have any.
-            MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
-            if (excludeFilesWithoutExternalSubtitles && !filenameScanner.hasSubtitles(file)) {
+            if (excludeFilesWithoutExternalSubtitles && !hasSubtitles(file)) {
                 logger.fine("File " + filename + " excluded. (no external subtitles)");
                 return true;
             }
@@ -142,6 +142,30 @@ public class MovieDirectoryScanner {
 
         return false;
     }
+
+    protected static boolean hasSubtitles(File fileToScan) {
+        String path = fileToScan.getAbsolutePath();
+        int index = path.lastIndexOf(".");
+        String basename = path.substring(0, index + 1);
+
+        if (index >= 0) {
+            return (new File(basename + "srt").exists() 
+            			|| new File(basename + "SRT").exists() 
+            			|| new File(basename + "sub").exists()
+                        || new File(basename + "SUB").exists() 
+                        || new File(basename + "smi").exists() 
+                        || new File(basename + "SMI").exists()
+                        || new File(basename + "ssa").exists() 
+                        || new File(basename + "SSA").exists());
+        }
+
+        String fn = path.toUpperCase();
+        if (fn.indexOf("VOST") >= 0) {
+            return true;
+        }
+        return false;
+    }
+
 
     protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
 
@@ -204,8 +228,11 @@ public class MovieDirectoryScanner {
                 m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
             }
 
-            MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
-            filenameScanner.scan(m);
+//            MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
+//            filenameScanner.scan(m);
+            MovieFileNameDTO dto = MovieFilenameScanner.scan(m.getFile());
+			m.mergeFileNameDTO(dto);
+			movieFile.mergeFileNameDTO(dto);
 
             library.addMovie(m);
         }
