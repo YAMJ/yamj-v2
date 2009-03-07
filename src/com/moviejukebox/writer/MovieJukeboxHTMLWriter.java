@@ -101,7 +101,7 @@ public class MovieJukeboxHTMLWriter {
                 if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                     tempPlaylistFile.getParentFile().mkdirs();
 
-                    PrintWriter writer = new PrintWriter(tempPlaylistFile);
+                    PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
 
                     // Issue 237 - Add in the IP address of the MyiHome server so the playlist will work.
                     // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is the the normal method for standalone YAMJ
