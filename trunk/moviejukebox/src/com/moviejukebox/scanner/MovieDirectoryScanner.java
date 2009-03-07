@@ -15,6 +15,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.HTMLTools;
 
 /**
  * DirectoryScanner
@@ -179,9 +180,9 @@ public class MovieDirectoryScanner {
 
             if (contentFiles[i].isDirectory()) {
                 // For DVD images
-                movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename + "/VIDEO_TS");
+                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrl(relativeFilename + "/VIDEO_TS"));
             } else {
-                movieFile.setFilename(srcPath.getNmtRootPath() + relativeFilename);
+                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrl(relativeFilename));
             }
             movieFile.setPart(i + 1);
             movieFile.setFile(contentFiles[i]);

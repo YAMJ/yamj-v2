@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -41,6 +42,7 @@ public class MovieJukeboxXMLWriter {
     private boolean fullMovieInfoInIndexes;
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
+    private static Logger logger = Logger.getLogger("moviejukebox");
 
     public MovieJukeboxXMLWriter() {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
@@ -498,7 +500,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("movie");
         writer.writeAttribute("isTrailer", Boolean.toString(movie.isTrailer()));
         writer.writeStartElement("details");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getBaseName() + ".html"));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBaseName())) + ".html");
         writer.writeEndElement();
         writer.writeStartElement("title");
         writer.writeCharacters(movie.getTitle());
@@ -510,10 +512,10 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getOriginalTitle());
         writer.writeEndElement();
         writer.writeStartElement("detailPosterFile");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getDetailPosterFilename()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getDetailPosterFilename())));
         writer.writeEndElement();
         writer.writeStartElement("thumbnail");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getThumbnailFilename()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getThumbnailFilename())));
         writer.writeEndElement();
         writer.writeStartElement("certification");
         writer.writeCharacters(movie.getCertification());
@@ -570,28 +572,28 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(Integer.toString(movie.getTop250()));
         writer.writeEndElement();
         writer.writeStartElement("details");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getBaseName()) + ".html");
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBaseName())) + ".html");
         writer.writeEndElement();
         writer.writeStartElement("posterURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getPosterURL()));
         writer.writeEndElement();
         writer.writeStartElement("posterSubimage");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getPosterSubimage()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getPosterSubimage())));
         writer.writeEndElement();
         writer.writeStartElement("fanartURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getFanartURL()));
         writer.writeEndElement();
         writer.writeStartElement("posterFile");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getPosterFilename()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getPosterFilename())));
         writer.writeEndElement();
         writer.writeStartElement("detailPosterFile");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getDetailPosterFilename()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getDetailPosterFilename())));
         writer.writeEndElement();
         writer.writeStartElement("thumbnail");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getThumbnailFilename()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getThumbnailFilename())));
         writer.writeEndElement();
         writer.writeStartElement("fanartFile");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getFanartFilename()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getFanartFilename())));
         writer.writeEndElement();
         writer.writeStartElement("plot");
         writer.writeCharacters(movie.getPlot());
@@ -651,16 +653,16 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(Float.toString(movie.getFps()));
         writer.writeEndElement();
         writer.writeStartElement("first");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getFirst()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getFirst())));
         writer.writeEndElement();
         writer.writeStartElement("previous");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getPrevious()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getPrevious())));
         writer.writeEndElement();
         writer.writeStartElement("next");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getNext()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getNext())));
         writer.writeEndElement();
         writer.writeStartElement("last");
-        writer.writeCharacters(FileTools.makeSafeFilenameURL(movie.getLast()));
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getLast())));
         writer.writeEndElement();
         writer.writeStartElement("libraryDescription");
         writer.writeCharacters(movie.getLibraryDescription());
@@ -694,7 +696,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("title", mf.getTitle());
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
             writer.writeStartElement("fileURL");
-            writer.writeCharacters(HTMLTools.encodeUrl(mf.getFilename()));
+            writer.writeCharacters(mf.getFilename()); // should already be a URL
             writer.writeEndElement();
             if (includeEpisodePlots) {
                 for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
