@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.net.URL;
 
 public class GraphicTools {
-
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,24 +205,33 @@ public class GraphicTools {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    /// Reflexion effect
-    //
-    public static BufferedImage createReflectedPicture(BufferedImage avatar) {
+    /// Reflection effect
+    //      graphicType should be "posters" or "thumbnails" and is used to determine the
+    //      settings that are extracted from the skin.properties file.
+    public static BufferedImage createReflectedPicture(BufferedImage avatar, String graphicType) {
         int avatarWidth = avatar.getWidth();
         int avatarHeight = avatar.getHeight();
-
-        BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight);
-        BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight);
+        
+        float reflectionHeight = 12.5f;
+        
+        try {
+            reflectionHeight = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".reflectionHeight", "12.5"));
+        } catch (NumberFormatException nfe) {
+            System.out.println("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".reflectionHeight");
+        }
+        
+        BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight);
+        BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight, reflectionHeight);
 
         applyAlphaMask(gradient, buffer, avatarWidth, avatarHeight);
 
         return buffer;
     }
 
-    public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight) {
+    public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight, float reflectionHeight) {
         BufferedImage gradient = new BufferedImage(avatarWidth, avatarHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = gradient.createGraphics();
-        GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight / 8.0f, new Color(1.0f, 1.0f, 1.0f, 1f));
+        GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight * (reflectionHeight / 100), new Color(1.0f, 1.0f, 1.0f, 1f));
         g.setPaint(painter);
         g.fill(new Rectangle2D.Double(0, 0, avatarWidth, avatarHeight));
 
@@ -233,8 +241,11 @@ public class GraphicTools {
         return gradient;
     }
 
-    public static BufferedImage createReflection(BufferedImage avatar, int avatarWidth, int avatarHeight) {
-        BufferedImage buffer = new BufferedImage(avatarWidth, avatarHeight + avatarHeight / 6, BufferedImage.TYPE_4BYTE_ABGR_PRE);
+    public static BufferedImage createReflection(BufferedImage avatar, int avatarWidth, int avatarHeight, float reflectionHeight) {
+        // Increase the height of the image to cater for the reflection.
+        int newHeight = (int) (avatarHeight * (1 + (reflectionHeight * 1.4 / 100) ));
+  
+        BufferedImage buffer = new BufferedImage(avatarWidth, newHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = buffer.createGraphics();
 
         g.drawImage(avatar, null, null);
@@ -259,12 +270,35 @@ public class GraphicTools {
     ////////////////////////////////////////////////////////////////////////////////////////////
     /// 3D effect
     //
-    public static BufferedImage create3DPicture(BufferedImage bi) {
+    public static BufferedImage create3DPicture(BufferedImage bi, String graphicType, String perspectiveDirection) {
         int w = bi.getWidth();
         int h = bi.getHeight();
+        float perspectiveTop = 3f;
+        float perspectiveBottom = 3f;
 
+        try {
+            perspectiveTop = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveTop", "3"));
+        } catch (NumberFormatException nfe) {
+            System.out.println("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
+        }
+
+        try {
+            perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
+        } catch (NumberFormatException nfe) {
+            System.out.println("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
+        }        
+
+        int Top3d = (int) (h * perspectiveTop / 100);
+        int Bot3d = (int) (h * perspectiveBottom / 100);
+        
         PerspectiveFilter perspectiveFilter = new PerspectiveFilter();
-        perspectiveFilter.setCorners(0, 0, w, h / 60, w, h - h / 30, 0, h);
+        // Top Left (x/y), Top Right (x/y), Bottom Right (x/y), Bottom Left (x/y)
+        
+        if (perspectiveDirection.equalsIgnoreCase("right")) {
+            perspectiveFilter.setCorners(0, 0, w, Top3d, w, h - Bot3d, 0, h);
+        } else {
+            perspectiveFilter.setCorners(0, Top3d, w, 0, w, h, 0, h - Bot3d);
+        }
         return perspectiveFilter.filter(bi, null);
     }
 }

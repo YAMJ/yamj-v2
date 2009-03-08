@@ -43,7 +43,7 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
     }
 
     @Override
-    public BufferedImage generate(Movie movie, BufferedImage moviePoster) {
+    public BufferedImage generate(Movie movie, BufferedImage moviePoster, String perspectiveDirection) {
         BufferedImage bi = moviePoster;
 
         if (moviePoster != null) {
@@ -93,11 +93,11 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
             }
 
             if (addReflectionEffect) {
-                bi = GraphicTools.createReflectedPicture(bi);
+                bi = GraphicTools.createReflectedPicture(bi, "posters");
             }
 
             if (addPerspective) {
-                bi = GraphicTools.create3DPicture(bi);
+                bi = GraphicTools.create3DPicture(bi, "posters", perspectiveDirection);
             }
         }
 
