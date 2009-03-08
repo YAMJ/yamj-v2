@@ -42,7 +42,7 @@ public class MovieFilenameScanner {
 	private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
 	
 	/** Number at the end of string preceded with '-' */
-	private static final Pattern SET_INDEX_PATTERN = patt("-([0-9])$");
+	private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
 	
     private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
 	
