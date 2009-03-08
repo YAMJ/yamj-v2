@@ -105,7 +105,7 @@ public class MovieJukeboxXMLWriter {
                     movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r)));
                 }
                 if (tag.equals("<posterSubimage>")) {
-                    movie.setPosterSubimage(HTMLTools.decodeUrl(parseCData(r)));
+                    movie.setPosterSubimage(parseCData(r));
                 }
                 if (tag.equals("<fanartURL>")) {
                     movie.setFanartURL(HTMLTools.decodeUrl(parseCData(r)));
@@ -578,7 +578,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getPosterURL()));
         writer.writeEndElement();
         writer.writeStartElement("posterSubimage");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getPosterSubimage())));
+        writer.writeCharacters(movie.getPosterSubimage());
         writer.writeEndElement();
         writer.writeStartElement("fanartURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getFanartURL()));
@@ -716,7 +716,7 @@ public class MovieJukeboxXMLWriter {
             for (TrailerFile tf : trailerFiles) {
                 writer.writeStartElement("trailer");
                 writer.writeAttribute("title", tf.getTitle());
-                writer.writeCharacters(HTMLTools.encodeUrl(tf.getFilename()));
+                writer.writeCharacters(tf.getFilename()); // should already be URL-encoded
                 writer.writeEndElement();
             }
             writer.writeEndElement();
