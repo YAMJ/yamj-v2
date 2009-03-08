@@ -180,7 +180,20 @@ public class MovieFilenameScannerTest extends TestCase {
 		assertEquals(1, d.getSets().size());
 		assertEquals(99, d.getSets().get(0).getIndex());
 		assertEquals("X-Men", d.getSets().get(0).getTitle());
-	}
+		assertEquals("X-Men 3", d.getTitle());
+
+		d = scan("Rush hour 2 DVD");
+		assertEquals(0, d.getSets().size());
+		assertEquals("Rush hour 2", d.getTitle());
+		
+		d = scan("21 DVD-RIP");
+		assertEquals("21", d.getTitle());
+		assertEquals("DVD", d.getVideoSource());
+	
+		d = scan("1408 DVD");
+		assertEquals("DVD", d.getVideoSource());
+		assertEquals("1408", d.getTitle());
+		}
 	
 	@SuppressWarnings("serial")
 	private static MovieFileNameDTO scan(String filename) {

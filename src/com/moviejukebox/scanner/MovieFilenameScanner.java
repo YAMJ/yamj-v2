@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 
 /**
@@ -77,7 +76,7 @@ public class MovieFilenameScanner {
 		{
 			add(iwpatt("CD ([0-9]+)")); 
 			add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)")); 
-			add(iwpatt("([0-9]+)[ \\.]{0,1}DVD"));
+			add(tpatt("([0-9]{1})[ \\.]{0,1}DVD"));
 		}
 	};
 		
@@ -254,11 +253,14 @@ public class MovieFilenameScanner {
         	if (i > 0) {
         		dto.setExtension(rest.substring(i+1));
         		rest = rest.substring(0, i);
+        	} else {
+        		dto.setExtension("");
         	}
             dto.setContainer(dto.getExtension().toUpperCase());
         } else {
             // For DVD images
         	// no extension
+    		dto.setExtension("");
             dto.setContainer("DVD");
             dto.setVideoSource("DVD");
         }
@@ -476,27 +478,6 @@ public class MovieFilenameScanner {
     	return new MovieFilenameScanner(file).getDto();
     }
     
-
-    protected void updateTrailer(String filename, Movie movie) {
-        int beginIdx = filename.indexOf("[");
-        while (beginIdx > -1) {
-            int endIdx = filename.indexOf("]", beginIdx);
-            if (endIdx > -1) {
-                String token = filename.substring(beginIdx + 1, endIdx).toUpperCase();
-                if (token.indexOf("TRAILER") > -1) {
-                    movie.setTrailer(true);
-                    String tmp = movie.getBaseName();
-                    movie.getFirstFile().setTitle(tmp.substring(tmp.indexOf("[") + 1, tmp.indexOf("]")));
-                    break;
-                }
-            } else {
-                break;
-            }
-
-            beginIdx = filename.indexOf("[", endIdx + 1);
-        }
-    }
-
     public static String[] getSkipKeywords() {
 		return skipKeywords;
 	}
