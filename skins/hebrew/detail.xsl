@@ -1,37 +1,87 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="xml" omit-xml-declaration="yes"/>
+<xsl:output method="html" omit-xml-declaration="yes"/>
 
-<xsl:template match="details/preferences"></xsl:template>
-
-<xsl:template match="details/movie">
+<xsl:template match="/">
+<xsl:for-each select="details/movie">
 <html>
 <head>
   <link rel="StyleSheet" type="text/css" href="exportdetails_item_popcorn.css"></link>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <title><xsl:value-of select="title"/></title>
+<script type="text/javascript">
+//<![CDATA[
+  var title = 1;
+  function show(x)
+  {
+    if ( title == 1 )
+      title = document.getElementById('title').firstChild;
+    title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
+  }
+  function hide()
+  {
+    if ( title == 1 )
+      title = document.getElementById('title').firstChild;
+    title.nodeValue = "-";
+  }
+//]]>
+</script>
 </head>
 
 <xsl:variable name="star_rating">true</xsl:variable>
 <xsl:variable name="full_rating">true</xsl:variable>
 
 <body bgproperties="fixed" background="pictures/background.jpg">
-<xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute>
+<!-- xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute-->
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   
-  <tr height="30">
-    <td height="50" align="center" colspan="2">
+    <tr height="30">
+        <td height="50" align="center" colspan="2">
         <!-- Navigation using remote keys: Home, PageUP/PageDown (First/Last), Prev/Next & Left/Right (Previous/Next) -->
-        <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="//preferences/homePage"/></xsl:attribute></a>
+	<a>
+		<xsl:attribute name="TVID">HOME</xsl:attribute>
+		<xsl:attribute name="href"><xsl:value-of
+			select="//preferences/homePage" /></xsl:attribute>
+	</a>
 
-        <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="first"/>.html</xsl:attribute></a>
-        <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="last"/>.html</xsl:attribute></a>
-   
-        <a><xsl:attribute name="TVID">RIGHT</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
-        <a><xsl:attribute name="TVID">LEFT</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
+	<a>
+		<xsl:attribute name="TVID">PGUP</xsl:attribute>
+		<xsl:attribute name="href"><xsl:value-of select="first" />.html</xsl:attribute>
+	</a>
+	<a>
+		<xsl:attribute name="TVID">PGDN</xsl:attribute>
+		<xsl:attribute name="href"><xsl:value-of select="last" />.html</xsl:attribute>
+	</a>
 
-        <a><xsl:attribute name="TVID">PREV</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
-        <a><xsl:attribute name="TVID">NEXT</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
+    <a name="goright" onfocusload="">
+    	<xsl:if test="count(files/file) = 1">
+    		<xsl:attribute name="TVID">RIGHT</xsl:attribute>
+    	</xsl:if>
+    	<xsl:attribute name="href">
+    		<xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose>
+    	</xsl:attribute>
+    </a>
+    <a name="goleft" onfocusload="">
+    	<xsl:if test="count(files/file) = 1">
+	    	<xsl:attribute name="TVID">LEFT</xsl:attribute>
+    	</xsl:if>
+    	<xsl:attribute name="href">
+    		<xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose>
+    	</xsl:attribute>
+    </a>
+
+	<a>
+		<xsl:attribute name="TVID">PREV</xsl:attribute>
+		<xsl:attribute name="href"><xsl:choose><xsl:when
+			test="contains(next,'UNKNOWN')"><xsl:value-of select="first" />.html</xsl:when><xsl:otherwise><xsl:value-of
+			select="next" />.html</xsl:otherwise></xsl:choose></xsl:attribute>
+	</a>
+	<a>
+		<xsl:attribute name="TVID">NEXT</xsl:attribute>
+		<xsl:attribute name="href"><xsl:choose><xsl:when
+			test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage" /></xsl:when><xsl:otherwise><xsl:value-of
+			select="last" />.html</xsl:otherwise></xsl:choose></xsl:attribute>
+	</a>
     </td>
   </tr>
   
@@ -176,31 +226,21 @@
           </table></center></td>
         </tr>
         
-        <tr class="spacer"><td> </td></tr>
+        <tr class="spacer" colspan="2"><td> </td></tr>
 
-        <xsl:variable name="episodeSortOrder" select="if (/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season!=-1) then 'descending' else 'ascending'" />
         <xsl:choose>                                
         <xsl:when test="count(files/file) = 1">
-          <tr>
-            <td>
-                <xsl:for-each select="files/file">
-                <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
-                <center>
+          <xsl:for-each select="files/file">
+            <tr valign="top">
+              <td align="center">
                  <a class="link">
                    <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                    <xsl:attribute name="TVID">Play</xsl:attribute>
-
-                   <xsl:if test="//movie/container = 'ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.iso'">
-                     <xsl:attribute name="zcd">2</xsl:attribute> 
-                   </xsl:if>
-                    
-                   <xsl:if test="//movie/container = 'IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.img'">
-                     <xsl:attribute name="zcd">2</xsl:attribute> 
-                   </xsl:if>
-                    
-                   <xsl:if test="substring(fileURL,string-length(fileURL)-7,8) = 'VIDEO_TS'">
-                     <xsl:attribute name="zcd">2</xsl:attribute> 
-                   </xsl:if>
+                   
+                   <xsl:call-template name="zcd">
+                   		<xsl:with-param name="url" select="fileURL"/>
+                   		<xsl:with-param name="container" select="//movie/container"/>
+                   </xsl:call-template>
 
                    <xsl:attribute name="vod"/>
 
@@ -208,108 +248,115 @@
                        <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                    </xsl:if>
 
-                   <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
-                 </a>
-                </center>
-                </xsl:for-each>
-            </td>
-          </tr>
+				   <xsl:choose>
+					   <xsl:when test="//movie/season=-1">
+                         <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
+					   </xsl:when>
+					   <xsl:otherwise>
+                         <xsl:choose>
+                          <xsl:when test="@title='UNKNOWN'">
+						    <xsl:choose>
+						      <xsl:when test="@firstPart!=@lastPart">
+                                קרפ <xsl:value-of select="@firstPart"/> - <xsl:value-of select="@lastPart"/>
+						      </xsl:when>	 
+						      <xsl:otherwise>
+						        קרפ <xsl:value-of select="@firstPart"/>
+						      </xsl:otherwise>	 
+					        </xsl:choose>
+					      </xsl:when>	 
+                          <xsl:otherwise><xsl:value-of select="@title"/></xsl:otherwise>
+                        </xsl:choose>
+                  <xsl:if test="//movie/season!=-1">
+                    .<xsl:if test="@firstPart!=@lastPart">-<xsl:value-of select="@lastPart"/></xsl:if>
+                    <xsl:value-of select="@firstPart"/>
+			            </xsl:if>
+               <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
+             </xsl:otherwise>
+				    </xsl:choose>
+                  </a>
+                </td>
+              </tr>
+            </xsl:for-each>
         </xsl:when>
         <xsl:when test="//movie/container = 'BDAV'">
           <tr>
-            <td>
-                <center>
-                 <a class="link">
-                   <xsl:attribute name="href">
-                     <xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" />
-                   </xsl:attribute>
-                   <xsl:attribute name="TVID">Play</xsl:attribute>
+            <td align="center">
+              <a class="link">
+                <xsl:attribute name="href">
+                  <xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" />
+                </xsl:attribute>
+                <xsl:attribute name="TVID">Play</xsl:attribute>
 
-                   <xsl:attribute name="vod">playlist</xsl:attribute>
-                   <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
-                 </a>
-                </center>
+                <xsl:attribute name="vod">playlist</xsl:attribute>
+                <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
+              </a>
             </td>
           </tr>
         </xsl:when>
         <xsl:otherwise>
           <tr>
+		    <xsl:variable name="episodeSortOrder" select="if (/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season!=-1) then 'descending' else 'ascending'" />
             <td>
               <table align="right">
-               <xsl:for-each select="files/file">
-               <tr align="right">
+               <tr align="right" valign="top">
                  <td class="normal">
-                   <a class="link">
+               <xsl:for-each select="files/file">
+			   <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
+			     	<xsl:if test="position() = 1">
+             		 <a tvid="Play">
                      <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
-                    
-                     <xsl:choose>                                
-                       <xsl:when test="position() = 1">
-                         <xsl:attribute name="TVID">Play</xsl:attribute>
-                       </xsl:when>
-                       <xsl:otherwise>
-                         <xsl:attribute name="TVID"><xsl:value-of select="position()"/></xsl:attribute>
-                       </xsl:otherwise>            
-                     </xsl:choose> 
-                    
-                     <xsl:if test="//movie/container = 'ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.iso'">
-                       <xsl:attribute name="zcd">2</xsl:attribute> 
-                     </xsl:if>
-                    
-                     <xsl:if test="//movie/container = 'IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.img'">
-                       <xsl:attribute name="zcd">2</xsl:attribute> 
-                     </xsl:if>
-                    
-                     <xsl:if test="substring(fileURL,string-length(fileURL)-7,8) = 'VIDEO_TS'">
-                       <xsl:attribute name="zcd">2</xsl:attribute> 
-                     </xsl:if>
+                 </a>
+			     	</xsl:if>
+                 <a class="link">
+                   <xsl:if test="position() = 1">
+                     <xsl:attribute name="class">firstMovie</xsl:attribute>
+                   </xsl:if>
 
-                     <xsl:attribute name="vod"/>
+                   &#160;<xsl:value-of select="@firstPart"/>
+                   <xsl:if test="@firstPart!=@lastPart">-<xsl:value-of select="@lastPart"/>
+                   </xsl:if> קרפ
+                 </a>
+                 <a>  
+                     <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
+                     <xsl:attribute name="TVID"><xsl:value-of select="@firstPart"/></xsl:attribute>
+		                 <xsl:attribute name="name">e<xsl:value-of select="position()"/></xsl:attribute>
+              		   <xsl:attribute name="onkeyleftset">e<xsl:value-of select="position()-1"/></xsl:attribute>
+              		   <xsl:attribute name="onkeyrightset">e<xsl:value-of select="position()+1"/></xsl:attribute>
+		                 <xsl:attribute name="onfocus">show(<xsl:value-of select="@firstPart"/>)</xsl:attribute>
+			               <xsl:attribute name="onblur">hide()</xsl:attribute>
+
+	                   <xsl:call-template name="zcd">
+	                  		<xsl:with-param name="url" select="fileURL"/>
+	                  		<xsl:with-param name="container" select="//movie/container"/>
+	                   </xsl:call-template>
+
+                     <xsl:attribute name="vod"/>               
 
                      <xsl:if test="//movie/prebuf != '-1'">
-                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                        <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                      </xsl:if>
 
-                     <xsl:if test="position() = 1"> 
-                         <xsl:attribute name="class">firstMovie</xsl:attribute> 
-                     </xsl:if>
-					   
-                     <xsl:text>&#160;</xsl:text>
-
-                     <xsl:choose>
-                       <xsl:when test="/details/movie/season!=-1">
-                         <xsl:if test="@title!='UNKNOWN'">
-                           <xsl:value-of select="@title"/> -
-                         </xsl:if>
-                         <xsl:value-of select="@firstPart"/> קרפ
-                       </xsl:when>
-                       <xsl:otherwise>
-						 <xsl:choose>
-						   <xsl:when test="@title='UNKNOWN'">
-                             <xsl:value-of select="/details/movie/title"/> (Part <xsl:value-of select="@firstPart"/>)
-						   </xsl:when>
-						   <xsl:otherwise>
-							 <xsl:value-of select="@title"/>
-						   </xsl:otherwise>
-						 </xsl:choose> 
-                       </xsl:otherwise>
-                     </xsl:choose>
-
-                     <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
+                     <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">
+			                  <xsl:attribute name="onmouseover">show(<xsl:value-of select="@firstPart"/>);</xsl:attribute>
+				                <xsl:attribute name="onmouseout">hide();</xsl:attribute>
+                   	</img>
+                   
                    </a>
+               </xsl:for-each>
                  </td>
                </tr>
-               </xsl:for-each>
                <tr align="right">
                  <td class="normal">
+                 	<div id="title">&#160; </div>
                    <a class="link">
+				               <xsl:attribute name="onfocus">hide()</xsl:attribute>
                        <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
                        <xsl:attribute name="vod">playlist</xsl:attribute>
                        <xsl:if test="//movie/prebuf != '-1'">
                            <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                        </xsl:if>
-                     <xsl:text>&#160;</xsl:text>
-                     לכה ןגנ
-                     <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
+                       <xsl:text>&#160;</xsl:text>לכה ןגנ
+                       <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                    </a>
                  </td>
                </tr>
@@ -330,34 +377,18 @@
                    <a>
                      <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
 
-                     <xsl:if test="substring(.,string-length(.)-2) = 'ISO'">
-                       <xsl:attribute name="zcd">2</xsl:attribute>
-                     </xsl:if>
-                     <xsl:if test="substring(.,string-length(.)-2) = 'iso'">
-                       <xsl:attribute name="zcd">2</xsl:attribute>
-                     </xsl:if>
-                     <xsl:if test="substring(.,string-length(.)-2) = 'IMG'">
-                       <xsl:attribute name="zcd">2</xsl:attribute>
-                     </xsl:if>
-                     <xsl:if test="substring(.,string-length(.)-2) = 'img'">
-                       <xsl:attribute name="zcd">2</xsl:attribute>
-                     </xsl:if>
-                     <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
-                       <xsl:attribute name="zcd">2</xsl:attribute>
-                     </xsl:if>
+	                   <xsl:call-template name="zcd">
+	                   		<xsl:with-param name="url" select="."/>
+	                   </xsl:call-template>
 
-                     <xsl:attribute name="vod"/>
                      <xsl:if test="//movie/prebuf != '-1'">
                        <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                      </xsl:if>
 
-                     <xsl:value-of select="@title"/>
+                     <xsl:attribute name="vod"/>
+                     <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                      <xsl:text>&#160;</xsl:text>
-
-                     <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">
-                       <xsl:attribute name="onmouseover">this.src='pictures/play_selected_small.png';</xsl:attribute>
-                       <xsl:attribute name="onmouseout">this.src='pictures/play_small.png';</xsl:attribute>
-                     </img>
+                     <xsl:value-of select="@title"/>
                    </a>
                  </td>
                </tr>
@@ -368,10 +399,62 @@
         </xsl:if>
         
       </table>
+<xsl:for-each select="files/file">
+	<div class="title">
+		<xsl:attribute name="id">title<xsl:value-of	select="@firstPart" /></xsl:attribute>
+		<xsl:choose>
+			<xsl:when test="@title='UNKNOWN'">
+				<xsl:choose>
+					<xsl:when test="@firstPart!=@lastPart">
+            <xsl:value-of select="@firstPart" /> - <xsl:value-of select="@lastPart" />
+            <xsl:choose>
+              <xsl:when test="/details/movie/season!=-1"> םיקרפ</xsl:when>
+              <xsl:otherwise> םיקלח</xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+					<xsl:otherwise>
+            <xsl:value-of select="@firstPart" />
+            <xsl:choose>
+              <xsl:when test="/details/movie/season!=-1"> קרפ</xsl:when>
+              <xsl:otherwise> קלח</xsl:otherwise>
+            </xsl:choose>
+          </xsl:otherwise>
+				</xsl:choose>
+				<xsl:value-of select="@part" />
+			</xsl:when>
+			<xsl:otherwise>
+        <xsl:value-of select="@title" />
+        <xsl:if test="@firstPart!=@lastPart"> -	<xsl:value-of select="@lastPart" /></xsl:if>.
+				<xsl:value-of select="@firstPart" />        
+			</xsl:otherwise>
+		</xsl:choose>
+	</div>
+</xsl:for-each>
     </td>
   </tr>
 </table>
 </body>
 </html>
+</xsl:for-each>
 </xsl:template>
+
+<xsl:template name="zcd">
+	<xsl:param name="url"/>
+	<xsl:param name="container"/>
+
+	<xsl:if
+		test="$container = 'ISO' or ends-with($url, '.ISO') or ends-with($url, '.iso')">
+		<xsl:attribute name="zcd">2</xsl:attribute>
+	</xsl:if>
+
+	<xsl:if
+		test="$container = 'IMG' or ends-with($url, '.IMG') or ends-with($url, '.img')">
+		<xsl:attribute name="zcd">2</xsl:attribute>
+	</xsl:if>
+
+	<xsl:if test="ends-with($url, 'VIDEO_TS')">
+		<xsl:attribute name="zcd">2</xsl:attribute>
+	</xsl:if>
+</xsl:template>
+
 </xsl:stylesheet>
