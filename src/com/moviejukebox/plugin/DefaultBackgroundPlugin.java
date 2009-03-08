@@ -22,7 +22,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     }
 
     @Override
-    public BufferedImage generate(Movie movie, BufferedImage backgroundImage) {
+    public BufferedImage generate(Movie movie, BufferedImage backgroundImage, String perspectiveDirection) {
+        // perspectiveDirection not used. Needs to be here becuase of the way the plugins work.
         BufferedImage img = null;
         if (backgroundImage != null) {
             img = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);

@@ -263,7 +263,6 @@ public class MovieJukebox {
         subtitlePlugin = new OpenSubtitlesPlugin();
         trailerPlugin = new AppleTrailersPlugin();
 
-//JDGJr
         MovieListingPlugin listingPlugin = this.getListingPlugin(PropertiesUtil.getProperty("mjb.listing.plugin",
             "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.generate", "false"));
@@ -388,7 +387,7 @@ public class MovieJukebox {
                 movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
                 String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
                 movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
-                
+
                 // Create a thumbnail for each movie
                 logger.finest("Creating thumbnails for index master: " + movie.getBaseName());
                 createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
@@ -492,7 +491,6 @@ public class MovieJukebox {
                 logger.fine("Jukebox cleaning skipped");
             }
 
-    //JDGJr
             if (moviejukeboxListing) {
                 logger.fine("Generating listing output...");
                 listingPlugin.generate(tempJukeboxRoot, jukeboxRoot, library);
@@ -753,23 +751,22 @@ public class MovieJukebox {
         return backgroundPlugin;
     }
 
-//JDGJr
-  public MovieListingPlugin getListingPlugin(String className) {
-      MovieListingPlugin listingPlugin;
-      try {
-          Thread t = Thread.currentThread();
-          ClassLoader cl = t.getContextClassLoader();
-          Class<? extends MovieListingPlugin> pluginClass = cl.loadClass(className).asSubclass(MovieListingPlugin.class);
-          listingPlugin = pluginClass.newInstance();
-      } catch (Exception e) {
-          listingPlugin = new MovieListingPluginBase();
-          logger.severe("Failed instantiating ListingPlugin: " + className);
-          logger.severe("NULL listing plugin will be used instead.");
-          e.printStackTrace();
-      }
+    public MovieListingPlugin getListingPlugin(String className) {
+        MovieListingPlugin listingPlugin;
+        try {
+            Thread t = Thread.currentThread();
+            ClassLoader cl = t.getContextClassLoader();
+            Class<? extends MovieListingPlugin> pluginClass = cl.loadClass(className).asSubclass(MovieListingPlugin.class);
+            listingPlugin = pluginClass.newInstance();
+        } catch (Exception e) {
+            listingPlugin = new MovieListingPluginBase();
+            logger.severe("Failed instantiating ListingPlugin: " + className);
+            logger.severe("NULL listing plugin will be used instead.");
+            e.printStackTrace();
+        }
 
-      return listingPlugin;
-  } // getListingPlugin()
+        return listingPlugin;
+    } // getListingPlugin()
 
     /**
      * Download the image for the specified url into the specified file.
@@ -816,10 +813,43 @@ public class MovieJukebox {
                     bi = GraphicTools.loadJPEGImage(fis);
                 }
 
-                bi = thumbnailManager.generate(movie, bi);
+                // Perspective code.
+                String perspectiveDirection = PropertiesUtil.getProperty("thumbnails.perspectiveDirection", "right");
+                
+                // Generate and save both images
+                if (perspectiveDirection.equalsIgnoreCase("both")) {
+                    // Calculate mirror thumbnail name.
+                    String dstMirror = dst.substring(0, dst.lastIndexOf(".")) + "_mirror" + dst.substring(dst.lastIndexOf("."));
 
-                logger.finest("Generating thumbnail from " + src + " to " + dst);
-                GraphicTools.saveImageToDisk(bi, dst);
+                    // Generate left & save as copy
+                    logger.finest("Generating mirror thumbnail from " + src + " to " + dstMirror);
+                    BufferedImage biMirror = bi;
+                    biMirror = thumbnailManager.generate(movie, bi, "left");
+                    GraphicTools.saveImageToDisk(biMirror, dstMirror);
+
+                    // Generate right as per normal
+                    logger.finest("Generating right thumbnail from " + src + " to " + dst);
+                    bi = thumbnailManager.generate(movie, bi, "right");
+                    GraphicTools.saveImageToDisk(bi, dst);
+                }
+                
+                // Only generate the right image
+                if (perspectiveDirection.equalsIgnoreCase("right")) {
+                    bi = thumbnailManager.generate(movie, bi, "right");
+
+                    // Save the right perspective image.
+                    GraphicTools.saveImageToDisk(bi, dst);
+                    logger.finest("Generating right thumbnail from " + src + " to " + dst);
+                }
+                
+                // Only generate the left image
+                if (perspectiveDirection.equalsIgnoreCase("left")) {
+                    bi = thumbnailManager.generate(movie, bi, "left");
+
+                    // Save the right perspective image.
+                    GraphicTools.saveImageToDisk(bi, dst);
+                    logger.finest("Generating left thumbnail from " + src + " to " + dst);
+                }
             }
         } catch (Exception e) {
             logger.severe("Failed creating thumbnail for " + movie.getTitle());
@@ -857,9 +887,44 @@ public class MovieJukebox {
                     bi = GraphicTools.loadJPEGImage(fis);
                 }
                 logger.finest("Generating poster from " + src + " to " + dst);
-                bi = posterManager.generate(movie, bi);
 
-                GraphicTools.saveImageToDisk(bi, dst);
+                // Perspective code.
+                String perspectiveDirection = PropertiesUtil.getProperty("posters.perspectiveDirection", "right");
+                
+                // Generate and save both images
+                if (perspectiveDirection.equalsIgnoreCase("both")) {
+                    // Calculate mirror thumbnail name.
+                    String dstMirror = dst.substring(0, dst.lastIndexOf(".")) + "_mirror" + dst.substring(dst.lastIndexOf("."));
+
+                    // Generate left & save as copy
+                    logger.finest("Generating mirror thumbnail from " + src + " to " + dstMirror);
+                    BufferedImage biMirror = bi;
+                    biMirror = posterManager.generate(movie, bi, "left");
+                    GraphicTools.saveImageToDisk(biMirror, dstMirror);
+
+                    // Generate right as per normal
+                    logger.finest("Generating right thumbnail from " + src + " to " + dst);
+                    bi = posterManager.generate(movie, bi, "right");
+                    GraphicTools.saveImageToDisk(bi, dst);
+                }
+                
+                // Only generate the right image
+                if (perspectiveDirection.equalsIgnoreCase("right")) {
+                    bi = posterManager.generate(movie, bi, "right");
+
+                    // Save the right perspective image.
+                    GraphicTools.saveImageToDisk(bi, dst);
+                    logger.finest("Generating right thumbnail from " + src + " to " + dst);
+                }
+                
+                // Only generate the left image
+                if (perspectiveDirection.equalsIgnoreCase("left")) {
+                    bi = posterManager.generate(movie, bi, "left");
+
+                    // Save the right perspective image.
+                    GraphicTools.saveImageToDisk(bi, dst);
+                    logger.finest("Generating left thumbnail from " + src + " to " + dst);
+                }
             }
         } catch (Exception e) {
             logger.severe("Failed creating poster for " + movie.getTitle());

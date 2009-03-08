@@ -118,7 +118,7 @@ public class FanartScanner {
                 try {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(new FileInputStream(fullFanartFile));
                     if (fanartImage != null) {
-                        fanartImage = backgroundPlugin.generate(movie, fanartImage);
+                        fanartImage = backgroundPlugin.generate(movie, fanartImage, null);
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);
                         logger.finer("FanartScanner: " + fullFanartFilename + " has been copied to " + destFileName);
                     } else {
@@ -155,7 +155,7 @@ public class FanartScanner {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(movie.getFanartURL());
 
                     if (fanartImage != null) {
-                        fanartImage = backgroundPlugin.generate(movie, fanartImage);
+                        fanartImage = backgroundPlugin.generate(movie, fanartImage, null);
                         GraphicTools.saveImageToDisk(fanartImage, tmpDestFileName);
                     } else {
                         movie.setFanartFilename(Movie.UNKNOWN);

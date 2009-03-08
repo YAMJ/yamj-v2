@@ -43,7 +43,7 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
     }
 
     @Override
-    public BufferedImage generate(Movie movie, BufferedImage moviePoster) {
+    public BufferedImage generate(Movie movie, BufferedImage moviePoster, String perspectiveDirection) {
         BufferedImage bi = moviePoster;
         
         // Check if we need to cut the poster into a sub image            
@@ -93,11 +93,11 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
             }
 
             if (addReflectionEffect) {
-                bi = GraphicTools.createReflectedPicture(bi);
+                bi = GraphicTools.createReflectedPicture(bi, "thumbnails");
             }
 
             if (addPerspective) {
-                bi = GraphicTools.create3DPicture(bi);
+                bi = GraphicTools.create3DPicture(bi, "thumbnails", perspectiveDirection);
             }
         }
 
