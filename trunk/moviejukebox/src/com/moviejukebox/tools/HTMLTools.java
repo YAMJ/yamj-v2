@@ -507,6 +507,18 @@ public class HTMLTools {
         }
         return s;
     }
+    
+    public static String encodeUrlPath(String s) {
+        if (s != null && s.length() != 0) {
+            int slash = s.lastIndexOf('/');
+            String parentPart = "";
+            if (slash != -1) {
+                parentPart = encodeUrlPath(s.substring(0, slash)) + '/';
+            }
+            s = parentPart + encodeUrl(s.substring(slash+1));
+        }
+        return s;
+    }
 
     public static String decodeUrl(String s) {
         if (s != null && s.length() != 0) {

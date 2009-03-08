@@ -204,9 +204,9 @@ public class MovieDirectoryScanner {
 
             if (contentFiles[i].isDirectory()) {
                 // For DVD images
-                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrl(relativeFilename + "/VIDEO_TS"));
+                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
             } else {
-                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrl(relativeFilename));
+                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
             }
             movieFile.setPart(i + 1);
             movieFile.setFile(contentFiles[i]);
