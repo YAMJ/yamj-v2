@@ -172,7 +172,14 @@ public class MovieFilenameScannerTest extends TestCase {
 		d = scan("Steamboy_(2004)_[720p,BluRay,x264,DTS]_-_THORA.mkv");
 		assertEquals(2004, d.getYear());
 		assertEquals("Steamboy", d.getTitle());
+		assertEquals("720p", d.getHdResolution());
+		assertEquals("BluRay", d.getVideoSource());
+		assertEquals("H.264", d.getVideoCodec());
 		
+		d = scan("X-Men 3 [SET X-Men - 99].avi");
+		assertEquals(1, d.getSets().size());
+		assertEquals(99, d.getSets().get(0).getIndex());
+		assertEquals("X-Men", d.getSets().get(0).getTitle());
 	}
 	
 	@SuppressWarnings("serial")
