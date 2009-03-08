@@ -45,8 +45,6 @@ public class SratimPlugin extends ImdbPlugin {
 
         String sratimUrl = mediaFile.getId(SRATIM_PLUGIN_ID);
         if (sratimUrl == null || sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-            sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
-            mediaFile.setId(SRATIM_PLUGIN_ID, sratimUrl);
 
             // collect missing information from IMDB or TVDB before sratim
             if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW)) {
@@ -56,6 +54,9 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             translateGenres(mediaFile);
+            
+            sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
+            mediaFile.setId(SRATIM_PLUGIN_ID, sratimUrl);
         }
 
         if (!sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -677,7 +678,7 @@ public class SratimPlugin extends ImdbPlugin {
                 if (scanName.equalsIgnoreCase(movieName)) {
                     posterID = scanPosterID;
 
-                    if (scanType.indexOf("עטיפה לסרט") == -1 )
+                    if (scanType.indexOf("טיפה לסרט") != -1 )
                         dvdCover = true;
                     else
                         dvdCover = false;
