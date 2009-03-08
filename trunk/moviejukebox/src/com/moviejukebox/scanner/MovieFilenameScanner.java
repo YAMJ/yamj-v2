@@ -54,7 +54,7 @@ public class MovieFilenameScanner {
     
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
-    protected static final String WORD_DELIMITERS_STRING = " _-" + TOKEN_DELIMITERS_STRING;
+    protected static final String WORD_DELIMITERS_STRING = " _-," + TOKEN_DELIMITERS_STRING;
     protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
     protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = 
     	patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
