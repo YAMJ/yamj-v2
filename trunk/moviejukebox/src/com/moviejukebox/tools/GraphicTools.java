@@ -231,7 +231,7 @@ public class GraphicTools {
     public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight, float reflectionHeight) {
         BufferedImage gradient = new BufferedImage(avatarWidth, avatarHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = gradient.createGraphics();
-        GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight * (reflectionHeight / 100), new Color(1.0f, 1.0f, 1.0f, 1f));
+        GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight * (reflectionHeight / 100), new Color(1.0f, 1.0f, 1.0f, 1.0f));
         g.setPaint(painter);
         g.fill(new Rectangle2D.Double(0, 0, avatarWidth, avatarHeight));
 
@@ -243,7 +243,7 @@ public class GraphicTools {
 
     public static BufferedImage createReflection(BufferedImage avatar, int avatarWidth, int avatarHeight, float reflectionHeight) {
         // Increase the height of the image to cater for the reflection.
-        int newHeight = (int) (avatarHeight * (1 + (reflectionHeight * 1.4 / 100) ));
+        int newHeight = (int) (avatarHeight * (1 + (reflectionHeight / 100) ));
   
         BufferedImage buffer = new BufferedImage(avatarWidth, newHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = buffer.createGraphics();
