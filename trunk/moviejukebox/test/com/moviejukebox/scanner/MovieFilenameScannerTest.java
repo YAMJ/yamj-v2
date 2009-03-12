@@ -30,7 +30,7 @@ public class MovieFilenameScannerTest extends TestCase {
 	
 	public void testScan() {
 		MovieFilenameScanner.setSkipKeywords(new String[] {
-			"-xor", "REMUX", "vfua", "-SMB", "-hdclub"
+			"-xor", "REMUX", "vfua", "-SMB", "-hdclub", "Remastered", "[KB]"
 		});
 		MovieFileNameDTO d = scan("Desperate Housewives S04E01E02E03E06.iso");
 		assertEquals("Desperate Housewives", d.getTitle());
@@ -193,6 +193,11 @@ public class MovieFilenameScannerTest extends TestCase {
 		d = scan("1408 DVD");
 		assertEquals("DVD", d.getVideoSource());
 		assertEquals("1408", d.getTitle());
+		
+		d = scan("[KB]_Cowboy_Bebop_Remastered_07.DVD_(H264.AC3_5.1).mkv");
+		assertEquals("Cowboy Bebop", d.getTitle());
+		assertEquals(7, d.getPart());
+		assertNull(d.getPartTitle());
 		}
 	
 	@SuppressWarnings("serial")

@@ -225,6 +225,7 @@ public class Library implements Map<String, Movie> {
             List<Movie> index_list = index_entry.getValue();
             
             Movie indexMaster = (Movie)index_list.get(0).clone();
+            indexMaster.setSetMaster(true);
             indexMaster.setTitle(index_name);
             indexMaster.setSeason(-1);
             indexMaster.setTitleSort(index_name);
@@ -301,9 +302,6 @@ public class Library implements Map<String, Movie> {
             Map<String, Index> dynamic_indexes = new LinkedHashMap<String, Index>();
             // Add the sets FIRST! That allows users to put series inside sets
             dynamic_indexes.put(SET, indexBySets(indexMovies));
-            if (singleSeriesPage) {
-                dynamic_indexes.put(TV_SERIES, indexByTVShowSeasons(indexMovies));
-            }
             
             indexes.put("Other", indexByProperties(indexMovies));
             indexes.put("Genres", indexByGenres(indexMovies));
@@ -552,23 +550,19 @@ public class Library implements Map<String, Movie> {
         return index;
     }
     
-    protected static Index indexByTVShowSeasons(List<Movie> list) {
-        Index index = new Index();
-        for (Movie movie : list) {
-            if (!movie.isTrailer() && movie.isTVShow()) {
-                index.addMovie(movie.getTitle(), movie);
-            }
-        }
-        
-        return index; 
-    }
-    
     protected static Index indexBySets(List<Movie> list) {
         Index index = new Index();
         for (Movie movie : list) {
             for (String set_key : movie.getSets()) {
                 index.addMovie(set_key, movie);
             }
+        }
+        if(singleSeriesPage) {
+	        for (Movie movie : list) {
+	            if (!movie.isTrailer() && movie.isTVShow()) {
+	                index.addMovie(movie.getOriginalTitle(), movie);
+	            }
+	        }
         }
         
         return index;
@@ -762,4 +756,20 @@ public class Library implements Map<String, Movie> {
 
         return c;
     }
+
+	public static boolean isFilterGenres() {
+		return filterGenres;
+	}
+
+	public static void setFilterGenres(boolean filterGenres) {
+		Library.filterGenres = filterGenres;
+	}
+
+	public static boolean isSingleSeriesPage() {
+		return singleSeriesPage;
+	}
+
+	public static void setSingleSeriesPage(boolean singleSeriesPage) {
+		Library.singleSeriesPage = singleSeriesPage;
+	}
 }
