@@ -90,6 +90,9 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private boolean isDirtyFanart = false;
     private File file;
     private File containerFile;
+    
+    /** True if movie actually is only a entry point to movies set.  */
+    private boolean isSetMaster = false; 
 
     public void addGenre(String genre) {
         if (genre != null && !trailer) {
@@ -1089,5 +1092,13 @@ public class Movie implements Comparable<Movie>, Cloneable {
             }
         }
 		
+	}
+
+	public boolean isSetMaster() {
+		return isSetMaster;
+	}
+
+	public void setSetMaster(boolean isSetMaster) {
+		this.isSetMaster = isSetMaster;
 	}
 }

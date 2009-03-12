@@ -53,10 +53,13 @@ public class MovieFilenameScanner {
     
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
-    protected static final String WORD_DELIMITERS_STRING = " _-," + TOKEN_DELIMITERS_STRING;
+	private static final String NOTOKEN_DELIMITERS_STRING = " _-,";
+    protected static final String WORD_DELIMITERS_STRING = NOTOKEN_DELIMITERS_STRING + TOKEN_DELIMITERS_STRING;
     protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
     protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = 
     	patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
+    protected static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = 
+    	patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
     protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = 
     	patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
     
@@ -76,7 +79,7 @@ public class MovieFilenameScanner {
 		{
 			add(iwpatt("CD ([0-9]+)")); 
 			add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)")); 
-			add(tpatt("([0-9]{1})[ \\.]{0,1}DVD"));
+			add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
 		}
 	};
 		
@@ -237,7 +240,11 @@ public class MovieFilenameScanner {
      * @return Case sensitive pattern with token delimiters around
      */
     private static final Pattern tpatt(String regex) {
-    	return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + TOKEN_DELIMITERS_MATCH_PATTERN);
+    	return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN 
+    			+ "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)"
+    			+ "(?:" + regex + ")" 
+    			+ "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)"
+    			+ TOKEN_DELIMITERS_MATCH_PATTERN);
     }
     
     private MovieFilenameScanner(File file) {

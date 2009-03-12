@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 
 import com.moviejukebox.model.Library.Index;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.FileTools;
 
 
 public class LibraryTest extends TestCase {
@@ -26,8 +25,8 @@ public class LibraryTest extends TestCase {
 		movies.add(tv("The Sopranos", 2));
 		movies.add(tv("The Sopranos", 3));
 		movies.add(tv("The Sopranos", 4));
-    movies.add(tv("M*A*S*H", 1));
-    movies.add(tv("M*A*S*H", 2));
+	    movies.add(tv("M*A*S*H", 1));
+	    movies.add(tv("M*A*S*H", 2));
 		movies.add(movie("Shrek"));
 		movies.add(tv("Star Trek", 3));
 		movies.add(tv("Star Trek", 7));
@@ -59,11 +58,12 @@ public class LibraryTest extends TestCase {
 	}
 
 	public void testIndexByTVShowSeasons() {
-		Index index = Library.indexByTVShowSeasons(movies);
+		Library.setSingleSeriesPage(true);
+		Index index = Library.indexBySets(movies);
 		assertEquals(4, index.size());
 		assertTrue(index.containsKey("The Sopranos"));
 		assertTrue(index.containsKey("Star Trek"));
-    //assertTrue(index.containsKey("M_A_S_H"));
+		assertTrue(index.containsKey("M*A*S*H"));
 		assertEquals(4, index.get("The Sopranos").size());
 	}
 	
