@@ -93,24 +93,31 @@ public class AppleTrailersPlugin {
                 tmf.setFilename(trailerRealUrl);
                 movie.addTrailerFile(new TrailerFile(tmf));
                 //movie.setTrailer(true);
-            }
-            else
-            {
+            } else {
                 MovieFile mf = movie.getFirstFile();
-                String path = mf.getFile().getAbsolutePath();
-                int index = path.lastIndexOf(".");
-                String basename = path.substring(0, index + 1);
+                String parentPath = mf.getFile().getParent();
+                String name = mf.getFile().getName();
+                
+                String basename;
+                if (mf.getFilename().endsWith("/VIDEO_TS")) {
+                    parentPath += File.separator + name;
+                    basename = name;
+                } else {
+                    int index = name.lastIndexOf(".");
+                    basename = index == -1 ? name : name.substring(0, index);
+                }
                 
                 int nameStart=trailerRealUrl.lastIndexOf('/')+1;
-                String trailerFileName = basename + "[TRAILER]." + trailerRealUrl.substring(nameStart);
+                String trailerBasename = basename + ".[TRAILER]." + trailerRealUrl.substring(nameStart);
+                String trailerFileName = parentPath + File.separator + trailerBasename;
                 
-
-                String playPath = mf.getFilename();
-                int playIndex = playPath.lastIndexOf(".");
-                String playBasename = playPath.substring(0, playIndex + 1);
+                int slash = mf.getFilename().lastIndexOf("/");
+                String playPath = slash == -1 ? mf.getFilename() : mf.getFilename().substring(0, slash);
+                String trailerPlayFileName = playPath + "/" + trailerBasename;
                 
-                String trailerPlayFileName = playBasename + "[TRAILER]." + trailerRealUrl.substring(nameStart);
-
+                logger.finest("Found trailer: " + trailerRealUrl);
+                logger.finest("  D/L path: " + trailerFileName);
+                logger.finest("  Play URL: " + trailerPlayFileName);
                 
                 File trailerFile = new File(trailerFileName);
                 
@@ -122,16 +129,12 @@ public class AppleTrailersPlugin {
                     tmf.setFilename(trailerPlayFileName);
                     movie.addTrailerFile(new TrailerFile(tmf));
                     //movie.setTrailer(true);
-                }
-                else {
-                    if (trailerDownload(movie,trailerRealUrl,trailerFile)) {
                     
-                        tmf.setFilename(trailerPlayFileName);
-                        movie.addTrailerFile(new TrailerFile(tmf));
-                        //movie.setTrailer(true);
-                    }
+                } else if (trailerDownload(movie,trailerRealUrl,trailerFile)) {
+                    tmf.setFilename(trailerPlayFileName);
+                    movie.addTrailerFile(new TrailerFile(tmf));
+                    //movie.setTrailer(true);
                 }
-                
             }
         }
         
