@@ -74,6 +74,7 @@ MovieJukebox 1.0.16 beta
   - Fixed defect #598 Allow multi-digit set index and allow whitespace around it
   - Fixed defect #605 Downloaded trailer links are incorrect for VIDEO_TS movies
   - Enhancement  #606 Join Boxed Sets and TVShows (TV Shows are included to the sets with the same name)
+  - Fixed defect #622 BluRay Scanner no longer recognises moviename
 
 MovieJukebox 1.0.15 beta
 ------------------------

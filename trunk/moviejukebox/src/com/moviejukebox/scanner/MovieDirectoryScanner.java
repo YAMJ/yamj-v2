@@ -230,7 +230,7 @@ public class MovieDirectoryScanner {
 
 //            MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
 //            filenameScanner.scan(m);
-            MovieFileNameDTO dto = MovieFilenameScanner.scan(m.getFile());
+            MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
 			m.mergeFileNameDTO(dto);
 			movieFile.mergeFileNameDTO(dto);
 
