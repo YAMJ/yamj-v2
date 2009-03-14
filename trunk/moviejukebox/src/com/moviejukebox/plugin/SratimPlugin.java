@@ -678,7 +678,7 @@ public class SratimPlugin extends ImdbPlugin {
                 if (scanName.equalsIgnoreCase(movieName)) {
                     posterID = scanPosterID;
 
-                    if (scanType.indexOf("טיפה לסרט") != -1 )
+                    if (scanType.indexOf("טיפת דיוידי לסרט") != -1 )
                         dvdCover = true;
                     else
                         dvdCover = false;
