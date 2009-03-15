@@ -163,9 +163,9 @@ public class MovieNFOScanner {
     private static boolean parseXMLNFO(String nfo, Movie movie, File nfoFile) {
         boolean retval = true;
         if (nfo.indexOf("<movie>") > -1) {
-            parseMovieNFO(nfoFile, movie);
+            parseMovieNFO(nfoFile, movie, nfo);
         } else if (nfo.indexOf("<tvshow>") > -1) {
-            parseTVNFO(nfoFile, movie);
+            parseTVNFO(nfoFile, movie, nfo);
         // } else if (nfo.indexOf("<episodedetails>") > -1) {
         // parseEpisodeNFO(nfo, movie);
         } else {
@@ -177,15 +177,24 @@ public class MovieNFOScanner {
     /**
      * Create an XML reader for file. Use forced encoding if specified.
      * @param nfoFile File to read.
+     * @param nfo Content of the XML file. Used only for the encoding detection. 
      * @return New XML reader.
      * @throws FactoryConfigurationError
      * @throws XMLStreamException
      * @throws FileNotFoundException
      */
-    private static XMLEventReader createXMLReader(File nfoFile)
+    private static XMLEventReader createXMLReader(File nfoFile, String nfo)
     	throws FactoryConfigurationError, XMLStreamException, FileNotFoundException {
 		XMLInputFactory factory = XMLInputFactory.newInstance();
-		XMLEventReader r = forceNFOEncoding != null 
+		
+		// TODO Make the encoding detection more explicit 
+		boolean fileContainsEncoding = false;
+		if (nfo != null) {
+			int i = nfo.indexOf("encoding");
+			fileContainsEncoding = (i > 0 && i < 100);
+		}
+		
+		XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding) 
 				? factory.createXMLEventReader(new FileInputStream(nfoFile), forceNFOEncoding)
 				: factory.createXMLEventReader(new FileInputStream(nfoFile));
 		return r;
@@ -197,9 +206,9 @@ public class MovieNFOScanner {
      * @param xmlFile
      * @param movie
      */
-    private static void parseMovieNFO(File nfoFile, Movie movie) {
+    private static void parseMovieNFO(File nfoFile, Movie movie, String nfo) {
         try {
-            XMLEventReader r = createXMLReader(nfoFile);
+            XMLEventReader r = createXMLReader(nfoFile, nfo);
 
             boolean isMovieTag = false;
             while (r.hasNext()) {
@@ -364,9 +373,9 @@ public class MovieNFOScanner {
      * @param xmlFile
      * @param movie
      */
-    private static void parseTVNFO(File nfoFile, Movie movie) {
+    private static void parseTVNFO(File nfoFile, Movie movie, String nfo) {
         try {
-            XMLEventReader r = createXMLReader(nfoFile);
+            XMLEventReader r = createXMLReader(nfoFile, nfo);
 
             boolean isTVTag = false;
             while (r.hasNext()) {
