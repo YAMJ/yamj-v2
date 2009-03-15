@@ -241,6 +241,7 @@ public class MovieJukebox {
             MediaLibraryPath mlp = new MediaLibraryPath();
             mlp.setPath(source);
             mlp.setNmtRootPath(PropertiesUtil.getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"));
+            mlp.setScrapeLibrary(true);
             mlp.setExcludes(new ArrayList<String>());
             movieLibraryPaths.add(mlp);
         }
@@ -728,6 +729,16 @@ public class MovieJukebox {
                 String path = sub.getString("path");
                 String nmtpath = sub.getString("nmtpath");
                 String description = sub.getString("description");
+                boolean scrapeLibrary = true;
+
+                String scrapeLibraryString = sub.getString("scrapeLibrary");
+                if (scrapeLibraryString != null && !scrapeLibraryString.isEmpty()) {
+                    try {
+                        scrapeLibrary = sub.getBoolean("scrapeLibrary");
+                    } catch (Exception ignore) {
+                    }
+                }
+
                 long prebuf = -1;
                 String prebufString = sub.getString("prebuf");
                 if (prebufString != null && !prebufString.isEmpty()) {
@@ -751,6 +762,7 @@ public class MovieJukebox {
                     medlib.setNmtRootPath(nmtpath);
                     medlib.setExcludes(excludes);
                     medlib.setDescription(description);
+                    medlib.setScrapeLibrary(scrapeLibrary);
                     medlib.setPrebuf(prebuf);
                     mlp.add(medlib);
                     logger.fine("Found media library: " + medlib);

@@ -9,6 +9,7 @@ public class MediaLibraryPath {
     String nmtRootPath;
     Collection<String> excludes;
     String description;
+    boolean scrapeLibrary = true;
     long prebuf = -1;
 
     public String getPath() {
@@ -47,10 +48,12 @@ public class MediaLibraryPath {
         this.description = description;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("[MediaLibraryPath");
         sb.append("[path=").append(path).append("]");
         sb.append("[nmtRootPath=").append(nmtRootPath).append("]");
+        sb.append("[scrape=").append(scrapeLibrary).append("]");
         for (String excluded : excludes) {
             sb.append("[excludes=").append(excluded).append("]");
         }
@@ -64,5 +67,13 @@ public class MediaLibraryPath {
 
     public void setPrebuf(long prebuf) {
         this.prebuf = prebuf;
+    }
+
+    public boolean isScrapeLibrary() {
+        return this.scrapeLibrary;
+    }
+
+    public void setScrapeLibrary(boolean scrapeLibrary) {
+        this.scrapeLibrary = scrapeLibrary;
     }
 }

@@ -29,6 +29,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
     private String baseName;
+    private boolean scrapeLibrary;
     // Movie properties
     private Map<String, String> idMap = new HashMap<String, String>(2);
     private String title = UNKNOWN;
@@ -1002,6 +1003,14 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
     public void setPrebuf(long prebuf) {
         this.prebuf = prebuf;
+    }
+
+    public boolean isScrapeLibrary() {
+        return scrapeLibrary;
+    }
+
+    public void setScrapeLibrary(boolean scrapeLibrary) {
+        this.scrapeLibrary = scrapeLibrary;
     }
 
     public static ArrayList<String> getSortIgnorePrefixes() {
