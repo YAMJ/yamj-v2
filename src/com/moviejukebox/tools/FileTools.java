@@ -38,10 +38,10 @@ public class FileTools {
             for (String repChar : repChars.split("")) {
                 if (repChar.length() > 0) {
                     char ch = repChar.charAt(0);
-                    // Skip alphanumeric characters -- hex digits aren't safe to encode, and why bother?
+                    // Don't encode characters that are hex digits
                     // Also, don't encode the escape char -- it is safe by definition!
-                    if (!Character.isLetterOrDigit(ch) && !encodeEscapeChar.equals(ch)) {
-                        String hex = Integer.toHexString(repChar.charAt(0)).toUpperCase();
+                    if (!Character.isDigit(ch) && -1 == "AaBbCcDdEeFf".indexOf(ch) && !encodeEscapeChar.equals(ch)) {
+                        String hex = Integer.toHexString(ch).toUpperCase();
                         unsafeChars.put(repChar, encodeEscapeChar + hex);
                     }
                 }
@@ -204,9 +204,14 @@ public class FileTools {
     }
     
     public static String makeSafeFilename(String filename) {
+        String oldfilename = filename;
         for (Map.Entry<CharSequence, CharSequence> rep : unsafeChars.entrySet()) {
             filename = filename.replace(rep.getKey(), rep.getValue());
         }
+        if (!filename.equals(oldfilename)) {
+            logger.finest("Encoded filename string " + oldfilename + " to " + filename);
+        }
+            
         return filename;
     }
 }
