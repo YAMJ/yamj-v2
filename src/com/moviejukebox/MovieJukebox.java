@@ -130,6 +130,13 @@ public class MovieJukebox {
         if (!PropertiesUtil.setPropertiesStreamName(propertiesName)) {
             return;
         }
+        
+        MovieNFOScanner.setForceNFOEncoding(PropertiesUtil.getProperty("mjb.forceNFOEncoding", null));
+        if ("AUTO".equalsIgnoreCase(MovieNFOScanner.getForceNFOEncoding())) {
+        	MovieNFOScanner.setForceNFOEncoding(null);
+        }
+        MovieNFOScanner.setFanartToken(PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart"));
+        MovieNFOScanner.setNFOdirectory(PropertiesUtil.getProperty("filename.nfo.directory", ""));
 
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
         Collection<String> keywords = new ArrayList<String>();

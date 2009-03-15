@@ -2,6 +2,7 @@ package com.moviejukebox.scanner;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -10,8 +11,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 
@@ -21,7 +24,6 @@ import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLHelper;
 
 /**
@@ -37,7 +39,9 @@ public class MovieNFOScanner {
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    protected static String fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+    private static String fanartToken = ".fanart";
+    private static String forceNFOEncoding = null; 
+    private static String NFOdirectory = "";;
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -94,7 +98,6 @@ public class MovieNFOScanner {
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
         String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // just the sub-directory the video file is in
         String checkedFN = "";
-        String NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
 
         // If "fn" is a file then strip the extension from the file.
         if (movie.getContainerFile().isFile()) {
@@ -172,6 +175,23 @@ public class MovieNFOScanner {
     }
 
     /**
+     * Create an XML reader for file. Use forced encoding if specified.
+     * @param nfoFile File to read.
+     * @return New XML reader.
+     * @throws FactoryConfigurationError
+     * @throws XMLStreamException
+     * @throws FileNotFoundException
+     */
+    private static XMLEventReader createXMLReader(File nfoFile)
+    	throws FactoryConfigurationError, XMLStreamException, FileNotFoundException {
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		XMLEventReader r = forceNFOEncoding != null 
+				? factory.createXMLEventReader(new FileInputStream(nfoFile), forceNFOEncoding)
+				: factory.createXMLEventReader(new FileInputStream(nfoFile));
+		return r;
+	}
+
+    /**
      * Used to parse out the XBMC nfo xml data for movies
      *
      * @param xmlFile
@@ -179,8 +199,7 @@ public class MovieNFOScanner {
      */
     private static void parseMovieNFO(File nfoFile, Movie movie) {
         try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(new FileInputStream(nfoFile));
+            XMLEventReader r = createXMLReader(nfoFile);
 
             boolean isMovieTag = false;
             while (r.hasNext()) {
@@ -347,8 +366,7 @@ public class MovieNFOScanner {
      */
     private static void parseTVNFO(File nfoFile, Movie movie) {
         try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(new FileInputStream(nfoFile));
+            XMLEventReader r = createXMLReader(nfoFile);
 
             boolean isTVTag = false;
             while (r.hasNext()) {
@@ -490,4 +508,28 @@ public class MovieNFOScanner {
             System.err.println("Failed parsing NFO file for tvshow: " + movie.getTitle() + ". Please fix or remove it.");
         }
     }
+
+	public static String getForceNFOEncoding() {
+		return forceNFOEncoding;
+	}
+
+	public static void setForceNFOEncoding(String forceNFOEncoding) {
+		MovieNFOScanner.forceNFOEncoding = forceNFOEncoding;
+	}
+
+	public static String getFanartToken() {
+		return fanartToken;
+	}
+
+	public static void setFanartToken(String fanartToken) {
+		MovieNFOScanner.fanartToken = fanartToken;
+	}
+
+	public static String getNFOdirectory() {
+		return NFOdirectory;
+	}
+
+	public static void setNFOdirectory(String odirectory) {
+		NFOdirectory = odirectory;
+	}
 }
