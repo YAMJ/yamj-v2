@@ -29,6 +29,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.AppleTrailersPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
@@ -61,6 +62,7 @@ public class MovieJukebox {
     private boolean forceThumbnailOverwrite;
     private boolean forcePosterOverwrite;
     private boolean fanartDownload;
+    private boolean videoImagesDownload;
     private boolean moviejukeboxListing;
     private OpenSubtitlesPlugin subtitlePlugin;
     private AppleTrailersPlugin trailerPlugin;
@@ -267,6 +269,8 @@ public class MovieJukebox {
             "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.generate", "false"));
 
+        videoImagesDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+
         int nbFiles = 0;
         String cleanCurrent = "";
         String cleanCurrentExt = "";
@@ -294,8 +298,14 @@ public class MovieJukebox {
 
                     if (cleanCurrent.equals("CATEGORIES")) {
                         cleanList[nbFiles].delete();
-                    } else if (cleanCurrentExt.equals(".CSS") || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
-                    (cleanCurrent.indexOf("TVSERIES_") >= 0) || (cleanCurrent.indexOf("SET_") >= 0)) {
+                    } else if (cleanCurrentExt.equals(".CSS") ||
+                              (cleanCurrent.indexOf("GENRES_") >= 0) ||
+                              (cleanCurrent.indexOf("OTHER_") >= 0) ||
+                              (cleanCurrent.indexOf("RATING_") >= 0) ||
+                              (cleanCurrent.indexOf("TITLE_") >= 0) ||
+                              (cleanCurrent.indexOf("YEAR_") >= 0) ||
+                              (cleanCurrent.indexOf("TVSERIES_") >= 0) ||
+                              (cleanCurrent.indexOf("SET_") >= 0)) {
                         cleanList[nbFiles].delete();
                     }
                 }
@@ -345,6 +355,11 @@ public class MovieJukebox {
                 // Then get this movie's poster
                 logger.finer("Updating poster for: " + movie.getTitle() + "...");
                 updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+
+                // Download episode images if required
+                if (videoImagesDownload) {
+                    updateVideoImages(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                }
 
                 // Get Fanart if requested
                 // Note that the FanartScanner will check if the file is newer / different
@@ -459,8 +474,14 @@ public class MovieJukebox {
 
                         if (cleanCurrent.equals("CATEGORIES")) {
                             // logger.fine(cleanCurrent + " ignored");
-                        } else if ((cleanCurrentExt.equals(".CSS")) || (cleanCurrent.indexOf("GENRES_") >= 0) || (cleanCurrent.indexOf("OTHER_") >= 0) || (cleanCurrent.indexOf("RATING_") >= 0) || (cleanCurrent.indexOf("TITLE_") >= 0) || (cleanCurrent.indexOf("YEAR_") >= 0) ||
-                        (cleanCurrent.indexOf("TVSERIES_") >= 0) || (cleanCurrent.indexOf("SET_") >= 0)) {
+                        } else if ((cleanCurrentExt.equals(".CSS")) ||
+                                   (cleanCurrent.indexOf("GENRES_") >= 0) ||
+                                   (cleanCurrent.indexOf("OTHER_") >= 0) ||
+                                   (cleanCurrent.indexOf("RATING_") >= 0) ||
+                                   (cleanCurrent.indexOf("TITLE_") >= 0) ||
+                                   (cleanCurrent.indexOf("YEAR_") >= 0) ||
+                                   (cleanCurrent.indexOf("TVSERIES_") >= 0) ||
+                                   (cleanCurrent.indexOf("SET_") >= 0)) {
                             // logger.fine(cleanCurrent + " ignored");
                         } else {
                             // Left with just the generated movie files in the directory now.
@@ -475,6 +496,8 @@ public class MovieJukebox {
                                 cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_SMALL"));
                             } else if (cleanCurrent.lastIndexOf("FANART") > 0) {
                                 cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("FANART") - 1);
+                            } else if (cleanCurrent.lastIndexOf("VIDEOIMAGE") > 0 ) {
+                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("VIDEOIMAGE") - 1);
                             }
 
                             if (!searchLibrary(cleanCurrent, library)) {
@@ -639,6 +662,51 @@ public class MovieJukebox {
                 }
             }
         }
+    }
+
+    private void updateVideoImages(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+        String videoImageFilename;
+        File videoImageFile;
+        File tmpDestFile;
+
+        for (MovieFile moviefile : movie.getMovieFiles()) {
+            for (int part = moviefile.getFirstPart(); part <= moviefile.getLastPart(); ++part) {
+                // The filename should use the episode number not the part number.
+                videoImageFilename = FileTools.makeSafeFilename(movie.getBaseName() + "_VideoImage_" + part + ".jpg");
+                videoImageFile = new File(jukeboxDetailsRoot + File.separator + videoImageFilename);
+                tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + videoImageFilename);
+
+                // Do not overwrite existing files.
+                if ((!tmpDestFile.exists() && !videoImageFile.exists()) ) {
+                    videoImageFile.getParentFile().mkdirs();
+                    if (moviefile.getVideoImage(part) == null || moviefile.getVideoImage(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                        logger.finest("Dummy video image used for " + movie.getBaseName() + " - part " + part);
+                        try {
+                            FileTools.copyFile(
+                                new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"),
+                                tmpDestFile
+                                );
+                        } catch (Exception e) {
+                            logger.finer("Failed copying dummy video image file: dummy_videoimage.jpg");
+                        }
+                    } else {
+                        try {
+                            // Issue 201 : we now download to local temp dir
+                            logger.finest("Downloading video image for " + movie.getBaseName() + " part " + part + " to " + tmpDestFile.getName() + " [calling plugin]");
+                            downloadImage(tmpDestFile, moviefile.getVideoImage(part));
+                            moviefile.setVideoImage(part, FileTools.makeSafeFilename(videoImageFilename));
+                        } catch (Exception e) {
+                            logger.finer("Failed downloading video image : " + movie.getPosterURL());
+                            FileTools.copyFile(
+                                new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"),
+                                tmpDestFile
+                                );
+                        }
+                    }
+                }
+            }
+        }
+        return;
     }
 
     @SuppressWarnings("unchecked")

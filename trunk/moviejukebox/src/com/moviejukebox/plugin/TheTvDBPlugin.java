@@ -26,6 +26,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private TheTVDB tvDB;
     private String language;
     private boolean includeEpisodePlots;
+    private boolean includeVideoImages;
     private boolean dvdEpisodes = false;
     protected static String fanartToken;
 
@@ -34,6 +35,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         tvDB = new TheTVDB(API_KEY);
         language = PropertiesUtil.getProperty("thetvdb.language", "en");
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+        includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
         dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
     }
@@ -201,6 +203,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                         if (includeEpisodePlots) {
                             file.setPlot(part, episode.getOverview());
+                        }
+
+                        if (includeVideoImages) {
+                            file.setVideoImage(part, episode.getFilename());
+                        } else {
+                            file.setVideoImage(part, Movie.UNKNOWN);
                         }
                     }
                 }

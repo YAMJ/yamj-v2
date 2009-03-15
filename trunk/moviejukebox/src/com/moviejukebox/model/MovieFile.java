@@ -12,6 +12,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private boolean newFile = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // is the subtitles for this file already downloaded/uploaded to the server
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> videoImages = new LinkedHashMap<Integer, String>();
     private File file;
 
     public String getFilename() {
@@ -31,6 +32,17 @@ public class MovieFile implements Comparable<MovieFile> {
             plot = Movie.UNKNOWN;
         }
         plots.put(part, plot);
+    }
+
+    public String getVideoImage(int part) {
+        return videoImages.get(part);
+    }
+
+    public void setVideoImage(int part, String VideoImageURL) {
+        if (VideoImageURL == null || VideoImageURL.isEmpty()) {
+            VideoImageURL = Movie.UNKNOWN;
+        }
+        videoImages.put(part, VideoImageURL);
     }
 
     public int getFirstPart() {
