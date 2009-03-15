@@ -20,6 +20,7 @@ MovieJukebox 1.0.16 beta
   - Enhancement  #435 User customizeable perspective angle
   - Fixed defect #436 If the mjb.homePage property is unspecified, a valid home page will be chosen
   - Enhancement  #437 Improvements to multi-episode file support.
+  - Enhancement  #441 Ability to turn off internet scraping for an entire library
   - Enhancement  #442 Added proxy support
   - Enhancement  #444 New plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
   - Fixed defect #449 Trailers are not excluded from the Year categories

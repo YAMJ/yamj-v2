@@ -212,6 +212,7 @@ public class MovieDirectoryScanner {
             movieFile.setFile(contentFiles[i]);
 
             Movie m = new Movie();
+            m.setScrapeLibrary(srcPath.isScrapeLibrary());
             m.addMovieFile(movieFile);
             m.setFile(contentFiles[i]);
             m.setContainerFile(file);

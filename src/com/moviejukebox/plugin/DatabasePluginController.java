@@ -32,6 +32,10 @@ public class DatabasePluginController {
             }
         }
 
+        if (!movie.isScrapeLibrary()) {
+            ignore = true;
+        }
+
         if (!ignore) {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
             String origType = movie.getMovieType();
