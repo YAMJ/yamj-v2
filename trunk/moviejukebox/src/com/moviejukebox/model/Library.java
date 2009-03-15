@@ -553,16 +553,15 @@ public class Library implements Map<String, Movie> {
     protected static Index indexBySets(List<Movie> list) {
         Index index = new Index();
         for (Movie movie : list) {
-            for (String set_key : movie.getSets()) {
-                index.addMovie(set_key, movie);
+            if (!movie.isTrailer()) {
+                if(singleSeriesPage && movie.isTVShow()) {
+                    index.addMovie(movie.getOriginalTitle(), movie);
+                }
+                
+                for (String set_key : movie.getSets()) {
+                    index.addMovie(set_key, movie);
+                }
             }
-        }
-        if(singleSeriesPage) {
-	        for (Movie movie : list) {
-	            if (!movie.isTrailer() && movie.isTVShow()) {
-	                index.addMovie(movie.getOriginalTitle(), movie);
-	            }
-	        }
         }
         
         return index;
