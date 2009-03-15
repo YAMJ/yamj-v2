@@ -42,6 +42,7 @@ public class MovieJukeboxXMLWriter {
     private boolean fullMovieInfoInIndexes;
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
+    private boolean includeVideoImages;
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     public MovieJukeboxXMLWriter() {
@@ -51,6 +52,7 @@ public class MovieJukeboxXMLWriter {
         fullMovieInfoInIndexes = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.fullMovieInfoInIndexes", "false"));
         includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+        includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
     }
 
     /**
@@ -274,6 +276,18 @@ public class MovieJukeboxXMLWriter {
                                 }
                             }
                             mf.setPlot(part, parseCData(r));
+                        } else if (tag.startsWith("<fileImage")) {
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if ("part".equals(ns)) {
+                                    part = Integer.parseInt(attr.getValue());
+                                }
+                            }
+                            mf.setVideoImage(part, parseCData(r));
                         }
                     }
                     // add or replace MovieFile based on XML data
@@ -698,12 +712,21 @@ public class MovieJukeboxXMLWriter {
             writer.writeStartElement("fileURL");
             writer.writeCharacters(mf.getFilename()); // should already be a URL
             writer.writeEndElement();
-            if (includeEpisodePlots) {
+
+            if (includeEpisodePlots || includeVideoImages) {
                 for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
-                    writer.writeStartElement("filePlot");
-                    writer.writeAttribute("part", Integer.toString(part));
-                    writer.writeCharacters(mf.getPlot(part));
-                    writer.writeEndElement();
+                    if (includeEpisodePlots) {
+                        writer.writeStartElement("filePlot");
+                        writer.writeAttribute("part", Integer.toString(part));
+                        writer.writeCharacters(mf.getPlot(part));
+                        writer.writeEndElement();
+                    }
+                    if (includeVideoImages) {
+                        writer.writeStartElement("fileImage");
+                        writer.writeAttribute("part", Integer.toString(part));
+                        writer.writeCharacters(mf.getVideoImage(part));
+                        writer.writeEndElement();
+                    }
                 }
             }
             writer.writeEndElement();
