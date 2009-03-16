@@ -56,6 +56,14 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setYear(extractTag(xml, "</a> en", "</h4>"));
             }
 
+            // Get Fanart
+            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            	movie.setFanartURL(getFanartURL(movie));
+            	if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            		movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+            	}
+            }
+			
             for (String acteur : extractTags(xml, "<h4>Avec", "</h4>", "personne/fichepersonne_gen_cpersonne", "</a>")) {
                 movie.addActor(removeOpenedHtmlTags(acteur));
             }
@@ -195,7 +203,15 @@ public class AllocinePlugin extends ImdbPlugin {
             // "<a href=\"/List?certificates=", "</a>")));
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setYear(extractTag(xml, "Année de production : ", "</h3>"));
+            	movie.setYear(extractTag(xml, "Année de production : ", "</h3>"));
+            }
+
+            // Get Fanart
+            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            	movie.setFanartURL(getFanartURL(movie));
+            	if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            		movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+            	}
             }
 
             if (movie.getCast().isEmpty()) {
