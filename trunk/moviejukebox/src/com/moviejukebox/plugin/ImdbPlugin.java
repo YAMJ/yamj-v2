@@ -168,9 +168,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             
             Pattern imdbregex = Pattern.compile(
-                "\\<a(?:\\s*[^\\>])\\s*href=\"/title/(tt\\d+)(?:\\s*[^\\>])*\\>([^\\<]+)\\</a\\>\\s*\\((\\d{4})\\)\\s*((?:\\(VG\\))?)"
+                 "\\<a(?:\\s*[^\\>])\\s*"       // start of a-tag, and cruft before the href
+                +"href=\"/title/(tt\\d+)"       // the href, grab the id
+                +"(?:\\s*[^\\>])*\\>"           // cruft after the href, to the end of the a-tag
+                +"([^\\<]+)\\</a\\>"            // grab link text (ie, title), match to the close a-tag
+                +"\\s*"
+                +"\\((\\d{4})(?:/[^\\)]+)?\\)"  // year, eg (1999) or (1999/II), grab the 4-digit year only
+                +"\\s*"
+                +"((?:\\(VG\\))?)"              // video game flag (if present)
             );
-            // Groups: 1=id, 2=title, 3=year, 4=VG
+            // Groups: 1=id, 2=title, 3=year, 4=(VG)
             
             /* This is what the wiki says imdb.perfect.match is supposed to do, but the result doesn't make a lot of
                sense to me. See the discussion for issue 567.
