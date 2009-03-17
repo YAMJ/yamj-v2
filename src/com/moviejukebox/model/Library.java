@@ -125,8 +125,12 @@ public class Library implements Map<String, Movie> {
     private static int maxGenresPerMovie = 3;
     private static int newCount = 0;
     private static long newDays = 7;
+    private static int minSetCount = 2;
+    private static boolean setsRequireAll = false;
     
     static {
+        minSetCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.sets.minSetCount", "2"));
+        setsRequireAll = PropertiesUtil.getProperty("mjb.sets.requireAll", "false").equalsIgnoreCase("true");
         filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
         singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");
         String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres.xml");
@@ -279,12 +283,12 @@ public class Library implements Map<String, Movie> {
             }
         }
         
-        // Now, for each list of movies in in_movies, if the list has more than one movie,
+        // Now, for each list of movies in in_movies, if the list has more than the minSetCount movies
         // remove them all from the movies list, and insert the corresponding master
-        // This number should probably become configurable.
         for (Map.Entry<String, List<Movie>> in_movies_entry : in_movies.entrySet()) {
             List<Movie> lm = in_movies_entry.getValue();
-            if (lm.size() > 1) {
+            if (lm.size() >= minSetCount &&
+                (!setsRequireAll || lm.size() == index.get(in_movies_entry.getKey()).size())) {
                 movies.removeAll(lm);
                 movies.add(masters.get(in_movies_entry.getKey()));
             }
@@ -327,6 +331,19 @@ public class Library implements Map<String, Movie> {
                 moviesList.addAll(indexMasters.values()); // so the driver knows what's an index master
             }
 
+            // Now add the masters to the titles index
+            for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
+                Index mastersTitlesIndex = indexByTitle(dyn_index_masters_entry.getValue().values());
+                for (Map.Entry<String, List<Movie>> index_entry : mastersTitlesIndex.entrySet()) {
+                    for (Movie m : index_entry.getValue()) {
+                        int setCount = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(m.getTitle()).size();
+                        if (setCount >= minSetCount) {
+                            indexes.get("Title").addMovie(index_entry.getKey(), m);
+                        }
+                    }
+                }
+            }
+            
             // OK, now that all the index masters are in-place, sort everything.
             for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
                 for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
