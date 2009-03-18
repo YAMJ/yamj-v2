@@ -36,6 +36,7 @@ import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultPosterPlugin;
 import com.moviejukebox.plugin.DefaultThumbnailPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.plugin.SetThumbnailPlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
 import com.moviejukebox.plugin.OpenSubtitlesPlugin;
@@ -396,6 +397,12 @@ public class MovieJukebox {
             List<Movie> indexMasters = new ArrayList<Movie>();
             indexMasters.addAll(library.getMoviesList());
             indexMasters.removeAll(library.values());
+            
+            List<Movie> moviesList = new ArrayList<Movie>();
+            moviesList.addAll(library.getMoviesList());
+            moviesList.removeAll(indexMasters);
+
+            SetThumbnailPlugin stp = new SetThumbnailPlugin();
             for (Movie movie : indexMasters) {
                 logger.finer("Updating poster for index master: " + movie.getTitle() + "...");
 
@@ -410,13 +417,14 @@ public class MovieJukebox {
                 movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
                 String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
                 movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
-
+                
                 // Create a thumbnail for each movie
-                logger.finest("Creating thumbnails for index master: " + movie.getBaseName());
-                createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                logger.finest("Creating thumbnail for index master: " + movie.getBaseName()
+                    + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
+                createThumbnail(stp, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
             }
             
-            for (Movie movie : library.getMoviesList()) {
+            for (Movie movie : moviesList) {
                 // Update movie XML files with computed index information 
                 logger.finest("Writing index data to movie: " + movie.getBaseName());
                 xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);

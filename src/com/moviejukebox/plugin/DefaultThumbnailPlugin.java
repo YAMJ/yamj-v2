@@ -79,18 +79,8 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
             } else if (!skipResize) {
                 bi = GraphicTools.scaleToSize(thumbWidth, thumbHeight, bi);
             }
-
-            if (addHDLogo) {
-                bi = drawLogoHD(movie, bi, addTVLogo);
-            }
-
-            if (addTVLogo) {
-                bi = drawLogoTV(movie, bi, addHDLogo);
-            }
-
-            if (addLanguage) {
-                bi = drawLanguage(movie, bi);
-            }
+            
+            bi = drawLogos(movie, bi);
 
             if (addReflectionEffect) {
                 bi = GraphicTools.createReflectedPicture(bi, "thumbnails");
@@ -103,21 +93,39 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 
         return bi;
     }
+    
+    protected BufferedImage drawLogos(Movie movie, BufferedImage bi) {
+        if (addHDLogo) {
+            bi = drawLogoHD(movie, bi, addTVLogo);
+        }
 
+        if (addTVLogo) {
+            bi = drawLogoTV(movie, bi, addHDLogo);
+        }
+
+        if (addLanguage) {
+            bi = drawLanguage(movie, bi);
+        }
+        
+        return bi;
+    }
+    
     private BufferedImage drawLogoHD(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
         if (movie.isHD()) {
 
             try {
-                InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "hd.png");
+                InputStream in = new FileInputStream(getResourcesPath() + "hd.png");
                 BufferedImage biHd = ImageIO.read(in);
                 Graphics g = bi.getGraphics();
 
                 if (addOtherLogo && (movie.isTVShow())) {
                     // Both logos are required, so put the HD logo on the LEFT
                     g.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
+                    logger.finest("Drew HD logo on the left");
                 } else {
                     // Only the HD logo is required so set it in the centre
                     g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
+                    logger.finest("Drew HD logo in the middle");
                 }
 
 
@@ -133,16 +141,18 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
     private BufferedImage drawLogoTV(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
         if (movie.isTVShow()) {
             try {
-                InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "tv.png");
+                InputStream in = new FileInputStream(getResourcesPath() + "tv.png");
                 BufferedImage biTV = ImageIO.read(in);
                 Graphics g = bi.getGraphics();
 
                 if (addOtherLogo && movie.isHD()) {
                     // Both logos are required, so put the TV logo on the RIGHT
                     g.drawImage(biTV, bi.getWidth() - biTV.getWidth() - 5, bi.getHeight() - biTV.getHeight() - 5, null);
+                    logger.finest("Drew TV logo on the right");
                 } else {
                     // Only the TV logo is required so set it in the centre
                     g.drawImage(biTV, bi.getWidth() / 2 - biTV.getWidth() / 2, bi.getHeight() - biTV.getHeight() - 5, null);
+                    logger.finest("Drew TV logo in the middle");
                 }
 
             } catch (IOException e) {
@@ -150,7 +160,7 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
                 e.printStackTrace();
             }
         }
-
+        
         return bi;
     }
 
@@ -169,5 +179,9 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
         }
 
         return bi;
+    }
+    
+    protected String getResourcesPath() {
+        return skinHome + File.separator + "resources" + File.separator;
     }
 }
