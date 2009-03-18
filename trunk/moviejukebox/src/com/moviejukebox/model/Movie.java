@@ -1041,6 +1041,8 @@ public class Movie implements Comparable<Movie>, Cloneable {
 		setLanguage(dto.getLanguages().size() > 0 ? dto.getLanguages().get(0) : null);
 
         if (dto.getHdResolution() != null) {
+            setVideoType(TYPE_VIDEO_HD);
+            
             switch (dto.getFps()) {
             case 23:
                 videoOutput = "1080p 23.976Hz";
