@@ -369,11 +369,9 @@ public class Library implements Map<String, Movie> {
             // Now set up the index masters' posters
             for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
                 for (Map.Entry<String, Movie> masters_entry : dyn_index_masters_entry.getValue().entrySet()) {
-                    masters_entry.getValue().setPosterFilename(
-                        dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(
-                            masters_entry.getKey()
-                        ).get(0).getBaseName() + ".jpg"
-                    );
+                    List<Movie> set = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(masters_entry.getKey());
+                    masters_entry.getValue().setPosterFilename(set.get(0).getBaseName() + ".jpg");
+                    masters_entry.getValue().setFile(set.get(0).getFile()); // ensure PosterScanner looks in the right directory
                 }
             }
             
