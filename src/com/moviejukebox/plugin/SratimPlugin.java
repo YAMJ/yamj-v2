@@ -621,7 +621,7 @@ public class SratimPlugin extends ImdbPlugin {
         String movieName = movie.getTitleSort();
 
         try {
-            String searchURL = "http://www.sub-baba.com/index.php?page=search&type=all&submit=%E7%F4%F9&search=" + URLEncoder.encode(movieName, "iso-8859-8");
+            String searchURL = "http://www.sub-baba.com/search?page=search&type=all&submit=%E7%F4%F9&search=" + URLEncoder.encode(movieName, "iso-8859-8");
 
             String xml = webBrowser.request(searchURL);
 
@@ -647,11 +647,11 @@ public class SratimPlugin extends ImdbPlugin {
                 index = endIndex + 1;
 
             
-                index = xml.indexOf("<a href=\"index.php?page=content&amp;id=", index);
+                index = xml.indexOf("<a href=\"content?id=", index);
                 if (index == -1)
                     break;
 
-                index += 39;
+                index += 20;
 
                 endIndex = xml.indexOf("\">", index);
                 if (endIndex == -1)
