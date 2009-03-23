@@ -15,7 +15,7 @@
       <th width="10"><xsl:value-of select="@name"/></th>
       <td>
         <xsl:for-each select="index">
-          <a><xsl:attribute name="href"><xsl:value-of select="../@name"/>_<xsl:value-of select="."/>_1.html</xsl:attribute><xsl:value-of select="." /><xsl:if test="position()!=last()">&#160;&#160;</xsl:if></a><xsl:text>
+          <a><xsl:attribute name="href"><xsl:value-of select="."/>.html</xsl:attribute><xsl:value-of select="@name" /><xsl:if test="position()!=last()">&#160;&#160;</xsl:if></a><xsl:text>
             </xsl:text>
         </xsl:for-each>
       </td>

@@ -72,6 +72,7 @@ MovieJukebox 1.0.16 beta
   - Fixed defect #591 Sratim plugin stopped downloading movie poster
   - Fixed defect #587 Year in the episode title interferring with movie year
   - Fixed defect #561 Error in MovieFilenameScanner.getPartKeyword (with fix)
+  - Fixed defect #578 Categories.xml can now account for encoded index titles
   - Fixed defect #583 Episode title only extracted if "-" comes right after S01E01
   - Fixed defect #593 Updates to Hebrew skin
   - Fixed defect #594 Don't URL-encode posterSubimage property
