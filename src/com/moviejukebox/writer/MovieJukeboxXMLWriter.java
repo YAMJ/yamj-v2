@@ -362,19 +362,21 @@ public class MovieJukeboxXMLWriter {
 
             for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                 String key = index.getKey();
+                String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(category.getKey(), key)) + "1";
 
                 writer.writeStartElement("index");
+                writer.writeAttribute("name", key);
 
                 if (includeMoviesInCategories) {
-                    writer.writeAttribute("name", key);
-
+                    writer.writeAttribute("filename", indexFilename);
+                
                     for (Movie movie : index.getValue()) {
                         writer.writeStartElement("movie");
                         writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
                         writer.writeEndElement();
                     }
                 } else {
-                    writer.writeCharacters(key);
+                    writer.writeCharacters(indexFilename);
                 }
 
                 writer.writeEndElement();
