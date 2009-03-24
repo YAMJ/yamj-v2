@@ -206,9 +206,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
 
                         if (includeVideoImages) {
-                            file.setVideoImage(part, episode.getFilename());
+                            file.setVideoImageURL(part, episode.getFilename());
                         } else {
-                            file.setVideoImage(part, Movie.UNKNOWN);
+                            file.setVideoImageURL(part, Movie.UNKNOWN);
                         }
                     }
                 }

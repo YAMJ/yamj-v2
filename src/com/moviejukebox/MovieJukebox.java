@@ -695,7 +695,7 @@ public class MovieJukebox {
                 // Do not overwrite existing files.
                 if ((!tmpDestFile.exists() && !videoImageFile.exists()) ) {
                     videoImageFile.getParentFile().mkdirs();
-                    if (moviefile.getVideoImage(part) == null || moviefile.getVideoImage(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (moviefile.getVideoImageURL(part) == null || moviefile.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                         logger.finest("Dummy video image used for " + movie.getBaseName() + " - part " + part);
                         try {
                             FileTools.copyFile(
@@ -709,10 +709,10 @@ public class MovieJukebox {
                         try {
                             // Issue 201 : we now download to local temp dir
                             logger.finest("Downloading video image for " + movie.getBaseName() + " part " + part + " to " + tmpDestFile.getName() + " [calling plugin]");
-                            downloadImage(tmpDestFile, moviefile.getVideoImage(part));
-                            moviefile.setVideoImage(part, FileTools.makeSafeFilename(videoImageFilename));
+                            downloadImage(tmpDestFile, moviefile.getVideoImageURL(part));
+                            moviefile.setVideoImageFile(part, FileTools.makeSafeFilename(videoImageFilename));
                         } catch (Exception e) {
-                            logger.finer("Failed downloading video image : " + movie.getPosterURL());
+                            logger.finer("Failed downloading video image : " + moviefile.getVideoImageURL(part));
                             FileTools.copyFile(
                                 new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"),
                                 tmpDestFile

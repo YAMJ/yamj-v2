@@ -276,7 +276,7 @@ public class MovieJukeboxXMLWriter {
                                 }
                             }
                             mf.setPlot(part, parseCData(r));
-                        } else if (tag.startsWith("<fileImage")) {
+                        } else if (tag.startsWith("<fileImageURL")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
                             for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
@@ -287,7 +287,19 @@ public class MovieJukeboxXMLWriter {
                                     part = Integer.parseInt(attr.getValue());
                                 }
                             }
-                            mf.setVideoImage(part, parseCData(r));
+                            mf.setVideoImageURL(part, parseCData(r));
+                        } else if (tag.startsWith("<fileImageFile")) {
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if ("part".equals(ns)) {
+                                    part = Integer.parseInt(attr.getValue());
+                                }
+                            }
+                            mf.setVideoImageFile(part, parseCData(r));
                         }
                     }
                     // add or replace MovieFile based on XML data
@@ -724,9 +736,14 @@ public class MovieJukeboxXMLWriter {
                         writer.writeEndElement();
                     }
                     if (includeVideoImages) {
-                        writer.writeStartElement("fileImage");
+                        writer.writeStartElement("fileImageURL");
                         writer.writeAttribute("part", Integer.toString(part));
-                        writer.writeCharacters(mf.getVideoImage(part));
+                        writer.writeCharacters(mf.getVideoImageURL(part));
+                        writer.writeEndElement();
+
+                        writer.writeStartElement("fileImageFile");
+                        writer.writeAttribute("part", Integer.toString(part));
+                        writer.writeCharacters(mf.getVideoImageFile(part));
                         writer.writeEndElement();
                     }
                 }
