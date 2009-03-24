@@ -82,8 +82,7 @@ public class MovieFilenameScanner {
 			add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
 		}
 	};
-		
-    
+ 
     private static final Map<String, Pattern> STRICT_LANGUAGES_MAP = new HashMap<String, Pattern>() {
     	private void put(String key, String tokens) {
     		String[] ts = tokens.split(" ");
@@ -100,19 +99,23 @@ public class MovieFilenameScanner {
     	}
     	
 		{
-			put("French", "FRA FR FRENCH VF fra fr french vf Fra");
-			put("German", "GER DE GERMAN ger de german Ger");
-			put("Italian", "ITA IT ITALIAN ita it italian Ita");
-			put("Spanish", "SPA ES SPANISH spa es spanish Spa");
-			put("English", "ENG EN ENGLISH eng en english Eng");
-			put("Portuguese", "POR PT PORTUGUESE por pt portuguese Por");
-			put("Russian", "RUS RU RUSSIAN rus ru russian Rus");
-			put("Polish", "POL PL POLISH PLDUB pol pl polish pldub Pol");
-			put("Hungarian", "HUN HU HUNGARIAN hun hu hungarian");
-			put("Hebrew", "HEB HE HEBREW EBDUB heb he hebrew ebdub Heb");
-			put("Japanese", "JPN JP JAPANESE jpn jp japanese Jpn");
-			put("VO", "VO VOSTFR vo vostfr");
-			put("Dual Language", "DL dl");
+            put("Chinese", "ZH Zh zh CHI Chi chi CHINESE Chinese chinese");
+            put("Dual Language", "DL dl");
+            put("English", "ENG EN ENGLISH eng en english Eng");
+            put("French", "FRA FR FRENCH VF fra fr french vf Fra");
+            put("German", "GER DE GERMAN ger de german Ger");
+            put("Hebrew", "HEB HE HEBREW EBDUB heb he hebrew ebdub Heb");
+            put("Hindi", "HI HIN HINDI hi hin hindi Hin Hindi");
+            put("Hungarian", "HUN HU HUNGARIAN hun hu hungarian");
+            put("Italian", "ITA IT ITALIAN ita it italian Ita");
+            put("Japanese", "JPN JP JAPANESE jpn jp japanese Jpn");
+            put("Polish", "POL PL POLISH PLDUB pol pl polish pldub Pol");
+            put("Portuguese", "POR PT PORTUGUESE por pt portuguese Por");
+            put("Russian", "RUS RU RUSSIAN rus ru russian Rus");
+            put("Spanish", "SPA ES SPANISH spa es spanish Spa");
+            put("Swedish", "SW Sw sw SWE Swe swe SWEDISH Swedish swedish");
+            put("Thai", "TH Th th THA Tha tha THAI Thai thai");
+            put("VO", "VO VOSTFR vo vostfr");
 		}
 	};
 
@@ -121,30 +124,34 @@ public class MovieFilenameScanner {
     		String[] ts = tokens.split(" ");
     		StringBuilder sb = new StringBuilder();
     		boolean first = true;
-    		for (String s : ts) {
-    			if (!first) {
-    				sb.append('|');
-    			}
-    			sb.append(Pattern.quote(s));
-				first = false;
-    		}
-    		put(key, iwpatt(sb.toString()));
+            for (String s : ts) {
+                if (!first) {
+                    sb.append('|');
+                }
+                sb.append(Pattern.quote(s));
+                first = false;
+            }
+            put(key, iwpatt(sb.toString()));
     	}
     	
 		{
-			put("French", "FRA FR FRENCH");
-			put("German", "GER DE GERMAN");
-			put("Italian", "ITA IT ITALIAN");
-			put("Spanish", "SPA ES SPANISH");
-			put("English", "ENG EN ENGLISH");
-			put("Portuguese", "POR PT PORTUGUESE");
-			put("Russian", "RUS RU RUSSIAN");
-			put("Polish", "POL PL POLISH PLDUB");
-			put("Hungarian", "HUN HU HUNGARIAN");
-			put("Hebrew", "HEB HE HEBREW EBDUB");
-			put("Japanese", "JPN JP JAPANESE");
-			put("VO", "VO VOSTFR");
-			put("Dual Language", "DL");
+            put("Chinese", "ZH CHI CHINESE");
+            put("Dual Language", "DL");
+            put("English", "ENG EN ENGLISH");
+            put("French", "FRA FR FRENCH");
+            put("German", "GER DE GERMAN");
+            put("Hebrew", "HEB HE HEBREW EBDUB");
+            put("Hindi", "HI HIN HINDI");
+            put("Hungarian", "HUN HU HUNGARIAN");
+            put("Italian", "ITA IT ITALIAN");
+            put("Japanese", "JPN JP JAPANESE");
+            put("Polish", "POL PL POLISH PLDUB");
+            put("Portuguese", "POR PT PORTUGUESE");
+            put("Russian", "RUS RU RUSSIAN");
+            put("Spanish", "SPA ES SPANISH");
+            put("Swedish", "SW SWE SWEDISH");
+            put("Thai", "TH THA THAI");
+            put("VO", "VO VOSTFR");
 		}
 	};
 
