@@ -113,7 +113,7 @@ public class MovieFilenameScanner {
             put("Portuguese", "POR PT PORTUGUESE por pt portuguese Por");
             put("Russian", "RUS RU RUSSIAN rus ru russian Rus");
             put("Spanish", "SPA ES SPANISH spa es spanish Spa");
-            put("Swedish", "SW Sw sw SWE Swe swe SWEDISH Swedish swedish");
+            put("Swedish", "SV Sv sv SWE Swe swe SWEDISH Swedish swedish");
             put("Thai", "TH Th th THA Tha tha THAI Thai thai");
             put("VO", "VO VOSTFR vo vostfr");
 		}
@@ -149,7 +149,7 @@ public class MovieFilenameScanner {
             put("Portuguese", "POR PT PORTUGUESE");
             put("Russian", "RUS RU RUSSIAN");
             put("Spanish", "SPA ES SPANISH");
-            put("Swedish", "SW SWE SWEDISH");
+            put("Swedish", "SV SWE SWEDISH");
             put("Thai", "TH THA THAI");
             put("VO", "VO VOSTFR");
 		}
