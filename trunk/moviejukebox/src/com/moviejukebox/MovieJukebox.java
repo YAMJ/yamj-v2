@@ -658,7 +658,7 @@ public class MovieJukebox {
         if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster())) {
             posterFile.getParentFile().mkdirs();
 
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase("Unknown")) {
+            if (movie.getPosterURL() == null || movie.getPosterURL().equals(Movie.UNKNOWN)) {
                 logger.finest("Dummy image used for " + movie.getBaseName());
                 FileTools.copyFile(
                     new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
@@ -685,6 +685,8 @@ public class MovieJukebox {
         File videoImageFile;
         File tmpDestFile;
 
+        boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
+
         for (MovieFile moviefile : movie.getMovieFiles()) {
             for (int part = moviefile.getFirstPart(); part <= moviefile.getLastPart(); ++part) {
                 // The filename should use the episode number not the part number.
@@ -692,8 +694,8 @@ public class MovieJukebox {
                 videoImageFile = new File(jukeboxDetailsRoot + File.separator + videoImageFilename);
                 tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + videoImageFilename);
 
-                // Do not overwrite existing files.
-                if ((!tmpDestFile.exists() && !videoImageFile.exists()) ) {
+                // Do not overwrite existing files - Unless XML overwrite is on.
+                if ((!tmpDestFile.exists() && !videoImageFile.exists()) || forceXMLOverwrite) {
                     videoImageFile.getParentFile().mkdirs();
                     if (moviefile.getVideoImageURL(part) == null || moviefile.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                         logger.finest("Dummy video image used for " + movie.getBaseName() + " - part " + part);
@@ -702,7 +704,7 @@ public class MovieJukebox {
                                 new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"),
                                 tmpDestFile
                                 );
-                        } catch (Exception e) {
+                        } catch (Exception ignore) {
                             logger.finer("Failed copying dummy video image file: dummy_videoimage.jpg");
                         }
                     } else {
