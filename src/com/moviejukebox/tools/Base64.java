@@ -22,6 +22,7 @@ public class Base64 {
                 base64code.charAt(j & 0x3f);
         }
         // replace encoded padding nulls with "="
-        return encoded;
+        // return encoded;
+        return "Basic " + encoded;
     }
 }
