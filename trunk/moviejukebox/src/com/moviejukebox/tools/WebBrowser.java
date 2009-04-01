@@ -1,6 +1,8 @@
 package com.moviejukebox.tools;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -21,28 +23,27 @@ public class WebBrowser {
 
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;
-
     private String mjbProxyHost;
     private String mjbProxyPort;
     private String mjbProxyUsername;
     private String mjbProxyPassword;
     private String mjbEncodedPassword;
-    
+
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
         cookies = new HashMap<String, Map<String, String>>();
-        
+
         mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost", null);
         mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort", null);
         mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
         mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
-        
-        if ( mjbProxyUsername != null ) {
+
+        if (mjbProxyUsername != null) {
             mjbEncodedPassword = mjbProxyUsername + ":" + mjbProxyPassword;
             mjbEncodedPassword = Base64.base64Encode(mjbEncodedPassword);
         }
-        
+
     }
 
     public String request(String url) throws IOException {
@@ -57,18 +58,18 @@ public class WebBrowser {
 
             BufferedReader in = null;
             try {
-                if ( mjbProxyHost != null ) {
-                    System.getProperties().put( "proxySet", "true" );
-                    System.getProperties().put( "proxyHost", mjbProxyHost );
-                    System.getProperties().put( "proxyPort", mjbProxyPort );
+                if (mjbProxyHost != null) {
+                    System.getProperties().put("proxySet", "true");
+                    System.getProperties().put("proxyHost", mjbProxyHost);
+                    System.getProperties().put("proxyPort", mjbProxyPort);
                 }
-            
+
                 URLConnection cnx = url.openConnection();
-                
-                if ( mjbProxyUsername != null ) {
-                    cnx.setRequestProperty( "Proxy-Authorization", mjbEncodedPassword );
+
+                if (mjbProxyUsername != null) {
+                    cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
                 }
-                
+
                 sendHeader(cnx);
                 readHeader(cnx);
 
@@ -88,6 +89,31 @@ public class WebBrowser {
                 content.close();
             }
         }
+    }
+
+    /**
+     * Download the image for the specified url into the specified file.
+     *
+     * @throws IOException
+     */
+    public void downloadImage(File imageFile, String imageURL) throws IOException {
+        if (mjbProxyHost != null) {
+            System.getProperties().put("proxySet", "true");
+            System.getProperties().put("proxyHost", mjbProxyHost);
+            System.getProperties().put("proxyPort", mjbProxyPort);
+        }
+
+        URL url = new URL(imageURL);
+        URLConnection cnx = url.openConnection();
+
+        if (mjbProxyUsername != null) {
+            cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
+        }
+
+        sendHeader(cnx);
+        readHeader(cnx);
+
+        FileTools.copy(cnx.getInputStream(), new FileOutputStream(imageFile));
     }
 
     private void sendHeader(URLConnection cnx) {
@@ -163,7 +189,7 @@ public class WebBrowser {
         // content type will be string like "text/html; charset=UTF-8" or "text/html"
         String contentType = cnx.getContentType();
         if (contentType != null) {
-        	// changed 'charset' to 'harset' in regexp because some sites send 'Charset'
+            // changed 'charset' to 'harset' in regexp because some sites send 'Charset'
             Matcher m = Pattern.compile("harset *=[ '\"]*([^ ;'\"]+)[ ;'\"]*").matcher(contentType);
             if (m.find()) {
                 String encoding = m.group(1);
