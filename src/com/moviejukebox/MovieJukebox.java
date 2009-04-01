@@ -49,6 +49,7 @@ import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -867,17 +868,12 @@ public class MovieJukebox {
 
     /**
      * Download the image for the specified url into the specified file.
-     * 
+     * Utilises the WebBrowser downloadImage function to allow for proxy connections.
      * @throws IOException
      */
     public static void downloadImage(File imageFile, String imageURL) throws IOException {
-        URL url = new URL(imageURL);
-        URLConnection cnx = url.openConnection();
-
-        // Let's pretend we're Firefox...
-        cnx.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.1.5) Gecko/20070719 Iceweasel/2.0.0.5 (Debian-2.0.0.5-0etch1)");
-
-        FileTools.copy(cnx.getInputStream(), new FileOutputStream(imageFile));
+        WebBrowser webBrowser = new WebBrowser();
+        webBrowser.downloadImage(imageFile, imageURL);
     }
 
     public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie,
