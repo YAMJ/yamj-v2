@@ -383,8 +383,7 @@ public class MovieJukebox {
                 // Get Trailer
                 trailerPlugin.generate(movie);
             }
-
-            OpenSubtitlesPlugin.logOut();
+            subtitlePlugin.logOut();
             
             // ////////////////////////////////////////////////////////////////
             // / PASS 3 : Indexing the library
