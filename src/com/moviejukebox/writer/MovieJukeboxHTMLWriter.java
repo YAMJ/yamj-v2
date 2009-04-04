@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -163,7 +162,7 @@ public class MovieJukeboxHTMLWriter {
             }
         }
         try {
-            File htmlFile = new File(rootPath, "index.htm");
+            File htmlFile = new File(rootPath, PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             htmlFile.getParentFile().mkdirs();
 
             FileOutputStream fos = new FileOutputStream(htmlFile);
@@ -174,10 +173,7 @@ public class MovieJukeboxHTMLWriter {
             if (homePage.length() == 0) {
                 String defCat = library.getDefaultCategory();
                 if (defCat != null) {
-                    homePage = FileTools.createPrefix(
-                        "Other",
-                        HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))
-                    ) + "1";
+                    homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
                 } else {
                     // figure out something better to do here
                     logger.fine("No categories were found, so you should specify mjb.homePage in the config file.");
