@@ -6,6 +6,7 @@ MovieJukebox 1.0.17 beta
 ------------------------
   - Enhancement  #411 Plugin for Dutch movie database (www.moviemeter.nl)
   - Fixed defect #636 (Regression) Check for file-based subtitles
+  - Fixed defect #645 IMDB plots with embedded HTML tags are now parsed correctly
   - Fixed defect #662 FilmDeltaSEPlugin can't handle "illegal HTML characters"
   - Fixed defect #666 Can't connect to imdb behind authenticated proxy
   - Fixed defect #667 Can't download image behind authenticated proxy

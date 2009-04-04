@@ -309,14 +309,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
 
-            boolean isIMDBOutline = false;
-            if (movie.getOutline().equals(Movie.UNKNOWN)) {
-                String outline = HTMLTools.extractTag(xml, "<h5>Plot:</h5>", 0, "><|");
-                if (outline.startsWith("a class=\"tn15more")) {
-                    outline = Movie.UNKNOWN;
+            String imdbOutline = Movie.UNKNOWN;
+            int plotBegin = xml.indexOf("<h5>Plot:</h5>");
+            if (plotBegin > -1) {
+                plotBegin += "<h5>Plot:</h5>".length();
+                int plotEnd = xml.indexOf("<a class=\"tn15more", plotBegin);
+                if (plotEnd > -1) {
+                    String outline = HTMLTools.stripTags(xml.substring(plotBegin, plotEnd));
+                    if (outline.length() > 0) {
+                        imdbOutline = outline;
+                    }
                 }
-                movie.setOutline(outline);
-                isIMDBOutline = true;
+            }
+            
+            if (movie.getOutline().equals(Movie.UNKNOWN)) {
+                movie.setOutline(imdbOutline);
             }
 
             if (movie.getPlot().equals(Movie.UNKNOWN)) {
@@ -324,18 +331,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 if (imdbPlot.equalsIgnoreCase("long")) {
                     plot = getLongPlot(movie);
                 }
-                // even if "long" is set we will default to the "short" one if none
-                // was found
-                if (imdbPlot.equalsIgnoreCase("short") || plot.equals(Movie.UNKNOWN)) {
-                    if (isIMDBOutline) {
-                        plot = movie.getOutline();
-                    } else {
-                        plot = HTMLTools.extractTag(xml, "<h5>Plot:</h5>", 0, "><|");
-                        if (plot.startsWith("a class=\"tn15more")) {
-                            plot = Movie.UNKNOWN;
-                        }
-                    }
+                
+                // even if "long" is set we will default to the "short" one if none was found
+                if (plot.equals(Movie.UNKNOWN)) {
+                    plot = imdbOutline;
                 }
+                
                 movie.setPlot(plot);
             }
 
