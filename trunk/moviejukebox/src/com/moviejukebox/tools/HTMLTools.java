@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 import java.io.UnsupportedEncodingException;
@@ -529,5 +531,16 @@ public class HTMLTools {
             }
         }
         return s;
+    }
+    
+    public static String stripTags(String s) {
+        Pattern strip_tags_regex = Pattern.compile("([^\\<]*)(?:\\<[^\\>]*\\>)?");
+        Matcher m = strip_tags_regex.matcher(s);
+        
+        String res = "";
+        while (m.find()) {
+            res += m.group(1);
+        }
+        return res;
     }
 }
