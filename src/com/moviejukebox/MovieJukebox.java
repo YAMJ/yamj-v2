@@ -359,7 +359,14 @@ public class MovieJukebox {
 
             for (Movie movie : library.values()) {
                 // First get movie data (title, year, director, genre, etc...)
-                logger.fine("Updating data for: " + movie.getTitle());
+                if ( movie.isTVShow() ) {
+                    logger.fine("Updating data for: " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
+                } else if ( movie.isTrailer() ) {
+                    logger.fine("Updating data for: " + movie.getTitle() + " [Trailer]");
+                } else {
+                    logger.fine("Updating data for: " + movie.getTitle());
+                }
+
                 updateMovieData(xmlWriter, miScanner, backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                 // Then get this movie's poster

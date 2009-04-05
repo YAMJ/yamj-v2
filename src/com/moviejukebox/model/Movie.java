@@ -390,7 +390,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
     public boolean isTVShow() {
         // return (season != -1);
-        return (this.movieType.equals(TYPE_TVSHOW) || this.season > 0);
+        return (this.movieType.equals(TYPE_TVSHOW) || this.season > -1);
     }
     
     public boolean isHD() {
