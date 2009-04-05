@@ -11,20 +11,18 @@ import org.apache.xmlrpc.XmlRpcException;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.WebBrowser;
 
 /**
  * The MovieMeterPlugin uses the XML-RPC API of www.moviemeter.nl (http://wiki.moviemeter.nl/index.php/API).
  * 
  * Version 0.1 : Initial release
+ * Version 0.2 : Fixed google search
  * @author RdeTuinman
  *
  */
 public class MovieMeterPlugin extends ImdbPlugin {
 
 	public static String MOVIEMETER_PLUGIN_ID = "moviemeter";
-
-	protected WebBrowser webBrowser;
 
 	private MovieMeterPluginSession session;
 

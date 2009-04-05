@@ -73,7 +73,6 @@ public class MovieMeterPluginSession {
 			}
 			fread.close();		
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 		System.out.println("Stored session: " + getKey());
