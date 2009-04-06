@@ -18,6 +18,7 @@ import com.moviejukebox.tools.PropertiesUtil;
  * 
  * Version 0.1 : Initial release
  * Version 0.2 : Fixed google search
+ * Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration
  * @author RdeTuinman
  *
  */
@@ -93,8 +94,11 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
             if (mediaFile.getRuntime().equals(Movie.UNKNOWN)) {
                 if (filmInfo.get("durations") != null) { 
-                    HashMap durations = (HashMap)((Object[])filmInfo.get("durations"))[0];
-                    mediaFile.setRuntime(durations.get("duration").toString());
+                    Object[] durationsArray = (Object[])filmInfo.get("durations");
+                    if (durationsArray.length > 0) {
+                        HashMap durations = (HashMap)(durationsArray[0]);
+                        mediaFile.setRuntime(durations.get("duration").toString());
+                    }
                 }
                 logger.finest("Fetched runtime: " + mediaFile.getRuntime());
             }
