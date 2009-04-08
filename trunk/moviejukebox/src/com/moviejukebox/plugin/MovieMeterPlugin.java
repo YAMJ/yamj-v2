@@ -18,7 +18,10 @@ import com.moviejukebox.tools.PropertiesUtil;
  * 
  * Version 0.1 : Initial release
  * Version 0.2 : Fixed google search
- * Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration
+ * Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration (Issue 676)
+ * Version 0.4 : Fixed a problem when the moviemeter webservice returned no actors (Issue 677)
+ *               Added extra checks if values returned from the webservice doesn't exist
+ *
  * @author RdeTuinman
  *
  */
@@ -73,13 +76,17 @@ public class MovieMeterPlugin extends ImdbPlugin {
             mediaFile.setId(MOVIEMETER_PLUGIN_ID, filmInfo.get("filmId").toString());
 
             if (!mediaFile.isOverrideTitle()) {
-                mediaFile.setTitle(filmInfo.get("title").toString());
-                mediaFile.setOriginalTitle(filmInfo.get("title").toString());
+                if (filmInfo.get("title") != null) {
+                    mediaFile.setTitle(filmInfo.get("title").toString());
+                    mediaFile.setOriginalTitle(filmInfo.get("title").toString());
+                }
                 logger.finest("Fetched title: " + mediaFile.getTitle());
             }
 
             if (mediaFile.getRating() == -1) {
-                mediaFile.setRating(Math.round(Float.parseFloat(filmInfo.get("average").toString())*20));
+                if (filmInfo.get("average") != null) {
+                    mediaFile.setRating(Math.round(Float.parseFloat(filmInfo.get("average").toString())*20));
+                }
                 logger.finest("Fetched rating: " + mediaFile.getRating());
             }
 
@@ -104,39 +111,53 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
             if (mediaFile.getCountry().equals(Movie.UNKNOWN)) {
-                mediaFile.setCountry(filmInfo.get("countries_text").toString());
+                if (filmInfo.get("countries_text") != null) {
+                    mediaFile.setCountry(filmInfo.get("countries_text").toString());
+                }
                 logger.finest("Fetched country: " + mediaFile.getCountry());
             }
 
             if (mediaFile.getGenres().isEmpty()) {
-                Object[] genres = (Object[])filmInfo.get("genres");
-                for (int i=0; i<genres.length; i++) {
-                    mediaFile.addGenre(Library.getIndexingGenre(genres[i].toString()));
+                if (filmInfo.get("genres") != null) {
+                    Object[] genres = (Object[])filmInfo.get("genres");
+                    for (int i=0; i<genres.length; i++) {
+                        mediaFile.addGenre(Library.getIndexingGenre(genres[i].toString()));
+                    }
                 }
                 logger.finest("Fetched genres: " + mediaFile.getGenres().toString());
             }
 
             if (mediaFile.getPlot().equals(Movie.UNKNOWN)) {
-                mediaFile.setPlot(filmInfo.get("plot").toString());
+                if (filmInfo.get("plot") != null) {
+                    mediaFile.setPlot(filmInfo.get("plot").toString());
+                }
             }
 
-
             if (mediaFile.getYear() == null || mediaFile.getYear().isEmpty() || mediaFile.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setYear(filmInfo.get("year").toString());
+                if (filmInfo.get("year") != null) {
+                    mediaFile.setYear(filmInfo.get("year").toString());
+                }
                 logger.finest("Fetched year: " + mediaFile.getYear());
             }
 
             if (mediaFile.getCast().isEmpty()) {
                 Collection<String> newCast = new ArrayList<String>();
 
-                Object[] actors = (Object[])filmInfo.get("actors");
-                for (int i=0; i<actors.length; i++) {
-                    newCast.add((String)( ((HashMap)actors[i]).get("name")));
+                if (filmInfo.get("actors") != null) {
+                    // If no actor is known, false is returned instead of an array
+                    // This results in a ClassCastException
+                    // So first check the Class, before casting it to an Object array
+                    if (filmInfo.get("actors").getClass().equals(Object[].class)) {
+                        Object[] actors = (Object[])filmInfo.get("actors");
+                        for (int i=0; i<actors.length; i++) {
+                            newCast.add((String)( ((HashMap)actors[i]).get("name")));
+                        }
+                        if (newCast.size() > 0) { 
+                            mediaFile.setCast(newCast);
+                        }
+                    }
                 }
-                if (newCast.size() > 0) { 
-                    mediaFile.setCast(newCast);
-                    logger.finest("Fetched actors: " + mediaFile.getCast().toString());
-                }
+                logger.finest("Fetched actors: " + mediaFile.getCast().toString());
             }
 
             if (mediaFile.getDirector().equals(Movie.UNKNOWN)) {
@@ -148,7 +169,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 }
             }
             if (mediaFile.getPosterURL() == null || mediaFile.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setPosterURL(filmInfo.get("thumbnail").toString().replaceAll("thumbs/", ""));
+                if (filmInfo.get("thumbnail") != null) {
+                    mediaFile.setPosterURL(filmInfo.get("thumbnail").toString().replaceAll("thumbs/", ""));
+                }
             }
 
         } else {
