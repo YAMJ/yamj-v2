@@ -151,7 +151,7 @@ public class MovieFile implements Comparable<MovieFile> {
 	public void mergeFileNameDTO(MovieFileNameDTO dto) {
 		// TODO do not skip titles (store all provided)
 		setTitle(dto.isTrailer() ? dto.getTrailerTitle() 
-				: (dto.getSeason() > 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
+				: (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
 		
 		if (dto.getEpisodes().size() > 0) {
 			lastPart = 1;

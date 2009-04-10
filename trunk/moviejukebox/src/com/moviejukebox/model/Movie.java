@@ -168,7 +168,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
         }
 
         // Added season to handle properly sorting the season numbers
-        if (season > 0) {
+        if (season >= 0) {
             if (season < 10) {
                 text += " 0" + season;
             } else {
@@ -390,7 +390,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
     public boolean isTVShow() {
         // return (season != -1);
-        return (this.movieType.equals(TYPE_TVSHOW) || this.season > -1);
+        return (this.movieType.equals(TYPE_TVSHOW) || this.season != -1);
     }
     
     public boolean isHD() {
