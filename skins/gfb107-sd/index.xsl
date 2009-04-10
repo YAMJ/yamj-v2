@@ -34,39 +34,39 @@
 <tr valign="center" align="center">
 <xsl:for-each select="library/category[@current='true']/index[@current='true']">
   <td width="*">
-	<a class="heading" tvid="HOME">
-		<xsl:attribute name="href"><xsl:value-of select="//preferences/homePage" /></xsl:attribute><xsl:value-of select="../@name" />: <xsl:value-of select="@name" /></a></td>
+    <a class="heading" tvid="HOME">
+      <xsl:attribute name="href"><xsl:value-of select="//preferences/homePage" /></xsl:attribute><xsl:value-of select="../@name" />: <xsl:value-of select="@name" /></a></td>
   <xsl:if test="@lastIndex != 1">
     <!-- a tvid="prev"><xsl:attribute name="href"><xsl:value-of select="@first" />.html</xsl:attribute>&#160;|&lt;&#160;</a -->
     <td class="counter"><xsl:value-of select="@currentIndex" />&#160;of&#160;<xsl:value-of select="@lastIndex" />&#160;</td>
     <td class="nav">
-	<xsl:choose>
-		<xsl:when test="@currentIndex = 1">
-			<img src="pictures/nav_up_inactive.png" />
-		</xsl:when>
-		<xsl:otherwise>
-			<a tvid="pgup">
-				<xsl:attribute name="href"><xsl:value-of select="@previous" />.html</xsl:attribute>
-				<img src="pictures/nav_up.png"/>
-			</a>
-		</xsl:otherwise>
-	</xsl:choose>
-	</td>
+    <xsl:choose>
+      <xsl:when test="@currentIndex = 1">
+        <img src="pictures/nav_up_inactive.png" />
+      </xsl:when>
+      <xsl:otherwise>
+        <a tvid="pgup">
+          <xsl:attribute name="href"><xsl:value-of select="@previous" />.html</xsl:attribute>
+          <img src="pictures/nav_up.png"/>
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
+    </td>
     <td class="nav">
-	<xsl:choose>
-		<xsl:when test="@currentIndex = @lastIndex">
-			<img src="pictures/nav_down_inactive.png" />
-		</xsl:when>
-		<xsl:otherwise>
-			<a tvid="pgdn">
-				<xsl:attribute name="href"><xsl:value-of select="@next" />.html</xsl:attribute>
-				<img src="pictures/nav_down.png" />
-			</a>
-		</xsl:otherwise>			
-	</xsl:choose>
-  <!-- a tvid="next"><xsl:attribute name="href"><xsl:value-of select="@last" />.html</xsl:attribute>&#160;&gt;|&#160;</a -->
-  </td>
-</xsl:if>
+      <xsl:choose>
+        <xsl:when test="@currentIndex = @lastIndex">
+          <img src="pictures/nav_down_inactive.png" />
+        </xsl:when>
+        <xsl:otherwise>
+          <a tvid="pgdn">
+            <xsl:attribute name="href"><xsl:value-of select="@next" />.html</xsl:attribute>
+            <img src="pictures/nav_down.png" />
+          </a>
+        </xsl:otherwise>
+      </xsl:choose>
+    <!-- a tvid="next"><xsl:attribute name="href"><xsl:value-of select="@last" />.html</xsl:attribute>&#160;&gt;|&#160;</a -->
+    </td>
+  </xsl:if>
 </xsl:for-each>
 </tr>
 </table>
@@ -86,12 +86,12 @@
 
 <table class="title"><tr><td id="title" align="center">&#160;</td></tr></table>
 <xsl:for-each select="library/movies/movie">
-<div class="title">
-	<xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute>
-	<xsl:if test="season!=-1">&quot;</xsl:if><xsl:value-of select="title"/>
-	<xsl:if test="season!=-1">&quot; Season <xsl:value-of select="season"/></xsl:if>
-	<xsl:if test="certification!='' and certification!='UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
-</div>
+  <div class="title">
+    <xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute>
+    <xsl:if test="season != -1">&quot;</xsl:if><xsl:value-of select="title"/>
+    <xsl:if test="season != -1">&quot; Season <xsl:value-of select="season"/></xsl:if>
+    <xsl:if test="certification!='' and certification!='UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
+  </div>
 </xsl:for-each>
   <div class="title">
     <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
@@ -122,10 +122,10 @@
         </xsl:if>
       </xsl:if>
       <img>
-		<xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
+        <xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
         <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
         <xsl:attribute name="onmouseout">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
-	  </img>
+      </img>
     </a>
   </td>
 </xsl:template>

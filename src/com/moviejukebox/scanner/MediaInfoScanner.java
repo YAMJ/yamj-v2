@@ -76,6 +76,7 @@ public class MediaInfoScanner {
         enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "false"));
     }
 
+    @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files

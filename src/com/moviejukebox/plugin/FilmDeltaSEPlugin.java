@@ -389,7 +389,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 		try {
 			StringBuffer sb = new StringBuffer("http://cdon.se/search?q=");
 			sb.append(URLEncoder.encode(movieName, "UTF-8")); 
-			if(season > 0) {
+			if (season >= 0) {
 				sb.append("+").append(URLEncoder.encode("säsong", "UTF-8"));
 				sb.append("+" + season);
 			}

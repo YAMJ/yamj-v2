@@ -15,7 +15,6 @@ import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
 
 /**
- * 
  * @author styles
  */
 public class TheTvDBPlugin extends ImdbPlugin {
@@ -180,7 +179,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         for (MovieFile file : movie.getMovieFiles()) {
-            if (movie.getSeason() > 0) {
+            if (movie.getSeason() >= 0) {
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
