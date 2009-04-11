@@ -458,8 +458,9 @@ public class MovieJukebox {
             htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
 
             logger.fine("Copying new files to Jukebox directory...");
+            String index = PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
             FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);
-            FileTools.copyFile(new File(tempJukeboxRoot + File.separator + "index.htm"), new File(jukeboxRoot + File.separator + "index.htm"));
+            FileTools.copyFile(new File(tempJukeboxRoot + File.separator + index), new File(jukeboxRoot + File.separator + index));
 
             logger.fine("Copying resources to Jukebox directory...");
             FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
@@ -470,7 +471,7 @@ public class MovieJukebox {
                 isoList[nbFiles].delete();
             }
             tempJukeboxDetailsRootFile.delete();
-            File rootIndex = new File(tempJukeboxRoot + File.separator + "index.htm");
+            File rootIndex = new File(tempJukeboxRoot + File.separator + index);
             rootIndex.delete();
 
             // ////////////////////////////////////////////////////////////////
