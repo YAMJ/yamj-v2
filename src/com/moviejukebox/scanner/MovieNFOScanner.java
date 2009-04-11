@@ -162,12 +162,10 @@ public class MovieNFOScanner {
 
     private static boolean parseXMLNFO(String nfo, Movie movie, File nfoFile) {
         boolean retval = true;
-        if (nfo.indexOf("<movie>") > -1) {
-            parseMovieNFO(nfoFile, movie, nfo);
-        } else if (nfo.indexOf("<tvshow>") > -1) {
-            parseTVNFO(nfoFile, movie, nfo);
-        // } else if (nfo.indexOf("<episodedetails>") > -1) {
-        // parseEpisodeNFO(nfo, movie);
+        if (nfo.indexOf("<movie") > -1 && parseMovieNFO(nfoFile, movie, nfo)) {
+            return true;
+        } else if (nfo.indexOf("<tvshow") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
+            return true;
         } else {
             retval = false;
         }
@@ -206,14 +204,14 @@ public class MovieNFOScanner {
      * @param xmlFile
      * @param movie
      */
-    private static void parseMovieNFO(File nfoFile, Movie movie, String nfo) {
+    private static boolean parseMovieNFO(File nfoFile, Movie movie, String nfo) {
         try {
             XMLEventReader r = createXMLReader(nfoFile, nfo);
 
             boolean isMovieTag = false;
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
-
+                
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
                     logger.finest("In parseMovieNFO found new startElement=" + tag);
@@ -361,10 +359,14 @@ public class MovieNFOScanner {
                     }
                 }
             }
+            
+            return isMovieTag;
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
         }
+        
+        return false;
     }
 
     /**
@@ -373,7 +375,7 @@ public class MovieNFOScanner {
      * @param xmlFile
      * @param movie
      */
-    private static void parseTVNFO(File nfoFile, Movie movie, String nfo) {
+    private static boolean parseTVNFO(File nfoFile, Movie movie, String nfo) {
         try {
             XMLEventReader r = createXMLReader(nfoFile, nfo);
 
@@ -512,10 +514,13 @@ public class MovieNFOScanner {
                     }
                 }
             }
+            return isTVTag;
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Failed parsing NFO file for tvshow: " + movie.getTitle() + ". Please fix or remove it.");
         }
+        
+        return false;
     }
 
 	public static String getForceNFOEncoding() {
