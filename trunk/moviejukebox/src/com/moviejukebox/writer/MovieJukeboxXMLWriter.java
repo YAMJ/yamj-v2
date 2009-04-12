@@ -369,6 +369,10 @@ public class MovieJukeboxXMLWriter {
         }
 
         for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
+            if (!category.getValue().display()) {
+                continue;
+            }
+            
             writer.writeStartElement("category");
             writer.writeAttribute("name", category.getKey());
 
