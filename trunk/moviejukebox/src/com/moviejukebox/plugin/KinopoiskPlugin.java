@@ -120,6 +120,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId);
             
+            // Work-around for issue #649
+            xml = xml.replace((CharSequence)"&#151;", (CharSequence)"&hellip;");
+            xml = xml.replace((CharSequence)"&#133;", (CharSequence)"&mdash;");
+            
             // Title
             if (!movie.isOverrideTitle()) {
             	String newTitle = HTMLTools.extractTag(xml, "class=\"moviename-big\">", 0, "<>");

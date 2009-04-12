@@ -15,11 +15,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.logging.Logger;
 
 /**
  * Web browser with simple cookies support
  */
 public class WebBrowser {
+
+    private static final Logger logger = Logger.getLogger("moviejukebox");
 
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;
@@ -203,6 +206,8 @@ public class WebBrowser {
         if (charset == null) {
             charset = Charset.defaultCharset();
         }
+        
+        logger.finest("Detected charset " + charset);
         return charset;
     }
 }
