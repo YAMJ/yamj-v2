@@ -560,8 +560,7 @@ public class OpenSubtitlesPlugin {
         return s;
     }
 
-/* Not used
- * 
+    @SuppressWarnings("unused")
     private static String generateXMLRPCDetectLang(String body) {
         String str = "";
         str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
@@ -573,7 +572,6 @@ public class OpenSubtitlesPlugin {
         str += "</params></methodCall>";
         return str;
     }
- */
 
     private static String generateXMLRPC(String procname, String s[]) {
         String str = "";

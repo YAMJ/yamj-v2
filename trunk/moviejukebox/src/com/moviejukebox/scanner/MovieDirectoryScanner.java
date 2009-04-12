@@ -1,13 +1,12 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Logger;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
@@ -15,8 +14,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * DirectoryScanner
@@ -40,11 +39,9 @@ public class MovieDirectoryScanner {
     private BDRipScanner localBDRipScanner;
 
     public MovieDirectoryScanner() {
-        for (String ext : PropertiesUtil.getProperty(
-    		"mjb.extensions", 
-    		"AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")) {
-    			supportedExtensions.add(ext);
-    		}
+        for (String ext : PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")) {
+            supportedExtensions.add(ext);
+        }
         thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
         postersFormat = PropertiesUtil.getProperty("posters.format", "png");
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
@@ -88,7 +85,7 @@ public class MovieDirectoryScanner {
                 for (File file : files) {
                 	if (file.getName().equalsIgnoreCase(".mjbignore")) return;
                 }
-                
+
                 for (File file : fileList) {
                     if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
                         scanFile(srcPath, file.getParentFile(), collection);
@@ -149,14 +146,9 @@ public class MovieDirectoryScanner {
         String basename = path.substring(0, index + 1);
 
         if (index >= 0) {
-            return (new File(basename + "srt").exists() 
-            			|| new File(basename + "SRT").exists() 
-            			|| new File(basename + "sub").exists()
-                        || new File(basename + "SUB").exists() 
-                        || new File(basename + "smi").exists() 
-                        || new File(basename + "SMI").exists()
-                        || new File(basename + "ssa").exists() 
-                        || new File(basename + "SSA").exists());
+            return (new File(basename + "srt").exists() || new File(basename + "SRT").exists() || new File(basename + "sub").exists()
+                        || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists()
+                        || new File(basename + "ssa").exists() || new File(basename + "SSA").exists());
         }
 
         String fn = path.toUpperCase();
@@ -233,8 +225,8 @@ public class MovieDirectoryScanner {
 //            MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
 //            filenameScanner.scan(m);
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
-			m.mergeFileNameDTO(dto);
-			movieFile.mergeFileNameDTO(dto);
+            m.mergeFileNameDTO(dto);
+            movieFile.mergeFileNameDTO(dto);
 
             library.addMovie(m);
         }

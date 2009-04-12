@@ -19,7 +19,8 @@ import com.moviejukebox.model.MovieFileNameDTO;
  * 
  * <MovieTitle>[Keyword*].<container>
  * 
- * * The movie title is in the first position of the filename. * it is followed by zero or more keywords. * the file extension match the container name.
+ * * The movie title is in the first position of the filename. * it is followed by zero or more keywords. * the file
+ * extension match the container name.
  * 
  * @author jjulien
  * @author quickfinga
@@ -28,77 +29,71 @@ import com.moviejukebox.model.MovieFileNameDTO;
 @SuppressWarnings("serial")
 public class MovieFilenameScanner {
 
-	protected static final Logger logger = Logger.getLogger("moviejukebox");
+    protected static final Logger logger = Logger.getLogger("moviejukebox");
 
-	private static String[] skipKeywords;
-	private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
-	private static boolean languageDetection = true; 
+    private static String[] skipKeywords;
+    private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
+    private static boolean languageDetection = true;
 
-	/** All symbols within brackets [] if there is 'trailer' word */
-	private static final Pattern TRAILER_PATTERN = ipatt("\\[([^\\[\\]]*trailer[^\\[]*)\\]");
-	
-	/** Everyting in format [SET something] */
-	private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
-	
-	/** Number at the end of string preceded with '-' */
-	private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
-	
+    /** All symbols within brackets [] if there is 'trailer' word */
+    private static final Pattern TRAILER_PATTERN = ipatt("\\[([^\\[\\]]*trailer[^\\[]*)\\]");
+
+    /** Everything in format [SET something] */
+    private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
+
+    /** Number at the end of string preceded with '-' */
+    private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
+
     private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
-	
-    
-    protected static final Pattern TV_PATTERN = 
-		ipatt("(?<![0-9])s{0,1}([0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
+
+    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])s{0,1}([0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
     protected static final Pattern EPISODE_PATTERN = patt("(?i)[ex]([0-9]+)");
-    
-    
+
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
-	private static final String NOTOKEN_DELIMITERS_STRING = " _-,";
+    private static final String NOTOKEN_DELIMITERS_STRING = " _-,";
     protected static final String WORD_DELIMITERS_STRING = NOTOKEN_DELIMITERS_STRING + TOKEN_DELIMITERS_STRING;
     protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
-    protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = 
-    	patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
-    protected static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = 
-    	patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
-    protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = 
-    	patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
-    
-    /** Last 4 digits or last 4 digits in parenthesis.*/
+    protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
+    protected static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
+    protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
+
+    /** Last 4 digits or last 4 digits in parenthesis. */
     protected static final Pattern MOVIE_YEAR_PATTERN = patt("[^0-9]\\({0,1}([0-9]{4})\\){0,1}$");
-    
+
     /** One or more '.[]_ ' */
     protected static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
-    
+
     /** '-' or '(' at the end */
     protected static final Pattern TITLE_CLEANUP_CUT_PATTERN = patt("-$|\\($");
-    
-    /** All symbols between '-' and '/' but not after '/TVSHOW/' or  '/PART/'*/
+
+    /** All symbols between '-' and '/' but not after '/TVSHOW/' or '/PART/' */
     protected static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
 
     private static final List<Pattern> PART_PATTERNS = new ArrayList<Pattern>() {
-		{
-			add(iwpatt("CD ([0-9]+)")); 
-			add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)")); 
-			add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
-		}
-	};
- 
+        {
+            add(iwpatt("CD ([0-9]+)"));
+            add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)"));
+            add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
+        }
+    };
+
     private static final Map<String, Pattern> STRICT_LANGUAGES_MAP = new HashMap<String, Pattern>() {
-    	private void put(String key, String tokens) {
-    		String[] ts = tokens.split(" ");
-    		StringBuilder sb = new StringBuilder();
-    		boolean first = true;
-    		for (String s : ts) {
-    			if (!first) {
-    				sb.append('|');
-    			}
-    			sb.append(Pattern.quote(s));
-				first = false;
-    		}
-    		put(key, tpatt(sb.toString()));
-    	}
-    	
-		{
+        private void put(String key, String tokens) {
+            String[] ts = tokens.split(" ");
+            StringBuilder sb = new StringBuilder();
+            boolean first = true;
+            for (String s : ts) {
+                if (!first) {
+                    sb.append('|');
+                }
+                sb.append(Pattern.quote(s));
+                first = false;
+            }
+            put(key, tpatt(sb.toString()));
+        }
+
+        {
             put("Chinese", "ZH Zh zh CHI Chi chi CHINESE Chinese chinese");
             put("Dual Language", "DL dl");
             put("English", "ENG EN ENGLISH eng en english Eng");
@@ -116,14 +111,14 @@ public class MovieFilenameScanner {
             put("Swedish", "SV Sv sv SWE Swe swe SWEDISH Swedish swedish");
             put("Thai", "TH Th th THA Tha tha THAI Thai thai");
             put("VO", "VO VOSTFR vo vostfr");
-		}
-	};
+        }
+    };
 
     private static final Map<String, Pattern> LOOSE_LANGUAGES_MAP = new HashMap<String, Pattern>() {
-    	private void put(String key, String tokens) {
-    		String[] ts = tokens.split(" ");
-    		StringBuilder sb = new StringBuilder();
-    		boolean first = true;
+        private void put(String key, String tokens) {
+            String[] ts = tokens.split(" ");
+            StringBuilder sb = new StringBuilder();
+            boolean first = true;
             for (String s : ts) {
                 if (!first) {
                     sb.append('|');
@@ -132,9 +127,9 @@ public class MovieFilenameScanner {
                 first = false;
             }
             put(key, iwpatt(sb.toString()));
-    	}
-    	
-		{
+        }
+
+        {
             put("Chinese", "ZH CHI CHINESE");
             put("Dual Language", "DL");
             put("English", "ENG EN ENGLISH");
@@ -152,68 +147,64 @@ public class MovieFilenameScanner {
             put("Swedish", "SV SWE SWEDISH");
             put("Thai", "TH THA THAI");
             put("VO", "VO VOSTFR");
-		}
-	};
+        }
+    };
 
     private static final Map<Integer, Pattern> FPS_MAP = new HashMap<Integer, Pattern>() {
-		{
-        	for (int i : new int[] {23, 24, 25, 29, 30, 50, 59, 60}) {
-        		put(i, iwpatt("p" + i + "|" + i + "p"));
-        	}
-		}
-	};
+        {
+            for (int i : new int[] { 23, 24, 25, 29, 30, 50, 59, 60 }) {
+                put(i, iwpatt("p" + i + "|" + i + "p"));
+            }
+        }
+    };
 
-	private static final Map<String, Pattern> AUDIO_CODEC_MAP = new HashMap<String, Pattern>() {
-		{
-        	for (String s : AUDIO_CODECS_ARRAY) {
-        		put(s, iwpatt(s));
-        	}
-		}
-	};
+    private static final Map<String, Pattern> AUDIO_CODEC_MAP = new HashMap<String, Pattern>() {
+        {
+            for (String s : AUDIO_CODECS_ARRAY) {
+                put(s, iwpatt(s));
+            }
+        }
+    };
 
-	private static final Map<String, Pattern> VIDEO_CODEC_MAP = new HashMap<String, Pattern>() {
-		{
-        	put("XviD", iwpatt("XVID"));
-        	put("DivX", iwpatt("DIVX|DIVX6"));
-        	put("H.264", iwpatt("H264|H\\.264|X264"));
-		}
-	};
+    private static final Map<String, Pattern> VIDEO_CODEC_MAP = new HashMap<String, Pattern>() {
+        {
+            put("XviD", iwpatt("XVID"));
+            put("DivX", iwpatt("DIVX|DIVX6"));
+            put("H.264", iwpatt("H264|H\\.264|X264"));
+        }
+    };
 
-	private static final Map<String, Pattern> HD_RESOLUTION_MAP = new HashMap<String, Pattern>() {
-		{
-        	for (String s : new String[] {"720p", "1080i", "1080p", "HD"}) {
-        		put(s, iwpatt(s));
-        	}
-		}
-	};
-	
-	private static final Map<String, Pattern> VIDEO_SOURCE_MAP = new HashMap<String, Pattern>() {
-		{
-        	for (String s : new String[] {
-        			"HDTV", "PDTV", "DVDRip", "DVDSCR", "DSRip", "CAM", "R5",
-        			"LINE", "HD2DVD", "DVD", "HRHDTV", "MVCD", "VCD"
-        			}) {
-        		put(s, iwpatt(s));
-        	}
-        	put("BluRay", iwpatt("BLURAY|BDRIP|BLURAYRIP|BLU-RAY"));
-        	put("TS", iwpatt("TS"));
-        	put("HDDVD", iwpatt("HDDVD|HD-DVD|HDDVDRIP"));
-        	put("D-THEATER", iwpatt("DTH|D-THEATER|DTHEATER"));
-		}
-	};
-	
-	private final MovieFileNameDTO dto = new MovieFileNameDTO();
-	private final File file;
-	private final String filename;
-	private String rest;
-	
-	
+    private static final Map<String, Pattern> HD_RESOLUTION_MAP = new HashMap<String, Pattern>() {
+        {
+            for (String s : new String[] { "720p", "1080i", "1080p", "HD" }) {
+                put(s, iwpatt(s));
+            }
+        }
+    };
+
+    private static final Map<String, Pattern> VIDEO_SOURCE_MAP = new HashMap<String, Pattern>() {
+        {
+            for (String s : new String[] { "HDTV", "PDTV", "DVDRip", "DVDSCR", "DSRip", "CAM", "R5", "LINE", "HD2DVD", "DVD", "HRHDTV", "MVCD", "VCD" }) {
+                put(s, iwpatt(s));
+            }
+            put("BluRay", iwpatt("BLURAY|BDRIP|BLURAYRIP|BLU-RAY"));
+            put("TS", iwpatt("TS"));
+            put("HDDVD", iwpatt("HDDVD|HD-DVD|HDDVDRIP"));
+            put("D-THEATER", iwpatt("DTH|D-THEATER|DTHEATER"));
+        }
+    };
+
+    private final MovieFileNameDTO dto = new MovieFileNameDTO();
+    private final File file;
+    private final String filename;
+    private String rest;
+
     /**
      * @param regex
      * @return Exact pattern
      */
     private static final Pattern patt(String regex) {
-    	return Pattern.compile(regex);
+        return Pattern.compile(regex);
     }
 
     /**
@@ -221,7 +212,7 @@ public class MovieFilenameScanner {
      * @return Case insensitive pattern
      */
     private static final Pattern ipatt(String regex) {
-    	return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
 
     /**
@@ -229,8 +220,7 @@ public class MovieFilenameScanner {
      * @return Case insensitive pattern with word delimiters around
      */
     private static final Pattern iwpatt(String regex) {
-    	return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN 
-    			+ "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN, Pattern.CASE_INSENSITIVE);
+        return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN, Pattern.CASE_INSENSITIVE);
     }
 
     /**
@@ -239,8 +229,7 @@ public class MovieFilenameScanner {
      */
     @SuppressWarnings("unused")
     private static final Pattern wpatt(String regex) {
-    	return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN 
-    			+ "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN);
+        return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN);
     }
 
     /**
@@ -248,281 +237,278 @@ public class MovieFilenameScanner {
      * @return Case sensitive pattern with token delimiters around
      */
     private static final Pattern tpatt(String regex) {
-    	return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN 
-    			+ "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)"
-    			+ "(?:" + regex + ")" 
-    			+ "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)"
-    			+ TOKEN_DELIMITERS_MATCH_PATTERN);
+        return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN + "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + "(?:" + regex + ")" + "(?:"
+                        + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + TOKEN_DELIMITERS_MATCH_PATTERN);
     }
-    
+
     private MovieFilenameScanner(File file) {
-    	this.file = file;
-    	this.filename = file.getName();
-    	
-    	rest = filename;
-    	
-    	// EXTENSION AND CONTAINER
+        this.file = file;
+        this.filename = file.getName();
+
+        rest = filename;
+
+        // EXTENSION AND CONTAINER
         if (file.isFile()) {
-        	// Extract and strip extension
-        	int i = rest.lastIndexOf('.');
-        	if (i > 0) {
-        		dto.setExtension(rest.substring(i+1));
-        		rest = rest.substring(0, i);
-        	} else {
-        		dto.setExtension("");
-        	}
+            // Extract and strip extension
+            int i = rest.lastIndexOf('.');
+            if (i > 0) {
+                dto.setExtension(rest.substring(i + 1));
+                rest = rest.substring(0, i);
+            } else {
+                dto.setExtension("");
+            }
             dto.setContainer(dto.getExtension().toUpperCase());
         } else {
             // For DVD images
-        	// no extension
-    		dto.setExtension("");
+            // no extension
+            dto.setExtension("");
             dto.setContainer("DVD");
             dto.setVideoSource("DVD");
         }
 
-		// SKIP 
-		for (Pattern p : skipPatterns) {
-			rest = p.matcher(rest).replaceAll("./.");
-		}
-
-		// TRAILER
-        {
-	        final Matcher matcher = TRAILER_PATTERN.matcher(rest);
-	    	dto.setTrailer(matcher.find());
-	        if (dto.isTrailer()) {
-	        	dto.setTrailerTitle(matcher.group(1));
-	        	rest = cutMatch(rest, matcher,  "./TRAILER/.");
-	        }
+        // SKIP
+        for (Pattern p : skipPatterns) {
+            rest = p.matcher(rest).replaceAll("./.");
         }
-        
+
+        // TRAILER
+        {
+            final Matcher matcher = TRAILER_PATTERN.matcher(rest);
+            dto.setTrailer(matcher.find());
+            if (dto.isTrailer()) {
+                dto.setTrailerTitle(matcher.group(1));
+                rest = cutMatch(rest, matcher, "./TRAILER/.");
+            }
+        }
+
         // SEASON + EPISODES
         {
-	        final Matcher matcher = TV_PATTERN.matcher(rest);
-	        if (matcher.find()) {
-	            // logger.finest("It's a TV Show: " + group0);
-	        	rest = cutMatch(rest, matcher, "./TVSHOW/.");
-	
-	            int season = Integer.parseInt(matcher.group(1));
-	            dto.setSeason(season);
-	
-	            final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(2));
-	            while (ematcher.find()) {
-	                dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
-	            }
-	            
-	        }
+            final Matcher matcher = TV_PATTERN.matcher(rest);
+            if (matcher.find()) {
+                // logger.finest("It's a TV Show: " + group0);
+                rest = cutMatch(rest, matcher, "./TVSHOW/.");
+
+                int season = Integer.parseInt(matcher.group(1));
+                dto.setSeason(season);
+
+                final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(2));
+                while (ematcher.find()) {
+                    dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
+                }
+
+            }
         }
-        
+
         // PART
         {
-        	for (Pattern pattern : PART_PATTERNS) {
-    	        Matcher matcher = pattern.matcher(rest);
-    			if (matcher.find()) {
-    				rest = cutMatch(rest, matcher, " /PART/ ");
-   	                dto.setPart(Integer.parseInt(matcher.group(1)));
-	            	break;
-    	        }
-        	}
+            for (Pattern pattern : PART_PATTERNS) {
+                Matcher matcher = pattern.matcher(rest);
+                if (matcher.find()) {
+                    rest = cutMatch(rest, matcher, " /PART/ ");
+                    dto.setPart(Integer.parseInt(matcher.group(1)));
+                    break;
+                }
+            }
         }
 
         // SETS
         {
-	        for (;;) {
-		        final Matcher matcher = SET_PATTERN.matcher(rest);
-		        if (!matcher.find()) {
-		        	break;
-		        }
-	        	rest = cutMatch(rest, matcher, " / ");
-	
-	        	MovieFileNameDTO.Set set = new MovieFileNameDTO.Set();
-	            dto.getSets().add(set);
+            for (;;) {
+                final Matcher matcher = SET_PATTERN.matcher(rest);
+                if (!matcher.find()) {
+                    break;
+                }
+                rest = cutMatch(rest, matcher, " / ");
 
-	        	String n = matcher.group(1);
-	        	Matcher nmatcher = SET_INDEX_PATTERN.matcher(n);
-	        	if (nmatcher.find()) {
-	        		set.setIndex(Integer.parseInt(nmatcher.group(1)));
-	        		n = cutMatch(n, nmatcher);
-	        	}
-	            set.setTitle(n.trim());
-	        }
+                MovieFileNameDTO.Set set = new MovieFileNameDTO.Set();
+                dto.getSets().add(set);
+
+                String n = matcher.group(1);
+                Matcher nmatcher = SET_INDEX_PATTERN.matcher(n);
+                if (nmatcher.find()) {
+                    set.setIndex(Integer.parseInt(nmatcher.group(1)));
+                    n = cutMatch(n, nmatcher);
+                }
+                set.setTitle(n.trim());
+            }
         }
-        
-		dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
-		dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
-		dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
-		dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
-		dto.setVideoSource(seekPatternAndUpdateRest(VIDEO_SOURCE_MAP, dto.getVideoSource()));
 
-		// LANGUAGES
-		if (languageDetection) {
-			for(;;) {
-				String language = seekPatternAndUpdateRest(STRICT_LANGUAGES_MAP, null);
-				if (language == null) {
-					break;
-				}
-				dto.getLanguages().add(language);
-			}
-		}
-    	
-		// TITLE
-		{
-			int itrailer = dto.isTrailer() ? rest.indexOf("/TRAILER/") : rest.length();
-			int itvshow = dto.getSeason() >= 0 ? rest.indexOf("/TVSHOW/") : rest.length();
-			int ipart = dto.getPart() >=0 ? rest.indexOf("/PART/") : rest.length();
-			
-			{
-				int min = itrailer < itvshow ? itrailer : itvshow;
-				min = min < ipart ? min : ipart;
-				
-				// Find first token before trailer, TV show and part
-				// Name should not start with '-' (exclude wrongly marked part/episode titles)
-				String title = "";
-				StringTokenizer t = new StringTokenizer(rest.substring(0, min), "/[]");
-				while (t.hasMoreElements()) {
-					String token = t.nextToken();
-					token = cleanUpTitle(token);
-					if (token.length() >= 2 
-							&& token.charAt(0) != '-' ) {
-						title = token;
-						break;
-					}
-				}
-				
-				boolean first = true;
-				while (t.hasMoreElements()) {
-					String token = t.nextToken();
-					token = cleanUpTitle(token);
-					// Search year (must be next non-empty token)
-					if (first) {
-						if (token.length() > 0) {
-							try {
-								int year = Integer.parseInt(token);
-								if (year >= 1800 && year <= 3000) {
-									dto.setYear(year);
-								}
-							} catch (NumberFormatException e) {}
-						}
-						first = false;
-					}
-					
-					if (!languageDetection) {
-						break;
-					}
-					
-					// Loose language search
-					if (token.length() >= 2 && token.indexOf('-') < 0 ) {
-				    	for (Map.Entry<String, Pattern> e : LOOSE_LANGUAGES_MAP.entrySet()) {
-				    		Matcher matcher = e.getValue().matcher(token);
-							if (matcher.find()) {
-								dto.getLanguages().add(e.getKey());
-							}
-				    	}
-					}
-				}
-				
-				// Search year within title (last 4 digits or 4 digits in parenthesis)
-				if (dto.getYear() < 0) {
-					Matcher ymatcher = MOVIE_YEAR_PATTERN.matcher(title);
-					if (ymatcher.find()) {
-						int year = Integer.parseInt(ymatcher.group(1));
-						if (year >= 1919 && year <= 2099) {
-							dto.setYear(year);
-							title = cutMatch(title, ymatcher);
-						}
-					}
-				}
-				dto.setTitle(title);
-			}
+        dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
+        dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
+        dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
+        dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
+        dto.setVideoSource(seekPatternAndUpdateRest(VIDEO_SOURCE_MAP, dto.getVideoSource()));
 
-			// EPISODE TITLE
-			if (dto.getSeason() >= 0) {
-				itvshow += 8;
-				Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(itvshow));
-				while (matcher.find()) {
-					String title = cleanUpTitle(matcher.group(1));
-					if (title.length() > 0) {
-						dto.setEpisodeTitle(title);
-						break;
-					}
-				}
-			}
+        // LANGUAGES
+        if (languageDetection) {
+            for (;;) {
+                String language = seekPatternAndUpdateRest(STRICT_LANGUAGES_MAP, null);
+                if (language == null) {
+                    break;
+                }
+                dto.getLanguages().add(language);
+            }
+        }
 
-			// PART TITLE
-			if (dto.getPart() >= 0) {
-				ipart += 6;
-				Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(ipart));
-				while (matcher.find()) {
-					String title = cleanUpTitle(matcher.group(1));
-					if (title.length() > 0) {
-						dto.setPartTitle(title);
-						break;
-					}
-				}
-			}
-		
-		}
-	
+        // TITLE
+        {
+            int itrailer = dto.isTrailer() ? rest.indexOf("/TRAILER/") : rest.length();
+            int itvshow = dto.getSeason() >= 0 ? rest.indexOf("/TVSHOW/") : rest.length();
+            int ipart = dto.getPart() >= 0 ? rest.indexOf("/PART/") : rest.length();
+
+            {
+                int min = itrailer < itvshow ? itrailer : itvshow;
+                min = min < ipart ? min : ipart;
+
+                // Find first token before trailer, TV show and part
+                // Name should not start with '-' (exclude wrongly marked part/episode titles)
+                String title = "";
+                StringTokenizer t = new StringTokenizer(rest.substring(0, min), "/[]");
+                while (t.hasMoreElements()) {
+                    String token = t.nextToken();
+                    token = cleanUpTitle(token);
+                    if (token.length() >= 2 && token.charAt(0) != '-') {
+                        title = token;
+                        break;
+                    }
+                }
+
+                boolean first = true;
+                while (t.hasMoreElements()) {
+                    String token = t.nextToken();
+                    token = cleanUpTitle(token);
+                    // Search year (must be next non-empty token)
+                    if (first) {
+                        if (token.length() > 0) {
+                            try {
+                                int year = Integer.parseInt(token);
+                                if (year >= 1800 && year <= 3000) {
+                                    dto.setYear(year);
+                                }
+                            } catch (NumberFormatException e) {
+                            }
+                        }
+                        first = false;
+                    }
+
+                    if (!languageDetection) {
+                        break;
+                    }
+
+                    // Loose language search
+                    if (token.length() >= 2 && token.indexOf('-') < 0) {
+                        for (Map.Entry<String, Pattern> e : LOOSE_LANGUAGES_MAP.entrySet()) {
+                            Matcher matcher = e.getValue().matcher(token);
+                            if (matcher.find()) {
+                                dto.getLanguages().add(e.getKey());
+                            }
+                        }
+                    }
+                }
+
+                // Search year within title (last 4 digits or 4 digits in parenthesis)
+                if (dto.getYear() < 0) {
+                    Matcher ymatcher = MOVIE_YEAR_PATTERN.matcher(title);
+                    if (ymatcher.find()) {
+                        int year = Integer.parseInt(ymatcher.group(1));
+                        if (year >= 1919 && year <= 2099) {
+                            dto.setYear(year);
+                            title = cutMatch(title, ymatcher);
+                        }
+                    }
+                }
+                dto.setTitle(title);
+            }
+
+            // EPISODE TITLE
+            if (dto.getSeason() >= 0) {
+                itvshow += 8;
+                Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(itvshow));
+                while (matcher.find()) {
+                    String title = cleanUpTitle(matcher.group(1));
+                    if (title.length() > 0) {
+                        dto.setEpisodeTitle(title);
+                        break;
+                    }
+                }
+            }
+
+            // PART TITLE
+            if (dto.getPart() >= 0) {
+                ipart += 6;
+                Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(ipart));
+                while (matcher.find()) {
+                    String title = cleanUpTitle(matcher.group(1));
+                    if (title.length() > 0) {
+                        dto.setPartTitle(title);
+                        break;
+                    }
+                }
+            }
+
+        }
+
     }
 
-	private String cleanUpTitle(String token) {
-		String title = TITLE_CLEANUP_DIV_PATTERN.matcher(token).replaceAll(" ").trim();
-		return TITLE_CLEANUP_CUT_PATTERN.matcher(title).replaceAll("").trim();
-	}
-    
+    private String cleanUpTitle(String token) {
+        String title = TITLE_CLEANUP_DIV_PATTERN.matcher(token).replaceAll(" ").trim();
+        return TITLE_CLEANUP_CUT_PATTERN.matcher(title).replaceAll("").trim();
+    }
+
     private <T> T seekPatternAndUpdateRest(Map<T, Pattern> map, T oldValue) {
-    	for (Map.Entry<T, Pattern> e : map.entrySet()) {
-    		Matcher matcher = e.getValue().matcher(rest);
-			if (matcher.find()) {
-				rest = cutMatch(rest, matcher, "./.");
-				return e.getKey();
-    		}
-    	}
-    	return oldValue;
+        for (Map.Entry<T, Pattern> e : map.entrySet()) {
+            Matcher matcher = e.getValue().matcher(rest);
+            if (matcher.find()) {
+                rest = cutMatch(rest, matcher, "./.");
+                return e.getKey();
+            }
+        }
+        return oldValue;
     }
 
-	private static String cutMatch(String rest, Matcher matcher) {
-		return rest.substring(0, matcher.start()) + rest.substring(matcher.end());
-	}
+    private static String cutMatch(String rest, Matcher matcher) {
+        return rest.substring(0, matcher.start()) + rest.substring(matcher.end());
+    }
 
-	private static String cutMatch(String rest, Matcher matcher, String divider) {
-		return rest.substring(0, matcher.start()) + divider + rest.substring(matcher.end());
-	}
-    
+    private static String cutMatch(String rest, Matcher matcher, String divider) {
+        return rest.substring(0, matcher.start()) + divider + rest.substring(matcher.end());
+    }
+
     public static MovieFileNameDTO scan(File file) {
-    	
-    	return new MovieFilenameScanner(file).getDto();
+
+        return new MovieFilenameScanner(file).getDto();
     }
-    
+
     public static String[] getSkipKeywords() {
-		return skipKeywords;
-	}
+        return skipKeywords;
+    }
 
-	public static void setSkipKeywords(String[] skipKeywords) {
-		MovieFilenameScanner.skipKeywords = skipKeywords;
-		skipPatterns.clear();
-		for (String s : skipKeywords) {
-			skipPatterns.add(ipatt(Pattern.quote(s)));
-		}
-	}
+    public static void setSkipKeywords(String[] skipKeywords) {
+        MovieFilenameScanner.skipKeywords = skipKeywords;
+        skipPatterns.clear();
+        for (String s : skipKeywords) {
+            skipPatterns.add(ipatt(Pattern.quote(s)));
+        }
+    }
 
-	public static boolean isLanguageDetection() {
-		return languageDetection;
-	}
+    public static boolean isLanguageDetection() {
+        return languageDetection;
+    }
 
-	public static void setLanguageDetection(boolean languageDetection) {
-		MovieFilenameScanner.languageDetection = languageDetection;
-	}
+    public static void setLanguageDetection(boolean languageDetection) {
+        MovieFilenameScanner.languageDetection = languageDetection;
+    }
 
-	public MovieFileNameDTO getDto() {
-		return dto;
-	}
+    public MovieFileNameDTO getDto() {
+        return dto;
+    }
 
-	public File getFile() {
-		return file;
-	}
+    public File getFile() {
+        return file;
+    }
 
-	public String getFilename() {
-		return filename;
-	}
+    public String getFilename() {
+        return filename;
+    }
 
 }

@@ -182,21 +182,20 @@ public class MovieNFOScanner {
      * @throws FileNotFoundException
      */
     private static XMLEventReader createXMLReader(File nfoFile, String nfo)
-    	throws FactoryConfigurationError, XMLStreamException, FileNotFoundException {
-		XMLInputFactory factory = XMLInputFactory.newInstance();
-		
-		// TODO Make the encoding detection more explicit 
-		boolean fileContainsEncoding = false;
-		if (nfo != null) {
-			int i = nfo.indexOf("encoding");
-			fileContainsEncoding = (i > 0 && i < 100);
-		}
-		
-		XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding) 
-				? factory.createXMLEventReader(new FileInputStream(nfoFile), forceNFOEncoding)
-				: factory.createXMLEventReader(new FileInputStream(nfoFile));
-		return r;
-	}
+            throws FactoryConfigurationError, XMLStreamException, FileNotFoundException {
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+
+        // TODO Make the encoding detection more explicit
+        boolean fileContainsEncoding = false;
+        if (nfo != null) {
+            int i = nfo.indexOf("encoding");
+            fileContainsEncoding = (i > 0 && i < 100);
+        }
+
+        XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding) ? factory.createXMLEventReader(new FileInputStream(nfoFile), forceNFOEncoding)
+                        : factory.createXMLEventReader(new FileInputStream(nfoFile));
+        return r;
+    }
 
     /**
      * Used to parse out the XBMC nfo xml data for movies
@@ -523,27 +522,27 @@ public class MovieNFOScanner {
         return false;
     }
 
-	public static String getForceNFOEncoding() {
-		return forceNFOEncoding;
-	}
+    public static String getForceNFOEncoding() {
+        return forceNFOEncoding;
+    }
 
-	public static void setForceNFOEncoding(String forceNFOEncoding) {
-		MovieNFOScanner.forceNFOEncoding = forceNFOEncoding;
-	}
+    public static void setForceNFOEncoding(String forceNFOEncoding) {
+        MovieNFOScanner.forceNFOEncoding = forceNFOEncoding;
+    }
 
-	public static String getFanartToken() {
-		return fanartToken;
-	}
+    public static String getFanartToken() {
+        return fanartToken;
+    }
 
-	public static void setFanartToken(String fanartToken) {
-		MovieNFOScanner.fanartToken = fanartToken;
-	}
+    public static void setFanartToken(String fanartToken) {
+        MovieNFOScanner.fanartToken = fanartToken;
+    }
 
-	public static String getNFOdirectory() {
-		return NFOdirectory;
-	}
+    public static String getNFOdirectory() {
+        return NFOdirectory;
+    }
 
-	public static void setNFOdirectory(String odirectory) {
-		NFOdirectory = odirectory;
-	}
+    public static void setNFOdirectory(String odirectory) {
+        NFOdirectory = odirectory;
+    }
 }
