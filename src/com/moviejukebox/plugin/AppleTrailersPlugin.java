@@ -1,24 +1,22 @@
 package com.moviejukebox.plugin;
 
-import java.io.*;
-import java.net.*;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.TrailerFile;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.WebBrowser;
 
 public class AppleTrailersPlugin {
 
@@ -429,7 +427,7 @@ public class AppleTrailersPlugin {
             return Movie.UNKNOWN;
             
         String title="";
-        boolean upper=true;
+//        boolean upper=true;
         
         for (int i=start+1;i<end;i++) {
             if ((url.charAt(i)=='-') || (url.charAt(i)=='_'))

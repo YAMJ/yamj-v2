@@ -9,14 +9,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.logging.Logger;
@@ -88,6 +85,7 @@ public class Library implements Map<String, Movie> {
 
     }
     
+    @SuppressWarnings("unchecked")
     private static class MovieSetComparator implements Comparator {
         private String set;
         
@@ -697,6 +695,7 @@ public class Library implements Map<String, Movie> {
         return indexes;
     }
 
+    @SuppressWarnings("unchecked")
     private static void fillGenreMap(String xmlGenreFile) {
         File f = new File(xmlGenreFile);
         if (f.exists() && f.isFile() && xmlGenreFile.toUpperCase().endsWith("XML")) {
@@ -724,6 +723,7 @@ public class Library implements Map<String, Movie> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void fillCategoryMap(String xmlCategoryFile) {
         File f = new File(xmlCategoryFile);
         if (f.exists() && f.isFile() && xmlCategoryFile.toUpperCase().endsWith("XML")) {
@@ -763,6 +763,7 @@ public class Library implements Map<String, Movie> {
         return null;
     }
     
+    @SuppressWarnings("unchecked")
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> c = null;
         if (category.equals(SET)) {

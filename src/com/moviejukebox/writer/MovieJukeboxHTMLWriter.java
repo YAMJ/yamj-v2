@@ -67,7 +67,8 @@ public class MovieJukeboxHTMLWriter {
                 Source xslSource = new StreamSource(new File(skinHome + File.separator + "detail.xsl"));
                 Transformer transformer = tranformerFactory.newTransformer(xslSource);
 
-                // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not the original source directory
+                // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
+                // the original source directory
                 if (tempXmlFile.exists()) {
                     // Use the temp file
                     xmlSource = new StreamSource(new FileInputStream(tempXmlFile));
@@ -103,9 +104,11 @@ public class MovieJukeboxHTMLWriter {
                     PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
 
                     // Issue 237 - Add in the IP address of the MyiHome server so the playlist will work.
-                    // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is the the normal method for standalone YAMJ
+                    // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is the the
+                    // normal method for standalone YAMJ
                     for (MovieFile part : movie.getFiles()) {
-                        // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the title
+                        // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the
+                        // title
                         writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
                     }
                     writer.flush();

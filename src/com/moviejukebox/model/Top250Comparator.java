@@ -3,7 +3,6 @@ package com.moviejukebox.model;
 import java.util.Comparator;
 
 /**
- *
  * @author altman.matthew
  */
 public class Top250Comparator implements Comparator<Movie> {

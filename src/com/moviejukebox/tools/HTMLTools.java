@@ -338,8 +338,7 @@ public class HTMLTools {
                         try {
                             Character c = new Character((char) Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
                             result.append(c);
-                        } // when the number of the entity can't be parsed, add
-                        // the entity as-is
+                        } // when the number of the entity can't be parsed, add the entity as-is
                         catch (NumberFormatException e) {
                             result.append(entity);
                         }

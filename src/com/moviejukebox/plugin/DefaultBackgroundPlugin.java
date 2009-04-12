@@ -1,18 +1,17 @@
 package com.moviejukebox.plugin;
 
+import java.awt.image.BufferedImage;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import java.awt.image.BufferedImage;
-import java.util.logging.Logger;
 
 /**
- *
  * @author altman.matthew
  */
 public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+// private static Logger logger = Logger.getLogger("moviejukebox");
     private int backgroundWidth;
     private int backgroundHeight;
 

@@ -2,19 +2,15 @@ package com.moviejukebox.plugin;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
-import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.plugin.DefaultThumbnailPlugin;
 
 public class SetThumbnailPlugin extends DefaultThumbnailPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");

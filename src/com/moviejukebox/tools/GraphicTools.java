@@ -9,14 +9,14 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
 import com.jhlabs.image.PerspectiveFilter;
-import java.io.IOException;
-import java.net.URL;
 
 public class GraphicTools {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -137,14 +137,14 @@ public class GraphicTools {
 
         int tempWidth;
         int tempHeight;
-        int y = 0;
+// int y = 0;
 
         tempWidth = nMaxWidth;
         tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
 
-        if (nMaxHeight > tempHeight) {
-            y = nMaxHeight - tempHeight;
-        }
+// if (nMaxHeight > tempHeight) {
+// y = nMaxHeight - tempHeight;
+// }
 
         Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
         BufferedImage bi = new BufferedImage(tempWidth, tempHeight, BufferedImage.TYPE_INT_RGB);

@@ -5,10 +5,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -90,6 +88,7 @@ public class MovieMeterPluginSession {
      * @param apiKey
      * @throws XmlRpcException
      */
+    @SuppressWarnings("unchecked")
     private void createNewSession(String apiKey) throws XmlRpcException {
         Object[] params = new Object[]{apiKey};
         HashMap session = (HashMap) client.execute("api.startSession", params);
@@ -114,6 +113,7 @@ public class MovieMeterPluginSession {
      * @param movieName
      * @return the first summary result as a HashMap
      */
+    @SuppressWarnings("unchecked")
     public HashMap getMovieByTitle(String movieName) {
 
         HashMap result = null;
@@ -146,6 +146,7 @@ public class MovieMeterPluginSession {
      * @param year The year of the movie. If no year is known, specify null
      * @return the summary result as a HashMap
      */
+    @SuppressWarnings("unchecked")
     public HashMap getMovieByTitleAndYear(String movieName, String year) {
 
         HashMap result = null;
@@ -185,6 +186,7 @@ public class MovieMeterPluginSession {
      * @param year
      * @return the detailed result as a HashMap
      */
+    @SuppressWarnings("unchecked")
     public HashMap getMovieDetailsByTitleAndYear(String movieName, String year) {
 
         HashMap result = null;
@@ -202,6 +204,7 @@ public class MovieMeterPluginSession {
      * @param moviemeterId
      * @return the detailed result as a HashMap
      */
+    @SuppressWarnings("unchecked")
     public HashMap getMovieDetailsById(Integer moviemeterId) {
 
         HashMap result = null;

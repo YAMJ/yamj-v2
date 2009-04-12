@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- *
  * @author altman.matthew
  */
 public class CertificationComparator implements Comparator<String> {
