@@ -89,7 +89,12 @@
   <div class="title">
     <xsl:attribute name="id">title<xsl:value-of select="position()" /></xsl:attribute>
     <xsl:if test="season != -1">&quot;</xsl:if><xsl:value-of select="title"/>
-    <xsl:if test="season != -1">&quot; Season <xsl:value-of select="season"/></xsl:if>
+    <xsl:if test="season != -1">&quot;
+      <xsl:choose>
+        <xsl:when test="season > 0"> Season <xsl:value-of select="season"/></xsl:when>
+        <xsl:when test="season = 0"> Specials</xsl:when>
+      </xsl:choose>
+    </xsl:if>
     <xsl:if test="certification!='' and certification!='UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
   </div>
 </xsl:for-each>

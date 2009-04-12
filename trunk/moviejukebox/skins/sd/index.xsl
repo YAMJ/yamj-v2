@@ -92,7 +92,11 @@
      <xsl:for-each select="library/movies/movie">
            <div class="title">
                <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
-               <xsl:value-of select="title"/><xsl:if test="season != -1"> Season <xsl:value-of select="season"/></xsl:if> 
+               <xsl:value-of select="title"/>
+               <xsl:choose>
+                   <xsl:when test="season > 0"> Season <xsl:value-of select="season"/></xsl:when>
+                   <xsl:when test="season = 0"> Specials</xsl:when>
+               </xsl:choose>
            </div>
      </xsl:for-each>
   <div class="title">
