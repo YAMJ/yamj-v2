@@ -425,6 +425,12 @@ public class MovieJukebox {
                 String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
                 movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
                 
+                if (PropertiesUtil.getProperty("mjb.sets.createPosters", "false").equalsIgnoreCase("true")) {
+                    // Create a detail poster for each movie
+                    logger.finest("Creating detail poster for index master: " + movie.getBaseName());
+                    createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                }
+                
                 // Create a thumbnail for each movie
                 logger.finest("Creating thumbnail for index master: " + movie.getBaseName()
                     + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
