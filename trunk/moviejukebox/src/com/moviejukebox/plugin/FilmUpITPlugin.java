@@ -46,7 +46,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             movie.setCompany(removeHtmlTags(extractTag(xml, "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                     "</font></td></tr>")));
 
-            int count = 0;
+// int count = 0;
             for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                     "</font></td></tr>").split(",")) {
                 for (String genre : tmp_genre.split("/")) {
@@ -165,6 +165,9 @@ public class FilmUpITPlugin extends ImdbPlugin {
         }
     }
 
+/*
+ * 
+
     private int parseRating(String rating) {
         int index = rating.indexOf("etoile_");
         try {
@@ -173,6 +176,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             return -1;
         }
     }
+ */
 
     @Override
     public boolean scan(Movie mediaFile) {

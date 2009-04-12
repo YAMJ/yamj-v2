@@ -1,7 +1,6 @@
 package com.moviejukebox.plugin;
 
 import java.net.URLEncoder;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,6 +43,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean scan(Movie mediaFile) {
         logger.finest("Start fetching info from moviemeter.nl for : year=" +mediaFile.getYear()+ ", title=" +mediaFile.getTitle());

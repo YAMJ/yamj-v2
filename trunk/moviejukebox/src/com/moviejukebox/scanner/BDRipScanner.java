@@ -2,7 +2,6 @@ package com.moviejukebox.scanner;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
@@ -175,6 +174,7 @@ public class BDRipScanner {
 
         /* Some ported code from the bdinfo free project */
         byte[] data = new byte[(int) fileReader.length()];
+        @SuppressWarnings("unused")
         int dataLength = fileReader.read(data, 0, data.length);
 
         fileReader.close();
@@ -196,6 +196,7 @@ public class BDRipScanner {
                 ((int) data[11]);
 
         int playlistLength = data.length - playlistIndex - 4;
+        @SuppressWarnings("unused")
         int playlistLengthCorrect =
                 (((int) data[playlistIndex] & 0xFF) << 24) +
                 (((int) data[playlistIndex + 1] & 0xFF) << 16) +

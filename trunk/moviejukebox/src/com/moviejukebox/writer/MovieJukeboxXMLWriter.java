@@ -3,7 +3,6 @@ package com.moviejukebox.writer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -43,6 +42,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
+    @SuppressWarnings("unused")
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     public MovieJukeboxXMLWriter() {
@@ -146,7 +146,7 @@ public class MovieJukeboxXMLWriter {
                     movie.addGenre(parseCData(r));
                 }
                 if (tag.startsWith("<set ") || tag.equals("<set>")) {
-                    String set = null;
+// String set = null;
                     Integer order = null;
                     
                     StartElement start = e.asStartElement();
@@ -793,8 +793,8 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed or
-     * forceXMLOverwrite is true.
+     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless,
+     * movie's data has changed or forceXMLOverwrite is true.
      */
     public void writeMovieXML(String rootPath, String tempRootPath, Movie movie) throws FileNotFoundException, XMLStreamException {
         String baseName = FileTools.makeSafeFilename(movie.getBaseName());

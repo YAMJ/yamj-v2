@@ -237,6 +237,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Case insensitive pattern with word delimiters around
      */
+    @SuppressWarnings("unused")
     private static final Pattern wpatt(String regex) {
     	return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN 
     			+ "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN);

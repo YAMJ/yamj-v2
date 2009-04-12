@@ -1,23 +1,30 @@
 // Based on some code from the opensubtitles.org subtitle upload java applet
 package com.moviejukebox.plugin;
 
-import java.awt.*;
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.util.*;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.DeflaterInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.GZIPInputStream;
+// import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.util.Scanner;
 import java.util.logging.Logger;
-import java.nio.*;
-import java.nio.channels.*;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPInputStream;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.plugin.ImdbPlugin;
 
 public class OpenSubtitlesPlugin {
 
@@ -53,12 +60,12 @@ public class OpenSubtitlesPlugin {
                 String parm[] = {login, pass, "", useragent};
                 String xml = generateXMLRPC("LogIn", parm);
                 String ret = sendRPC(xml);
-                String status = getVaule("status", ret);
-                token = getVaule("token", ret);
+                getValue("status", ret);
+                token = getValue("token", ret);
                 if (token.equals("")) {
                     logger.severe("OpenSubtitles Plugin: Login error." + "\n" + ret);
                 }
-                String l1 = login.equals("") ? "Anonymous" : login;
+//                String l1 = login.equals("") ? "Anonymous" : login;
             }
             ;
         } catch (Exception e) {
@@ -67,7 +74,7 @@ public class OpenSubtitlesPlugin {
         ;
     }
 
-    public static void logOut() {
+    public void logOut() {
 
         // Check if subtitle language was selected
         if (sublanguageid.equals("")) {
@@ -82,7 +89,7 @@ public class OpenSubtitlesPlugin {
         try {
             String p1[] = {token};
             String xml = generateXMLRPC("LogOut", p1);
-            String ret = sendRPC(xml);
+            sendRPC(xml);
         } catch (Exception e) {
             logger.severe("OpenSubtitles Plugin: Logout Failed");
         }
@@ -209,7 +216,7 @@ public class OpenSubtitlesPlugin {
             xml = generateXMLRPCSS(moviehash, moviebytesize);
             ret = sendRPC(xml);
 
-            String subDownloadLink = getVaule("SubDownloadLink", ret);
+            String subDownloadLink = getValue("SubDownloadLink", ret);
 
             if (subDownloadLink.equals("")) {
                 String moviefilename = movieFile.getName();
@@ -226,7 +233,7 @@ public class OpenSubtitlesPlugin {
                     xml = generateXMLRPCSS(query);
                     ret = sendRPC(xml);
 
-                    subDownloadLink = getVaule("SubDownloadLink", ret);
+                    subDownloadLink = getValue("SubDownloadLink", ret);
                 }
             }
 
@@ -327,7 +334,7 @@ public class OpenSubtitlesPlugin {
 
             ret = sendRPC(xml);
 
-            String alreadyindb = getIntVaule("alreadyindb", ret);
+            String alreadyindb = getIntValue("alreadyindb", ret);
 
             if (!alreadyindb.equals("0")) {
                 logger.finer("OpenSubtitles Plugin: Subtitle already in db for " + movie.getBaseName());
@@ -454,6 +461,9 @@ public class OpenSubtitlesPlugin {
     }
     ;
 
+/*
+ * 
+
     private static String sendRPCDetectLang(byte text[]) throws MalformedURLException, IOException {
         String str = "";
         String strona = OSdbServer;
@@ -485,6 +495,7 @@ public class OpenSubtitlesPlugin {
         return str;
     }
     ;
+ */
 
     private static String sendRPC(String xml) throws MalformedURLException, IOException {
 
@@ -510,7 +521,7 @@ public class OpenSubtitlesPlugin {
         return str;
     }
 
-    private static String getVaule(String find, String xml) {
+    private static String getValue(String find, String xml) {
         String str = "";
         int a = xml.indexOf(find);
         if (a != -1) {
@@ -524,7 +535,7 @@ public class OpenSubtitlesPlugin {
         return str;
     }
 
-    private static String getIntVaule(String find, String xml) {
+    private static String getIntValue(String find, String xml) {
         String str = "";
         int a = xml.indexOf(find);
         if (a != -1) {
@@ -549,6 +560,8 @@ public class OpenSubtitlesPlugin {
         return s;
     }
 
+/* Not used
+ * 
     private static String generateXMLRPCDetectLang(String body) {
         String str = "";
         str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
@@ -560,6 +573,7 @@ public class OpenSubtitlesPlugin {
         str += "</params></methodCall>";
         return str;
     }
+ */
 
     private static String generateXMLRPC(String procname, String s[]) {
         String str = "";
@@ -585,8 +599,8 @@ public class OpenSubtitlesPlugin {
         // You may use this for lower  applet size
         // return new  sun.misc.BASE64Encoder().encode(s);
 
-        char tx;
-        long mili = Calendar.getInstance().getTimeInMillis();
+//        char tx;
+//        long mili = Calendar.getInstance().getTimeInMillis();
         String str = "";
         String t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         char t2[] = t.toCharArray();
