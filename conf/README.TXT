@@ -1,5 +1,5 @@
 **************************************************************
-** MovieJukebox V1.0 (beta1)
+** MovieJukebox V1.0 (beta16)
 ***************************************************************
 
 WARNING: THIS BETA VERSION IS A PROTOTYPE, YOU MAY EXPERIENCE PROBLEMS
@@ -8,7 +8,8 @@ Features
 --------
     - Recursively scan your video library for video files (AVI, MKV, etc.)
     - Generate jukebox from multiple video library sources
-    - Analyze each video file filename to extract information like: year, language, subtitles, container, part, fps, audio and video codecs
+    - Analyze each video file filename to extract information like:
+            year, language, subtitles, container, part, fps, audio and video codecs
     - Analyze NFO files (for IMDb id)
     - Support for TV shows (season, episode number, episode title)
     - IMDb search plugin
@@ -21,21 +22,21 @@ Features
 Please read the Wiki
 --------------------
 
-The online Wiki has more information that is contained here. It can be found at:
-http://code.google.com/p/moviejukebox/w/list
+The online Wiki has more information than is contained here. It can be found at:
+    http://code.google.com/p/moviejukebox/w/list
 
 How does it work?
 -----------------
 
     - Install Java Runtime Environment (JRE) 1.6
-    
+
     - Unrar the MovieJukebox archive
-    
+
     - Install MediaInfo CLI (not full version, only command line version)
       right into the movieJukebox directory (moviejukebox/mediaInfo)
           * Tested with MediaInfo version 0.7.7.0
           * You can download at: http://sourceforge.net/project/showfiles.php?group_id=86862&package_id=90612
-    
+
     - Edit the file moviejukebox.properties and setup according to your needs
 
     - Select the desired skin from the skin directory and set in the 
@@ -43,12 +44,12 @@ How does it work?
       a HD skin. An SD skin is also available.
 
     - Edit the skin.properties in the selected skin dir and setup according to your needs
-    
-    - In a command shell, Execute the MovieJukebox command. 
+
+    - In a command shell (AKA DOS box), Execute the MovieJukebox command. 
       The syntax for the MovieJukebox command is the following:
-      
-              MovieJukebox [movieLibrary] [-o jukeboxRoot]
-            
+
+              MovieJukebox [movieLibrary] [-o jukeboxRoot] [-c] [-p propertiesFile]
+
       Where parameters are:
 
             movieLibrary        : OPTIONAL
@@ -58,7 +59,7 @@ How does it work?
                                   The XML configuration file specifying one or
                                   more to be scanned for movies.  See 
                                   "Using a libraries XML file as input" below.
-                                  
+
                                   If not specified on the command line, the 
                                   mjb.movieLibrary property  from the properties file
                                   will be used.
@@ -75,73 +76,78 @@ How does it work?
                                   Clean the jukebox directory after running.
                                   This will delete any unused files from the jukebox
                                   directory at the end of the run.
-                                  
+
             -p propertiesFile   : OPTIONAL      
                                   The properties file to use instead of the default
                                   moviejukebox.properties                            
 
-      For instance, the following command will analyze video files from directory Z:\Video. The jukebox files
-      will be stored into this directory as well. drive "Z:\" can be a local drive, a USB drive or a network drive. 
-    
+      For instance, the following command will analyze video files from directory Z:\Video
+      The jukebox files will be stored into this directory as well.
+      drive "Z:\" can be a local drive, a USB drive or a network drive. 
+
                 MovieJukebox Z:\Video
-                
+
       If you want the Jukebox files to be generated separately, you may use the following command:
-      
+
                 MovieJukebox Z:\Video -o C:\MyJukebox
-                
+
       In this case, all generated file will go to the C:\MyJukebox directory
-        
+
     - MovieJukebox uses the specified input directory as the root path of your video files library.
     - MovieJukebox will create the following files:
-    
+ 
                Z:\Video\Jukebox\exportdetails_item_popcorn.css
-                               \Movie1.xml                  <-- "Movie1" xml information from IMDb
-                               \Movie1.jpg                  <-- poster for "Movie1" 
-                               \Movie1_small.jpg            <-- poster thumbnail for "Movie1" 
+                               \Movie1.fanart.jpg           <-- fanart background for "Movie1" 
                                \Movie1.html                 <-- movie detail html report for "Movie1"
+                               \Movie1.jpg                  <-- source poster for "Movie1" 
+                               \Movie1_large.png            <-- resized poster for "Movie1" 
+                               \Movie1_small.png            <-- poster thumbnail for "Movie1" 
+                               \Movie1.xml                  <-- "Movie1" xml information from IMDb
 
-                               \Movie2.xml
+                               \Movie2.fanart.jpg
+                               \Movie2.html
                                \Movie2.jpg
-                               \Movie2_small.jpg
-                               \Movie2.html                    
+                               \Movie2_large.png
+                               \Movie2_small.png
+                               \Movie2.xml
                                ...
     
                Z:\Video\index.htm                    <-- movies index
-                                                
-    - On your PCH, go to "Video", then select one of the index files.
+
+    - On your PCH when prompted by the four icons, choose the last one, and then
+        navigate to the "Video" folder, then select one of the YAMJ index files.
 
 Using a libraries XML file as input
 -----------------------------------
 
     In order to generate en jukebox for several movie libraries, you have to 
     create an XML file specifying every library you need.
-    
+
     Here is an example of such a file:
-    
+
         <?xml version="1.0" encoding="utf-8"?>
         <libraries>
-    
           <library>
               <path>/media/HD1/Movies/</path>
-              <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Movies/</nmtpath>
+              <nmtpath>file:///opt/sybhttpd/localhost.drives/HARD_DISK/Movies/</nmtpath>
               <exclude name="sample,tmp/,temp/"/>
           </library>
-        
+
           <library>
               <path>/media/HD1/TV/</path>
               <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/TV/</nmtpath>
               <exclude name="sample,tmp/,temp/"/>
           </library>
-        
+
           <library>
-              <path>/media/HD1/Misc/</path>
-              <nmtpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Misc/</nmtpath>
+              <path>E:\Misc\</path>
+              <nmtpath>file:///opt/sybhttpd/localhost.drives/NETWORK_SHARE/PC/Misc/</nmtpath>
               <exclude name="sample,tmp/,temp/"/>
           </library>
         </libraries>
-    
+
     In this example, 3 libraries are defined. For each of them, The following data must be specified:
-    
+
         path: root path of your movie library
         nmtpath: NMT root path 
         exclude: a comma separated list of excluded strings. when found in the filename, the file is excluded.
@@ -168,62 +174,60 @@ Things you should know about
                                                           |
                                                           V
          Step3: build HTML      Jukebox/I.Am.Legend.720p23.FRENCH.BRDRiP.x264.AC3-iDHD.html
-        
+
 
     - When executed twice in the same directory, MovieJukebox will not overwrite the files 
       that are already generated in the Jukebox. This way you can easily customize your 
       movie posters for instance without the risk of loosing your changes once you run 
       the tool again.
-      
+
     - If you want to regenerate one file in the Jukebox, just erase this file, then run
       MovieJukebox again. It will recreate it without overwriting other files.
-      
+
     - When MovieJukebox searches IMDb for the movie data, the generated IMDb request may lead
       to more than one result for the specified keywords. In this case, MovieJukebox will
       take into account the first result.
-      
+
       Sometimes, this rule leads the detection of wrong film IDs. In this case, you can
       do the following:
-      
+
           * either you can rename your video file in order to make it unambiguous to IMDb,
             by adding, the production year or the director's name for instance.
-            
-            you can test that request into IMDb itself to check that the new filename 
+
+          * you can test that request into IMDb itself to check that the new filename 
             will return the appropriate film first.
 
           * either you can add a new file ".NFO" next to your video file (same name as the 
             video file), that will contain the IMDb url of the film matching the video file
-            
-    For instance:           
+
+    For instance:
 
                                  http://www.imdb.com/title/tt0097576
-            
+
          In both cases, you'll have to delete the generated files those for this movie (.xml, 
           .jpg, _small.jpeg, .html) in the Jukebox directory, then relaunch MovieJukebox.
-     
-     
+
        - When the poster used in the IMDb is not good enought, you can replace it with a good 
          one into the Jukebox directory.
-      
+
          If you then delete the correspondng thumbail file (XXXXX_small.jpg), and relaunch the 
          Movie jukebox tool, the thumbnail file will be regenerated with you new poster.
-      
 
 
 Important notes
 ---------------
 
     If you find this tool useful for you and that you would like to improve it, please do so!!
-    
+
     I'm looking for guys with Java, XSL, HTML or graphics skills in order to improve the basic HTML 
     reports provided in this version.
-    
+
     Especially, you can customize the following files:
-    
+
        detail.xsl:    XSL file that generate the HTML code, given the .xml detail of the movie.
        index.xsl:     XSL file that generate the HTML code, given the .xml files of the library indexes.
        dummy.jpg:     This is the default picture used when the movie is not found.
-    
+
        exportdetails_item_popcorn.css, exportindex_item_pch.css:
                       CSS used for the movie details and indexes. 
                       These CSS files are taken from the sample pchtest.zip provided 

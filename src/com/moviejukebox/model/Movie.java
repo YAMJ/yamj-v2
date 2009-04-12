@@ -24,7 +24,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public static String TYPE_MOVIE = "MOVIE";
     public static String TYPE_TVSHOW = "TVSHOW";
     public static String TYPE_UNKNOWN = "UNKNOWN";
-    public static String TYPE_VIDEO_UNKNOWN = UNKNOWN;
+    public static String TYPE_VIDEO_UNKNOWN = "UNKNOWN";
     public static String TYPE_VIDEO_HD = "HD";
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
@@ -1025,20 +1025,20 @@ public class Movie implements Comparable<Movie>, Cloneable {
         }
     }
 
-	public void mergeFileNameDTO(MovieFileNameDTO dto) {
-		setTitle(dto.getTitle());
-		setTrailer(dto.isTrailer());
-		setAudioCodec(dto.getAudioCodec());
-		setVideoCodec(dto.getVideoCodec());
-		setVideoSource(dto.getVideoSource());
-		setContainer(dto.getContainer());
-		setFps(dto.getFps() > 0 ? dto.getFps() : 60);
-		setSeason(dto.getSeason());
-		for (MovieFileNameDTO.Set set : dto.getSets()) {
-			addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
-		}
-		setYear(dto.getYear() > 0 ? "" + dto.getYear() : null);
-		setLanguage(dto.getLanguages().size() > 0 ? dto.getLanguages().get(0) : null);
+    public void mergeFileNameDTO(MovieFileNameDTO dto) {
+        setTitle(dto.getTitle());
+        setTrailer(dto.isTrailer());
+        setAudioCodec(dto.getAudioCodec());
+        setVideoCodec(dto.getVideoCodec());
+        setVideoSource(dto.getVideoSource());
+        setContainer(dto.getContainer());
+        setFps(dto.getFps() > 0 ? dto.getFps() : 60);
+        setSeason(dto.getSeason());
+        for (MovieFileNameDTO.Set set : dto.getSets()) {
+        	addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
+        }
+        setYear(dto.getYear() > 0 ? "" + dto.getYear() : null);
+        setLanguage(dto.getLanguages().size() > 0 ? dto.getLanguages().get(0) : null);
 
         if (dto.getHdResolution() != null) {
             setVideoType(TYPE_VIDEO_HD);
