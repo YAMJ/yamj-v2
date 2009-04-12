@@ -34,15 +34,25 @@ public class Library implements Map<String, Movie> {
     
     public static class Index extends TreeMap<String, List<Movie>> {
         private int maxCategories = -1;
+        private boolean display = true;
 		
         private static final long serialVersionUID = -6240040588085931654L;
 
         public Index(Comparator<? super String> comp) {
             super(comp);
         }
-		
+        
         public Index() {
             super();
+        }
+		
+        public Index(boolean display) {
+            this();
+            this.display = display;
+        }
+        
+        public boolean display() {
+            return display;
         }
         
         protected void addMovie(String category, Movie movie) {
@@ -566,7 +576,7 @@ public class Library implements Map<String, Movie> {
     }
     
     protected static Index indexBySets(List<Movie> list) {
-        Index index = new Index();
+        Index index = new Index(false);
         for (Movie movie : list) {
             if (!movie.isTrailer()) {
                 if(singleSeriesPage && movie.isTVShow()) {
