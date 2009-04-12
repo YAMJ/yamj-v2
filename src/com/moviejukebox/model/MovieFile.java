@@ -25,7 +25,8 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public String getPlot(int part) {
-        return plots.get(part);
+        String plot = plots.get(part);
+        return plot != null ? plot : Movie.UNKNOWN;
     }
 
     public void setPlot(int part, String plot) {
@@ -36,11 +37,13 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public String getVideoImageURL(int part) {
-        return videoImageURL.get(part);
+        String url = videoImageURL.get(part);
+        return url != null ? url : Movie.UNKNOWN;
     }
 
     public String getVideoImageFile(int part) {
-        return videoImageFile.get(part);
+        String file = videoImageFile.get(part);
+        return file != null ? file : Movie.UNKNOWN;
     }
 
     public void setVideoImageURL(int part, String videoImageURL) {
