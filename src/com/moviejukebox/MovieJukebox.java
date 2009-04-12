@@ -429,6 +429,9 @@ public class MovieJukebox {
                 logger.finest("Creating thumbnail for index master: " + movie.getBaseName()
                     + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
                 createThumbnail(stp, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+
+                // write the playlist for the movie if needed
+                htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
             
             for (Movie movie : moviesList) {
