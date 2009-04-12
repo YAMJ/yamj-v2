@@ -708,6 +708,10 @@ public class MovieJukebox {
                 videoImageFile = new File(jukeboxDetailsRoot + File.separator + videoImageFilename);
                 tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + videoImageFilename);
 
+                if (moviefile.getVideoImageFile(part).equals(Movie.UNKNOWN)) {
+                    moviefile.setVideoImageFile(part, videoImageFilename);
+                }
+
                 // Do not overwrite existing files - Unless XML overwrite is on.
                 if ((!tmpDestFile.exists() && !videoImageFile.exists()) || forceXMLOverwrite) {
                     videoImageFile.getParentFile().mkdirs();
