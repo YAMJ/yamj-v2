@@ -16,6 +16,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #676 MovieMeterPlugin: problem when no movie duration is available
   - Fixed defect #677 Exception in MovieMeterPlugin
   - Fixed defect #678 Get Season 0 information from TheTVDB.com
+  - Enhancement  #683 Ability to resize episode screenshot
   - Fixed defect #687 Label season 0 as "Specials"
   - Fixed defect #688 index_sd.htm not transfered to output dir
   - Fixed defect #691 Episode images vanish in the skin after new episodes are added
