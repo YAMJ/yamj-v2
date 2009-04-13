@@ -698,8 +698,12 @@ public class MovieJukebox {
         String videoImageFilename;
         File videoImageFile;
         File tmpDestFile;
+        FileInputStream fis;
+        BufferedImage bi;
 
         boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
+        int videoImageWidth = Integer.parseInt(PropertiesUtil.getProperty("videoimage.width", "400"));
+        int videoImageHeight = Integer.parseInt(PropertiesUtil.getProperty("videoimage.height", "225"));
 
         for (MovieFile moviefile : movie.getMovieFiles()) {
             for (int part = moviefile.getFirstPart(); part <= moviefile.getLastPart(); ++part) {
@@ -731,6 +735,13 @@ public class MovieJukebox {
                             logger.finest("Downloading video image for " + movie.getBaseName() + " part " + part + " to " + tmpDestFile.getName() + " [calling plugin]");
                             downloadImage(tmpDestFile, moviefile.getVideoImageURL(part));
                             moviefile.setVideoImageFile(part, FileTools.makeSafeFilename(videoImageFilename));
+
+                            // Issue 683: Resize image file.
+                            fis = new FileInputStream(tmpDestFile);
+                            bi = GraphicTools.loadJPEGImage(fis);
+                            bi = GraphicTools.scaleToSize(videoImageWidth, videoImageHeight, bi);
+                            GraphicTools.saveImageToDisk(bi, tmpDestFile.getAbsolutePath());
+
                         } catch (Exception e) {
                             logger.finer("Failed downloading video image : " + moviefile.getVideoImageURL(part));
                             FileTools.copyFile(
