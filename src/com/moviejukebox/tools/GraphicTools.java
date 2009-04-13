@@ -214,13 +214,9 @@ public class GraphicTools {
         
         float reflectionHeight = 12.5f;
         
-        try {
-            reflectionHeight = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".reflectionHeight", "12.5"));
-        } catch (NumberFormatException nfe) {
-            System.out.println("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".reflectionHeight");
-        }
+        reflectionHeight = getFloatProperty(graphicType + ".reflectionHeight", "12.5");
         
-        BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight);
+        BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight, graphicType);
         BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight, reflectionHeight);
 
         applyAlphaMask(gradient, buffer, avatarWidth, avatarHeight);
@@ -228,10 +224,21 @@ public class GraphicTools {
         return buffer;
     }
 
-    public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight, float reflectionHeight) {
+    public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight, float reflectionHeight, String graphicType) {
         BufferedImage gradient = new BufferedImage(avatarWidth, avatarHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = gradient.createGraphics();
-        GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight * (reflectionHeight / 100), new Color(1.0f, 1.0f, 1.0f, 1.0f));
+        
+//      GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight * (reflectionHeight / 100), new Color(1.0f, 1.0f, 1.0f, 1.0f));
+        
+        float reflectionStart, reflectionEnd, opacityStart, opacityEnd;
+        float reflectionHeightAbsolute = avatarHeight * (reflectionHeight / 100);
+
+        reflectionStart = (getFloatProperty(graphicType + ".reflectionStart", "0.0") / 100) * reflectionHeightAbsolute;
+        reflectionEnd   = (getFloatProperty(graphicType + ".reflectionEnd", "100.0") / 100) * reflectionHeightAbsolute;
+		opacityStart    = getFloatProperty(graphicType + ".opacityStart", "30.0") / 100;
+		opacityEnd      = getFloatProperty(graphicType + ".opacityEnd", "100.0") / 100;
+
+        GradientPaint painter = new GradientPaint(0.0f, reflectionStart, new Color(1.0f, 1.0f, 1.0f, opacityStart), 0.0f, reflectionEnd, new Color(1.0f, 1.0f, 1.0f, opacityEnd));
         g.setPaint(painter);
         g.fill(new Rectangle2D.Double(0, 0, avatarWidth, avatarHeight));
 
@@ -240,7 +247,23 @@ public class GraphicTools {
 
         return gradient;
     }
+    
+    /*
+     * This function will load a float property and convert it to a proper float before returning it.
+     * If the property errors, it will return the default value.
+     */
+    private static float getFloatProperty(String propertyName, String propertyDefault) {
+    	float propertyValue = Float.valueOf(propertyDefault);
+    	
+        try {
+            propertyValue = Float.valueOf(PropertiesUtil.getProperty(propertyName, propertyDefault));
+        } catch (NumberFormatException nfe) {
+            System.err.println("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
+        }
 
+        return propertyValue;
+    }
+    
     public static BufferedImage createReflection(BufferedImage avatar, int avatarWidth, int avatarHeight, float reflectionHeight) {
         // Increase the height of the image to cater for the reflection.
         int newHeight = (int) (avatarHeight * (1 + (reflectionHeight / 100) ));
