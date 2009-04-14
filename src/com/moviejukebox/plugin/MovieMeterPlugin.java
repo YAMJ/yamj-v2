@@ -14,12 +14,13 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * The MovieMeterPlugin uses the XML-RPC API of www.moviemeter.nl (http://wiki.moviemeter.nl/index.php/API).
- * 
+ *
  * Version 0.1 : Initial release
  * Version 0.2 : Fixed google search
  * Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration (Issue 676)
  * Version 0.4 : Fixed a problem when the moviemeter webservice returned no actors (Issue 677)
  *               Added extra checks if values returned from the webservice doesn't exist
+ * Version 0.5 : Added Fanart download based on imdb id returned from moviemeter
  *
  * @author RdeTuinman
  *
@@ -74,6 +75,12 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
         if (filmInfo != null) {
             mediaFile.setId(MOVIEMETER_PLUGIN_ID, filmInfo.get("filmId").toString());
+            
+            if (filmInfo.get("imdb") != null) {
+            	// if moviemeter returns the imdb id, add it to the mediaFile
+            	mediaFile.setId(IMDB_PLUGIN_ID, "tt" + filmInfo.get("imdb").toString());
+            	logger.finest("Fetched imdb id: " + mediaFile.getId(IMDB_PLUGIN_ID));
+            }
 
             if (!mediaFile.isOverrideTitle()) {
                 if (filmInfo.get("title") != null) {
@@ -82,7 +89,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 }
                 logger.finest("Fetched title: " + mediaFile.getTitle());
             }
-
+            
             if (mediaFile.getRating() == -1) {
                 if (filmInfo.get("average") != null) {
                     mediaFile.setRating(Math.round(Float.parseFloat(filmInfo.get("average").toString())*20));
@@ -100,7 +107,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
             if (mediaFile.getRuntime().equals(Movie.UNKNOWN)) {
-                if (filmInfo.get("durations") != null) { 
+                if (filmInfo.get("durations") != null) {
                     Object[] durationsArray = (Object[])filmInfo.get("durations");
                     if (durationsArray.length > 0) {
                         HashMap durations = (HashMap)(durationsArray[0]);
@@ -152,7 +159,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                         for (int i=0; i<actors.length; i++) {
                             newCast.add((String)( ((HashMap)actors[i]).get("name")));
                         }
-                        if (newCast.size() > 0) { 
+                        if (newCast.size() > 0) {
                             mediaFile.setCast(newCast);
                         }
                     }
@@ -173,6 +180,15 @@ public class MovieMeterPlugin extends ImdbPlugin {
                     mediaFile.setPosterURL(filmInfo.get("thumbnail").toString().replaceAll("thumbs/", ""));
                 }
             }
+            
+            if (downloadFanart && (mediaFile.getFanartURL() == null || mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            	mediaFile.setFanartURL(getFanartURL(mediaFile));
+                if (mediaFile.getFanartURL() != null && !mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                	mediaFile.setFanartFilename(mediaFile.getBaseName() + fanartToken + ".jpg");
+                }
+            }
+
+            
 
         } else {
             logger.finest("No info found");
@@ -186,9 +202,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
     /**
      * Searches www.google.nl for the moviename and retreives the movie id for www.moviemeter.nl.
-     * 
+     *
      * Only used when moviemeter.id.search=google
-     *  
+     *
      * @param movieName
      * @param year
      * @return
