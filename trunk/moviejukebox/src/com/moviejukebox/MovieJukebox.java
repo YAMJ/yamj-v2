@@ -408,6 +408,11 @@ public class MovieJukebox {
 
             SetThumbnailPlugin stp = new SetThumbnailPlugin();
             for (Movie movie : indexMasters) {
+                // The master's movie xml is used for generating the playlist
+                // it will be overwritten by the index xml
+                logger.finest("Writing index data for master: " + movie.getBaseName());
+                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                
                 logger.finer("Updating poster for index master: " + movie.getTitle() + "...");
 
                 // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
@@ -432,7 +437,7 @@ public class MovieJukebox {
                 logger.finest("Creating thumbnail for index master: " + movie.getBaseName()
                     + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
                 createThumbnail(stp, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
-
+                
                 // write the playlist for the movie if needed
                 htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
@@ -452,7 +457,7 @@ public class MovieJukebox {
 
                 // write the movie details HTML
                 htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-
+                
                 // write the playlist for the movie if needed
                 htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
@@ -462,7 +467,7 @@ public class MovieJukebox {
             xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
             htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
             htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
-
+            
             logger.fine("Copying new files to Jukebox directory...");
             String index = PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
             FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);

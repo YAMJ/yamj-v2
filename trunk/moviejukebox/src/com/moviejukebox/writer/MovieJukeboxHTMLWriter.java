@@ -91,29 +91,34 @@ public class MovieJukeboxHTMLWriter {
 
     public void generatePlaylist(String rootPath, String tempRootPath, Movie movie) {
         try {
-            String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
-            if (movie.getFiles().size() > 1) {
-                String baseName = FileTools.makeSafeFilename(movie.getBaseName());
-                String tempFilename = tempRootPath + File.separator + baseName;
-                File finalPlaylistFile = new File(rootPath + File.separator + baseName + ".playlist.jsp");
-                File tempPlaylistFile = new File(tempFilename + ".playlist.jsp");
+            String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+            String tempFilename = tempRootPath + File.separator + baseName;
+            File tempXmlFile = new File(tempFilename + ".xml");
+            File oldXmlFile = new File(rootPath + File.separator + baseName + ".xml");
+            File finalPlaylistFile = new File(rootPath + File.separator + baseName + ".playlist.jsp");
+            File tempPlaylistFile = new File(tempFilename + ".playlist.jsp");
+            Source xmlSource;
+            
+            if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
+                tempPlaylistFile.getParentFile().mkdirs();
+                TransformerFactory tranformerFactory = TransformerFactory.newInstance();
 
-                if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
-                    tempPlaylistFile.getParentFile().mkdirs();
+                Source xslSource = new StreamSource(new File("playlist.xsl"));
+                Transformer transformer = tranformerFactory.newTransformer(xslSource);
 
-                    PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
-
-                    // Issue 237 - Add in the IP address of the MyiHome server so the playlist will work.
-                    // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is the the
-                    // normal method for standalone YAMJ
-                    for (MovieFile part : movie.getFiles()) {
-                        // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the
-                        // title
-                        writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
-                    }
-                    writer.flush();
-                    writer.close();
+                if (tempXmlFile.exists()) {
+                    // Use the temp file
+                    xmlSource = new StreamSource(new FileInputStream(tempXmlFile));
+                } else {
+                    // Use the file in the original directory
+                    xmlSource = new StreamSource(new FileInputStream(oldXmlFile));
                 }
+                FileOutputStream outStream = new FileOutputStream(tempPlaylistFile);
+                Result xmlResult = new StreamResult(outStream);
+
+                transformer.transform(xmlSource, xmlResult);
+                outStream.flush();
+                outStream.close();
             }
         } catch (Exception e) {
             System.err.println("Failed generating playlist for movie " + movie);
