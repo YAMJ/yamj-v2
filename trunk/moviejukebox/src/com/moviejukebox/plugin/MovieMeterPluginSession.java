@@ -23,6 +23,7 @@ import com.moviejukebox.model.Movie;
  * 50 requests per session. So when you rerun the applications, it tries to reuse the session. 
  * 
  * Version 0.1 : Initial release
+ * Version 0.2 : Rewrote some log lines
  * @author RdeTuinman
  *
  */
@@ -94,13 +95,12 @@ public class MovieMeterPluginSession {
         HashMap session = (HashMap) client.execute("api.startSession", params);
         if (session != null) {
             if (session.size() > 0) {
+            	logger.finest("Created new session with moviemeter.nl");
                 setKey((String) session.get("session_key"));
                 setTimestamp((Integer) session.get("valid_till"));
                 setCounter(0);
-                // {disclaimer=use of this API is free for non-commercial use
+                // use of this API is free for non-commercial use
                 // see http://wiki.moviemeter.nl/index.php/API for more info
-                // valid_till=1238243371
-                // session_key=s51tykcg0p4yaz6ay4x74354syzxyvpd}
                 saveSessionToFile();
             }
         } else {
@@ -252,7 +252,7 @@ public class MovieMeterPluginSession {
 
             return true;
         } catch (XmlRpcException e) {
-            System.out.println(e.getMessage());
+            logger.finest(e.getMessage());
             return false;
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -276,7 +276,7 @@ public class MovieMeterPluginSession {
             new PrintStream(fout).println (getKey() + "," + getTimestamp() + "," + getCounter());
             fout.close();        
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+        	logger.severe(e.getMessage());
         }        
     }
 
