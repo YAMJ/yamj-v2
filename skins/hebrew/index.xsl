@@ -13,21 +13,32 @@
 <title>MovieJukebox</title>
 <script type="text/javascript">
   var title = 1;
-  function show(x)
+  function show(x, jsp)
   {
     if ( title == 1 )
       title = document.getElementById('title');
     title.firstChild.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
+    var play = document.getElementById('play');
+    play.setAttribute('href', jsp);
+    play.setAttribute('tvid', 'PLAY');
   }
   function hide(x)
   {
     if ( title == 1 )
       title = document.getElementById('title');
     title.firstChild.nodeValue = "";
+    document.getElementById('play').setAttribute('tvid', '#');
   }
 </script>
 </head>
 <body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
+
+<a>
+    <xsl:attribute name="href"></xsl:attribute>
+    <xsl:attribute name="tvid">#</xsl:attribute>
+    <xsl:attribute name="id">play</xsl:attribute> 
+    <xsl:attribute name="vod">playlist</xsl:attribute>
+</a>
 
 <table class="main" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
@@ -133,7 +144,7 @@
       <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
       <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute>
       <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute>
-      <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
+      <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>, '<xsl:value-of select="baseFilename"/>.playlist.jsp')</xsl:attribute>
       <xsl:attribute name="onblur">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
       <xsl:if test="$lastIndex != 1">
         <xsl:if test="$gap=0 and $currentIndex != 1">
