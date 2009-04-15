@@ -178,6 +178,9 @@ public class MovieDirectoryScanner {
         }
 
         for (int i = 0; i < contentFiles.length; i++) {
+            // Hopefully this is a fix for issue #670 -- I can't duplicate it, since I don't have an BD rips
+            if (contentFiles[i] == null) continue;
+        
             // Compute the baseFilename: This is the filename with no the extension
             String baseFileName = file.getName();
 
