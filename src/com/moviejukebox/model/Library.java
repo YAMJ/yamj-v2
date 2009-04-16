@@ -501,7 +501,7 @@ public class Library implements Map<String, Movie> {
     private static Index indexByLibrary(Iterable<Movie> moviesList) {
         Index index = new Index();
         for (Movie movie : moviesList) {
-            if (!movie.isTrailer() && movie.getLibraryDescription.length() > 0) {
+            if (!movie.isTrailer() && movie.getLibraryDescription().length() > 0) {
                 index.addMovie(movie.getLibraryDescription(), movie);
             }
         }
