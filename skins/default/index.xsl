@@ -74,6 +74,15 @@
             </a>
           </td></tr>
         </xsl:for-each>
+        <xsl:for-each select="library/category[@name='Library']/index">
+          <tr valign="top"><td align="right">
+            <a>
+            <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+            <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
+            <xsl:value-of select="@name" />
+            </a>
+          </td></tr>
+        </xsl:for-each>
         <tr><td><hr><xsl:text> </xsl:text></hr></td></tr>
 
         <xsl:if test="$lastIndex != 1">
