@@ -136,6 +136,9 @@ public class MovieJukebox {
         }
         MovieNFOScanner.setFanartToken(PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart"));
         MovieNFOScanner.setNFOdirectory(PropertiesUtil.getProperty("filename.nfo.directory", ""));
+        MovieNFOScanner.setParentDirs(
+                        Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.parentDirs", 
+                                "false")));
 
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
         Collection<String> keywords = new ArrayList<String>();
@@ -602,15 +605,18 @@ public class MovieJukebox {
         File xmlFile = new File(jukeboxDetailsRoot + File.separator + safeBaseName + ".xml");
 
         // See if we can find the NFO associated with this video file.
-        File nfoFile = new File(MovieNFOScanner.locateNFO(movie));
+        List<File> nfoFiles = MovieNFOScanner.locateNFOs(movie);
 
-        // Only re-scan the nfo file if the NFO is newer and the xml file exists (2nd run or greater)
-        if (FileTools.isNewer(nfoFile, xmlFile) && checkNewer && xmlFile.exists()) {
-            logger.fine("NFO for " + movie.getTitle() + " has changed, will rescan file.");
-            movie.setDirtyNFO(true);
-            movie.setDirtyPoster(true);
-            movie.setDirtyFanart(true);
-            forceXMLOverwrite = true;
+        for (File nfoFile : nfoFiles) {
+            // Only re-scan the nfo files if one of them is newer and the xml file exists (2nd run or greater)
+            if (FileTools.isNewer(nfoFile, xmlFile) && checkNewer && xmlFile.exists()) {
+                logger.fine("NFO for " + movie.getTitle() + " has changed, will rescan file.");
+                movie.setDirtyNFO(true);
+                movie.setDirtyPoster(true);
+                movie.setDirtyFanart(true);
+                forceXMLOverwrite = true;
+                break; // one is enough
+            }
         }
 
         if (xmlFile.exists() && !forceXMLOverwrite) {
@@ -641,7 +647,7 @@ public class MovieJukebox {
                 logger.finer("XML file not found. Scanning internet for information on " + movie.getBaseName());
             }
 
-            MovieNFOScanner.scan(movie);
+            MovieNFOScanner.scan(movie, nfoFiles);
 
             // Added forceXMLOverwrite for issue 366
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
