@@ -3,7 +3,7 @@ package com.moviejukebox.writer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -13,6 +13,7 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
@@ -20,7 +21,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -36,12 +36,14 @@ public class MovieJukeboxHTMLWriter {
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
     private String skinHome;
+    private TransformerFactory transformerFactory;
+    private Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
 
     public MovieJukeboxHTMLWriter() {
         forceHTMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceHTMLOverwrite", "false"));
         nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-
+        
         // Issue 310
         String transformerFactory = PropertiesUtil.getProperty("javax.xml.transform.TransformerFactory", null);
         if (transformerFactory != null) {
@@ -62,10 +64,7 @@ public class MovieJukeboxHTMLWriter {
             if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempHtmlFile.getParentFile().mkdirs();
 
-                TransformerFactory tranformerFactory = TransformerFactory.newInstance();
-
-                Source xslSource = new StreamSource(new File(skinHome + File.separator + "detail.xsl"));
-                Transformer transformer = tranformerFactory.newTransformer(xslSource);
+                Transformer transformer = getTransformer(skinHome + File.separator + "detail.xsl");
 
                 // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
                 // the original source directory
@@ -101,10 +100,8 @@ public class MovieJukeboxHTMLWriter {
             
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempPlaylistFile.getParentFile().mkdirs();
-                TransformerFactory tranformerFactory = TransformerFactory.newInstance();
 
-                Source xslSource = new StreamSource(new File("playlist.xsl"));
-                Transformer transformer = tranformerFactory.newTransformer(xslSource);
+                Transformer transformer = getTransformer("playlist.xsl");
 
                 if (tempXmlFile.exists()) {
                     // Use the temp file
@@ -135,10 +132,7 @@ public class MovieJukeboxHTMLWriter {
 
             htmlFile.getParentFile().mkdirs();
 
-            TransformerFactory tranformerFactory = TransformerFactory.newInstance();
-
-            Source xslSource = new StreamSource(new File(skinHome, "categories.xsl"));
-            Transformer transformer = tranformerFactory.newTransformer(xslSource);
+            Transformer transformer = getTransformer(skinHome + File.separator + "categories.xsl");
 
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
             FileOutputStream outStream = new FileOutputStream(htmlFile);
@@ -223,10 +217,7 @@ public class MovieJukeboxHTMLWriter {
             File xmlFile = new File(detailsDir, filename + ".xml");
             File htmlFile = new File(detailsDir, filename + ".html");
 
-            TransformerFactory tranformerFactory = TransformerFactory.newInstance();
-
-            Source xslSource = new StreamSource(new File(skinHome, "index.xsl"));
-            Transformer transformer = tranformerFactory.newTransformer(xslSource);
+            Transformer transformer = getTransformer(skinHome + File.separator + "index.xsl");
 
             FileOutputStream outStream = new FileOutputStream(htmlFile);
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
@@ -239,5 +230,20 @@ public class MovieJukeboxHTMLWriter {
             System.err.println("Failed generating HTML library index.");
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Creates and caches Transformer, one for every xsl file.
+     */
+    private Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
+        if (! transformerCache.containsKey(xslFileName)) {
+            if (transformerFactory == null) {
+                transformerFactory = TransformerFactory.newInstance();
+            }
+            Source xslSource = new StreamSource(new File(xslFileName));
+            Transformer transformer = transformerFactory.newTransformer(xslSource);
+            transformerCache.put(xslFileName, transformer);
+        }
+        return transformerCache.get(xslFileName);
     }
 }
