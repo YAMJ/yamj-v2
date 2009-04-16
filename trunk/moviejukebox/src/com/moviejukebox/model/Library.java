@@ -320,6 +320,7 @@ public class Library implements Map<String, Movie> {
             indexes.put("Title", indexByTitle(indexMovies));
             indexes.put("Rating", indexByCertification(indexMovies));
             indexes.put("Year", indexByYear(indexMovies));
+            indexes.put("Library", indexByLibrary(indexMovies));
             
             Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
             for (Map.Entry<String, Index> dyn_entry : dynamic_indexes.entrySet()) {
@@ -492,6 +493,16 @@ public class Library implements Map<String, Movie> {
                     } catch (Exception ignore) {
                     }
                 }
+            }
+        }
+        return index;
+    }
+    
+    private static Index indexByLibrary(Iterable<Movie> moviesList) {
+        Index index = new Index();
+        for (Movie movie : moviesList) {
+            if (!movie.isTrailer() && movie.getLibraryDescription.length() > 0) {
+                index.addMovie(movie.getLibraryDescription(), movie);
             }
         }
         return index;
