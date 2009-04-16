@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -41,7 +43,8 @@ public class MovieNFOScanner {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private static String fanartToken = ".fanart";
     private static String forceNFOEncoding = null; 
-    private static String NFOdirectory = "";;
+    private static String NFOdirectory = "";
+    private static boolean parentDirs = false;
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -49,10 +52,8 @@ public class MovieNFOScanner {
      * @param movie
      * @param movieDB
      */
-    public static void scan(Movie movie) {
-        File nfoFile = new File(locateNFO(movie));
-
-        if (nfoFile.exists()) {
+    public static void scan(Movie movie, List<File> nfoFiles) {
+        for (File nfoFile : nfoFiles) {
             logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirtyNFO(true);
@@ -92,12 +93,13 @@ public class MovieNFOScanner {
             }
         }
     }
-
-    public static String locateNFO(Movie movie) {
+    
+    public static List<File> locateNFOs(Movie movie) {
+        List<File> nfos = new ArrayList<File>();
+        
         String fn = movie.getContainerFile().getAbsolutePath();
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
         String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // just the sub-directory the video file is in
-        String checkedFN = "";
 
         // If "fn" is a file then strip the extension from the file.
         if (movie.getContainerFile().isFile()) {
@@ -106,36 +108,41 @@ public class MovieNFOScanner {
             // *** First step is to check for VIDEO_TS
             // The movie is a directory, which indicates that this is a VIDEO_TS file
             // So, we should search for the file moviename.nfo in the sub-directory
-            checkedFN = checkNFO(fn + fn.substring(fn.lastIndexOf(File.separator)));
+            checkNFO(nfos, fn + fn.substring(fn.lastIndexOf(File.separator)));
         }
 
-        if (checkedFN.equals("")) {
-            // Not a VIDEO_TS directory so search for the variations on the filename.nfo
-            // *** Second step is to check for a directory wide NFO file.
-            // This file should be named the same as the directory that it is in
-            // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
-            checkedFN = checkNFO(localMovieDir + File.separator + localDirectoryName);
-
-            if (checkedFN.equals("")) {
-                // *** Third step is to check for the filename.nfo dile
-                // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
-                // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
-                checkedFN = checkNFO(fn);
-            }
-
-            if (checkedFN.equals("") && !NFOdirectory.equals("")) {
-                // *** Last step if we still haven't found the nfo file is to
-                // search the NFO directory as specified in the moviejukebox,properties file
-                String sLibraryPath = movie.getLibraryPath();
-                if ((sLibraryPath.lastIndexOf("\\") == sLibraryPath.length()) || (sLibraryPath.lastIndexOf("/") == sLibraryPath.length())) {
-                    checkedFN = checkNFO(movie.getLibraryPath() + NFOdirectory + File.separator + movie.getBaseName());
-                } else {
-                    checkedFN = checkNFO(movie.getLibraryPath() + File.separator + NFOdirectory + File.separator + movie.getBaseName());
-                }
+        // *** Second step is to check for the filename.nfo file
+        // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
+        // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
+        checkNFO(nfos, fn);
+        
+        if (!NFOdirectory.equals("")) {
+            // *** Next step if we still haven't found the nfo file is to
+            // search the NFO directory as specified in the moviejukebox.properties file
+            String sLibraryPath = movie.getLibraryPath();
+            if ((sLibraryPath.lastIndexOf("\\") == sLibraryPath.length()) || (sLibraryPath.lastIndexOf("/") == sLibraryPath.length())) {
+                checkNFO(nfos, movie.getLibraryPath() + NFOdirectory + File.separator + movie.getBaseName());
+            } else {
+                checkNFO(nfos, movie.getLibraryPath() + File.separator + NFOdirectory + File.separator + movie.getBaseName());
             }
         }
-
-        return checkedFN;
+        
+        // *** Last step is to check for a directory wide NFO file.
+        // This file should be named the same as the directory that it is in
+        // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
+        // We search up through all containing directories up to the library root
+        do {
+            checkNFO(nfos, localMovieDir + File.separator + localDirectoryName);
+            
+            localMovieDir = fn.substring(0, localMovieDir.lastIndexOf(File.separator)); // parent directory
+            localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // parent directory name
+        } while (parentDirs && localMovieDir.length() >= movie.getLibraryPath().length() - 1); // up to the library root
+        
+        // we added the most specific ones first, and we want to parse those the last,
+        // so nfo files in subdirectories can override values in directories above.
+        Collections.reverse(nfos);
+        
+        return nfos;
     }
 
     /**
@@ -145,17 +152,15 @@ public class MovieNFOScanner {
      *            (NO EXTENSION)
      * @return blank string if not found, filename if found
      */
-    private static String checkNFO(String checkNFOfilename) {
+    private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
         // logger.finest("checkNFO = " + checkNFOfilename);
         File nfoFile = new File(checkNFOfilename + ".nfo");
         if (nfoFile.exists()) {
-            return (checkNFOfilename + ".nfo");
+            nfoFiles.add(nfoFile);
         } else {
             nfoFile = new File(checkNFOfilename + ".NFO");
             if (nfoFile.exists()) {
-                return (checkNFOfilename + ".NFO");
-            } else {
-                return ("");
+                nfoFiles.add(nfoFile);
             }
         }
     }
@@ -544,5 +549,9 @@ public class MovieNFOScanner {
 
     public static void setNFOdirectory(String odirectory) {
         NFOdirectory = odirectory;
+    }
+    
+    public static void setParentDirs(boolean parentDirs) {
+        MovieNFOScanner.parentDirs = parentDirs;
     }
 }
