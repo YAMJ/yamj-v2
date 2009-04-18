@@ -9,7 +9,7 @@
   <target name="clean">
     <delete dir="build"/>
     <delete includeemptydirs="true" failonerror="false">
-      <fileset dir="dist" includes="**/*" excludes="mediaInfo/*"/>
+      <fileset dir="dist" includes="**/*" excludes="mediaInfo/*" followsymlinks="false"/>
     </delete>
   </target>
 
@@ -107,7 +107,7 @@
       </fileset>
     </copy>
 
-    <zip basedir="dist" destfile="dist/moviejukebox_${version}.zip" excludes="mediaInfo/"/>
+    <zip basedir="dist" destfile="dist/moviejukebox_${version}.zip" excludes="mediaInfo/" followsymlinks="false"/>
   </target>
 
 </project>
