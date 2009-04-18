@@ -24,7 +24,8 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #688 index_sd.htm not transfered to output dir
   - Fixed defect #691 Episode images vanish in the skin after new episodes are added
   - Fixed defect #692 Null pointer exception when episode images are unavailable
-  - Enhancement  #697 MovieMeterPlugin: download fanart based on IMDB id returned from moviemeter.nl
+  - Enhancement  #697 MovieMeterPlugin: download fanart based on IMDB id returned from moviemeter.nl\
+  - Fixed defect #696 Trailer link duplication
   - Enhancement  #700 (Optionally) Recursively scan parent dirs (up to library root) for directory-level NFOs
   - Enhancement  #703 Index by library description (if present)
   - Enhancement  #705 Speed up XSLT processing

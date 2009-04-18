@@ -263,7 +263,7 @@ public class MovieJukeboxXMLWriter {
                         e = r.nextEvent();
                         tag = e.toString();
                         if (tag.equals("<fileURL>")) {
-                            mf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
+                            mf.setFilename(parseCData(r));
                         } else if (tag.startsWith("<filePlot")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
@@ -321,7 +321,7 @@ public class MovieJukeboxXMLWriter {
                         }
                     }
 
-                    tf.setFilename(HTMLTools.decodeUrl(parseCData(r)));
+                    tf.setFilename(parseCData(r));
                     // add or replace trailer based on XML data
                     movie.addTrailerFile(tf);
                 }
