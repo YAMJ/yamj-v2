@@ -79,7 +79,7 @@ public class FanartScanner {
         // if no fanart has been found, try the foldername.fanartToken.Extension
         if (!foundLocalFanart) {
             localFanartBaseFilename = movie.getFile().getParent();
-            localFanartBaseFilename = localFanartBaseFilename.substring(localFanartBaseFilename.lastIndexOf("\\") + 1);
+            localFanartBaseFilename = localFanartBaseFilename.substring(localFanartBaseFilename.lastIndexOf(File.separator) + 1);
 
             // Checking for the MovieFolderName.*
             fullFanartFilename = movie.getFile().getParent() + File.separator + localFanartBaseFilename + fanartToken;
@@ -191,6 +191,7 @@ public class FanartScanner {
                 foundLocalFanart = true;
                 break;
             }
+            logger.finest("The file " + fullFanartFilename + "." + extension + " does not exist");
         }
 
         // If we've found the filename with extension, return it, otherwise return ""
