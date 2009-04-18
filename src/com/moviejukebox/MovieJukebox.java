@@ -315,7 +315,8 @@ public class MovieJukebox {
                               (cleanCurrent.indexOf("TITLE_") >= 0) ||
                               (cleanCurrent.indexOf("YEAR_") >= 0) ||
                               (cleanCurrent.indexOf("TVSERIES_") >= 0) ||
-                              (cleanCurrent.indexOf("SET_") >= 0)) {
+                              (cleanCurrent.indexOf("SET_") >= 0) ||
+                              (cleanCurrent.indexOf("LIBRARY_") >= 0)) {
                         cleanList[nbFiles].delete();
                     }
                 }
@@ -401,14 +402,11 @@ public class MovieJukebox {
             // This is kind of a hack -- library.values() are the movies that were found in the library
             // and library.getMoviesList() are the ones that are there now. So the movies that are in
             // getMoviesList but not in values are the index masters.
+            Collection<Movie> movies = library.values();
             List<Movie> indexMasters = new ArrayList<Movie>();
             indexMasters.addAll(library.getMoviesList());
-            indexMasters.removeAll(library.values());
+            indexMasters.removeAll(movies);
             
-            List<Movie> moviesList = new ArrayList<Movie>();
-            moviesList.addAll(library.getMoviesList());
-            moviesList.removeAll(indexMasters);
-
             SetThumbnailPlugin stp = new SetThumbnailPlugin();
             for (Movie movie : indexMasters) {
                 // The master's movie xml is used for generating the playlist
@@ -445,7 +443,7 @@ public class MovieJukebox {
                 htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
             
-            for (Movie movie : moviesList) {
+            for (Movie movie : movies) {
                 // Update movie XML files with computed index information 
                 logger.finest("Writing index data to movie: " + movie.getBaseName());
                 xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
@@ -519,7 +517,8 @@ public class MovieJukebox {
                                    (cleanCurrent.indexOf("TITLE_") >= 0) ||
                                    (cleanCurrent.indexOf("YEAR_") >= 0) ||
                                    (cleanCurrent.indexOf("TVSERIES_") >= 0) ||
-                                   (cleanCurrent.indexOf("SET_") >= 0)) {
+                                   (cleanCurrent.indexOf("SET_") >= 0) ||
+                                   (cleanCurrent.indexOf("LIBRARY_") >= 0)) {
                             // logger.fine(cleanCurrent + " ignored");
                         } else {
                             // Left with just the generated movie files in the directory now.
