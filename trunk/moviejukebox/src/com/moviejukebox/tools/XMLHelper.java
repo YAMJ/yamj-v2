@@ -10,6 +10,8 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
+import com.moviejukebox.tools.WebBrowser;
+
 /**
  *
  * @author altman.matthew
@@ -17,7 +19,8 @@ import javax.xml.stream.XMLStreamException;
 public class XMLHelper {
 
     public static XMLEventReader getEventReader(String url) throws IOException, XMLStreamException {
-        InputStream in = (new URL(url)).openStream();
+        WebBrowser wb = new WebBrowser();
+        InputStream in = wb.openProxiedConnection(new URL(url)).getInputStream();
         return XMLInputFactory.newInstance().createXMLEventReader(in);
     }
 
