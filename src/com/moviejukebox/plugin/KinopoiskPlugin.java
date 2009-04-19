@@ -82,25 +82,36 @@ public class KinopoiskPlugin extends ImdbPlugin {
      */
     private String getKinopoiskId(String movieName, String year, int season) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.ru/search?hl=ru&q=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
+            String sb = "+site:www.kinopoisk.ru/level/1/film/";
+            sb = sb + " " + movieName;
             if (season != -1) {
-                sb.append(URLEncoder.encode("+сериал", "UTF-8"));
+                sb = sb + " +сериал";
             }
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append("+").append(year);
-            }
+            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) 
+                sb = sb + " +год +" + year;
 
-            sb.append("+site%3Awww.kinopoisk.ru");
+            sb = "http://www.google.ru/search?hl=ru&q=" + URLEncoder.encode(sb, "UTF-8");
 
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("kinopoisk.ru/level/1/film/");
+            String xml = webBrowser.request(sb);
+            int beginIndex = xml.indexOf("<a href=\"http://www.kinopoisk.ru/level/1/film/");
+
             if (beginIndex == -1)
                 return Movie.UNKNOWN;
+            beginIndex = xml.indexOf("kinopoisk.ru/level/1/film/", beginIndex);
+
+            if (beginIndex == -1)
+                return Movie.UNKNOWN;
+
             StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 26), "/\"");
             String kinopoiskId = st.nextToken();
 
             if (kinopoiskId != "") {
+                // Check if ID is integer
+                try {
+                    Integer.parseInt(kinopoiskId);
+                } catch (Exception ignore) {
+                    return Movie.UNKNOWN;
+                }
                 return kinopoiskId;
             } else {
                 return Movie.UNKNOWN;
@@ -118,15 +129,17 @@ public class KinopoiskPlugin extends ImdbPlugin {
      */
     private boolean updateKinopoiskMediaInfo(Movie movie, String kinopoiskId) {
         try {
+            String originalTitle = movie.getTitle();
+            String newTitle = originalTitle;
             String xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId);
             
             // Work-around for issue #649
-            xml = xml.replace((CharSequence)"&#151;", (CharSequence)"&hellip;");
-            xml = xml.replace((CharSequence)"&#133;", (CharSequence)"&mdash;");
+            xml = xml.replace((CharSequence)"&#133;", (CharSequence)"&hellip;");
+            xml = xml.replace((CharSequence)"&#151;", (CharSequence)"&mdash;");
             
             // Title
             if (!movie.isOverrideTitle()) {
-                String newTitle = HTMLTools.extractTag(xml, "class=\"moviename-big\">", 0, "<>");
+                newTitle = HTMLTools.extractTag(xml, "class=\"moviename-big\">", 0, "<>");
                 if (!newTitle.equals(Movie.UNKNOWN)) {
                     int i = newTitle.indexOf("(сериал");
                     if (i >= 0) {
@@ -135,13 +148,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                     newTitle = newTitle.replace('\u00A0', ' ').trim();
                     if (movie.getSeason() != -1)
-                        newTitle = newTitle + ", сезон " + String.valueOf(movie.getSeason()); 
-                    // Original title is known and is not cyrillic?
-                    i = movie.getTitle().codePointAt(0);
-                    if (!movie.getTitle().equalsIgnoreCase(Movie.UNKNOWN) && (i < 0x400 || i >= 0x5B0))
-                        // Add original title
-                        newTitle = newTitle + " / " + movie.getTitle();
-                    movie.setTitle(newTitle);
+                        newTitle = newTitle + ", сезон " + String.valueOf(movie.getSeason());
+
+                    // Original title
+                    String s = HTMLTools.extractTag(xml, "<span style=\"font-size:13px;color:#666\">", 0, "><");
+                    if (!s.equals(Movie.UNKNOWN) && !s.equalsIgnoreCase("/span")) { 
+                        originalTitle = s;
+                        newTitle = newTitle + " / " + originalTitle;
+                    }
+                else
+                    originalTitle = newTitle;
                 }
             }
             
@@ -156,11 +172,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // Genres
             LinkedList<String> newGenres = new LinkedList<String>();
             for (String genre : HTMLTools.extractTags(xml, ">жанр</td>", "</td>", "<a href=\"/level/10", "</a>")) {
-            	genre = genre.substring(0, 1).toUpperCase() + genre.substring(1, genre.length());
-            	if (genre.equalsIgnoreCase("мультфильм"))
-            		newGenres.addFirst(genre);
-            	else
-            		newGenres.add(genre);
+                genre = genre.substring(0, 1).toUpperCase() + genre.substring(1, genre.length());
+                if (genre.equalsIgnoreCase("мультфильм"))
+                    newGenres.addFirst(genre);
+                else
+                    newGenres.add(genre);
             }
             if (newGenres.size() > 0) {
                 // Limit genres count
@@ -173,7 +189,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 while (newGenres.size() > maxGenres)  
                     newGenres.removeLast(); 
 
-            	movie.setGenres(newGenres);
+                movie.setGenres(newGenres);
             }
             
             // Director
@@ -185,10 +201,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // Cast
             Collection<String> newCast = new ArrayList<String>();
             for (String actor : HTMLTools.extractTags(xml, ">В главных ролях:", "</table>", "<a href=\"/level/4", "</a>")) {
-            	newCast.add(actor);
+                newCast.add(actor);
             }
             if (newCast.size() > 0)
-            	movie.setCast(newCast);
+                movie.setCast(newCast);
 
             // Country
             for (String country : HTMLTools.extractTags(xml, ">страна</td>", "</td>", "<a href=\"/level/10", "</a>")) {
@@ -198,28 +214,49 @@ public class KinopoiskPlugin extends ImdbPlugin {
             
             // Year
             if (movie.getYear().equals(Movie.UNKNOWN)) {
-            	for (String year : HTMLTools.extractTags(xml, ">год</td>", "</td>", "<a href=\"/level/10", "</a>")) {
-            		movie.setYear(year);
-            		break;
-            	}
+                for (String year : HTMLTools.extractTags(xml, ">год</td>", "</td>", "<a href=\"/level/10", "</a>")) {
+                    movie.setYear(year);
+                    break;
+                }
             }
             
             // Rating
+            int kinopoiskRating = -1;
             String rating = HTMLTools.extractTag(xml, "<a href=\"/level/83/film/"+kinopoiskId+"/\" class=\"continue\">", 0, "<");
             if (!rating.equals(Movie.UNKNOWN)) {
-                int r = (int)(Float.parseFloat(rating)*10);
-            	if (movie.getRating() != -1) { 
-                    if (preferredRating.equals("imdb"))
-                    	r = movie.getRating();
-                    else
-                        if (preferredRating.equals("average"))
-                        	r = (r + movie.getRating())/2;
-            	}
-          		movie.setRating(r);
+                try {
+                    kinopoiskRating = (int)(Float.parseFloat(rating)*10);
+                } catch (Exception ignore) {
+                    // Ignore
+                }
+             }
+
+            int imdbRating = movie.getRating();
+            if (imdbRating == -1) {
+                // Get IMDB rating from kinopoisk page 
+                rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
+                if (!rating.equals(Movie.UNKNOWN)) {
+                    try {
+                        imdbRating = (int)(Float.parseFloat(rating)*10);	
+                    } catch (Exception ignore) {
+                        // Ignore
+                    }
+                }
             }
-            
+
+            int r = kinopoiskRating;
+            if (imdbRating != -1) { 
+                if (preferredRating.equals("imdb"))
+                    r = imdbRating;
+                else
+                    if (preferredRating.equals("average"))
+                        r = (kinopoiskRating + imdbRating)/2;
+            }
+            movie.setRating(r);
+
             // Poster
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                movie.setTitle(originalTitle);
                 movie.setPosterURL(getPosterURL(movie, ""));
             }
             
@@ -227,7 +264,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                 movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, ">время</td>", "</td>", "<td", "</td>")));
             }
-            
+            // Finally set title
+            movie.setTitle(newTitle);
+
         } catch (Exception e) {
             logger.severe("Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
             e.printStackTrace();
