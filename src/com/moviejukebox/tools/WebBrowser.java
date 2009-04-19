@@ -52,6 +52,22 @@ public class WebBrowser {
     public String request(String url) throws IOException {
         return request(new URL(url));
     }
+    
+    public URLConnection openProxiedConnection(URL url) throws IOException {
+        if (mjbProxyHost != null) {
+            System.getProperties().put("proxySet", "true");
+            System.getProperties().put("proxyHost", mjbProxyHost);
+            System.getProperties().put("proxyPort", mjbProxyPort);
+        }
+        
+        URLConnection cnx = url.openConnection();
+        
+        if (mjbProxyUsername != null) {
+            cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
+        }
+        
+        return cnx;
+    }
 
     public String request(URL url) throws IOException {
         StringWriter content = null;
@@ -61,17 +77,7 @@ public class WebBrowser {
 
             BufferedReader in = null;
             try {
-                if (mjbProxyHost != null) {
-                    System.getProperties().put("proxySet", "true");
-                    System.getProperties().put("proxyHost", mjbProxyHost);
-                    System.getProperties().put("proxyPort", mjbProxyPort);
-                }
-
-                URLConnection cnx = url.openConnection();
-
-                if (mjbProxyUsername != null) {
-                    cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
-                }
+                URLConnection cnx = openProxiedConnection(url);
 
                 sendHeader(cnx);
                 readHeader(cnx);
