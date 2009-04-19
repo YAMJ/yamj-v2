@@ -13,6 +13,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #662 FilmDeltaSEPlugin can't handle "illegal HTML characters"
   - Fixed defect #666 Can't connect to imdb behind authenticated proxy
   - Fixed defect #667 Can't download image behind authenticated proxy
+  - Fixed defect #668 Can't connect to TheTVDB behind authenticated proxy
   - Fixed defect #670 BD structure in excluded directory causes exception
   - Enhancement  #671 Option to create posters for set masters
   - Fixed defect #673 Sets no longer appear on categories.html page
