@@ -21,37 +21,24 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        String imdbId = mediaFile.getId(IMDB_PLUGIN_ID);
-
-        // Spanish's title and plot
-        String titleSpanish = "None";
-        String plotSpanish = "None";
-
         boolean retval = true;
-        if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            // Save original title
-            titleSpanish = mediaFile.getTitle();
-
-            String filmAffinityId = getFilmAffinityId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
-            if (filmAffinityId.indexOf(".html") != -1) // Update original title and plot (in Spanish)
-            {
-                retval = updateFilmAffinityMediaInfo(mediaFile, filmAffinityId);
-            }
-
-            // Save plot in Spanish
-            plotSpanish = mediaFile.getPlot();
+        String filmAffinityId = mediaFile.getId(FILMAFFINITY_PLUGIN_ID);
+        if (filmAffinityId == null || filmAffinityId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            filmAffinityId = getFilmAffinityId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
+        } else {
+            filmAffinityId += ".html";
         }
-
-        // Other info from imdb
+        
+        if (filmAffinityId.indexOf(".html") != -1) { // Update original title and plot (in Spanish)
+            retval = updateFilmAffinityMediaInfo(mediaFile, filmAffinityId);
+        }
+        
+        // Fill in the rest of the fields from IMDB, taking care not to allow the title to get overwritten
+        boolean overrideTitle = mediaFile.isOverrideTitle();
+        mediaFile.setOverrideTitle(false);
         super.scan(mediaFile);
-
-        // Update plot and title in Spanish
-        if (!plotSpanish.equals("None") && !plotSpanish.equals("UNKNOWN")) {
-            mediaFile.setPlot(plotSpanish);
-        }
-        if (!mediaFile.isOverrideTitle()) {
-            mediaFile.setTitle(titleSpanish);
-        }
+        mediaFile.setOverrideTitle(overrideTitle);
+        
         return retval;
     }
 
@@ -62,7 +49,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     private String getFilmAffinityId(String movieName, String year, int season) {
         try {
             StringBuffer sb = new StringBuffer("http://www.google.es/search?hl=es&q=");
-            ;
+            
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
             if (season != -1) {
                 sb.append("+TV");
@@ -109,14 +96,15 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<td ><b>", 0, "()><-"));
             }
-            String plot = "None";
-            plot = HTMLTools.extractTag(xml, "SINOPSIS:", 0, "><|");
+            
+            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+                String plot = HTMLTools.extractTag(xml, "SINOPSIS:", 0, "><|");
+                if (plot.length() > preferredPlotLength) {
+                    plot = plot.substring(0, preferredPlotLength) + "...";
+                }
 
-            if (plot.length() > preferredPlotLength) {
-                plot = plot.substring(0, preferredPlotLength) + "...";
+                movie.setPlot(plot);
             }
-
-            movie.setPlot(plot);
 
         } catch (Exception e) {
             logger.severe("Failed retreiving filmaffinity data movie : " + movie.getId(IMDB_PLUGIN_ID));
