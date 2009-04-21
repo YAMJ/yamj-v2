@@ -12,6 +12,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #645 IMDB plots with embedded HTML tags are now parsed correctly
   - Fixed defect #649 Manually decode some Cp1251 values that Kinopoisk uses &#xxx; entities for
   - Fixed defect #651 Recognize single-character titles when scanning filenames
+  - Fixed defect #656 Recognize DVDR as a synonym for DVDRip
   - Fixed defect #662 FilmDeltaSEPlugin can't handle "illegal HTML characters"
   - Fixed defect #666 Can't connect to imdb behind authenticated proxy
   - Fixed defect #667 Can't download image behind authenticated proxy
@@ -26,6 +27,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #683 Ability to resize episode screenshot
   - Fixed defect #687 Label season 0 as "Specials"
   - Fixed defect #688 index_sd.htm not transfered to output dir
+  - Enhancement  #690 Configurable filename source keywords and map, added default keywords for SDTV/NTSC/PAL and VHSRip
   - Fixed defect #691 Episode images vanish in the skin after new episodes are added
   - Fixed defect #692 Null pointer exception when episode images are unavailable
   - Enhancement  #697 MovieMeterPlugin: download fanart based on IMDB id returned from moviemeter.nl\
