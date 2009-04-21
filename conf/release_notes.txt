@@ -33,6 +33,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #703 Index by library description (if present)
   - Enhancement  #705 Speed up XSLT processing
   - Enhancement  #712 Patch for Kinopoisk plugin
+  - Fixed defect #717 Top250 value incorrectly applied to set masters
                         1. Extract original movie name from Kinopoisk page.
                         2. Extract IMDB rating from Kinopoisk page if needed.
                         3. Better search for movie info page.
