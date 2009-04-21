@@ -212,15 +212,18 @@ public class Library implements Map<String, Movie> {
         key = key.toLowerCase();
 
         Movie existingMovie = library.get(key);
+        logger.finest("Adding movie " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isTrailer()) {
             key = movie.getBaseName();
+            logger.finest("  It's a trailer: " + key);
         }
 
         if (existingMovie == null) {
             library.put(key, movie);
         } else {
             if (movie.isTrailer()) {
+                logger.finest("Trailer: " + existingMovie.getTitle() + " " + key);
                 library.put(key, movie);
                 existingMovie.addTrailerFile(new TrailerFile(movie.getFirstFile()));
             } else {
@@ -251,6 +254,7 @@ public class Library implements Map<String, Movie> {
             // set TV and HD properties of the master
             int cntTV = 0;
             int cntHD = 0;
+            int top250 = -1;
             
             // We Can't use a TreeSet because MF.compareTo just compares part #
             // so it fails when we combine multiple seasons into one collection
@@ -263,6 +267,11 @@ public class Library implements Map<String, Movie> {
                     ++cntHD;
                 }
                 
+                int mTop250 = m.getTop250();
+                if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
+                    top250 = mTop250;
+                }
+                
                 Collection<MovieFile> mf_col = m.getMovieFiles();
                 if (mf_col != null) {
                     master_mf_col.addAll(mf_col);
@@ -271,8 +280,11 @@ public class Library implements Map<String, Movie> {
             
             indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
             indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
-            logger.finest("Setting index master " + indexMaster.getTitle() +
-                " to isTV: " + indexMaster.isTVShow() + " and isHD: " + indexMaster.isHD());
+            logger.finest("Setting index master " + indexMaster.getTitle());
+            logger.finest("  isTV: " + indexMaster.isTVShow());
+            logger.finest("  isHD: " + indexMaster.isHD());
+            logger.finest("  top250: " + indexMaster.getTop250());
+            indexMaster.setTop250(top250);
             indexMaster.setMovieFiles(master_mf_col);
             masters.put(index_name, indexMaster);
         }
