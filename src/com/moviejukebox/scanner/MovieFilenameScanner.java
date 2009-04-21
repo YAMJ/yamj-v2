@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -184,13 +185,19 @@ public class MovieFilenameScanner {
 
     private static final Map<String, Pattern> VIDEO_SOURCE_MAP = new HashMap<String, Pattern>() {
         {
-            for (String s : new String[] { "HDTV", "PDTV", "DVDRip", "DVDSCR", "DSRip", "CAM", "R5", "LINE", "HD2DVD", "DVD", "HRHDTV", "MVCD", "VCD" }) {
-                put(s, iwpatt(s));
+            String sourceKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords",
+                "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
+            for (String s : sourceKeywords.split(",")) {
+                String patt = s;
+                String mappedKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords." + s, null);
+		if (mappedKeywords != null) {
+	            for (String t : mappedKeywords.split(",")) {
+        	        patt += "|" + t;
+                    }
+                }
+                
+                put(s, iwpatt(patt));
             }
-            put("BluRay", iwpatt("BLURAY|BDRIP|BLURAYRIP|BLU-RAY"));
-            put("TS", iwpatt("TS"));
-            put("HDDVD", iwpatt("HDDVD|HD-DVD|HDDVDRIP"));
-            put("D-THEATER", iwpatt("DTH|D-THEATER|DTHEATER"));
         }
     };
 
