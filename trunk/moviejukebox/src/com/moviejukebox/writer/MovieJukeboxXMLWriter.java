@@ -369,7 +369,7 @@ public class MovieJukeboxXMLWriter {
         }
 
         for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
-            if (!category.getValue().display()) {
+            if (category.getValue().isEmpty() || !category.getValue().display()) {
                 continue;
             }
             
