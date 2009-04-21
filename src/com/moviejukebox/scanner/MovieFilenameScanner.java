@@ -367,7 +367,7 @@ public class MovieFilenameScanner {
                 while (t.hasMoreElements()) {
                     String token = t.nextToken();
                     token = cleanUpTitle(token);
-                    if (token.length() >= 2 && token.charAt(0) != '-') {
+                    if (token.length() >= 1 && token.charAt(0) != '-') {
                         title = token;
                         break;
                     }
