@@ -349,6 +349,7 @@ public class MovieJukebox {
             logger.finer("Scanning media library " + mediaLibraryPath.getPath());
             library = mds.scan(mediaLibraryPath, library);
         }
+        library.mergeTrailers();        
 
         logger.fine("Found " + library.size() + " movies in your media library");
         
