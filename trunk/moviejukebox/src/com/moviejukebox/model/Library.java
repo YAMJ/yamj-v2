@@ -209,10 +209,9 @@ public class Library implements Map<String, Movie> {
 
         key = key.toLowerCase();
         return key;
-    }    
+    }
 
-    public void addMovie(Movie movie) {
-        String key = getMovieKey(movie);
+    public void addMovie(String key, Movie movie) {
         Movie existingMovie = library.get(key);
         logger.finest("Adding movie " + key + ", new part: " + (existingMovie != null));
 
@@ -224,6 +223,10 @@ public class Library implements Map<String, Movie> {
         } else {
             existingMovie.addMovieFile(movie.getFirstFile());
         }
+    }
+    
+    public void addMovie(Movie movie) {
+        addMovie(getMovieKey(movie), movie);
     }
     
     public void mergeTrailers() {

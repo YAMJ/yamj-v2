@@ -41,6 +41,7 @@ import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.scanner.OutputDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.FileTools;
@@ -97,6 +98,7 @@ public class MovieJukebox {
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
         boolean jukeboxClean = false;
+        boolean jukeboxPreserve = false;
         String propertiesName = "moviejukebox.properties";
 
         if (args.length == 0) {
@@ -111,6 +113,8 @@ public class MovieJukebox {
                     jukeboxRoot = args[++i];
                 } else if ("-c".equalsIgnoreCase(arg)) {
                     jukeboxClean = true;
+                } else if ("-k".equalsIgnoreCase(arg)) {
+                    jukeboxPreserve = true;
                 } else if ("-p".equalsIgnoreCase(arg)) {
                     propertiesName = args[++i];
                 } else if (arg.startsWith("-")) {
@@ -193,7 +197,7 @@ public class MovieJukebox {
             return;
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
-        ml.generateLibrary(jukeboxClean);
+        ml.generateLibrary(jukeboxClean, jukeboxPreserve);
     }
 
     private static void help() {
@@ -227,6 +231,11 @@ public class MovieJukebox {
         System.out.println("                      This will delete any unused files from the jukebox");
         System.out.println("                      directory at the end of the run.");
         System.out.println();
+        System.out.println("  -k                : OPTIONAL");
+        System.out.println("                      Scan the output directory first. Any movies that already");
+        System.out.println("                      exist but aren't found in any of the scanned libraries will");
+        System.out.println("                      be preserved verbatim.");
+        System.out.println();
         System.out.println("  -p propertiesFile : OPTIONAL");
         System.out.println("                      The properties file to use instead of moviejukebox.properties");
     }
@@ -256,7 +265,7 @@ public class MovieJukebox {
         }
     }
 
-    private void generateLibrary(boolean jukeboxClean) throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
+    private void generateLibrary(boolean jukeboxClean, boolean jukeboxPreserve) throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
         MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
         MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
@@ -349,6 +358,15 @@ public class MovieJukebox {
             logger.finer("Scanning media library " + mediaLibraryPath.getPath());
             library = mds.scan(mediaLibraryPath, library);
         }
+        
+        // If the user asked to preserve the existing movies, scan the output directory as well
+        if (jukeboxPreserve) {
+            logger.fine("Scanning output directory for additional movies");
+            OutputDirectoryScanner ods = new OutputDirectoryScanner(jukeboxRoot + File.separator + detailsDirName);
+            ods.scan(library);
+        }
+            
+        // Now that everything's been scanned, merge the trailers into the movies
         library.mergeTrailers();        
 
         logger.fine("Found " + library.size() + " movies in your media library");
