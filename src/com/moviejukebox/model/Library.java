@@ -197,27 +197,28 @@ public class Library implements Map<String, Movie> {
 
     public Library() {
     }
-
-    public void addMovie(Movie movie) {
-//		Issue 190
-//		String key = movie.getTitle();
-//		added Year to movie key to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
+    
+    public static String getMovieKey(Movie movie) {
+//    Issue 190
         String key = movie.getTitle() + " (" + movie.getYear() + ")";
 
         if (movie.isTVShow()) {
-//			Issue 190
-//			key += " Season " + movie.getSeason();
+//      Issue 190
             key += " Season " + paddedFormat.format(movie.getSeason());
         }
 
         key = key.toLowerCase();
+        return key;
+    }    
 
+    public void addMovie(Movie movie) {
+        String key = getMovieKey(movie);
         Movie existingMovie = library.get(key);
         logger.finest("Adding movie " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isTrailer()) {
             logger.finest("  It's a trailer: " + movie.getBaseName());
-            trailers.put(key, movie);
+            trailers.put(movie.getBaseName(), movie);
         } else if (existingMovie == null) {
             library.put(key, movie);
         } else {
@@ -228,9 +229,9 @@ public class Library implements Map<String, Movie> {
     public void mergeTrailers() {
         for (Map.Entry<String, Movie> trailerEntry : trailers.entrySet()) {
             Movie trailer = trailerEntry.getValue();
-            Movie movie = library.get(trailerEntry.getKey());
+            Movie movie = library.get(getMovieKey(trailer));
             
-            library.put(trailer.getBaseName(), trailer);
+            library.put(trailerEntry.getKey(), trailer);
             if (null != movie) {
                 movie.addTrailerFile(new TrailerFile(trailerEntry.getValue().getFirstFile()));
             }
