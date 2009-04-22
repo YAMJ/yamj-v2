@@ -148,7 +148,6 @@
         <xsl:choose>
           <xsl:when test="count(files/file) = 1">
             <xsl:for-each select="files/file">
-              <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
               <tr valign="top">
                 <xsl:if test="//movie/season != -1">
                   <td align="right" class="normal">
@@ -239,6 +238,7 @@
               <td>
                 <table>
                   <xsl:for-each select="files/file">
+                    <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
                     <tr valign="top">
                       <td align="right" class="normal">
                         <xsl:value-of select="@firstPart"/><xsl:if test="@firstPart!=@lastPart">-<xsl:value-of select="@lastPart"/></xsl:if>.
