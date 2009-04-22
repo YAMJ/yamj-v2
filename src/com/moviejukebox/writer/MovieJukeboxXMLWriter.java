@@ -59,7 +59,7 @@ public class MovieJukeboxXMLWriter {
      * Parse a single movie detail xml file
      */
     @SuppressWarnings("unchecked")
-    public void parseMovieXML(File xmlFile, Movie movie) {
+    public boolean parseMovieXML(File xmlFile, Movie movie) {
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
             XMLEventReader r = factory.createXMLEventReader(new FileInputStream(xmlFile), "UTF-8");
@@ -81,6 +81,9 @@ public class MovieJukeboxXMLWriter {
                         }
                     }
                     movie.setId(movieDatabase, parseCData(r));
+                }
+                if (tag.equals("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
+                    movie.setBaseName(parseCData(r));
                 }
                 if (tag.equals("<title>")) {
                     movie.setTitle(parseCData(r));
@@ -329,9 +332,11 @@ public class MovieJukeboxXMLWriter {
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+            return false;
         }
 
         movie.setDirty(movie.hasNewMovieFiles() || movie.hasNewTrailerFiles());
+        return true;
     }
 
     private String parseCData(XMLEventReader r) throws XMLStreamException {

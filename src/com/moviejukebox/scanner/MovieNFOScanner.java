@@ -96,6 +96,9 @@ public class MovieNFOScanner {
     
     public static List<File> locateNFOs(Movie movie) {
         List<File> nfos = new ArrayList<File>();
+        if (null == movie.getContainerFile()) {
+            return nfos;
+        }
         
         String fn = movie.getContainerFile().getAbsolutePath();
         String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
