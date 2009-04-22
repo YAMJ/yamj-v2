@@ -126,6 +126,7 @@ public class Library implements Map<String, Movie> {
     private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
+    private Map<String, Movie> trailers = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
     private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000");	// Issue 190
@@ -215,21 +216,25 @@ public class Library implements Map<String, Movie> {
         logger.finest("Adding movie " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isTrailer()) {
-            key = movie.getBaseName();
-            logger.finest("  It's a trailer: " + key);
-        }
-
-        if (existingMovie == null) {
+            logger.finest("  It's a trailer: " + movie.getBaseName());
+            trailers.put(key, movie);
+        } else if (existingMovie == null) {
             library.put(key, movie);
         } else {
-            if (movie.isTrailer()) {
-                logger.finest("Trailer: " + existingMovie.getTitle() + " " + key);
-                library.put(key, movie);
-                existingMovie.addTrailerFile(new TrailerFile(movie.getFirstFile()));
-            } else {
-                existingMovie.addMovieFile(movie.getFirstFile());
-            }
+            existingMovie.addMovieFile(movie.getFirstFile());
         }
+    }
+    
+    public void mergeTrailers() {
+        for (Map.Entry<String, Movie> trailerEntry : trailers.entrySet()) {
+            Movie trailer = trailerEntry.getValue();
+            Movie movie = library.get(trailerEntry.getKey());
+            
+            library.put(trailer.getBaseName(), trailer);
+            if (null != movie) {
+                movie.addTrailerFile(new TrailerFile(trailerEntry.getValue().getFirstFile()));
+            }
+        }        
     }
     
     protected static Map<String, Movie> buildIndexMasters(String prefix, Index index, List<Movie> indexMovies) {

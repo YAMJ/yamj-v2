@@ -40,6 +40,7 @@ MovieJukebox 1.0.17 beta
                         1. Extract original movie name from Kinopoisk page.
                         2. Extract IMDB rating from Kinopoisk page if needed.
                         3. Better search for movie info page.
+  - Fixed defect #713 Trailers get attached to their movie regardless of scanning order
   - Fixed defect #717 Top250 value incorrectly applied to set masters
   - Fixed defect #719 Don't put empty categories in categories.xml
 
