@@ -24,6 +24,7 @@ public class AppleTrailersPlugin {
 
     private String configResolution;
     private String configDownload;
+    private int configMax;
     
     protected WebBrowser webBrowser;
 
@@ -34,6 +35,11 @@ public class AppleTrailersPlugin {
 
         configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
         configDownload = PropertiesUtil.getProperty("appletrailers.download", "false");
+        try {
+            configMax = Integer.parseInt(PropertiesUtil.getProperty("appletrailers.max", "0"));
+        } catch (Exception ignored) {
+            configMax = 0;
+        }
     }
 
 
@@ -73,8 +79,12 @@ public class AppleTrailersPlugin {
         
         selectBestTrailer(trailersUrl,bestTrailersUrl);
 
-
-        for (int i=0;i<bestTrailersUrl.size();i++) {            
+        int trailerCnt = bestTrailersUrl.size();
+        if (configMax > 0 && configMax < trailerCnt) {
+            trailerCnt = configMax;
+        }
+        
+        for (int i=0;i<trailerCnt;i++) {            
         
             String trailerRealUrl = bestTrailersUrl.get(i);
             
