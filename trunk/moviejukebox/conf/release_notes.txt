@@ -8,6 +8,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #411 Plugin for Dutch movie database (www.moviemeter.nl)
   - Fixed defect #565 Filmaffinity id ignored
   - Fixed defect #586 Reverse sort order ignored for sd, gfb107, and gfb107-sd skins
+  - Enhancement  #631 Ability to limit number of Apple trailers per movie
   - Fixed defect #636 (Regression) Check for file-based subtitles
   - Fixed defect #644 Directory fanart not found on POSIX systems
   - Fixed defect #645 IMDB plots with embedded HTML tags are now parsed correctly
