@@ -134,13 +134,15 @@ public class MovieNFOScanner {
         // This file should be named the same as the directory that it is in
         // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
         // We search up through all containing directories up to the library root
-        do {
-            checkNFO(nfos, localMovieDir + File.separator + localDirectoryName);
-            
-            localMovieDir = fn.substring(0, localMovieDir.lastIndexOf(File.separator)); // parent directory
-            localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // parent directory name
-        } while (parentDirs && localMovieDir.length() >= movie.getLibraryPath().length() - 1); // up to the library root
-        
+        File currentDir = movie.getContainerFile();
+        if (null != currentDir) {
+            String libraryRootPath = new File(movie.getLibraryPath()).getAbsolutePath();
+            while (!currentDir.getAbsolutePath().equals(libraryRootPath)) {
+                currentDir = currentDir.getParentFile();
+                checkNFO(nfos, currentDir.getPath() + File.separator + currentDir.getName());
+            }
+        }
+
         // we added the most specific ones first, and we want to parse those the last,
         // so nfo files in subdirectories can override values in directories above.
         Collections.reverse(nfos);
@@ -158,6 +160,7 @@ public class MovieNFOScanner {
     private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
         // logger.finest("checkNFO = " + checkNFOfilename);
         File nfoFile = new File(checkNFOfilename + ".nfo");
+        logger.finest("Checking for NFO: " + checkNFOfilename + ".nfo");
         if (nfoFile.exists()) {
             nfoFiles.add(nfoFile);
         } else {
