@@ -42,6 +42,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
+    private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     @SuppressWarnings("unused")
     private static Logger logger = Logger.getLogger("moviejukebox");
 
@@ -781,7 +782,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("homePage");
         // Issue 436: Bounce off the index.htm to get to the real homePage
         // since homePage is now calculated by the Library.
-        writer.writeCharacters("../index.htm");
+        writer.writeCharacters(indexFile);
         writer.writeEndElement();
         // Issue 310
         writer.writeStartElement("rootPath");
