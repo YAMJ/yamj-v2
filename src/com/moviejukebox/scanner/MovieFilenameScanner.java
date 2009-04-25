@@ -187,15 +187,30 @@ public class MovieFilenameScanner {
         {
             String sourceKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords",
                 "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
+            
+            HashMap<String, String> mappedKeywordsDefaults = new HashMap<String, String>() {
+                {
+                    put("SDTV", "TVRip,PAL,NTSC");
+                    put("D-THEATER", "DTH,DTHEATER");
+                    put("HDDVD", "HD-DVD,HDDVDRIP");
+                    put("BluRay", "BDRIP,BLURAYRIP,BLU-RAY");
+                    put("DVDRip", "DVDR");
+                }
+            };
+            
             for (String s : sourceKeywords.split(",")) {
-                String patt = s;
+                // Set the default the long way to allow "keyword.XXX=" to blank the value instead of using default
                 String mappedKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords." + s, null);
-		if (mappedKeywords != null) {
-	            for (String t : mappedKeywords.split(",")) {
-        	        patt += "|" + t;
-                    }
+                if (null == mappedKeywords) {
+                    mappedKeywords = mappedKeywordsDefaults.get(s);
                 }
                 
+                String patt = s;
+                if (null != mappedKeywords && mappedKeywords.length() > 0) {
+                    for (String t : mappedKeywords.split(",")) {
+                        patt += "|" + t;
+                    }
+                }
                 put(s, iwpatt(patt));
             }
         }
