@@ -631,18 +631,38 @@ public class SratimPlugin extends ImdbPlugin {
             int index = 0;
             int endIndex = 0;
             while (true) {
-
-                index = xml.indexOf("class=\"pic_border\" alt=\"", index);
+                index = xml.indexOf("<div align=\"center\"><a href=\"content?id=", index);
                 if (index == -1)
                     break;
 
-                index += 25;
+                index += 40;
+
+                index = xml.indexOf("width=\"", index);
+                if (index == -1)
+                    break;
+
+                index += 7;
 
                 endIndex = xml.indexOf("\"", index);
                 if (endIndex == -1)
                     break;
 
-                String scanType = xml.substring(index, endIndex);
+                String scanWidth = xml.substring(index, endIndex);
+
+                index = endIndex + 1;
+
+
+                index = xml.indexOf("height=\"", index);
+                if (index == -1)
+                    break;
+
+                index += 8;
+
+                endIndex = xml.indexOf("\"", index);
+                if (endIndex == -1)
+                    break;
+
+                String scanHeight = xml.substring(index, endIndex);
 
                 index = endIndex + 1;
 
@@ -678,7 +698,7 @@ public class SratimPlugin extends ImdbPlugin {
                 if (scanName.equalsIgnoreCase(movieName)) {
                     posterID = scanPosterID;
 
-                    if (scanType.indexOf("טיפת דיוידי לסרט") != -1 )
+                    if (Integer.parseInt(scanWidth)>Integer.parseInt(scanHeight))
                         dvdCover = true;
                     else
                         dvdCover = false;
@@ -741,7 +761,7 @@ public class SratimPlugin extends ImdbPlugin {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
             for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
-                String episodeName = logicalToVisual(HTMLTools.getTextAfterElem(mainXML, "<b>פרק " + part + "</b> - "));
+                String episodeName = logicalToVisual(HTMLTools.getTextAfterElem(mainXML, part + "</b> - "));
                 if (!episodeName.equals(Movie.UNKNOWN)) {
                     if (first) {
                         first = false;
