@@ -184,7 +184,6 @@ public class Library implements Map<String, Movie> {
         } catch (NumberFormatException nfe) {
             newDays = 7;
         }
-        newDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         String newCountParam = PropertiesUtil.getProperty("mjb.newcount", "0");
         try {
             newCount = Integer.parseInt(newCountParam.trim());
@@ -193,6 +192,7 @@ public class Library implements Map<String, Movie> {
         }
         logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") +
                       " most recent videos in the last " + newDays + " days");
+        newDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
     }
 
     public Library() {
