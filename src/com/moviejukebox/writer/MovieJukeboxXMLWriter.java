@@ -106,7 +106,7 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equals("<originalTitle>")) {
                     movie.setOriginalTitle(parseCData(r));
                 }
-                if (tag.equals("<year>")) {
+                if (tag.startsWith("<year ") || tag.equals("<year>")) {
                     movie.setYear(parseCData(r));
                 }
                 if (tag.equals("<releaseDate>")) {
