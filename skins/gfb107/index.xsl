@@ -128,7 +128,15 @@
       <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
       <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute> 
       <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute> 
-      <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>, '<xsl:value-of select="baseFilename"/>.playlist.jsp')</xsl:attribute>
+      <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>
+        <xsl:text>, '</xsl:text>
+        <xsl:value-of>
+          <xsl:call-template name="jsEscapeSingleQuotes">
+            <xsl:with-param name="string" select="baseFilename"/>
+          </xsl:call-template>
+        </xsl:value-of>
+        <xsl:text>.playlist.jsp')</xsl:text>
+      </xsl:attribute>
       <xsl:attribute name="onblur">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
       <xsl:if test="$lastIndex != 1">
         <xsl:if test="$gap=0 and $currentIndex != 1">
@@ -140,10 +148,40 @@
       </xsl:if>
       <img>
         <xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
-        <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
+        <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>
+          <xsl:text>, '</xsl:text>
+          <xsl:value-of>
+            <xsl:call-template name="jsEscapeSingleQuotes">
+              <xsl:with-param name="string" select="baseFilename"/>
+            </xsl:call-template>
+          </xsl:value-of>
+          <xsl:text>.playlist.jsp')</xsl:text>
+        </xsl:attribute>
         <xsl:attribute name="onmouseout">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
       </img>
     </a>
   </td>
 </xsl:template>
+
+<!-- http://www.dpawson.co.uk/xsl/sect4/N9745.html#d15577e189 -->
+<xsl:template name="jsEscapeSingleQuotes">
+  <xsl:param name="do.quote"/>
+  <xsl:param name="string"/>
+  
+  <xsl:choose>
+    <xsl:when test="contains($string, &quot;'&quot;)">
+      <xsl:value-of
+        select="substring-before($string, &quot;'&quot;)"/>
+      <xsl:text>\'</xsl:text>
+      <xsl:call-template name="jsEscapeSingleQuotes">
+        <xsl:with-param name="string"
+          select="substring-after($string, &quot;'&quot;)"/> <!-- '" Fix syntax highlighting -->
+      </xsl:call-template>
+     </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="$string"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 </xsl:stylesheet>
