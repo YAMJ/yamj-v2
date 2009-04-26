@@ -111,7 +111,17 @@
             <xsl:if test="count(genres) != 0">
               <xsl:for-each select="genres/genre[position() &lt;= //preferences/genres.max]">
                 <xsl:if test="position()!= 1">, </xsl:if>
-                <xsl:value-of select="." />
+                <xsl:choose>
+                  <xsl:when test="@index != ''">
+                    <a>
+                      <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
+                      <xsl:value-of select="." /> 
+                    </a>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="." /> 
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:for-each>
             </xsl:if>
             <xsl:if test="runtime != 'UNKNOWN'">

@@ -143,7 +143,7 @@ public class Library implements Map<String, Movie> {
         setsRequireAll = PropertiesUtil.getProperty("mjb.sets.requireAll", "false").equalsIgnoreCase("true");
         filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
         singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");        
-        indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library");
+        indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres.xml");
         fillGenreMap(xmlGenreFile);
 

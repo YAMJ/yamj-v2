@@ -743,7 +743,16 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(Long.toString(movie.getPrebuf()));
         writer.writeEndElement();
 
-        writeElementSet(writer, "genres", "genre", movie.getGenres(), library, "Genres");
+        if (movie.getGenres().size() > 0) {
+            writer.writeStartElement("genres");
+            for (String genre : movie.getGenres()) {
+                writer.writeStartElement("genre");
+                writeIndexAttribute(writer, library, "Genres", library.getIndexingGenre(genre));
+                writer.writeCharacters(genre);
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+        }
         Collection<String> items = movie.getSets();
         if (items.size() > 0) {
             writer.writeStartElement("sets");
