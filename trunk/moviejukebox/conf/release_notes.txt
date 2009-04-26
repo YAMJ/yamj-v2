@@ -50,6 +50,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #727 mjb.indexFile now used to determine movies' //homePage property
   - Fixed defect #729 Print newDays in days (as the message states) rather than seconds
   - Fixed defect #734 Fix for Sratim plugin - Hebrew string comparison failure bugs
+  - Fixed defect #739 Crash when mjb.categories.indexList not specified
 
 
 MovieJukebox 1.0.16 beta
