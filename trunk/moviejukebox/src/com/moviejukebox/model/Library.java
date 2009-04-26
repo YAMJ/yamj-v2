@@ -136,12 +136,14 @@ public class Library implements Map<String, Movie> {
     private static long newDays = 7;
     private static int minSetCount = 2;
     private static boolean setsRequireAll = false;
+    private static String indexList;
     
     static {
         minSetCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.sets.minSetCount", "2"));
         setsRequireAll = PropertiesUtil.getProperty("mjb.sets.requireAll", "false").equalsIgnoreCase("true");
         filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
-        singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");
+        singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");        
+        indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library");
         String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres.xml");
         fillGenreMap(xmlGenreFile);
 
@@ -336,12 +338,17 @@ public class Library implements Map<String, Movie> {
             // Add the sets FIRST! That allows users to put series inside sets
             dynamic_indexes.put(SET, indexBySets(indexMovies));
             
-            indexes.put("Other", indexByProperties(indexMovies));
-            indexes.put("Genres", indexByGenres(indexMovies));
-            indexes.put("Title", indexByTitle(indexMovies));
-            indexes.put("Rating", indexByCertification(indexMovies));
-            indexes.put("Year", indexByYear(indexMovies));
-            indexes.put("Library", indexByLibrary(indexMovies));
+            for (String indexStr : indexList.split(",")) {
+                if (indexStr.equals("Other")) indexes.put("Other", indexByProperties(indexMovies));
+                else if (indexStr.equals("Genres")) indexes.put("Genres", indexByGenres(indexMovies));
+                else if (indexStr.equals("Title")) indexes.put("Title", indexByTitle(indexMovies));
+                else if (indexStr.equals("Rating")) indexes.put("Rating", indexByCertification(indexMovies));
+                else if (indexStr.equals("Year")) indexes.put("Year", indexByYear(indexMovies));
+                else if (indexStr.equals("Library")) indexes.put("Library", indexByLibrary(indexMovies));
+                else if (indexStr.equals("Cast")) indexes.put("Cast", indexByCast(indexMovies));
+                else if (indexStr.equals("Director")) indexes.put("Director", indexByDirector(indexMovies));
+                else if (indexStr.equals("Country")) indexes.put("Country", indexByCountry(indexMovies));
+            }
             
             Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
             for (Map.Entry<String, Index> dyn_entry : dynamic_indexes.entrySet()) {
@@ -497,22 +504,9 @@ public class Library implements Map<String, Movie> {
     	Index index = new Index();
         for (Movie movie : moviesList) {
             if (!movie.isTrailer()) {
-                String year = movie.getYear();
-                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                    try {
-                        String beginYear = year.substring(0, year.length() - 1) + "0";
-                        String endYear = year.substring(0, year.length() - 1) + "9";
-                        String category = beginYear + "-" + endYear.substring(endYear.length() - 2);
-                        index.addMovie(category, movie);
-
-                        int currentYear = currentCal.get(Calendar.YEAR);
-                        if (year.equals("" + currentYear)) {
-                            index.addMovie("This Year", movie);
-                        } else if (year.equals("" + (currentYear - 1))) {
-                            index.addMovie("Last Year", movie);
-                        }
-                    } catch (Exception ignore) {
-                    }
+                String year = getYearCategory(movie.getYear());
+                if (null != year) {
+                    index.addMovie(year, movie);
                 }
             }
         }
@@ -616,6 +610,42 @@ public class Library implements Map<String, Movie> {
                 for (String set_key : movie.getSets()) {
                     index.addMovie(set_key, movie);
                 }
+            }
+        }
+        
+        return index;
+    }
+    
+    protected static Index indexByCast(List<Movie> list) {
+        Index index = new Index(true);
+        for (Movie movie : list) {
+            if (!movie.isTrailer()) {
+                for (String actor : movie.getCast()) {
+                    logger.finest("Adding " + movie.getTitle() + " to cast list for " + actor);
+                    index.addMovie(actor, movie);
+                }
+            }
+        }
+        
+        return index;
+    }
+    
+    protected static Index indexByCountry(List<Movie> list) {
+        Index index = new Index(true);
+        for (Movie movie : list) {
+            if (!movie.isTrailer()) {
+                index.addMovie(movie.getCountry(), movie);
+            }
+        }
+        
+        return index;
+    }
+    
+    protected static Index indexByDirector(List<Movie> list) {
+        Index index = new Index(true);
+        for (Movie movie : list) {
+            if (!movie.isTrailer()) {
+                index.addMovie(movie.getDirector(), movie);
             }
         }
         
@@ -814,19 +844,44 @@ public class Library implements Map<String, Movie> {
         return c;
     }
 
-	public static boolean isFilterGenres() {
-		return filterGenres;
-	}
+    public static boolean isFilterGenres() {
+        return filterGenres;
+    }
 
-	public static void setFilterGenres(boolean filterGenres) {
-		Library.filterGenres = filterGenres;
-	}
+    public static void setFilterGenres(boolean filterGenres) {
+        Library.filterGenres = filterGenres;
+    }
 
-	public static boolean isSingleSeriesPage() {
-		return singleSeriesPage;
-	}
+    public static boolean isSingleSeriesPage() {
+        return singleSeriesPage;
+    }
 
-	public static void setSingleSeriesPage(boolean singleSeriesPage) {
-		Library.singleSeriesPage = singleSeriesPage;
-	}
+    public static void setSingleSeriesPage(boolean singleSeriesPage) {
+        Library.singleSeriesPage = singleSeriesPage;
+    }
+    
+    public static Collection<String> getPrefixes() {
+        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY" });
+    }
+  
+    public static String getYearCategory(String year) {
+        String yearCat = Movie.UNKNOWN;
+        if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            try {
+                String beginYear = year.substring(0, year.length() - 1) + "0";
+                String endYear = year.substring(0, year.length() - 1) + "9";
+                yearCat = beginYear + "-" + endYear.substring(endYear.length() - 2);
+
+                int currentYear = currentCal.get(Calendar.YEAR);
+                if (year.equals("" + currentYear)) {
+                    yearCat = "This Year";
+                } else if (year.equals("" + (currentYear - 1))) {
+                    yearCat = "Last Year";
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        
+        return yearCat;
+    }
 }

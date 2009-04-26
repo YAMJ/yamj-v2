@@ -36,48 +36,20 @@
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   <tr height="30">
     <td height="50" align="center" colspan="2">
-      <!-- Navigation using remote keys: Home, PageUP/PageDown (First/Last), Prev/Next & Left/Right (Previous/Next) -->
+      <!-- Navigation using remote keys: Home, PageUP/PageDown (Previous/Next) -->
       <a>
         <xsl:attribute name="TVID">HOME</xsl:attribute>
         <xsl:attribute name="href"><xsl:value-of select="//preferences/homePage" /></xsl:attribute>
       </a>
-      <a>
-        <xsl:attribute name="TVID">PGUP</xsl:attribute>
-        <xsl:attribute name="href"><xsl:value-of select="first" />.html</xsl:attribute>
-      </a>
-      <a>
-        <xsl:attribute name="TVID">PGDN</xsl:attribute>
-        <xsl:attribute name="href"><xsl:value-of select="last" />.html</xsl:attribute>
-      </a>
-
-      <a name="goright" onfocusload="">
-        <xsl:if test="count(files/file) = 1">
-          <xsl:attribute name="TVID">RIGHT</xsl:attribute>
-        </xsl:if>
-        <xsl:attribute name="href">
-          <xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose>
-        </xsl:attribute>
-      </a>
-      <a name="goleft" onfocusload="">
-        <xsl:if test="count(files/file) = 1">
-          <xsl:attribute name="TVID">LEFT</xsl:attribute>
-        </xsl:if>
-        <xsl:attribute name="href">
-          <xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose>
-        </xsl:attribute>
-      </a>
-
-      <a>
-        <xsl:attribute name="TVID">PREV</xsl:attribute>
+      <a TVID="PGDN">
         <xsl:attribute name="href"><xsl:choose><xsl:when
           test="contains(next,'UNKNOWN')"><xsl:value-of select="first" />.html</xsl:when><xsl:otherwise><xsl:value-of
           select="next" />.html</xsl:otherwise></xsl:choose></xsl:attribute>
       </a>
-      <a>
-        <xsl:attribute name="TVID">NEXT</xsl:attribute>
+      <a TVID="PGUP">
         <xsl:attribute name="href"><xsl:choose><xsl:when
-          test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage" /></xsl:when><xsl:otherwise><xsl:value-of
-          select="last" />.html</xsl:otherwise></xsl:choose></xsl:attribute>
+          test="contains(previous,'UNKNOWN')"><xsl:value-of select="last" />.html</xsl:when><xsl:otherwise><xsl:value-of
+          select="previous" />.html</xsl:otherwise></xsl:choose></xsl:attribute>
       </a>
     </td>
   </tr>
@@ -94,7 +66,19 @@
             <xsl:value-of select="title"/> 
             <xsl:if test="season != -1"> Season <xsl:value-of select="season" /></xsl:if>
             <xsl:if test="year != 'UNKNOWN'">
-            (<xsl:value-of select="year"/>)
+              <xsl:text> (</xsl:text>
+              <xsl:choose>
+                <xsl:when test="year/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="year/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="year" />
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="year" />
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:text>) </xsl:text>
             </xsl:if>
           </td>
         </tr>
@@ -121,14 +105,36 @@
         <tr>
           <td class="title2" valign="top" colspan="2">By 
             <xsl:if test="director != 'UNKNOWN'">
-              <xsl:value-of select="director" /> 
+              <xsl:choose>
+                <xsl:when test="director/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="director/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="director" /> 
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="director" />
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:if>
             <xsl:if test="company != 'UNKNOWN'">
               <xsl:if test="director != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="company" /> 
             </xsl:if>
             <xsl:if test="country != 'UNKNOWN'">
-              (<xsl:value-of select="country" />) 
+              <xsl:text> (</xsl:text>
+              <xsl:choose>
+                <xsl:when test="country != 'UNKNOWN' and country/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="country/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="country" />
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="country" />
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:text>) </xsl:text>
             </xsl:if>
           </td>
         </tr>
@@ -138,7 +144,17 @@
             <td class="title2" colspan="2">With 
               <xsl:for-each select="cast/actor[position() &lt;= //preferences/actors.max]">
                 <xsl:if test="position()!=1">, </xsl:if>
-                <xsl:value-of select="." />
+                <xsl:choose>
+                  <xsl:when test="@index != ''">
+                    <a>
+                      <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
+                      <xsl:value-of select="." /> 
+                    </a>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="." /> 
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:for-each>
             </td>
           </tr>
@@ -149,7 +165,17 @@
             <xsl:if test="count(genres) != 0">
               <xsl:for-each select="genres/genre[position() &lt;= //preferences/genres.max]">
                 <xsl:if test="position()!= 1">, </xsl:if>
-                <xsl:value-of select="." />
+                <xsl:choose>
+                  <xsl:when test="@index != ''">
+                    <a>
+                      <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
+                      <xsl:value-of select="." /> 
+                    </a>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="." /> 
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:for-each>
             </xsl:if>
             <xsl:if test="runtime != 'UNKNOWN'">
@@ -298,7 +324,14 @@
           </xsl:when>
           <xsl:otherwise>
             <tr>
-              <xsl:variable name="episodeSortOrder" select="if (/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season != -1) then 'descending' else 'ascending'" />
+              <xsl:variable name="episodeSortOrder">
+                <xsl:choose>
+                  <xsl:when test="/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season != -1">
+                    <xsl:text>descending</xsl:text>
+                  </xsl:when>
+                  <xsl:otherwise>ascending</xsl:otherwise>
+                </xsl:choose>
+              </xsl:variable>
               <td>
                 <table>
                   <tr valign="top">
@@ -436,6 +469,30 @@
     </td>
   </tr>
 </table>
+<!--  
+<xsl:if test="count(sets/set) > 0">
+  <div align="center">
+    <table width="80%">
+      <tr>
+        <td class="title2" align="center" width="30%">
+          <xsl:attribute name="colspan"><xsl:value-of select="count(sets/set)" /></xsl:attribute>
+          <img src="pictures/set.png" align="middle" />Sets
+        </td>
+        <xsl:for-each select="sets/set">
+          <td class="normal">
+            <a>
+            <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
+              <img align="top">
+                <xsl:attribute name="src"><xsl:value-of select="@index" />_small.png</xsl:attribute>
+              </img>
+            </a>
+          </td>
+        </xsl:for-each>
+      </tr>
+    </table>
+  </div>
+</xsl:if>
+-->
 </body>
 </html>
 </xsl:for-each>

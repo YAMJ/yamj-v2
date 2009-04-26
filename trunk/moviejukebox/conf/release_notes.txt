@@ -1,9 +1,11 @@
-﻿**************************************************************
+**************************************************************
 ** MovieJukebox Release note
 ***************************************************************
 
 MovieJukebox 1.0.17 beta
 ------------------------
+  - Enhancement  #226 Additional indexes by actor, director, and country; provide links to these index pages on movie details page
+                      Extra parameters to fine-tune index generation: mjb.categories.indexList, displayList, and minCategoryCount
   - Enhancement  #311 A playlist is now generated for all movies (even if there's only one file), and it is customizable via playlist.xsl
   - Enhancement  #411 Plugin for Dutch movie database (www.moviemeter.nl)
   - Fixed defect #565 Filmaffinity id ignored

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -38,6 +39,16 @@ public class MovieJukeboxHTMLWriter {
     private String skinHome;
     private TransformerFactory transformerFactory;
     private Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
+    private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
+    private static List<String> categoriesDisplayList;
+    private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
+
+    static {
+        if (str_categoriesDisplayList.length() == 0) {
+            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList");
+        }
+        categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
+    }
 
     public MovieJukeboxHTMLWriter() {
         forceHTMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceHTMLOverwrite", "false"));
@@ -150,12 +161,14 @@ public class MovieJukeboxHTMLWriter {
     public void generateMoviesIndexHTML(String rootPath, String detailsDirName, Library library) {
         for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             String categoryName = category.getKey();
+            if (!categoriesDisplayList.contains(categoryName)) continue;
+            
             Map<String, List<Movie>> index = category.getValue();
 
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
                 String key = indexEntry.getKey();
                 List<Movie> movies = indexEntry.getValue();
-                if (!movies.isEmpty()) {
+                if (movies.size() >= categoriesMinCount) {
                     int nbPages = 1 + (movies.size() - 1) / nbMoviesPerPage;
                     for (int page = 1; page <= nbPages; page++) {
                         writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
