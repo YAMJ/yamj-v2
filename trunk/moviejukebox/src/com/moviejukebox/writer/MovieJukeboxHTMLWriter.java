@@ -168,7 +168,9 @@ public class MovieJukeboxHTMLWriter {
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
                 String key = indexEntry.getKey();
                 List<Movie> movies = indexEntry.getValue();
-                if (movies.size() >= categoriesMinCount) {
+                
+                // This is horrible! Issue 735 will get rid of it.
+                if (movies.size() >= categoriesMinCount || "Set".equals(categoryName) || "Title".equals(categoryName)) {
                     int nbPages = 1 + (movies.size() - 1) / nbMoviesPerPage;
                     for (int page = 1; page <= nbPages; page++) {
                         writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);

@@ -438,7 +438,9 @@ public class MovieJukeboxXMLWriter {
 
             for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
                 List<Movie> movies = group.getValue();
-                if (movies.size() < categoriesMinCount) continue;
+                
+                // This is horrible! Issue 735 will get rid of it.
+                if (movies.size() < categoriesMinCount && !"Title".equals(categoryName) && !"Set".equals(categoryName)) continue;
                 
                 String key = FileTools.createCategoryKey(group.getKey());
 
