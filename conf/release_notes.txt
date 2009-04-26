@@ -9,6 +9,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #311 A playlist is now generated for all movies (even if there's only one file), and it is customizable via playlist.xsl
   - Enhancement  #411 Plugin for Dutch movie database (www.moviemeter.nl)
   - Fixed defect #565 Filmaffinity id ignored
+  - Fixed defect #581 gfb skins' links to genres from movie details pages were broken for filtered genres
   - Fixed defect #586 Reverse sort order ignored for sd, gfb107, and gfb107-sd skins
   - Enhancement  #631 Ability to limit number of Apple trailers per movie
   - Fixed defect #636 (Regression) Check for file-based subtitles
