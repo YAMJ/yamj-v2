@@ -45,7 +45,7 @@ public class MovieJukeboxHTMLWriter {
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
-            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList");
+            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
     }

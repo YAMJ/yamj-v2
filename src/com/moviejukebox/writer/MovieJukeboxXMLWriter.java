@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +46,14 @@ public class MovieJukeboxXMLWriter {
     private boolean includeVideoImages;
     private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
-    private static List<String> categoriesDisplayList;
+    private static List<String> categoriesDisplayList = Collections.EMPTY_LIST;
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     @SuppressWarnings("unused")
     private static Logger logger = Logger.getLogger("moviejukebox");
     
     static {
         if (str_categoriesDisplayList.length() == 0) {
-            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList");
+            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
     }
