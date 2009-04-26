@@ -13,7 +13,7 @@ table.main {
     height:656; 
 }
 
-.title1 {
+.title1, .title1 a {
     color: #ff8000;
     font-size: 28pt;
     font-weight : normal;

@@ -93,7 +93,19 @@
         <tr>
           <td class="title1" valign="top" colspan="4" align="right">
             <xsl:if test="year != 'UNKNOWN'">
-              (<xsl:value-of select="year"/>)
+              <xsl:text> (</xsl:text>
+              <xsl:choose>
+                <xsl:when test="year/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="year/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="year" />
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="year" />
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:text>) </xsl:text>
             </xsl:if>
             <xsl:if test="season != -1">
               <xsl:value-of select="season" /> הנוע 
@@ -131,15 +143,37 @@
         <tr>
           <td class="title2" valign="top" colspan="4" align="right"> 
             <xsl:if test="country != 'UNKNOWN'">
-              (<xsl:value-of select="country" />) 
+              <xsl:text>(</xsl:text>
+              <xsl:choose>
+                <xsl:when test="country != 'UNKNOWN' and country/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="country/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="country" />
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="country" />
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:text>)</xsl:text>
             </xsl:if>
             <xsl:if test="company != 'UNKNOWN'">
               <xsl:value-of select="company" />
               <xsl:if test="director != 'UNKNOWN'"> ,</xsl:if>
             </xsl:if>
             <xsl:if test="director != 'UNKNOWN'">
-              <xsl:value-of select="director" /> 
-            </xsl:if> תאמ
+              <xsl:choose>
+                <xsl:when test="director/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="director/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="director" /> 
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="director" />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:if>
           </td>
         </tr>
 
@@ -148,7 +182,17 @@
             <td class="title2" colspan="4" align="right"> 
               <xsl:for-each select="cast/actor[position() &lt;= //preferences/actors.max]">
                 <xsl:if test="position()!=1"> ,</xsl:if>
-                <xsl:value-of select="." />
+                <xsl:choose>
+                  <xsl:when test="@index != ''">
+                    <a>
+                      <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
+                      <xsl:value-of select="." /> 
+                    </a>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="." /> 
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:for-each> םע
             </td>
           </tr>

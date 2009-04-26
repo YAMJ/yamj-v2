@@ -43,7 +43,7 @@ public class OutputDirectoryScanner {
                         String filenameUpper = filename.toUpperCase();
                         boolean skip = filenameUpper.equals("CATEGORIES.XML");
                         if (!skip) {
-                            for (String prefix : new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY" }) {
+                            for (String prefix : library.getPrefixes()) {
                                 if (filenameUpper.startsWith(prefix + "_")) {
                                     skip = true;
                                     break;

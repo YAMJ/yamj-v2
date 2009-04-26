@@ -315,18 +315,15 @@ public class MovieJukebox {
                         cleanCurrentExt = "";
                     }
 
-                    if (cleanCurrent.equals("CATEGORIES")) {
+                    if (cleanCurrent.equals("CATEGORIES") || cleanCurrentExt.equals(".CSS")) {
                         cleanList[nbFiles].delete();
-                    } else if (cleanCurrentExt.equals(".CSS") ||
-                              (cleanCurrent.indexOf("GENRES_") >= 0) ||
-                              (cleanCurrent.indexOf("OTHER_") >= 0) ||
-                              (cleanCurrent.indexOf("RATING_") >= 0) ||
-                              (cleanCurrent.indexOf("TITLE_") >= 0) ||
-                              (cleanCurrent.indexOf("YEAR_") >= 0) ||
-                              (cleanCurrent.indexOf("TVSERIES_") >= 0) ||
-                              (cleanCurrent.indexOf("SET_") >= 0) ||
-                              (cleanCurrent.indexOf("LIBRARY_") >= 0)) {
-                        cleanList[nbFiles].delete();
+                    } else {
+                        for (String prefix : Library.getPrefixes()) {
+                            if (cleanCurrent.toUpperCase().startsWith(prefix)) {
+                                cleanList[nbFiles].delete();
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -431,7 +428,7 @@ public class MovieJukebox {
                 // The master's movie xml is used for generating the playlist
                 // it will be overwritten by the index xml
                 logger.finest("Writing index data for master: " + movie.getBaseName());
-                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
                 
                 logger.finer("Updating poster for index master: " + movie.getTitle() + "...");
 
@@ -465,7 +462,7 @@ public class MovieJukebox {
             for (Movie movie : movies) {
                 // Update movie XML files with computed index information 
                 logger.finest("Writing index data to movie: " + movie.getBaseName());
-                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
 
                 // Create a detail poster for each movie
                 logger.finest("Creating detail poster for movie: " + movie.getBaseName());
@@ -527,19 +524,17 @@ public class MovieJukebox {
                             cleanCurrentExt = "";
                         }
 
-                        if (cleanCurrent.equals("CATEGORIES")) {
-                            // logger.fine(cleanCurrent + " ignored");
-                        } else if ((cleanCurrentExt.equals(".CSS")) ||
-                                   (cleanCurrent.indexOf("GENRES_") >= 0) ||
-                                   (cleanCurrent.indexOf("OTHER_") >= 0) ||
-                                   (cleanCurrent.indexOf("RATING_") >= 0) ||
-                                   (cleanCurrent.indexOf("TITLE_") >= 0) ||
-                                   (cleanCurrent.indexOf("YEAR_") >= 0) ||
-                                   (cleanCurrent.indexOf("TVSERIES_") >= 0) ||
-                                   (cleanCurrent.indexOf("SET_") >= 0) ||
-                                   (cleanCurrent.indexOf("LIBRARY_") >= 0)) {
-                            // logger.fine(cleanCurrent + " ignored");
-                        } else {
+                        boolean skip = cleanCurrent.equals("CATEGORIES") || cleanCurrentExt.equals(".CSS");
+                        if (!skip) {
+                            for (String prefix : Library.getPrefixes()) {
+                                if (cleanCurrent.toUpperCase().startsWith(prefix)) {
+                                    skip = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (!skip) {
                             // Left with just the generated movie files in the directory now.
                             // We should now check to see if they are in the current movie list
                             // If they are not in this list, then we will delete them.

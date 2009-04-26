@@ -43,7 +43,19 @@
             <xsl:value-of select="title"/> 
             <xsl:if test="season != -1"> Season <xsl:value-of select="season" /></xsl:if>
             <xsl:if test="year != 'UNKNOWN'">
-            (<xsl:value-of select="year"/>)
+              <xsl:text> (</xsl:text>
+              <xsl:choose>
+                <xsl:when test="year/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="year/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="year" />
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="year" />
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:text>) </xsl:text>
             </xsl:if>
           </td>
         </tr>
@@ -60,14 +72,36 @@
         <tr>
           <td class="title2" valign="top" colspan="2">
             <xsl:if test="director != 'UNKNOWN'">
-              <xsl:value-of select="director" /> 
+              <xsl:choose>
+                <xsl:when test="director/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="director/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="director" /> 
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="director" />
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:if>
             <xsl:if test="company != 'UNKNOWN'">
               <xsl:if test="director != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="company" /> 
             </xsl:if>
             <xsl:if test="country != 'UNKNOWN'">
-              (<xsl:value-of select="country" />) 
+              <xsl:text>(</xsl:text>
+              <xsl:choose>
+                <xsl:when test="country != 'UNKNOWN' and country/@index != ''">
+                  <a>
+                    <xsl:attribute name="href"><xsl:value-of select="country/@index" />.html</xsl:attribute>
+                    <xsl:value-of select="country" />
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="country" />
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:text>)</xsl:text>
             </xsl:if>
           </td>
         </tr>
