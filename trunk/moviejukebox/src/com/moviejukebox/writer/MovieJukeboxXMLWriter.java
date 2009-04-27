@@ -398,7 +398,11 @@ public class MovieJukeboxXMLWriter {
             for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                 List<Movie> value = index.getValue();
                 logger.finest("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
-                if (value.size() < categoriesMinCount) continue;
+                if (value.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
+                    logger.finest("Category " + category.getKey() + " " + index.getKey() + " does not contain enough movies, not adding to categories.xml");
+                    continue;
+                }
+
                 
                 String key = index.getKey();
                 String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(category.getKey(), key)) + "1";
@@ -441,7 +445,10 @@ public class MovieJukeboxXMLWriter {
                 List<Movie> movies = group.getValue();
                 
                 // This is horrible! Issue 735 will get rid of it.
-                if (movies.size() < categoriesMinCount && !"Title".equals(categoryName) && !"Set".equals(categoryName)) continue;
+                if (movies.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                    logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies, skipping XML generation.");
+                    continue;
+                }
                 
                 String key = FileTools.createCategoryKey(group.getKey());
 
