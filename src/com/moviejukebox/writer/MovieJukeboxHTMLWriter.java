@@ -170,7 +170,7 @@ public class MovieJukeboxHTMLWriter {
                 List<Movie> movies = indexEntry.getValue();
                 
                 // This is horrible! Issue 735 will get rid of it.
-                if (movies.size() >= categoriesMinCount || "Set".equals(categoryName) || "Title".equals(categoryName)) {
+                if (movies.size() >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
                     int nbPages = 1 + (movies.size() - 1) / nbMoviesPerPage;
                     for (int page = 1; page <= nbPages; page++) {
                         writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
