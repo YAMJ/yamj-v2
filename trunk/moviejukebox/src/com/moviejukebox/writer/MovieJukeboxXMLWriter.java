@@ -518,6 +518,11 @@ public class MovieJukeboxXMLWriter {
             for (String akey : index.keySet()) {
                 String encakey = FileTools.createCategoryKey(akey);
 
+                // This is horrible! Issue 735 will get rid of it.
+                if (index.get(akey).size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+                    continue;
+                }
+                
                 prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
 
                 writer.writeStartElement("index");

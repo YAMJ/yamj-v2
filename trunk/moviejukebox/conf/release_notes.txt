@@ -51,6 +51,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #729 Print newDays in days (as the message states) rather than seconds
   - Fixed defect #732 Escape quotes in movie basenames inside JS strings on index pages
   - Fixed defect #734 Fix for Sratim plugin - Hebrew string comparison failure bugs
+  - Fixed defect #736 Don't put non-existant indexes in the index XML files
   - Fixed defect #739 Crash when mjb.categories.indexList not specified
   - Fixed defect #741 Ignore mjb.categories.minCategoriesCount for all of the old (pre-226) categories
   - Fixed defect #744 Fix navigation for gfb107-sd and hebrew skins, fix css for movie title
