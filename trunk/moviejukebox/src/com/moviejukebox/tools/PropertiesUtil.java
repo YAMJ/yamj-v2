@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 /**
@@ -65,9 +66,14 @@ public class PropertiesUtil {
         return props.getProperty(
                 key, defaultValue);
     }
+    public static Set<Entry<Object, Object>> getEntrySet() {
+        return props.entrySet();
+    }
 
     // Issue 309
     public static Set<Entry<Object, Object>> getEntrySet() {
-        return props.entrySet();
+        // Issue 728
+        // Shamelessly copied from: http://stackoverflow.com/questions/54295/how-to-write-java-util-properties-to-xml-with-sorted-keys
+        return new TreeMap<Object, Object>(props).entrySet();
     }
 }
