@@ -538,17 +538,19 @@ public class MovieJukebox {
                             // Left with just the generated movie files in the directory now.
                             // We should now check to see if they are in the current movie list
                             // If they are not in this list, then we will delete them.
-
-                            if (cleanCurrent.lastIndexOf(".PLAYLIST") > 0) {
-                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf(".PLAYLIST"));
-                            } else if (cleanCurrent.lastIndexOf("_LARGE") > 0) {
-                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_LARGE"));
-                            } else if (cleanCurrent.lastIndexOf("_SMALL") > 0) {
-                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_SMALL"));
-                            } else if (cleanCurrent.lastIndexOf("FANART") > 0) {
-                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("FANART") - 1);
-                            } else if (cleanCurrent.lastIndexOf("VIDEOIMAGE") > 0 ) {
-                                cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("VIDEOIMAGE") - 1);
+                            
+                            if (!"HTML".equals(cleanCurrentExt) && !"XML".equals(cleanCurrentExt)) {
+                                if (cleanCurrent.endsWith(".PLAYLIST") && ".JSP".equals(cleanCurrentExt)) {
+                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - ".PLAYLIST".length());
+                                } else if (cleanCurrent.endsWith("_LARGE")) {
+                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_LARGE".length());
+                                } else if (cleanCurrent.endsWith("_SMALL")) {
+                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_SMALL".length());
+                                } else if (cleanCurrent.endsWith("FANART")) {
+                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "FANART".length() - 1);
+                                } else if (cleanCurrent.endsWith("VIDEOIMAGE")) {
+                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "VIDEOIMAGE".length() - 1);
+                                }
                             }
 
                             if (!searchLibrary(cleanCurrent, library)) {
