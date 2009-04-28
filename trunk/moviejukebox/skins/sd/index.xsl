@@ -166,7 +166,6 @@
 
 <!-- http://www.dpawson.co.uk/xsl/sect4/N9745.html#d15577e189 -->
 <xsl:template name="jsEscapeSingleQuotes">
-  <xsl:param name="do.quote"/>
   <xsl:param name="string"/>
   
   <xsl:choose>
