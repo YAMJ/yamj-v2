@@ -12,7 +12,13 @@ table.main {
     height:480; 
 }
 
-.title1, .title1 a {
+.title1 {
+    color: #ff8000;
+    font-size: 14pt;
+    font-weight : bold;
+}
+
+.title1 a {
     color: #ff8000;
     font-size: 14pt;
     font-weight : bold;
