@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -100,6 +102,7 @@ public class MovieJukebox {
         boolean jukeboxClean = false;
         boolean jukeboxPreserve = false;
         String propertiesName = "moviejukebox.properties";
+        Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
 
         if (args.length == 0) {
             help();
@@ -117,6 +120,12 @@ public class MovieJukebox {
                     jukeboxPreserve = true;
                 } else if ("-p".equalsIgnoreCase(arg)) {
                     propertiesName = args[++i];
+                } else if (arg.startsWith("-D")) {
+                    String propLine = arg.length() > 2 ? arg.substring(2) : args[++i];
+                    int propDiv = propLine.indexOf("=");
+                    if (-1 != propDiv) {
+                        cmdLineProps.put(propLine.substring(0, propDiv), propLine.substring(propDiv+1));
+                    }
                 } else if (arg.startsWith("-")) {
                     help();
                     return;
@@ -130,9 +139,32 @@ public class MovieJukebox {
             return;
         }
 
+        // Load the moviejukebox.properties file
         if (!PropertiesUtil.setPropertiesStreamName(propertiesName)) {
             return;
         }
+        
+        // Grab the skin from the command-line properties
+        if (cmdLineProps.containsKey("mjb.skin.dir")) {
+            PropertiesUtil.setProperty("mjb.skin.dir", cmdLineProps.get("mjb.skin.dir"));
+        }
+        
+        // Load the skin.properties file
+        if (!PropertiesUtil.setPropertiesStreamName(PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties")) {
+            return;
+        }
+        
+        // Load the rest of the command-line properties        
+        for (Map.Entry<String, String> propEntry : cmdLineProps.entrySet()) {
+            PropertiesUtil.setProperty(propEntry.getKey(), propEntry.getValue());
+        }
+        
+        StringBuilder sb = new StringBuilder("{");
+        for (Map.Entry<Object, Object> propEntry : PropertiesUtil.getEntrySet()) {
+            sb.append(propEntry.getKey() + "=" + propEntry.getValue() + ",");
+        }
+        sb.replace(sb.length()-1, sb.length(), "}");
+        logger.finer("Properties: " + sb.toString());
         
         MovieNFOScanner.setForceNFOEncoding(PropertiesUtil.getProperty("mjb.forceNFOEncoding", null));
         if ("AUTO".equalsIgnoreCase(MovieNFOScanner.getForceNFOEncoding())) {
