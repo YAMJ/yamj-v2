@@ -66,14 +66,11 @@ public class PropertiesUtil {
         return props.getProperty(
                 key, defaultValue);
     }
-    public static Set<Entry<Object, Object>> getEntrySet() {
-        return props.entrySet();
-    }
 
     // Issue 309
     public static Set<Entry<Object, Object>> getEntrySet() {
         // Issue 728
-        // Shamelessly copied from: http://stackoverflow.com/questions/54295/how-to-write-java-util-properties-to-xml-with-sorted-keys
+        // Shamelessly adapted from: http://stackoverflow.com/questions/54295/how-to-write-java-util-properties-to-xml-with-sorted-keys
         return new TreeMap<Object, Object>(props).entrySet();
     }
 }
