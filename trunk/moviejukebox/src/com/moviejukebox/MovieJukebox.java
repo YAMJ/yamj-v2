@@ -487,9 +487,11 @@ public class MovieJukebox {
                     + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
                 createThumbnail(stp, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
                 
-                // write the playlist for the movie if needed
-                htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                // No playlist for index masters
+                //htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
+            
+            Collection<String> generatedFileNames = new ArrayList<String>();
             
             for (Movie movie : movies) {
                 // Update movie XML files with computed index information 
@@ -508,7 +510,7 @@ public class MovieJukebox {
                 htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 
                 // write the playlist for the movie if needed
-                htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                generatedFileNames.addAll(htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie));
             }
            
             logger.fine("Generating Indexes...");
@@ -547,7 +549,7 @@ public class MovieJukebox {
 
                 for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                     // Scan each file in here
-                    if (cleanList[nbFiles].isFile()) {
+                    if (cleanList[nbFiles].isFile() && !generatedFileNames.contains(cleanList[nbFiles].getName())) {
                         cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
                         if (cleanCurrent.indexOf(".") > 0) {
                             cleanCurrentExt = cleanCurrent.substring(cleanCurrent.lastIndexOf("."));
@@ -572,9 +574,7 @@ public class MovieJukebox {
                             // If they are not in this list, then we will delete them.
                             
                             if (!"HTML".equals(cleanCurrentExt) && !"XML".equals(cleanCurrentExt)) {
-                                if (cleanCurrent.endsWith(".PLAYLIST") && ".JSP".equals(cleanCurrentExt)) {
-                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - ".PLAYLIST".length());
-                                } else if (cleanCurrent.endsWith("_LARGE")) {
+                                if (cleanCurrent.endsWith("_LARGE")) {
                                     cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_LARGE".length());
                                 } else if (cleanCurrent.endsWith("_SMALL")) {
                                     cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_SMALL".length());
