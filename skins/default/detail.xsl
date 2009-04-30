@@ -9,19 +9,23 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <title><xsl:value-of select="title"/></title>
 <script type="text/javascript">
+var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 //<![CDATA[
   var title = 1;
-  function show(x)
-  {
-    if ( title == 1 )
-      title = document.getElementById('title').firstChild;
-    title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
+  var lnk = 1;
+  function lnkt() {
+    if ( title == 1 ) title = document.getElementById('title').firstChild;
+    if ( lnk == 1 ) lnk = document.getElementById('playLink');
   }
-  function hide()
-  {
-    if ( title == 1 )
-      title = document.getElementById('title').firstChild;
+  function show(x) {
+  	lnkt();
+    title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
+    if(lnk)lnk.setAttribute('HREF', baseFilename + '.playlist' + x + '.jsp');
+  }
+  function hide() {
+  	lnkt();
     title.nodeValue = "-";
+    if(lnk)lnk.setAttribute('HREF', '');
   }
 //]]>
 </script>
@@ -339,7 +343,7 @@
                       <xsl:for-each select="files/file">
                         <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
                         <xsl:if test="position() = 1">
-                          <a tvid="Play">
+                          <a id="playLink" tvid="Play" vod="playlist">
                             <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                           </a>
                         </xsl:if>

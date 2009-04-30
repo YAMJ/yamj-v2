@@ -2,7 +2,12 @@ package com.moviejukebox.writer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +27,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -99,14 +105,23 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    public void generatePlaylist(String rootPath, String tempRootPath, Movie movie) {
+    /**
+     * 
+     * @param rootPath
+     * @param tempRootPath
+     * @param movie
+     * @return List of generated file names
+     */
+    public Collection<String> generatePlaylist(String rootPath, String tempRootPath, Movie movie) {
+        Collection<String> fileNames = new ArrayList<String>();
         try {
             String baseName = FileTools.makeSafeFilename(movie.getBaseName());
             String tempFilename = tempRootPath + File.separator + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
             File oldXmlFile = new File(rootPath + File.separator + baseName + ".xml");
-            File finalPlaylistFile = new File(rootPath + File.separator + baseName + ".playlist.jsp");
-            File tempPlaylistFile = new File(tempFilename + ".playlist.jsp");
+            final String filenameSuffix = ".playlist.jsp";
+            File finalPlaylistFile = new File(rootPath + File.separator + baseName + filenameSuffix);
+            File tempPlaylistFile = new File(tempFilename + filenameSuffix);
             Source xmlSource;
             
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
@@ -127,11 +142,69 @@ public class MovieJukeboxHTMLWriter {
                 transformer.transform(xmlSource, xmlResult);
                 outStream.flush();
                 outStream.close();
+                
+                fileNames.add(baseName + filenameSuffix);
             }
         } catch (Exception e) {
             System.err.println("Failed generating playlist for movie " + movie);
             e.printStackTrace();
         }
+        
+        try {
+            if (movie.getFiles().size() > 1) {
+                MovieFile[] array = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()]);
+                
+                for (int i = 0; i < array.length; i++) {
+                    fileNames.add(generateSimplePlaylist(rootPath, tempRootPath, movie, array, i));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed generating playlist for movie " + movie);
+            e.printStackTrace();
+        }
+        
+        return fileNames;
+    }
+
+    /**
+     * Generate playlist with old simple method. The playlist is to be used for playing episodes
+     * starting from each episode separately.
+     * @param rootPath
+     * @param tempRootPath
+     * @param movie
+     * @param movieFiles
+     * @param offset
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
+     * @return generated file name
+     */
+    private String generateSimplePlaylist(String rootPath, String tempRootPath,
+            Movie movie, MovieFile[] movieFiles, int offset) throws FileNotFoundException, UnsupportedEncodingException {
+        String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
+        String fileSuffix = ".playlist"+ movieFiles[offset % movieFiles.length].getFirstPart() + ".jsp";
+        String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+        String tempFilename = tempRootPath + File.separator + baseName;
+        File finalPlaylistFile = new File(rootPath + File.separator + baseName + fileSuffix);
+        File tempPlaylistFile = new File(tempFilename + fileSuffix);
+
+        if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
+            tempPlaylistFile.getParentFile().mkdirs();
+
+            PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
+
+            // Issue 237 - Add in the IP address of the MyiHome server so the playlist will work.
+            // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is the the
+            // normal method for standalone YAMJ
+            for (int i = 0; i < movieFiles.length; i++) {
+                MovieFile part = movieFiles[ (i + offset) % movieFiles.length];
+                // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the
+                // title
+                writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
+            }
+            writer.flush();
+            writer.close();
+        }
+        return baseName + fileSuffix;
     }
 
     public void generateMoviesCategoryHTML(String rootPath, String detailsDirName, Library library) {

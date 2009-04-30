@@ -195,6 +195,16 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Cowboy Bebop", d.getTitle());
         assertEquals(7, d.getPart());
         assertNull(d.getPartTitle());
+        
+        d = scan("Time masters (Laloux Moebius) (1982) Eng.Hun.Fra.De.Ru.mkv");
+        assertEquals(1982, d.getYear());
+        assertEquals("Time masters (Laloux Moebius)", d.getTitle());
+        assertEquals(5, d.getLanguages().size());
+        assertTrue(d.getLanguages().contains("English"));
+        assertTrue(d.getLanguages().contains("Hungarian"));
+        assertTrue(d.getLanguages().contains("French"));
+        assertTrue(d.getLanguages().contains("German"));
+        assertTrue(d.getLanguages().contains("Russian"));
     }
 
     @SuppressWarnings("serial")
