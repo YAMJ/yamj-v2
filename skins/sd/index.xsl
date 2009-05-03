@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:include href="skin-options.xsl"/>
+
 <xsl:template match="/">
 <xsl:variable name="currentIndex" select="//index[@current='true']/@currentIndex"/>
 <xsl:variable name="lastIndex" select="//index[@current='true']/@lastIndex"/>
@@ -32,26 +34,26 @@
 </script>
 </head>
 <body bgproperties="fixed" background="pictures/background.jpg">
-<xsl:attribute name="ONLOADSET"><xsl:value-of select="library/category/index[@current='true']/@first" /></xsl:attribute>
+  <xsl:attribute name="ONLOADSET"><xsl:value-of select="library/category/index[@current='true']/@first" /></xsl:attribute>
 
-<a>
+  <a>
     <xsl:attribute name="href"></xsl:attribute>
     <xsl:attribute name="tvid">#</xsl:attribute>
     <xsl:attribute name="id">play</xsl:attribute> 
     <xsl:attribute name="vod">playlist</xsl:attribute>
-</a>
+  </a>
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td COLSPAN="2" align="center"> 
-        <xsl:for-each select="library/category[@name='Title']/index">
-          <xsl:if test="position()!=1"> - </xsl:if>
-          <a>
-          <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
-          <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
-          <xsl:value-of select="@name" />
-          </a>
-        </xsl:for-each>
+      <xsl:for-each select="library/category[@name='Title']/index">
+        <xsl:if test="position()!=1"> - </xsl:if>
+        <a>
+        <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+        <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
+        <xsl:value-of select="@name" />
+        </a>
+      </xsl:for-each>
     </td>
   </tr>
   <tr align="left" valign="top">
@@ -69,25 +71,23 @@
         <tr><td><hr/></td></tr>
 
         <xsl:if test="$lastIndex != 1">
-           <tr><td align="right"><table><tr>
-             <td valign="center">
+          <tr><td align="right"><table><tr>
+            <td valign="center">
               <div class="counter"><xsl:value-of select="$currentIndex"/> / <xsl:value-of select="$lastIndex" /></div></td>
-             <td valign="top">
+            <td valign="top">
                 <a name="pgdn" tvid="pgdn" ONFOCUSLOAD=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute><img src="pictures/nav_down.png" /></a>
                 <a name="pgup" tvid="pgup" ONFOCUSLOAD=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute><img src="pictures/nav_up.png" /></a>
-             </td>
-             </tr></table>
-           </td></tr>
+            </td>
+            </tr></table>
+          </td></tr>
         </xsl:if>
-        
       </table>
     </td>
     <td>
       <table class="movies" border="0">
         <xsl:for-each select="library/movies/movie[position() mod $nbCols = 1]">
           <tr>
-            <xsl:apply-templates 
-                 select=".|following-sibling::movie[position() &lt; $nbCols]">
+            <xsl:apply-templates select=".|following-sibling::movie[position() &lt; $nbCols]">
               <xsl:with-param name="gap" select="(position() - 1) * $nbCols" />
               <xsl:with-param name="currentIndex" select="$currentIndex" />
               <xsl:with-param name="lastIndex" select="$lastIndex" />
@@ -100,18 +100,23 @@
     </td>
   </tr>
 </table>
-     <xsl:for-each select="library/movies/movie">
-           <div class="title">
-               <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
-               <xsl:value-of select="title"/>
-               <xsl:choose>
-                   <xsl:when test="season > 0"> Season <xsl:value-of select="season"/></xsl:when>
-                   <xsl:when test="season = 0"> Specials</xsl:when>
-               </xsl:choose>
-           </div>
-     </xsl:for-each>
+  <xsl:for-each select="library/movies/movie">
+    <div class="title">
+      <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
+      <xsl:value-of select="title"/>
+      <xsl:choose>
+        <xsl:when test="season > 0"> Season <xsl:value-of select="season"/></xsl:when>
+        <xsl:when test="season = 0"> Specials</xsl:when>
+      </xsl:choose>
+      <xsl:if test="year != '' and year != 'UNKNOWN'">
+        <xsl:if test="season = -1 and $skin-year = 'true'"> - <xsl:value-of select="year" /></xsl:if>
+        <xsl:if test="season != -1 and $skin-yearTV = 'true'"> - <xsl:value-of select="year" /></xsl:if>
+      </xsl:if>
+      <xsl:if test="$skin-certification = 'true' and certification != '' and certification != 'UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
+    </div>
+  </xsl:for-each>
   <div class="title">
-    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="/library/preferences/homePage"/></xsl:attribute>Home</a>
+    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="//preferences/homePage"/></xsl:attribute>Home</a>
     <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
     <a name="pgupload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
   </div>
@@ -124,7 +129,7 @@
   <xsl:param name="currentIndex" />
   <xsl:param name="lastIndex" />
   <xsl:param name="lastGap" />
-     <td>
+    <td>
         <a>
           <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
           <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute> 
@@ -161,7 +166,7 @@
             <xsl:attribute name="onmouseout">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
           </img>
         </a>
-     </td>
+    </td>
 </xsl:template>
 
 <!-- http://www.dpawson.co.uk/xsl/sect4/N9745.html#d15577e189 -->
@@ -177,7 +182,7 @@
         <xsl:with-param name="string"
           select="substring-after($string, &quot;'&quot;)"/> <!-- '" Fix syntax highlighting -->
       </xsl:call-template>
-     </xsl:when>
+    </xsl:when>
     <xsl:otherwise>
       <xsl:value-of select="$string"/>
     </xsl:otherwise>

@@ -1,5 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="html" omit-xml-declaration="yes"/>
+<xsl:output method="xml" omit-xml-declaration="yes"/>
+
+<xsl:include href="skin-options.xsl"/>
 
 <xsl:template match="/">
 <xsl:for-each select="details/movie">
@@ -330,7 +332,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
             <tr>
               <xsl:variable name="episodeSortOrder">
                 <xsl:choose>
-                  <xsl:when test="/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season != -1">
+                  <xsl:when test="$skin-reverseEpisodeOrder='true' and /details/movie/season != -1">
                     <xsl:text>descending</xsl:text>
                   </xsl:when>
                   <xsl:otherwise>ascending</xsl:otherwise>
