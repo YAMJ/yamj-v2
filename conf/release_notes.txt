@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.17 beta
 ------------------------
+  - Enhancement  #218 Play button on remote for multipart movies
   - Enhancement  #226 Additional indexes by actor, director, and country; provide links to these index pages on movie details page
                       Extra parameters to fine-tune index generation: mjb.categories.indexList, displayList, and minCategoryCount
   - Enhancement  #311 A playlist is now generated for all movies (even if there's only one file), and it is customizable via playlist.xsl
@@ -11,8 +12,8 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #462 Enable/disable Year and Certification rating in index page of all skins. New skin-options.xsl file.
   - Enhancement  #465 Play All link at beginning of playlist instead of end
   - Enhancement  #507 Properties can be overridden at the command line
-  - Fixed defect #565 Filmaffinity id ignored
-  - Fixed defect #581 gfb skins' links to genres from movie details pages were broken for filtered genres
+  - Fixed defect #565 FilmAffinity ID ignored
+  - Fixed defect #581 gfb skin's links to genres from movie details pages were broken for filtered genres
   - Fixed defect #586 Reverse sort order ignored for sd, gfb107, and gfb107-sd skins
   - Enhancement  #631 Ability to limit number of Apple trailers per movie
   - Fixed defect #636 (Regression) Check for file-based subtitles
@@ -22,7 +23,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #651 Recognize single-character titles when scanning filenames
   - Fixed defect #656 Recognize DVDR as a synonym for DVDRip
   - Fixed defect #662 FilmDeltaSEPlugin can't handle "illegal HTML characters"
-  - Fixed defect #666 Can't connect to imdb behind authenticated proxy
+  - Fixed defect #666 Can't connect to IMDB behind authenticated proxy
   - Fixed defect #667 Can't download image behind authenticated proxy
   - Fixed defect #668 Can't connect to TheTVDB behind authenticated proxy
   - Fixed defect #670 BD structure in excluded directory causes exception
@@ -41,6 +42,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #697 MovieMeterPlugin: download fanart based on IMDB id returned from moviemeter.nl\
   - Fixed defect #696 Trailer link duplication
   - Enhancement  #700 (Optionally) Recursively scan parent dirs (up to library root) for directory-level NFOs
+  - Enhancement  #701 Additional videoimage properties
   - Enhancement  #703 Index by library description (if present)
   - Enhancement  #705 Speed up XSLT processing
   - Enhancement  #712 Patch for Kinopoisk plugin
@@ -55,14 +57,14 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #729 Print newDays in days (as the message states) rather than seconds
   - Fixed defect #732 Escape quotes in movie basenames inside JS strings on index pages
   - Fixed defect #734 Fix for Sratim plugin - Hebrew string comparison failure bugs
-  - Fixed defect #736 Don't put non-existant indexes in the index XML files
+  - Fixed defect #736 Don't put non-existent indexes in the index XML files
   - Fixed defect #739 Crash when mjb.categories.indexList not specified
   - Fixed defect #740 Don't clean files that happen to contain certain keywords
   - Fixed defect #741 Ignore mjb.categories.minCategoriesCount for all of the old (pre-226) categories
   - Fixed defect #744 Fix navigation for gfb107-sd and hebrew skins, fix css for movie title
   - Enhancement  #748 Update to the Hebrew skin with all the latest changes made to the Default skin
-  - Enhancement  #218 Play button on remote for multipart movies
-  - Fixed defect #764 Fixed type in default moviejukebox.properties file
+  - Fixed defect #753 Bad cropping of videoimages
+  - Fixed defect #764 Fixed typo in default moviejukebox.properties file
 
 MovieJukebox 1.0.16 beta
 ------------------------
@@ -74,7 +76,7 @@ MovieJukebox 1.0.16 beta
   - Enhancement  #321 Episode list in reverse order
   - Fixed defect #332 International characters from NFO
   - Fixed defect #383 UTF-8 Encoding for Movie object - Allows extended character sets in the movie details
-  - Enahncement  #397 Episode image for TV show episodes downloaded from TheTVDB.com
+  - Enhancement  #397 Episode image for TV show episodes downloaded from TheTVDB.com
   - Enhancement  #418 Option to exclude files without external subtitles
   - Enhancement  #421 Plugin for Swedish movie database filmdelta.se
   - Fixed defect #422 Encoding problems with link of accentuated categories or two words categories on Categories.html
@@ -88,7 +90,7 @@ MovieJukebox 1.0.16 beta
   - Fixed defect #449 Trailers are not excluded from the Year categories
   - Fixed defect #450 Percentage (%) in movie details causes error
   - Fixed defect #451 Allocine Plugin didn't work anymore
-  - Fixed defeсt #454 Use full float value for FPS
+  - Fixed defect #454 Use full float value for FPS
   - Fixed defect #468 Accentuated character with allocine plugin no more correctly dispalyed with version beta 700
   - Fixed defect #476 XBMC NFO movie xml encoding is ignored
   - Fixed defect #479 XML <releaseDate> not correct with allocine Plugin

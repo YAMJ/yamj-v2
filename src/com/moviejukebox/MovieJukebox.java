@@ -34,6 +34,7 @@ import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultPosterPlugin;
 import com.moviejukebox.plugin.DefaultThumbnailPlugin;
+import com.moviejukebox.plugin.DefaultVideoImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
@@ -302,8 +303,11 @@ public class MovieJukebox {
         MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
         MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(PropertiesUtil.getProperty("mjb.thumbnail.plugin",
-                "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
-        MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
+        		"com.moviejukebox.plugin.DefaultThumbnailPlugin"));
+        MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", 
+        		"com.moviejukebox.plugin.DefaultPosterPlugin"));
+        MovieImagePlugin videoimagePlugin = this.getVideoImagePlugin(PropertiesUtil.getProperty("mjb.videoimage.plugin", 
+        		"com.moviejukebox.plugin.DefaultVideoImagePlugin"));
         MovieImagePlugin backgroundPlugin = this.getBackgroundPlugin(PropertiesUtil.getProperty("mjb.background.plugin",
                 "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
 
@@ -327,7 +331,7 @@ public class MovieJukebox {
         String cleanCurrentExt = "";
 
         // ////////////////////////////////////////////////////////////////
-        // / PASS 0 : Preparing temporary environnement...
+        // / PASS 0 : Preparing temporary environment...
         //
 
         File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
@@ -424,7 +428,7 @@ public class MovieJukebox {
 
                 // Download episode images if required
                 if (videoImagesDownload) {
-                    updateVideoImages(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                    updateVideoImages(videoimagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
 
                 // Get Fanart if requested
@@ -752,7 +756,7 @@ public class MovieJukebox {
         }
     }
 
-    private void updateVideoImages(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    private void updateVideoImages(MovieImagePlugin videoimagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String videoImageFilename;
         File videoImageFile;
         File tmpDestFile;
@@ -760,8 +764,6 @@ public class MovieJukebox {
         BufferedImage bi;
 
         boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
-        int videoImageWidth = Integer.parseInt(PropertiesUtil.getProperty("videoimage.width", "400"));
-        int videoImageHeight = Integer.parseInt(PropertiesUtil.getProperty("videoimage.height", "225"));
 
         for (MovieFile moviefile : movie.getMovieFiles()) {
             for (int part = moviefile.getFirstPart(); part <= moviefile.getLastPart(); ++part) {
@@ -789,15 +791,17 @@ public class MovieJukebox {
                         }
                     } else {
                         try {
-                            // Issue 201 : we now download to local temp dir
+                            // Issue 201 : we now download to local temp directory
                             logger.finest("Downloading video image for " + movie.getBaseName() + " part " + part + " to " + tmpDestFile.getName() + " [calling plugin]");
                             downloadImage(tmpDestFile, moviefile.getVideoImageURL(part));
                             moviefile.setVideoImageFile(part, FileTools.makeSafeFilename(videoImageFilename));
 
-                            // Issue 683: Resize image file.
+                            // load the file into a buffered image
                             fis = new FileInputStream(tmpDestFile);
                             bi = GraphicTools.loadJPEGImage(fis);
-                            bi = GraphicTools.scaleToSize(videoImageWidth, videoImageHeight, bi);
+
+                            bi = videoimagePlugin.generate(movie, bi, videoImageFilename);
+                            
                             GraphicTools.saveImageToDisk(bi, tmpDestFile.getAbsolutePath());
 
                         } catch (Exception e) {
@@ -917,6 +921,24 @@ public class MovieJukebox {
         return posterPlugin;
     }
 
+    public MovieImagePlugin getVideoImagePlugin(String className) {
+        MovieImagePlugin videoimagePlugin;
+
+        try {
+            Thread t = Thread.currentThread();
+            ClassLoader cl = t.getContextClassLoader();
+            Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
+            videoimagePlugin = pluginClass.newInstance();
+        } catch (Exception e) {
+            videoimagePlugin = new DefaultVideoImagePlugin();
+            logger.severe("Failed instanciating VideoImagePlugin: " + className);
+            logger.severe("Default videoimage plugin will be used instead.");
+            e.printStackTrace();
+        }
+
+        return videoimagePlugin;
+    }
+
     public MovieImagePlugin getBackgroundPlugin(String className) {
         MovieImagePlugin backgroundPlugin;
 
@@ -953,7 +975,7 @@ public class MovieJukebox {
     } // getListingPlugin()
 
     /**
-     * Download the image for the specified url into the specified file.
+     * Download the image for the specified URL into the specified file.
      * Utilises the WebBrowser downloadImage function to allow for proxy connections.
      * @throws IOException
      */
@@ -965,7 +987,7 @@ public class MovieJukebox {
     public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie,
                                        boolean forceThumbnailOverwrite) {
         try {
-            // Issue 201 : we now download to local temp dire
+            // Issue 201 : we now download to local temp directory
             String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
             String safeThumbnailFilename = FileTools.makeSafeFilename(movie.getThumbnailFilename());
             String src = tempRootPath + File.separator + safePosterFilename;
@@ -1049,7 +1071,7 @@ public class MovieJukebox {
             FileInputStream fis;
 
             if (!(new File(olddst).exists()) || forcePosterOverwrite || (new File(src).exists())) {
-                // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefor check to see if they exist in the original directory
+                // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (new File(src).exists()) {
                     logger.finest("New file exists");
                     fis = new FileInputStream(src);
