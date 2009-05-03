@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:include href="skin-options.xsl"/>
+
 <xsl:template match="/">
 <xsl:variable name="currentIndex" select="//index[@current='true']/@currentIndex"/>
 <xsl:variable name="lastIndex" select="//index[@current='true']/@lastIndex"/>
@@ -107,7 +109,11 @@
         <xsl:when test="season = 0"> Specials</xsl:when>
       </xsl:choose>
     </xsl:if>
-    <xsl:if test="certification!='' and certification!='UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
+    <xsl:if test="year != '' and year != 'UNKNOWN'">
+      <xsl:if test="season = -1 and $skin-year = 'true'"> - <xsl:value-of select="year" /></xsl:if>
+      <xsl:if test="season != -1 and $skin-yearTV = 'true'"> - <xsl:value-of select="year" /></xsl:if>
+    </xsl:if>
+    <xsl:if test="$skin-certification = 'true' and certification != '' and certification != 'UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
   </div>
 </xsl:for-each>
   <div class="title">
