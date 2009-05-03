@@ -47,7 +47,8 @@
         <tr>
           <td class="title1" valign="top" colspan="2">
             <xsl:choose>
-            <xsl:when test="season != -1">&quot;<xsl:value-of select="title"/>&quot; Season <xsl:value-of select="season" /></xsl:when>
+            <xsl:when test="season &gt; 0">&quot;<xsl:value-of select="title"/>&quot; Season <xsl:value-of select="season" /></xsl:when>
+            <xsl:when test="season = 0">&quot;<xsl:value-of select="title"/>&quot; Specials</xsl:when>
             <xsl:otherwise><xsl:value-of select="title"/></xsl:otherwise>
             </xsl:choose>
             <xsl:if test="year != 'UNKNOWN'">
@@ -300,6 +301,22 @@
             <tr>
               <td>
                 <table>
+                  <xsl:if test="($skin-playAllMovie = 'top' and /details/movie/season = -1) or ($skin-playAllTV = 'top' and /details/movie/season != -1)">
+                    <tr>
+                      <td>&#160;</td>
+                      <td class="normal">
+                        <a class="link">
+                            <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
+                            <xsl:attribute name="vod">playlist</xsl:attribute>
+                            <xsl:if test="//movie/prebuf != -1">
+                                <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                            </xsl:if>
+                            <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="middle"/>
+                          <xsl:text>&#160;</xsl:text><xsl:value-of select="$skin-playAllText" />
+                        </a>
+                      </td>
+                    </tr>
+                  </xsl:if>
                   <xsl:for-each select="files/file">
                     <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
                     <tr>
@@ -370,21 +387,22 @@
                       </td>
                     </tr>
                   </xsl:for-each>
-
-                  <tr>
-                    <td>&#160;</td>
-                    <td class="normal">
-                      <a class="link">
-                          <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
-                          <xsl:attribute name="vod">playlist</xsl:attribute>
-                          <xsl:if test="//movie/prebuf != -1">
-                              <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
-                          </xsl:if>
-                          <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="middle"/>
-                          <xsl:text>&#160;</xsl:text>PLAY ALL
-                      </a>
-                    </td>
-                  </tr>
+                  <xsl:if test="($skin-playAllMovie = 'bottom' and /details/movie/season = -1) or ($skin-playAllTV = 'bottom' and /details/movie/season != -1)">
+                    <tr>
+                      <td>&#160;</td>
+                      <td class="normal">
+                        <a class="link">
+                            <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
+                            <xsl:attribute name="vod">playlist</xsl:attribute>
+                            <xsl:if test="//movie/prebuf != -1">
+                                <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                            </xsl:if>
+                            <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="middle"/>
+                          <xsl:text>&#160;</xsl:text><xsl:value-of select="$skin-playAllText" />
+                        </a>
+                      </td>
+                    </tr>
+                  </xsl:if>
                 </table>
               </td>
             </tr>
