@@ -17,6 +17,8 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.TrailerFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.FileTools;
 
 public class AppleTrailersPlugin {
 
@@ -116,12 +118,12 @@ public class AppleTrailersPlugin {
                 }
                 
                 int nameStart=trailerRealUrl.lastIndexOf('/')+1;
-                String trailerBasename = basename + ".[TRAILER]." + trailerRealUrl.substring(nameStart);
+                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER]." + trailerRealUrl.substring(nameStart));
                 String trailerFileName = parentPath + File.separator + trailerBasename;
                 
                 int slash = mf.getFilename().lastIndexOf("/");
                 String playPath = slash == -1 ? mf.getFilename() : mf.getFilename().substring(0, slash);
-                String trailerPlayFileName = playPath + "/" + trailerBasename;
+                String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
                 
                 logger.finest("Found trailer: " + trailerRealUrl);
                 logger.finest("  D/L path: " + trailerFileName);
