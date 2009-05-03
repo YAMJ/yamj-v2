@@ -20,12 +20,12 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
     if ( lnk == 1 ) lnk = document.getElementById('playLink');
   }
   function show(x) {
-  	lnkt();
+    lnkt();
     title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
     if(lnk)lnk.setAttribute('HREF', baseFilename + '.playlist' + x + '.jsp');
   }
   function hide() {
-  	lnkt();
+    lnkt();
     title.nodeValue = "-";
     if(lnk)lnk.setAttribute('HREF', '');
   }
@@ -70,7 +70,8 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
         <tr>
           <td class="title1" valign="top" colspan="2">
             <xsl:value-of select="title"/> 
-            <xsl:if test="season != -1"> Season <xsl:value-of select="season" /></xsl:if>
+            <xsl:if test="season &gt; 0"> Season <xsl:value-of select="season" /></xsl:if>
+            <xsl:if test="season = 0"> Specials</xsl:if>
             <xsl:if test="year != 'UNKNOWN'">
               <xsl:text> (</xsl:text>
               <xsl:choose>
@@ -261,7 +262,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
         
         <tr class="spacer" colspan="2"><td> </td></tr>
 
-        <xsl:choose>                                
+        <xsl:choose>
           <xsl:when test="count(files/file) = 1">
             <xsl:for-each select="files/file">
               <tr valign="top">
@@ -332,7 +333,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
             <tr>
               <xsl:variable name="episodeSortOrder">
                 <xsl:choose>
-                  <xsl:when test="$skin-reverseEpisodeOrder='true' and /details/movie/season != -1">
+                  <xsl:when test="$skin-reverseEpisodeOrder='true' and //movie/season != -1">
                     <xsl:text>descending</xsl:text>
                   </xsl:when>
                   <xsl:otherwise>ascending</xsl:otherwise>
@@ -340,6 +341,23 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
               </xsl:variable>
               <td>
                 <table>
+                  <xsl:if test="($skin-playAllMovie = 'top' and //movie/season = -1) or ($skin-playAllTV = 'top' and //movie/season != -1)">
+                    <tr>
+                      <td class="normal">
+                        <div id="title">&#160; </div>
+                        <a class="link">
+                          <xsl:attribute name="onfocus">hide()</xsl:attribute>
+                          <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
+                          <xsl:attribute name="vod">playlist</xsl:attribute>
+                          <xsl:if test="//movie/prebuf != -1">
+                             <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                          </xsl:if>
+                          <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
+                          <xsl:text>&#160;</xsl:text><xsl:value-of select="$skin-playAllText" />
+                        </a>
+                      </td>
+                    </tr>
+                  </xsl:if>
                   <tr valign="top">
                     <td class="normal">
                       <xsl:for-each select="files/file">
@@ -386,21 +404,23 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                       </xsl:for-each>
                     </td>
                   </tr>
-                  <tr>
-                    <td class="normal">
-                      <div id="title">&#160; </div>
-                      <a class="link">
-                        <xsl:attribute name="onfocus">hide()</xsl:attribute>
-                        <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
-                        <xsl:attribute name="vod">playlist</xsl:attribute>
-                        <xsl:if test="//movie/prebuf != -1">
-                           <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
-                        </xsl:if>
-                        <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
-                        <xsl:text>&#160;</xsl:text>PLAY ALL
-                      </a>
-                    </td>
-                  </tr>
+                  <xsl:if test="($skin-playAllMovie = 'bottom' and //movie/season = -1) or ($skin-playAllTV = 'bottom' and //movie/season != -1)">
+                    <tr>
+                      <td class="normal">
+                        <div id="title">&#160; </div>
+                        <a class="link">
+                          <xsl:attribute name="onfocus">hide()</xsl:attribute>
+                          <xsl:attribute name="href"><xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" /></xsl:attribute>
+                          <xsl:attribute name="vod">playlist</xsl:attribute>
+                          <xsl:if test="//movie/prebuf != -1">
+                             <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                          </xsl:if>
+                          <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
+                          <xsl:text>&#160;</xsl:text><xsl:value-of select="$skin-playAllText" />
+                        </a>
+                      </td>
+                    </tr>
+                  </xsl:if>
                 </table>
               </td>
             </tr>
@@ -449,14 +469,14 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
               <xsl:choose>
                 <xsl:when test="@firstPart!=@lastPart">
                   <xsl:choose>
-                    <xsl:when test="/details/movie/season != -1">Episodes </xsl:when>
+                    <xsl:when test="//movie/season != -1">Episodes </xsl:when>
                     <xsl:otherwise>Parts </xsl:otherwise>
                   </xsl:choose>
                   <xsl:value-of select="@firstPart" /> - <xsl:value-of select="@lastPart" />
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:choose>
-                    <xsl:when test="/details/movie/season != -1">Episode </xsl:when>
+                    <xsl:when test="//movie/season != -1">Episode </xsl:when>
                     <xsl:otherwise>Part </xsl:otherwise>
                   </xsl:choose>
                   <xsl:value-of select="@firstPart" />
@@ -508,13 +528,11 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
   <xsl:param name="url"/>
   <xsl:param name="container"/>
 
-  <xsl:if
-    test="$container = 'ISO' or ends-with($url, '.ISO') or ends-with($url, '.iso')">
+  <xsl:if test="$container = 'ISO' or ends-with($url, '.ISO') or ends-with($url, '.iso')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 
-  <xsl:if
-    test="$container = 'IMG' or ends-with($url, '.IMG') or ends-with($url, '.img')">
+  <xsl:if test="$container = 'IMG' or ends-with($url, '.IMG') or ends-with($url, '.img')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 
