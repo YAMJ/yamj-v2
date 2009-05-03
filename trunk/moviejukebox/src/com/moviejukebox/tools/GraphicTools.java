@@ -68,7 +68,7 @@ public class GraphicTools {
             return;
         }
 
-        // save image as Jpeg
+        // save image as JPEG
         try {
             BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
             bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
@@ -204,10 +204,11 @@ public class GraphicTools {
         return imgSrc.getSubimage(x1, y1, l, h);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    /// Reflection effect
-    //      graphicType should be "posters" or "thumbnails" and is used to determine the
-    //      settings that are extracted from the skin.properties file.
+    /*
+     * Reflection effect
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used 
+     * to determine the settings that are extracted from the skin.properties file.
+     */
     public static BufferedImage createReflectedPicture(BufferedImage avatar, String graphicType) {
         int avatarWidth = avatar.getWidth();
         int avatarHeight = avatar.getHeight();
@@ -224,6 +225,9 @@ public class GraphicTools {
         return buffer;
     }
 
+    /*
+     * Create a gradient mask for the image
+     */
     public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight, float reflectionHeight, String graphicType) {
         BufferedImage gradient = new BufferedImage(avatarWidth, avatarHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = gradient.createGraphics();
@@ -264,6 +268,9 @@ public class GraphicTools {
         return propertyValue;
     }
     
+    /*
+     * Create the reflection effect for the image
+     */
     public static BufferedImage createReflection(BufferedImage avatar, int avatarWidth, int avatarHeight, float reflectionHeight) {
         // Increase the height of the image to cater for the reflection.
         int newHeight = (int) (avatarHeight * (1 + (reflectionHeight / 100) ));
@@ -290,9 +297,11 @@ public class GraphicTools {
         g2.dispose();
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    /// 3D effect
-    //
+    /*
+     * 3D effect
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used 
+     * to determine the settings that are extracted from the skin.properties file. 
+     */
     public static BufferedImage create3DPicture(BufferedImage bi, String graphicType, String perspectiveDirection) {
         int w = bi.getWidth();
         int h = bi.getHeight();
