@@ -19,6 +19,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -339,6 +340,8 @@ public class MovieJukebox {
             // Clear out the jukebox generated files to force them to be re-created.
 
             File[] cleanList = tempJukeboxCleanFile.listFiles();
+            String skipPattStr = PropertiesUtil.getProperty("skin.clean.skip");
+            Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
 
             for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                 // Scan each file in here
@@ -350,16 +353,28 @@ public class MovieJukebox {
                     } else {
                         cleanCurrentExt = "";
                     }
-
-                    if (cleanCurrent.equals("CATEGORIES") || cleanCurrentExt.equals(".CSS")) {
-                        cleanList[nbFiles].delete();
-                    } else {
+                    
+                    boolean skip = true;
+                    if (".XML".equals(cleanCurrentExt) || ".HTML".equals(cleanCurrentExt)) {
                         for (String prefix : Library.getPrefixes()) {
-                            if (cleanCurrent.toUpperCase().startsWith(prefix)) {
-                                cleanList[nbFiles].delete();
+                            if (cleanCurrent.toUpperCase().startsWith(prefix + "_")) {
+                                skip = false;
                                 break;
                             }
                         }
+                        
+                        if (skip && "CATEGORIES".equals(cleanCurrent)) {
+                            skip = false;
+                        }
+                    }
+                    
+                    if (skip && null != skipPatt) {
+                        skip = !skipPatt.matcher(cleanList[nbFiles].getName()).matches();
+                    }
+                    
+                    if (!skip) {
+                        logger.finer("Pre-scan, deleting " + cleanList[nbFiles].getName());
+                        cleanList[nbFiles].delete();
                     }
                 }
             }
@@ -550,6 +565,10 @@ public class MovieJukebox {
                 // File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
                 File[] cleanList = tempJukeboxCleanFile.listFiles();
                 int cleanDeletedTotal = 0;
+                
+                String skipPattStr = PropertiesUtil.getProperty("skin.clean.skip");
+                Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
+                String fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart").toUpperCase();
 
                 for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                     // Scan each file in here
@@ -562,38 +581,49 @@ public class MovieJukebox {
                             cleanCurrentExt = "";
                         }
 
-                        boolean skip = cleanCurrent.equals("CATEGORIES") || cleanCurrentExt.equals(".CSS");
+                        boolean skip = false;
+                        
+                        // Skip files related to the index pages
+                        for (String prefix : Library.getPrefixes()) {
+                            if (cleanCurrent.startsWith(prefix + "_")) {
+                                skip = true;
+                                break;
+                            }
+                        }
+                            
+                        // If we're dealing with anything other than an HTML or XML file, its basename may need adjusting.
                         if (!skip) {
-                            for (String prefix : Library.getPrefixes()) {
-                                if (cleanCurrent.toUpperCase().startsWith(prefix)) {
-                                    skip = true;
-                                    break;
+                            if (!".HTML".equals(cleanCurrentExt) && !".XML".equals(cleanCurrentExt)) {
+                                if (!searchLibrary(cleanCurrent, library)) {
+                                    if (cleanCurrent.endsWith(".PLAYLIST") && ".JSP".equals(cleanCurrentExt)) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - ".PLAYLIST".length());
+                                    } else if (cleanCurrent.endsWith("_LARGE")) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_LARGE".length());
+                                    } else if (cleanCurrent.endsWith("_SMALL")) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_SMALL".length());
+                                    } else if (cleanCurrent.endsWith(fanartToken)) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - fanartToken.length());
+                                    } else if (cleanCurrent.indexOf("_VIDEOIMAGE") > 0) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_VIDEOIMAGE"));
+                                    }
                                 }
+
+                            // don't clean the categories.[xh]t?ml files
+                            } else if ("CATEGORIES".equals(cleanCurrent)) {
+                                skip = true;
                             }
                         }
                         
-                        if (!skip) {
-                            // Left with just the generated movie files in the directory now.
-                            // We should now check to see if they are in the current movie list
-                            // If they are not in this list, then we will delete them.
-                            
-                            if (!"HTML".equals(cleanCurrentExt) && !"XML".equals(cleanCurrentExt)) {
-                                if (cleanCurrent.endsWith("_LARGE")) {
-                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_LARGE".length());
-                                } else if (cleanCurrent.endsWith("_SMALL")) {
-                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_SMALL".length());
-                                } else if (cleanCurrent.endsWith("FANART")) {
-                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "FANART".length() - 1);
-                                } else if (cleanCurrent.endsWith("VIDEOIMAGE")) {
-                                    cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "VIDEOIMAGE".length() - 1);
-                                }
-                            }
-
-                            if (!searchLibrary(cleanCurrent, library)) {
-                                logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
-                                cleanDeletedTotal++;
-                                cleanList[nbFiles].delete();
-                            }
+                        // If the file is in the skin's exclusion regex, skip it
+                        if (!skip && null != skipPatt) {
+                            skip = skipPatt.matcher(cleanList[nbFiles].getName()).matches();
+                        }
+                        
+                        // If the file isn't skipped and it's not part of the library, delete it
+                        if (!skip && !searchLibrary(cleanCurrent, library)) {
+                            logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
+                            cleanDeletedTotal++;
+                            cleanList[nbFiles].delete();
                         }
                     }
                 }
