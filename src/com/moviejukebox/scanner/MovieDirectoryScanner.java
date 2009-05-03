@@ -127,13 +127,15 @@ public class MovieDirectoryScanner {
             }
         }
         
+        String relativeFileNameLower = relativeFilename.toLowerCase();
         for (String excluded : srcPath.getExcludes()) {
-            excluded = excluded.replace("/", File.separator);
-            excluded = excluded.replace("\\", File.separator);
-            String relativeFileNameLower = relativeFilename.toLowerCase();
-            if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
-                logger.fine("File " + filename + " excluded.");
-                return true;
+            if (excluded.length() > 0) {
+                excluded = excluded.replace("/", File.separator);
+                excluded = excluded.replace("\\", File.separator);
+                if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
+                    logger.fine("File " + filename + " excluded.");
+                    return true;
+                }
             }
         }
 
