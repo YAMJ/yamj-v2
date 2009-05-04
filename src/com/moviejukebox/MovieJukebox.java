@@ -340,7 +340,7 @@ public class MovieJukebox {
             // Clear out the jukebox generated files to force them to be re-created.
 
             File[] cleanList = tempJukeboxCleanFile.listFiles();
-            String skipPattStr = PropertiesUtil.getProperty("skin.clean.skip");
+            String skipPattStr = PropertiesUtil.getProperty("mjb.clean.skip");
             Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
 
             for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
@@ -566,7 +566,7 @@ public class MovieJukebox {
                 File[] cleanList = tempJukeboxCleanFile.listFiles();
                 int cleanDeletedTotal = 0;
                 
-                String skipPattStr = PropertiesUtil.getProperty("skin.clean.skip");
+                String skipPattStr = PropertiesUtil.getProperty("mjb.clean.skip");
                 Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
                 String fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart").toUpperCase();
 
