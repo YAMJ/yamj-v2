@@ -23,11 +23,11 @@
 
 <!-- Detail Option #2: Where to show Play All link on the details page -->
 <!-- Valid values are: top, bottom, false/none, where top is now the default for movies -->
-<xsl:variable name="skin-playAllMovie">false</xsl:variable>
-<xsl:variable name="skin-playAllTV">top</xsl:variable>
+<xsl:variable name="skin-playAllMovie">top</xsl:variable>
+<xsl:variable name="skin-playAllTV">bottom</xsl:variable>
 
 <!-- Detail Option #3: Text to use for the Play All link on the details page -->
-<xsl:variable name="skin-playAllText">PLAY ME</xsl:variable>
+<xsl:variable name="skin-playAllText">PLAY ALL</xsl:variable>
 
 
 </xsl:stylesheet>
