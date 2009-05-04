@@ -454,14 +454,7 @@ public class MovieJukeboxXMLWriter {
 
                 int previous = 1;
                 int current = 1;
-                int last;
-
-                if (movies.size() % nbMoviesPerPage != 0) {
-                    last = 1 + movies.size() / nbMoviesPerPage;
-                } else {
-                    last = movies.size() / nbMoviesPerPage;
-                }
-
+                int last = 1 + (movies.size() - 1) / nbMoviesPerPage;
                 int next = Math.min(2, last);
                 int nbMoviesLeft = nbMoviesPerPage;
 

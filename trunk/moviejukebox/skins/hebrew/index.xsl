@@ -112,7 +112,7 @@
     </td>
     <td>
       <table class="movies" border="0">
-        <xsl:for-each select="library/movies/movie[position() mod $nbCols = 1]">
+        <xsl:for-each select="library/movies/movie[$nbCols = 1 or position() mod $nbCols = 1]">
           <tr>
             <xsl:apply-templates
                  select=".|following-sibling::movie[position() &lt; $nbCols]">

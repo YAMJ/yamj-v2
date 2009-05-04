@@ -85,7 +85,7 @@
 </table>
 
 <table class="movies" border="0" cellpadding="0" cellspacing="2">
-  <xsl:for-each select="library/movies/movie[position() mod $nbCols = 1]">
+  <xsl:for-each select="library/movies/movie[$nbCols = 1 or position() mod $nbCols = 1]">
     <tr valign="top">
       <xsl:apply-templates select=".|following-sibling::movie[position() &lt; $nbCols]">
         <xsl:with-param name="gap" select="(position() - 1) * $nbCols" />
