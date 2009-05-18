@@ -65,6 +65,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #741 Ignore mjb.categories.minCategoriesCount for all of the old (pre-226) categories
   - Fixed defect #744 Fix navigation for gfb107-sd and hebrew skins, fix css for movie title
   - Enhancement  #748 Update to the Hebrew skin with all the latest changes made to the Default skin
+  - Enhancement  #749 Updates to screen logging for main jukebox and download progress for apple trailers
   - Fixed defect #753 Bad cropping of videoimages
   - Fixed defect #759 Ignore empty exclude strings in libraries.xml
   - Fixed defect #764 Fixed typo in default moviejukebox.properties file

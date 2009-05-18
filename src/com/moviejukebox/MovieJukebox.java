@@ -639,7 +639,7 @@ public class MovieJukebox {
             }
         }
 
-        logger.fine("Process terminated.");
+        logger.fine("MovieJukebox process completed.");
     }
 
     /**
@@ -903,7 +903,15 @@ public class MovieJukebox {
                     medlib.setScrapeLibrary(scrapeLibrary);
                     medlib.setPrebuf(prebuf);
                     mlp.add(medlib);
-                    logger.fine("Found media library: " + medlib);
+                    
+                    if (description != null && !description.isEmpty()) {
+                    	logger.fine("Found media library: " + description);
+                    } else {
+                    	logger.fine("Found media library: " + path);
+                    }
+                    // Save the media library to the log file for reference.
+                    logger.finest("Media library: " + medlib);
+                    
                 } else {
                     logger.fine("Skipped invalid media library: " + path);
                 }
