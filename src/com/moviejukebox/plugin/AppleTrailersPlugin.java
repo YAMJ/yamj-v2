@@ -11,12 +11,15 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.TrailerFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.WebStats;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.FileTools;
 
@@ -504,12 +507,22 @@ public class AppleTrailersPlugin {
     }
     
     private boolean trailerDownload(Movie movie, String trailerUrl, File trailerFile) {
+    	int downloadLoop = 0;
+    	final WebStats stats;
+    	
         try {
-
             logger.fine("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
 
-
             URL url = new URL(trailerUrl);
+            stats = WebStats.make(url);
+            
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                public void run() {
+                    stats.print();
+                }
+            }, 1000, 1000);
+            
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
             InputStream inputStream = connection.getInputStream();
 
@@ -524,9 +537,9 @@ public class AppleTrailersPlugin {
             int len;
             while ((len = inputStream.read(buf)) > 0) {
                 out.write(buf, 0, len);
+            	stats.bytes(len);
             }
             out.close();
-
 
             return true;
 
