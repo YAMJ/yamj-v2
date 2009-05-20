@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:include href="skin-options.xsl"/>
+
 <xsl:template match="/">
 <xsl:variable name="currentIndex" select="//index[@current='true']/@currentIndex"/>
 <xsl:variable name="lastIndex" select="//index[@current='true']/@lastIndex"/>
@@ -131,6 +133,14 @@
   <xsl:for-each select="library/movies/movie">
     <div class="title">
       <xsl:attribute name="id">title<xsl:value-of select="position()"/></xsl:attribute>
+
+      <xsl:if test="year != '' and year != 'UNKNOWN'">
+        <xsl:if test="season = -1 and $skin-year = 'true'"> - <xsl:value-of select="year" /></xsl:if>
+        <xsl:if test="season != -1 and $skin-yearTV = 'true'"> - <xsl:value-of select="year" /></xsl:if>
+      </xsl:if>
+      <xsl:if test="$skin-certification = 'true' and certification != '' and certification != 'UNKNOWN'"> (<xsl:value-of select="certification" />)</xsl:if>
+
+
       <xsl:choose>
         <xsl:when test="season > 0"><xsl:value-of select="season"/> הנוע </xsl:when>
         <xsl:when test="season = 0"> דחוימ </xsl:when>
@@ -139,7 +149,7 @@
     </div>
   </xsl:for-each>
   <div class="title">
-    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="/library/preferences/homePage"/></xsl:attribute>Home</a>
+    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="//preferences/homePage"/></xsl:attribute>Home</a>
     <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
     <a name="pgupload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
   </div>
@@ -194,7 +204,6 @@
 
 <!-- http://www.dpawson.co.uk/xsl/sect4/N9745.html#d15577e189 -->
 <xsl:template name="jsEscapeSingleQuotes">
-  <xsl:param name="do.quote"/>  
   <xsl:param name="string"/>
   
   <xsl:choose>
