@@ -2,7 +2,6 @@ package com.moviejukebox.tools;
 
 import java.net.*;
 import java.io.IOException;
-import java.util.Date;
 
 /*
  * Web stats class for downloading large files such as trailers
@@ -30,9 +29,7 @@ public abstract class WebStats {
     public abstract String calculatePercentageComplete(int bytes);
 
     public static WebStats make(URL url) throws IOException {
-        // System.out.println(new Date() + " Opening connection to URL");
         URLConnection con = url.openConnection();
-        // System.out.println(new Date() + " Getting content length");
         int size = con.getContentLength();
         return size == -1 ? new WebStatsBasic() : new WebStatsProgress(size);
     }
