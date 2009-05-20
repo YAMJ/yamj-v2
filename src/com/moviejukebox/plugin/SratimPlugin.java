@@ -1,19 +1,35 @@
 package com.moviejukebox.plugin;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.DataOutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.FileTools;
 
 public class SratimPlugin extends ImdbPlugin {
 
@@ -26,6 +42,13 @@ public class SratimPlugin extends ImdbPlugin {
     private static String[] genereStringHebrew = { "הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
                     "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
                     "חתמ", "המחלמ", "ןוברעמ" };
+    private static String cookieHeader="";
+
+    private static boolean subtitleDownload = false;
+    private static String login = "";
+    private static String pass = "";
+    private static String code = "";
+
     protected int plotLineMaxChar;
     protected int plotLineMax;
     protected TheTvDBPlugin tvdb;
@@ -36,7 +59,15 @@ public class SratimPlugin extends ImdbPlugin {
         tvdb = new TheTvDBPlugin(); // use TVDB if sratim doesn't know series
         
         plotLineMaxChar = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMaxChar", "50"));        
-        plotLineMax = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMax", "2"));        
+        plotLineMax = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMax", "2"));
+        
+        subtitleDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("sratim.subtitlte", "false"));
+        login = PropertiesUtil.getProperty("sratim.username", "");
+        pass = PropertiesUtil.getProperty("sratim.password", "");
+        code = PropertiesUtil.getProperty("sratim.code", "");
+        
+        if (subtitleDownload == true && !login.equals(""))
+            loadSratimCookie();
     }
 
     public boolean scan(Movie mediaFile) {
@@ -605,6 +636,10 @@ public class SratimPlugin extends ImdbPlugin {
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
             }
+            else {
+                // Download subtitle from the page
+                downloadSubtitle(movie, movie.getFirstFile(), xml);
+            }
 
         } catch (Exception e) {
             logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
@@ -761,15 +796,70 @@ public class SratimPlugin extends ImdbPlugin {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
             for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
-                String episodeName = logicalToVisual(HTMLTools.getTextAfterElem(mainXML, part + "</b> - "));
-                if (!episodeName.equals(Movie.UNKNOWN)) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        sb.append(" / ");
+
+                int index = 0;
+                int endIndex = 0;
+                
+                // Go over the page and sacn for episode links
+                while (true) {
+                    index = mainXML.indexOf("<a href=\"/movies/view.aspx?id=", index);
+                    if (index == -1)
+                        break;
+
+                    index += 30;
+
+                    endIndex = mainXML.indexOf("\"", index);
+                    if (endIndex == -1)
+                        break;
+
+                    String scanID = mainXML.substring(index, endIndex);
+
+
+                    index = endIndex + 9;
+
+                    endIndex = mainXML.indexOf("</b> - ", index);
+                    if (endIndex == -1)
+                        break;
+
+                    String scanPart = mainXML.substring(index, endIndex);
+
+
+                    index = endIndex + 7;
+
+                    endIndex = mainXML.indexOf("<", index);
+                    
+                    
+                    String scanName = mainXML.substring(index, endIndex);
+                    
+
+
+                    if (scanPart.equals( Integer.toString(part) )) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            sb.append(" / ");
+                        }
+                        sb.append(scanName);
+                    
+
+                        try {
+                        
+                            // Get the episode page url
+                            String xml = webBrowser.request("http://www.sratim.co.il/movies/view.aspx?id=" + scanID);
+                            
+                            
+                            // Download subtitles
+                            downloadSubtitle(movie, file, xml);
+                                                        
+                        } catch (Exception e) {
+                            logger.severe("Error : " + e.getMessage());
+                        }
+                            
+                        break;
                     }
-                    sb.append(episodeName);
+                    
                 }
+            
             }
             String title = sb.toString();
             if (!"".equals(title)) {
@@ -782,6 +872,555 @@ public class SratimPlugin extends ImdbPlugin {
         scanTVShowTitles(movie, mainXML);
     }
 
+
+    public void downloadSubtitle(Movie movie, MovieFile mf, String mainXML) {
+
+        if (subtitleDownload == false){
+            mf.setSubtitlesExchange(true);
+            return;
+        }
+            
+        if (movie.isTrailer()){
+            mf.setSubtitlesExchange(true);
+            return;
+        }
+
+            
+        // Check if this movie already have subtitles for it
+        String path = mf.getFile().getAbsolutePath();
+        int lindex = path.lastIndexOf(".");
+        String basename = path.substring(0, lindex + 1);
+
+        File subtitleFile = new File(basename + "srt");
+
+        if (subtitleFile.exists()) {
+            mf.setSubtitlesExchange(true);
+            return;
+        }
+
+
+        // Get the file base name
+        path = mf.getFile().getName().toUpperCase();
+        lindex = path.lastIndexOf(".");
+        if (lindex==-1)
+            return;
+        
+        basename = path.substring(0, lindex);
+
+        // Check if this is a bluray file
+        boolean bluRay = false;
+        if (path.endsWith(".M2TS") && path.startsWith("0"))
+            bluRay = true;
+            
+        basename = basename.replace('.',' ');
+
+        logger.finest("downloadSubtitle: " +subtitleFile.getAbsolutePath() );
+        logger.finest("basename: " +basename );
+        logger.finest("bluRay: " +bluRay );
+
+        int bestFPSCount=0;
+        int bestBlurayCount=0;
+        int bestBlurayFPSCount=0;
+        
+        String bestFPSID="";
+        String bestBlurayID="";
+        String bestBlurayFPSID="";
+        String bestFileID="";
+
+
+        int index = 0;
+        int endIndex = 0;
+        
+        
+        // Check that hebrew subtitle exist
+        String hebrewSub = HTMLTools.getTextAfterElem(mainXML, "<img src=\"/images/flags/Hebrew.gif\" alt=\"");
+
+        logger.finest("hebrewSub: " +hebrewSub );
+        
+        // Check that there is no 0 hebrew sub
+        if (hebrewSub.startsWith("0 ")) {
+            logger.finest("No Hebrew subtitles");
+
+            return; 
+        }        
+        
+        
+        while (true) {
+
+            index = mainXML.indexOf("<a href=\"/movies/subtitles/download.aspx?", index);
+            if (index == -1)
+                break;
+
+            index += 41;
+            
+            endIndex = mainXML.indexOf("\"", index);
+            if (endIndex == -1)
+                break;
+
+            String scanID = mainXML.substring(index, endIndex);
+
+
+            index = mainXML.indexOf("<br />", index);
+            if (index == -1)
+                break;
+
+            index += 6;
+            
+            endIndex = mainXML.indexOf(" ", index);
+            if (endIndex == -1)
+                break;
+
+            String scanCount = removeChar(mainXML.substring(index, endIndex), ',');
+
+
+            index = mainXML.indexOf("<img src=\"/images/discs_", index);
+            if (index == -1)
+                break;
+
+            index += 24;
+            
+            endIndex = mainXML.indexOf(".", index);
+            if (endIndex == -1)
+                break;
+
+            String scanDiscs = mainXML.substring(index, endIndex);
+
+
+            index = mainXML.indexOf("> (", index);
+            if (index == -1)
+                break;
+
+            index += 3;
+            
+            endIndex = mainXML.indexOf(")", index);
+            if (endIndex == -1)
+                break;
+
+            String scanFormat = mainXML.substring(index, endIndex);
+
+
+            index = mainXML.indexOf("direction:ltr;text-align:left\" title=\"", index);
+            if (index == -1)
+                break;
+
+            index += 38;
+            
+            endIndex = mainXML.indexOf("\"", index);
+            if (endIndex == -1)
+                break;
+
+            String scanFileName = mainXML.substring(index, endIndex).toUpperCase().replace('.',' ');
+
+
+
+            index = mainXML.indexOf("</b> ", index);
+            if (index == -1)
+                break;
+
+            index += 5;
+            
+            endIndex = mainXML.indexOf("<", index);
+            if (endIndex == -1)
+                break;
+
+            String scanFPS = mainXML.substring(index, endIndex);
+    
+    
+
+            logger.finest("scanFileName: " + scanFileName + " scanFPS: " + scanFPS + " scanID: " + scanID + " scanCount: "+scanCount + " scanDiscs: " + scanDiscs + " scanFormat: " +scanFormat);
+
+
+            // Check if this is a format supported by the popcorn hour
+            if (!scanDiscs.equals("1") || !scanFormat.equals("SubRip"))
+                continue;
+                
+
+            // Check for exact file name
+            if (scanFileName.equals(basename)) {
+                bestFileID = scanID;
+                break;
+            }
+
+
+            try {
+                int scanCountInt = 0;
+                try {
+                    scanCountInt = Integer.parseInt(scanCount);
+                } catch (Exception e) {
+                }
+    
+                float scanFPSFloat = 0;
+                try {                
+                    scanFPSFloat = Float.parseFloat(scanFPS);
+                } catch (Exception e) {
+                }
+    
+                
+                logger.finest("FPS: "+movie.getFps()+" scanFPS: "+scanFPSFloat);
+                
+                if ( bluRay && ( (scanFileName.indexOf("BRRIP") != -1) || 
+                                 (scanFileName.indexOf("BDRIP") != -1) || 
+                                 (scanFileName.indexOf("BLURAY") != -1) ||
+                                 (scanFileName.indexOf("BLU-RAY") != -1) ||
+                                 (scanFileName.indexOf("HDDVD") != -1)
+                                  )) {
+
+                    if ((scanFPSFloat == 0 ) && (scanCountInt > bestBlurayCount)) {
+                        bestBlurayCount = scanCountInt;
+                        bestBlurayID = scanID;
+                    }
+
+                    if ((movie.getFps() == scanFPSFloat) && (scanCountInt > bestBlurayFPSCount)) {
+                        bestBlurayFPSCount = scanCountInt;
+                        bestBlurayFPSID = scanID;
+                    }
+                    
+                }
+                                
+                if ((movie.getFps() == scanFPSFloat) && (scanCountInt > bestFPSCount)) {
+                    bestFPSCount = scanCountInt;
+                    bestFPSID = scanID;
+                }
+                
+            } catch (Exception e) {
+            }
+
+        }
+        
+        // Select the best subtitles ID
+        String bestID="";
+        
+        // Check for exact file name match
+        if (!bestFileID.equals("")) {
+            logger.finest("Best Filename");        
+            bestID = bestFileID;
+        } else
+
+        // Check for bluray match
+        if (!bestBlurayFPSID.equals("")) {
+            logger.finest("Best Bluray FPS");
+            bestID = bestBlurayFPSID;
+        } else
+
+        // Check for bluray match
+        if (!bestBlurayID.equals("")) {
+            logger.finest("Best Bluray");
+            bestID = bestBlurayID;
+        } else
+
+        // Check for fps match
+        if (!bestFPSID.equals("")) {
+            logger.finest("Best FPS");
+            bestID = bestFPSID;
+        } else
+        
+        {
+            logger.finest("No subtitle found");
+            return;
+        }
+        
+        logger.finest("bestID: " + bestID);
+
+        if (downloadSubtitleZip("http://www.sratim.co.il/movies/subtitles/download.aspx?"+bestID, subtitleFile)==false) {
+            logger.severe("Error - Sratim subtitle download failed");
+            return;
+        }
+        
+        mf.setSubtitlesExchange(true);
+        movie.setSubtitles(true);
+    }
+
+
+    public boolean downloadSubtitleZip(String subDownloadLink, File subtitleFile) {
+
+        try {
+            URL url = new URL(subDownloadLink);
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+            connection.setRequestProperty("Cookie", cookieHeader);
+            
+            logger.finest("cookieHeader:"+ cookieHeader );
+            
+            InputStream inputStream = connection.getInputStream();
+
+            String contentType = connection.getContentType();
+
+            logger.finest("contentType:"+ contentType );
+
+            // Check that the content iz zip and that the site did not blocked the download
+            if (!contentType.equals("application/x-zip-compressed")) {
+                logger.severe("********** Error - Sratim subtitle download limit may have been reached. Suspending subtitle download.");
+                
+                subtitleDownload=false;
+                return false;
+            }
+            
+            byte[] buf = new byte[1024];
+            ZipInputStream zipinputstream = null;
+            ZipEntry zipentry;
+            zipinputstream = new ZipInputStream(inputStream);
+
+            zipentry = zipinputstream.getNextEntry();
+            while (zipentry != null) 
+            { 
+                //for each entry to be extracted
+                String entryName = zipentry.getName();
+                
+                logger.finest("ZIP entryname: " + entryName);
+                
+                
+                // Check if this is a subtitle file
+                if (entryName.toUpperCase().endsWith(".SRT")) {
+                
+                    int n;
+                    FileOutputStream fileoutputstream;
+
+                    fileoutputstream = new FileOutputStream(subtitleFile);             
+
+                    while ((n = zipinputstream.read(buf, 0, 1024)) > -1)
+                        fileoutputstream.write(buf, 0, n);
+
+                    fileoutputstream.close();
+
+                    zipinputstream.close();
+                    return true;
+                }
+                
+                zipinputstream.closeEntry();
+                zipentry = zipinputstream.getNextEntry();
+
+            }
+
+            zipinputstream.close();
+            
+        } catch (Exception e) {
+            logger.severe("Error : " + e.getMessage());
+            return false;
+        }
+        
+        return false;
+    }
+
+
+    public void loadSratimCookie() {
+
+        // Check if we already logged in and got the correct cookie        
+        if (!cookieHeader.equals(""))
+            return;
+
+
+        // Check if cookie file exist
+        try {            
+            FileReader cookieFile = new FileReader("sratim.cookie");
+            BufferedReader in = new BufferedReader(cookieFile);
+            cookieHeader = in.readLine();
+            in.close();
+        } catch (Exception e) {
+        }
+
+        if (!cookieHeader.equals(""))
+        {
+            // Verify cookie by loading main page
+            try {            
+                URL url = new URL("http://www.sratim.co.il/");
+                HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+                connection.setRequestProperty("Cookie", cookieHeader);
+            
+                //Get Response    
+                InputStream is = connection.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                String line;
+                StringBuffer response = new StringBuffer(); 
+                while((line = rd.readLine()) != null) {
+                    response.append(line);
+                }
+                rd.close();
+                String xml=response.toString();
+            
+                if (xml.indexOf("logout=1")!=-1) {
+                    logger.finest("Sratim Subtitles Cookies Valid");
+                    return;
+                }
+                    
+            } catch (Exception e) {
+                logger.severe("Error : " + e.getMessage());
+                return;
+            }
+
+            logger.severe("Sratim Cookie Use Failed - Creating new session and jpg files");
+                
+            cookieHeader = "";
+            File dcookieFile = new File("sratim.cookie");
+            dcookieFile.delete();
+        }
+
+
+        // Check if session file exist
+        try {            
+            FileReader sessionFile = new FileReader("sratim.session");
+            BufferedReader in = new BufferedReader(sessionFile);
+            cookieHeader = in.readLine();
+            in.close();
+        } catch (Exception e) {
+        }
+
+
+        // Check if we don't have the verification code yet
+        if (!cookieHeader.equals("")) {
+            try {            
+                logger.finest("cookieHeader: " + cookieHeader);
+            
+                // Build the post request
+                String post;
+                post = "Username=" + login + "&Password=" + pass + "&VerificationCode=" + code + "&Referrer=%2Fdefault.aspx%3F";
+            
+                logger.finest("post: " + post);
+
+
+                URL url = new URL("http://www.sratim.co.il/users/login.aspx");
+                HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                connection.setRequestProperty("Content-Length", "" + Integer.toString(post.getBytes().length));
+                connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");                connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");                connection.setRequestProperty("Referer", "http://www.sratim.co.il/users/login.aspx");
+                connection.setRequestProperty("Cookie", cookieHeader);
+                connection.setUseCaches (false);
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+                connection.setInstanceFollowRedirects(false);
+
+                //Send request
+                DataOutputStream wr = new DataOutputStream (connection.getOutputStream ());
+                wr.writeBytes (post);
+                wr.flush ();
+                wr.close ();
+
+
+                cookieHeader = "";
+
+                // read new cookies and update our cookies
+                for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
+                    if ("Set-Cookie".equals(header.getKey())) {
+                        for (String rcookieHeader : header.getValue()) {
+                            String[] cookieElements = rcookieHeader.split(" *; *");
+                            if (cookieElements.length >= 1) {
+                                String[] firstElem = cookieElements[0].split(" *= *");
+                                String cookieName = firstElem[0];
+                                String cookieValue = firstElem.length > 1 ? firstElem[1] : null;
+                                
+                                logger.finest("cookieName:" + cookieName);
+                                logger.finest("cookieValue:" + cookieValue);
+
+                                if (!cookieHeader.equals(""))
+                                    cookieHeader = cookieHeader + "; ";
+                                cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
+                            }
+                        }
+                    }
+                }
+
+                //Get Response    
+                InputStream is = connection.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                String line;
+                StringBuffer response = new StringBuffer(); 
+                while((line = rd.readLine()) != null) {
+                    response.append(line);
+                }
+                rd.close();
+                String xml=response.toString();
+
+                if (xml.indexOf("<h2>Object moved to <a href=\"%2fdefault.aspx%3f\">here</a>.</h2>")!=-1) {
+                
+                    // write the session cookie to a file
+                    FileWriter cookieFile = new FileWriter("sratim.cookie");
+                    cookieFile.write(cookieHeader);
+                    cookieFile.close();
+                    
+                    // delete the old session and jpg files
+                    File dimageFile = new File("sratim.jpg");
+                    dimageFile.delete();
+                    
+                    File dsessionFile = new File("sratim.session");
+                    dsessionFile.delete();
+                
+                    return;
+                }
+                    
+            logger.severe("Sratim Login Failed - Creating new session and jpg files");
+
+            } catch (Exception e) {
+                logger.severe("Error : " + e.getMessage());
+                return;
+            }
+
+        }
+        
+        try {            
+            URL url = new URL("http://www.sratim.co.il/users/login.aspx");
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+
+            cookieHeader = "";
+
+            // read new cookies and update our cookies
+            for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
+                if ("Set-Cookie".equals(header.getKey())) {
+                    for (String rcookieHeader : header.getValue()) {
+                        String[] cookieElements = rcookieHeader.split(" *; *");
+                        if (cookieElements.length >= 1) {
+                            String[] firstElem = cookieElements[0].split(" *= *");
+                            String cookieName = firstElem[0];
+                            String cookieValue = firstElem.length > 1 ? firstElem[1] : null;
+                            
+                            logger.finest("cookieName:" + cookieName);
+                            logger.finest("cookieValue:" + cookieValue);
+
+                            if (!cookieHeader.equals(""))
+                                cookieHeader = cookieHeader + "; ";
+                            cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
+                        }
+                    }
+                }
+            }
+
+
+            // write the session cookie to a file
+            FileWriter sessionFile = new FileWriter("sratim.session");
+            sessionFile.write(cookieHeader);
+            sessionFile.close();
+            
+
+
+            // Get the jpg code
+            url = new URL("http://www.sratim.co.il/verificationimage.aspx");
+            connection = (HttpURLConnection) (url.openConnection());
+            connection.setRequestProperty("Cookie", cookieHeader);
+            
+            // Write the jpg code to the file
+            File imageFile = new File("sratim.jpg");
+            FileTools.copy(connection.getInputStream(), new FileOutputStream(imageFile));
+
+
+            // Exit and wait for the user to type the jpg code
+            logger.severe("#############################################################################");
+            logger.severe("### Open \"sratim.jpg\" file, and write the code in the sratim.code field ###");
+            logger.severe("#############################################################################");
+            System.exit(0);
+
+        } catch (Exception e) {
+            logger.severe("Error : " + e.getMessage());
+            return;
+        }
+        
+    }
+
+    public static String removeChar(String s, char c) {
+       String r = "";
+       for (int i = 0; i < s.length(); i ++) {
+          if (s.charAt(i) != c) r += s.charAt(i);
+          }
+       return r;
+    }
+    
     public void scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB if sratim doesn't know movie
         logger.finest("Scanning NFO for sratim url");
