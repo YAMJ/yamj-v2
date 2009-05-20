@@ -735,8 +735,8 @@ public class MovieJukebox {
                 PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
 
-            DatabasePluginController.scan(movie);
             miScanner.scan(movie);
+            DatabasePluginController.scan(movie);
         }
     }
 
