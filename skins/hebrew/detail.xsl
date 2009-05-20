@@ -1,5 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="html" omit-xml-declaration="yes"/>
+<xsl:output method="xml" omit-xml-declaration="yes"/>
+
+<xsl:include href="skin-options.xsl"/>
 
 <xsl:template match="/">
 <xsl:for-each select="details/movie">
@@ -9,19 +11,23 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <title><xsl:value-of select="title"/></title>
 <script type="text/javascript">
+var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 //<![CDATA[
   var title = 1;
-  function show(x)
-  {
-    if ( title == 1 )
-      title = document.getElementById('title').firstChild;
-    title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
+  var lnk = 1;
+  function lnkt() {
+    if ( title == 1 ) title = document.getElementById('title').firstChild;
+    if ( lnk == 1 ) lnk = document.getElementById('playLink');
   }
-  function hide()
-  {
-    if ( title == 1 )
-      title = document.getElementById('title').firstChild;
+  function show(x) {
+    lnkt();
+    title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
+    if(lnk)lnk.setAttribute('HREF', baseFilename + '.playlist' + x + '.jsp');
+  }
+  function hide() {
+    lnkt();
     title.nodeValue = "-";
+    if(lnk)lnk.setAttribute('HREF', '');
   }
 //]]>
 </script>
@@ -112,7 +118,7 @@
           </td>
         </tr>
         <tr>
-          <td class="title2" valign="top" colspan="4" align="right"> 
+          <td class="title2" valign="top" colspan="2" align="right"> 
             <xsl:if test="country != 'UNKNOWN'">
               <xsl:text>(</xsl:text>
               <xsl:choose>
@@ -150,7 +156,7 @@
 
         <xsl:if test="count(cast/actor) != 0">
           <tr>
-            <td class="title2" colspan="4" align="right"> 
+            <td class="title2" colspan="2" align="right"> 
               <xsl:for-each select="cast/actor[position() &lt;= //preferences/actors.max]">
                 <xsl:if test="position()!=1"> ,</xsl:if>
                 <xsl:choose>
@@ -202,7 +208,7 @@
           </td>
         </tr>
 
-        <tr class="divider"><td><xsl:text> </xsl:text></td></tr>
+        <tr class="divider"><td colspan="2"><xsl:text> </xsl:text></td></tr>
 
         <tr>
           <td width="95%" class="normal" colspan="2" align="right">
@@ -260,7 +266,7 @@
         
         <tr class="spacer" colspan="2"><td> </td></tr>
 
-        <xsl:choose>                                
+        <xsl:choose>
           <xsl:when test="count(files/file) = 1">
             <xsl:for-each select="files/file">
               <tr valign="top">
@@ -329,7 +335,7 @@
             <tr>
               <xsl:variable name="episodeSortOrder">
                 <xsl:choose>
-                  <xsl:when test="/details/preferences/skin.reverseEpisodeOrder='true' and /details/movie/season != -1">
+                  <xsl:when test="$skin-reverseEpisodeOrder='true' and //movie/season != -1">
                     <xsl:text>descending</xsl:text>
                   </xsl:when>
                   <xsl:otherwise>ascending</xsl:otherwise>
@@ -505,13 +511,11 @@
   <xsl:param name="url"/>
   <xsl:param name="container"/>
 
-  <xsl:if
-    test="$container = 'ISO' or ends-with($url, '.ISO') or ends-with($url, '.iso')">
+  <xsl:if test="$container = 'ISO' or ends-with($url, '.ISO') or ends-with($url, '.iso')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 
-  <xsl:if
-    test="$container = 'IMG' or ends-with($url, '.IMG') or ends-with($url, '.img')">
+  <xsl:if test="$container = 'IMG' or ends-with($url, '.IMG') or ends-with($url, '.img')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 
