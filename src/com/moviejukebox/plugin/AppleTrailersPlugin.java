@@ -544,8 +544,9 @@ public class AppleTrailersPlugin {
             logger.severe("AppleTrailers Plugin: Download Exception");
             return false;
         } finally {
-        	timer.cancel();
-        	System.out.print("\n");
+        	stats.print();				// Output the final stat information (100%)
+        	System.out.print("\n");		// Complete the line for aesthetic purposes
+        	timer.cancel();				// Close the timer
         }
 
     }
