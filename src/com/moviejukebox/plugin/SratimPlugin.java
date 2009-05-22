@@ -783,9 +783,15 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         if (mainXML == null) {
-            // use IMDB if sratim doesn't know episodes titles
-            super.scanTVShowTitles(movie);
-            return;
+            try {
+                String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
+
+                mainXML = webBrowser.request(sratimUrl);
+            } catch (Exception e) {
+                logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
+                e.printStackTrace();
+                return;
+            }
         }
 
         for (MovieFile file : movie.getMovieFiles()) {

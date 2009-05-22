@@ -359,7 +359,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 
                           &#160;<xsl:value-of select="@firstPart"/>
                           <xsl:if test="@firstPart!=@lastPart">-<xsl:value-of select="@lastPart"/>
-                          </xsl:if> קרפ
+                          </xsl:if>&#160;קרפ
                         </a>
                         <a>
                           <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
