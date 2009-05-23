@@ -48,7 +48,7 @@ public class DefaultVideoImagePlugin implements MovieImagePlugin {
                     bi = GraphicTools.scaleToSizeNormalized(videoimageWidth, videoimageHeight, bi);
                 }
             } else if (!skipResize) {
-                bi = GraphicTools.scaleToSize(videoimageWidth, videoimageHeight, bi);
+                bi = GraphicTools.scaleToSizeBestFit(videoimageWidth, videoimageHeight, bi);
             }
             
             if (addReflectionEffect) {
