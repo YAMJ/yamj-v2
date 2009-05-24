@@ -775,6 +775,8 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
         }
         writeElementSet(writer, "cast", "actor", movie.getCast(), library, "Cast");
+        
+        writeElementSet(writer, "writers", "writer", movie.getWriters(), library, "Writers");
 
         writer.writeStartElement("files");
         for (MovieFile mf : movie.getFiles()) {
