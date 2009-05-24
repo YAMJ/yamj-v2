@@ -21,6 +21,7 @@ MovieJukebox 1.0.17 beta
   - Fixed defect #644 Directory fanart not found on POSIX systems
   - Fixed defect #645 IMDB plots with embedded HTML tags are now parsed correctly
   - Fixed defect #649 Manually decode some Cp1251 values that Kinopoisk uses &#xxx; entities for
+  - Enhancement  #650 Get writer information from IMDB
   - Fixed defect #651 Recognize single-character titles when scanning filenames
   - Fixed defect #656 Recognize DVDR as a synonym for DVDRip
   - Fixed defect #662 FilmDeltaSEPlugin can't handle "illegal HTML characters"

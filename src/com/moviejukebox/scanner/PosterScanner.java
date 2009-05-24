@@ -90,8 +90,10 @@ public class PosterScanner {
         }
 
         /***
-         * This part will look for a filename with the same name as the directory for the cover art or for folder.* coverart The intention is for you to be able
-         * to create the season / Tv series art for the whole series and not for the first show. useful if you change the files regularly
+         * This part will look for a filename with the same name as the directory for the 
+         * cover art or for folder.* coverart The intention is for you to be able
+         * to create the season / TV series art for the whole series and not for the first show. 
+         * Useful if you change the files regularly.
          * 
          * @author Stuart.Boston
          * @version 1.0

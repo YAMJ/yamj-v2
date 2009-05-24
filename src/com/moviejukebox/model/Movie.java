@@ -58,6 +58,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private Collection<String> genres = new TreeSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private Collection<String> cast = new ArrayList<String>();
+    private Collection<String> writers = new ArrayList<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
@@ -195,6 +196,10 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
     public Collection<String> getCast() {
         return cast;
+    }
+    
+    public Collection<String> getWriters() {
+    	return writers;
     }
 
     public String getCompany() {
@@ -427,6 +432,18 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public void setCast(Collection<String> cast) {
         this.isDirty = true;
         this.cast = cast;
+    }
+    
+    public void addWriter(String writer) {
+    	if (writer != null) {
+    		this.isDirty = true;
+    		writers.add(writer);
+    	}
+    }
+    
+    public void setWriters(Collection<String> writers) {
+    	this.isDirty = true;
+    	this.writers = writers;
     }
 
     public void setCompany(String company) {
@@ -837,6 +854,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
         sb.append("[fps=").append(fps).append("]");
         sb.append("[certification=").append(certification).append("]");
         sb.append("[cast=").append(cast).append("]");
+        sb.append("[writers=").append(writers).append("]");
         sb.append("[genres=").append(genres).append("]");
         sb.append("[libraryDescription=").append(libraryDescription).append("]");
         sb.append("[prebuf=").append(prebuf).append("]");
