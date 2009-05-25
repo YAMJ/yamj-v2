@@ -73,6 +73,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #795 Subtitles download feature for Sratim plugin
   - Enhancement  #796 Update to the Hebrew skin
   - Fixed defect #820 Proper handling of TV shows by Kinopoisk plugin
+  - Fixed defect #821 Specify UTF-8 encoding in header of main index.htm
 
 MovieJukebox 1.0.16 beta
 ------------------------
