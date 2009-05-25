@@ -280,6 +280,11 @@ public class MovieJukeboxHTMLWriter {
             writer.writeEndElement();
 
             writer.writeStartElement("meta");
+            writer.writeAttribute("HTTP-EQUIV", "Content-Type");
+            writer.writeAttribute("content", "text/html; charset=UTF-8");
+            writer.writeEndElement();
+
+            writer.writeStartElement("meta");
             writer.writeAttribute("HTTP-EQUIV", "REFRESH");
             writer.writeAttribute("content", "0; url=" + detailsDirName + '/' + homePage + ".html");
             writer.writeEndElement();
