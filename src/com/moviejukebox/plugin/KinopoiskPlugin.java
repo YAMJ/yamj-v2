@@ -77,8 +77,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
     }
     
     /**
-     * retrieve Kinopoisk matching the specified movie name and year. This routine is base on a google
-     * request.
+     * Retrieve Kinopoisk matching the specified movie name and year. 
+     * This routine is base on a Google request.
      */
     private String getKinopoiskId(String movieName, String year, int season) {
         try {
@@ -86,10 +86,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
             sb = sb + " " + movieName;
             if (season != -1) {
                 sb = sb + " +сериал";
+            } else {
+            	if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) 
+            		sb = sb + " +год +" + year;
             }
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) 
-                sb = sb + " +год +" + year;
-
+            
             sb = "http://www.google.ru/search?hl=ru&q=" + URLEncoder.encode(sb, "UTF-8");
 
             String xml = webBrowser.request(sb);
