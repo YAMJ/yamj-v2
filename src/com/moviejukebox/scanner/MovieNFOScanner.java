@@ -79,10 +79,18 @@ public class MovieNFOScanner {
                                 currentUrlStartIndex = nextUrlStartIndex;
                                 nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex + 1);
                             }
-                            logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-                            movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-                            urlStartIndex = -1;
-                            movie.setDirtyPoster(true);
+
+                            // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
+                            if (nfo.substring(currentUrlStartIndex-8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0) {
+                                logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                                movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                                urlStartIndex = -1;
+                                movie.setDirtyPoster(true);
+                            } else {
+                            	logger.finer("Poster URL ignored in NFO because it's a fanart URL");
+                            	// Search for the URL again
+                            	urlStartIndex = currentUrlStartIndex + 3;
+                            }
                         } else {
                             urlStartIndex = currentUrlStartIndex + 3;
                         }
