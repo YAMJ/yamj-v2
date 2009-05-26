@@ -47,6 +47,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #701 Additional videoimage properties
   - Enhancement  #703 Index by library description (if present)
   - Enhancement  #705 Speed up XSLT processing
+  - Fixed defect #706 Fanart in NFO used as poster if no thumb present. 
   - Enhancement  #712 Patch for Kinopoisk plugin
                         1. Extract original movie name from Kinopoisk page.
                         2. Extract IMDB rating from Kinopoisk page if needed.
