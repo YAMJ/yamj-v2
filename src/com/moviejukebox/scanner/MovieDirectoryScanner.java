@@ -81,9 +81,9 @@ public class MovieDirectoryScanner {
                 Collections.sort(fileList);
 
                 // Prescan files list. Ignore directory if file with predefined name is found.
-            	// TODO May be read the file and exclude files by mask (similar to .cvsignore)
+                // TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 for (File file : files) {
-                	if (file.getName().equalsIgnoreCase(".mjbignore")) return;
+                    if (file.getName().equalsIgnoreCase(".mjbignore")) return;
                 }
 
                 for (File file : fileList) {
@@ -221,17 +221,17 @@ public class MovieDirectoryScanner {
             m.setSubtitles(hasSubtitles(m.getFile()));
             m.setLibraryDescription(srcPath.getDescription());
             m.setPrebuf(srcPath.getPrebuf());
-
-            // Set duration for BD disks using the data in the playlist
-            if (bdDuration != 0) {
-                m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
-            }
-
-//            MovieFilenameScanner filenameScanner = new MovieFilenameScanner();
-//            filenameScanner.scan(m);
+            
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
             m.mergeFileNameDTO(dto);
             movieFile.mergeFileNameDTO(dto);
+
+            // Set duration for BD disks using the data in the playlist + mark bd source and container
+            if (bdDuration != 0) {
+                m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
+                m.setContainer("BluRay");
+                m.setVideoSource("BluRay");
+            }
 
             library.addMovie(m);
         }
