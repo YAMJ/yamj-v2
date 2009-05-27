@@ -12,22 +12,22 @@ import java.util.List;
  * @author Artem.Gratchev
  */
 public class MovieFileNameDTO {
-    private String title = null;
-    private int year = -1;
-    private String partTitle = null;
-    private String episodeTitle = null;
-    private int season = -1;
+    private String  title = null;
+    private int     year = -1;
+    private String  partTitle = null;
+    private String  episodeTitle = null;
+    private int     season = -1;
     private final List<Integer> episodes = new ArrayList<Integer>();
-    private int part = -1;
+    private int     part = -1;
     private boolean trailer = false;
-    private String trailerTitle = null;
-    private String audioCodec = null;
-    private String videoCodec = null;
-    private String container = null;
-    private String extension = null;
-    private int fps = -1;
-    private String hdResolution = null;
-    private String videoSource = null;
+    private String  trailerTitle = null;
+    private String  audioCodec = null;
+    private String  videoCodec = null;
+    private String  container = null;
+    private String  extension = null;
+    private int     fps = -1;
+    private String  hdResolution = null;
+    private String  videoSource = null;
 
     public static class Set {
         private String title = null;
