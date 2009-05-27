@@ -25,14 +25,14 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 public class Library implements Map<String, Movie> {
-	
+    
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
     
     public static class Index extends TreeMap<String, List<Movie>> {
         private int maxCategories = -1;
         private boolean display = true;
-		
+        
         private static final long serialVersionUID = -6240040588085931654L;
 
         public Index(Comparator<? super String> comp) {
@@ -42,7 +42,7 @@ public class Library implements Map<String, Movie> {
         public Index() {
             super();
         }
-		
+        
         public Index(boolean display) {
             this();
             this.display = display;
@@ -125,11 +125,12 @@ public class Library implements Map<String, Movie> {
     private static Map<String, String> genresMap = new HashMap<String, String>();
     private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
+    private static boolean charGroupEnglish = false;
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
     private Map<String, Movie> trailers = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
     private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
-    private static DecimalFormat paddedFormat = new DecimalFormat("000");	// Issue 190
+    private static DecimalFormat paddedFormat = new DecimalFormat("000");    // Issue 190
     private static final Calendar currentCal = Calendar.getInstance();
     private static int maxGenresPerMovie = 3;
     private static int newCount = 0;
@@ -179,6 +180,8 @@ public class Library implements Map<String, Movie> {
                 }
             }
         }
+
+        charGroupEnglish = PropertiesUtil.getProperty("indexing.character.groupEnglish", "false").equalsIgnoreCase("true");
         
         String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
         try {
@@ -478,7 +481,7 @@ public class Library implements Map<String, Movie> {
     }
 
     private static Index indexByTitle(Iterable<Movie> moviesList) {
-    	Index index = new Index();
+        Index index = new Index();
         for (Movie movie : moviesList) {
             if (!movie.isTrailer()) {
                 String title = movie.getStrippedTitleSort();
@@ -486,8 +489,11 @@ public class Library implements Map<String, Movie> {
                     Character c = Character.toUpperCase(title.charAt(0));
 
                     if (!Character.isLetter(c)) {
-                    	index.addMovie("09", movie);
-                    } else {
+                        index.addMovie("09", movie);
+                    } else
+                    if (charGroupEnglish && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) )
+                        index.addMovie("AZ", movie);
+                    else {
                         Character tempC = charReplacementMap.get(c);
                         if (tempC != null) {
                             c = tempC;
@@ -501,7 +507,7 @@ public class Library implements Map<String, Movie> {
     }
 
     private static Index indexByYear(Iterable<Movie> moviesList) {
-    	Index index = new Index();
+        Index index = new Index();
         for (Movie movie : moviesList) {
             if (!movie.isTrailer()) {
                 String year = getYearCategory(movie.getYear());
@@ -540,7 +546,7 @@ public class Library implements Map<String, Movie> {
     }
 
     private static Index indexByCertification(Iterable<Movie> moviesList) {
-    	Index index = null;
+        Index index = null;
         if (!certificationOrdering.isEmpty()) {
             index = new Index(new CertificationComparator(certificationOrdering));
         } else {
@@ -768,10 +774,10 @@ public class Library implements Map<String, Movie> {
                 List<HierarchicalConfiguration> genres = c.configurationsAt("genre");
                 for (HierarchicalConfiguration genre : genres) {
                     String masterGenre = genre.getString("[@name]");
-//					logger.finest("New masterGenre parsed : (" +  masterGenre+ ")");
+//                    logger.finest("New masterGenre parsed : (" +  masterGenre+ ")");
                     List<String> subgenres = genre.getList("subgenre");
                     for (String subgenre : subgenres) {
-//						logger.finest("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
+//                        logger.finest("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
                         genresMap.put(subgenre, masterGenre);
                     }
 
