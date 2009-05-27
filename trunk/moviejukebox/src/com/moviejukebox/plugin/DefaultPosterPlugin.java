@@ -28,6 +28,7 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
     private int posterWidth;
     private int posterHeight;
     private float ratio;
+    private boolean highdefDiff;
 
     public DefaultPosterPlugin() {
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
@@ -40,6 +41,7 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
         addTVLogo = Boolean.parseBoolean(PropertiesUtil.getProperty("posters.logoTV", "false"));
         addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty("posters.language", "false"));
         ratio = (float) posterWidth / (float) posterHeight;
+        highdefDiff = Boolean.parseBoolean(PropertiesUtil.getProperty("highdef.differentiate", "false"));
     }
 
     @Override
@@ -105,25 +107,49 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
     }
 
     private BufferedImage drawLogoHD(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
-        if (movie.isHD()) {
+        // If the movie isn't high definition, then quit
+        if (!movie.isHD()) {
+            return bi;
+        }
+        
+        String logoName;
+        File logoFile;
 
-            try {
-                InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "hd.png");
-                BufferedImage biHd = ImageIO.read(in);
-                Graphics g = bi.getGraphics();
+        // Determine which logo to use.
+        if (highdefDiff) {
+            if (movie.isHD1080())
+                // Use the 1080p logo
+                logoName = "hd-1080.png";
+            else
+                // Otherwise use the 720p
+                logoName = "hd-720.png";
+        } else {
+            // We don't care, so use the default HD logo.
+            logoName = "hd.png";
+        }
 
-                if (addOtherLogo && (movie.isTVShow())) {
-                    // Both logos are required, so put the HD logo on the LEFT
-                    g.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
-                } else {
-                    // Only the HD logo is required so set it in the centre
-                    g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
-                }
+        logoFile = new File(getResourcesPath() + logoName);
+        if (!logoFile.exists()) {
+            logger.finest("Missing HD logo (" + logoName + ") using default hd.png");
+            logoName = "hd.png";
+        }
 
+        try {
+            InputStream in = new FileInputStream(getResourcesPath() + logoName);
+            BufferedImage biHd = ImageIO.read(in);
+            Graphics g = bi.getGraphics();
 
-            } catch (IOException e) {
-                logger.warning("Failed drawing HD logo to thumbnail file: Please check that hd.png is in the resources directory.");
+            if (addOtherLogo && (movie.isTVShow())) {
+                // Both logos are required, so put the HD logo on the LEFT
+                g.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
+                logger.finest("Drew HD logo (" + logoName + ") on the left");
+            } else {
+                // Only the HD logo is required so set it in the centre
+                g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
+                logger.finest("Drew HD logo (" + logoName + ") in the middle");
             }
+        } catch (IOException e) {
+            logger.warning("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
 
         return bi;
@@ -169,5 +195,9 @@ public class DefaultPosterPlugin implements MovieImagePlugin {
         }
 
         return bi;
+    }
+    
+    protected String getResourcesPath() {
+        return skinHome + File.separator + "resources" + File.separator;
     }
 }

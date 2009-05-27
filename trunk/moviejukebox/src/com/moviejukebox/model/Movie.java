@@ -1,6 +1,7 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Movie bean
@@ -37,7 +39,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String originalTitle = UNKNOWN;
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
-    private int rating = -1;
+    private int    rating = -1;
     private String posterURL = UNKNOWN;
     private String posterSubimage = UNKNOWN;
     private String fanartURL = UNKNOWN;
@@ -53,17 +55,17 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String runtime = UNKNOWN;
     private String language = UNKNOWN;
     private String videoType = UNKNOWN;
-    private int season = -1;
+    private int    season = -1;
     private boolean hasSubtitles = false;
     private Collection<String> genres = new TreeSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private Collection<String> cast = new ArrayList<String>();
     private Collection<String> writers = new ArrayList<String>();
-    private String container = UNKNOWN; // AVI, MKV, TS, etc.
-    private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
-    private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
+    private String container = UNKNOWN;     // AVI, MKV, TS, etc.
+    private String videoCodec = UNKNOWN;    // DIVX, XVID, H.264, etc.
+    private String audioCodec = UNKNOWN;    // MP3, AC3, DTS, etc.
     private String audioChannels = UNKNOWN; // Number of audio channels
-    private String resolution = UNKNOWN; // 1280x528
+    private String resolution = UNKNOWN;    // 1280x528
     private String videoSource = UNKNOWN;
     private String videoOutput = UNKNOWN;
     private float fps = 60;
@@ -92,7 +94,10 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private boolean isDirtyFanart = false;
     private File file;
     private File containerFile;
-    
+    // Get the minimum widths for a high-definition movies
+    private int     highdef720  = Integer.parseInt(PropertiesUtil.getProperty("highdef.720.width", "1280"));
+    private int     highdef1080 = Integer.parseInt(PropertiesUtil.getProperty("highdef.1080.width", "1920"));
+
     /** True if movie actually is only a entry point to movies set.  */
     private boolean isSetMaster = false; 
 
@@ -332,6 +337,11 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public String getResolution() {
         return resolution;
     }
+    
+    // Return the width of the movie
+    public int getWidth() {
+        return Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
+    }
 
     public String getRuntime() {
         return runtime;
@@ -399,8 +409,14 @@ public class Movie implements Comparable<Movie>, Cloneable {
     }
     
     public boolean isHD() {
-        return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
-    }    
+        // Depreciated this check in favour of the width check
+        //return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
+        return (getWidth() >= highdef720);
+    }
+    
+    public boolean isHD1080() {
+        return (getWidth() >= highdef1080);
+    }
 
     public void setAudioCodec(String audioCodec) {
         if (audioCodec == null) {
@@ -1120,7 +1136,6 @@ public class Movie implements Comparable<Movie>, Cloneable {
                 break;
             }
         }
-		
 	}
 
 	public boolean isSetMaster() {
