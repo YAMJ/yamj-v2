@@ -845,7 +845,7 @@ public class SratimPlugin extends ImdbPlugin {
                         } else {
                             sb.append(" / ");
                         }
-                        sb.append(scanName);
+                        sb.append(logicalToVisual(scanName));
                     
 
                         try {
@@ -1287,7 +1287,10 @@ public class SratimPlugin extends ImdbPlugin {
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 connection.setRequestProperty("Content-Length", "" + Integer.toString(post.getBytes().length));
-                connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");                connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");                connection.setRequestProperty("Referer", "http://www.sratim.co.il/users/login.aspx");
+                connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
+                connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+                connection.setRequestProperty("Referer", "http://www.sratim.co.il/users/login.aspx");
+
                 connection.setRequestProperty("Cookie", cookieHeader);
                 connection.setUseCaches (false);
                 connection.setDoInput(true);
