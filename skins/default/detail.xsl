@@ -36,7 +36,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 <xsl:variable name="star_rating">true</xsl:variable>
 <xsl:variable name="full_rating">true</xsl:variable>
 
-<body bgproperties="fixed" background="pictures/background.jpg">
+<body bgproperties="fixed" background="pictures/background.jpg" onloadset="Play">
 <!-- xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute-->
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
@@ -276,6 +276,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                   <a class="link">
                     <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                     <xsl:attribute name="TVID">Play</xsl:attribute>
+                    <xsl:attribute name="name">Play</xsl:attribute>
 
                     <xsl:call-template name="zcd">
                       <xsl:with-param name="url" select="fileURL"/>
@@ -322,6 +323,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                     <xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" />
                   </xsl:attribute>
                   <xsl:attribute name="TVID">Play</xsl:attribute>
+                  <xsl:attribute name="name">Play</xsl:attribute>
 
                   <xsl:attribute name="vod">playlist</xsl:attribute>
                   <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
@@ -385,6 +387,10 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 
                           <xsl:if test="//movie/prebuf != -1">
                             <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                          </xsl:if>
+
+                          <xsl:if test="position() = 1">
+                            <xsl:attribute name="name">Play</xsl:attribute>
                           </xsl:if>
 
                           <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">

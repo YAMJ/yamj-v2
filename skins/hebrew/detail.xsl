@@ -36,7 +36,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 <xsl:variable name="star_rating">true</xsl:variable>
 <xsl:variable name="full_rating">true</xsl:variable>
 
-<body bgproperties="fixed" background="pictures/background.jpg">
+<body bgproperties="fixed" background="pictures/background.jpg" onloadset="Play">
 <!-- xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute-->
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
@@ -274,6 +274,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                   <a class="link">
                     <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                     <xsl:attribute name="TVID">Play</xsl:attribute>
+                    <xsl:attribute name="name">Play</xsl:attribute>
 
                     <xsl:call-template name="zcd">
                       <xsl:with-param name="url" select="fileURL"/>
@@ -324,6 +325,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                     <xsl:value-of select="concat(/details/movie/baseFilename,'.playlist.jsp')" />
                   </xsl:attribute>
                   <xsl:attribute name="TVID">Play</xsl:attribute>
+                  <xsl:attribute name="name">Play</xsl:attribute>
 
                   <xsl:attribute name="vod">playlist</xsl:attribute>
                   <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
@@ -348,7 +350,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                       <xsl:for-each select="files/file">
                         <xsl:sort select="@firstPart" data-type="number" order="{$episodeSortOrder}"/>
                         <xsl:if test="position() = 1">
-                          <a tvid="Play">
+                          <a tvid="Play" vod="playlist">
                             <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                           </a>
                         </xsl:if>
@@ -357,9 +359,10 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                             <xsl:attribute name="class">firstMovie</xsl:attribute>
                           </xsl:if>
 
-                          &#160;<xsl:value-of select="@firstPart"/>
+                          <xsl:text>&#160;&#160;</xsl:text>
+                          <xsl:value-of select="@firstPart"/>
                           <xsl:if test="@firstPart!=@lastPart">-<xsl:value-of select="@lastPart"/>
-                          </xsl:if>&#160;קרפ
+                          </xsl:if>
                         </a>
                         <a>
                           <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
@@ -379,6 +382,10 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 
                           <xsl:if test="//movie/prebuf != -1">
                             <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
+                          </xsl:if>
+
+                          <xsl:if test="position() = 1">
+                            <xsl:attribute name="name">Play</xsl:attribute>
                           </xsl:if>
 
                           <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top">
