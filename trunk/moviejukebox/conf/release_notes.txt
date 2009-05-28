@@ -25,6 +25,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #650 Get writer information from IMDB
   - Fixed defect #651 Recognize single-character titles when scanning filenames
   - Fixed defect #656 Recognize DVDR as a synonym for DVDRip
+  - Fixed defect #659 Create "Dual Language" Icon
   - Fixed defect #662 FilmDeltaSEPlugin can't handle "illegal HTML characters"
   - Fixed defect #666 Can't connect to IMDB behind authenticated proxy
   - Fixed defect #667 Can't download image behind authenticated proxy
