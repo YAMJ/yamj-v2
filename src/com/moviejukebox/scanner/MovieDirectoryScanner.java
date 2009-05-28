@@ -33,6 +33,7 @@ public class MovieDirectoryScanner {
     private String postersFormat;
     private String opensubtitles;
     private Boolean excludeFilesWithoutExternalSubtitles;
+    private Boolean excludeMultiPartBluRay;
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     //BD rip infos Scanner
@@ -45,6 +46,7 @@ public class MovieDirectoryScanner {
         thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
         postersFormat = PropertiesUtil.getProperty("posters.format", "png");
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
+        excludeMultiPartBluRay = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.excludeMultiPartBluRay", "false"));
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
 
         localBDRipScanner = new BDRipScanner();
@@ -174,6 +176,13 @@ public class MovieDirectoryScanner {
             BDFilePropertiesMovie bdPropertiesMovie = localBDRipScanner.executeGetBDInfo(file);
 
             if (bdPropertiesMovie != null) {
+                
+                // Exclude multi part BluRay that include more than one file
+                if (excludeMultiPartBluRay && bdPropertiesMovie.fileList.length > 1) {
+                    logger.fine("File " + file.getName() + " excluded. (multi part BluRay)");
+                    return;
+                }
+            
                 bdDuration = bdPropertiesMovie.duration;
                 contentFiles = bdPropertiesMovie.fileList;
             }
