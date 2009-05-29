@@ -340,7 +340,14 @@ public class Movie implements Comparable<Movie>, Cloneable {
     
     // Return the width of the movie
     public int getWidth() {
-        return Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
+        int width = 0;
+        try {
+            width = Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
+        } catch (Exception e) {
+            // This will catch the exception if mediainfo is not installed.
+            width = 0;
+        }
+        return width; 
     }
 
     public String getRuntime() {
