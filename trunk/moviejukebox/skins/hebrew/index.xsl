@@ -46,6 +46,7 @@
   <tr valign="top">
     <td COLSPAN="2" align="center"> 
       <xsl:for-each select="library/category[@name='Title']/index">
+        <xsl:sort select="@name" data-type="text" order="descending"/>
         <xsl:if test="position()>1"> - </xsl:if>
         <a>
         <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
@@ -55,11 +56,31 @@
       </xsl:for-each>
     </td>
   </tr>
-  <tr align="left" valign="top">
+  <tr align="right" valign="top">
+    <td>
+      <table class="movies" border="0">
+        <xsl:for-each select="library/movies/movie[$nbCols = 1 or position() mod $nbCols = 1]">
+          <tr>
+            <xsl:if test="count(.|following-sibling::movie[position() &lt; $nbCols])=4"> <td>&#160;</td> </xsl:if>
+            <xsl:if test="count(.|following-sibling::movie[position() &lt; $nbCols])=3"> <td>&#160;</td><td>&#160;</td> </xsl:if>
+            <xsl:if test="count(.|following-sibling::movie[position() &lt; $nbCols])=2"> <td>&#160;</td><td>&#160;</td><td>&#160;</td> </xsl:if>
+            <xsl:if test="count(.|following-sibling::movie[position() &lt; $nbCols])=1"> <td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td> </xsl:if>
+            <xsl:apply-templates
+                 select=".|following-sibling::movie[position() &lt; $nbCols]">
+              <xsl:with-param name="gap" select="(position() - 1) * $nbCols" />
+              <xsl:with-param name="currentIndex" select="$currentIndex" />
+              <xsl:with-param name="lastIndex" select="$lastIndex" />
+              <xsl:with-param name="lastGap" select="($nbLines - 1) * $nbCols" />
+            </xsl:apply-templates>
+          </tr>
+        </xsl:for-each>
+      </table><br/>
+      <table class="title" width="100%"><tr><td id="title" align="center">&#160;</td></tr></table>
+    </td>
     <td width="120">
       <table class="categories" border="0">
         <xsl:for-each select="library/category[@name='Other']/index">
-          <tr valign="top"><td align="right">
+          <tr valign="top"><td align="left">
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
             <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
@@ -70,7 +91,7 @@
                 <xsl:when test="@name='New'">שדח</xsl:when>
                 <xsl:when test="@name='TV Shows'">תורדס</xsl:when>
                 <xsl:when test="@name='Top250'">םיצלמומ</xsl:when>
-                <xsl:when test="@name='Trailers'">םירליירט</xsl:when>
+                <xsl:when test="@name='Trailers'">םינומידק</xsl:when>
                 <xsl:otherwise>
                   <xsl:value-of select="@name" />
                 </xsl:otherwise>
@@ -79,7 +100,7 @@
           </td></tr>
         </xsl:for-each>
         <xsl:for-each select="library/category[@name='Genres']/index">
-          <tr valign="top"><td align="right">
+          <tr valign="top"><td align="left">
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
             <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
@@ -99,34 +120,18 @@
         <tr><td><hr><xsl:text> </xsl:text></hr></td></tr>
 
         <xsl:if test="$lastIndex != 1">
-           <tr><td align="right"><table><tr>
-             <td valign="center">
-              <div class="counter"><xsl:value-of select="$currentIndex"/> / <xsl:value-of select="$lastIndex" /></div></td>
+           <tr><td align="left"><table><tr>
              <td valign="top">
                  <a name="pgdn" tvid="pgdn"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute><img src="pictures/nav_down.png" /></a>
                  <a name="pgup" tvid="pgup"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute><img src="pictures/nav_up.png" /></a>
              </td>
+             <td valign="center">
+              <div class="counter"><xsl:value-of select="$currentIndex"/> / <xsl:value-of select="$lastIndex" /></div></td>
              </tr></table>
            </td></tr>
         </xsl:if>
 
       </table>
-    </td>
-    <td>
-      <table class="movies" border="0">
-        <xsl:for-each select="library/movies/movie[$nbCols = 1 or position() mod $nbCols = 1]">
-          <tr>
-            <xsl:apply-templates
-                 select=".|following-sibling::movie[position() &lt; $nbCols]">
-              <xsl:with-param name="gap" select="(position() - 1) * $nbCols" />
-              <xsl:with-param name="currentIndex" select="$currentIndex" />
-              <xsl:with-param name="lastIndex" select="$lastIndex" />
-              <xsl:with-param name="lastGap" select="($nbLines - 1) * $nbCols" />
-            </xsl:apply-templates>
-          </tr>
-        </xsl:for-each>
-      </table><br/>
-      <table class="title" width="100%"><tr><td id="title" align="center">&#160;</td></tr></table>
     </td>
   </tr>
 </table>
@@ -165,8 +170,8 @@
      <td>
         <a>
           <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
-          <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute>
-          <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute>
+          <xsl:attribute name="TVID"><xsl:value-of select="last() + 1 - position()+$gap"/></xsl:attribute>
+          <xsl:attribute name="name"><xsl:value-of select="last() + 1 - position()+$gap"/></xsl:attribute>
           <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>
             <xsl:text>, '</xsl:text>
             <xsl:value-of>

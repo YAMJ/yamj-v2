@@ -60,10 +60,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
     </td>
   </tr>
 
-  <tr align="left" valign="top">
-    <td width="420px">
-      <img width="400"><xsl:attribute name="src"><xsl:value-of select="detailPosterFile" /></xsl:attribute></img>
-    </td>
+  <tr align="right" valign="top">
 
     <td>
       <table border="0" width="95%" align="right">
@@ -132,7 +129,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                   <xsl:value-of select="country" />
                 </xsl:otherwise>
               </xsl:choose>
-              <xsl:text>)</xsl:text>
+              <xsl:text>) </xsl:text>
             </xsl:if>
             <xsl:if test="company != 'UNKNOWN'">
               <xsl:value-of select="company" />
@@ -222,41 +219,46 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 
         <tr>
           <td colspan="2"><center><table width="95%">
-            <tr>
-              <td class="title3info" width="5%">Source</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="videoSource" /></td>
-              <td class="title3info" width="5%">Subtitles</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="subtitles" /></td>
-            </tr>
-            <tr>
-              <td class="title3info" width="5%">System</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="container" /></td>
-              <td class="title3info" width="5%">Dimension</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="resolution" /></td>
-            </tr>
-            <tr>
-              <td class="title3info" width="5%">Video</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="videoCodec" /></td>
-              <td class="title3info" width="5%">Output</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="videoOutput" /></td>
-            </tr>
-            <tr>
-              <td class="title3info" width="5%">Audio</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="audioCodec" /></td>
-              <td class="title3info" width="5%">FPS</td>
-              <td class="normalinfo" width="45%"><xsl:value-of select="fps" /></td>
-            </tr>
-            <tr>
-              <td class="title3info" width="5%" valign="top">Channels</td>
-              <td class="normalinfo" width="45%" valign="top"><xsl:value-of select="audioChannels" /></td>
-              <td class="title3info" width="5%" valign="top">
-                <xsl:if test="libraryDescription != 'UNKNOWN'">
-                  Library
-                </xsl:if>
+            <tr align="right">
+              <td class="normalinfo" width="20%"><xsl:value-of select="videoSource" /></td>
+              <td class="title3info" width="10%">רוקמ</td>
+              <td class="normalinfo" width="20%">
+                <xsl:choose>
+                  <xsl:when test="subtitles='YES'">שי</xsl:when>
+                  <xsl:when test="subtitles='NO'">ןיא</xsl:when>
+                </xsl:choose>
               </td>
-              <td class="normal" width="45%" valign="top">
+              <td class="title3info" width="10%">תויבותכ</td>
+            </tr>
+            <tr align="right">
+              <td class="normalinfo" width="20%"><xsl:value-of select="container" /></td>
+              <td class="title3info" width="10%">תכרעמ</td>
+              <td class="normalinfo" width="20%"><xsl:value-of select="resolution" /></td>
+              <td class="title3info" width="10%">הדרפה</td>
+            </tr>
+            <tr align="right">
+              <td class="normalinfo" width="30%"><xsl:value-of select="videoCodec" /></td>
+              <td class="title3info" width="15%">הנומת</td>
+              <td class="normalinfo" width="30%"><xsl:value-of select="videoOutput" /></td>
+              <td class="title3info" width="15%">טלפ</td>
+            </tr>
+            <tr align="right">
+              <td class="normalinfo" width="30%"><xsl:value-of select="audioCodec" /></td>
+              <td class="title3info" width="15%">לוק</td>
+              <td class="normalinfo" width="30%"><xsl:value-of select="fps" /></td>
+              <td class="title3info" width="15%">הינשל תונומת</td>
+            </tr>
+            <tr align="right">
+              <td class="normalinfo" width="30%" valign="top"><xsl:value-of select="audioChannels" /></td>
+              <td class="title3info" width="15%" valign="top">םיצורע</td>
+              <td class="normal" width="30%" valign="top">
                 <xsl:if test="libraryDescription != 'UNKNOWN'">
                   <xsl:value-of select="libraryDescription" />
+                </xsl:if>
+              </td>
+              <td class="title3info" width="10%" valign="top">
+                <xsl:if test="libraryDescription != 'UNKNOWN'">
+                  Library
                 </xsl:if>
               </td>
             </tr>
@@ -338,9 +340,9 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
               <xsl:variable name="episodeSortOrder">
                 <xsl:choose>
                   <xsl:when test="$skin-reverseEpisodeOrder='true' and //movie/season != -1">
-                    <xsl:text>descending</xsl:text>
+                    <xsl:text>ascending</xsl:text>
                   </xsl:when>
-                  <xsl:otherwise>ascending</xsl:otherwise>
+                  <xsl:otherwise>descending</xsl:otherwise>
                 </xsl:choose>
               </xsl:variable>
               <td>
@@ -355,7 +357,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                           </a>
                         </xsl:if>
                         <a class="link">
-                          <xsl:if test="position() = 1">
+                          <xsl:if test="position() = last()">
                             <xsl:attribute name="class">firstMovie</xsl:attribute>
                           </xsl:if>
 
@@ -384,7 +386,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                             <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                           </xsl:if>
 
-                          <xsl:if test="position() = 1">
+                          <xsl:if test="position() = last()">
                             <xsl:attribute name="name">Play</xsl:attribute>
                           </xsl:if>
 
@@ -421,7 +423,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
           <tr>
             <td>
               <table align="right">
-                <tr><td class="title2" align="right">םירליירט</td></tr>
+                <tr><td class="title2" align="right">םינומידק</td></tr>
                 <xsl:for-each select="trailers/trailer">
                   <tr>
                     <td class="normal">
@@ -437,9 +439,9 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                         </xsl:if>
 
                         <xsl:attribute name="vod"/>
-                        <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
-                        <xsl:text>&#160;</xsl:text>
                         <xsl:value-of select="@title"/>
+                        <xsl:text>&#160;</xsl:text>
+                        <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                       </a>
                     </td>
                   </tr>
@@ -483,6 +485,14 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
         </div>
       </xsl:for-each>
     </td>
+    <td width="420px">
+      <img width="400">
+        <xsl:attribute name="src">
+          <xsl:value-of select="detailPosterFile" />
+        </xsl:attribute>
+      </img>
+    </td>
+
   </tr>
 </table>
 <!--  
