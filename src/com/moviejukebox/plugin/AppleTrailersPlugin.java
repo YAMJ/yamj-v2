@@ -29,6 +29,7 @@ public class AppleTrailersPlugin {
 
     private String configResolution;
     private String configDownload;
+    private String configTrailerTypes;
     private int configMax;
     
     protected WebBrowser webBrowser;
@@ -46,6 +47,8 @@ public class AppleTrailersPlugin {
         } catch (Exception ignored) {
             configMax = 0;
         }
+        
+        configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec");
     }
 
 
@@ -64,7 +67,6 @@ public class AppleTrailersPlugin {
 
         if (movie.getMovieType().equals(Movie.TYPE_TVSHOW))
             return;
-            
 
         String movieName = movie.getOriginalTitle();
         
@@ -76,7 +78,6 @@ public class AppleTrailersPlugin {
             movie.setTrailerExchange(true);
             return;
         }
-        
         
         ArrayList<String> trailersUrl = new ArrayList<String>();
         ArrayList<String> bestTrailersUrl = new ArrayList<String>();
@@ -90,20 +91,27 @@ public class AppleTrailersPlugin {
             trailerCnt = configMax;
         }
         
-        for (int i=0;i<trailerCnt;i++) {            
+        for (int i=0; i < trailerCnt; i++) {            
         
             String trailerRealUrl = bestTrailersUrl.get(i);
             
-            // Add the trailer url to the movie
+            // Add the trailer URL to the movie
             MovieFile tmf = new MovieFile();
             tmf.setTitle(getTrailerTitle(trailerRealUrl));
             
+            // Is the found trailer one of the types to download/link to?
+            if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
+                if (configMax < trailerCnt) {
+                    trailerCnt++;   // This trailer shouldn't count against the download count
+                }
+                logger.finer("AppleTrailers Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl) + " - not one of the trailer types");
+                continue;           // Quit the rest of the trailer loop.
+            }
+            
+            logger.finer("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
             
             // Check if we need to download the trailer, or just link to it
             if (!configDownload.equals("true")) {
-            
-                logger.finer("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " " + trailerRealUrl);
-                
                 tmf.setFilename(trailerRealUrl);
                 movie.addTrailerFile(new TrailerFile(tmf));
                 //movie.setTrailer(true);
@@ -121,8 +129,7 @@ public class AppleTrailersPlugin {
                     basename = index == -1 ? name : name.substring(0, index);
                 }
                 
-                int nameStart=trailerRealUrl.lastIndexOf('/')+1;
-                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER]." + trailerRealUrl.substring(nameStart));
+                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER]." + getFilenameFromUrl(trailerRealUrl));
                 String trailerFileName = parentPath + File.separator + trailerBasename;
                 
                 int slash = mf.getFilename().lastIndexOf("/");
@@ -138,7 +145,7 @@ public class AppleTrailersPlugin {
                 // Check if the file already exist - after jukebox directory was deleted for example
                 if (trailerFile.exists()) {
                 
-                    logger.finer("AppleTrailers Plugin: Trailer file already exist for " + movie.getBaseName());
+                    logger.finer("AppleTrailers Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
                 
                     tmf.setFilename(trailerPlayFileName);
                     movie.addTrailerFile(new TrailerFile(tmf));
@@ -443,7 +450,6 @@ public class AppleTrailersPlugin {
             return Movie.UNKNOWN;
             
         String title="";
-//        boolean upper=true;
         
         for (int i=start+1;i<end;i++) {
             if ((url.charAt(i)=='-') || (url.charAt(i)=='_'))
@@ -548,6 +554,24 @@ public class AppleTrailersPlugin {
         	System.out.print("\n");		// Complete the line for aesthetic purposes
         	timer.cancel();				// Close the timer
         }
-
     }
+ 
+    // Extract the filename from the URL
+    private String getFilenameFromUrl(String fullUrl) {
+        int nameStart = fullUrl.lastIndexOf('/') + 1;
+        return fullUrl.substring(nameStart);
+    }
+    
+    // Check the trailer filename against the valid trailer types from appletrailers.trailertypes
+    private boolean isValidTrailer(String trailerFilename) {
+        boolean validTrailer=false;
+
+        for (String ttype : configTrailerTypes.split(",")) {
+            if (trailerFilename.lastIndexOf(ttype) > 0) {
+                validTrailer = true;
+                break;
+            }
+        }
+        return validTrailer;
+    }   
 }
