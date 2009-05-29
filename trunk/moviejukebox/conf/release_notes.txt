@@ -13,6 +13,7 @@ MovieJukebox 1.0.17 beta
   - Enhancement  #462 Enable/disable Year and Certification rating in index page of all skins. New skin-options.xsl file.
   - Enhancement  #465 Play All link at beginning of playlist instead of end
   - Fixed defect #475 Correctly display index pages when mjb.nbThumbnailsPerLine=1
+  - Enhancement  #498 AppleTrailer download control for trailer types
   - Enhancement  #507 Properties can be overridden at the command line
   - Fixed defect #565 FilmAffinity ID ignored
   - Fixed defect #581 gfb skin's links to genres from movie details pages were broken for filtered genres
