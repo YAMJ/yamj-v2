@@ -351,6 +351,7 @@ public class Library implements Map<String, Movie> {
                 else if (indexStr.equals("Cast")) indexes.put("Cast", indexByCast(indexMovies));
                 else if (indexStr.equals("Director")) indexes.put("Director", indexByDirector(indexMovies));
                 else if (indexStr.equals("Country")) indexes.put("Country", indexByCountry(indexMovies));
+                else if (indexStr.equals("Writer")) indexes.put("Writer", indexByWriter(indexMovies));
             }
             
             Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
@@ -635,7 +636,7 @@ public class Library implements Map<String, Movie> {
         
         return index;
     }
-    
+
     protected static Index indexByCountry(List<Movie> list) {
         Index index = new Index(true);
         for (Movie movie : list) {
@@ -652,6 +653,20 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isTrailer()) {
                 index.addMovie(movie.getDirector(), movie);
+            }
+        }
+        
+        return index;
+    }
+    
+    protected static Index indexByWriter(List<Movie> list) {
+        Index index = new Index(true);
+        for (Movie movie : list) {
+            if (!movie.isTrailer()) {
+                for (String writer : movie.getWriters()) {
+                    logger.finest("Adding " + movie.getTitle() + " to writer list for " + writer);
+                    index.addMovie(writer, movie);
+                }
             }
         }
         

@@ -197,6 +197,19 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         } else {
                             sb.append(" / ");
                         }
+
+                        // We only get the writers for the first episode, otherwise we might overwhelm the skins with data
+                        // TODO Assign the writers on a per-episode basis, rather than series.
+                        if ((movie.getWriters().equals(Movie.UNKNOWN)) || ( movie.getWriters().isEmpty())){
+                            movie.setWriters(episode.getWriters());
+                        }
+                        
+                        // TODO Assign the director to each episode.
+                        if ((movie.getDirector().equals(Movie.UNKNOWN)) || (movie.getDirector().isEmpty())) {
+                            System.out.println("Director: " + episode.getDirectors());
+                            // Director is a single entry, not a list, so only get the first director
+                            movie.setDirector(episode.getDirectors().get(0));
+                        }
                         
                         sb.append(episode.getEpisodeName());
 
