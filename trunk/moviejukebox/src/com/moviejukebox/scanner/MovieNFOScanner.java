@@ -44,6 +44,7 @@ public class MovieNFOScanner {
     private static String fanartToken = ".fanart";
     private static String forceNFOEncoding = null; 
     private static String NFOdirectory = "";
+    @SuppressWarnings("unused")
     private static boolean parentDirs = false;
 
     /**
@@ -87,9 +88,9 @@ public class MovieNFOScanner {
                                 urlStartIndex = -1;
                                 movie.setDirtyPoster(true);
                             } else {
-                            	logger.finer("Poster URL ignored in NFO because it's a fanart URL");
-                            	// Search for the URL again
-                            	urlStartIndex = currentUrlStartIndex + 3;
+                                logger.finer("Poster URL ignored in NFO because it's a fanart URL");
+                                // Search for the URL again
+                                urlStartIndex = currentUrlStartIndex + 3;
                             }
                         } else {
                             urlStartIndex = currentUrlStartIndex + 3;
@@ -109,9 +110,7 @@ public class MovieNFOScanner {
         }
         
         String fn = movie.getContainerFile().getAbsolutePath();
-        String localMovieDir = fn.substring(0, fn.lastIndexOf(File.separator)); // the full directory that the video file is in
-        String localDirectoryName = localMovieDir.substring(localMovieDir.lastIndexOf(File.separator) + 1); // just the sub-directory the video file is in
-
+        
         // If "fn" is a file then strip the extension from the file.
         if (movie.getContainerFile().isFile()) {
             fn = fn.substring(0, fn.lastIndexOf("."));

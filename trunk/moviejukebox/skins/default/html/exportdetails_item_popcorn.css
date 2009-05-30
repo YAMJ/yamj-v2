@@ -30,7 +30,7 @@ table.main {
     font-size: 16pt;
     font-weight: bold;
 }
-	
+
 .title3 {
     color: #AAAAAA;
     font-size: 14pt;
@@ -46,19 +46,19 @@ table.main {
 .plot {
     color: #888888;
     font-weight: normal;
-	font-size: 14pt;
+    font-size: 14pt;
 }
 
 .large-plot {
     color: #888888;
     font-weight: normal;
-	font-size: 12pt;
+    font-size: 12pt;
 }
 
 .xlarge-plot {
     color: #888888;
     font-weight: normal;
-	font-size: 10pt;
+    font-size: 10pt;
 }
 
 .normal {

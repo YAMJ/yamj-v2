@@ -380,7 +380,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             
             if (movie.getWriters().isEmpty()) {
-            	movie.setWriters(HTMLTools.extractTags(xml, "<h5>Writers ", "</div>", "<a href=\"/name/", "</a>"));
+                movie.setWriters(HTMLTools.extractTags(xml, "<h5>Writers ", "</div>", "<a href=\"/name/", "</a>"));
             }
 
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {

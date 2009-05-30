@@ -95,7 +95,7 @@ public class MovieMeterPluginSession {
         HashMap session = (HashMap) client.execute("api.startSession", params);
         if (session != null) {
             if (session.size() > 0) {
-            	logger.finest("Created new session with moviemeter.nl");
+                logger.finest("Created new session with moviemeter.nl");
                 setKey((String) session.get("session_key"));
                 setTimestamp((Integer) session.get("valid_till"));
                 setCounter(0);
@@ -276,7 +276,7 @@ public class MovieMeterPluginSession {
             new PrintStream(fout).println (getKey() + "," + getTimestamp() + "," + getCounter());
             fout.close();        
         } catch (IOException e) {
-        	logger.severe(e.getMessage());
+            logger.severe(e.getMessage());
         }        
     }
 

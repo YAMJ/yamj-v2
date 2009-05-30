@@ -764,6 +764,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
     }
 
+    @SuppressWarnings("unused")
     private String updateImdbId(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {

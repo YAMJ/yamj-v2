@@ -170,7 +170,7 @@ public class MovieJukebox {
         
         MovieNFOScanner.setForceNFOEncoding(PropertiesUtil.getProperty("mjb.forceNFOEncoding", null));
         if ("AUTO".equalsIgnoreCase(MovieNFOScanner.getForceNFOEncoding())) {
-        	MovieNFOScanner.setForceNFOEncoding(null);
+            MovieNFOScanner.setForceNFOEncoding(null);
         }
         MovieNFOScanner.setFanartToken(PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart"));
         MovieNFOScanner.setNFOdirectory(PropertiesUtil.getProperty("filename.nfo.directory", ""));
@@ -185,8 +185,8 @@ public class MovieJukebox {
         }
         MovieFilenameScanner.setSkipKeywords(keywords.toArray(new String[] {}));
         MovieFilenameScanner.setLanguageDetection(
-        		Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", 
-        				"true")));
+                        Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", 
+                        "true")));
 
         String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
         if (temp != null) {
@@ -304,11 +304,11 @@ public class MovieJukebox {
         MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
         MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(PropertiesUtil.getProperty("mjb.thumbnail.plugin",
-        		"com.moviejukebox.plugin.DefaultThumbnailPlugin"));
+                "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
         MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", 
-        		"com.moviejukebox.plugin.DefaultPosterPlugin"));
+                "com.moviejukebox.plugin.DefaultPosterPlugin"));
         MovieImagePlugin videoimagePlugin = this.getVideoImagePlugin(PropertiesUtil.getProperty("mjb.videoimage.plugin", 
-        		"com.moviejukebox.plugin.DefaultVideoImagePlugin"));
+                "com.moviejukebox.plugin.DefaultVideoImagePlugin"));
         MovieImagePlugin backgroundPlugin = this.getBackgroundPlugin(PropertiesUtil.getProperty("mjb.background.plugin",
                 "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
 
@@ -905,9 +905,9 @@ public class MovieJukebox {
                     mlp.add(medlib);
                     
                     if (description != null && !description.isEmpty()) {
-                    	logger.fine("Found media library: " + description);
+                        logger.fine("Found media library: " + description);
                     } else {
-                    	logger.fine("Found media library: " + path);
+                        logger.fine("Found media library: " + path);
                     }
                     // Save the media library to the log file for reference.
                     logger.finest("Media library: " + medlib);

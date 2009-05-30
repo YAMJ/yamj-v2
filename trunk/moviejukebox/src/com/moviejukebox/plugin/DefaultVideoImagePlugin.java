@@ -10,7 +10,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class DefaultVideoImagePlugin implements MovieImagePlugin {
 
     @SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger("moviejukebox");
     private String skinHome;
     private boolean addReflectionEffect;
     private boolean addPerspective;

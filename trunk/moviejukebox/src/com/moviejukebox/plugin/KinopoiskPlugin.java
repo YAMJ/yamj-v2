@@ -87,8 +87,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (season != -1) {
                 sb = sb + " +сериал";
             } else {
-            	if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) 
-            		sb = sb + " +год +" + year;
+                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) 
+                    sb = sb + " +год +" + year;
             }
             
             sb = "http://www.google.ru/search?hl=ru&q=" + URLEncoder.encode(sb, "UTF-8");
@@ -238,7 +238,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
                 if (!rating.equals(Movie.UNKNOWN)) {
                     try {
-                        imdbRating = (int)(Float.parseFloat(rating)*10);	
+                        imdbRating = (int)(Float.parseFloat(rating)*10);
                     } catch (Exception ignore) {
                         // Ignore
                     }

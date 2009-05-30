@@ -239,8 +239,8 @@ public class GraphicTools {
 
         reflectionStart = (getFloatProperty(graphicType + ".reflectionStart", "0.0") / 100) * reflectionHeightAbsolute;
         reflectionEnd   = (getFloatProperty(graphicType + ".reflectionEnd", "100.0") / 100) * reflectionHeightAbsolute;
-		opacityStart    = getFloatProperty(graphicType + ".opacityStart", "30.0") / 100;
-		opacityEnd      = getFloatProperty(graphicType + ".opacityEnd", "100.0") / 100;
+        opacityStart    = getFloatProperty(graphicType + ".opacityStart", "30.0") / 100;
+        opacityEnd      = getFloatProperty(graphicType + ".opacityEnd", "100.0") / 100;
 
         GradientPaint painter = new GradientPaint(0.0f, reflectionStart, new Color(1.0f, 1.0f, 1.0f, opacityStart), 0.0f, reflectionEnd, new Color(1.0f, 1.0f, 1.0f, opacityEnd));
         g.setPaint(painter);
@@ -257,8 +257,8 @@ public class GraphicTools {
      * If the property errors, it will return the default value.
      */
     private static float getFloatProperty(String propertyName, String propertyDefault) {
-    	float propertyValue = Float.valueOf(propertyDefault);
-    	
+        float propertyValue = Float.valueOf(propertyDefault);
+
         try {
             propertyValue = Float.valueOf(PropertiesUtil.getProperty(propertyName, propertyDefault));
         } catch (NumberFormatException nfe) {
