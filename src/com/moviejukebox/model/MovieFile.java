@@ -89,11 +89,11 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setTitle(String title) {
-    	if (title == null) {
-    		this.title = Movie.UNKNOWN;
-    	} else {
-    		this.title = title;
-    	}
+        if (title == null) {
+            this.title = Movie.UNKNOWN;
+        } else {
+            this.title = title;
+        }
     }
 
     public boolean hasTitle() {
@@ -151,7 +151,7 @@ public class MovieFile implements Comparable<MovieFile> {
         this.file = file;
     }
 
-	public void mergeFileNameDTO(MovieFileNameDTO dto) {
+    public void mergeFileNameDTO(MovieFileNameDTO dto) {
         // TODO do not skip titles (store all provided)
         setTitle(dto.isTrailer() ? dto.getTrailerTitle() : (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
 

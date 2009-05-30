@@ -1,10 +1,7 @@
 package com.moviejukebox.scanner;
 
-import java.util.logging.Logger;
 import java.io.File;
-import java.util.Map;
-import java.util.HashMap;
-
+import java.util.logging.Logger;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
@@ -43,7 +40,7 @@ public class OutputDirectoryScanner {
                         String filenameUpper = filename.toUpperCase();
                         boolean skip = filenameUpper.equals("CATEGORIES.XML");
                         if (!skip) {
-                            for (String prefix : library.getPrefixes()) {
+                            for (String prefix : Library.getPrefixes()) {
                                 if (filenameUpper.startsWith(prefix + "_")) {
                                     skip = true;
                                     break;
@@ -61,7 +58,7 @@ public class OutputDirectoryScanner {
                         // what the key *would* have been, if all we knew about the movie was the filename.
                         MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
                         movie.mergeFileNameDTO(dto);
-                        String key = library.getMovieKey(movie);
+                        String key = Library.getMovieKey(movie);
                         
                         if (!library.containsKey(key)) {
                             if (xmlWriter.parseMovieXML(file, movie) && movie.getBaseName() != null) {

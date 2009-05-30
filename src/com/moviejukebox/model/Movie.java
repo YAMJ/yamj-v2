@@ -204,7 +204,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     }
     
     public Collection<String> getWriters() {
-    	return writers;
+        return writers;
     }
 
     public String getCompany() {
@@ -458,15 +458,15 @@ public class Movie implements Comparable<Movie>, Cloneable {
     }
     
     public void addWriter(String writer) {
-    	if (writer != null) {
-    		this.isDirty = true;
-    		writers.add(writer);
-    	}
+        if (writer != null) {
+            this.isDirty = true;
+            writers.add(writer);
+        }
     }
     
     public void setWriters(Collection<String> writers) {
-    	this.isDirty = true;
-    	this.writers = writers;
+        this.isDirty = true;
+        this.writers = writers;
     }
 
     public void setCompany(String company) {
@@ -1055,8 +1055,8 @@ public class Movie implements Comparable<Movie>, Cloneable {
     }
 
     public static ArrayList<String> getSortIgnorePrefixes() {
-		return sortIgnorePrefixes;
-	}
+        return sortIgnorePrefixes;
+    }
 
     public Object clone() {
         try {
@@ -1076,7 +1076,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
         setFps(dto.getFps() > 0 ? dto.getFps() : 60);
         setSeason(dto.getSeason());
         for (MovieFileNameDTO.Set set : dto.getSets()) {
-        	addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
+            addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }
         setYear(dto.getYear() > 0 ? "" + dto.getYear() : null);
         setLanguage(dto.getLanguages().size() > 0 ? dto.getLanguages().get(0) : null);
@@ -1143,13 +1143,13 @@ public class Movie implements Comparable<Movie>, Cloneable {
                 break;
             }
         }
-	}
+    }
 
-	public boolean isSetMaster() {
-		return isSetMaster;
-	}
+    public boolean isSetMaster() {
+        return isSetMaster;
+    }
 
-	public void setSetMaster(boolean isSetMaster) {
-		this.isSetMaster = isSetMaster;
-	}
+    public void setSetMaster(boolean isSetMaster) {
+        this.isSetMaster = isSetMaster;
+    }
 }

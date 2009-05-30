@@ -46,9 +46,8 @@ public class MovieJukeboxXMLWriter {
     private boolean includeVideoImages;
     private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
-    private static List<String> categoriesDisplayList = Collections.EMPTY_LIST;
+    private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
-    @SuppressWarnings("unused")
     private static Logger logger = Logger.getLogger("moviejukebox");
     
     static {
@@ -635,7 +634,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getOriginalTitle());
         writer.writeEndElement();
         writer.writeStartElement("year");
-        writeIndexAttribute(writer, library, "Year", library.getYearCategory(movie.getYear()));
+        writeIndexAttribute(writer, library, "Year", Library.getYearCategory(movie.getYear()));
         writer.writeCharacters(movie.getYear());
         writer.writeEndElement();
         writer.writeStartElement("releaseDate");
@@ -753,7 +752,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeStartElement("genres");
             for (String genre : movie.getGenres()) {
                 writer.writeStartElement("genre");
-                writeIndexAttribute(writer, library, "Genres", library.getIndexingGenre(genre));
+                writeIndexAttribute(writer, library, "Genres", Library.getIndexingGenre(genre));
                 writer.writeCharacters(genre);
                 writer.writeEndElement();
             }

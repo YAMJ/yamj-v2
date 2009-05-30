@@ -541,7 +541,7 @@ public class AppleTrailersPlugin {
             int len;
             while ((len = inputStream.read(buf)) > 0) {
                 out.write(buf, 0, len);
-            	stats.bytes(len);
+                stats.bytes(len);
             }
             out.close();
             return true;
@@ -550,9 +550,9 @@ public class AppleTrailersPlugin {
             logger.severe("AppleTrailers Plugin: Download Exception");
             return false;
         } finally {
-        	stats.print();				// Output the final stat information (100%)
-        	System.out.print("\n");		// Complete the line for aesthetic purposes
-        	timer.cancel();				// Close the timer
+            stats.print();          // Output the final stat information (100%)
+            System.out.print("\n"); // Complete the line for aesthetic purposes
+            timer.cancel();         // Close the timer
         }
     }
  

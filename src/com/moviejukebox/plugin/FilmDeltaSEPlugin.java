@@ -43,7 +43,6 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-    	
         boolean retval = true;
         boolean imdbScanned = false;
         String filmdeltaId = mediaFile.getId(FILMDELTA_PLUGIN_ID);
@@ -53,40 +52,40 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         // (to get a valid movie title and improve detection rate 
         // for getFilmdeltaId-function)
         if (!imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-        	super.scan(mediaFile);
-        	imdbScanned = true;
+            super.scan(mediaFile);
+            imdbScanned = true;
         }
         // get filmdeltaId (if not already set in nfo)
         if (filmdeltaId == null || filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN)) { 
-        	//find a filmdeltaId (url) from google
-        	filmdeltaId = getFilmdeltaId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
+            //find a filmdeltaId (url) from google
+            filmdeltaId = getFilmdeltaId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
             if (!filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            	mediaFile.setId(FILMDELTA_PLUGIN_ID, filmdeltaId);
+                mediaFile.setId(FILMDELTA_PLUGIN_ID, filmdeltaId);
             }
         } 
         //always scrape info from imdb or tvdb
-    	if (mediaFile.isTVShow()) {
-    		tvdb = new TheTvDBPlugin();
-    		retval = tvdb.scan(mediaFile);
-    	} else if (!imdbScanned)  {
-    		retval = super.scan(mediaFile);
+        if (mediaFile.isTVShow()) {
+            tvdb = new TheTvDBPlugin();
+            retval = tvdb.scan(mediaFile);
+        } else if (!imdbScanned)  {
+            retval = super.scan(mediaFile);
         }
         
         //only scrape filmdelta if a valid filmdeltaId was found
         //and the movie is not a tvshow
         if (filmdeltaId != null 
-        		&& !filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN) 
-        		&& !mediaFile.isTVShow()) {
-        	retval = updateFilmdeltaMediaInfo(mediaFile, filmdeltaId);
+                        && !filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN) 
+                        && !mediaFile.isTVShow()) {
+            retval = updateFilmdeltaMediaInfo(mediaFile, filmdeltaId);
         }
         
         // Get poster from CDON.se
         // if property getcdonposter is set to true
         if (getcdonposter.equalsIgnoreCase("true")) {
-        	String posterURL = getCDONPosterURL(mediaFile.getTitle(), mediaFile.getSeason());
-        	if (!posterURL.equals(Movie.UNKNOWN)) {
-        		mediaFile.setPosterURL(posterURL);
-            }	
+            String posterURL = getCDONPosterURL(mediaFile.getTitle(), mediaFile.getSeason());
+            if (!posterURL.equals(Movie.UNKNOWN)) {
+                mediaFile.setPosterURL(posterURL);
+            }
         }
         return retval;
     }
@@ -103,17 +102,17 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         
         int beginIndex = nfo.indexOf("www.filmdelta.se/prevsearch");
         if (beginIndex != -1) {
-        	beginIndex = beginIndex + 27;
+            beginIndex = beginIndex + 27;
             String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 2);
             movie.setId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID, filmdeltaId);
             logger.finest("FilmdeltaSE: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
         } else if (nfo.indexOf("www.filmdelta.se/filmer") != -1) {
-        	beginIndex = nfo.indexOf("www.filmdelta.se/filmer") + 24;
-        	String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 0);
+            beginIndex = nfo.indexOf("www.filmdelta.se/filmer") + 24;
+            String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 0);
             movie.setId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID, filmdeltaId);
             logger.finest("FilmdeltaSE: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
         } else {  
-        	logger.finer("FilmdeltaSE: no id found in nfo for movie: " + movie.getTitle());
+            logger.finer("FilmdeltaSE: no id found in nfo for movie: " + movie.getTitle());
         }
     }
 
@@ -122,7 +121,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
      * This routine is based on a  google request.
      */
     protected String getFilmdeltaId(String movieName, String year, int season) {
-    	try {
+        try {
             StringBuffer sb = new StringBuffer("http://www.google.se/search?hl=sv&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -134,22 +133,22 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             //String <ul><li> is only present in the google page for
             //no matches so check if we got a page with results
             if (googleHtml.indexOf("<ul><li>") ==  -1) {
-            	//we have a a google page with valid filmdelta links
-            	int beginIndex = googleHtml.indexOf("www.filmdelta.se/filmer/") + 24;
-            	String filmdeltaId = makeFilmDeltaId(googleHtml, beginIndex, 0);
+                //we have a a google page with valid filmdelta links
+                int beginIndex = googleHtml.indexOf("www.filmdelta.se/filmer/") + 24;
+                String filmdeltaId = makeFilmDeltaId(googleHtml, beginIndex, 0);
                 //regex to match that a valid filmdeltaId contains at least 3 numbers, 
-            	//a dash, and one or more letters (may contain [-&;])
-            	if (filmdeltaId.matches("\\d{3,}/[\\w-&;]+")) {
-                	logger.finest("FilmdeltaSE: filmdelta id found = " + filmdeltaId);
+                //a dash, and one or more letters (may contain [-&;])
+                if (filmdeltaId.matches("\\d{3,}/[\\w-&;]+")) {
+                    logger.finest("FilmdeltaSE: filmdelta id found = " + filmdeltaId);
                     return filmdeltaId;
                 } else {
                     logger.info("(FilmdeltaSE) Found a filmdeltaId but it's not valid. Id: " + filmdeltaId);
-                	return Movie.UNKNOWN;
+                    return Movie.UNKNOWN;
                 }
             } else {
-            	//no valid results for the search
-            	logger.info("(FilmdeltaSE) No filmdelta.se matches found for movie: \'" + movieName + "\'");
-            	return Movie.UNKNOWN;	     	
+                //no valid results for the search
+                logger.info("(FilmdeltaSE) No filmdelta.se matches found for movie: \'" + movieName + "\'");
+                return Movie.UNKNOWN;
             }
 
             
@@ -264,7 +263,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         }
     }
 
-	private void getFilmdeltaGenres(Movie movie, String fdeltaHtml) {
+    private void getFilmdeltaGenres(Movie movie, String fdeltaHtml) {
         LinkedList<String> newGenres = new LinkedList<String>();
 
         ArrayList<String> filmdeltaGenres = HTMLTools.extractTags(fdeltaHtml, "<h4>Genre</h4>", "</div>", "<h5>", "</h5>");

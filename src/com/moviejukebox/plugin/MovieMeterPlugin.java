@@ -77,9 +77,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
             mediaFile.setId(MOVIEMETER_PLUGIN_ID, filmInfo.get("filmId").toString());
             
             if (filmInfo.get("imdb") != null) {
-            	// if moviemeter returns the imdb id, add it to the mediaFile
-            	mediaFile.setId(IMDB_PLUGIN_ID, "tt" + filmInfo.get("imdb").toString());
-            	logger.finest("Fetched imdb id: " + mediaFile.getId(IMDB_PLUGIN_ID));
+                // if moviemeter returns the imdb id, add it to the mediaFile
+                mediaFile.setId(IMDB_PLUGIN_ID, "tt" + filmInfo.get("imdb").toString());
+                logger.finest("Fetched imdb id: " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
 
             if (!mediaFile.isOverrideTitle()) {
@@ -182,9 +182,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
             
             if (downloadFanart && (mediaFile.getFanartURL() == null || mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
-            	mediaFile.setFanartURL(getFanartURL(mediaFile));
+                mediaFile.setFanartURL(getFanartURL(mediaFile));
                 if (mediaFile.getFanartURL() != null && !mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                	mediaFile.setFanartFilename(mediaFile.getBaseName() + fanartToken + ".jpg");
+                    mediaFile.setFanartFilename(mediaFile.getBaseName() + fanartToken + ".jpg");
                 }
             }
 

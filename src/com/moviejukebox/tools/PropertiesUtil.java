@@ -1,6 +1,5 @@
 package com.moviejukebox.tools;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +24,7 @@ public class PropertiesUtil {
     public static boolean setPropertiesStreamName(String streamName) {
         logger.fine("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
-        	
+
         try {
             if (propertiesStream == null) {
                 propertiesStream = new FileInputStream(streamName);
