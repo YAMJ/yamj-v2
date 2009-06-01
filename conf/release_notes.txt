@@ -2,6 +2,10 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.0.18 beta
+------------------------
+  - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types
+
 MovieJukebox 1.0.17 beta
 ------------------------
   - Enhancement  #218 Play button on remote for multipart movies

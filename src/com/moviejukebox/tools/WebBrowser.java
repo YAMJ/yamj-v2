@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  */
 public class WebBrowser {
 
+    @SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger("moviejukebox");
 
     private Map<String, String> browserProperties;
@@ -213,7 +214,7 @@ public class WebBrowser {
             charset = Charset.defaultCharset();
         }
         
-        logger.finest("Detected charset " + charset);
+        // logger.finest("Detected charset " + charset);
         return charset;
     }
 }
