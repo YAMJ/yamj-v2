@@ -82,7 +82,7 @@ public class MovieNFOScanner {
                             }
 
                             // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
-                            if (nfo.substring(currentUrlStartIndex-8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0) {
+                            if ((currentUrlStartIndex >= 8) && (nfo.substring(currentUrlStartIndex-8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0)) {
                                 logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                                 movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                                 urlStartIndex = -1;
