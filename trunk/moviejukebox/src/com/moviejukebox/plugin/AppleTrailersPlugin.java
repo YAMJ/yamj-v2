@@ -27,10 +27,11 @@ public class AppleTrailersPlugin {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
 
-    private String configResolution;
-    private String configDownload;
-    private String configTrailerTypes;
-    private int configMax;
+    private String  configResolution;
+    private String  configDownload;
+    private String  configTrailerTypes;
+    private int     configMax;
+    private boolean configTypesInclude;
     
     protected WebBrowser webBrowser;
 
@@ -47,8 +48,8 @@ public class AppleTrailersPlugin {
         } catch (Exception ignored) {
             configMax = 0;
         }
-        
-        configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec");
+        configTypesInclude = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.typesinclude", "true"));
+        configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
     }
 
 
@@ -104,7 +105,7 @@ public class AppleTrailersPlugin {
                 if (configMax < trailerCnt) {
                     trailerCnt++;   // This trailer shouldn't count against the download count
                 }
-                logger.finer("AppleTrailers Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl) + " - not one of the trailer types");
+                logger.finer("AppleTrailers Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
                 continue;           // Quit the rest of the trailer loop.
             }
             
@@ -564,14 +565,25 @@ public class AppleTrailersPlugin {
     
     // Check the trailer filename against the valid trailer types from appletrailers.trailertypes
     private boolean isValidTrailer(String trailerFilename) {
-        boolean validTrailer=false;
+        boolean validTrailer;
+        
+        if (configTypesInclude)
+            validTrailer = false;
+        else
+            validTrailer = true;
 
         for (String ttype : configTrailerTypes.split(",")) {
             if (trailerFilename.lastIndexOf(ttype) > 0) {
-                validTrailer = true;
+                if (configTypesInclude)
+                    // Found the trailer type, so this is a valid trailer
+                    validTrailer = true;
+                else
+                    // Found the trailer type, so this trailer should be excluded
+                    validTrailer = false;
                 break;
             }
         }
+        
         return validTrailer;
     }   
 }
