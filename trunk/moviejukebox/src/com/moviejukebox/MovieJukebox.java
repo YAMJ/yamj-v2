@@ -207,7 +207,11 @@ public class MovieJukebox {
 
         if (jukeboxRoot == null) {
             jukeboxRoot = PropertiesUtil.getProperty("mjb.jukeboxRoot");
-            logger.fine("Got jukeboxRoot from properties file: " + jukeboxRoot);
+            if (jukeboxRoot == null) {
+                logger.fine("jukeboxRoot is null in properties file. Please fix this as it may cause errors.");
+            } else {
+                logger.fine("Got jukeboxRoot from properties file: " + jukeboxRoot);
+            }
         }
 
         File f = new File(movieLibraryRoot);
@@ -335,13 +339,27 @@ public class MovieJukebox {
         // / PASS 0 : Preparing temporary environment...
         //
 
+        logger.fine("Preparing environment...");
         File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+        
         if (jukeboxClean && tempJukeboxCleanFile.exists()) {
             // Clear out the jukebox generated files to force them to be re-created.
 
             File[] cleanList = tempJukeboxCleanFile.listFiles();
             String skipPattStr = PropertiesUtil.getProperty("mjb.clean.skip");
             Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
+
+            // Catch an exception when trying to read the Jukebox directory Issue 850
+            try {
+                // This does nothing, but will generate an exception if the variable is null
+                nbFiles = cleanList.length;
+            }
+            catch (Exception e) {
+                logger.fine("Error writing to jukebox directory: " + jukeboxDetailsRoot);
+                logger.fine("Possibly read-only or you don't have permission to write to the directory.");
+                logger.fine("Process terminated with errors.");
+                return;
+            }
 
             for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                 // Scan each file in here

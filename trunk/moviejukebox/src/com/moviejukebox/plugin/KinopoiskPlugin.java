@@ -235,7 +235,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             int imdbRating = movie.getRating();
             if (imdbRating == -1) {
                 // Get IMDB rating from kinopoisk page 
-            	String rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
+                String rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
                 if (!rating.equals(Movie.UNKNOWN)) {
                     try {
                         imdbRating = (int)(Float.parseFloat(rating)*10);
