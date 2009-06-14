@@ -88,11 +88,13 @@ public class AppleTrailersPlugin {
         selectBestTrailer(trailersUrl,bestTrailersUrl);
 
         int trailerCnt = bestTrailersUrl.size();
-        if (configMax > 0 && configMax < trailerCnt) {
-            trailerCnt = configMax;
-        }
-        
+        int trailerDownloadCnt = 0;
+
         for (int i=0; i < trailerCnt; i++) {            
+        
+            if ( trailerDownloadCnt >= configMax) {
+                break;
+            }
         
             String trailerRealUrl = bestTrailersUrl.get(i);
             
@@ -102,14 +104,12 @@ public class AppleTrailersPlugin {
             
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
-                if (configMax < trailerCnt) {
-                    trailerCnt++;   // This trailer shouldn't count against the download count
-                }
                 logger.finer("AppleTrailers Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
                 continue;           // Quit the rest of the trailer loop.
             }
             
             logger.finer("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
+            trailerDownloadCnt++;
             
             // Check if we need to download the trailer, or just link to it
             if (!configDownload.equals("true")) {
