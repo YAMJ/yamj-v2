@@ -5,6 +5,7 @@
 MovieJukebox 1.0.18 beta
 ------------------------
   - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types
+  - Fixed defect #857 Apple trailer configMax is not handled correctly
 
 MovieJukebox 1.0.17 beta
 ------------------------
