@@ -28,7 +28,7 @@ public class AppleTrailersPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private String  configResolution;
-    private String  configDownload;
+    private boolean configDownload;
     private String  configTrailerTypes;
     private int     configMax;
     private boolean configTypesInclude;
@@ -42,7 +42,7 @@ public class AppleTrailersPlugin {
         webBrowser = new WebBrowser();
 
         configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
-        configDownload = PropertiesUtil.getProperty("appletrailers.download", "false");
+        configDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.download", "false"));
         try {
             configMax = Integer.parseInt(PropertiesUtil.getProperty("appletrailers.max", "0"));
         } catch (Exception ignored) {
@@ -112,7 +112,7 @@ public class AppleTrailersPlugin {
             trailerDownloadCnt++;
             
             // Check if we need to download the trailer, or just link to it
-            if (!configDownload.equals("true")) {
+            if (!configDownload) {
                 tmf.setFilename(trailerRealUrl);
                 movie.addTrailerFile(new TrailerFile(tmf));
                 //movie.setTrailer(true);
