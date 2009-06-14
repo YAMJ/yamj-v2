@@ -223,19 +223,19 @@ public class KinopoiskPlugin extends ImdbPlugin {
             
             // Rating
             int kinopoiskRating = -1;
-            String rating = HTMLTools.extractTag(xml, "<a href=\"/level/83/film/"+kinopoiskId+"/\" class=\"continue\">", 0, "<");
-            if (!rating.equals(Movie.UNKNOWN)) {
+            for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/"+kinopoiskId+"/\"", "</a>", "", "<")) {
                 try {
                     kinopoiskRating = (int)(Float.parseFloat(rating)*10);
                 } catch (Exception ignore) {
                     // Ignore
                 }
-             }
+                break;
+            }
 
             int imdbRating = movie.getRating();
             if (imdbRating == -1) {
                 // Get IMDB rating from kinopoisk page 
-                rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
+            	String rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
                 if (!rating.equals(Movie.UNKNOWN)) {
                     try {
                         imdbRating = (int)(Float.parseFloat(rating)*10);
@@ -247,7 +247,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             int r = kinopoiskRating;
             if (imdbRating != -1) { 
-                if (preferredRating.equals("imdb"))
+                if (preferredRating.equals("imdb") || kinopoiskRating == -1)
                     r = imdbRating;
                 else
                     if (preferredRating.equals("average"))
