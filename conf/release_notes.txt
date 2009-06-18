@@ -4,6 +4,7 @@
 
 MovieJukebox 1.0.18 beta
 ------------------------
+  - Enhancement  #686 Video Image Files created when no image found
   - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types
   - Fixed defect #846 appletrailers.download is case sensitive
   - Fixed defect #850 Exception generated if Jukebox directory can't be written to
