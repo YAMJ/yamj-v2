@@ -828,15 +828,7 @@ public class MovieJukebox {
                 if ((!tmpDestFile.exists() && !videoImageFile.exists()) || forceXMLOverwrite) {
                     videoImageFile.getParentFile().mkdirs();
                     if (moviefile.getVideoImageURL(part) == null || moviefile.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
-                        logger.finest("Dummy video image used for " + movie.getBaseName() + " - part " + part);
-                        try {
-                            FileTools.copyFile(
-                                new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"),
-                                tmpDestFile
-                                );
-                        } catch (Exception ignore) {
-                            logger.finer("Failed copying dummy video image file: dummy_videoimage.jpg");
-                        }
+                        logger.finest("No video image used for " + movie.getBaseName() + " - part " + part);
                     } else {
                         try {
                             // Issue 201 : we now download to local temp directory
