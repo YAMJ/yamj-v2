@@ -9,6 +9,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #850 Exception generated if Jukebox directory can't be written to
   - Fixed defect #852 Kinopoisk fix due to changed web pages
   - Fixed defect #857 Apple trailer configMax is not handled correctly
+  - Fixed defect #865 New API Key required for MovieMeter plugin
 
 MovieJukebox 1.0.17 beta
 ------------------------
