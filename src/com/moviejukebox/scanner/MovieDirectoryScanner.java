@@ -233,10 +233,13 @@ public class MovieDirectoryScanner {
             
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
             m.mergeFileNameDTO(dto);
-            movieFile.mergeFileNameDTO(dto);
-
-            // Set duration for BD disks using the data in the playlist + mark bd source and container
-            if (bdDuration != 0) {
+            
+            if (bdDuration == 0) {
+                // Do not merge file information for BD
+                movieFile.mergeFileNameDTO(dto);
+            }
+            else {
+                // Set duration for BD disks using the data in the playlist + mark bd source and container
                 m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
                 m.setContainer("BluRay");
                 m.setVideoSource("BluRay");
