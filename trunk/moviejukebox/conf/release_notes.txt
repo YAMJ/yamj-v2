@@ -11,6 +11,8 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #852 Kinopoisk fix due to changed web pages
   - Fixed defect #857 Apple trailer configMax is not handled correctly
   - Fixed defect #865 New API Key required for MovieMeter plugin
+  - Fixed defect #868 Kinopoisk plot fix
+  - Fixed defect #869 BluRay movies with multi part files are not scanned correctly
 
 MovieJukebox 1.0.17 beta
 ------------------------

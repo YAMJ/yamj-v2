@@ -163,8 +163,15 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
             
             // Plot
-            String plot = HTMLTools.extractTag(xml, "<td colspan=3 style=\"padding:10px;padding-left:20px;\" class=\"news\">", 0, "<>");
-            if (plot.equals(Movie.UNKNOWN))
+            String plot = "";
+            for (String p : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
+                if (!p.isEmpty()) {
+                    if (!plot.isEmpty())
+                        plot += " ";
+                    plot += p;
+                }
+            }
+            if (plot.isEmpty())
                 plot = movie.getPlot();
             if (plot.length() > preferredPlotLength) 
                 plot = plot.substring(0, preferredPlotLength) + "...";
