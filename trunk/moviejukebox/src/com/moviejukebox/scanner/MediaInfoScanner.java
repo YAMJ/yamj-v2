@@ -470,9 +470,22 @@ public class MediaInfoScanner {
 
         }
 
-        // Subtitles ?
-        if (infosText.size() > 0) {
-            movie.setSubtitles(true);
+        // Cycle through Text Streams
+        for (int numText = 0; numText < infosText.size(); numText++) {
+            HashMap<String, String> infosCurText = infosText.get(numText);
+
+            String infoFormat = "";
+            infoValue = infosCurText.get("Format");
+            if (infoValue != null) {
+                infoFormat = infoValue;
+            }
+
+            // Check that the format can be viewed on the popcorn
+            if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8")) {
+                movie.setSubtitles(true);
+            } else {
+                logger.finest("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
+            }
         }
     }
 
