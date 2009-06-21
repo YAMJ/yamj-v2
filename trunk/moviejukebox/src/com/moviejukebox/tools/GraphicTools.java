@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.logging.Logger;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 
 import com.jhlabs.image.PerspectiveFilter;
@@ -29,13 +30,18 @@ public class GraphicTools {
         BufferedImage bi = null;
         try {
             bi = ImageIO.read(fis);
+        } catch (IIOException e) {
+            logger.finest("Error reading image file. Possibly corrupt image, please try another image.");
+            return null;
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
-                } catch (Exception e) {
+                } catch (Exception ignore) {
+                    // ignore the error
                 }
             }
         }

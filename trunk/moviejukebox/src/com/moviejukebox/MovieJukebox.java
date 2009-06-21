@@ -1121,14 +1121,15 @@ public class MovieJukebox {
             if (!(new File(olddst).exists()) || forcePosterOverwrite || (new File(src).exists())) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (new File(src).exists()) {
-                    logger.finest("New file exists");
+                    logger.finest("New file exists (" + src + ")");
                     fis = new FileInputStream(src);
                 } else {
-                    logger.finest("Use old file");
+                    logger.finest("Using old file (" + oldsrc + ")");
                     fis = new FileInputStream(oldsrc);
                 }
 
                 BufferedImage bi = GraphicTools.loadJPEGImage(fis);
+                
                 if (bi == null) {
                     logger.info("Using dummy poster image for " + movie.getTitle());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), new File(rootPath + File.separator + safePosterFilename));
