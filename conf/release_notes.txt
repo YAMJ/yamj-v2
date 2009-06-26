@@ -15,6 +15,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #868 Kinopoisk plot fix
   - Fixed defect #869 BluRay movies with multi part files are not scanned correctly
   - Fixed defect #870 MediaInfo mark subtitles YES even if the format can not be viewed
+  - Fixed defect #875 IMDB changed the layout for directors and needs to be updated
 
 MovieJukebox 1.0.17 beta
 ------------------------
