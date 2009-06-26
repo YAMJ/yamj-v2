@@ -279,11 +279,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     movie.setTop250(-1);
                 }
             }
-
+            
             if (movie.getDirector().equals(Movie.UNKNOWN)) {
-                movie.setDirector(HTMLTools.extractTag(xml, "<h5>Director:</h5>", 1));
+                // Note this is a hack for the change to IMDB for Issue 875
+                // TODO: Change the directors into a collection for better processing.
+                ArrayList<String> tempDirectors = null;
+                tempDirectors = HTMLTools.extractTags(xml, "<h5>Director", "</div>", "<a href=\"/name/", "</a>");
+                
                 if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    movie.setDirector(HTMLTools.extractTag(xml, "<h5>Directors:</h5>", 1));
+                    movie.setDirector(tempDirectors.get(0));
                 }
             }
 
