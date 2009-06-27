@@ -287,7 +287,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 tempDirectors = HTMLTools.extractTags(xml, "<h5>Director", "</div>", "<a href=\"/name/", "</a>");
                 
                 if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    movie.setDirector(tempDirectors.get(0));
+                    if (!tempDirectors.isEmpty()) {
+                        movie.setDirector(tempDirectors.get(0));
+                    }
                 }
             }
 
