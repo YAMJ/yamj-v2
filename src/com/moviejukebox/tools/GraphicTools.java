@@ -33,14 +33,15 @@ public class GraphicTools {
         } catch (IIOException e) {
             logger.finest("Error reading image file. Possibly corrupt image, please try another image.");
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
+            ignore.printStackTrace();
             return null;
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
                 } catch (Exception ignore) {
+                    ignore.printStackTrace();
                     // ignore the error
                 }
             }
@@ -64,6 +65,7 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(url);
         } catch (Exception ignore) {
+            ignore.printStackTrace();
             bi = null;
         }
         return bi;
@@ -81,9 +83,9 @@ public class GraphicTools {
 
             ImageIO.write(bufImage, "jpg", new File(str));
 
-        } catch (Exception e) {
+        } catch (Exception ignore) {
             logger.severe("Failed Saving thumbnail file: " + str);
-            e.printStackTrace();
+            ignore.printStackTrace();
         }
     }
 
@@ -95,9 +97,9 @@ public class GraphicTools {
         // save image as PNG
         try {
             ImageIO.write(bi, "png", new File(str));
-        } catch (Exception e) {
+        } catch (Exception ignore) {
             logger.severe("Failed Saving thumbnail file: " + str);
-            e.printStackTrace();
+            ignore.printStackTrace();
         }
     }
 

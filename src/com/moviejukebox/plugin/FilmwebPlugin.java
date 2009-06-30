@@ -323,7 +323,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (imdbId != null && !imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 try {
                     String imdbXml = webBrowser.request("http://www.imdb.com/title/" + imdbId);
-                    posterURL = super.getPosterURL(movie, imdbXml);
+                    posterURL = super.locatePosterURL(movie, imdbXml);
                 } catch (IOException e) {
                     return posterURL;
                 }

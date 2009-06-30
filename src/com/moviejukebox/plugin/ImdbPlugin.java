@@ -1,9 +1,7 @@
 package com.moviejukebox.plugin;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -17,6 +15,7 @@ import javax.xml.stream.events.XMLEvent;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -28,7 +27,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String THEMOVIEDB_API_KEY = "228c65452d6c1d823bbe69bd6859ebb8";
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected String preferredSearchEngine;
-    protected String preferredPosterSearchEngine;
     protected boolean perfectMatch;
     protected String preferredCountry;
     protected String imdbPlot;
@@ -38,14 +36,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected static String fanartToken;
 
     public ImdbPlugin() {
-        webBrowser = new WebBrowser();
-        preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
-        perfectMatch = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
-        preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
-        imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
-        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
-        fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+        webBrowser                  = new WebBrowser();
+        preferredSearchEngine       = PropertiesUtil.getProperty("imdb.id.search", "imdb");
+        perfectMatch                = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
+        preferredCountry            = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
+        imdbPlot                    = PropertiesUtil.getProperty("imdb.plot", "short");
+        downloadFanart              = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+        fanartToken                 = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
     }
 
@@ -65,7 +62,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a IMDb request.
+     * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     protected String getImdbId(String movieName, String year) {
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
@@ -80,7 +77,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo request.
+     * Retrieve the IMDb Id matching the specified movie name and year. This routine is base on a yahoo request.
+     * 
+     * @param   movieName   The name of the Movie to search for
+     * @param   year        The year of the movie
+     * @return              The IMDb Id if it was found
      */
     private String getImdbIdFromYahoo(String movieName, String year) {
         try {
@@ -105,14 +106,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
         } catch (Exception e) {
-            logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+            logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
             logger.severe("Error : " + e.getMessage());
             return Movie.UNKNOWN;
         }
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a google request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a Google request.
+     * 
+     * @param   movieName   The name of the Movie to search for
+     * @param   year        The year of the movie
+     * @return              The IMDb Id if it was found
      */
     private String getImdbIdFromGoogle(String movieName, String year) {
         try {
@@ -137,14 +142,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
         } catch (Exception e) {
-            logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+            logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
             logger.severe("Error : " + e.getMessage());
             return Movie.UNKNOWN;
         }
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a IMDb request.
+     * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year) {
         try {
@@ -215,7 +220,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } catch (Exception e) {
-            logger.severe("Failed retreiving imdb Id for movie : " + movieName);
+            logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
             logger.severe("Error : " + e.getMessage());
         }
         
@@ -390,7 +395,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setPosterURL(getPosterURL(movie, xml));
+                movie.setPosterURL(locatePosterURL(movie, xml));
             }
 
             if (movie.isTVShow()) {
@@ -405,7 +410,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
         } catch (Exception e) {
-            logger.severe("Failed retreiving imdb rating for movie : " + movie.getId(IMDB_PLUGIN_ID));
+            logger.severe("Failed retreiving IMDb rating for movie : " + movie.getId(IMDB_PLUGIN_ID));
             e.printStackTrace();
         }
         return true;
@@ -440,167 +445,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return url;
     }
 
-    protected String getPosterURL(Movie movie, String xml) {
-        int castIndex = xml.indexOf("<h3>Cast</h3>");
-        int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
-
-        String posterURL = Movie.UNKNOWN;
-
-        // Check posters.motechnet.com
-        if (this.testMotechnetPoster(movie.getId(IMDB_PLUGIN_ID))) {
-            posterURL = "http://posters.motechnet.com/covers/" + movie.getId(IMDB_PLUGIN_ID) + "_largeCover.jpg";
-        } // Check www.impawards.com
-        else if (!(posterURL = this.testImpawardsPoster(movie.getTitle(), movie.getYear())).equals(Movie.UNKNOWN)) {
-            // Cover Found
-        } // Check www.moviecovers.com (if set in property file)
-        else if ("moviecovers".equals(preferredPosterSearchEngine)
-                        && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equals(Movie.UNKNOWN)) {
-            // Cover Found
-        } else if (beginIndex < castIndex && beginIndex != -1) {
-
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 5), "\"");
-            posterURL = st.nextToken();
-            int index = posterURL.indexOf("_SY");
-            if (index != -1) {
-                posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
-            }
-        } else {
-            // try searching an alternate search engine
-            String alternateURL = Movie.UNKNOWN;
-            if ("google".equalsIgnoreCase(preferredPosterSearchEngine)) {
-                alternateURL = getPosterURLFromGoogle(movie.getTitle());
-            } else if ("yahoo".equalsIgnoreCase(preferredPosterSearchEngine)) {
-                alternateURL = getPosterURLFromYahoo(movie.getTitle());
-            }
-
-            if (!alternateURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-                posterURL = alternateURL;
-            }
-        }
-        return posterURL;
-    }
-
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo request.
+     * Locate the poster URL from online sources
+     * @param   movie   Movie bean for the video to locate
+     * @param   imdbXML XML page from IMDB to search for a URL
+     * @return          The URL of the poster if found.
      */
-    protected String getPosterURLFromYahoo(String movieName) {
-        try {
-            StringBuffer sb = new StringBuffer("http://fr.images.search.yahoo.com/search/images?p=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("imgurl=");
-            int endIndex = xml.indexOf("%26", beginIndex);
-
-            if (beginIndex != -1 && endIndex > beginIndex) {
-                return URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
-            } else {
-                return Movie.UNKNOWN;
-            }
-
-        } catch (Exception e) {
-            logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
-            logger.severe("Error : " + e.getMessage());
-            return Movie.UNKNOWN;
-        }
+    protected String locatePosterURL(Movie movie, String imdbXML) {
+        return PosterScanner.getPosterURL(movie, imdbXML, IMDB_PLUGIN_ID);
     }
-
-    /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a yahoo request.
-     */
-    protected String getPosterURLFromGoogle(String movieName) {
-        try {
-            StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            sb.append("&gbv=2");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("imgurl=") + 7;
-
-            if (beginIndex != -1) {
-                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
-                return st.nextToken();
-            } else {
-                return Movie.UNKNOWN;
-            }
-        } catch (Exception e) {
-            logger.severe("Failed retreiving poster URL from yahoo images : " + movieName);
-            logger.severe("Error : " + e.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    public boolean testMotechnetPoster(String movieId) {
-        String content = null;
-        try {
-            content = webBrowser.request("http://posters.motechnet.com/title/" + movieId + "/");
-        } catch (Exception e) {
-        }
-
-        return content != null && content.contains("/covers/" + movieId + "_largeCover.jpg");
-    }
-
-    public String testImpawardsPoster(String title, String year) {
-        String returnString = Movie.UNKNOWN;
-        String content = null;
-        try {
-            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q=" + URLEncoder.encode(title + " " + year, "UTF-8"));
-        } catch (Exception e) {
-        }
-
-        if (content != null) {
-            int indexMovieLink = content.indexOf("<a href=\"http://www.impawards.com/" + year + "/");
-            if (indexMovieLink != -1) {
-                String imageUrl = content.substring(indexMovieLink + 9, indexMovieLink + 39) + "posters/";
-                int endIndex = content.indexOf("\"", indexMovieLink + 39);
-                if (endIndex != -1) {
-                    imageUrl += content.substring(indexMovieLink + 39, endIndex);
-                    if (imageUrl.endsWith("standard.html")) {
-                        imageUrl = null;
-                    } else if (imageUrl.endsWith(".html")) {
-                        imageUrl = imageUrl.substring(0, imageUrl.length() - 4) + "jpg";
-                    } else {
-                        imageUrl = null;
-                    }
-                } else {
-                    imageUrl = null;
-                }
-
-                if (imageUrl != null) {
-                    returnString = imageUrl;
-                }
-            }
-        }
-
-        return returnString;
-    }
-
-    protected String getPosterURLFromMoviecoversViaGoogle(String movieName) {
-        try {
-            String returnString = Movie.UNKNOWN;
-            StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-
-            String content = webBrowser.request(sb.toString());
-            if (content != null) {
-                int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
-                if (indexMovieLink != -1) {
-                    String finMovieUrl = content.substring(indexMovieLink + 47, content.indexOf("\" class=l>", indexMovieLink));
-                    returnString = "http://www.moviecovers.com/getjpg.html/" + finMovieUrl.substring(0, finMovieUrl.lastIndexOf('.')).replace("+", "%20")
-                                    + ".jpg";
-                }
-            }
-
-            return returnString;
-
-        } catch (Exception e) {
-            logger.severe("Failed retreiving moviecovers poster URL from google : " + movieName);
-            logger.severe("Error : " + e.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
+        
     @Override
     public void scanTVShowTitles(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
