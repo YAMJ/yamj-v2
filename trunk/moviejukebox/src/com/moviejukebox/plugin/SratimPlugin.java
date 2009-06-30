@@ -32,7 +32,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.FileTools;
 
 public class SratimPlugin extends ImdbPlugin {
-
     public static String SRATIM_PLUGIN_ID = "sratim";
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
@@ -52,6 +51,7 @@ public class SratimPlugin extends ImdbPlugin {
     protected int plotLineMaxChar;
     protected int plotLineMax;
     protected TheTvDBPlugin tvdb;
+    protected static String preferredPosterSearchEngine;
 
     public SratimPlugin() {
         super(); // use IMDB if sratim doesn't know movie
@@ -65,7 +65,8 @@ public class SratimPlugin extends ImdbPlugin {
         login = PropertiesUtil.getProperty("sratim.username", "");
         pass = PropertiesUtil.getProperty("sratim.password", "");
         code = PropertiesUtil.getProperty("sratim.code", "");
-        
+        preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
+
         if (subtitleDownload == true && !login.equals(""))
             loadSratimCookie();
     }
@@ -629,7 +630,7 @@ public class SratimPlugin extends ImdbPlugin {
             movie.setCast(logicalToVisual(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>")));
 
             // As last resort use sratim low quality poster
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || ("sratim".equals(preferredPosterSearchEngine))) {
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || (preferredPosterSearchEngine.equalsIgnoreCase("sratim"))) {
                 movie.setPosterURL("http://www.sratim.co.il/movies/" + HTMLTools.extractTag(xml, "<img src=\"/movies/", 0, "\""));
             }
 

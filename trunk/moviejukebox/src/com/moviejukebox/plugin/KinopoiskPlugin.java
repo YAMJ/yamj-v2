@@ -265,7 +265,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // Poster
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setTitle(originalTitle);
-                movie.setPosterURL(getPosterURL(movie, ""));
+                movie.setPosterURL(locatePosterURL(movie, ""));
             }
             
             // Run time

@@ -1,3 +1,6 @@
+/**
+ * Default poster plugin containing the graphic manipulations needed to display the posters.
+ */
 package com.moviejukebox.plugin;
 
 import java.awt.Graphics;

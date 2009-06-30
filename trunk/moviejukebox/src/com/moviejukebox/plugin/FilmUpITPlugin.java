@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -94,15 +94,16 @@ public class FilmUpITPlugin extends ImdbPlugin {
     }
 
     private void updatePoster(Movie movie, String pageUrl) {
-        // make an Imdb request for poster
+        String posterURL = "Unknown";
+        String xml = "";
+
+        // make an IMDb request for poster
         if (movie.getPosterURL() != null && !movie.getPosterURL().equalsIgnoreCase("Unknown")) {
             // we already have a poster URL
             logger.finer("Movie already has PosterURL : " + movie.getPosterURL());
             return;
         }
         try {
-            String posterURL = "Unknown";
-            String xml;
             // Check FilmUp.IT first only for movies because TV Show posters are
             // wrong.
             if (!movie.isTVShow()) {
@@ -115,50 +116,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
                     movie.setPosterURL(posterURL);
                     return;
                 }
-            }
-            // Check posters.motechnet.com
-            if (this.testMotechnetPoster(movie.getId(FILMUPIT_PLUGIN_ID))) {
-                posterURL = "http://posters.motechnet.com/covers/" + movie.getId(FILMUPIT_PLUGIN_ID) + "_largeCover.jpg";
+                posterURL = PosterScanner.getPosterURL(movie, xml, IMDB_PLUGIN_ID);
                 logger.finest("Movie PosterURL : " + posterURL);
                 movie.setPosterURL(posterURL);
                 return;
-            } // Check www.impawards.com
-            /*
-             * else if (!(posterURL = this.testImpawardsPoster(movie.getId(FILMUPIT_PLUGIN_ID))).equalsIgnoreCase("Unknown")) {
-             * logger.finest("Movie PosterURL : " + posterURL); movie.setPosterURL(posterURL); return; }
-             */ // Check www.moviecovers.com (if set in property file)
-            else if ("moviecovers".equals(preferredPosterSearchEngine) && !(posterURL = this.getPosterURLFromMoviecoversViaGoogle(movie.getTitle())).equalsIgnoreCase("Unknown")) {
-                logger.finest("Movie PosterURL : " + posterURL);
-                movie.setPosterURL(posterURL);
-                return;
-            } else {
-                xml = webBrowser.request("http://www.imdb.com/title/" + movie.getId(FILMUPIT_PLUGIN_ID));
-                int castIndex = xml.indexOf("<h3>Cast</h3>");
-                int beginIndex = xml.indexOf("src=\"http://ia.media-imdb.com/images");
-                if (beginIndex < castIndex && beginIndex != -1) {
-
-                    StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 5), "\"");
-                    posterURL = st.nextToken();
-                    int index = posterURL.indexOf("_SY");
-                    if (index != -1) {
-                        posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
-                    }
-                } else {
-                    // try searching an alternate search engine
-                    String alternateURL = "Unknown";
-                    if ("google".equalsIgnoreCase(preferredPosterSearchEngine)) {
-                        alternateURL = getPosterURLFromGoogle(movie.getTitle());
-                    } else if ("yahoo".equalsIgnoreCase(preferredPosterSearchEngine)) {
-                        alternateURL = getPosterURLFromYahoo(movie.getTitle());
-                    }
-
-                    if (!alternateURL.equalsIgnoreCase("Unknown")) {
-                        posterURL = alternateURL;
-                    }
-                }
             }
-            logger.finest("Movie PosterURL : " + posterURL);
-            movie.setPosterURL(posterURL);
         } catch (Exception e) {
             logger.severe("Failed retreiving poster : " + pageUrl);
             e.printStackTrace();
