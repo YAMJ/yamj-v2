@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -273,6 +275,10 @@ public class PosterScanner {
         int urlWidth = 0, urlHeight = 0;
         float urlAspect;
         
+        if (!posterValidate) {
+            return true;
+        }
+        
         try {
             URL url = new URL(posterURL);
             InputStream in = url.openStream();
@@ -441,11 +447,14 @@ public class PosterScanner {
 
             String content = webBrowser.request(sb.toString());
             if (content != null) {
-                int indexMovieLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
-                if (indexMovieLink != -1) {
-                    String finMovieUrl = content.substring(indexMovieLink + 47, content.indexOf("\" class=l>", indexMovieLink));
-                    returnString = "http://www.moviecovers.com/getjpg.html/" + finMovieUrl.substring(0, finMovieUrl.lastIndexOf('.')).replace("+", "%20")
-                                    + ".jpg";
+                int indexStartLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
+                if (indexStartLink >= 0) {
+                    int indexEndLink = content.indexOf("\" class=l>", indexStartLink);
+                    if (indexEndLink > 0) {
+                        String findMovieUrl = content.substring(indexStartLink + 47, indexEndLink);
+                        returnString = "http://www.moviecovers.com/getjpg.html/" + 
+                                       findMovieUrl.substring(0, findMovieUrl.lastIndexOf('.')).replace("+", "%20") + ".jpg";
+                    }
                 }
             }
         } catch (Exception e) {
@@ -465,26 +474,42 @@ public class PosterScanner {
      */
     public static String getPosterURLFromMoviedb(String movieName) {
         String returnString = Movie.UNKNOWN;
+        String tmdbContent = "";
+        StringBuffer tmdbSB = null;
         int indexStartLink = -1;
         int indexEndLink = -1;
+        int tmdbID = 0;
         
         try {
-            StringBuffer sb = new StringBuffer("http://images.google.com/images?q=site%3Athemoviedb.org+poster+");
-            sb.append(URLEncoder.encode(movieName,"UTF-8"));
+            tmdbSB = new StringBuffer("http://www.themoviedb.org/search?search[text]=");
+            tmdbSB.append(URLEncoder.encode(movieName, "UTF-8"));
+            tmdbContent = webBrowser.request(tmdbSB.toString());
 
-            String content = webBrowser.request(sb.toString());
-            if (content != null) {
-                indexStartLink = content.indexOf("http://www.themoviedb.org/image/posters/");
-                if (indexStartLink >= 0) {
-                    indexEndLink = content.indexOf(".jpg", indexStartLink);
-                    if (indexEndLink > 0) {
-                        String findMovieUrl = content.substring(indexStartLink, indexEndLink + 4);
-                        returnString = findMovieUrl;
-                    }
+            // Locate TheMovieDB ID from the search page
+            indexStartLink = tmdbContent.indexOf("<a href=\"/movie/");
+            indexEndLink = tmdbContent.indexOf("\">", indexStartLink + 16); // Start at the end of the last search
+
+            // If we've found it, then extract the ID
+            if ((indexStartLink > 0) && (indexEndLink > 0)) {
+                tmdbID = Integer.parseInt(tmdbContent.substring(indexStartLink + 16, indexEndLink));
+                logger.finest("Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + tmdbID);
+            } else {
+                // Not found, so exit
+                return returnString;
+            }
+            
+            tmdbSB = new StringBuffer("http://www.themoviedb.org/movie/" + tmdbID + "/posters");
+            tmdbContent = webBrowser.request(tmdbSB.toString());
+            
+            Matcher tmdbMatch = Pattern.compile("http://images\\.themoviedb\\.org/posters/.+?\\.(jpg|jpeg)").matcher(tmdbContent);
+            
+            while (tmdbMatch.find() && returnString.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (validatePoster(tmdbMatch.group(), posterWidth, posterHeight, posterValidateAspect)) {
+                    returnString = tmdbMatch.group();
                 }
             }
         } catch (Exception e) {
-            logger.severe("Failed retreiving MovieDB.org poster URL: " + movieName);
+            logger.severe("Failed retreiving TheMovieDB.org poster URL: " + movieName);
             logger.severe("Error : " + e.getMessage());
             returnString = Movie.UNKNOWN;
         }
