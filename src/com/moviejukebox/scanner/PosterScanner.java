@@ -72,7 +72,7 @@ public class PosterScanner {
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
         posterWidth                 = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
         posterHeight                = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
-        posterSearchPriority        = PropertiesUtil.getProperty("poster.scanner.SearchPriority", "moviedb,imdb,impawards,motechnet,moviecovers,google,yahoo");
+        posterSearchPriority        = PropertiesUtil.getProperty("poster.scanner.SearchPriority", "imdb,motechnet,impawards,moviedb,moviecovers,google,yahoo");
         posterValidate              = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
         posterValidateAspect        = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
     }
@@ -533,9 +533,9 @@ public class PosterScanner {
         if ((beginIndex < castIndex) && (beginIndex != -1)) {
             st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
             posterURL = st.nextToken();
-            int index = posterURL.indexOf("_SY");
+            int index = posterURL.indexOf("_SX");
             if (index != -1) {
-                posterURL = posterURL.substring(0, index) + "_SY800_SX600_.jpg";
+                posterURL = posterURL.substring(0, index) + "_SX600_SY800_.jpg";
             }
         } 
 
