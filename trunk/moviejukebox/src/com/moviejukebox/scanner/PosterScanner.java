@@ -28,10 +28,13 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
 /**
- * Scanner for poster files in local directory
+ * Scanner for poster files in local directory and from the Internet
  * 
  * @author groll.troll
- * @version 1.0, 7 oct. 2008
+ * @author Stuart.Boston
+ * 
+ * @version 1.0, 7 October 2008
+ * @version 2.0  6 July 2009
  */
 public class PosterScanner {
 
@@ -45,6 +48,7 @@ public class PosterScanner {
     protected static String     preferredPosterSearchEngine;
     protected static String     posterSearchPriority;
     protected static boolean    posterValidate;
+    protected static int        posterValidateMatch;
     protected static boolean    posterValidateAspect;
     protected static int        posterWidth;
     protected static int        posterHeight;
@@ -74,6 +78,7 @@ public class PosterScanner {
         posterHeight                = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
         posterSearchPriority        = PropertiesUtil.getProperty("poster.scanner.SearchPriority", "imdb,motechnet,impawards,moviedb,moviecovers,google,yahoo");
         posterValidate              = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
+        posterValidateMatch         = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
         posterValidateAspect        = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
     }
     
@@ -279,6 +284,10 @@ public class PosterScanner {
             return true;
         }
         
+        if (posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+            return false;
+        }
+        
         try {
             URL url = new URL(posterURL);
             InputStream in = url.openStream();
@@ -287,7 +296,7 @@ public class PosterScanner {
             urlWidth = reader.getWidth(0);
             urlHeight = reader.getHeight(0);
         } catch (IOException ignore) {
-            logger.finest(ignore.getMessage() + ": can't open");
+            logger.finest("ValidatePoster error: " + ignore.getMessage() + ": can't open url");
             return false; // Quit and return a false poster
         }
 
@@ -298,6 +307,10 @@ public class PosterScanner {
             return false;
         }
         
+        // Adjust poster width / height by the ValidateMatch figure
+        posterWidth  = posterWidth * (posterValidateMatch / 100);
+        posterHeight = posterHeight * (posterValidateMatch / 100);
+
         if (urlWidth < posterWidth) {
             logger.finest(posterURL + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + posterWidth + ")");
             return false;
@@ -479,19 +492,29 @@ public class PosterScanner {
         int indexStartLink = -1;
         int indexEndLink = -1;
         int tmdbID = 0;
+        Matcher tmdbMatch;
         
         try {
-            tmdbSB = new StringBuffer("http://www.themoviedb.org/search?search[text]=");
+            tmdbSB = new StringBuffer("http://www.themoviedb.org/search/movies?search[text]=");
             tmdbSB.append(URLEncoder.encode(movieName, "UTF-8"));
             tmdbContent = webBrowser.request(tmdbSB.toString());
 
-            // Locate TheMovieDB ID from the search page
-            indexStartLink = tmdbContent.indexOf("<a href=\"/movie/");
-            indexEndLink = tmdbContent.indexOf("\">", indexStartLink + 16); // Start at the end of the last search
+            
+            tmdbMatch = Pattern.compile("<a href=\"/movie/.+?</a>").matcher(tmdbContent);
+            String tmdbText = "";
+            while (tmdbMatch.find() && indexStartLink < 0) {
+                tmdbText = tmdbMatch.group();
+                
+                if ((tmdbText.indexOf("Movie: ") > -1) && (tmdbText.indexOf(movieName) > -1)) {
+                    // Locate TheMovieDB ID from the search page
+                    indexStartLink = tmdbText.indexOf("/movie/");
+                    indexEndLink   = tmdbText.indexOf("\" title=", indexStartLink + 7); // Start at the end of the last search
+                }
+            }
 
             // If we've found it, then extract the ID
-            if ((indexStartLink > 0) && (indexEndLink > 0)) {
-                tmdbID = Integer.parseInt(tmdbContent.substring(indexStartLink + 16, indexEndLink));
+            if ((indexStartLink > -1) && (indexEndLink > -1)) {
+                tmdbID = Integer.parseInt(tmdbText.substring(indexStartLink + 7, indexEndLink));
                 logger.finest("Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + tmdbID);
             } else {
                 // Not found, so exit
@@ -501,7 +524,7 @@ public class PosterScanner {
             tmdbSB = new StringBuffer("http://www.themoviedb.org/movie/" + tmdbID + "/posters");
             tmdbContent = webBrowser.request(tmdbSB.toString());
             
-            Matcher tmdbMatch = Pattern.compile("http://images\\.themoviedb\\.org/posters/.+?\\.(jpg|jpeg)").matcher(tmdbContent);
+            tmdbMatch = Pattern.compile("http://images\\.themoviedb\\.org/posters/.+?\\.(jpg|jpeg)").matcher(tmdbContent);
             
             while (tmdbMatch.find() && returnString.equalsIgnoreCase(Movie.UNKNOWN)) {
                 if (validatePoster(tmdbMatch.group(), posterWidth, posterHeight, posterValidateAspect)) {
@@ -536,6 +559,8 @@ public class PosterScanner {
             int index = posterURL.indexOf("_SX");
             if (index != -1) {
                 posterURL = posterURL.substring(0, index) + "_SX600_SY800_.jpg";
+            } else {
+                posterURL = Movie.UNKNOWN;
             }
         } 
 
