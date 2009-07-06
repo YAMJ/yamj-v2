@@ -328,6 +328,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 if (plotEnd > -1) {
                     String outline = HTMLTools.stripTags(xml.substring(plotBegin, plotEnd));
                     if (outline.length() > 0) {
+                        if (outline.endsWith("|")) {
+                            // Remove the bar character from the end of the plot
+                            outline = outline.substring(0, outline.length() - 1);
+                        }
+                        
                         imdbOutline = outline;
                     }
                 }
