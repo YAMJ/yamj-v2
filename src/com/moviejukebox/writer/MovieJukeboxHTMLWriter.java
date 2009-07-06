@@ -48,6 +48,7 @@ public class MovieJukeboxHTMLWriter {
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList;
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
+    private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
@@ -114,6 +115,8 @@ public class MovieJukeboxHTMLWriter {
      */
     public Collection<String> generatePlaylist(String rootPath, String tempRootPath, Movie movie) {
         Collection<String> fileNames = new ArrayList<String>();
+        MovieFile[] movieFileArray = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()]);
+
         try {
             String baseName = FileTools.makeSafeFilename(movie.getBaseName());
             String tempFilename = tempRootPath + File.separator + baseName;
@@ -123,6 +126,19 @@ public class MovieJukeboxHTMLWriter {
             File finalPlaylistFile = new File(rootPath + File.separator + baseName + filenameSuffix);
             File tempPlaylistFile = new File(tempFilename + filenameSuffix);
             Source xmlSource;
+
+            // Issue 884: Remove ISO and IMG files from playlists
+            int partCount = 0;
+            for (int i = 0; i < movieFileArray.length; i++) {
+                MovieFile moviePart = movieFileArray[i];
+                String partExt = moviePart.getFilename().substring(moviePart.getFilename().lastIndexOf(".") + 1);
+                if (playlistIgnoreExtensions.indexOf(partExt) > -1) partCount++;
+            }
+            if (partCount > 0) {
+                // Note this will skip playlist generation for any movie that has an "mjb.playlist.ignoreextensions" entry.
+                logger.finest("Playlist for " + movie.getTitle() + " skipped - All parts are in mjb.playlist.IgnoreExtensions");
+                return fileNames;
+            } // Issue 884
             
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempPlaylistFile.getParentFile().mkdirs();
@@ -152,10 +168,8 @@ public class MovieJukeboxHTMLWriter {
         
         try {
             if (movie.getFiles().size() > 1) {
-                MovieFile[] array = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()]);
-                
-                for (int i = 0; i < array.length; i++) {
-                    fileNames.add(generateSimplePlaylist(rootPath, tempRootPath, movie, array, i));
+                for (int i = 0; i < movieFileArray.length; i++) {
+                    fileNames.add(generateSimplePlaylist(rootPath, tempRootPath, movie, movieFileArray, i));
                 }
             }
         } catch (Exception e) {
@@ -193,12 +207,11 @@ public class MovieJukeboxHTMLWriter {
             PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
 
             // Issue 237 - Add in the IP address of the MyiHome server so the playlist will work.
-            // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is the the
-            // normal method for standalone YAMJ
+            // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is
+            //             the normal method for stand alone YAMJ
             for (int i = 0; i < movieFiles.length; i++) {
                 MovieFile part = movieFiles[ (i + offset) % movieFiles.length];
-                // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the
-                // title
+                // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the title
                 writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
             }
             writer.flush();
