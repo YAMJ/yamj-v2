@@ -1,4 +1,17 @@
 /*
+ *      Copyright (c) 2004-2009 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list 
+ *  
+ *      Web: http://code.google.com/p/moviejukebox/
+ *  
+ *      This software is licensed under a Creative Commons License
+ *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *  
+ *      For any reuse or distribution, you must make clear to others the 
+ *      license terms of this work.  
+ */
+
+/*
  Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
  Written by Yury Sidorov.
   
