@@ -126,10 +126,10 @@ public class PosterScanner {
                 fullPosterFilename += File.separator + coverArtDirectory;
             }
             fullPosterFilename += File.separator + localPosterBaseFilename + "." + extension;
-            logger.finest("Checking for "+ fullPosterFilename);
+            //logger.finest("Checking for "+ fullPosterFilename);
             localPosterFile = new File(fullPosterFilename);
             if (localPosterFile.exists()) {
-                logger.finest("The file " + fullPosterFilename + " exists");
+                logger.finest("The file " + fullPosterFilename + " found");
                 foundLocalCoverArt = true;
                 break;
             }

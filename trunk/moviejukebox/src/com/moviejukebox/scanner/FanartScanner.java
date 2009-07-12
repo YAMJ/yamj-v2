@@ -199,12 +199,11 @@ public class FanartScanner {
         for (String extension : fanartExtensions) {
             localFanartFile = new File(fullFanartFilename + "." + extension);
             if (localFanartFile.exists()) {
-                logger.finest("The file " + fullFanartFilename + "." + extension + " exists");
+                logger.finest("The file " + fullFanartFilename + "." + extension + " found");
                 fullFanartFilename = "." + extension;
                 foundLocalFanart = true;
                 break;
             }
-            logger.finest("The file " + fullFanartFilename + "." + extension + " does not exist");
         }
 
         // If we've found the filename with extension, return it, otherwise return ""

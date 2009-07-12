@@ -21,6 +21,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #880 Reject Artwork if it's too low res
   - Enhancement  #883 Ability to re-order poster search sites
   - Fixed defect #886 Wrong IMDB poster in latest poster scanner
+  - Enhancement  #900 Skip index generation and writing of HTML files for external front end users
   - Fixed defect #903 Kinopoisk fixes after site update
 
 MovieJukebox 1.0.17 beta

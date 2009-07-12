@@ -81,6 +81,7 @@ public class MovieJukebox {
     private boolean fanartDownload;
     private boolean videoImagesDownload;
     private boolean moviejukeboxListing;
+    private static boolean skipIndexGeneration = false;
     private OpenSubtitlesPlugin subtitlePlugin;
     private AppleTrailersPlugin trailerPlugin;
 
@@ -135,6 +136,8 @@ public class MovieJukebox {
                     jukeboxPreserve = true;
                 } else if ("-p".equalsIgnoreCase(arg)) {
                     propertiesName = args[++i];
+                } else if ("-i".equalsIgnoreCase(arg)) {
+                    skipIndexGeneration = true;
                 } else if (arg.startsWith("-D")) {
                     String propLine = arg.length() > 2 ? arg.substring(2) : args[++i];
                     int propDiv = propLine.indexOf("=");
@@ -287,6 +290,11 @@ public class MovieJukebox {
         System.out.println("                      exist but aren't found in any of the scanned libraries will");
         System.out.println("                      be preserved verbatim.");
         System.out.println();
+        System.out.println("  -i                : OPTIONAL");
+        System.out.println("                      Skip the indexing of the library and generation of the");
+        System.out.println("                      HTML pages. This should only be used with an external");
+        System.out.println("                      front end, such as NMTServer.");
+        System.out.println();
         System.out.println("  -p propertiesFile : OPTIONAL");
         System.out.println("                      The properties file to use instead of moviejukebox.properties");
     }
@@ -341,17 +349,18 @@ public class MovieJukebox {
         MovieListingPlugin listingPlugin = this.getListingPlugin(PropertiesUtil.getProperty("mjb.listing.plugin",
             "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.generate", "false"));
-
+        
         videoImagesDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
 
         int nbFiles = 0;
         String cleanCurrent = "";
         String cleanCurrentExt = "";
 
-        // ////////////////////////////////////////////////////////////////
-        // / PASS 0 : Preparing temporary environment...
-        //
-
+        /********************************************************************************
+         * 
+         *  PART 1 : Preparing the temporary environment
+         *  
+         */
         logger.fine("Preparing environment...");
         File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
         
@@ -426,9 +435,11 @@ public class MovieJukebox {
         }
         tempJukeboxDetailsRootFile.mkdirs();
 
-        // ////////////////////////////////////////////////////////////////
-        // / PASS 1 : Scan movie libraries for files...
-        //
+        /********************************************************************************
+         *  
+         *  PART 2 : Scan movie libraries for files...
+         * 
+         */
         logger.fine("Scanning movies directory " + mediaLibraryRoot);
         logger.fine("Jukebox output goes to " + jukeboxRoot);
 
@@ -451,9 +462,6 @@ public class MovieJukebox {
         logger.fine("Found " + library.size() + " movies in your media library");
         
         if (library.size() > 0) {
-            // ////////////////////////////////////////////////////////////////
-            // / PASS 2 : Scan movie libraries for files...
-            //
             logger.fine("Searching for movies information...");
 
             for (Movie movie : library.values()) {
@@ -491,15 +499,24 @@ public class MovieJukebox {
             }
             subtitlePlugin.logOut();
             
-            // ////////////////////////////////////////////////////////////////
-            // / PASS 3 : Indexing the library
-            //
-            logger.fine("Indexing libraries...");
-            library.buildIndex();
+            /********************************************************************************
+             *  
+             *  PART 3 : Indexing the library
+             *  
+             */
+            
+            if (skipIndexGeneration) {
+                logger.fine("Indexing of libraries skipped.");
+            } else {
+                logger.fine("Indexing libraries...");
+                library.buildIndex();
+            }
 
-            // This is kind of a hack -- library.values() are the movies that were found in the library
-            // and library.getMoviesList() are the ones that are there now. So the movies that are in
-            // getMoviesList but not in values are the index masters.
+            /*  
+             * This is kind of a hack -- library.values() are the movies that were found in the
+             * library and library.getMoviesList() are the ones that are there now. So the movies
+             * that are in getMoviesList but not in values are the index masters.
+             */
             Collection<Movie> movies = library.values();
             List<Movie> indexMasters = new ArrayList<Movie>();
             indexMasters.addAll(library.getMoviesList());
@@ -507,8 +524,8 @@ public class MovieJukebox {
             
             SetThumbnailPlugin stp = new SetThumbnailPlugin();
             for (Movie movie : indexMasters) {
-                // The master's movie xml is used for generating the playlist
-                // it will be overwritten by the index xml
+                // The master's movie XML is used for generating the
+                // playlist it will be overwritten by the index XML
                 logger.finest("Writing index data for master: " + movie.getBaseName());
                 xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
                 
@@ -556,19 +573,28 @@ public class MovieJukebox {
                 logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
                 createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
-                // write the movie details HTML
-                htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-                
-                // write the playlist for the movie if needed
-                generatedFileNames.addAll(htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie));
+                if (!skipIndexGeneration) {
+                    // write the movie details HTML
+                    htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                    
+                    // write the playlist for the movie if needed
+                    generatedFileNames.addAll(htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie));
+                }
             }
            
-            logger.fine("Generating Indexes...");
-            xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
-            xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
-            htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
-            htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
-            
+            if (!skipIndexGeneration) {
+                logger.fine("Writing Indexes...");
+                xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
+                xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
+                htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
+                htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
+            }
+
+            /********************************************************************************
+             *   
+             *  PART 4 : Copy files to target directory
+             *              
+             */
             logger.fine("Copying new files to Jukebox directory...");
             String index = PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
             FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);
@@ -586,10 +612,11 @@ public class MovieJukebox {
             File rootIndex = new File(tempJukeboxRoot + File.separator + index);
             rootIndex.delete();
 
-            // ////////////////////////////////////////////////////////////////
-            // / PASS 4: Clean-up the jukebox directory
-            // / If the command line argument "-c" was passed
-            //
+            /********************************************************************************
+             *  
+             *  PART 5: Clean-up the jukebox directory
+             *  
+             */
             if (jukeboxClean) {
                 logger.fine("Cleaning up the jukebox directory...");
 
@@ -676,11 +703,9 @@ public class MovieJukebox {
     /**
      * Search the movie library for the passed movie name
      * 
-     * @param slMovieName
-     *            - the name of the movie to match
-     * @param library
-     *            - the library to search
-     * @return true if found, false if not.
+     * @param   slMovieName     The name of the movie to match
+     * @param   library         The library to search
+     * @return                  true if found, false if not.
      */
     private Boolean searchLibrary(String slMovieName, Library library) {
         slMovieName = slMovieName.toUpperCase();
