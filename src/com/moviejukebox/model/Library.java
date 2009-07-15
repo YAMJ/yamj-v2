@@ -584,7 +584,7 @@ public class Library implements Map<String, Movie> {
                     index.addMovie(categoriesMap.get("Trailers"), movie);
                 }
             } else {
-                if (movie.getVideoOutput().indexOf("720") != -1 || movie.getVideoOutput().indexOf("1080") != -1) {
+                if (movie.isHD()) {
                     if (categoriesMap.get("HD") != null) {
                         index.addMovie(categoriesMap.get("HD"), movie);
                     }
