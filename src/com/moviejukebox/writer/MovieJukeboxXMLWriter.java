@@ -36,7 +36,7 @@ import javax.xml.stream.events.XMLEvent;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.TrailerFile;
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -335,24 +335,24 @@ public class MovieJukeboxXMLWriter {
                     movie.addMovieFile(mf);
                 }
 
-                if (tag.startsWith("<trailer ")) {
-                    TrailerFile tf = new TrailerFile();
-                    tf.setNewFile(false);
+                if (tag.startsWith("<extra ")) {
+                    ExtraFile ef = new ExtraFile();
+                    ef.setNewFile(false);
 
                     StartElement start = e.asStartElement();
                     for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
                         Attribute attr = i.next();
                         String ns = attr.getName().toString();
 
-                        if ("title".equals(ns)) {
-                            tf.setTitle(attr.getValue());
+                        if (ns.equals("title")) {
+                            ef.setTitle(attr.getValue());
                             continue;
                         }
                     }
 
-                    tf.setFilename(parseCData(r));
-                    // add or replace trailer based on XML data
-                    movie.addTrailerFile(tf);
+                    ef.setFilename(parseCData(r));
+                    // add or replace extra based on XML data
+                    movie.addExtraFile(ef);
                 }
             }
         } catch (Exception e) {
@@ -361,7 +361,7 @@ public class MovieJukeboxXMLWriter {
             return false;
         }
 
-        movie.setDirty(movie.hasNewMovieFiles() || movie.hasNewTrailerFiles());
+        movie.setDirty(movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
         return true;
     }
 
@@ -573,7 +573,7 @@ public class MovieJukeboxXMLWriter {
 
     private void writeMovieForIndex(XMLWriter writer, Movie movie) throws XMLStreamException {
         writer.writeStartElement("movie");
-        writer.writeAttribute("isTrailer", Boolean.toString(movie.isTrailer()));
+        writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         writer.writeStartElement("details");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBaseName())) + ".html");
         writer.writeEndElement();
@@ -627,7 +627,7 @@ public class MovieJukeboxXMLWriter {
 
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
         writer.writeStartElement("movie");
-        writer.writeAttribute("isTrailer", Boolean.toString(movie.isTrailer()));
+        writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
             writer.writeStartElement("id");
             writer.writeAttribute("movieDatabase", e.getKey());
@@ -826,13 +826,13 @@ public class MovieJukeboxXMLWriter {
         }
         writer.writeEndElement();
 
-        Collection<TrailerFile> trailerFiles = movie.getTrailerFiles();
-        if (trailerFiles != null && trailerFiles.size() > 0) {
-            writer.writeStartElement("trailers");
-            for (TrailerFile tf : trailerFiles) {
-                writer.writeStartElement("trailer");
-                writer.writeAttribute("title", tf.getTitle());
-                writer.writeCharacters(tf.getFilename()); // should already be URL-encoded
+        Collection<ExtraFile> extraFiles = movie.getExtraFiles();
+        if (extraFiles != null && extraFiles.size() > 0) {
+            writer.writeStartElement("extras");
+            for (ExtraFile ef : extraFiles) {
+                writer.writeStartElement("extra");
+                writer.writeAttribute("title", ef.getTitle());
+                writer.writeCharacters(ef.getFilename()); // should already be URL-encoded
                 writer.writeEndElement();
             }
             writer.writeEndElement();

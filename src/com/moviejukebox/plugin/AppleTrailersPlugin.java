@@ -29,7 +29,7 @@ import java.util.TimerTask;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.TrailerFile;
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.WebStats;
@@ -76,7 +76,7 @@ public class AppleTrailersPlugin {
         if (movie.isTrailerExchange())
             return;
 
-        if (movie.isTrailer())
+        if (movie.isExtra())
             return;
 
         if (movie.getMovieType().equals(Movie.TYPE_TVSHOW))
@@ -127,7 +127,7 @@ public class AppleTrailersPlugin {
             // Check if we need to download the trailer, or just link to it
             if (!configDownload) {
                 tmf.setFilename(trailerRealUrl);
-                movie.addTrailerFile(new TrailerFile(tmf));
+                movie.addExtraFile(new ExtraFile(tmf));
                 //movie.setTrailer(true);
             } else {
                 MovieFile mf = movie.getFirstFile();
@@ -162,12 +162,12 @@ public class AppleTrailersPlugin {
                     logger.finer("AppleTrailers Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
                 
                     tmf.setFilename(trailerPlayFileName);
-                    movie.addTrailerFile(new TrailerFile(tmf));
+                    movie.addExtraFile(new ExtraFile(tmf));
                     //movie.setTrailer(true);
                     
                 } else if (trailerDownload(movie,trailerRealUrl,trailerFile)) {
                     tmf.setFilename(trailerPlayFileName);
-                    movie.addTrailerFile(new TrailerFile(tmf));
+                    movie.addExtraFile(new ExtraFile(tmf));
                     //movie.setTrailer(true);
                 }
             }

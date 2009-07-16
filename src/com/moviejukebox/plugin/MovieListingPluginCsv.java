@@ -15,7 +15,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.TrailerFile;
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
 
@@ -61,7 +61,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput("Video Output")
                 + prepOutput("FPS")
                 + prepOutput("# Files")
-                + prepOutput("# Trailers")
+                + prepOutput("# Extras")
                 + prepOutput("# Genres")
                 + prepOutput("# Cast")
                 + prepOutput("SubTitles?")
@@ -87,7 +87,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      * @return output string properly formatted for CSV output
      */
     protected String toCSV(String sItemType, Movie movie) {
-        Collection<TrailerFile> trailers = movie.getTrailerFiles();
+        Collection<ExtraFile> extras = movie.getExtraFiles();
         Collection<MovieFile> movieFiles = movie.getMovieFiles();
         Collection<String> genres = movie.getGenres();
         Collection<String> cast = movie.getCast();
@@ -116,7 +116,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput(movie.getVideoOutput())
                 + prepOutput(Float.toString(movie.getFps()))
                 + prepOutput("" + (null == movieFiles ? "0" : movieFiles.size()))
-                + prepOutput("" + (null == trailers ? "0" : trailers.size()))
+                + prepOutput("" + (null == extras ? "0" : extras.size()))
                 + prepOutput("" + (null == genres ? "0" : genres.size()))
                 + prepOutput("" + (null == cast ? "0" : cast.size()))
                 + prepOutput(movie.hasSubtitles() ? "True" : "False")
@@ -207,8 +207,8 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                     logger.finer(movie.toString());
 
                     String sType;
-                    if (movie.isTrailer()) {
-                        sType = typeTrailer;
+                    if (movie.isExtra()) {
+                        sType = typeExtra;
                     } else if (movie.isTVShow()) {
                         sType = typeTVShow;
                     } else {
@@ -223,8 +223,8 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 for (String thisType : alTypes) {
                     for (Movie movie : library.values()) {
                         String sType;
-                        if (movie.isTrailer()) {
-                            sType = typeTrailer;
+                        if (movie.isExtra()) {
+                            sType = typeExtra;
                         } else if (movie.isTVShow()) {
                             sType = typeTVShow;
                         } else {

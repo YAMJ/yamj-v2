@@ -33,8 +33,7 @@ import com.moviejukebox.tools.PropertiesUtil;
  * 
  * <MovieTitle>[Keyword*].<container>
  * 
- * * The movie title is in the first position of the filename. * it is followed by zero or more keywords. * the file
- * extension match the container name.
+ * * The movie title is in the first position of the filename. * it is followed by zero or more keywords. * the file extension match the container name.
  * 
  * @author jjulien
  * @author quickfinga
@@ -49,8 +48,19 @@ public class MovieFilenameScanner {
     private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
     private static boolean languageDetection = true;
 
-    /** All symbols within brackets [] if there is 'trailer' word */
-    private static final Pattern TRAILER_PATTERN = ipatt("\\[([^\\[\\]]*trailer[^\\[]*)\\]");
+    /** All symbols within brackets [] if there is an EXTRA keyword */
+    private static final String EXTRA_PATTERN_START = "\\[([^\\[\\]]*";
+    private static final String EXTRA_PATTERN_END = "[^\\[]*)\\]";
+    private static final List<String> EXTRA_PATTERN_KEYWORDS = new ArrayList<String>();
+    {
+        {
+            StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| ");
+            while (st.hasMoreTokens())
+                EXTRA_PATTERN_KEYWORDS.add(st.nextToken());
+
+        }
+    }
+    // private static final Pattern EXTRA_PATTERN = ipatt("\\[([^\\[\\]]*(trailer|extra|bonus)[^\\[]*)\\]");
 
     /** Everything in format [SET something] */
     private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
@@ -199,8 +209,8 @@ public class MovieFilenameScanner {
     private static final Map<String, Pattern> VIDEO_SOURCE_MAP = new HashMap<String, Pattern>() {
         {
             String sourceKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords",
-                "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
-            
+                            "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
+
             HashMap<String, String> mappedKeywordsDefaults = new HashMap<String, String>() {
                 {
                     put("SDTV", "TVRip,PAL,NTSC");
@@ -210,14 +220,14 @@ public class MovieFilenameScanner {
                     put("DVDRip", "DVDR");
                 }
             };
-            
+
             for (String s : sourceKeywords.split(",")) {
-                // Set the default the long way to allow "keyword.XXX=" to blank the value instead of using default
+                // Set the default the long way to allow 'keyword.XXX=' to blank the value instead of using default
                 String mappedKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords." + s, null);
                 if (null == mappedKeywords) {
                     mappedKeywords = mappedKeywordsDefaults.get(s);
                 }
-                
+
                 String patt = s;
                 if (null != mappedKeywords && mappedKeywords.length() > 0) {
                     for (String t : mappedKeywords.split(",")) {
@@ -306,13 +316,18 @@ public class MovieFilenameScanner {
             rest = p.matcher(rest).replaceAll("./.");
         }
 
-        // TRAILER
+        // EXTRAS (Including Trailers)
         {
-            final Matcher matcher = TRAILER_PATTERN.matcher(rest);
-            dto.setTrailer(matcher.find());
-            if (dto.isTrailer()) {
-                dto.setTrailerTitle(matcher.group(1));
-                rest = cutMatch(rest, matcher, "./TRAILER/.");
+            for (String patternString : EXTRA_PATTERN_KEYWORDS) {
+                Pattern pattern = ipatt(EXTRA_PATTERN_START + patternString + EXTRA_PATTERN_END);
+                Matcher matcher = pattern.matcher(rest);
+                patternString = patternString.toUpperCase();
+                if (matcher.find()) {
+                    dto.setExtra(true);
+                    dto.setPartTitle(matcher.group(1));
+                    rest = cutMatch(rest, matcher, "./" + patternString + "/.");
+                    break;
+                }
             }
         }
 
@@ -387,12 +402,21 @@ public class MovieFilenameScanner {
 
         // TITLE
         {
-            int itrailer = dto.isTrailer() ? rest.indexOf("/TRAILER/") : rest.length();
+            int iextra = rest.length(), itrailer = rest.length();
+
+            if (rest.indexOf("/TRAILER/") >= 0) {
+                itrailer = dto.isExtra() ? rest.indexOf("/TRAILER/") : rest.length();
+            } else if (rest.indexOf("/EXTRA/") >= 0) {
+                iextra = dto.isExtra() ? rest.indexOf("/EXTRA/") : rest.length();
+            }
+
             int itvshow = dto.getSeason() >= 0 ? rest.indexOf("/TVSHOW/") : rest.length();
             int ipart = dto.getPart() >= 0 ? rest.indexOf("/PART/") : rest.length();
 
             {
-                int min = itrailer < itvshow ? itrailer : itvshow;
+                int min = iextra < itrailer ? iextra : itrailer;
+                min = min < itrailer ? min : itrailer;
+                min = min < itvshow ? min : itvshow;
                 min = min < ipart ? min : ipart;
 
                 // Find first token before trailer, TV show and part
@@ -482,7 +506,6 @@ public class MovieFilenameScanner {
             }
 
         }
-
     }
 
     private String cleanUpTitle(String token) {
@@ -510,7 +533,6 @@ public class MovieFilenameScanner {
     }
 
     public static MovieFileNameDTO scan(File file) {
-
         return new MovieFilenameScanner(file).getDto();
     }
 

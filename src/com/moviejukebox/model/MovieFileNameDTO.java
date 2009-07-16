@@ -32,8 +32,7 @@ public class MovieFileNameDTO {
     private int     season = -1;
     private final List<Integer> episodes = new ArrayList<Integer>();
     private int     part = -1;
-    private boolean trailer = false;
-    private String  trailerTitle = null;
+    private boolean extra = false;
     private String  audioCodec = null;
     private String  videoCodec = null;
     private String  container = null;
@@ -73,7 +72,7 @@ public class MovieFileNameDTO {
     public void setTitle(String title) {
         this.title = title;
     }
-
+    
     public int getYear() {
         return year;
     }
@@ -110,20 +109,12 @@ public class MovieFileNameDTO {
         return episodes;
     }
 
-    public boolean isTrailer() {
-        return trailer;
+    public boolean isExtra() {
+        return extra;
     }
 
-    public void setTrailer(boolean trailer) {
-        this.trailer = trailer;
-    }
-
-    public String getTrailerTitle() {
-        return trailerTitle;
-    }
-
-    public void setTrailerTitle(String trailerTitle) {
-        this.trailerTitle = trailerTitle;
+    public void setExtra(boolean extra) {
+        this.extra = extra;
     }
 
     public String getAudioCodec() {

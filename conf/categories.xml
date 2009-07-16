@@ -30,9 +30,9 @@
     <enable>true</enable>
     <rename>Movies</rename>
   </category>
-  <category name="Trailers">
+  <category name="Extras">
     <enable>true</enable>
-    <rename>Trailers</rename>
+    <rename>Extras</rename>
   </category>
   <category name="TV Shows">
     <enable>true</enable>

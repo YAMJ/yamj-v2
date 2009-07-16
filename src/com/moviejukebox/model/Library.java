@@ -140,7 +140,7 @@ public class Library implements Map<String, Movie> {
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private static boolean charGroupEnglish = false;
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
-    private Map<String, Movie> trailers = new TreeMap<String, Movie>();
+    private Map<String, Movie> extras = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
     private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000");    // Issue 190
@@ -233,9 +233,9 @@ public class Library implements Map<String, Movie> {
         Movie existingMovie = library.get(key);
         logger.finest("Adding movie " + key + ", new part: " + (existingMovie != null));
 
-        if (movie.isTrailer()) {
-            logger.finest("  It's a trailer: " + movie.getBaseName());
-            trailers.put(movie.getBaseName(), movie);
+        if (movie.isExtra()) {
+            logger.finest("  It's an extra: " + movie.getBaseName());
+            extras.put(movie.getBaseName(), movie);
         } else if (existingMovie == null) {
             library.put(key, movie);
         } else {
@@ -247,14 +247,14 @@ public class Library implements Map<String, Movie> {
         addMovie(getMovieKey(movie), movie);
     }
     
-    public void mergeTrailers() {
-        for (Map.Entry<String, Movie> trailerEntry : trailers.entrySet()) {
-            Movie trailer = trailerEntry.getValue();
-            Movie movie = library.get(getMovieKey(trailer));
+    public void mergeExtras() {
+        for (Map.Entry<String, Movie> extraEntry : extras.entrySet()) {
+            Movie extra = extraEntry.getValue();
+            Movie movie = library.get(getMovieKey(extra));
             
-            library.put(trailerEntry.getKey(), trailer);
+            library.put(extraEntry.getKey(), extra);
             if (null != movie) {
-                movie.addTrailerFile(new TrailerFile(trailerEntry.getValue().getFirstFile()));
+                movie.addExtraFile(new ExtraFile(extraEntry.getValue().getFirstFile()));
             }
         }        
     }
@@ -435,34 +435,34 @@ public class Library implements Map<String, Movie> {
     }
 
     private static void setMovieListNavigation(List<Movie> moviesList) {
-        List<Movie> trailerList = new ArrayList<Movie>();
+        List<Movie> extraList = new ArrayList<Movie>();
 
         Movie first = null;
         Movie last = null;
 
-        // sort the trailers out of the movies
+        // sort the extras out of the movies
         for (Movie m : moviesList) {
-            if (m.isTrailer()) {
-                trailerList.add(m);
+            if (m.isExtra()) {
+                extraList.add(m);
             } else {
                 if (first == null) {
-                    // set the first non-trailer movie
+                    // set the first non-extra movie
                     first = m;
                 }
-                // set the last non-trailer movie
+                // set the last non-extra movie
                 last = m;
             }
         }
 
-        // ignore the trailers while sorting the other movies
+        // ignore the extras while sorting the other movies
         for (int j = 0; j < moviesList.size(); j++) {
             Movie movie = moviesList.get(j);
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 movie.setFirst(first.getBaseName());
 
                 for (int p = j - 1; p >= 0; p--) {
                     Movie prev = moviesList.get(p);
-                    if (!prev.isTrailer()) {
+                    if (!prev.isExtra()) {
                         movie.setPrevious(prev.getBaseName());
                         break;
                     }
@@ -470,7 +470,7 @@ public class Library implements Map<String, Movie> {
 
                 for (int n = j + 1; n < moviesList.size(); n++) {
                     Movie next = moviesList.get(n);
-                    if (!next.isTrailer()) {
+                    if (!next.isExtra()) {
                         movie.setNext(next.getBaseName());
                         break;
                     }
@@ -480,16 +480,16 @@ public class Library implements Map<String, Movie> {
             }
         }
 
-        // sort the trailers separately
-        if (!trailerList.isEmpty()) {
-            Movie firstTrailer = trailerList.get(0);
-            Movie lastTrailer = trailerList.get(trailerList.size() - 1);
-            for (int i = 0; i < trailerList.size(); i++) {
-                Movie movie = trailerList.get(i);
-                movie.setFirst(firstTrailer.getBaseName());
-                movie.setPrevious(i > 0 ? trailerList.get(i - 1).getBaseName() : firstTrailer.getBaseName());
-                movie.setNext(i < trailerList.size() - 1 ? trailerList.get(i + 1).getBaseName() : lastTrailer.getBaseName());
-                movie.setLast(lastTrailer.getBaseName());
+        // sort the extras separately
+        if (!extraList.isEmpty()) {
+            Movie firstExtra = extraList.get(0);
+            Movie lastExtra = extraList.get(extraList.size() - 1);
+            for (int i = 0; i < extraList.size(); i++) {
+                Movie movie = extraList.get(i);
+                movie.setFirst(firstExtra.getBaseName());
+                movie.setPrevious(i > 0 ? extraList.get(i - 1).getBaseName() : firstExtra.getBaseName());
+                movie.setNext(i < extraList.size() - 1 ? extraList.get(i + 1).getBaseName() : lastExtra.getBaseName());
+                movie.setLast(lastExtra.getBaseName());
             }
         }
     }
@@ -497,7 +497,7 @@ public class Library implements Map<String, Movie> {
     private static Index indexByTitle(Iterable<Movie> moviesList) {
         Index index = new Index();
         for (Movie movie : moviesList) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 String title = movie.getStrippedTitleSort();
                 if (title.length() > 0) {
                     Character c = Character.toUpperCase(title.charAt(0));
@@ -523,7 +523,7 @@ public class Library implements Map<String, Movie> {
     private static Index indexByYear(Iterable<Movie> moviesList) {
         Index index = new Index();
         for (Movie movie : moviesList) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 String year = getYearCategory(movie.getYear());
                 if (null != year) {
                     index.addMovie(year, movie);
@@ -536,7 +536,7 @@ public class Library implements Map<String, Movie> {
     private static Index indexByLibrary(Iterable<Movie> moviesList) {
         Index index = new Index();
         for (Movie movie : moviesList) {
-            if (!movie.isTrailer() && movie.getLibraryDescription().length() > 0) {
+            if (!movie.isExtra() && movie.getLibraryDescription().length() > 0) {
                 index.addMovie(movie.getLibraryDescription(), movie);
             }
         }
@@ -546,7 +546,7 @@ public class Library implements Map<String, Movie> {
     private static Index indexByGenres(Iterable<Movie> moviesList) {
         Index index = new Index();
         for (Movie movie : moviesList) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 int cntGenres = 0;
                 for (String genre : movie.getGenres()) {
                     if (cntGenres < maxGenresPerMovie) {
@@ -568,7 +568,7 @@ public class Library implements Map<String, Movie> {
         }
 
         for (Movie movie : moviesList) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 index.addMovie(movie.getCertification(), movie);
             }
         }
@@ -579,9 +579,9 @@ public class Library implements Map<String, Movie> {
         Index index = new Index();
         long now = System.currentTimeMillis();
         for (Movie movie : moviesList) {
-            if (movie.isTrailer()) {
-                if (categoriesMap.get("Trailers") != null) {
-                    index.addMovie(categoriesMap.get("Trailers"), movie);
+            if (movie.isExtra()) {
+                if (categoriesMap.get("Extras") != null) {
+                    index.addMovie(categoriesMap.get("Extras"), movie);
                 }
             } else {
                 if (movie.isHD()) {
@@ -622,7 +622,7 @@ public class Library implements Map<String, Movie> {
     protected static Index indexBySets(List<Movie> list) {
         Index index = new Index(false);
         for (Movie movie : list) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 if(singleSeriesPage && movie.isTVShow()) {
                     index.addMovie(movie.getOriginalTitle(), movie);
                 }
@@ -639,7 +639,7 @@ public class Library implements Map<String, Movie> {
     protected static Index indexByCast(List<Movie> list) {
         Index index = new Index(true);
         for (Movie movie : list) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 for (String actor : movie.getCast()) {
                     logger.finest("Adding " + movie.getTitle() + " to cast list for " + actor);
                     index.addMovie(actor, movie);
@@ -653,7 +653,7 @@ public class Library implements Map<String, Movie> {
     protected static Index indexByCountry(List<Movie> list) {
         Index index = new Index(true);
         for (Movie movie : list) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 index.addMovie(movie.getCountry(), movie);
             }
         }
@@ -664,7 +664,7 @@ public class Library implements Map<String, Movie> {
     protected static Index indexByDirector(List<Movie> list) {
         Index index = new Index(true);
         for (Movie movie : list) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 index.addMovie(movie.getDirector(), movie);
             }
         }
@@ -675,7 +675,7 @@ public class Library implements Map<String, Movie> {
     protected static Index indexByWriter(List<Movie> list) {
         Index index = new Index(true);
         for (Movie movie : list) {
-            if (!movie.isTrailer()) {
+            if (!movie.isExtra()) {
                 for (String writer : movie.getWriters()) {
                     logger.finest("Adding " + movie.getTitle() + " to writer list for " + writer);
                     index.addMovie(writer, movie);

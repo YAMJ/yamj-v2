@@ -18,14 +18,14 @@ import java.util.LinkedHashMap;
 
 public class MovieFile implements Comparable<MovieFile> {
 
-    private String filename = Movie.UNKNOWN;
-    private String title = Movie.UNKNOWN;
-    private int firstPart = 1; // #1, #2, CD1, CD2, etc.
-    private int lastPart = 1;
-    private boolean newFile = true; // is new file or already exists in XML data
-    private boolean subtitlesExchange = false; // is the subtitles for this file already downloaded/uploaded to the server
-    private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
+    private String  filename    = Movie.UNKNOWN;
+    private String  title       = Movie.UNKNOWN;
+    private int     firstPart   = 1; // #1, #2, CD1, CD2, etc.
+    private int     lastPart    = 1;
+    private boolean newFile     = true; // is new file or already exists in XML data
+    private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
+    private LinkedHashMap<Integer, String> plots          = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> videoImageURL  = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageFile = new LinkedHashMap<Integer, String>();
     private File file;
 
@@ -166,7 +166,7 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
         // TODO do not skip titles (store all provided)
-        setTitle(dto.isTrailer() ? dto.getTrailerTitle() : (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
+        setTitle(dto.isExtra() ? dto.getPartTitle() : (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
 
         if (dto.getEpisodes().size() > 0) {
             lastPart = 1;

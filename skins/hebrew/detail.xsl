@@ -419,12 +419,12 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
           </xsl:otherwise>
         </xsl:choose>
         
-        <xsl:if test="count(trailers) != 0">
+        <xsl:if test="count(extras) != 0">
           <tr>
             <td>
               <table align="right">
                 <tr><td class="title2" align="right">םינומידק</td></tr>
-                <xsl:for-each select="trailers/trailer">
+                <xsl:for-each select="extras/extra">
                   <tr>
                     <td class="normal">
                       <a>

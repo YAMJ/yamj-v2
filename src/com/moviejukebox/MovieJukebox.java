@@ -457,7 +457,7 @@ public class MovieJukebox {
         }
             
         // Now that everything's been scanned, merge the trailers into the movies
-        library.mergeTrailers();        
+        library.mergeExtras();        
 
         logger.fine("Found " + library.size() + " movies in your media library");
         
@@ -468,8 +468,8 @@ public class MovieJukebox {
                 // First get movie data (title, year, director, genre, etc...)
                 if ( movie.isTVShow() ) {
                     logger.fine("Updating data for: " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
-                } else if ( movie.isTrailer() ) {
-                    logger.fine("Updating data for: " + movie.getTitle() + " [Trailer]");
+                } else if ( movie.isExtra() ) {
+                    logger.fine("Updating data for: " + movie.getTitle() + " [Extra]");
                 } else {
                     logger.fine("Updating data for: " + movie.getTitle());
                 }

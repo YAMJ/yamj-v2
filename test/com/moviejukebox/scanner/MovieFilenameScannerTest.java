@@ -50,21 +50,21 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(4, d.getSeason());
         assertEquals(Arrays.asList(new Integer[] { 1, 2, 3, 6 }), d.getEpisodes());
 
-        d = scan("The.Matrix[Unrated Trailer].avi");
+        d = scan("The.Matrix.[Trailer-Unrated].avi");
         assertEquals("The Matrix", d.getTitle());
         assertEquals("avi", d.getExtension());
         assertEquals("AVI", d.getContainer());
-        assertTrue(d.isTrailer());
-        assertEquals("Unrated Trailer", d.getTrailerTitle());
+        assertTrue(d.isExtra());
+        assertEquals("Trailer-Unrated", d.getPartTitle());
 
         d = scan("The.Matrix 720P - Unrated Trailer.avi");
         assertEquals("The Matrix", d.getTitle());
-        assertFalse(d.isTrailer());
+        assertFalse(d.isExtra());
         assertEquals("720p", d.getHdResolution());
 
         d = scan("The.Trailer[ccc][Rated Trailer][XXX] TRAILER.p23.avi");
-        assertTrue(d.isTrailer());
-        assertEquals("Rated Trailer", d.getTrailerTitle());
+        assertTrue(d.isExtra());
+        assertEquals("Rated Trailer", d.getPartTitle());
         assertEquals(23, d.getFps());
 
         d = scan("Postal 2 720x400.iso");

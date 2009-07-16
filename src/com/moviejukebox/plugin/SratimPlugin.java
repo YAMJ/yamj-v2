@@ -901,7 +901,7 @@ public class SratimPlugin extends ImdbPlugin {
             return;
         }
             
-        if (movie.isTrailer()){
+        if (movie.isExtra()){
             mf.setSubtitlesExchange(true);
             return;
         }

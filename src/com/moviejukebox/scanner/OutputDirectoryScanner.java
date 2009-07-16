@@ -66,9 +66,11 @@ public class OutputDirectoryScanner {
                         logger.finest("  Found XML file: " + filename);
                         
                         Movie movie = new Movie();
-                        // Because the XML can have more info available than the original filename did,
-                        // the usual key construction method is not stable across runs. So we have to find
-                        // what the key *would* have been, if all we knew about the movie was the filename.
+                        /*
+                         *  Because the XML can have more info available than the original filename did,
+                         *  the usual key construction method is not stable across runs. So we have to find
+                         *  what the key *would* have been, if all we knew about the movie was the filename.
+                         */
                         MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
                         movie.mergeFileNameDTO(dto);
                         String key = Library.getMovieKey(movie);
