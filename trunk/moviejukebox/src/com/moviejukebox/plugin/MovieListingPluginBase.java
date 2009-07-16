@@ -52,7 +52,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
 
         String types = PropertiesUtil.getProperty("mjb.listing.types", typeAll).trim();
         if (typeAll.equalsIgnoreCase(types)) {
-            types = typeMovie + "," + typeTrailer + "," + typeTVShow;
+            types = typeMovie + "," + typeExtra + "," + typeTVShow;
         }
 
         //break into a list

@@ -24,7 +24,7 @@ public interface MovieListingPlugin {
   public static String typeMovie = "Movie";
   public static String typeTVShow = "TV Show";
   public static String typeTVShowNoSpace = "TVShow";
-  public static String typeTrailer = "Trailer";
+  public static String typeExtra = "Extra";
   public static String typeAll = "All";
 
   public static String UNKNOWN = "UNKNOWN";

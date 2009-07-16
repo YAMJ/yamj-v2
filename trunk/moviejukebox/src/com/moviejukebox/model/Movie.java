@@ -38,8 +38,8 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public static String NOTRATED = "Not Rated";
     public static String TYPE_MOVIE = "MOVIE";
     public static String TYPE_TVSHOW = "TVSHOW";
-    public static String TYPE_UNKNOWN = "UNKNOWN";
-    public static String TYPE_VIDEO_UNKNOWN = "UNKNOWN";
+    public static String TYPE_UNKNOWN = UNKNOWN;
+    public static String TYPE_VIDEO_UNKNOWN = UNKNOWN;
     public static String TYPE_VIDEO_HD = "HD";
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
@@ -52,7 +52,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String originalTitle = UNKNOWN;
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
-    private int    rating = -1;
+    private int rating = -1;
     private String posterURL = UNKNOWN;
     private String posterSubimage = UNKNOWN;
     private String fanartURL = UNKNOWN;
@@ -68,23 +68,23 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String runtime = UNKNOWN;
     private String language = UNKNOWN;
     private String videoType = UNKNOWN;
-    private int    season = -1;
+    private int season = -1;
     private boolean hasSubtitles = false;
     private Collection<String> genres = new TreeSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private Collection<String> cast = new ArrayList<String>();
     private Collection<String> writers = new ArrayList<String>();
-    private String container = UNKNOWN;     // AVI, MKV, TS, etc.
-    private String videoCodec = UNKNOWN;    // DIVX, XVID, H.264, etc.
-    private String audioCodec = UNKNOWN;    // MP3, AC3, DTS, etc.
+    private String container = UNKNOWN; // AVI, MKV, TS, etc.
+    private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
+    private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
     private String audioChannels = UNKNOWN; // Number of audio channels
-    private String resolution = UNKNOWN;    // 1280x528
+    private String resolution = UNKNOWN; // 1280x528
     private String videoSource = UNKNOWN;
     private String videoOutput = UNKNOWN;
     private float fps = 60;
     private String certification = UNKNOWN;
-    // TODO Move trailer flag to movie file
-    private boolean trailer = false;
+    // TODO Move extra flag to movie file
+    private boolean extra = false;
     private boolean trailerExchange = false;
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
@@ -99,7 +99,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String last = UNKNOWN;
     // Media file properties
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
-    Collection<TrailerFile> trailerFiles = new TreeSet<TrailerFile>();
+    Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
     // Caching
     private boolean isDirty = false;
     private boolean isDirtyNFO = false;
@@ -108,24 +108,24 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private File file;
     private File containerFile;
     // Get the minimum widths for a high-definition movies
-    private int     highdef720  = Integer.parseInt(PropertiesUtil.getProperty("highdef.720.width", "1280"));
-    private int     highdef1080 = Integer.parseInt(PropertiesUtil.getProperty("highdef.1080.width", "1920"));
+    private int highdef720 = Integer.parseInt(PropertiesUtil.getProperty("highdef.720.width", "1280"));
+    private int highdef1080 = Integer.parseInt(PropertiesUtil.getProperty("highdef.1080.width", "1920"));
 
-    /** True if movie actually is only a entry point to movies set.  */
-    private boolean isSetMaster = false; 
+    // True if movie actually is only a entry point to movies set.
+    private boolean isSetMaster = false;
 
     public void addGenre(String genre) {
-        if (genre != null && !trailer) {
+        if (genre != null && !extra) {
             this.isDirty = true;
             logger.finest("Genre added : " + genre);
             genres.add(genre);
         }
     }
-    
+
     public void addSet(String set) {
         addSet(set, null);
     }
-    
+
     public void addSet(String set, Integer order) {
         if (set != null) {
             this.isDirty = true;
@@ -157,17 +157,17 @@ public class Movie implements Comparable<Movie>, Cloneable {
         return false;
     }
 
-    public void addTrailerFile(TrailerFile movieFile) {
-        if (movieFile != null) {
+    public void addExtraFile(ExtraFile extraFile) {
+        if (extraFile != null) {
             this.isDirty = true;
             // always replace MovieFile
-            this.trailerFiles.remove(movieFile);
-            this.trailerFiles.add(movieFile);
+            this.extraFiles.remove(extraFile);
+            this.extraFiles.add(extraFile);
         }
     }
 
-    public boolean hasNewTrailerFiles() {
-        for (MovieFile movieFile : trailerFiles) {
+    public boolean hasNewExtraFiles() {
+        for (MovieFile movieFile : extraFiles) {
             if (movieFile.isNewFile()) {
                 return true;
             }
@@ -215,7 +215,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public Collection<String> getCast() {
         return cast;
     }
-    
+
     public Collection<String> getWriters() {
         return writers;
     }
@@ -240,8 +240,8 @@ public class Movie implements Comparable<Movie>, Cloneable {
         return movieFiles;
     }
 
-    public Collection<TrailerFile> getTrailerFiles() {
-        return trailerFiles;
+    public Collection<ExtraFile> getExtraFiles() {
+        return extraFiles;
     }
 
     public String getCertification() {
@@ -275,11 +275,11 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public Collection<String> getGenres() {
         return genres;
     }
-    
+
     public Collection<String> getSets() {
         return sets.keySet();
     }
-    
+
     public Integer getSetOrder(String set) {
         return sets.get(set);
     }
@@ -350,7 +350,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public String getResolution() {
         return resolution;
     }
-    
+
     // Return the width of the movie
     public int getWidth() {
         int width = 0;
@@ -360,7 +360,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
             // This will catch the exception if mediainfo is not installed.
             width = 0;
         }
-        return width; 
+        return width;
     }
 
     public String getRuntime() {
@@ -427,13 +427,13 @@ public class Movie implements Comparable<Movie>, Cloneable {
         // return (season != -1);
         return (this.movieType.equals(TYPE_TVSHOW) || this.season != -1);
     }
-    
+
     public boolean isHD() {
         // Depreciated this check in favour of the width check
-        //return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
+        // return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
         return (getWidth() >= highdef720);
     }
-    
+
     public boolean isHD1080() {
         return (getWidth() >= highdef1080);
     }
@@ -469,14 +469,14 @@ public class Movie implements Comparable<Movie>, Cloneable {
         this.isDirty = true;
         this.cast = cast;
     }
-    
+
     public void addWriter(String writer) {
         if (writer != null) {
             this.isDirty = true;
             writers.add(writer);
         }
     }
-    
+
     public void setWriters(Collection<String> writers) {
         this.isDirty = true;
         this.writers = writers;
@@ -559,12 +559,12 @@ public class Movie implements Comparable<Movie>, Cloneable {
     }
 
     public void setGenres(Collection<String> genres) {
-        if (!trailer) {
+        if (!extra) {
             this.isDirty = true;
             this.genres = genres;
         }
     }
-    
+
     public void setSets(Map<String, Integer> sets) {
         this.isDirty = true;
         this.sets = sets;
@@ -622,9 +622,9 @@ public class Movie implements Comparable<Movie>, Cloneable {
         this.movieFiles = movieFiles;
     }
 
-    public void setTrailerFiles(Collection<TrailerFile> trailerFiles) {
+    public void setExtraFiles(Collection<ExtraFile> extraFiles) {
         this.isDirty = true;
-        this.trailerFiles = trailerFiles;
+        this.extraFiles = extraFiles;
     }
 
     public void setNext(String next) {
@@ -754,7 +754,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
             this.title = name;
 
             setTitleSort(name);
-            
+
             if (originalTitle.equals(UNKNOWN))
                 setOriginalTitle(name);
         }
@@ -931,10 +931,16 @@ public class Movie implements Comparable<Movie>, Cloneable {
         this.detailPosterFilename = detailPosterFilename;
     }
 
-    public void setTrailer(boolean trailer) {
+    /**
+     * Sets the "extra" flag to mark this file as an extra. Will trigger the "dirty" setting too
+     * 
+     * @param extra
+     *            Boolean flag, true=extra file, false=normal file
+     */
+    public void setExtra(boolean extra) {
         this.isDirty = true;
-        this.trailer = trailer;
-        if (trailer) {
+        this.extra = extra;
+        if (extra) {
             genres.clear();
         }
     }
@@ -944,8 +950,11 @@ public class Movie implements Comparable<Movie>, Cloneable {
         this.trailerExchange = trailerExchange;
     }
 
-    public boolean isTrailer() {
-        return trailer;
+    /**
+     * @return Boolean flag indicating if this file is an extra
+     */
+    public boolean isExtra() {
+        return extra;
     }
 
     public boolean isTrailerExchange() {
@@ -961,7 +970,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
             this.movieType = movieType;
         }
     }
-    
+
     public String getMovieType() {
         return this.movieType;
     }
@@ -975,7 +984,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
             this.videoType = videoType;
         }
     }
-    
+
     public String getVideoType() {
         return this.videoType;
     }
@@ -1074,14 +1083,14 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public Object clone() {
         try {
             return super.clone();
-        } catch(CloneNotSupportedException ignored) {
+        } catch (CloneNotSupportedException ignored) {
             return null;
         }
     }
 
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
         setTitle(dto.getTitle());
-        setTrailer(dto.isTrailer());
+        setExtra(dto.isExtra());
         setAudioCodec(dto.getAudioCodec());
         setVideoCodec(dto.getVideoCodec());
         setVideoSource(dto.getVideoSource());
@@ -1096,7 +1105,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
         if (dto.getHdResolution() != null) {
             setVideoType(TYPE_VIDEO_HD);
-            
+
             switch (dto.getFps()) {
             case 23:
                 videoOutput = "1080p 23.976Hz";

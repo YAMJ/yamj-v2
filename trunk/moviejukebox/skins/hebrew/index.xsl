@@ -91,7 +91,7 @@
                 <xsl:when test="@name='New'">שדח</xsl:when>
                 <xsl:when test="@name='TV Shows'">תורדס</xsl:when>
                 <xsl:when test="@name='Top250'">םיצלמומ</xsl:when>
-                <xsl:when test="@name='Trailers'">םינומידק</xsl:when>
+                <xsl:when test="@name='Extras'">םינומידק</xsl:when>
                 <xsl:otherwise>
                   <xsl:value-of select="@name" />
                 </xsl:otherwise>

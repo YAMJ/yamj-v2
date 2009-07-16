@@ -34,7 +34,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.TrailerFile;
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
@@ -342,10 +342,10 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("trailer")) {
                             String trailer = XMLHelper.getCData(r).trim();
                             if (!trailer.isEmpty()) {
-                                TrailerFile tf = new TrailerFile();
-                                tf.setNewFile(false);
-                                tf.setFilename(trailer);
-                                movie.addTrailerFile(tf);
+                                ExtraFile ef = new ExtraFile();
+                                ef.setNewFile(false);
+                                ef.setFilename(trailer);
+                                movie.addExtraFile(ef);
                             }
                         } else if (tag.equalsIgnoreCase("genre")) {
                             Collection<String> genres = movie.getGenres();
@@ -504,6 +504,7 @@ public class MovieNFOScanner {
                                 movie.setPosterURL(val);
                             }
                         } else if (tag.equalsIgnoreCase("fanart")) {
+                            // TODO Validate the URL and see if it's a local file
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setFanartURL(val);
@@ -512,10 +513,10 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("trailer")) {
                             String trailer = XMLHelper.getCData(r).trim();
                             if (!trailer.isEmpty()) {
-                                TrailerFile tf = new TrailerFile();
-                                tf.setNewFile(false);
-                                tf.setFilename(trailer);
-                                movie.addTrailerFile(tf);
+                                ExtraFile ef = new ExtraFile();
+                                ef.setNewFile(false);
+                                ef.setFilename(trailer);
+                                movie.addExtraFile(ef);
                             }
                         } else if (tag.equalsIgnoreCase("actor")) {
                             String event = r.nextEvent().toString();
