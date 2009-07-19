@@ -33,7 +33,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class TheTvDBPlugin extends ImdbPlugin {
 
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
-    private static final String API_KEY = "2805AD2873519EC5";
+    private static final String API_KEY = PropertiesUtil.getProperty("TheTVDb");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private TheTVDB tvDB;
     private String language;

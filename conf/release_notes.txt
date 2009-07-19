@@ -5,6 +5,7 @@
 MovieJukebox 1.0.18 beta
 ------------------------
   - Enhancement  #154 Better handling for trailers, extras & bonus material for movies and TV series
+  - Enhancement  #323 TheMovieDB.org plugin (part 1)
   - Enhancement  #455 Split HD Category into 720 and 1080
   - Enhancement  #686 Video Image Files created when no image found
   - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types
@@ -25,6 +26,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #890 Other_HD created for non-HD movie
   - Enhancement  #900 Skip index generation and writing of HTML files for external front end users
   - Fixed defect #903 Kinopoisk fixes after site update
+  - Enhancement  #905 API Key enhancements
 
 MovieJukebox 1.0.17 beta
 ------------------------

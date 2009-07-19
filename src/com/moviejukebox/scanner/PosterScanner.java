@@ -36,6 +36,8 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.themoviedb.TheMovieDb;
+import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -261,7 +263,8 @@ public class PosterScanner {
             } else if (posterSearchToken.equalsIgnoreCase("moviecovers")) {
                 posterURL = PosterScanner.getPosterURLFromMovieCovers(movie.getTitle());
             } else if (posterSearchToken.equalsIgnoreCase("moviedb")) {
-                posterURL = PosterScanner.getPosterURLFromMoviedb(movie.getTitle());
+                posterURL = PosterScanner.getPosterURLFromMovieDbAPI(movie);
+                //posterURL = PosterScanner.getPosterURLFromMoviedb(movie.getTitle());
             } else if (posterSearchToken.equalsIgnoreCase("imdb")) {
                 posterURL = PosterScanner.getPosterURLFromImdb(imdbXML);
             }
@@ -493,11 +496,41 @@ public class PosterScanner {
     }
     
     /**
+     *  Utilise the MovieDB.org API to get a poster URL
+     *  @param  movie   The movie object to get the poster for
+     *  @return         A string containing the URL of the poster
+     */
+    public static String getPosterURLFromMovieDbAPI(Movie movie) {
+        String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
+        String  imdbID = null;
+        TheMovieDb TMDb;
+        MovieDB moviedb = null;
+
+        TMDb = new TheMovieDb(API_KEY);
+
+        imdbID = movie.getId("imdb");
+        if (imdbID == null || imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            moviedb = TMDb.moviedbSearch(movie.getTitle());
+        } else {
+            moviedb = TMDb.moviedbImdbLookup(imdbID);
+        }
+
+        String posterUrl = moviedb.getPoster("original");
+        if (posterUrl.equals(MovieDB.UNKNOWN)) {
+            return Movie.UNKNOWN;
+        } else {
+            return posterUrl;
+        }
+    }
+    
+    /**
      * Search MovieDB.org for a poster to use for the movie
      * 
      * @param   movieName   The name of the movie to search for
      * @return              A poster URL to use for the movie.
+     * @deprecated          Replaced by getPosterURLFromMovieDbAPI using the new API method
      */
+    @Deprecated
     public static String getPosterURLFromMoviedb(String movieName) {
         String returnString = Movie.UNKNOWN;
         String tmdbContent = "";

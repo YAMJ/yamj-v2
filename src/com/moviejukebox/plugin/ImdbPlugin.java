@@ -37,7 +37,7 @@ import com.moviejukebox.tools.XMLHelper;
 public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static String IMDB_PLUGIN_ID = "imdb";
-    private static final String THEMOVIEDB_API_KEY = "228c65452d6c1d823bbe69bd6859ebb8";
+    private static final String THEMOVIEDB_API_KEY = PropertiesUtil.getProperty("TheMovieDB");
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected String preferredSearchEngine;
     protected boolean perfectMatch;

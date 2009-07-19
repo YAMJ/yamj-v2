@@ -172,6 +172,11 @@ public class MovieJukebox {
             return;
         }
         
+        // Load the apikeys.properties file
+        if (!PropertiesUtil.setPropertiesStreamName("apikeys.properties")) {
+            return;
+        }
+        
         // Load the rest of the command-line properties        
         for (Map.Entry<String, String> propEntry : cmdLineProps.entrySet()) {
             PropertiesUtil.setProperty(propEntry.getKey(), propEntry.getValue());
