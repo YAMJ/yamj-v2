@@ -28,6 +28,7 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * The MovieMeterPluginSession communicates with XML-RPC webservice of www.moviemeter.nl.
@@ -38,14 +39,16 @@ import com.moviejukebox.model.Movie;
  * Version 0.1 : Initial release
  * Version 0.2 : Rewrote some log lines
  * Version 0.3 (18-06-2009) : New API key needed for MovieMeter.nl
+ * Version 0.4 : Moved API key to properties file
  * @author RdeTuinman
  *
  */
 public class MovieMeterPluginSession {
 
     public static String SESSION_FILENAME = "./temp/moviemeter.session";
-    private static String MOVIEMETER_API_KEY = "tyk0awf19uqm65mjfsqw9z9rx6t706pe";
-
+    //private static String MOVIEMETER_API_KEY = "tyk0awf19uqm65mjfsqw9z9rx6t706pe";
+    private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("MovieMeter");
+    
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private String key;
     private Integer timestamp;
