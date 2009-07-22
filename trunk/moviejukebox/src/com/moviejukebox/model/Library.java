@@ -355,16 +355,16 @@ public class Library implements Map<String, Movie> {
             dynamic_indexes.put(SET, indexBySets(indexMovies));
             
             for (String indexStr : indexList.split(",")) {
-                if (indexStr.equals("Other")) indexes.put("Other", indexByProperties(indexMovies));
-                else if (indexStr.equals("Genres")) indexes.put("Genres", indexByGenres(indexMovies));
-                else if (indexStr.equals("Title")) indexes.put("Title", indexByTitle(indexMovies));
-                else if (indexStr.equals("Rating")) indexes.put("Rating", indexByCertification(indexMovies));
-                else if (indexStr.equals("Year")) indexes.put("Year", indexByYear(indexMovies));
-                else if (indexStr.equals("Library")) indexes.put("Library", indexByLibrary(indexMovies));
-                else if (indexStr.equals("Cast")) indexes.put("Cast", indexByCast(indexMovies));
+                if (indexStr.equals("Other"))         indexes.put("Other",    indexByProperties(indexMovies));
+                else if (indexStr.equals("Genres"))   indexes.put("Genres",   indexByGenres(indexMovies));
+                else if (indexStr.equals("Title"))    indexes.put("Title",    indexByTitle(indexMovies));
+                else if (indexStr.equals("Rating"))   indexes.put("Rating",   indexByCertification(indexMovies));
+                else if (indexStr.equals("Year"))     indexes.put("Year",     indexByYear(indexMovies));
+                else if (indexStr.equals("Library"))  indexes.put("Library",  indexByLibrary(indexMovies));
+                else if (indexStr.equals("Cast"))     indexes.put("Cast",     indexByCast(indexMovies));
                 else if (indexStr.equals("Director")) indexes.put("Director", indexByDirector(indexMovies));
-                else if (indexStr.equals("Country")) indexes.put("Country", indexByCountry(indexMovies));
-                else if (indexStr.equals("Writer")) indexes.put("Writer", indexByWriter(indexMovies));
+                else if (indexStr.equals("Country"))  indexes.put("Country",  indexByCountry(indexMovies));
+                else if (indexStr.equals("Writer"))   indexes.put("Writer",   indexByWriter(indexMovies));
             }
             
             Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
@@ -584,6 +584,7 @@ public class Library implements Map<String, Movie> {
                     index.addMovie(categoriesMap.get("Extras"), movie);
                 }
             } else {
+                // TODO: Split into 720/1080
                 if (movie.isHD()) {
                     if (categoriesMap.get("HD") != null) {
                         index.addMovie(categoriesMap.get("HD"), movie);
@@ -898,19 +899,35 @@ public class Library implements Map<String, Movie> {
         return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY" });
     }
   
-    public static String getYearCategory(String year) {
+    /**
+     *  Determine the year banding for the category. If the year is this year or last year, 
+     *  return those, otherwise return the decade the year resides in
+     *  @param  filmYear    The year to check
+     *  @return             "This Year", "Last Year" or the decade range (1990-1999)
+     */
+    public static String getYearCategory(String filmYear) {
         String yearCat = Movie.UNKNOWN;
-        if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (filmYear != null && !filmYear.equalsIgnoreCase(Movie.UNKNOWN)) {
             try {
-                String beginYear = year.substring(0, year.length() - 1) + "0";
-                String endYear = year.substring(0, year.length() - 1) + "9";
-                yearCat = beginYear + "-" + endYear.substring(endYear.length() - 2);
-
-                int currentYear = currentCal.get(Calendar.YEAR);
-                if (year.equals("" + currentYear)) {
+                int currentYear   = currentCal.get(Calendar.YEAR);
+                int finalYear     = currentYear - 2;
+                int currentDecade = (finalYear / 10) * 10; 
+                
+                if (filmYear.equals("" + currentYear)) {
                     yearCat = "This Year";
-                } else if (year.equals("" + (currentYear - 1))) {
+                } else if (filmYear.equals("" + (currentYear - 1))) {
                     yearCat = "Last Year";
+                } else {
+                    String beginYear = filmYear.substring(0, filmYear.length() - 1) + "0";
+                    String endYear = Movie.UNKNOWN;
+                    if (Integer.parseInt(filmYear) >= currentDecade) {
+                        // The film year is in the current decade, so we need to adjust the end year
+                        endYear = "" + finalYear;
+                    } else {
+                        // Otherwise it's 9
+                        endYear = filmYear.substring(0, filmYear.length() - 1) + "9";
+                    }
+                    yearCat          = beginYear + "-" + endYear.substring(endYear.length() - 2);                    
                 }
             } catch (Exception ignore) {
             }

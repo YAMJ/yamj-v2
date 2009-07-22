@@ -21,23 +21,18 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.XMLEvent;
-
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tools.XMLHelper;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static String IMDB_PLUGIN_ID = "imdb";
-    private static final String THEMOVIEDB_API_KEY = PropertiesUtil.getProperty("TheMovieDB");
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected String preferredSearchEngine;
     protected boolean perfectMatch;
@@ -269,7 +264,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Scan IMDB html page for the specified movie
+     * Scan IMDB HTML page for the specified movie
      */
     private boolean updateImdbMediaInfo(Movie movie) {
         try {
@@ -444,23 +439,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     protected String getFanartURL(Movie movie) {
-        String url = Movie.UNKNOWN;
-
-        String imdbID = movie.getId(IMDB_PLUGIN_ID);
-        if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            XMLEventReader xmlReader = null;
-            try {
-                xmlReader = XMLHelper.getEventReader("http://api.themoviedb.org/2.0/Movie.imdbLookup?imdb_id=" + imdbID + "&api_key=" + THEMOVIEDB_API_KEY);
-
-                url = parseNextFanartURL(xmlReader);
-            } catch (Exception e) {
-                logger.severe("Error looking up fanart from TheMovieDB: " + e.getMessage());
-            } finally {
-                XMLHelper.closeEventReader(xmlReader);
-            }
-        }
-
-        return url;
+        return FanartScanner.getFanartURL(movie);
     }
 
     /**
@@ -563,28 +542,5 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 logger.finer("No Imdb Id found in nfo !");
             }
         }
-    }
-
-    private String parseNextFanartURL(XMLEventReader xmlReader) throws XMLStreamException {
-        String url = Movie.UNKNOWN;
-
-        while (xmlReader.hasNext()) {
-            XMLEvent event = xmlReader.nextEvent();
-            if (event.isStartElement()) {
-                String tag = event.toString();
-                if (tag.equalsIgnoreCase("<backdrop size=\"original\">") || tag.equalsIgnoreCase("<backdrop size='original'>")) {
-                    url = XMLHelper.getCData(xmlReader);
-                    break;
-                }
-            }
-        }
-        
-        if ( url.equals(Movie.UNKNOWN) ) {
-            logger.finest("No fanart found");
-        } else {
-            logger.finest("Fanart URL: " + url);
-        }
-
-        return url;
     }
 }
