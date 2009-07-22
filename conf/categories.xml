@@ -42,6 +42,14 @@
     <enable>true</enable>
     <rename>HD</rename>
   </category>
+  <category name="HD-720">
+    <enable>true</enable>
+    <rename>HD-720</rename>
+  </category>
+  <category name="HD-1080">
+    <enable>true</enable>
+    <rename>HD-1080</rename>
+  </category>
   <category name="Top250">
     <enable>true</enable>
     <rename>Top250</rename>
