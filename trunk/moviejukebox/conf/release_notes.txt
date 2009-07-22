@@ -7,6 +7,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #154 Better handling for trailers, extras & bonus material for movies and TV series
   - Enhancement  #323 TheMovieDB.org plugin (part 1)
   - Enhancement  #455 Split HD Category into 720 and 1080
+  - Enhancement  #632 Disable OpenSubtitle plugin if Internet scraping is turned off in library.xml
   - Enhancement  #686 Video Image Files created when no image found
   - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types
   - Fixed defect #846 appletrailers.download is case sensitive

@@ -115,6 +115,12 @@ public class OpenSubtitlesPlugin {
         if (sublanguageid.equals("")) {
             return;
         }
+        
+        // Check to see if we scrape the library, if we don't then skip the download
+        if (!movie.isScrapeLibrary()) {
+            logger.finest("OpenSubtitles Plugin: Skipped for " + movie.getTitle() + " due to scrape library flag");
+            return;
+        }
 
         // Check that the login was successful
         if (token.equals("")) {
