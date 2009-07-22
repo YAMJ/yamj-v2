@@ -239,8 +239,6 @@ public class PosterScanner {
      * @param movie     The movieBean to search for
      * @param imdbXML   The IMDb XML page (for the IMDb poster search)
      * @return          The posterURL that was found (Maybe Movie.UNKNOWN)
-     * 
-     * TODO Move this to PosterScanner.java
      */
     public static String getPosterURL(Movie movie, String imdbXML, String pluginID) {
         String posterSearchToken;
@@ -253,20 +251,19 @@ public class PosterScanner {
             posterSearchToken = st.nextToken();
             
             if (posterSearchToken.equalsIgnoreCase("google")) {
-                posterURL = PosterScanner.getPosterURLFromGoogle(movie.getTitle());
+                posterURL = getPosterURLFromGoogle(movie.getTitle());
             } else if (posterSearchToken.equalsIgnoreCase("yahoo")) {
-                posterURL = PosterScanner.getPosterURLFromYahoo(movie.getTitle());
+                posterURL = getPosterURLFromYahoo(movie.getTitle());
             } else if (posterSearchToken.equalsIgnoreCase("motechnet")) {
-                posterURL = PosterScanner.getPosterURLFromMotechnet(movie.getId(pluginID));
+                posterURL = getPosterURLFromMotechnet(movie.getId(pluginID));
             } else if (posterSearchToken.equalsIgnoreCase("impawards")) {
-                posterURL = PosterScanner.getPosterURLFromImpAwards(movie.getTitle(), movie.getYear());
+                posterURL = getPosterURLFromImpAwards(movie.getTitle(), movie.getYear());
             } else if (posterSearchToken.equalsIgnoreCase("moviecovers")) {
-                posterURL = PosterScanner.getPosterURLFromMovieCovers(movie.getTitle());
+                posterURL = getPosterURLFromMovieCovers(movie.getTitle());
             } else if (posterSearchToken.equalsIgnoreCase("moviedb")) {
-                posterURL = PosterScanner.getPosterURLFromMovieDbAPI(movie);
-                //posterURL = PosterScanner.getPosterURLFromMoviedb(movie.getTitle());
-            } else if (posterSearchToken.equalsIgnoreCase("imdb")) {
-                posterURL = PosterScanner.getPosterURLFromImdb(imdbXML);
+                posterURL = getPosterURLFromMovieDbAPI(movie);
+            } else if (posterSearchToken.equalsIgnoreCase("imdb") && imdbXML != null) {
+                posterURL = getPosterURLFromImdb(imdbXML);
             }
             
             // Validate the poster
@@ -519,6 +516,7 @@ public class PosterScanner {
         if (posterUrl.equals(MovieDB.UNKNOWN)) {
             return Movie.UNKNOWN;
         } else {
+            logger.finest("Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + moviedb.getId());
             return posterUrl;
         }
     }

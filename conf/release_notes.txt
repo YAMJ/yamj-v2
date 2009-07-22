@@ -27,6 +27,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #900 Skip index generation and writing of HTML files for external front end users
   - Fixed defect #903 Kinopoisk fixes after site update
   - Enhancement  #905 API Key enhancements
+  - Fixed defect #909 Index 2000-2009 is not correct
 
 MovieJukebox 1.0.17 beta
 ------------------------

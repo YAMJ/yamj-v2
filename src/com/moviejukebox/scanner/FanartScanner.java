@@ -27,6 +27,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.themoviedb.TheMovieDb;
+import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -36,8 +38,9 @@ import java.io.FileInputStream;
 /**
  * Scanner for fanart files in local directory
  * 
- * @author  stuart.boston
- * @version 1.0, 10th December 2008
+ * @author  Stuart.Boston
+ * @version 1.0, 10th December 2008 - Initial code
+ * @version 1.1, 19th July 2009     - Added Internet search
  */
 public class FanartScanner {
 
@@ -45,7 +48,6 @@ public class FanartScanner {
     protected static String[] fanartExtensions;
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
-
 
     static {
 
@@ -213,5 +215,34 @@ public class FanartScanner {
             return "";
         }
     }
-}
 
+    /**
+     *  Get the Fanart for the movie from TheMovieDB.org
+     *  @author Stuart.Boston
+     *  @param  movie   The movie bean to get the fanart for
+     *  @return         A string URL pointing to the fanart
+     */
+    public static String getFanartURL(Movie movie) {
+        String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
+        String  imdbID = null;
+        TheMovieDb TMDb;
+        MovieDB moviedb = null;
+
+        TMDb = new TheMovieDb(API_KEY);
+
+        imdbID = movie.getId("imdb");
+        if (imdbID == null || imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            moviedb = TMDb.moviedbSearch(movie.getTitle());
+        } else {
+            moviedb = TMDb.moviedbImdbLookup(imdbID);
+        }
+
+        String fanartUrl = moviedb.getBackdrops("original");
+        if (fanartUrl.equals(MovieDB.UNKNOWN)) {
+            return Movie.UNKNOWN;
+        } else {
+            return fanartUrl;
+        }
+    }
+
+}
