@@ -28,6 +28,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #903 Kinopoisk fixes after site update
   - Enhancement  #905 API Key enhancements
   - Fixed defect #909 Index 2000-2009 is not correct
+  - Fixed defect #911 Cover art files not overwritten
 
 MovieJukebox 1.0.17 beta
 ------------------------
