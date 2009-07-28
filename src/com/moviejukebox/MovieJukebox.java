@@ -22,9 +22,9 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -58,8 +58,8 @@ import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.scanner.OutputDirectoryScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
+import com.moviejukebox.scanner.OutputDirectoryScanner;
 import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
@@ -330,13 +330,12 @@ public class MovieJukebox {
         MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
         MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(PropertiesUtil.getProperty("mjb.thumbnail.plugin",
-                        "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
-        MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", 
-                        "com.moviejukebox.plugin.DefaultPosterPlugin"));
+            "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
+        MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
         MovieImagePlugin videoimagePlugin = this.getVideoImagePlugin(PropertiesUtil.getProperty("mjb.videoimage.plugin",
-                        "com.moviejukebox.plugin.DefaultVideoImagePlugin"));
+            "com.moviejukebox.plugin.DefaultVideoImagePlugin"));
         MovieImagePlugin backgroundPlugin = this.getBackgroundPlugin(PropertiesUtil.getProperty("mjb.background.plugin",
-                        "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
+            "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
 
         MovieDirectoryScanner mds = new MovieDirectoryScanner();
         MediaInfoScanner miScanner = new MediaInfoScanner();
@@ -348,7 +347,7 @@ public class MovieJukebox {
         trailerPlugin = new AppleTrailersPlugin();
 
         MovieListingPlugin listingPlugin = this.getListingPlugin(PropertiesUtil.getProperty("mjb.listing.plugin",
-                        "com.moviejukebox.plugin.MovieListingPluginBase"));
+            "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.generate", "false"));
 
         videoImagesDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
@@ -478,7 +477,7 @@ public class MovieJukebox {
 
                 // Then get this movie's poster
                 logger.finer("Updating poster for: " + movie.getTitle() + "...");
-//TODO
+                // TODO
                 updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                 // Download episode images if required
@@ -556,6 +555,8 @@ public class MovieJukebox {
                 // No playlist for index masters
                 // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
+
+            xmlWriter.writePreferences(jukeboxDetailsRoot);
 
             Collection<String> generatedFileNames = new ArrayList<String>();
 

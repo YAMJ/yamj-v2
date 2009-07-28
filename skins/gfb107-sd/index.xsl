@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:include href="preferences.xsl"/>
+
 <xsl:include href="skin-options.xsl"/>
 
 <xsl:template match="/">
@@ -48,7 +50,7 @@
 <xsl:for-each select="library/category[@current='true']/index[@current='true']">
   <td width="*">
     <a class="heading" tvid="HOME">
-      <xsl:attribute name="href"><xsl:value-of select="//preferences/homePage" /></xsl:attribute><xsl:value-of select="../@name" />: <xsl:value-of select="@name" /></a></td>
+      <xsl:attribute name="href"><xsl:value-of select="$homePage" /></xsl:attribute><xsl:value-of select="../@name" />: <xsl:value-of select="@name" /></a></td>
   <xsl:if test="@lastIndex != 1">
     <!-- a tvid="prev"><xsl:attribute name="href"><xsl:value-of select="@first" />.html</xsl:attribute>&#160;|&lt;&#160;</a -->
     <td class="counter"><xsl:value-of select="@currentIndex" />&#160;of&#160;<xsl:value-of select="@lastIndex" />&#160;</td>

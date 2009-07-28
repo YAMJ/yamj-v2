@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:include href="preferences.xsl"/>
+
 <xsl:include href="skin-options.xsl"/>
 
 <xsl:template match="/">
@@ -135,7 +137,7 @@
     </div>
   </xsl:for-each>
   <div class="title">
-    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="//preferences/homePage"/></xsl:attribute>Home</a>
+    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="$homePage"/></xsl:attribute>Home</a>
     <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
     <a name="pgupload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
   </div>

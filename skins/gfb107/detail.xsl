@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:include href="preferences.xsl"/>
+
 <xsl:include href="skin-options.xsl"/>
 
 <xsl:template match="details/preferences"></xsl:template>
@@ -20,10 +22,10 @@
   <tr height="30">
     <td height="50" align="center" colspan="2">
       <!-- Navigation using remote keys: Home, PageUP/PageDown (Previous/Next) -->
-      <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="//preferences/homePage"/></xsl:attribute></a>
+      <a><xsl:attribute name="TVID">HOME</xsl:attribute><xsl:attribute name="href"><xsl:value-of select="$homePage"/></xsl:attribute></a>
 
       <a><xsl:attribute name="TVID">PGDN</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(next,'UNKNOWN')"><xsl:value-of select="first"/>.html</xsl:when><xsl:otherwise><xsl:value-of select="next"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
-      <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="//preferences/homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
+      <a><xsl:attribute name="TVID">PGUP</xsl:attribute><xsl:attribute name="href"><xsl:choose><xsl:when test="contains(previous,'UNKNOWN')"><xsl:value-of select="$homePage"/></xsl:when><xsl:otherwise><xsl:value-of select="last"/>.html</xsl:otherwise></xsl:choose></xsl:attribute></a>
     </td>
   </tr>
 
@@ -108,7 +110,7 @@
         <tr>
           <td class="title2" valign="top" colspan="2">
             <xsl:if test="count(genres) != 0">
-              <xsl:for-each select="genres/genre[position() &lt;= //preferences/genres.max]">
+              <xsl:for-each select="genres/genre[position() &lt;= $genres.max]">
                 <xsl:if test="position()!= 1">, </xsl:if>
                 <xsl:choose>
                   <xsl:when test="@index != ''">
@@ -173,7 +175,7 @@
           <tr><td class="title2" colspan="2">Cast</td></tr>
           <tr>
             <td class="normal" colspan="2">
-              <xsl:for-each select="cast/actor[position() &lt;= //preferences/actors.max]">
+              <xsl:for-each select="cast/actor[position() &lt;= $actors.max]">
                 <xsl:if test="position()!=1">, </xsl:if>
                 <xsl:choose>
                   <xsl:when test="@index != ''">
