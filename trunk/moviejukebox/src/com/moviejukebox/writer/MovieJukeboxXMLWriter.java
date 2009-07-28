@@ -33,10 +33,10 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -62,7 +62,7 @@ public class MovieJukeboxXMLWriter {
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     private static Logger logger = Logger.getLogger("moviejukebox");
-    
+
     static {
         if (str_categoriesDisplayList.length() == 0) {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
@@ -174,9 +174,9 @@ public class MovieJukeboxXMLWriter {
                     movie.addGenre(parseCData(r));
                 }
                 if (tag.startsWith("<set ") || tag.equals("<set>")) {
-// String set = null;
+                    // String set = null;
                     Integer order = null;
-                    
+
                     StartElement start = e.asStartElement();
                     for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
                         Attribute attr = i.next();
@@ -187,7 +187,7 @@ public class MovieJukeboxXMLWriter {
                             continue;
                         }
                     }
-                        
+
                     movie.addSet(parseCData(r), order);
                 }
                 if (tag.startsWith("<actor ") || tag.equals("<actor>")) {
@@ -385,8 +385,6 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartDocument("UTF-8", "1.0");
         writer.writeStartElement("library");
 
-        writePreferences(writer, rootPath);
-
         List<Movie> allMovies = library.getMoviesList();
 
         if (includeMoviesInCategories) {
@@ -403,7 +401,7 @@ public class MovieJukeboxXMLWriter {
             if (category.getValue().isEmpty() || !categoriesDisplayList.contains(category.getKey())) {
                 continue;
             }
-            
+
             writer.writeStartElement("category");
             writer.writeAttribute("name", category.getKey());
 
@@ -415,7 +413,6 @@ public class MovieJukeboxXMLWriter {
                     continue;
                 }
 
-                
                 String key = index.getKey();
                 String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(category.getKey(), key)) + "1";
 
@@ -424,7 +421,7 @@ public class MovieJukeboxXMLWriter {
 
                 if (includeMoviesInCategories) {
                     writer.writeAttribute("filename", indexFilename);
-                
+
                     for (Movie movie : value) {
                         writer.writeStartElement("movie");
                         writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
@@ -455,13 +452,13 @@ public class MovieJukeboxXMLWriter {
 
             for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
                 List<Movie> movies = group.getValue();
-                
+
                 // This is horrible! Issue 735 will get rid of it.
                 if (movies.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
                     logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies, skipping XML generation.");
                     continue;
                 }
-                
+
                 String key = FileTools.createCategoryKey(group.getKey());
 
                 int previous = 1;
@@ -509,7 +506,6 @@ public class MovieJukeboxXMLWriter {
 
         writer.writeStartDocument("UTF-8", "1.0");
         writer.writeStartElement("library");
-        writePreferences(writer, rootPath);
 
         for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             String categoryKey = category.getKey();
@@ -527,7 +523,7 @@ public class MovieJukeboxXMLWriter {
                 if (index.get(akey).size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
                     continue;
                 }
-                
+
                 prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
 
                 writer.writeStartElement("index");
@@ -574,6 +570,7 @@ public class MovieJukeboxXMLWriter {
     private void writeMovieForIndex(XMLWriter writer, Movie movie) throws XMLStreamException {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
+        writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
         writer.writeStartElement("details");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBaseName())) + ".html");
         writer.writeEndElement();
@@ -600,9 +597,8 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeEndElement();
     }
-    
-    private void writeElementSet(XMLWriter writer, String set, String element, Collection<String> items, Library library, String cat)
-            throws XMLStreamException {
+
+    private void writeElementSet(XMLWriter writer, String set, String element, Collection<String> items, Library library, String cat) throws XMLStreamException {
         if (items.size() > 0) {
             writer.writeStartElement(set);
             for (String item : items) {
@@ -614,7 +610,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
         }
     }
-    
+
     private void writeIndexAttribute(XMLWriter writer, Library l, String cat, String val) throws XMLStreamException {
         Library.Index i = l.getIndexes().get(cat);
         if (null != i) {
@@ -628,6 +624,8 @@ public class MovieJukeboxXMLWriter {
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
+        writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
+
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
             writer.writeStartElement("id");
             writer.writeAttribute("movieDatabase", e.getKey());
@@ -787,7 +785,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
         }
         writeElementSet(writer, "cast", "actor", movie.getCast(), library, "Cast");
-        
+
         writeElementSet(writer, "writers", "writer", movie.getWriters(), library, "Writers");
 
         writer.writeStartElement("files");
@@ -841,30 +839,51 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
     }
 
-    public void writePreferences(XMLWriter writer, String rootPath) throws XMLStreamException {
-        writer.writeStartElement("preferences");
-        writer.writeStartElement("homePage");
+    private void writeVariable(XMLWriter writer, String name, String value) throws XMLStreamException {
+        writer.writeStartElement("xsl:variable");
+        writer.writeAttribute("name", name);
+        writer.writeCharacters(value);
+        writer.writeEndElement();
+
+    }
+
+    public void writePreferences(String rootPath) throws XMLStreamException {
+        File xslFile = new File(PropertiesUtil.getProperty("mjb.skin.dir"), "preferences.xsl");
+        XMLWriter writer = new XMLWriter(xslFile);
+
+        writer.writeStartDocument("UTF-8", "1.0");
+
+        writer.writeStartElement("xsl:stylesheet");
+        writer.writeAttribute("version", "1.0");
+        writer.writeAttribute("xmlns:xsl", "http://www.w3.org/1999/XSL/Transform");
+
+        writer.writeStartElement("xsl:output");
+        writer.writeAttribute("method", "xml");
+        writer.writeAttribute("omit-xml-declaration", "yes");
+        writer.writeEndElement();
+
         // Issue 436: Bounce off the index.htm to get to the real homePage
         // since homePage is now calculated by the Library.
-        writer.writeCharacters(indexFile);
-        writer.writeEndElement();
+        writeVariable(writer, "homePage", indexFile);
+
         // Issue 310
-        writer.writeStartElement("rootPath");
-        File rootFile = new File(rootPath);
-        writer.writeCharacters(rootFile.getAbsolutePath().replace('\\', '/'));
-        writer.writeEndElement();
+        writeVariable(writer, "rootPath", new File(rootPath).getAbsolutePath().replace('\\', '/'));
+
         // Issue 309
         for (Map.Entry<Object, Object> entry : PropertiesUtil.getEntrySet()) {
-            writer.writeStartElement((String)entry.getKey());
-            writer.writeCharacters((String)entry.getValue());
-            writer.writeEndElement();
+            writeVariable(writer, (String)entry.getKey(), (String)entry.getValue());
         }
+
         writer.writeEndElement();
+        writer.writeEndDocument();
+
+        writer.flush();
+        writer.close();
     }
 
     /**
-     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless,
-     * movie's data has changed or forceXMLOverwrite is true.
+     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed or
+     * forceXMLOverwrite is true.
      */
     public void writeMovieXML(String rootPath, String tempRootPath, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         String baseName = FileTools.makeSafeFilename(movie.getBaseName());
@@ -878,7 +897,6 @@ public class MovieJukeboxXMLWriter {
 
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("details");
-            writePreferences(writer, rootPath);
             writeMovie(writer, movie, library);
             writer.writeEndElement();
             writer.writeEndDocument();

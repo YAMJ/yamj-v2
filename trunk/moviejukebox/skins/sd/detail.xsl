@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:include href="preferences.xsl"/>
+
 <xsl:include href="skin-options.xsl"/>
 
 <xsl:template match="details/preferences"></xsl:template>
@@ -22,7 +24,7 @@
       <!-- Navigation using remote keys: Home, PageUP/PageDown (Previous/Next) -->
       <a>
         <xsl:attribute name="TVID">HOME</xsl:attribute>
-        <xsl:attribute name="href"><xsl:value-of select="//preferences/homePage" /></xsl:attribute>
+        <xsl:attribute name="href"><xsl:value-of select="$homePage" /></xsl:attribute>
       </a>
       <a TVID="PGDN">
         <xsl:attribute name="href"><xsl:choose><xsl:when
@@ -116,7 +118,7 @@
         <tr>
           <td class="title2" valign="top" colspan="2">
             <xsl:if test="count(genres) != 0">
-              <xsl:for-each select="genres/genre[position() &lt;= //preferences/genres.max]">
+              <xsl:for-each select="genres/genre[position() &lt;= $genres.max]">
                 <xsl:if test="position()!= 1">, </xsl:if>
                 <xsl:choose>
                   <xsl:when test="@index != ''">
