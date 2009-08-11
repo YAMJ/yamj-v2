@@ -262,7 +262,7 @@
               </tr>
             </xsl:for-each>
           </xsl:when>
-          <xsl:when test="//movie/container = 'BDAV'">
+          <xsl:when test="//movie/container = 'BDAV' and //movie/season = -1">
             <tr valign="top">
               <td>
                 <center>

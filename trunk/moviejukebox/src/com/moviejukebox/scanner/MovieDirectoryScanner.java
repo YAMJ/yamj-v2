@@ -225,7 +225,7 @@ public class MovieDirectoryScanner {
             if (contentFiles[i] == null)
                 continue;
 
-            // Compute the baseFilename: This is the filename with no the extension
+            // Compute the baseFilename: This is the filename without the extension
             String baseFileName = file.getName();
 
             if (!file.isDirectory()) {

@@ -321,7 +321,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
               </tr>
             </xsl:for-each>
           </xsl:when>
-          <xsl:when test="//movie/container = 'BDAV'">
+          <xsl:when test="//movie/container = 'BDAV' and //movie/season = -1">
             <tr>
               <td align="center">
                 <a class="link">
