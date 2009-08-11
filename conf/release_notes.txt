@@ -15,6 +15,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #850 Exception generated if Jukebox directory can't be written to
   - Fixed defect #851 TV Series dummy thumbnails
   - Fixed defect #852 Kinopoisk fix due to changed web pages
+  - Fixed defect #854 m2ts files will not index correctly
   - Fixed defect #857 Apple trailer configMax is not handled correctly
   - Fixed defect #865 New API Key required for MovieMeter plugin
   - Fixed defect #868 Kinopoisk plot fix
