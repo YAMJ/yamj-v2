@@ -158,14 +158,9 @@ public class GraphicTools {
 
         int tempWidth;
         int tempHeight;
-// int y = 0;
 
         tempWidth = nMaxWidth;
         tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
-
-// if (nMaxHeight > tempHeight) {
-// y = nMaxHeight - tempHeight;
-// }
 
         Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
         BufferedImage bi = new BufferedImage(tempWidth, tempHeight, BufferedImage.TYPE_INT_RGB);
@@ -183,7 +178,7 @@ public class GraphicTools {
 
         int tempWidth;
         int tempHeight;
-
+        
         if (imageRatio > thumbnailRatio) {
             tempWidth = nMaxWidth;
             tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
@@ -195,6 +190,7 @@ public class GraphicTools {
         Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
         BufferedImage bi = new BufferedImage(tempWidth, tempHeight, BufferedImage.TYPE_INT_RGB);
         bi.getGraphics().drawImage(temp1, 0, 0, null);
+
         return cropToSize(nMaxWidth, nMaxHeight, bi);
     }
 

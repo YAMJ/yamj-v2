@@ -143,7 +143,7 @@ public class AppleTrailersPlugin {
                     basename = index == -1 ? name : name.substring(0, index);
                 }
                 
-                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER]." + getFilenameFromUrl(trailerRealUrl));
+                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-" + getFilenameFromUrl(trailerRealUrl) + "]");
                 String trailerFileName = parentPath + File.separator + trailerBasename;
                 
                 int slash = mf.getFilename().lastIndexOf("/");
@@ -151,12 +151,12 @@ public class AppleTrailersPlugin {
                 String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
                 
                 logger.finest("Found trailer: " + trailerRealUrl);
-                logger.finest("  D/L path: " + trailerFileName);
-                logger.finest("  Play URL: " + trailerPlayFileName);
+                logger.finest("Download path: " + trailerFileName);
+                logger.finest("     Play URL: " + trailerPlayFileName);
                 
                 File trailerFile = new File(trailerFileName);
                 
-                // Check if the file already exist - after jukebox directory was deleted for example
+                // Check if the file already exists - after jukebox directory was deleted for example
                 if (trailerFile.exists()) {
                 
                     logger.finer("AppleTrailers Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
