@@ -49,7 +49,7 @@ public class MovieDirectoryScanner {
     private Boolean excludeMultiPartBluRay;
     private static Logger logger = Logger.getLogger("moviejukebox");
 
-    //BD rip infos Scanner
+    // BD rip infos Scanner
     private BDRipScanner localBDRipScanner;
 
     public MovieDirectoryScanner() {
@@ -67,7 +67,9 @@ public class MovieDirectoryScanner {
 
     /**
      * Scan the specified directory for movies files.
-     * @param directory movie library rootfile
+     * 
+     * @param directory
+     *            movie library rootfile
      * @return a new library
      */
     public Library scan(MediaLibraryPath srcPath, Library library) {
@@ -98,7 +100,8 @@ public class MovieDirectoryScanner {
                 // Prescan files list. Ignore directory if file with predefined name is found.
                 // TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 for (File file : files) {
-                    if (file.getName().equalsIgnoreCase(".mjbignore")) return;
+                    if (file.getName().equalsIgnoreCase(".mjbignore"))
+                        return;
                 }
 
                 for (File file : fileList) {
@@ -107,7 +110,13 @@ public class MovieDirectoryScanner {
                     } else if (file.isDirectory() && file.getName().equalsIgnoreCase("BDMV")) {
                         scanFile(srcPath, file.getParentFile(), collection);
                     } else if (file.isDirectory()) {
-                        scanDirectory(srcPath, file, collection);
+                        /*
+                         * Check to see if we filter the directory. This needs to be here rather 
+                         * than on the condition above so the directory is skipped if it is excluded.
+                         */
+                        if (!isFiltered(srcPath, file)) {
+                            scanDirectory(srcPath, file, collection);
+                        }
                     } else if (!isFiltered(srcPath, file)) {
                         scanFile(srcPath, file, collection);
                     }
@@ -116,16 +125,36 @@ public class MovieDirectoryScanner {
         }
     }
 
+    /**
+     * Checks the file or directory passed to determine if it should be excluded from the scan
+     * 
+     * @param srcPath
+     * @param file
+     * @return boolean flag, true if the file should be excluded, false otherwise
+     */
     protected boolean isFiltered(MediaLibraryPath srcPath, File file) {
+        boolean isDirectory = file.isDirectory();
         String filename = file.getName();
-        int index = filename.lastIndexOf(".");
-        if (index < 0) {
-            return true;
-        }
 
-        String extension = file.getName().substring(index + 1).toUpperCase();
-        if (!supportedExtensions.contains(extension)) {
-            return true;
+        // Skip these parts if the file is a directory
+        if (!isDirectory) {
+            int index = filename.lastIndexOf(".");
+            if (index < 0) {
+                return true;
+            }
+
+            String extension = file.getName().substring(index + 1).toUpperCase();
+            if (!supportedExtensions.contains(extension)) {
+                return true;
+            }
+
+            // Exclude files without external subtitles
+            if (opensubtitles.equals("")) { // We are not downloading subtitles, so exclude those that don't have any.
+                if (excludeFilesWithoutExternalSubtitles && !hasSubtitles(file)) {
+                    logger.fine("File " + filename + " excluded. (no external subtitles)");
+                    return true;
+                }
+            }
         }
 
         // Compute the relative filename
@@ -134,21 +163,13 @@ public class MovieDirectoryScanner {
             relativeFilename = relativeFilename.substring(1);
         }
 
-        //exclude files without external subtitles
-        if (opensubtitles.equals("")) {    // We are not downloading subtitles, so exclude those that don't have any.
-            if (excludeFilesWithoutExternalSubtitles && !hasSubtitles(file)) {
-                logger.fine("File " + filename + " excluded. (no external subtitles)");
-                return true;
-            }
-        }
-        
         String relativeFileNameLower = relativeFilename.toLowerCase();
         for (String excluded : srcPath.getExcludes()) {
             if (excluded.length() > 0) {
                 excluded = excluded.replace("/", File.separator);
                 excluded = excluded.replace("\\", File.separator);
                 if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
-                    logger.fine("File " + filename + " excluded.");
+                    logger.fine((isDirectory ? "Directory " : "File ") + filename + " excluded.");
                     return true;
                 }
             }
@@ -164,8 +185,8 @@ public class MovieDirectoryScanner {
 
         if (index >= 0) {
             return (new File(basename + "srt").exists() || new File(basename + "SRT").exists() || new File(basename + "sub").exists()
-                        || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists()
-                        || new File(basename + "ssa").exists() || new File(basename + "SSA").exists());
+                            || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists()
+                            || new File(basename + "ssa").exists() || new File(basename + "SSA").exists());
         }
 
         String fn = path.toUpperCase();
@@ -175,9 +196,7 @@ public class MovieDirectoryScanner {
         return false;
     }
 
-
     protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
-
         File contentFiles[];
         int bdDuration = 0;
 
@@ -185,17 +204,17 @@ public class MovieDirectoryScanner {
         contentFiles[0] = file;
 
         if (file.isDirectory()) {
-            //Scan BD Playlist files
+            // Scan BD Playlist files
             BDFilePropertiesMovie bdPropertiesMovie = localBDRipScanner.executeGetBDInfo(file);
 
             if (bdPropertiesMovie != null) {
-                
+
                 // Exclude multi part BluRay that include more than one file
                 if (excludeMultiPartBluRay && bdPropertiesMovie.fileList.length > 1) {
                     logger.fine("File " + file.getName() + " excluded. (multi part BluRay)");
                     return;
                 }
-            
+
                 bdDuration = bdPropertiesMovie.duration;
                 contentFiles = bdPropertiesMovie.fileList;
             }
@@ -203,8 +222,9 @@ public class MovieDirectoryScanner {
 
         for (int i = 0; i < contentFiles.length; i++) {
             // Hopefully this is a fix for issue #670 -- I can't duplicate it, since I don't have an BD rips
-            if (contentFiles[i] == null) continue;
-        
+            if (contentFiles[i] == null)
+                continue;
+
             // Compute the baseFilename: This is the filename with no the extension
             String baseFileName = file.getName();
 
@@ -243,15 +263,14 @@ public class MovieDirectoryScanner {
             m.setSubtitles(hasSubtitles(m.getFile()));
             m.setLibraryDescription(srcPath.getDescription());
             m.setPrebuf(srcPath.getPrebuf());
-            
+
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
             m.mergeFileNameDTO(dto);
-            
+
             if (bdDuration == 0) {
                 // Do not merge file information for BD
                 movieFile.mergeFileNameDTO(dto);
-            }
-            else {
+            } else {
                 // Set duration for BD disks using the data in the playlist + mark bd source and container
                 m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
                 m.setContainer("BluRay");
