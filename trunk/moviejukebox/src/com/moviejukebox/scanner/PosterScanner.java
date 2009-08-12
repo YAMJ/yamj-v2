@@ -49,24 +49,24 @@ import com.moviejukebox.tools.WebBrowser;
  * @author Stuart.Boston
  * 
  * @version 1.0, 7 October 2008
- * @version 2.0  6 July 2009
+ * @version 2.0 6 July 2009
  */
 public class PosterScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected static String[]   coverArtExtensions;
-    protected static String     searchForExistingCoverArt;
-    protected static String     fixedCoverArtName;
-    protected static String     coverArtDirectory;
-    protected static Boolean    useFolderImage;
+    protected static String[] coverArtExtensions;
+    protected static String searchForExistingCoverArt;
+    protected static String fixedCoverArtName;
+    protected static String coverArtDirectory;
+    protected static Boolean useFolderImage;
     protected static WebBrowser webBrowser;
-    protected static String     preferredPosterSearchEngine;
-    protected static String     posterSearchPriority;
-    protected static boolean    posterValidate;
-    protected static int        posterValidateMatch;
-    protected static boolean    posterValidateAspect;
-    protected static int        posterWidth;
-    protected static int        posterHeight;
+    protected static String preferredPosterSearchEngine;
+    protected static String posterSearchPriority;
+    protected static boolean posterValidate;
+    protected static int posterValidateMatch;
+    protected static boolean posterValidateAspect;
+    protected static int posterWidth;
+    protected static int posterHeight;
 
     static {
         // We get covert art scanner behaviour
@@ -82,21 +82,21 @@ public class PosterScanner {
         while (st.hasMoreTokens()) {
             extensions.add(st.nextToken());
         }
-        coverArtExtensions = extensions.toArray(new String[]{});
+        coverArtExtensions = extensions.toArray(new String[] {});
 
         // We get coverart Directory if needed
         coverArtDirectory = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");
 
         webBrowser = new WebBrowser();
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
-        posterWidth                 = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
-        posterHeight                = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
-        posterSearchPriority        = PropertiesUtil.getProperty("poster.scanner.SearchPriority", "imdb,motechnet,impawards,moviedb,moviecovers,google,yahoo");
-        posterValidate              = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
-        posterValidateMatch         = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
-        posterValidateAspect        = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
+        posterWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
+        posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
+        posterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority", "imdb,motechnet,impawards,moviedb,moviecovers,google,yahoo");
+        posterValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
+        posterValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
+        posterValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
     }
-    
+
     public static boolean scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (searchForExistingCoverArt.equalsIgnoreCase("no")) {
             // nothing to do we return
@@ -128,7 +128,7 @@ public class PosterScanner {
                 fullPosterFilename += File.separator + coverArtDirectory;
             }
             fullPosterFilename += File.separator + localPosterBaseFilename + "." + extension;
-            //logger.finest("Checking for "+ fullPosterFilename);
+            // logger.finest("Checking for "+ fullPosterFilename);
             localPosterFile = new File(fullPosterFilename);
             if (localPosterFile.exists()) {
                 logger.finest("The file " + fullPosterFilename + " found");
@@ -138,10 +138,8 @@ public class PosterScanner {
         }
 
         /**
-         * This part will look for a filename with the same name as the directory for the 
-         * cover art or for folder.* coverart The intention is for you to be able
-         * to create the season / TV series art for the whole series and not for the first show. 
-         * Useful if you change the files regularly.
+         * This part will look for a filename with the same name as the directory for the cover art or for folder.* coverart The intention is for you to be able
+         * to create the season / TV series art for the whole series and not for the first show. Useful if you change the files regularly.
          * 
          * @author Stuart.Boston
          * @version 1.0
@@ -210,8 +208,7 @@ public class PosterScanner {
                 }
             }
 
-            if ((localPosterFile.length() != finalDestinationFile.length()) ||
-                    (FileTools.isNewer(localPosterFile, finalDestinationFile))) {
+            if ((localPosterFile.length() != finalDestinationFile.length()) || (FileTools.isNewer(localPosterFile, finalDestinationFile))) {
                 // Poster size is different OR Local Poster is newer
                 checkAgain = true;
             }
@@ -222,7 +219,7 @@ public class PosterScanner {
             } else {
                 logger.finer("PosterScanner : " + finalDestinationFileName + " is different to " + fullPosterFilename);
             }
-            
+
             // Update poster url with local poster
             movie.setPosterURL(localPosterFile.toURI().toString());
             return true;
@@ -233,12 +230,13 @@ public class PosterScanner {
     }
 
     /**
-     * Locate the PosterURL from the Internet.
-     * This is the main method and should be called instead of the individual getPosterFrom* methods.
+     * Locate the PosterURL from the Internet. This is the main method and should be called instead of the individual getPosterFrom* methods.
      * 
-     * @param movie     The movieBean to search for
-     * @param imdbXML   The IMDb XML page (for the IMDb poster search)
-     * @return          The posterURL that was found (Maybe Movie.UNKNOWN)
+     * @param movie
+     *            The movieBean to search for
+     * @param imdbXML
+     *            The IMDb XML page (for the IMDb poster search)
+     * @return The posterURL that was found (Maybe Movie.UNKNOWN)
      */
     public static String getPosterURL(Movie movie, String imdbXML, String pluginID) {
         String posterSearchToken;
@@ -246,10 +244,10 @@ public class PosterScanner {
         StringTokenizer st;
 
         st = new StringTokenizer(posterSearchPriority, ",");
-        
+
         while (st.hasMoreTokens() && posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
             posterSearchToken = st.nextToken();
-            
+
             if (posterSearchToken.equalsIgnoreCase("google")) {
                 posterURL = getPosterURLFromGoogle(movie.getTitle());
             } else if (posterSearchToken.equalsIgnoreCase("yahoo")) {
@@ -265,42 +263,45 @@ public class PosterScanner {
             } else if (posterSearchToken.equalsIgnoreCase("imdb") && imdbXML != null) {
                 posterURL = getPosterURLFromImdb(imdbXML);
             }
-            
+
             // Validate the poster
             if (posterValidate && !validatePoster(posterURL, posterWidth, posterHeight, posterValidateAspect))
                 posterURL = Movie.UNKNOWN;
             else
                 logger.finest("Poster URL found at " + posterSearchToken + ": " + posterURL);
         }
-        
+
         return posterURL;
     }
 
     /**
-     * Get the size of the file at the end of the URL
-     * Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
+     * Get the size of the file at the end of the URL Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
      * 
-     * @param   posterURL       The URL to check as a string
-     * @param   posterWidth     The width to check
-     * @param   posterHeight    The height to check
-     * @param   checkAspect     Should the aspect ratio be checked
-     * @return                  True if the poster is good, false otherwise
+     * @param posterURL
+     *            The URL to check as a string
+     * @param posterWidth
+     *            The width to check
+     * @param posterHeight
+     *            The height to check
+     * @param checkAspect
+     *            Should the aspect ratio be checked
+     * @return True if the poster is good, false otherwise
      */
     @SuppressWarnings("unchecked")
     public static boolean validatePoster(String posterURL, int posterWidth, int posterHeight, boolean checkAspect) {
         Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
-        ImageReader reader = (ImageReader) readers.next();
+        ImageReader reader = (ImageReader)readers.next();
         int urlWidth = 0, urlHeight = 0;
         float urlAspect;
-        
+
         if (!posterValidate) {
             return true;
         }
-        
+
         if (posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
             return false;
         }
-        
+
         try {
             URL url = new URL(posterURL);
             InputStream in = url.openStream();
@@ -313,36 +314,37 @@ public class PosterScanner {
             return false; // Quit and return a false poster
         }
 
-        urlAspect = (float) urlWidth / (float) urlHeight;
+        urlAspect = (float)urlWidth / (float)urlHeight;
 
         if (checkAspect && urlAspect > 1.0) {
             logger.finest(posterURL + " rejected: URL is landscape format");
             return false;
         }
-        
+
         // Adjust poster width / height by the ValidateMatch figure
-        posterWidth  = posterWidth * (posterValidateMatch / 100);
+        posterWidth = posterWidth * (posterValidateMatch / 100);
         posterHeight = posterHeight * (posterValidateMatch / 100);
 
         if (urlWidth < posterWidth) {
             logger.finest(posterURL + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + posterWidth + ")");
             return false;
         }
-        
+
         if (urlHeight < posterHeight) {
             logger.finest(posterURL + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + posterHeight + ")");
             return false;
         }
         return true;
-    }    
+    }
 
     /**
      * Search Google images for a poster to use for the movie
      * 
-     * @param   movieName   The name of the movie to search for
-     * @return              A URL of the poster to use.
+     * @param movieName
+     *            The name of the movie to search for
+     * @return A URL of the poster to use.
      * 
-     * TODO     Change out the French Google for English
+     *         TODO Change out the French Google for English
      */
     public static String getPosterURLFromGoogle(String movieName) {
         try {
@@ -365,14 +367,15 @@ public class PosterScanner {
             return Movie.UNKNOWN;
         }
     }
-    
+
     /**
      * Search Yahoo images for a poster to use for the movie
      * 
-     * @param   movieName   The name of the movie to search for
-     * @return              A URL of the poster to use.
+     * @param movieName
+     *            The name of the movie to search for
+     * @return A URL of the poster to use.
      * 
-     * TODO     Change out the French Yahoo for English
+     *         TODO Change out the French Yahoo for English
      */
     public static String getPosterURLFromYahoo(String movieName) {
         try {
@@ -395,12 +398,13 @@ public class PosterScanner {
             return Movie.UNKNOWN;
         }
     }
-    
+
     /**
      * Search Motechnet for a poster to use for the movie
      * 
-     * @param   movieID The IMDb ID for the movie
-     * @return          A poster URL to use for the movie.
+     * @param movieID
+     *            The IMDb ID for the movie
+     * @return A poster URL to use for the movie.
      */
     public static String getPosterURLFromMotechnet(String movieID) {
         try {
@@ -412,20 +416,23 @@ public class PosterScanner {
 
         return "http://posters.motechnet.com/covers/" + movieID + "_largeCover.jpg";
     }
-    
+
     /**
      * Search IMP Awards site for a poster to use for the movie
      * 
-     * @param   movieName   The name of the movie to look for      
-     * @param   movieYear   The year of the movie
-     * @return              A poster URL to use for the movie.
+     * @param movieName
+     *            The name of the movie to look for
+     * @param movieYear
+     *            The year of the movie
+     * @return A poster URL to use for the movie.
      */
     public static String getPosterURLFromImpAwards(String movieName, String movieYear) {
         String returnString = Movie.UNKNOWN;
         String content = null;
-        
+
         try {
-            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q=" + URLEncoder.encode(movieName + " " + movieYear, "UTF-8"));
+            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q="
+                            + URLEncoder.encode(movieName + " " + movieYear, "UTF-8"));
         } catch (Exception e) {
             // The movie doesn't exists, so return unknown
             return Movie.UNKNOWN;
@@ -457,12 +464,13 @@ public class PosterScanner {
 
         return returnString;
     }
-    
+
     /**
      * Search MovieCovers.com for a poster to use for the movie
      * 
-     * @param   movieName   The name of the movie to search for
-     * @return              A poster URL to use for the movie.
+     * @param movieName
+     *            The name of the movie to search for
+     * @return A poster URL to use for the movie.
      */
     public static String getPosterURLFromMovieCovers(String movieName) {
         String returnString = Movie.UNKNOWN;
@@ -478,8 +486,8 @@ public class PosterScanner {
                     int indexEndLink = content.indexOf("\" class=l>", indexStartLink);
                     if (indexEndLink > 0) {
                         String findMovieUrl = content.substring(indexStartLink + 47, indexEndLink);
-                        returnString = "http://www.moviecovers.com/getjpg.html/" + 
-                                       findMovieUrl.substring(0, findMovieUrl.lastIndexOf('.')).replace("+", "%20") + ".jpg";
+                        returnString = "http://www.moviecovers.com/getjpg.html/" + findMovieUrl.substring(0, findMovieUrl.lastIndexOf('.')).replace("+", "%20")
+                                        + ".jpg";
                     }
                 }
             }
@@ -488,28 +496,36 @@ public class PosterScanner {
             logger.severe("Error : " + e.getMessage());
             return Movie.UNKNOWN;
         }
-        
+
         return returnString;
     }
-    
+
     /**
-     *  Utilise the MovieDB.org API to get a poster URL
-     *  @param  movie   The movie object to get the poster for
-     *  @return         A string containing the URL of the poster
+     * Utilise the MovieDB.org API to get a poster URL
+     * 
+     * @param movie
+     *            The movie object to get the poster for
+     * @return A string containing the URL of the poster
      */
     public static String getPosterURLFromMovieDbAPI(Movie movie) {
         String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
-        String  imdbID = null;
+        String imdbID = null;
+        String tmdbID = null;
         TheMovieDb TMDb;
         MovieDB moviedb = null;
 
         TMDb = new TheMovieDb(API_KEY);
 
+        //TODO move these Ids to a preferences file.
         imdbID = movie.getId("imdb");
-        if (imdbID == null || imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbSearch(movie.getTitle());
-        } else {
+        tmdbID = movie.getId("themoviedb");
+
+        if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            moviedb = TMDb.moviedbGetInfo(tmdbID);
+        } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             moviedb = TMDb.moviedbImdbLookup(imdbID);
+        } else {
+            moviedb = TMDb.moviedbSearch(movie.getTitle());
         }
 
         String posterUrl = moviedb.getPoster("original");
@@ -520,13 +536,14 @@ public class PosterScanner {
             return posterUrl;
         }
     }
-    
+
     /**
      * Search MovieDB.org for a poster to use for the movie
      * 
-     * @param   movieName   The name of the movie to search for
-     * @return              A poster URL to use for the movie.
-     * @deprecated          Replaced by getPosterURLFromMovieDbAPI using the new API method
+     * @param movieName
+     *            The name of the movie to search for
+     * @return A poster URL to use for the movie.
+     * @deprecated Replaced by getPosterURLFromMovieDbAPI using the new API method
      */
     @Deprecated
     public static String getPosterURLFromMoviedb(String movieName) {
@@ -537,22 +554,21 @@ public class PosterScanner {
         int indexEndLink = -1;
         int tmdbID = 0;
         Matcher tmdbMatch;
-        
+
         try {
             tmdbSB = new StringBuffer("http://www.themoviedb.org/search/movies?search[text]=");
             tmdbSB.append(URLEncoder.encode(movieName, "UTF-8"));
             tmdbContent = webBrowser.request(tmdbSB.toString());
 
-            
             tmdbMatch = Pattern.compile("<a href=\"/movie/.+?</a>").matcher(tmdbContent);
             String tmdbText = "";
             while (tmdbMatch.find() && indexStartLink < 0) {
                 tmdbText = tmdbMatch.group();
-                
+
                 if ((tmdbText.indexOf("Movie: ") > -1) && (tmdbText.indexOf(movieName) > -1)) {
                     // Locate TheMovieDB ID from the search page
                     indexStartLink = tmdbText.indexOf("/movie/");
-                    indexEndLink   = tmdbText.indexOf("\" title=", indexStartLink + 7); // Start at the end of the last search
+                    indexEndLink = tmdbText.indexOf("\" title=", indexStartLink + 7); // Start at the end of the last search
                 }
             }
 
@@ -564,12 +580,12 @@ public class PosterScanner {
                 // Not found, so exit
                 return returnString;
             }
-            
+
             tmdbSB = new StringBuffer("http://www.themoviedb.org/movie/" + tmdbID + "/posters");
             tmdbContent = webBrowser.request(tmdbSB.toString());
-            
+
             tmdbMatch = Pattern.compile("http://images\\.themoviedb\\.org/posters/.+?\\.(jpg|jpeg)").matcher(tmdbContent);
-            
+
             while (tmdbMatch.find() && returnString.equalsIgnoreCase(Movie.UNKNOWN)) {
                 if (validatePoster(tmdbMatch.group(), posterWidth, posterHeight, posterValidateAspect)) {
                     returnString = tmdbMatch.group();
@@ -582,20 +598,21 @@ public class PosterScanner {
         }
         return returnString;
     }
-    
+
     /**
      * Search the IMDb XML page for a poster
      * 
-     * @param imdbXML   The XML page for the movie that contains the posters
-     * @return          A poster URL to use for the movie.
+     * @param imdbXML
+     *            The XML page for the movie that contains the posters
+     * @return A poster URL to use for the movie.
      */
     public static String getPosterURLFromImdb(String imdbXML) {
         String posterURL = Movie.UNKNOWN;
         StringTokenizer st;
-        
+
         int castIndex = imdbXML.indexOf("<h3>Cast</h3>");
         int beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
-        
+
         // Search the XML from IMDB for a poster
         if ((beginIndex < castIndex) && (beginIndex != -1)) {
             st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
@@ -606,7 +623,7 @@ public class PosterScanner {
             } else {
                 posterURL = Movie.UNKNOWN;
             }
-        } 
+        }
 
         return posterURL;
     }
