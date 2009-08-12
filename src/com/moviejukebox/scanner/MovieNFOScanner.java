@@ -43,9 +43,9 @@ import com.moviejukebox.tools.XMLHelper;
 
 /**
  * NFO file parser.
- *
+ * 
  * Search a NFO file for IMDb URL.
- *
+ * 
  * @author jjulien
  */
 public class MovieNFOScanner {
@@ -54,15 +54,15 @@ public class MovieNFOScanner {
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private static String fanartToken = ".fanart";
-    private static String forceNFOEncoding = null; 
+    private static String fanartToken = null; // WARNING: This needs to be set elsewhere
+    private static String forceNFOEncoding = null;
     private static String NFOdirectory = "";
     @SuppressWarnings("unused")
     private static boolean parentDirs = false;
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
-     *
+     * 
      * @param movie
      * @param movieDB
      */
@@ -95,7 +95,8 @@ public class MovieNFOScanner {
                             }
 
                             // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
-                            if ((currentUrlStartIndex < 8) || (nfo.substring(currentUrlStartIndex-8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0)) {
+                            if ((currentUrlStartIndex < 8)
+                                            || (nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0)) {
                                 logger.finer("Poster URL found in nfo = " + nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                                 movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                                 urlStartIndex = -1;
@@ -115,15 +116,22 @@ public class MovieNFOScanner {
             }
         }
     }
-    
+
+    /**
+     * Search for the NFO file in the library structure
+     * 
+     * @param movie
+     *            The movie bean to locate the NFO for
+     * @return A List structure of all the relevant NFO files
+     */
     public static List<File> locateNFOs(Movie movie) {
         List<File> nfos = new ArrayList<File>();
         if (null == movie.getContainerFile()) {
             return nfos;
         }
-        
+
         String fn = movie.getContainerFile().getAbsolutePath();
-        
+
         // If "fn" is a file then strip the extension from the file.
         if (movie.getContainerFile().isFile()) {
             fn = fn.substring(0, fn.lastIndexOf("."));
@@ -138,7 +146,7 @@ public class MovieNFOScanner {
         // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
         checkNFO(nfos, fn);
-        
+
         if (!NFOdirectory.equals("")) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
@@ -149,7 +157,7 @@ public class MovieNFOScanner {
                 checkNFO(nfos, movie.getLibraryPath() + File.separator + NFOdirectory + File.separator + movie.getBaseName());
             }
         }
-        
+
         // *** Last step is to check for a directory wide NFO file.
         // This file should be named the same as the directory that it is in
         // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
@@ -166,13 +174,13 @@ public class MovieNFOScanner {
         // we added the most specific ones first, and we want to parse those the last,
         // so nfo files in subdirectories can override values in directories above.
         Collections.reverse(nfos);
-        
+
         return nfos;
     }
 
     /**
      * Check to see if the passed filename exists with nfo extensions
-     *
+     * 
      * @param checkNFOfilename
      *            (NO EXTENSION)
      * @return blank string if not found, filename if found
@@ -205,15 +213,17 @@ public class MovieNFOScanner {
 
     /**
      * Create an XML reader for file. Use forced encoding if specified.
-     * @param nfoFile File to read.
-     * @param nfo Content of the XML file. Used only for the encoding detection. 
+     * 
+     * @param nfoFile
+     *            File to read.
+     * @param nfo
+     *            Content of the XML file. Used only for the encoding detection.
      * @return New XML reader.
      * @throws FactoryConfigurationError
      * @throws XMLStreamException
      * @throws FileNotFoundException
      */
-    private static XMLEventReader createXMLReader(File nfoFile, String nfo)
-            throws FactoryConfigurationError, XMLStreamException, FileNotFoundException {
+    private static XMLEventReader createXMLReader(File nfoFile, String nfo) throws FactoryConfigurationError, XMLStreamException, FileNotFoundException {
         XMLInputFactory factory = XMLInputFactory.newInstance();
 
         // TODO Make the encoding detection more explicit
@@ -230,7 +240,7 @@ public class MovieNFOScanner {
 
     /**
      * Used to parse out the XBMC nfo xml data for movies
-     *
+     * 
      * @param xmlFile
      * @param movie
      */
@@ -241,7 +251,7 @@ public class MovieNFOScanner {
             boolean isMovieTag = false;
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
-                
+
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
                     logger.finest("In parseMovieNFO found new startElement=" + tag);
@@ -380,6 +390,12 @@ public class MovieNFOScanner {
                                     break;
                                 }
                             }
+                        } else if (tag.equalsIgnoreCase("VideoSource")) {
+                            // Issue 506 - Even though it's not strictly XBMC standard
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setVideoSource(val);
+                            }
                         }
                     }
                 } else if (e.isEndElement()) {
@@ -389,19 +405,19 @@ public class MovieNFOScanner {
                     }
                 }
             }
-            
+
             return isMovieTag;
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
         }
-        
+
         return false;
     }
 
     /**
      * Used to parse out the XBMC nfo xml data for tv series
-     *
+     * 
      * @param xmlFile
      * @param movie
      */
@@ -550,7 +566,7 @@ public class MovieNFOScanner {
             e.printStackTrace();
             System.err.println("Failed parsing NFO file for tvshow: " + movie.getTitle() + ". Please fix or remove it.");
         }
-        
+
         return false;
     }
 
@@ -577,7 +593,7 @@ public class MovieNFOScanner {
     public static void setNFOdirectory(String odirectory) {
         NFOdirectory = odirectory;
     }
-    
+
     public static void setParentDirs(boolean parentDirs) {
         MovieNFOScanner.parentDirs = parentDirs;
     }
