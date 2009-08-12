@@ -507,6 +507,21 @@ public class MovieFilenameScanner {
 
         }
     }
+    
+    /**
+     * Decode the language tag passed in, into standard YAMJ language code
+     * @param language The language tag to decode
+     * @return
+     */
+    public static String determineLanguage(String language) {
+        for (Map.Entry<String, Pattern> e : STRICT_LANGUAGES_MAP.entrySet()) {
+            Matcher matcher = e.getValue().matcher(language);
+            if (matcher.find()) {
+                return e.getKey();
+            }
+        }
+        return language;
+    }
 
     private String cleanUpTitle(String token) {
         String title = TITLE_CLEANUP_DIV_PATTERN.matcher(token).replaceAll(" ").trim();

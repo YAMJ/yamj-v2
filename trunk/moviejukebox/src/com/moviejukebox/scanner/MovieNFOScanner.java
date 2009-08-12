@@ -396,6 +396,11 @@ public class MovieNFOScanner {
                             if (!val.isEmpty()) {
                                 movie.setVideoSource(val);
                             }
+                        } else if (tag.equalsIgnoreCase("Language")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
+                            }
                         }
                     }
                 } else if (e.isEndElement()) {
