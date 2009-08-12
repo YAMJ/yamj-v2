@@ -38,9 +38,9 @@ import java.io.FileInputStream;
 /**
  * Scanner for fanart files in local directory
  * 
- * @author  Stuart.Boston
+ * @author Stuart.Boston
  * @version 1.0, 10th December 2008 - Initial code
- * @version 1.1, 19th July 2009     - Added Internet search
+ * @version 1.1, 19th July 2009 - Added Internet search
  */
 public class FanartScanner {
 
@@ -57,7 +57,7 @@ public class FanartScanner {
         while (st.hasMoreTokens()) {
             extensions.add(st.nextToken());
         }
-        fanartExtensions = extensions.toArray(new String[]{});
+        fanartExtensions = extensions.toArray(new String[] {});
 
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
 
@@ -112,11 +112,11 @@ public class FanartScanner {
 
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
         if (foundLocalFanart) {
-            if ( movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN) ) {
-                //movie.setFanartFilename(localFanartFile.getName());
+            if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
+                // movie.setFanartFilename(localFanartFile.getName());
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
             }
-            if ( movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN) ) {
+            if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
             }
             String fanartFilename = FileTools.makeSafeFilename(movie.getFanartFilename());
@@ -147,7 +147,7 @@ public class FanartScanner {
                 logger.finer("FanartScanner: " + finalDestinationFileName + " already exists");
             }
         } else {
-            //logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
+            // logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
             downloadFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
         }
     }
@@ -186,13 +186,11 @@ public class FanartScanner {
     }
 
     /***
-     * Pass in the filename and a list of extensions,
-     * this function will scan for the filename plus extensions
-     * and return the extension
+     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the extension
      * 
-     * @param   filename
-     * @param   extensions
-     * @return  extension of fanart that was found
+     * @param filename
+     * @param extensions
+     * @return extension of fanart that was found
      */
     private static String findFanartFile(String fullFanartFilename, String[] fanartExtensions) {
         File localFanartFile;
@@ -217,30 +215,39 @@ public class FanartScanner {
     }
 
     /**
-     *  Get the Fanart for the movie from TheMovieDB.org
-     *  @author Stuart.Boston
-     *  @param  movie   The movie bean to get the fanart for
-     *  @return         A string URL pointing to the fanart
+     * Get the Fanart for the movie from TheMovieDB.org
+     * 
+     * @author Stuart.Boston
+     * @param movie
+     *            The movie bean to get the fanart for
+     * @return A string URL pointing to the fanart
      */
     public static String getFanartURL(Movie movie) {
         String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
-        String  imdbID = null;
+        String imdbID = null;
+        String tmdbID = null;
         TheMovieDb TMDb;
         MovieDB moviedb = null;
 
         TMDb = new TheMovieDb(API_KEY);
 
+        //TODO move these Ids to a preferences file.
         imdbID = movie.getId("imdb");
-        if (imdbID == null || imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbSearch(movie.getTitle());
-        } else {
+        tmdbID = movie.getId("themoviedb");
+
+        if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            moviedb = TMDb.moviedbGetInfo(tmdbID);
+        } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             moviedb = TMDb.moviedbImdbLookup(imdbID);
+        } else {
+            moviedb = TMDb.moviedbSearch(movie.getTitle());
         }
 
-        String fanartUrl = moviedb.getBackdrops("original");
+        String fanartUrl = moviedb.getBackdrop(MovieDB.SIZE_ORIGINAL);
         if (fanartUrl.equals(MovieDB.UNKNOWN)) {
             return Movie.UNKNOWN;
         } else {
+            movie.setDirtyFanart(true);
             return fanartUrl;
         }
     }
