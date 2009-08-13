@@ -132,7 +132,7 @@ public class MovieFile implements Comparable<MovieFile> {
     /*
      * Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to,
      * or greater than the specified object. The implementor must ensure sgn(x.compareTo(y)) == -sgn(y.compareTo(x)) for all x and y. (This implies that
-     * x.compareTo(y) must throw an exception iff y.compareTo(x) throws an exception.)
+     * x.compareTo(y) must throw an exception if y.compareTo(x) throws an exception.)
      * 
      * The implementor must also ensure that the relation is transitive: (x.compareTo(y)>0 && y.compareTo(z)>0) implies x.compareTo(z)>0.
      * 
