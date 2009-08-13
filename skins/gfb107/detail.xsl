@@ -210,15 +210,15 @@
                     <xsl:attribute name="TVID">Play</xsl:attribute>
                     <xsl:attribute name="name">1</xsl:attribute>
 
-                    <xsl:if test="//movie/container = 'ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.iso'">
+                    <xsl:if test="//movie/container = 'ISO' or ends-with(fileURL, '.ISO') or ends-with(fileURL, '.iso')">
                       <xsl:attribute name="zcd">2</xsl:attribute>
                     </xsl:if>
 
-                    <xsl:if test="//movie/container = 'IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.img'">
+                    <xsl:if test="//movie/container = 'IMG' or ends-with(fileURL, '.IMG') or ends-with(fileURL, '.img')">
                       <xsl:attribute name="zcd">2</xsl:attribute>
                     </xsl:if>
 
-                    <xsl:if test="substring(fileURL,string-length(fileURL)-7,8) = 'VIDEO_TS'">
+                    <xsl:if test="ends-with(fileURL, 'VIDEO_TS') or ends-with(fileURL, 'video_ts')">
                       <xsl:attribute name="zcd">2</xsl:attribute>
                     </xsl:if>
 

@@ -135,7 +135,7 @@ public class AppleTrailersPlugin {
                 String name = mf.getFile().getName();
                 
                 String basename;
-                if (mf.getFilename().endsWith("/VIDEO_TS")) {
+                if (mf.getFilename().toUpperCase().endsWith("/VIDEO_TS")) {
                     parentPath += File.separator + name;
                     basename = name;
                 } else {
