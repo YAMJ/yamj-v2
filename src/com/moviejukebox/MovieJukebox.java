@@ -497,6 +497,9 @@ public class MovieJukebox {
                 // Get Trailer
                 trailerPlugin.generate(movie);
             }
+            // re-run the merge in case there were additional trailers that were downloaded
+            library.mergeExtras();
+
             subtitlePlugin.logOut();
 
             /********************************************************************************
@@ -505,6 +508,7 @@ public class MovieJukebox {
              * 
              */
 
+            // This is for programs like NMTServer where they don't need the indexes.
             if (skipIndexGeneration) {
                 logger.fine("Indexing of libraries skipped.");
             } else {
@@ -733,9 +737,10 @@ public class MovieJukebox {
         boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
         boolean checkNewer = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.checknewer", "true"));
 
-        // For each movie in the library, if an XML file for this
-        // movie already exist, then no need to search for movie
-        // information, just parse the XML data.
+        /*
+         * For each video in the library, if an XML file for this video already exists, then there is no need to search 
+         * for the video file information, just parse the XML data.
+         */
         String safeBaseName = FileTools.makeSafeFilename(movie.getBaseName());
         File xmlFile = new File(jukeboxDetailsRoot + File.separator + safeBaseName + ".xml");
 
@@ -755,9 +760,38 @@ public class MovieJukebox {
         }
 
         if (xmlFile.exists() && !forceXMLOverwrite) {
+            // Set up some arrays to store the directory scanner files and the xml files
+            Collection<MovieFile> scannedFiles = new ArrayList<MovieFile>();
+            Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>();
+
+            // Copy the current movie files to a new collection (
+            for (MovieFile part : movie.getMovieFiles())
+                scannedFiles.add(part);
+            
             // parse the XML file
             logger.finer("XML file found for " + movie.getBaseName());
             xmlWriter.parseMovieXML(xmlFile, movie);
+            
+            // Copy the xml movie files to a new collection
+            for (MovieFile part : movie.getMovieFiles())
+                xmlFiles.add(part);
+            
+            // Now compare the before and after files
+            Iterator<MovieFile> scanLoop = scannedFiles.iterator();
+            String scannedFilename;
+            
+            for (MovieFile xmlLoop : xmlFiles) {
+                if (scanLoop.hasNext())
+                    scannedFilename = scanLoop.next().getFilename();
+                else
+                    break;  // No more files, so quit
+                
+                if (!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) {
+                    logger.finest("Detected change of file location to: " + scannedFilename);
+                    xmlLoop.setFilename(scannedFilename);
+                    movie.addMovieFile(xmlLoop);
+                }
+            }
 
             // update new episodes titles if new MovieFiles were added
             DatabasePluginController.scanTVShowTitles(movie);
@@ -773,9 +807,11 @@ public class MovieJukebox {
             PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
         } else {
-            // No XML file for this movie. We've got to find movie
-            // information where we can (filename, IMDb, NFO, etc...)
-            // Add here extra scanners if needed.
+            /* 
+             * No XML file for this movie. We've got to find movie
+             * information where we can (filename, IMDb, NFO, etc...)
+             * Add here extra scanners if needed.
+             */
             if (forceXMLOverwrite) {
                 logger.finer("Rescanning internet for information on " + movie.getBaseName());
             } else {
