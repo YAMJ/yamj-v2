@@ -12,6 +12,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #595 Manual Language Settings in nfo
   - Enhancement  #632 Disable OpenSubtitle plugin if Internet scraping is turned off in library.xml
   - Enhancement  #686 Video Image Files created when no image found
+  - Fixed defect #767 Link to video_ts must be case insensitive
   - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types
   - Fixed defect #846 appletrailers.download is case sensitive
   - Fixed defect #850 Exception generated if Jukebox directory can't be written to
@@ -36,6 +37,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #911 Cover art files not overwritten
   - Fixed defect #925 Exclude not working for directories
   - Fixed defect #927 Writers are not detected if there is only one
+  - Fixed defect #928 Some movie writers still missing
 
 MovieJukebox 1.0.17 beta
 ------------------------

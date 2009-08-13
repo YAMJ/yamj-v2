@@ -544,7 +544,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 
-  <xsl:if test="ends-with($url, 'VIDEO_TS')">
+  <xsl:if test="ends-with($url, 'VIDEO_TS') or ends-with($url, 'video_ts')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 </xsl:template>
