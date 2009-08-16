@@ -396,6 +396,31 @@ public class MovieNFOScanner {
                             if (!val.isEmpty()) {
                                 movie.setVideoSource(val);
                             }
+                        } else if (tag.equalsIgnoreCase("VideoCodec")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setVideoCodec(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("VideoOutput")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setVideoOutput(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("Resolution")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setResolution(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("AudioChannels")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setAudioChannels(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("AudioCodec")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setAudioCodec(val);
+                            }
                         } else if (tag.equalsIgnoreCase("Language")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
