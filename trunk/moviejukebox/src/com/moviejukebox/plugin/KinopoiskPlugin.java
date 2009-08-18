@@ -165,13 +165,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         newTitle = newTitle + ", сезон " + String.valueOf(movie.getSeason());
 
                     // Original title
-                    String s = HTMLTools.extractTag(xml, "<span style=\"font-size:13px;color:#666\">", 0, "><");
-                    if (!s.equals(Movie.UNKNOWN) && !s.equalsIgnoreCase("/span")) { 
-                        originalTitle = s;
-                        newTitle = newTitle + " / " + originalTitle;
-                    }
-                else
                     originalTitle = newTitle;
+                    for (String s : HTMLTools.extractTags(xml, "class=\"moviename-big\">", "</span>", "<span", "</span>")) {
+                        if (!s.isEmpty()) { 
+                            originalTitle = s;
+                            newTitle = newTitle + " / " + originalTitle;
+                        }
+                        break;
+                    }
                 }
             }
             
@@ -198,13 +199,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (newCast.size() > 0)
                 movie.setCast(newCast);
 
-            for (String item : HTMLTools.extractTags(xml, "<ul class=\"film_table\">", "</ul>", "<li", "</li>")) {
-                item += "</li>";
+            for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr>", "</tr>")) {
+                item = "<td>" + item + "</tr>";
                 // Genres
                 LinkedList<String> newGenres = new LinkedList<String>();
                 boolean GenresFound;
                 GenresFound = false;
-                for (String genre : HTMLTools.extractTags(item, "<b>жанр</b>", "</li>", "<a href=\"/level/10", "</a>")) {
+                for (String genre : HTMLTools.extractTags(item, ">жанр<", "</tr>", "<a href=\"/level/10", "</a>")) {
                     GenresFound = true;
                     genre = genre.substring(0, 1).toUpperCase() + genre.substring(1, genre.length());
                     if (genre.equalsIgnoreCase("мультфильм"))
@@ -227,20 +228,20 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
                 
                 // Director
-                for (String director : HTMLTools.extractTags(item, "<b>режиссер</b>", "</li>", "<a href=\"/level/4", "</a>")) {
+                for (String director : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
                     movie.setDirector(director);
                     break;
                 }
                 
                 // Country
-                for (String country : HTMLTools.extractTags(item, "<b>страна</b>", "</li>", "<a href=\"/level/10", "</a>")) {
+                for (String country : HTMLTools.extractTags(item, ">страна<", "</tr>", "<a href=\"/level/10", "</a>")) {
                     movie.setCountry(country);
                     break;
                 }
                 
                 // Year
                 if (movie.getYear().equals(Movie.UNKNOWN)) {
-                    for (String year : HTMLTools.extractTags(item, "<b>год</b>", "</li>", "<a href=\"/level/10", "</a>")) {
+                    for (String year : HTMLTools.extractTags(item, ">год<", "</tr>", "<a href=\"/level/10", "</a>")) {
                         movie.setYear(year);
                         break;
                     }
@@ -248,7 +249,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 
                 // Run time
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                    for (String runtime : HTMLTools.extractTags(item, "<b>время</b>", "</i>", "<i>", "</i>")) {
+                    for (String runtime : HTMLTools.extractTags(item, ">время<", "</tr>", "<td", "</td>")) {
                         movie.setRuntime(runtime);
                         break;
                     }

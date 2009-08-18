@@ -40,6 +40,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #925 Exclude not working for directories
   - Fixed defect #927 Writers are not detected if there is only one
   - Fixed defect #928 Some movie writers still missing
+  - Fixed defect #936 Fixed parsing of Kinopoisk site after redesign
 
 MovieJukebox 1.0.17 beta
 ------------------------
