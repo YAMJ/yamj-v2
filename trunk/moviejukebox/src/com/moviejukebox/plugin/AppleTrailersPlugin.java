@@ -545,6 +545,7 @@ public class AppleTrailersPlugin {
             stats = WebStats.make(url);
 
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+            connection.setRequestProperty("User-Agent", "QuickTime/7.6.2");
             InputStream inputStream = connection.getInputStream();
 
             int code = connection.getResponseCode();
