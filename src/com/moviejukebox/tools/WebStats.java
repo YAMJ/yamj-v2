@@ -43,6 +43,7 @@ public abstract class WebStats {
 
     public static WebStats make(URL url) throws IOException {
         URLConnection con = url.openConnection();
+        con.setRequestProperty("User-Agent", "QuickTime/7.6.2");
         int size = con.getContentLength();
         return size == -1 ? new WebStatsBasic() : new WebStatsProgress(size);
     }

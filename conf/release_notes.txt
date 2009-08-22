@@ -42,6 +42,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #928 Some movie writers still missing
   - Fixed defect #936 Fixed parsing of Kinopoisk site after redesign
   - Fixed defect #939 Apple Trailers incorrectly named
+  - Fixed defect #943 Apple Trailers no longer work
 
 MovieJukebox 1.0.17 beta
 ------------------------
