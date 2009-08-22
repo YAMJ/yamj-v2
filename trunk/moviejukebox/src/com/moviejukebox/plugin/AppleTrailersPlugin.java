@@ -143,7 +143,10 @@ public class AppleTrailersPlugin {
                     basename = index == -1 ? name : name.substring(0, index);
                 }
                 
-                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-" + getFilenameFromUrl(trailerRealUrl) + "]");
+                String trailerAppleName = getFilenameFromUrl(trailerRealUrl);
+                String trailerAppleExt = trailerAppleName.substring(trailerAppleName.lastIndexOf("."));
+                trailerAppleName = trailerAppleName.substring(0, trailerAppleName.lastIndexOf("."));
+                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-" + trailerAppleName + "]" + trailerAppleExt);
                 String trailerFileName = parentPath + File.separator + trailerBasename;
                 
                 int slash = mf.getFilename().lastIndexOf("/");

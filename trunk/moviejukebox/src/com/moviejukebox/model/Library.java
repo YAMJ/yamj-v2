@@ -232,7 +232,7 @@ public class Library implements Map<String, Movie> {
 
     public void addMovie(String key, Movie movie) {
         Movie existingMovie = library.get(key);
-        logger.finest("Adding movie " + key + ", new part: " + (existingMovie != null));
+        logger.finest("Adding video " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isExtra()) {
             logger.finest("  It's an extra: " + movie.getBaseName());
