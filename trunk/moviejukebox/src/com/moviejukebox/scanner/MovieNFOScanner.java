@@ -390,41 +390,104 @@ public class MovieNFOScanner {
                                     break;
                                 }
                             }
+                        } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
+                            String fiEvent = r.nextEvent().toString();
+                            while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
+                                if (fiEvent.equalsIgnoreCase("<video>")) {
+                                    String nfoWidth = null;
+                                    String nfoHeight = null;
+                                    while (!fiEvent.equalsIgnoreCase("</video>")) {
+                                        if (fiEvent.equalsIgnoreCase("<codec>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setVideoCodec(val);
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<aspect>")) {
+                                            // Unused
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<width>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                nfoWidth = val;
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<height>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                nfoHeight = val;
+                                            }
+                                        }
+                                        
+                                        if (nfoWidth != null && nfoHeight != null) {
+                                            movie.setResolution(nfoWidth + "x" + nfoHeight);
+                                            nfoWidth = null;
+                                            nfoHeight = null;
+                                        }
+
+                                        if (r.hasNext())
+                                            fiEvent = r.nextEvent().toString();
+                                    }
+                                }
+
+                                if (fiEvent.equalsIgnoreCase("<audio>")) {
+                                    while (!fiEvent.equalsIgnoreCase("</audio>")) {
+                                        if (fiEvent.equalsIgnoreCase("<codec>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setAudioCodec(val);
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<language>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<channels>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setAudioChannels(val);
+                                            }
+                                        }
+
+                                        if (r.hasNext())
+                                            fiEvent = r.nextEvent().toString();
+                                    }
+                                }
+
+                                if (fiEvent.equalsIgnoreCase("<subtitle>")) {
+                                    while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
+                                        if (fiEvent.equalsIgnoreCase("<language>")) {
+                                            // Unused
+                                        }
+
+                                        if (r.hasNext())
+                                            fiEvent = r.nextEvent().toString();
+                                    }
+                                }
+
+                                if (r.hasNext()) {
+                                    fiEvent = r.nextEvent().toString();
+                                } else {
+                                    break;
+                                }
+                            }
                         } else if (tag.equalsIgnoreCase("VideoSource")) {
                             // Issue 506 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setVideoSource(val);
                             }
-                        } else if (tag.equalsIgnoreCase("VideoCodec")) {
-                            String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
-                                movie.setVideoCodec(val);
-                            }
                         } else if (tag.equalsIgnoreCase("VideoOutput")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setVideoOutput(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("Resolution")) {
-                            String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
-                                movie.setResolution(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("AudioChannels")) {
-                            String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
-                                movie.setAudioChannels(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("AudioCodec")) {
-                            String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
-                                movie.setAudioCodec(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("Language")) {
-                            String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
-                                movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
                             }
                         }
                     }
@@ -583,16 +646,104 @@ public class MovieNFOScanner {
                                     break;
                                 }
                             }
+                        } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
+                            String fiEvent = r.nextEvent().toString();
+                            while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
+                                if (fiEvent.equalsIgnoreCase("<video>")) {
+                                    String nfoWidth = null;
+                                    String nfoHeight = null;
+                                    while (!fiEvent.equalsIgnoreCase("</video>")) {
+                                        if (fiEvent.equalsIgnoreCase("<codec>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setVideoCodec(val);
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<aspect>")) {
+                                            // Unused
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<width>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                nfoWidth = val;
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<height>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                nfoHeight = val;
+                                            }
+                                        }
+                                        
+                                        if (nfoWidth != null && nfoHeight != null) {
+                                            movie.setResolution(nfoWidth + "x" + nfoHeight);
+                                            nfoWidth = null;
+                                            nfoHeight = null;
+                                        }
+
+                                        if (r.hasNext())
+                                            fiEvent = r.nextEvent().toString();
+                                    }
+                                }
+
+                                if (fiEvent.equalsIgnoreCase("<audio>")) {
+                                    while (!fiEvent.equalsIgnoreCase("</audio>")) {
+                                        if (fiEvent.equalsIgnoreCase("<codec>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setAudioCodec(val);
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<language>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
+                                            }
+                                        }
+
+                                        if (fiEvent.equalsIgnoreCase("<channels>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                movie.setAudioChannels(val);
+                                            }
+                                        }
+
+                                        if (r.hasNext())
+                                            fiEvent = r.nextEvent().toString();
+                                    }
+                                }
+
+                                if (fiEvent.equalsIgnoreCase("<subtitle>")) {
+                                    while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
+                                        if (fiEvent.equalsIgnoreCase("<language>")) {
+                                            // Unused
+                                        }
+
+                                        if (r.hasNext())
+                                            fiEvent = r.nextEvent().toString();
+                                    }
+                                }
+
+                                if (r.hasNext()) {
+                                    fiEvent = r.nextEvent().toString();
+                                } else {
+                                    break;
+                                }
+                            }
                         } else if (tag.equalsIgnoreCase("VideoSource")) {
                             // Issue 506 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setVideoSource(val);
                             }
-                        } else if (tag.equalsIgnoreCase("Language")) {
+                        } else if (tag.equalsIgnoreCase("VideoOutput")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
-                                movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
+                                movie.setVideoOutput(val);
                             }
                         }
                     }
