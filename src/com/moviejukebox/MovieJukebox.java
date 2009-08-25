@@ -1201,37 +1201,37 @@ public class MovieJukebox {
 
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
-                    // Calculate mirror thumbnail name.
+                    // Calculate mirror poster name.
                     String dstMirror = dst.substring(0, dst.lastIndexOf(".")) + "_mirror" + dst.substring(dst.lastIndexOf("."));
 
                     // Generate left & save as copy
-                    logger.finest("Generating mirror thumbnail from " + src + " to " + dstMirror);
+                    logger.finest("Generating mirror poster from " + src + " to " + dstMirror);
                     BufferedImage biMirror = bi;
-                    biMirror = posterManager.generate(movie, bi, "thumbnails", "left");
+                    biMirror = posterManager.generate(movie, bi, "posters", "left");
                     GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                     // Generate right as per normal
-                    logger.finest("Generating right thumbnail from " + src + " to " + dst);
-                    bi = posterManager.generate(movie, bi, "thumbnails", "right");
+                    logger.finest("Generating right poster from " + src + " to " + dst);
+                    bi = posterManager.generate(movie, bi, "posters", "right");
                     GraphicTools.saveImageToDisk(bi, dst);
                 }
 
                 // Only generate the right image
                 if (perspectiveDirection.equalsIgnoreCase("right")) {
-                    bi = posterManager.generate(movie, bi, "thumbnails", "right");
+                    bi = posterManager.generate(movie, bi, "posters", "right");
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, dst);
-                    logger.finest("Generating right thumbnail from " + src + " to " + dst);
+                    logger.finest("Generating right poster from " + src + " to " + dst);
                 }
 
                 // Only generate the left image
                 if (perspectiveDirection.equalsIgnoreCase("left")) {
-                    bi = posterManager.generate(movie, bi, "thumbnails", "left");
+                    bi = posterManager.generate(movie, bi, "posters", "left");
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, dst);
-                    logger.finest("Generating left thumbnail from " + src + " to " + dst);
+                    logger.finest("Generating left poster from " + src + " to " + dst);
                 }
             }
         } catch (Exception e) {
