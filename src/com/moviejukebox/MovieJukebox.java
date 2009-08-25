@@ -46,14 +46,12 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.AppleTrailersPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
-import com.moviejukebox.plugin.DefaultPosterPlugin;
-import com.moviejukebox.plugin.DefaultThumbnailPlugin;
-import com.moviejukebox.plugin.DefaultVideoImagePlugin;
+import com.moviejukebox.plugin.DefaultImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
 import com.moviejukebox.plugin.OpenSubtitlesPlugin;
-import com.moviejukebox.plugin.SetThumbnailPlugin;
+import com.moviejukebox.scanner.BannerScanner;
 import com.moviejukebox.scanner.FanartScanner;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
@@ -64,7 +62,6 @@ import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -80,6 +77,7 @@ public class MovieJukebox {
     private boolean forcePosterOverwrite;
     private boolean fanartDownload;
     private boolean videoImagesDownload;
+    private boolean includeWideBanners;
     private boolean moviejukeboxListing;
     private static boolean skipIndexGeneration = false;
     private OpenSubtitlesPlugin subtitlePlugin;
@@ -329,11 +327,8 @@ public class MovieJukebox {
         MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
         MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
-        MovieImagePlugin thumbnailPlugin = this.getThumbnailPlugin(PropertiesUtil.getProperty("mjb.thumbnail.plugin",
-            "com.moviejukebox.plugin.DefaultThumbnailPlugin"));
-        MovieImagePlugin posterPlugin = this.getPosterPlugin(PropertiesUtil.getProperty("mjb.poster.plugin", "com.moviejukebox.plugin.DefaultPosterPlugin"));
-        MovieImagePlugin videoimagePlugin = this.getVideoImagePlugin(PropertiesUtil.getProperty("mjb.videoimage.plugin",
-            "com.moviejukebox.plugin.DefaultVideoImagePlugin"));
+        MovieImagePlugin imagePlugin = this.getImagePlugin(PropertiesUtil.getProperty("mjb.image.plugin",
+            "com.moviejukebox.plugin.DefaultImagePlugin"));
         MovieImagePlugin backgroundPlugin = this.getBackgroundPlugin(PropertiesUtil.getProperty("mjb.background.plugin",
             "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
 
@@ -346,11 +341,11 @@ public class MovieJukebox {
         subtitlePlugin = new OpenSubtitlesPlugin();
         trailerPlugin = new AppleTrailersPlugin();
 
-        MovieListingPlugin listingPlugin = this.getListingPlugin(PropertiesUtil.getProperty("mjb.listing.plugin",
-            "com.moviejukebox.plugin.MovieListingPluginBase"));
+        MovieListingPlugin listingPlugin = this.getListingPlugin(PropertiesUtil.getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.generate", "false"));
 
         videoImagesDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+        includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
 
         int nbFiles = 0;
         String cleanCurrent = "";
@@ -477,18 +472,22 @@ public class MovieJukebox {
 
                 // Then get this movie's poster
                 logger.finer("Updating poster for: " + movie.getTitle() + "...");
-                // TODO
                 updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                 // Download episode images if required
                 if (videoImagesDownload) {
-                    updateVideoImages(videoimagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                    updateVideoImages(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
 
                 // Get Fanart if requested
                 // Note that the FanartScanner will check if the file is newer / different
                 if (fanartDownload) {
                     FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                }
+                
+                // Get Banner if requested and is a TV show
+                if (includeWideBanners && movie.isTVShow()) {
+                    BannerScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
 
                 // Get subtitle
@@ -525,7 +524,6 @@ public class MovieJukebox {
             indexMasters.addAll(library.getMoviesList());
             indexMasters.removeAll(movies);
 
-            SetThumbnailPlugin stp = new SetThumbnailPlugin();
             for (Movie movie : indexMasters) {
                 // The master's movie XML is used for generating the
                 // playlist it will be overwritten by the index XML
@@ -549,12 +547,12 @@ public class MovieJukebox {
                 if (PropertiesUtil.getProperty("mjb.sets.createPosters", "false").equalsIgnoreCase("true")) {
                     // Create a detail poster for each movie
                     logger.finest("Creating detail poster for index master: " + movie.getBaseName());
-                    createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                    createPoster(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
                 }
 
                 // Create a thumbnail for each movie
                 logger.finest("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
-                createThumbnail(stp, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                createThumbnail(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
                 // No playlist for index masters
                 // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
@@ -571,11 +569,11 @@ public class MovieJukebox {
 
                 // Create a detail poster for each movie
                 logger.finest("Creating detail poster for movie: " + movie.getBaseName());
-                createPoster(posterPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                createPoster(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 
                 // Create a thumbnail for each movie
                 logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-                createThumbnail(thumbnailPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                createThumbnail(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
                 if (!skipIndexGeneration) {
                     // write the movie details HTML
@@ -631,6 +629,10 @@ public class MovieJukebox {
                 String skipPattStr = PropertiesUtil.getProperty("mjb.clean.skip");
                 Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
                 String fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart").toUpperCase();
+                String bannerToken = PropertiesUtil.getProperty("banner.scanner.bannerToken", ".banner").toUpperCase();
+                String posterToken = "_LARGE";
+                String thumbnailToken = "_SMALL";
+                String videoimageToken = "_VIDEOIMAGE";
 
                 for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                     // Scan each file in here
@@ -659,14 +661,16 @@ public class MovieJukebox {
                                 if (!searchLibrary(cleanCurrent, library)) {
                                     if (cleanCurrent.endsWith(".PLAYLIST") && ".JSP".equals(cleanCurrentExt)) {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - ".PLAYLIST".length());
-                                    } else if (cleanCurrent.endsWith("_LARGE")) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_LARGE".length());
-                                    } else if (cleanCurrent.endsWith("_SMALL")) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - "_SMALL".length());
+                                    } else if (cleanCurrent.endsWith(posterToken)) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - posterToken.length());
+                                    } else if (cleanCurrent.endsWith(thumbnailToken)) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - thumbnailToken.length());
                                     } else if (cleanCurrent.endsWith(fanartToken)) {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - fanartToken.length());
-                                    } else if (cleanCurrent.indexOf("_VIDEOIMAGE") > 0) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("_VIDEOIMAGE"));
+                                    } else if (cleanCurrent.endsWith(bannerToken)) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - bannerToken.length());
+                                    } else if (cleanCurrent.indexOf(videoimageToken) > 0) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf(videoimageToken));
                                     }
                                 }
 
@@ -860,7 +864,7 @@ public class MovieJukebox {
                 try {
                     // Issue 201 : we now download to local temp dir
                     logger.finest("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
-                    downloadImage(tmpDestFile, movie.getPosterURL());
+                    FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
                 } catch (Exception e) {
                     logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
@@ -869,6 +873,14 @@ public class MovieJukebox {
         }
     }
 
+    /**
+     * Find and download the video images for the video file.
+     * TODO This needs it's own scanner routine so that it can check for existing video images similar to fanart
+     * @param videoimagePlugin
+     * @param jukeboxDetailsRoot
+     * @param tempJukeboxDetailsRoot
+     * @param movie
+     */
     private void updateVideoImages(MovieImagePlugin videoimagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String videoImageFilename;
         File videoImageFile;
@@ -880,7 +892,7 @@ public class MovieJukebox {
 
         for (MovieFile moviefile : movie.getMovieFiles()) {
             for (int part = moviefile.getFirstPart(); part <= moviefile.getLastPart(); ++part) {
-                // The filename should use the episode number not the part number.
+                //TODO The filename should use the episode number not the part number.
                 videoImageFilename = FileTools.makeSafeFilename(movie.getBaseName() + "_VideoImage_" + part + ".jpg");
                 videoImageFile = new File(jukeboxDetailsRoot + File.separator + videoImageFilename);
                 tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + videoImageFilename);
@@ -899,14 +911,14 @@ public class MovieJukebox {
                             // Issue 201 : we now download to local temp directory
                             logger.finest("Downloading video image for " + movie.getBaseName() + " part " + part + " to " + tmpDestFile.getName()
                                             + " [calling plugin]");
-                            downloadImage(tmpDestFile, moviefile.getVideoImageURL(part));
+                            FileTools.downloadImage(tmpDestFile, moviefile.getVideoImageURL(part));
                             moviefile.setVideoImageFile(part, FileTools.makeSafeFilename(videoImageFilename));
 
                             // load the file into a buffered image
                             fis = new FileInputStream(tmpDestFile);
                             bi = GraphicTools.loadJPEGImage(fis);
 
-                            bi = videoimagePlugin.generate(movie, bi, videoImageFilename);
+                            bi = videoimagePlugin.generate(movie, bi, "videoimages", videoImageFilename);
 
                             GraphicTools.saveImageToDisk(bi, tmpDestFile.getAbsolutePath());
 
@@ -995,60 +1007,28 @@ public class MovieJukebox {
         }
         return mlp;
     }
+    
 
-    public MovieImagePlugin getThumbnailPlugin(String className) {
-        MovieImagePlugin thumbnailPlugin;
-
-        try {
-            Thread t = Thread.currentThread();
-            ClassLoader cl = t.getContextClassLoader();
-            Class<? extends DefaultThumbnailPlugin> pluginClass = cl.loadClass(className).asSubclass(DefaultThumbnailPlugin.class);
-            thumbnailPlugin = pluginClass.newInstance();
-        } catch (Exception e) {
-            thumbnailPlugin = new DefaultThumbnailPlugin();
-            logger.severe("Failed instanciating ThumbnailPlugin: " + className);
-            logger.severe("Default thumbnail plugin will be used instead.");
-            e.printStackTrace();
-        }
-
-        return thumbnailPlugin;
-    }
-
-    public MovieImagePlugin getPosterPlugin(String className) {
-        MovieImagePlugin posterPlugin;
+    public MovieImagePlugin getImagePlugin(String className) {
+        MovieImagePlugin imagePlugin;
 
         try {
             Thread t = Thread.currentThread();
             ClassLoader cl = t.getContextClassLoader();
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
-            posterPlugin = pluginClass.newInstance();
+            imagePlugin = pluginClass.newInstance();
         } catch (Exception e) {
-            posterPlugin = new DefaultPosterPlugin();
-            logger.severe("Failed instanciating PosterPlugin: " + className);
+            imagePlugin = new DefaultImagePlugin();
+            logger.severe("Failed instanciating imagePlugin: " + className);
             logger.severe("Default poster plugin will be used instead.");
             e.printStackTrace();
         }
 
-        return posterPlugin;
+        return imagePlugin;
     }
 
-    public MovieImagePlugin getVideoImagePlugin(String className) {
-        MovieImagePlugin videoimagePlugin;
+    
 
-        try {
-            Thread t = Thread.currentThread();
-            ClassLoader cl = t.getContextClassLoader();
-            Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
-            videoimagePlugin = pluginClass.newInstance();
-        } catch (Exception e) {
-            videoimagePlugin = new DefaultVideoImagePlugin();
-            logger.severe("Failed instanciating VideoImagePlugin: " + className);
-            logger.severe("Default videoimage plugin will be used instead.");
-            e.printStackTrace();
-        }
-
-        return videoimagePlugin;
-    }
 
     public MovieImagePlugin getBackgroundPlugin(String className) {
         MovieImagePlugin backgroundPlugin;
@@ -1068,6 +1048,7 @@ public class MovieJukebox {
         return backgroundPlugin;
     }
 
+    
     public MovieListingPlugin getListingPlugin(String className) {
         MovieListingPlugin listingPlugin;
         try {
@@ -1084,18 +1065,19 @@ public class MovieJukebox {
 
         return listingPlugin;
     } // getListingPlugin()
+    
 
     /**
-     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function to allow for proxy connections.
+     * Create a thumbnail from the original poster file.
      * 
-     * @throws IOException
+     * @param thumbnailManager
+     * @param rootPath
+     * @param tempRootPath
+     * @param skinHome
+     * @param movie
+     * @param forceThumbnailOverwrite
      */
-    public static void downloadImage(File imageFile, String imageURL) throws IOException {
-        WebBrowser webBrowser = new WebBrowser();
-        webBrowser.downloadImage(imageFile, imageURL);
-    }
-
-    public static void createThumbnail(MovieImagePlugin thumbnailManager, String rootPath, String tempRootPath, String skinHome, Movie movie,
+    public static void createThumbnail(MovieImagePlugin imagePlugin, String rootPath, String tempRootPath, String skinHome, Movie movie,
                     boolean forceThumbnailOverwrite) {
         try {
             // Issue 201 : we now download to local temp directory
@@ -1108,7 +1090,7 @@ public class MovieJukebox {
             FileInputStream fis;
 
             if (!(new File(olddst).exists()) || forceThumbnailOverwrite || (new File(src).exists())) {
-                // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefor check to see if they exist in the original directory
+                // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (new File(src).exists()) {
                     logger.finest("New file exists");
                     fis = new FileInputStream(src);
@@ -1137,18 +1119,18 @@ public class MovieJukebox {
                     // Generate left & save as copy
                     logger.finest("Generating mirror thumbnail from " + src + " to " + dstMirror);
                     BufferedImage biMirror = bi;
-                    biMirror = thumbnailManager.generate(movie, bi, "left");
+                    biMirror = imagePlugin.generate(movie, bi, "thumbnails", "left");
                     GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                     // Generate right as per normal
                     logger.finest("Generating right thumbnail from " + src + " to " + dst);
-                    bi = thumbnailManager.generate(movie, bi, "right");
+                    bi = imagePlugin.generate(movie, bi, "thumbnails", "right");
                     GraphicTools.saveImageToDisk(bi, dst);
                 }
 
                 // Only generate the right image
                 if (perspectiveDirection.equalsIgnoreCase("right")) {
-                    bi = thumbnailManager.generate(movie, bi, "right");
+                    bi = imagePlugin.generate(movie, bi, "thumbnails", "right");
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, dst);
@@ -1157,7 +1139,7 @@ public class MovieJukebox {
 
                 // Only generate the left image
                 if (perspectiveDirection.equalsIgnoreCase("left")) {
-                    bi = thumbnailManager.generate(movie, bi, "left");
+                    bi = imagePlugin.generate(movie, bi, "thumbnails", "left");
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, dst);
@@ -1169,7 +1151,18 @@ public class MovieJukebox {
             e.printStackTrace();
         }
     }
+    
 
+    /**
+     * Create a detailed poster file from the original poster file
+     * 
+     * @param posterManager
+     * @param rootPath
+     * @param tempRootPath
+     * @param skinHome
+     * @param movie
+     * @param forcePosterOverwrite
+     */
     public static void createPoster(MovieImagePlugin posterManager, String rootPath, String tempRootPath, String skinHome, Movie movie,
                     boolean forcePosterOverwrite) {
         try {
@@ -1214,18 +1207,18 @@ public class MovieJukebox {
                     // Generate left & save as copy
                     logger.finest("Generating mirror thumbnail from " + src + " to " + dstMirror);
                     BufferedImage biMirror = bi;
-                    biMirror = posterManager.generate(movie, bi, "left");
+                    biMirror = posterManager.generate(movie, bi, "thumbnails", "left");
                     GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                     // Generate right as per normal
                     logger.finest("Generating right thumbnail from " + src + " to " + dst);
-                    bi = posterManager.generate(movie, bi, "right");
+                    bi = posterManager.generate(movie, bi, "thumbnails", "right");
                     GraphicTools.saveImageToDisk(bi, dst);
                 }
 
                 // Only generate the right image
                 if (perspectiveDirection.equalsIgnoreCase("right")) {
-                    bi = posterManager.generate(movie, bi, "right");
+                    bi = posterManager.generate(movie, bi, "thumbnails", "right");
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, dst);
@@ -1234,7 +1227,7 @@ public class MovieJukebox {
 
                 // Only generate the left image
                 if (perspectiveDirection.equalsIgnoreCase("left")) {
-                    bi = posterManager.generate(movie, bi, "left");
+                    bi = posterManager.generate(movie, bi, "thumbnails", "left");
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, dst);

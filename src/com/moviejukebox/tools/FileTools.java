@@ -225,4 +225,18 @@ public class FileTools {
             
         return filename;
     }
+    
+    /**
+     * Download the image for the specified URL into the specified file. 
+     * Utilises the WebBrowser downloadImage function to allow for proxy connections.
+     * 
+     * @param imageFile
+     * @param imageURL
+     * @throws IOException
+     */
+    public static void downloadImage(File imageFile, String imageURL) throws IOException {
+        WebBrowser webBrowser = new WebBrowser();
+        webBrowser.downloadImage(imageFile, imageURL);
+    }
+
 }

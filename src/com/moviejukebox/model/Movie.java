@@ -53,13 +53,6 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
     private int rating = -1;
-    private String posterURL = UNKNOWN;
-    private String posterSubimage = UNKNOWN;
-    private String fanartURL = UNKNOWN;
-    private String posterFilename = UNKNOWN;
-    private String detailPosterFilename = UNKNOWN;
-    private String thumbnailFilename = UNKNOWN;
-    private String fanartFilename = UNKNOWN;
     private String plot = UNKNOWN;
     private String outline = UNKNOWN;
     private String director = UNKNOWN;
@@ -92,6 +85,16 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
+    // Graphics URLs & files
+    private String posterURL = UNKNOWN; // The original, unaltered, poster
+    private String posterSubimage = UNKNOWN; // A cut up version of the poster (not used)
+    private String posterFilename = UNKNOWN; // The poster filename
+    private String detailPosterFilename = UNKNOWN; // The resized poster for skins
+    private String thumbnailFilename = UNKNOWN; // The thumbnail version of the poster for skins
+    private String fanartURL = UNKNOWN; // The fanart URL
+    private String fanartFilename = UNKNOWN; // The resized fanart file
+    private String bannerURL = UNKNOWN; // The TV Show banner URL
+    private String bannerFilename = UNKNOWN; // The resized banner file
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
@@ -325,14 +328,6 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
     public String getPlot() {
         return plot;
-    }
-
-    public String getPosterURL() {
-        return posterURL;
-    }
-
-    public String getPosterSubimage() {
-        return posterSubimage;
     }
 
     public String getPrevious() {
@@ -661,26 +656,6 @@ public class Movie implements Comparable<Movie>, Cloneable {
         }
     }
 
-    public void setPosterURL(String url) {
-        if (url == null) {
-            url = UNKNOWN;
-        }
-        if (!url.equalsIgnoreCase(this.posterURL)) {
-            this.isDirty = true;
-            this.posterURL = url;
-        }
-    }
-
-    public void setPosterSubimage(String subimage) {
-        if (subimage == null) {
-            subimage = UNKNOWN;
-        }
-        if (!subimage.equalsIgnoreCase(this.posterSubimage)) {
-            this.isDirty = true;
-            this.posterSubimage = subimage;
-        }
-    }
-
     public void setPrevious(String previous) {
         if (previous == null) {
             previous = UNKNOWN;
@@ -871,6 +846,8 @@ public class Movie implements Comparable<Movie>, Cloneable {
         sb.append("[rating=").append(rating).append("]");
         sb.append("[top250=").append(top250).append("]");
         sb.append("[posterURL=").append(posterURL).append("]");
+        sb.append("[bannerURL=").append(bannerURL).append("]");
+        sb.append("[fanartURL=").append(fanartURL).append("]");
         sb.append("[plot=").append(plot).append("]");
         sb.append("[outline=").append(outline).append("]");
         sb.append("[director=").append(director).append("]");
@@ -896,39 +873,6 @@ public class Movie implements Comparable<Movie>, Cloneable {
         sb.append("[prebuf=").append(prebuf).append("]");
         sb.append("]");
         return sb.toString();
-    }
-
-    public void setThumbnailFilename(String thumbnailFilename) {
-        if (thumbnailFilename == null) {
-            thumbnailFilename = UNKNOWN;
-        }
-        this.thumbnailFilename = thumbnailFilename;
-    }
-
-    public String getThumbnailFilename() {
-        return this.thumbnailFilename;
-    }
-
-    public String getPosterFilename() {
-        return posterFilename;
-    }
-
-    public void setPosterFilename(String posterFilename) {
-        if (posterFilename == null) {
-            posterFilename = UNKNOWN;
-        }
-        this.posterFilename = posterFilename;
-    }
-
-    public String getDetailPosterFilename() {
-        return detailPosterFilename;
-    }
-
-    public void setDetailPosterFilename(String detailPosterFilename) {
-        if (detailPosterFilename == null) {
-            detailPosterFilename = UNKNOWN;
-        }
-        this.detailPosterFilename = detailPosterFilename;
     }
 
     /**
@@ -987,28 +931,6 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
     public String getVideoType() {
         return this.videoType;
-    }
-
-    public String getFanartFilename() {
-        return fanartFilename;
-    }
-
-    public void setFanartFilename(String fanartFilename) {
-        if (fanartFilename == null) {
-            fanartFilename = UNKNOWN;
-        }
-        this.fanartFilename = fanartFilename;
-    }
-
-    public String getFanartURL() {
-        return fanartURL;
-    }
-
-    public void setFanartURL(String fanartURL) {
-        if (fanartURL == null) {
-            fanartURL = UNKNOWN;
-        }
-        this.fanartURL = fanartURL;
     }
 
     public String getLibraryPath() {
@@ -1174,4 +1096,121 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public void setSetMaster(boolean isSetMaster) {
         this.isSetMaster = isSetMaster;
     }
+
+    // ***** All the graphics methods go here *****
+
+    // ***** Posters
+    public String getPosterURL() {
+        return posterURL;
+    }
+
+    public void setPosterURL(String url) {
+        if (url == null) {
+            url = UNKNOWN;
+        }
+        if (!url.equalsIgnoreCase(this.posterURL)) {
+            this.isDirty = true;
+            this.posterURL = url;
+        }
+    }
+
+    public String getPosterFilename() {
+        return posterFilename;
+    }
+
+    public void setPosterFilename(String posterFilename) {
+        if (posterFilename == null) {
+            posterFilename = UNKNOWN;
+        }
+        this.posterFilename = posterFilename;
+    }
+
+    public String getDetailPosterFilename() {
+        return detailPosterFilename;
+    }
+
+    public void setDetailPosterFilename(String detailPosterFilename) {
+        if (detailPosterFilename == null) {
+            detailPosterFilename = UNKNOWN;
+        }
+        this.detailPosterFilename = detailPosterFilename;
+    }
+
+    // ***** Poster Subimage
+    public String getPosterSubimage() {
+        return posterSubimage;
+    }
+
+    public void setPosterSubimage(String subimage) {
+        if (subimage == null) {
+            subimage = UNKNOWN;
+        }
+        if (!subimage.equalsIgnoreCase(this.posterSubimage)) {
+            this.isDirty = true;
+            this.posterSubimage = subimage;
+        }
+    }
+
+    // ***** Thumbnails
+    public String getThumbnailFilename() {
+        return this.thumbnailFilename;
+    }
+
+    public void setThumbnailFilename(String thumbnailFilename) {
+        if (thumbnailFilename == null) {
+            thumbnailFilename = UNKNOWN;
+        }
+        this.thumbnailFilename = thumbnailFilename;
+    }
+
+    // ***** Fanart
+    public String getFanartURL() {
+        return fanartURL;
+    }
+
+    public void setFanartURL(String fanartURL) {
+        if (fanartURL == null) {
+            fanartURL = UNKNOWN;
+        }
+        this.fanartURL = fanartURL;
+    }
+
+    public String getFanartFilename() {
+        return fanartFilename;
+    }
+
+    public void setFanartFilename(String fanartFilename) {
+        if (fanartFilename == null) {
+            fanartFilename = UNKNOWN;
+        }
+        this.fanartFilename = fanartFilename;
+    }
+
+    // ***** Banners
+    public String getBannerURL() {
+        return bannerURL;
+    }
+
+    public void setBannerURL(String url) {
+        if (url == null) {
+            url = UNKNOWN;
+        }
+        if (!url.equalsIgnoreCase(this.bannerURL)) {
+            this.isDirty = true;
+            this.bannerURL = url;
+        }
+    }
+
+    public String getBannerFilename() {
+        return bannerFilename;
+    }
+
+    public void setBannerFilename(String bannerFilename) {
+        if (bannerFilename == null) {
+            bannerFilename = UNKNOWN;
+        }
+        this.bannerFilename = bannerFilename;
+    }
+
+    // ***** END of graphics *****
 }

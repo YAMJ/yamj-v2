@@ -93,87 +93,93 @@ public class MovieJukeboxXMLWriter {
                 XMLEvent e = r.nextEvent();
                 String tag = e.toString();
 
-                if (tag.startsWith("<id ")) {
+                if (tag.toLowerCase().startsWith("<id ")) {
                     String movieDatabase = ImdbPlugin.IMDB_PLUGIN_ID;
                     StartElement start = e.asStartElement();
                     for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
                         Attribute attr = i.next();
                         String ns = attr.getName().toString();
 
-                        if ("movieDatabase".equals(ns)) {
+                        if (ns.equalsIgnoreCase("movieDatabase")) {
                             movieDatabase = attr.getValue();
                             continue;
                         }
                     }
                     movie.setId(movieDatabase, parseCData(r));
                 }
-                if (tag.equals("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
+                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
                     movie.setBaseName(parseCData(r));
                 }
-                if (tag.equals("<title>")) {
+                if (tag.equalsIgnoreCase("<title>")) {
                     movie.setTitle(parseCData(r));
                 }
-                if (tag.equals("<titleSort>")) {
+                if (tag.equalsIgnoreCase("<titleSort>")) {
                     movie.setTitleSort(parseCData(r));
                 }
-                if (tag.equals("<originalTitle>")) {
+                if (tag.equalsIgnoreCase("<originalTitle>")) {
                     movie.setOriginalTitle(parseCData(r));
                 }
-                if (tag.startsWith("<year ") || tag.equals("<year>")) {
+                if (tag.toLowerCase().startsWith("<year ") || tag.equalsIgnoreCase("<year>")) {
                     movie.setYear(parseCData(r));
                 }
-                if (tag.equals("<releaseDate>")) {
+                if (tag.equalsIgnoreCase("<releaseDate>")) {
                     movie.setReleaseDate(parseCData(r));
                 }
-                if (tag.equals("<rating>")) {
+                if (tag.equalsIgnoreCase("<rating>")) {
                     movie.setRating(Integer.parseInt(parseCData(r)));
                 }
-                if (tag.equals("<top250>")) {
+                if (tag.equalsIgnoreCase("<top250>")) {
                     movie.setTop250(Integer.parseInt(parseCData(r)));
                 }
-                if (tag.equals("<posterURL>")) {
+                if (tag.equalsIgnoreCase("<posterURL>")) {
                     movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<posterSubimage>")) {
+                if (tag.equalsIgnoreCase("<posterSubimage>")) {
                     movie.setPosterSubimage(parseCData(r));
                 }
-                if (tag.equals("<fanartURL>")) {
+                if (tag.equalsIgnoreCase("<fanartURL>")) {
                     movie.setFanartURL(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<posterFile>")) {
+                if (tag.equalsIgnoreCase("<bannerURL>")) {
+                    movie.setBannerURL(HTMLTools.decodeUrl(parseCData(r)));
+                }
+                if (tag.equalsIgnoreCase("<bannerFile>")) {
+                    movie.setBannerFilename(HTMLTools.decodeUrl(parseCData(r)));
+                }
+                if (tag.equalsIgnoreCase("<posterFile>")) {
                     movie.setPosterFilename(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<detailPosterFile>")) {
+                if (tag.equalsIgnoreCase("<detailPosterFile>")) {
                     movie.setDetailPosterFilename(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<thumbnail>")) {
+                if (tag.equalsIgnoreCase("<thumbnail>")) {
                     movie.setThumbnailFilename(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<fanartFile>")) {
+                if (tag.equalsIgnoreCase("<fanartFile>")) {
                     movie.setFanartFilename(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<plot>")) {
+                if (tag.equalsIgnoreCase("<plot>")) {
                     movie.setPlot(parseCData(r));
                 }
-                if (tag.equals("<outline>")) {
+                if (tag.equalsIgnoreCase("<outline>")) {
                     movie.setOutline(parseCData(r));
                 }
-                if (tag.startsWith("<director ") || tag.equals("<director>")) {
+                if (tag.toLowerCase().startsWith("<director ") || tag.equalsIgnoreCase("<director>")) {
                     movie.setDirector(parseCData(r));
                 }
-                if (tag.startsWith("<country ") || tag.equals("<country>")) {
+                if (tag.toLowerCase().startsWith("<country ") || tag.equalsIgnoreCase("<country>")) {
                     movie.setCountry(parseCData(r));
                 }
-                if (tag.equals("<company>")) {
+                if (tag.equalsIgnoreCase("<company>")) {
                     movie.setCompany(parseCData(r));
                 }
-                if (tag.equals("<runtime>")) {
+                if (tag.equalsIgnoreCase("<runtime>")) {
                     movie.setRuntime(parseCData(r));
                 }
-                if (tag.startsWith("<genre ") || tag.equals("<genre>")) {
+                if (tag.toLowerCase().startsWith("<genre ") || tag.equalsIgnoreCase("<genre>")) {
                     movie.addGenre(parseCData(r));
                 }
-                if (tag.startsWith("<set ") || tag.equals("<set>")) {
+                if (tag.toLowerCase().startsWith("<set ") || tag.equalsIgnoreCase("<set>")) {
                     // String set = null;
                     Integer order = null;
 
@@ -182,73 +188,72 @@ public class MovieJukeboxXMLWriter {
                         Attribute attr = i.next();
                         String ns = attr.getName().toString();
 
-                        if ("order".equals(ns)) {
+                        if (ns.equalsIgnoreCase("order")) {
                             order = Integer.parseInt(attr.getValue());
                             continue;
                         }
                     }
-
                     movie.addSet(parseCData(r), order);
                 }
-                if (tag.startsWith("<actor ") || tag.equals("<actor>")) {
+                if (tag.toLowerCase().startsWith("<actor ") || tag.equalsIgnoreCase("<actor>")) {
                     String actor = parseCData(r);
                     movie.addActor(actor);
                 }
-                if (tag.equals("<certification>")) {
+                if (tag.equalsIgnoreCase("<certification>")) {
                     movie.setCertification(parseCData(r));
                 }
-                if (tag.equals("<season>")) {
+                if (tag.equalsIgnoreCase("<season>")) {
                     movie.setSeason(Integer.parseInt(parseCData(r)));
                 }
-                if (tag.equals("<language>")) {
+                if (tag.equalsIgnoreCase("<language>")) {
                     movie.setLanguage(parseCData(r));
                 }
-                if (tag.equals("<subtitles>")) {
+                if (tag.equalsIgnoreCase("<subtitles>")) {
                     movie.setSubtitles(parseCData(r).equalsIgnoreCase("YES"));
                 }
-                if (tag.equals("<trailerExchange>")) {
+                if (tag.equalsIgnoreCase("<trailerExchange>")) {
                     movie.setTrailerExchange(parseCData(r).equalsIgnoreCase("YES"));
                 }
-                if (tag.equals("<container>")) {
+                if (tag.equalsIgnoreCase("<container>")) {
                     movie.setContainer(parseCData(r));
                 }
-                if (tag.equals("<videoCodec>")) {
+                if (tag.equalsIgnoreCase("<videoCodec>")) {
                     movie.setVideoCodec(parseCData(r));
                 }
-                if (tag.equals("<audioCodec>")) {
+                if (tag.equalsIgnoreCase("<audioCodec>")) {
                     movie.setAudioCodec(parseCData(r));
                 }
-                if (tag.equals("<audioChannels>")) {
+                if (tag.equalsIgnoreCase("<audioChannels>")) {
                     movie.setAudioChannels(parseCData(r));
                 }
-                if (tag.equals("<resolution>")) {
+                if (tag.equalsIgnoreCase("<resolution>")) {
                     movie.setResolution(parseCData(r));
                 }
-                if (tag.equals("<videoSource>")) {
+                if (tag.equalsIgnoreCase("<videoSource>")) {
                     movie.setVideoSource(parseCData(r));
                 }
-                if (tag.equals("<videoOutput>")) {
+                if (tag.equalsIgnoreCase("<videoOutput>")) {
                     movie.setVideoOutput(parseCData(r));
                 }
-                if (tag.equals("<fps>")) {
+                if (tag.equalsIgnoreCase("<fps>")) {
                     movie.setFps(Float.parseFloat(parseCData(r)));
                 }
-                if (tag.equals("<first>")) {
+                if (tag.equalsIgnoreCase("<first>")) {
                     movie.setFirst(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<previous>")) {
+                if (tag.equalsIgnoreCase("<previous>")) {
                     movie.setPrevious(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<next>")) {
+                if (tag.equalsIgnoreCase("<next>")) {
                     movie.setNext(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<last>")) {
+                if (tag.equalsIgnoreCase("<last>")) {
                     movie.setLast(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equals("<libraryDescription>")) {
+                if (tag.equalsIgnoreCase("<libraryDescription>")) {
                     movie.setLibraryDescription(parseCData(r));
                 }
-                if (tag.equals("<prebuf>")) {
+                if (tag.equalsIgnoreCase("<prebuf>")) {
                     String prebuf = parseCData(r);
                     if (prebuf != null) {
                         try {
@@ -258,7 +263,7 @@ public class MovieJukeboxXMLWriter {
                     }
                 }
 
-                if (tag.startsWith("<file ")) {
+                if (tag.toLowerCase().startsWith("<file ")) {
                     MovieFile mf = new MovieFile();
                     mf.setNewFile(false);
 
@@ -267,64 +272,64 @@ public class MovieJukeboxXMLWriter {
                         Attribute attr = i.next();
                         String ns = attr.getName().toString();
 
-                        if ("title".equals(ns)) {
+                        if (ns.equalsIgnoreCase("title")) {
                             mf.setTitle(attr.getValue());
                             continue;
                         }
 
-                        if ("firstPart".equals(ns)) {
+                        if (ns.equalsIgnoreCase("firstPart")) {
                             mf.setPart(Integer.parseInt(attr.getValue()));
                             continue;
                         }
 
-                        if ("lastPart".equals(ns)) {
+                        if (ns.equalsIgnoreCase("lastPart")) {
                             mf.setLastPart(Integer.parseInt(attr.getValue()));
                             continue;
                         }
 
-                        if ("subtitlesExchange".equals(ns)) {
+                        if (ns.equalsIgnoreCase("subtitlesExchange")) {
                             mf.setSubtitlesExchange(attr.getValue().equalsIgnoreCase("YES"));
                             continue;
                         }
                     }
 
-                    while (!r.peek().toString().equals("</file>")) {
+                    while (!r.peek().toString().equalsIgnoreCase("</file>")) {
                         e = r.nextEvent();
                         tag = e.toString();
-                        if (tag.equals("<fileURL>")) {
+                        if (tag.equalsIgnoreCase("<fileURL>")) {
                             mf.setFilename(parseCData(r));
-                        } else if (tag.startsWith("<filePlot")) {
+                        } else if (tag.toLowerCase().startsWith("<fileplot")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
                             for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
                                 Attribute attr = i.next();
                                 String ns = attr.getName().toString();
 
-                                if ("part".equals(ns)) {
+                                if (ns.equalsIgnoreCase("part")) {
                                     part = Integer.parseInt(attr.getValue());
                                 }
                             }
                             mf.setPlot(part, parseCData(r));
-                        } else if (tag.startsWith("<fileImageURL")) {
+                        } else if (tag.toLowerCase().startsWith("<fileimageurl")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
                             for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
                                 Attribute attr = i.next();
                                 String ns = attr.getName().toString();
 
-                                if ("part".equals(ns)) {
+                                if (ns.equalsIgnoreCase("part")) {
                                     part = Integer.parseInt(attr.getValue());
                                 }
                             }
                             mf.setVideoImageURL(part, parseCData(r));
-                        } else if (tag.startsWith("<fileImageFile")) {
+                        } else if (tag.toLowerCase().startsWith("<fileimagefile")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
                             for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
                                 Attribute attr = i.next();
                                 String ns = attr.getName().toString();
 
-                                if ("part".equals(ns)) {
+                                if (ns.equalsIgnoreCase("part")) {
                                     part = Integer.parseInt(attr.getValue());
                                 }
                             }
@@ -335,7 +340,7 @@ public class MovieJukeboxXMLWriter {
                     movie.addMovieFile(mf);
                 }
 
-                if (tag.startsWith("<extra ")) {
+                if (tag.toLowerCase().startsWith("<extra ")) {
                     ExtraFile ef = new ExtraFile();
                     ef.setNewFile(false);
 
@@ -344,7 +349,7 @@ public class MovieJukeboxXMLWriter {
                         Attribute attr = i.next();
                         String ns = attr.getName().toString();
 
-                        if (ns.equals("title")) {
+                        if (ns.equalsIgnoreCase("title")) {
                             ef.setTitle(attr.getValue());
                             continue;
                         }
@@ -512,7 +517,7 @@ public class MovieJukeboxXMLWriter {
             Map<String, List<Movie>> index = category.getValue();
             writer.writeStartElement("category");
             writer.writeAttribute("name", categoryKey);
-            if (categoryKey.equals(categoryName)) {
+            if (categoryKey.equalsIgnoreCase(categoryName)) {
                 writer.writeAttribute("current", "true");
             }
 
@@ -530,7 +535,7 @@ public class MovieJukeboxXMLWriter {
                 writer.writeAttribute("name", akey);
 
                 // if currently writing this page then add current attribute with value true
-                if (encakey.equals(key)) {
+                if (encakey.equalsIgnoreCase(key)) {
                     writer.writeAttribute("current", "true");
                     writer.writeAttribute("first", prefix + '1');
                     writer.writeAttribute("previous", prefix + previous);
@@ -588,6 +593,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("thumbnail");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getThumbnailFilename())));
+        writer.writeEndElement();
+        writer.writeStartElement("banner");
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBannerFilename())));
         writer.writeEndElement();
         writer.writeStartElement("certification");
         writer.writeCharacters(movie.getCertification());
@@ -663,14 +671,17 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("posterURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getPosterURL()));
         writer.writeEndElement();
+        writer.writeStartElement("posterFile");
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getPosterFilename())));
+        writer.writeEndElement();
         writer.writeStartElement("posterSubimage");
         writer.writeCharacters(movie.getPosterSubimage());
         writer.writeEndElement();
         writer.writeStartElement("fanartURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getFanartURL()));
         writer.writeEndElement();
-        writer.writeStartElement("posterFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getPosterFilename())));
+        writer.writeStartElement("fanartFile");
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getFanartFilename())));
         writer.writeEndElement();
         writer.writeStartElement("detailPosterFile");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getDetailPosterFilename())));
@@ -678,8 +689,11 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("thumbnail");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getThumbnailFilename())));
         writer.writeEndElement();
-        writer.writeStartElement("fanartFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getFanartFilename())));
+        writer.writeStartElement("bannerURL");
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getBannerURL()));
+        writer.writeEndElement();
+        writer.writeStartElement("bannerFile");
+        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBannerFilename())));
         writer.writeEndElement();
         writer.writeStartElement("plot");
         writer.writeCharacters(movie.getPlot());
