@@ -13,6 +13,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #632 Disable OpenSubtitle plugin if Internet scraping is turned off in library.xml
   - Enhancement  #665 Specify technical info for video files
   - Enhancement  #686 Video Image Files created when no image found
+  - Enhancement  #711 Download season Banners
   - Fixed defect #767 Link to video_ts must be case insensitive
   - Enhancement  #781 Detect the change of path for a file and update the XML
   - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types

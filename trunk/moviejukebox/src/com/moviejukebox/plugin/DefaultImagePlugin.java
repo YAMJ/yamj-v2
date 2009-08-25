@@ -28,73 +28,84 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
-public class DefaultThumbnailPlugin implements MovieImagePlugin {
+public class DefaultImagePlugin implements MovieImagePlugin {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String skinHome;
     private boolean addReflectionEffect;
     private boolean addPerspective;
-    private boolean normalizeThumbnails;
+    private boolean imageNormalize;
     private boolean addHDLogo;
     private boolean addTVLogo;
     private boolean addLanguage;
-    private int thumbWidth;
-    private int thumbHeight;
+    private int imageWidth;
+    private int imageHeight;
     private float ratio;
     private boolean highdefDiff;
 
-    public DefaultThumbnailPlugin() {
+    public DefaultImagePlugin() {
+        // Generic properties
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        thumbWidth = Integer.parseInt(PropertiesUtil.getProperty("thumbnails.width", "180"));
-        thumbHeight = Integer.parseInt(PropertiesUtil.getProperty("thumbnails.height", "260"));
-        addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.reflection", "true"));
-        addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.perspective", "false"));
-        normalizeThumbnails = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.normalize", "false"));
-        addHDLogo = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.logoHD", "false"));
-        addTVLogo = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.logoTV", "false"));
-        addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty("thumbnails.language", "false"));
-        ratio = (float) thumbWidth / (float) thumbHeight;
         highdefDiff = Boolean.parseBoolean(PropertiesUtil.getProperty("highdef.differentiate", "false"));
     }
 
     @Override
-    public BufferedImage generate(Movie movie, BufferedImage moviePoster, String perspectiveDirection) {
-        BufferedImage bi = moviePoster;
+    public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String imageType, String perspectiveDirection) {
+        imageType = imageType.toLowerCase();
         
-        // Check if we need to cut the poster into a sub image            
-        String posterSubimage = movie.getPosterSubimage();
-
-        if (posterSubimage != null && !posterSubimage.isEmpty() && !posterSubimage.equalsIgnoreCase("Unknown")) {
-            StringTokenizer st = new StringTokenizer(posterSubimage, ", ");
-            int x = Integer.parseInt(st.nextToken());
-            int y = Integer.parseInt(st.nextToken());
-            int l = Integer.parseInt(st.nextToken());
-            int h = Integer.parseInt(st.nextToken());
-
-            double pWidth = (double) bi.getWidth() / 100;
-            double pHeight = (double) bi.getHeight() / 100;
-
-            bi = bi.getSubimage((int)(x*pWidth), (int)(y*pHeight), (int)(l*pWidth), (int)(h*pHeight));
+        if ("posters|thumbnails|banners|videoimages".indexOf(imageType) < 0) {
+            // This is an error with the calling function
+            System.err.println("YAMJ Error with calling function in DefaultImagePlugin.java");
+            return imageGraphic;
         }
+        
+        // Specific Properties (dependent upon the imageType)
+        imageWidth = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".width", "400"));
+        imageHeight = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".height", "600"));
+        addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".reflection", "true"));
+        addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));
+        imageNormalize = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".normalize", "false"));
+        addHDLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoHD", "false"));
+        addTVLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoTV", "false"));
+        addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
+        ratio = (float)imageWidth / (float)imageHeight;
 
-        if (moviePoster != null) {
-            int origWidth = moviePoster.getWidth();
-            int origHeight = moviePoster.getHeight();
+        BufferedImage bi = imageGraphic;
+
+        if (imageGraphic != null) {
+            int origWidth = imageGraphic.getWidth();
+            int origHeight = imageGraphic.getHeight();
             boolean skipResize = false;
-            if (origWidth < thumbWidth && origHeight < thumbHeight && !addHDLogo && !addLanguage) {
+            if (origWidth < imageWidth && origHeight < imageHeight && !addHDLogo && !addLanguage) {
                 skipResize = true;
             }
 
-            if (normalizeThumbnails) {
+            // Check if we need to cut the poster into a sub image
+            String posterSubimage = movie.getPosterSubimage();
+
+            if (posterSubimage != null && !posterSubimage.isEmpty() && !posterSubimage.equalsIgnoreCase(Movie.UNKNOWN)) {
+                StringTokenizer st = new StringTokenizer(posterSubimage, ", ");
+                int x = Integer.parseInt(st.nextToken());
+                int y = Integer.parseInt(st.nextToken());
+                int l = Integer.parseInt(st.nextToken());
+                int h = Integer.parseInt(st.nextToken());
+
+                double pWidth = (double)bi.getWidth() / 100;
+                double pHeight = (double)bi.getHeight() / 100;
+
+                bi = bi.getSubimage((int)(x * pWidth), (int)(y * pHeight), (int)(l * pWidth), (int)(h * pHeight));
+            }
+
+            if (imageNormalize) {
                 if (skipResize) {
-                    bi = GraphicTools.scaleToSizeNormalized((int) (origHeight * ratio), origHeight, bi);
+                    bi = GraphicTools.scaleToSizeNormalized((int)(origHeight * ratio), origHeight, bi);
                 } else {
-                    bi = GraphicTools.scaleToSizeNormalized(thumbWidth, thumbHeight, bi);
+                    bi = GraphicTools.scaleToSizeNormalized(imageWidth, imageHeight, bi);
                 }
             } else if (!skipResize) {
-                bi = GraphicTools.scaleToSize(thumbWidth, thumbHeight, bi);
+                bi = GraphicTools.scaleToSize(imageWidth, imageHeight, bi);
             }
-            
+
             bi = drawLogos(movie, bi);
 
             if (addReflectionEffect) {
@@ -108,7 +119,16 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
 
         return bi;
     }
-    
+
+    /**
+     * Draw the TV and HD logos onto the image
+     * 
+     * @param movie
+     *            The source movie
+     * @param bi
+     *            The image to draw on
+     * @return The new image with the added logos
+     */
     protected BufferedImage drawLogos(Movie movie, BufferedImage bi) {
         if (addHDLogo) {
             bi = drawLogoHD(movie, bi, addTVLogo);
@@ -121,16 +141,27 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
         if (addLanguage) {
             bi = drawLanguage(movie, bi);
         }
-        
+
         return bi;
     }
-    
+
+    /**
+     * Draw the appropriate HD logo onto the image file
+     * 
+     * @param movie
+     *            The source movie
+     * @param bi
+     *            The original image
+     * @param addOtherLogo
+     *            Do we need to draw the TV logo as well?
+     * @return The new image file
+     */
     private BufferedImage drawLogoHD(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
         // If the movie isn't high definition, then quit
         if (!movie.isHD()) {
             return bi;
         }
-        
+
         String logoName;
         File logoFile;
 
@@ -174,7 +205,17 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
         return bi;
     }
 
-    // Drawing a TV label on the TV Series
+    /**
+     * Draw the TV logo onto the image file
+     * 
+     * @param movie
+     *            The source movie
+     * @param bi
+     *            The original image
+     * @param addOtherLogo
+     *            Do we need to draw the HD logo as well?
+     * @return The new image file
+     */
     private BufferedImage drawLogoTV(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
         if (movie.isTVShow()) {
             try {
@@ -197,9 +238,19 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
                 e.printStackTrace();
             }
         }
-        
+
         return bi;
     }
+
+    /**
+     * Draw the language logo to the image
+     * 
+     * @param movie
+     *            Movie file, used to determine the language
+     * @param bi
+     *            The image file to draw on
+     * @return The new image file with the language flag on it
+     */
 
     private BufferedImage drawLanguage(Movie movie, BufferedImage bi) {
         String lang = movie.getLanguage();
@@ -211,14 +262,24 @@ public class DefaultThumbnailPlugin implements MovieImagePlugin {
                 Graphics g = bi.getGraphics();
                 g.drawImage(biLang, 1, 1, null);
             } catch (IOException e) {
-                logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
+                logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + lang
+                                + ".png) is in the resources/languages directory.");
             }
         }
 
         return bi;
     }
-    
+
+    /**
+     * Calculate the path to the resources (skin path)
+     * 
+     * @return path to the resource directory
+     */
     protected String getResourcesPath() {
         return skinHome + File.separator + "resources" + File.separator;
+    }
+
+    protected BufferedImage drawPerspective(Movie movie, BufferedImage bi) {
+        return bi;
     }
 }
