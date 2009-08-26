@@ -584,7 +584,6 @@ public class Library implements Map<String, Movie> {
                     index.addMovie(categoriesMap.get("Extras"), movie);
                 }
             } else {
-                // TODO: Split into 720/1080
                 if (movie.isHD()) {
                     if (splitHD) {
                         // Split the HD category into two categories: HD-720 and HD-1080

@@ -138,7 +138,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 if (movie.getPosterURL().equals(Movie.UNKNOWN)) {
                     String urlNormal = null;
                     String urlBanner = null;
-                    includeWideBanners = true; // TODO: DEBUG REMOVE THIS LINE
 
                     if (!banners.getSeasonList().isEmpty()) {
                         for (Banner banner : banners.getSeasonList()) {
