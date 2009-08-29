@@ -52,6 +52,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
         dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
     }
 
     @Override
@@ -179,6 +180,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setBannerURL(urlBanner);
                     }
                 }
+                
+                // TODO remove this once all skins are using the new fanart properties
+                downloadFanart = checkDownloadFanart(movie.isTVShow());
+                
                 if (downloadFanart && movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                     String url = null;
                     if (!banners.getFanartList().isEmpty()) {
