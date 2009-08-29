@@ -44,6 +44,8 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #936 Fixed parsing of Kinopoisk site after redesign
   - Fixed defect #939 Apple Trailers incorrectly named
   - Fixed defect #943 Apple Trailers no longer work
+  - Enhancement  #947 Separate download of Movie/TV Show fanart
+  - Enhancement  #960 Separate fanart sizes for TV and Movie fanart
 
 MovieJukebox 1.0.17 beta
 ------------------------

@@ -47,7 +47,7 @@ public class PropertiesUtil {
             props.load(reader);
 
         } catch (IOException e) {
-            logger.severe("Failed loading file " + streamName + ": Please check your configuration. The moviejukebox.properties should be in the classpath.");
+            logger.severe("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
             return false;
         }
         return true;

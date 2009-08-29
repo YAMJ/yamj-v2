@@ -49,7 +49,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         perfectMatch                = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
         preferredCountry            = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot                    = PropertiesUtil.getProperty("imdb.plot", "short");
-        downloadFanart              = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+        downloadFanart              = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
         fanartToken                 = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
     }
@@ -416,13 +416,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 updateTVShowInfo(movie);
             }
 
+            // TODO: Remove this check at some point when all skins have moved over to the new property
+            downloadFanart = checkDownloadFanart(movie.isTVShow());
+            
             if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
-
         } catch (Exception e) {
             logger.severe("Failed retreiving IMDb rating for movie : " + movie.getId(IMDB_PLUGIN_ID));
             e.printStackTrace();
@@ -543,5 +545,28 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 logger.finer("No Imdb Id found in nfo !");
             }
         }
+    }
+    
+    /**
+     * Checks for older fanart property in case the skin hasn't been updated.
+     * TODO: Remove this procedure at some point 
+     * @return true if the fanart is to be downloaded, or false otherwise
+     */
+    public static boolean checkDownloadFanart(boolean isTvShow) {
+        String fanartProperty = null;
+        boolean downloadFanart = false;
+        
+        if (isTvShow) 
+            fanartProperty = PropertiesUtil.getProperty("fanart.tv.download");
+        else
+            fanartProperty = PropertiesUtil.getProperty("fanart.movie.download");
+        
+        // If this is null, then the property wasn't found, so look for the original
+        if (fanartProperty == null)
+            downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+        else
+            downloadFanart = Boolean.parseBoolean(fanartProperty);
+
+        return downloadFanart;
     }
 }

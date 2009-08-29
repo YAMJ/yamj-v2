@@ -47,6 +47,7 @@ import com.moviejukebox.plugin.AppleTrailersPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
+import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
@@ -75,7 +76,8 @@ public class MovieJukebox {
     private String detailsDirName;
     private boolean forceThumbnailOverwrite;
     private boolean forcePosterOverwrite;
-    private boolean fanartDownload;
+    private boolean fanartMovieDownload;
+    private boolean fanartTvDownload;
     private boolean videoImagesDownload;
     private boolean includeWideBanners;
     private boolean moviejukeboxListing;
@@ -305,7 +307,8 @@ public class MovieJukebox {
         this.forceThumbnailOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceThumbnailsOverwrite", "false"));
         this.forcePosterOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forcePostersOverwrite", "false"));
         this.skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        this.fanartDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+        this.fanartMovieDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));        
+        this.fanartTvDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
 
         File f = new File(source);
         if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -479,15 +482,19 @@ public class MovieJukebox {
                     updateVideoImages(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
 
-                // Get Fanart if requested
+                // TODO remove this check once all skins have transitioned to the new format
+                fanartMovieDownload = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
+                
+                // Get Fanart only if requested
                 // Note that the FanartScanner will check if the file is newer / different
-                if (fanartDownload) {
+                if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
                     FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
                 
                 // Get Banner if requested and is a TV show
                 if (includeWideBanners && movie.isTVShow()) {
                     BannerScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                    updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
 
                 // Get subtitle
@@ -836,10 +843,10 @@ public class MovieJukebox {
 
     /**
      * Update the movie poster for the specified movie.
-     * 
-     * When an existing thumbnail is found for the movie, it is not overwriten, unless the mjb.forceThumbnailOverwrite is set to true in the property file.
-     * 
-     * When the specified movie does not contain a valid URL for the poster, a dummy image is used instead.
+     * When an existing thumbnail is found for the movie, it is not overwritten, 
+     * unless the mjb.forceThumbnailOverwrite is set to true in the property file.
+     * When the specified movie does not contain a valid URL for the poster, 
+     * a dummy image is used instead.
      * 
      * @param tempJukeboxDetailsRoot
      */
@@ -868,6 +875,44 @@ public class MovieJukebox {
                 } catch (Exception e) {
                     logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
+                }
+            }
+        }
+    }
+
+    /**
+     * Update the banner for the specified TV Show.
+     * When an existing banner is found for the movie, it is not overwritten, 
+     * unless the mjb.forcePosterOverwrite is set to true in the property file.
+     * When the specified movie does not contain a valid URL for the banner, 
+     * a dummy image is used instead.
+     * 
+     * @param tempJukeboxDetailsRoot
+     */
+    private void updateTvBanner(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+        String bannerFilename = FileTools.makeSafeFilename(movie.getBannerFilename());
+        File bannerFile = new File(jukeboxDetailsRoot + File.separator + bannerFilename);
+        File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + bannerFilename);
+
+        // Check to see if there is a local poster.
+        // Check to see if there are posters in the jukebox directories (target and temp)
+        // Check to see if the local poster is newer than either of the jukebox posters
+        // Download poster
+
+        // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
+        if ((!tmpDestFile.exists() && !bannerFile.exists()) || (movie.isDirtyPoster()) || forcePosterOverwrite) {
+            bannerFile.getParentFile().mkdirs();
+
+            if (movie.getPosterURL() == null || movie.getPosterURL().equals(Movie.UNKNOWN)) {
+                logger.finest("Dummy banner used for " + movie.getBaseName());
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
+            } else {
+                try {
+                    logger.finest("Downloading banner for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
+                    FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
+                } catch (Exception e) {
+                    logger.finer("Failed downloading wide banner: " + movie.getPosterURL());
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
                 }
             }
         }
