@@ -233,6 +233,37 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     break;
                 }
                 
+                // Writers
+                Collection<String> newWriters = new ArrayList<String>();
+                for (String writer : HTMLTools.extractTags(item, ">сценарий<", "</tr>", "<a href=\"/level/4", "</a>")) {
+                    newWriters.add(writer);
+                }
+                if (newWriters.size() > 0)
+                    movie.setWriters(newWriters);
+
+                // Certification from MPAA
+                String mpaa = null;
+                for (String mpaaTag : HTMLTools.extractTags(item, ">рейтинг MPAA<", "</tr>", "<a href=\"/level/38", "</a>")) {
+                	mpaa = mpaaTag;
+                	break;
+                }
+                
+                if (mpaa != null) {
+                    // Now need scan for 'alt' attribute of 'img'
+                    String key = "alt='рейтинг ";
+                    int pos = mpaa.indexOf(key);
+                    if (pos != -1) {
+                        int start = pos + key.length();
+                        pos = mpaa.indexOf("'", start);
+                        if (pos != -1) {
+                            mpaa = mpaa.substring(start, pos);
+                        }
+                    }
+                    if (!mpaa.equalsIgnoreCase(Movie.UNKNOWN)) {
+                        movie.setCertification(mpaa);
+                    }
+                }
+
                 // Country
                 for (String country : HTMLTools.extractTags(item, ">страна<", "</tr>", "<a href=\"/level/10", "</a>")) {
                     movie.setCountry(country);
