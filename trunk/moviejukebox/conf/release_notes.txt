@@ -42,7 +42,9 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #927 Writers are not detected if there is only one
   - Fixed defect #928 Some movie writers still missing
   - Fixed defect #936 Fixed parsing of Kinopoisk site after redesign
+  - Fixed defect #938 Allow filtering of BDMV and VIDEO_TS folders
   - Fixed defect #939 Apple Trailers incorrectly named
+  - Fixed defect #940 mjb.categories.minCount is incorrect in properties file
   - Fixed defect #943 Apple Trailers no longer work
   - Enhancement  #947 Separate download of Movie/TV Show fanart
   - Fixed defect #950 Kinopoisk plugin doesn't use existing "Writer/Written by" value

@@ -62,7 +62,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         // Specific Properties (dependent upon the imageType)
         imageWidth = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".width", "400"));
         imageHeight = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".height", "600"));
-        addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".reflection", "true"));
+        addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".reflection", "false"));
         addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));
         imageNormalize = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".normalize", "false"));
         addHDLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoHD", "false"));
