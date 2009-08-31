@@ -46,6 +46,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #943 Apple Trailers no longer work
   - Enhancement  #947 Separate download of Movie/TV Show fanart
   - Fixed defect #950 Kinopoisk plugin doesn't use existing "Writer/Written by" value
+  - Fixed defect #958 Apple trailer links incorrect
   - Enhancement  #960 Separate fanart sizes for TV and Movie fanart
 
 MovieJukebox 1.0.17 beta
