@@ -109,20 +109,16 @@ public class MovieDirectoryScanner {
                 }
 
                 for (File file : fileList) {
-                    if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
-                        scanFile(srcPath, file.getParentFile(), collection);
-                    } else if (file.isDirectory() && file.getName().equalsIgnoreCase("BDMV")) {
-                        scanFile(srcPath, file.getParentFile(), collection);
-                    } else if (file.isDirectory()) {
-                        /*
-                         * Check to see if we filter the directory. This needs to be here rather 
-                         * than on the condition above so the directory is skipped if it is excluded.
-                         */
-                        if (!isFiltered(srcPath, file)) {
+                    if (!isFiltered(srcPath, file)) {
+                        if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
+                            scanFile(srcPath, file.getParentFile(), collection);
+                        } else if (file.isDirectory() && file.getName().equalsIgnoreCase("BDMV")) {
+                            scanFile(srcPath, file.getParentFile(), collection);
+                        } else if (file.isDirectory()) {
                             scanDirectory(srcPath, file, collection);
+                        } else {
+                            scanFile(srcPath, file, collection);
                         }
-                    } else if (!isFiltered(srcPath, file)) {
-                        scanFile(srcPath, file, collection);
                     }
                 }
             }
