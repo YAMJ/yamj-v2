@@ -37,6 +37,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean imageNormalize;
     private boolean addHDLogo;
     private boolean addTVLogo;
+    private boolean addSetLogo;
     private boolean addLanguage;
     private int imageWidth;
     private int imageHeight;
@@ -67,6 +68,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         imageNormalize = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".normalize", "false"));
         addHDLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoHD", "false"));
         addTVLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoTV", "false"));
+        addSetLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
         addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
         ratio = (float)imageWidth / (float)imageHeight;
 
@@ -109,11 +111,17 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             bi = drawLogos(movie, bi);
 
             if (addReflectionEffect) {
-                bi = GraphicTools.createReflectedPicture(bi, "thumbnails");
+                bi = GraphicTools.createReflectedPicture(bi, imageType);
             }
 
             if (addPerspective) {
-                bi = GraphicTools.create3DPicture(bi, "thumbnails", perspectiveDirection);
+                bi = GraphicTools.create3DPicture(bi, imageType, perspectiveDirection);
+            }
+            
+            // Draw the set logo on any set masters if requested. Should only really happen on thumbnails.
+            if (addSetLogo && movie.isSetMaster()) {
+                bi = drawSet(movie, bi);
+                logger.finest("Drew set logo on " + movie.getTitle());
             }
         }
 
@@ -267,6 +275,26 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
         }
 
+        return bi;
+    }
+    
+    /**
+     * Draw the set logo onto a poster
+     * @param movie the movie to check
+     * @param bi the image to draw on
+     * @return the new buffered image
+     */
+    private BufferedImage drawSet(Movie movie, BufferedImage bi) {
+        try {
+            InputStream in = new FileInputStream(getResourcesPath() + "set.png");
+            BufferedImage biSet = ImageIO.read(in);
+            Graphics g = bi.getGraphics();
+            g.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
+        } catch(IOException e) {
+            logger.warning("Failed drawing set logo to thumbnail file:"
+                + "Please check that set graphic (set.png) is in the resources directory.");
+        }
+        
         return bi;
     }
 
