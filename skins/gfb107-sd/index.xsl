@@ -137,7 +137,7 @@
       <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute> 
       <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>
         <xsl:text>, '</xsl:text>
-        <xsl:value-of select=".">
+        <xsl:value-of>
           <xsl:call-template name="jsEscapeSingleQuotes">
             <xsl:with-param name="string" select="baseFilename"/>
           </xsl:call-template>
@@ -157,7 +157,7 @@
         <xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
         <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>
           <xsl:text>, '</xsl:text>
-          <xsl:value-of select=".">
+          <xsl:value-of>
             <xsl:call-template name="jsEscapeSingleQuotes">
               <xsl:with-param name="string" select="baseFilename"/>
             </xsl:call-template>
