@@ -268,7 +268,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
                 String title = sb.toString();
-                if (!"".equals(sb) && !file.hasTitle()) {
+                if (!sb.equals("") && !file.hasTitle()) {
                     file.setTitle(title);
                 }
             }

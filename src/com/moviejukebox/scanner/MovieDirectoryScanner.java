@@ -44,6 +44,8 @@ public class MovieDirectoryScanner {
     private final Set<String> supportedExtensions = new HashSet<String>();
     private String thumbnailsFormat;
     private String postersFormat;
+    private String posterToken;
+    private String thumbnailToken;
     private String bannersFormat;
     private String bannerToken;
     private String opensubtitles;
@@ -61,7 +63,9 @@ public class MovieDirectoryScanner {
         thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
         postersFormat = PropertiesUtil.getProperty("posters.format", "png");
         bannersFormat = PropertiesUtil.getProperty("banners.format", "png");
-        bannerToken = PropertiesUtil.getProperty("banner.scanner.bannerToken", ".banner");
+        thumbnailToken = PropertiesUtil.getProperty("mjb.scanner.thumbnailToken", "_small");
+        posterToken = PropertiesUtil.getProperty("mjb.scanner.posterToken", "_large");
+        bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
         excludeMultiPartBluRay = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.excludeMultiPartBluRay", "false"));
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
@@ -258,10 +262,8 @@ public class MovieDirectoryScanner {
             m.setBaseName(baseFileName);
             m.setLibraryPath(srcPath.getPath());
             m.setPosterFilename(baseFileName + ".jpg");
-            // TODO change this to use tokens like fanart does
-            m.setThumbnailFilename(baseFileName + "_small." + thumbnailsFormat);
-            // TODO change this to use tokens like fanart does
-            m.setDetailPosterFilename(baseFileName + "_large." + postersFormat);
+            m.setThumbnailFilename(baseFileName + thumbnailToken + "." + thumbnailsFormat);
+            m.setDetailPosterFilename(baseFileName + posterToken + "." + postersFormat);
             m.setBannerFilename(baseFileName + bannerToken + "." + bannersFormat);
             m.setSubtitles(hasSubtitles(m.getFile()));
             m.setLibraryDescription(srcPath.getDescription());

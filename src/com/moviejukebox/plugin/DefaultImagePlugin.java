@@ -71,7 +71,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addSetLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
         addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
         ratio = (float)imageWidth / (float)imageHeight;
-
+        
         BufferedImage bi = imageGraphic;
 
         if (imageGraphic != null) {
@@ -115,9 +115,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
 
             if (addPerspective) {
+                if (perspectiveDirection == null) // make sure the perspectiveDirection is populated
+                    perspectiveDirection = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
+
                 bi = GraphicTools.create3DPicture(bi, imageType, perspectiveDirection);
             }
-            
+
             // Draw the set logo on any set masters if requested. Should only really happen on thumbnails.
             if (addSetLogo && movie.isSetMaster()) {
                 bi = drawSet(movie, bi);
