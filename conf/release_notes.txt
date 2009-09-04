@@ -51,6 +51,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #958 Apple trailer links incorrect
   - Enhancement  #960 Separate fanart sizes for TV and Movie fanart
   - Enhancement  #967 Property to control the overwriting of VideoImages
+  - Enhancement  #971 Display how long YAMJ took to process
   - Enhancement  #973 Re-write of the video image functionality to use local videoimage files
 
 MovieJukebox 1.0.17 beta

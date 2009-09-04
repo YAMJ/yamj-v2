@@ -19,13 +19,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.PrivilegedAction;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -76,6 +79,10 @@ public class MovieJukebox {
     private String skinHome;
     private String detailsDirName;
     
+    // Timestamps
+    private static long timeStart = System.currentTimeMillis();
+    private static long timeEnd;
+    
     // Overwrite flags
     private boolean forcePosterOverwrite;
     private boolean forceThumbnailOverwrite;
@@ -124,6 +131,8 @@ public class MovieJukebox {
         logger.addHandler(ch);
         logger.setLevel(Level.ALL);
 
+        logger.fine("Processing started at " + new Date());
+        
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
         boolean jukeboxClean = false;
@@ -737,7 +746,13 @@ public class MovieJukebox {
             }
         }
 
-        logger.fine("MovieJukebox process completed.");
+        timeEnd = System.currentTimeMillis();
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        
+        logger.fine("MovieJukebox process completed at " + new Date());
+        logger.fine("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
     }
 
     /**
