@@ -110,8 +110,15 @@ public class VideoImageScanner {
             foundLocalVideoImage = false;   // Reset the "found" variable
             part = mf.getFirstPart();       // Look for the video_name.videoimageToken.Extension
             
-            localVideoImageBaseFilename = mf.getFile().getName();
-            localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;
+            if (mf.getFile().isDirectory()) {
+                localVideoImageBaseFilename = mf.getFile().getPath();
+                localVideoImageBaseFilename = localVideoImageBaseFilename + videoimageToken;                
+            } else {
+                localVideoImageBaseFilename = mf.getFile().getName();
+                localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;                
+            }
+            
+            
 
             if (mf.getFile().isDirectory()) { // for VIDEO_TS
                 fullVideoImageFilename = mf.getFile().getPath();
