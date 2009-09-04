@@ -60,6 +60,7 @@ import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.OutputDirectoryScanner;
 import com.moviejukebox.scanner.PosterScanner;
+import com.moviejukebox.scanner.VideoImageScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -74,12 +75,22 @@ public class MovieJukebox {
     private String jukeboxRoot;
     private String skinHome;
     private String detailsDirName;
-    private boolean forceThumbnailOverwrite;
+    
+    // Overwrite flags
     private boolean forcePosterOverwrite;
+    private boolean forceThumbnailOverwrite;
+    private boolean forceBannerOverwrite;
+    // Scanner Tokens
+    private static String posterToken;
+    private static String thumbnailToken;
+    private static String bannerToken;
+    private static String videoimageToken;
+    private static String fanartToken;
+    
     private boolean fanartMovieDownload;
     private boolean fanartTvDownload;
-    private boolean videoImagesDownload;
-    private boolean includeWideBanners;
+    private boolean videoimageDownload;
+    private boolean bannerDownload;
     private boolean moviejukeboxListing;
     private static boolean skipIndexGeneration = false;
     private OpenSubtitlesPlugin subtitlePlugin;
@@ -193,7 +204,7 @@ public class MovieJukebox {
         if ("AUTO".equalsIgnoreCase(MovieNFOScanner.getForceNFOEncoding())) {
             MovieNFOScanner.setForceNFOEncoding(null);
         }
-        MovieNFOScanner.setFanartToken(PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart"));
+        MovieNFOScanner.setFanartToken(fanartToken);
         MovieNFOScanner.setNFOdirectory(PropertiesUtil.getProperty("filename.nfo.directory", ""));
         MovieNFOScanner.setParentDirs(Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.parentDirs", "false")));
 
@@ -304,11 +315,18 @@ public class MovieJukebox {
         this.movieLibraryRoot = source;
         this.jukeboxRoot = jukeboxRoot;
         this.detailsDirName = PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox");
-        this.forceThumbnailOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceThumbnailsOverwrite", "false"));
         this.forcePosterOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forcePostersOverwrite", "false"));
+        this.forceThumbnailOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceThumbnailsOverwrite", "false"));
         this.skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+
         this.fanartMovieDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));        
         this.fanartTvDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
+        
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
+        posterToken = PropertiesUtil.getProperty("mjb.scanner.posterToken", "_large");
+        thumbnailToken = PropertiesUtil.getProperty("mjb.scanner.thumbnailToken", "_small");
+        videoimageToken = PropertiesUtil.getProperty("mjb.scanner.videoimageToken",".videoimage");
 
         File f = new File(source);
         if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -347,8 +365,8 @@ public class MovieJukebox {
         MovieListingPlugin listingPlugin = this.getListingPlugin(PropertiesUtil.getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.generate", "false"));
 
-        videoImagesDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
+        videoimageDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+        bannerDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
 
         int nbFiles = 0;
         String cleanCurrent = "";
@@ -478,12 +496,13 @@ public class MovieJukebox {
                 updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                 // Download episode images if required
-                if (videoImagesDownload) {
-                    updateVideoImages(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                if (videoimageDownload) {
+                    VideoImageScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
 
-                // TODO remove this check once all skins have transitioned to the new format
+                // TODO remove these checks once all skins have transitioned to the new format
                 fanartMovieDownload = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
+                fanartTvDownload = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
                 
                 // Get Fanart only if requested
                 // Note that the FanartScanner will check if the file is newer / different
@@ -492,7 +511,7 @@ public class MovieJukebox {
                 }
                 
                 // Get Banner if requested and is a TV show
-                if (includeWideBanners && movie.isTVShow()) {
+                if (bannerDownload && movie.isTVShow()) {
                     BannerScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                     updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                 }
@@ -547,9 +566,9 @@ public class MovieJukebox {
                 }
 
                 String thumbnailExtension = PropertiesUtil.getProperty("thumbnails.format", "png");
-                movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
+                movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailExtension);
                 String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
-                movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
+                movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
                 if (PropertiesUtil.getProperty("mjb.sets.createPosters", "false").equalsIgnoreCase("true")) {
                     // Create a detail poster for each movie
@@ -628,6 +647,13 @@ public class MovieJukebox {
              */
             if (jukeboxClean) {
                 logger.fine("Cleaning up the jukebox directory...");
+                
+                // Change all the tokens to uppercase here to speed up processing.
+                posterToken = posterToken.toUpperCase();
+                thumbnailToken = thumbnailToken.toUpperCase();
+                fanartToken = fanartToken.toUpperCase();
+                bannerToken = bannerToken.toUpperCase();
+                videoimageToken = videoimageToken.toUpperCase();
 
                 // File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
                 File[] cleanList = tempJukeboxCleanFile.listFiles();
@@ -635,11 +661,6 @@ public class MovieJukebox {
 
                 String skipPattStr = PropertiesUtil.getProperty("mjb.clean.skip");
                 Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
-                String fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart").toUpperCase();
-                String bannerToken = PropertiesUtil.getProperty("banner.scanner.bannerToken", ".banner").toUpperCase();
-                String posterToken = "_LARGE";
-                String thumbnailToken = "_SMALL";
-                String videoimageToken = "_VIDEOIMAGE";
 
                 for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                     // Scan each file in here
@@ -672,12 +693,16 @@ public class MovieJukebox {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - posterToken.length());
                                     } else if (cleanCurrent.endsWith(thumbnailToken)) {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - thumbnailToken.length());
-                                    } else if (cleanCurrent.endsWith(fanartToken)) {
+                                    } else if (cleanCurrent.endsWith(fanartToken) && (fanartTvDownload || fanartMovieDownload)) {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - fanartToken.length());
-                                    } else if (cleanCurrent.endsWith(bannerToken)) {
+                                    } else if (cleanCurrent.endsWith(bannerToken) && bannerDownload) {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - bannerToken.length());
-                                    } else if (cleanCurrent.indexOf(videoimageToken) > 0) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf(videoimageToken));
+                                    } else if (cleanCurrent.endsWith(videoimageToken) && videoimageDownload) {
+                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - videoimageToken.length());
+                                        // This will skip all videoimages. not really what we want
+                                        // Need to create an exclusion list that can be added to 
+                                        // during the regular scans
+                                        skip = true; // TODO This is a hack
                                     }
                                 }
 
@@ -809,10 +834,10 @@ public class MovieJukebox {
 
             // Update thumbnails format if needed
             String thumbnailExtension = PropertiesUtil.getProperty("thumbnails.format", "png");
-            movie.setThumbnailFilename(movie.getBaseName() + "_small." + thumbnailExtension);
+            movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailExtension);
             // Update poster format if needed
             String posterExtension = PropertiesUtil.getProperty("posters.format", "png");
-            movie.setDetailPosterFilename(movie.getBaseName() + "_large." + posterExtension);
+            movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
             // Check for local CoverArt
             PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
@@ -894,88 +919,28 @@ public class MovieJukebox {
         File bannerFile = new File(jukeboxDetailsRoot + File.separator + bannerFilename);
         File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + bannerFilename);
 
-        // Check to see if there is a local poster.
-        // Check to see if there are posters in the jukebox directories (target and temp)
-        // Check to see if the local poster is newer than either of the jukebox posters
-        // Download poster
+        // Check to see if there is a local banner.
+        // Check to see if there are banners in the jukebox directories (target and temp)
+        // Check to see if the local banner is newer than either of the jukebox banners
+        // Download banner
 
-        // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
-        if ((!tmpDestFile.exists() && !bannerFile.exists()) || (movie.isDirtyPoster()) || forcePosterOverwrite) {
+        // Do not overwrite existing banners, unless there is a new poster URL in the nfo file.
+        if ((!tmpDestFile.exists() && !bannerFile.exists()) || (movie.isDirtyPoster()) || forceBannerOverwrite) {
             bannerFile.getParentFile().mkdirs();
 
-            if (movie.getPosterURL() == null || movie.getPosterURL().equals(Movie.UNKNOWN)) {
+            if (movie.getBannerURL() == null || movie.getBannerURL().equals(Movie.UNKNOWN)) {
                 logger.finest("Dummy banner used for " + movie.getBaseName());
                 FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
             } else {
                 try {
                     logger.finest("Downloading banner for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
-                    FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
+                    FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
                 } catch (Exception e) {
-                    logger.finer("Failed downloading wide banner: " + movie.getPosterURL());
+                    logger.finer("Failed downloading banner: " + movie.getBannerURL());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
                 }
             }
         }
-    }
-
-    /**
-     * Find and download the video images for the video file.
-     * TODO This needs it's own scanner routine so that it can check for existing video images similar to fanart
-     * @param videoimagePlugin
-     * @param jukeboxDetailsRoot
-     * @param tempJukeboxDetailsRoot
-     * @param movie
-     */
-    private void updateVideoImages(MovieImagePlugin videoimagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String videoImageFilename;
-        File videoImageFile;
-        File tmpDestFile;
-        FileInputStream fis;
-        BufferedImage bi;
-
-        boolean forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
-
-        for (MovieFile moviefile : movie.getMovieFiles()) {
-            for (int part = moviefile.getFirstPart(); part <= moviefile.getLastPart(); ++part) {
-                //TODO The filename should use the episode number not the part number.
-                videoImageFilename = FileTools.makeSafeFilename(movie.getBaseName() + "_VideoImage_" + part + ".jpg");
-                videoImageFile = new File(jukeboxDetailsRoot + File.separator + videoImageFilename);
-                tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + videoImageFilename);
-
-                if (moviefile.getVideoImageFile(part).equals(Movie.UNKNOWN)) {
-                    moviefile.setVideoImageFile(part, videoImageFilename);
-                }
-
-                // Do not overwrite existing files - Unless XML overwrite is on.
-                if ((!tmpDestFile.exists() && !videoImageFile.exists()) || forceXMLOverwrite) {
-                    videoImageFile.getParentFile().mkdirs();
-                    if (moviefile.getVideoImageURL(part) == null || moviefile.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
-                        logger.finest("No video image used for " + movie.getBaseName() + " - part " + part);
-                    } else {
-                        try {
-                            // Issue 201 : we now download to local temp directory
-                            logger.finest("Downloading video image for " + movie.getBaseName() + " part " + part + " to " + tmpDestFile.getName()
-                                            + " [calling plugin]");
-                            FileTools.downloadImage(tmpDestFile, moviefile.getVideoImageURL(part));
-                            moviefile.setVideoImageFile(part, FileTools.makeSafeFilename(videoImageFilename));
-
-                            // load the file into a buffered image
-                            fis = new FileInputStream(tmpDestFile);
-                            bi = GraphicTools.loadJPEGImage(fis);
-
-                            bi = videoimagePlugin.generate(movie, bi, "videoimages", videoImageFilename);
-
-                            GraphicTools.saveImageToDisk(bi, tmpDestFile.getAbsolutePath());
-
-                        } catch (Exception e) {
-                            logger.finer("Failed downloading video image : " + moviefile.getVideoImageURL(part));
-                            FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"), tmpDestFile);
-                        }
-                    }
-                }
-            }
-        }
-        return;
     }
 
     @SuppressWarnings("unchecked")
@@ -1053,7 +1018,6 @@ public class MovieJukebox {
         return mlp;
     }
     
-
     public MovieImagePlugin getImagePlugin(String className) {
         MovieImagePlugin imagePlugin;
 
@@ -1071,9 +1035,6 @@ public class MovieJukebox {
 
         return imagePlugin;
     }
-
-    
-
 
     public MovieImagePlugin getBackgroundPlugin(String className) {
         MovieImagePlugin backgroundPlugin;
@@ -1093,7 +1054,6 @@ public class MovieJukebox {
         return backgroundPlugin;
     }
 
-    
     public MovieListingPlugin getListingPlugin(String className) {
         MovieListingPlugin listingPlugin;
         try {
@@ -1111,7 +1071,6 @@ public class MovieJukebox {
         return listingPlugin;
     } // getListingPlugin()
     
-
     /**
      * Create a thumbnail from the original poster file.
      * 
@@ -1197,7 +1156,6 @@ public class MovieJukebox {
         }
     }
     
-
     /**
      * Create a detailed poster file from the original poster file
      * 

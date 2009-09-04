@@ -125,10 +125,14 @@ public class WebBrowser {
             System.getProperties().put("proxyHost", mjbProxyHost);
             System.getProperties().put("proxyPort", mjbProxyPort);
         }
-
+        
         URL url = new URL(imageURL);
         URLConnection cnx = url.openConnection();
 
+        // A workaround for the need to use a referrer for thetvdb.com
+        if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
+            cnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
+        
         if (mjbProxyUsername != null) {
             cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
         }

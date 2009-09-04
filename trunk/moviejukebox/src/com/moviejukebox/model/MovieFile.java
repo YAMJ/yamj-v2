@@ -24,9 +24,9 @@ public class MovieFile implements Comparable<MovieFile> {
     private int     lastPart    = 1;
     private boolean newFile     = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
-    private LinkedHashMap<Integer, String> plots          = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> videoImageURL  = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> videoImageFile = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
     private File file;
 
     public String getFilename() {
@@ -54,8 +54,8 @@ public class MovieFile implements Comparable<MovieFile> {
         return url != null ? url : Movie.UNKNOWN;
     }
 
-    public String getVideoImageFile(int part) {
-        String file = videoImageFile.get(part);
+    public String getVideoImageFilename(int part) {
+        String file = videoImageFilename.get(part);
         return file != null ? file : Movie.UNKNOWN;
     }
 
@@ -64,15 +64,15 @@ public class MovieFile implements Comparable<MovieFile> {
             videoImageURL = Movie.UNKNOWN;
         }
         this.videoImageURL.put(part, videoImageURL);
-        // Clear the videoImageFile associated with this part
-        this.videoImageFile.put(part, Movie.UNKNOWN);
+        // Clear the videoImageFilename associated with this part
+        this.videoImageFilename.put(part, Movie.UNKNOWN);
     }
 
-    public void setVideoImageFile(int part, String videoImageFile) {
-        if (videoImageFile == null || videoImageFile.isEmpty()) {
-            videoImageFile = Movie.UNKNOWN;
+    public void setVideoImageFilename(int part, String videoImageFilename) {
+        if (videoImageFilename == null || videoImageFilename.isEmpty()) {
+            videoImageFilename = Movie.UNKNOWN;
         }
-        this.videoImageFile.put(part, videoImageFile);
+        this.videoImageFilename.put(part, videoImageFilename);
     }
 
     public int getFirstPart() {

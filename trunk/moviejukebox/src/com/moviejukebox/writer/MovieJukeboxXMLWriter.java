@@ -333,7 +333,7 @@ public class MovieJukeboxXMLWriter {
                                     part = Integer.parseInt(attr.getValue());
                                 }
                             }
-                            mf.setVideoImageFile(part, parseCData(r));
+                            mf.setVideoImageFilename(part, parseCData(r));
                         }
                     }
                     // add or replace MovieFile based on XML data
@@ -829,7 +829,7 @@ public class MovieJukeboxXMLWriter {
 
                         writer.writeStartElement("fileImageFile");
                         writer.writeAttribute("part", Integer.toString(part));
-                        writer.writeCharacters(mf.getVideoImageFile(part));
+                        writer.writeCharacters(mf.getVideoImageFilename(part));
                         writer.writeEndElement();
                     }
                 }
