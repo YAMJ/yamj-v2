@@ -112,14 +112,12 @@ public class VideoImageScanner {
             
             if (mf.getFile().isDirectory()) {
                 localVideoImageBaseFilename = mf.getFile().getPath();
-                localVideoImageBaseFilename = localVideoImageBaseFilename + videoimageToken;                
+                localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
             } else {
                 localVideoImageBaseFilename = mf.getFile().getName();
                 localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;                
             }
             
-            
-
             if (mf.getFile().isDirectory()) { // for VIDEO_TS
                 fullVideoImageFilename = mf.getFile().getPath();
             } else {
