@@ -113,7 +113,7 @@ public class AppleTrailersPlugin {
             
             // Add the trailer URL to the movie
             MovieFile tmf = new MovieFile();
-            tmf.setTitle(getTrailerTitle(trailerRealUrl));
+            tmf.setTitle("TRAILER-" + getTrailerTitle(trailerRealUrl));
             
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
