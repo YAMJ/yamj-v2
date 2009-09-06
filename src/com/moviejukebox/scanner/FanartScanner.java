@@ -21,19 +21,19 @@ package com.moviejukebox.scanner;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.plugin.MovieImagePlugin;
-import java.io.FileInputStream;
 
 /**
  * Scanner for fanart files in local directory
@@ -114,7 +114,7 @@ public class FanartScanner {
         if (foundLocalFanart) {
             if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
                 // movie.setFanartFilename(localFanartFile.getName());
-                movie.setFanartFilename(movie.getBaseName() + "." + fanartToken + "jpg");
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + File.separator + foundExtension);
             }
             if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
