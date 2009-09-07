@@ -99,12 +99,13 @@ public class MediaInfoScanner {
                 currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
             }
         } else if ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img"))) {
-            // extracting IFO files from iso file
-            AbstractFile abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
-            IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
-            File tempRep = new File("./isoTEMP/VIDEO_TS");
-            tempRep.mkdirs();
             try {
+                // extracting IFO files from iso file
+                AbstractFile abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
+                IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
+                File tempRep = new File("./isoTEMP/VIDEO_TS");
+                tempRep.mkdirs();
+
                 Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
@@ -117,24 +118,24 @@ public class MediaInfoScanner {
                         fosCurrentIFO.write(ifoFileContent);
                         fosCurrentIFO.close();
                     }
+                    
+                    // Scan IFO files
+                    FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
+                    if (mainMovieIFO != null) {
+                        scan(currentMovie, mainMovieIFO.getLocation());
+                        currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
+                    }
+
+                    // Clean up
+                    File[] isoList = tempRep.listFiles();
+                    for (int nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
+                        isoList[nbFiles].delete();
+                    }
+                    tempRep.delete();
                 }
-            } catch (Exception e) {
-                logger.fine(e.getMessage());
+            } catch (Exception error) {
+                logger.fine("MediaInfor Scanner: " + error.getMessage());
             }
-
-            // Scan IFO files
-            FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
-            if (mainMovieIFO != null) {
-                scan(currentMovie, mainMovieIFO.getLocation());
-                currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
-            }
-
-            // Clean up
-            File[] isoList = tempRep.listFiles();
-            for (int nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
-                isoList[nbFiles].delete();
-            }
-            tempRep.delete();
         } else {
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
         }
@@ -497,7 +498,7 @@ public class MediaInfoScanner {
             if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8")) {
                 movie.setSubtitles(true);
             } else {
-                logger.finest("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
+                logger.finest("MediaInfo Scanner: Subtitle format skipped: " + infoFormat);
             }
         }
     }
