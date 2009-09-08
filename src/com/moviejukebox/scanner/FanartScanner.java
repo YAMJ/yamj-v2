@@ -114,7 +114,7 @@ public class FanartScanner {
         if (foundLocalFanart) {
             if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
                 // movie.setFanartFilename(localFanartFile.getName());
-                movie.setFanartFilename(movie.getBaseName() + fanartToken + File.separator + foundExtension);
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + foundExtension);
             }
             if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
