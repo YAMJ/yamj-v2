@@ -495,7 +495,7 @@ public class MediaInfoScanner {
             }
 
             // Check that the format can be viewed on the popcorn
-            if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8")) {
+            if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE")) {
                 movie.setSubtitles(true);
             } else {
                 logger.finest("MediaInfo Scanner: Subtitle format skipped: " + infoFormat);
