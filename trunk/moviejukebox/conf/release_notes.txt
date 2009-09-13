@@ -56,6 +56,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #973 Re-write of the video image functionality to use local videoimage files
   - Fixed defect #974 Keyword missing for Trailer URL
   - Fixed defect #987 No IFO found for disk images
+  - Fixed defect #988 Some SD content is erroneously flagged as HD
 
 MovieJukebox 1.0.17 beta
 ------------------------

@@ -378,7 +378,6 @@ public class MediaInfoScanner {
                 if (infoValue != null) {
                     movie.setResolution(width + "x" + infoValue);
                 }
-
             }
 
             // Frames per second
@@ -391,11 +390,10 @@ public class MediaInfoScanner {
             }
 
             // Guessing Video Output
-
             String normeHD = "SD";
-            if (width > 1280) {
+            if (width >= 1920) {
                 normeHD = "1080";
-            } else if (width > 720) {
+            } else if (width >= 1280) {
                 normeHD = "720";
             }
 
