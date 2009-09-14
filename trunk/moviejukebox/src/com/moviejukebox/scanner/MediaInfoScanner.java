@@ -400,11 +400,11 @@ public class MediaInfoScanner {
                 movie.setFps(fps);
             }
 
-            // Guessing Video Output
+            // Guessing Video Output (Issue 988)
             String normeHD = "SD";
-            if (width >= 1920) {
+            if (width > 1280) { // If width is greater than 720p then it must be 1080
                 normeHD = "1080";
-            } else if (width >= 1280) {
+            } else if (width > 1024) { // 1024 is the maximum width that SD content could be, this compensates for cropped HD720 content 
                 normeHD = "720";
             }
 
