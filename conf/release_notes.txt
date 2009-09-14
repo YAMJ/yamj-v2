@@ -55,6 +55,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #971 Display how long YAMJ took to process
   - Enhancement  #973 Re-write of the video image functionality to use local videoimage files
   - Fixed defect #974 Keyword missing for Trailer URL
+  - Enhancement  #978 Provide the ability to include a carriage-return in the "Plot" section
   - Fixed defect #979 Java Heap Space error when processing ISO files
   - Fixed defect #987 No IFO found for disk images
   - Fixed defect #988 Some SD content is erroneously flagged as HD

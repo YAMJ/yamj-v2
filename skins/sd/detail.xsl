@@ -153,7 +153,10 @@
         <tr>
           <td width="100%" class="normal" colspan="2">
             <xsl:if test="plot != 'UNKNOWN'">
-              <xsl:value-of select="plot" />
+              <xsl:call-template name="PreserveLineBreaks">
+                <xsl:with-param name="text" select="plot"/>
+              </xsl:call-template>
+              
             </xsl:if>
           </td>
         </tr>
@@ -456,4 +459,24 @@
 </body>
 </html>
 </xsl:template>
+
+
+<xsl:template name="PreserveLineBreaks">
+    <xsl:param name="text"/>
+    <xsl:choose>
+        <xsl:when test="contains($text,'&#xA;')">
+            <xsl:value-of select="substring-before($text,'&#xA;')"/>
+            <br/>
+            <xsl:call-template name="PreserveLineBreaks">
+                <xsl:with-param name="text">
+                    <xsl:value-of select="substring-after($text,'&#xA;')"/>
+                </xsl:with-param>
+            </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:value-of select="$text"/>
+        </xsl:otherwise>
+    </xsl:choose>
+</xsl:template>
+
 </xsl:stylesheet>
