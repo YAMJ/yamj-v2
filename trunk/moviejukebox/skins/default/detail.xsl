@@ -210,7 +210,10 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
               <xsl:attribute name="class">
                 <xsl:if test="string-length(plot) >= 700">x</xsl:if>
                 <xsl:if test="string-length(plot) >= 250">large-</xsl:if>plot</xsl:attribute>
-              <xsl:value-of select="plot" />
+
+              <xsl:call-template name="PreserveLineBreaks">
+                <xsl:with-param name="text" select="plot"/>
+              </xsl:call-template>
             </td>
           </tr>
         </xsl:if>
@@ -547,6 +550,24 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
   <xsl:if test="ends-with($url, 'VIDEO_TS') or ends-with($url, 'video_ts')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
+</xsl:template>
+
+<xsl:template name="PreserveLineBreaks">
+    <xsl:param name="text"/>
+    <xsl:choose>
+        <xsl:when test="contains($text,'&#xA;')">
+            <xsl:value-of select="substring-before($text,'&#xA;')"/>
+            <br/>
+            <xsl:call-template name="PreserveLineBreaks">
+                <xsl:with-param name="text">
+                    <xsl:value-of select="substring-after($text,'&#xA;')"/>
+                </xsl:with-param>
+            </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:value-of select="$text"/>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
