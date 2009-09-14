@@ -100,10 +100,21 @@ public class MediaInfoScanner {
             }
         } else if ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img"))) {
             // extracting IFO files from ISO file
-            AbstractFile abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
+            AbstractFile abstractIsoFile = null;
+            
+            // Issue 979: Split the reading of the ISO file to catch any errors
+            try {
+                abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
+            } catch (Exception error) {
+                logger.finer("Error reading disk Image. Please re-rip and try again");
+                logger.fine(error.getMessage());
+                return;
+            }
+            
             IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
             File tempRep = new File("./isoTEMP/VIDEO_TS");
             tempRep.mkdirs();
+            
             try {
                 Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
