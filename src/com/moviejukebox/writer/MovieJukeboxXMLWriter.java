@@ -53,6 +53,8 @@ public class MovieJukeboxXMLWriter {
     private boolean forceXMLOverwrite;
     private int nbMoviesPerPage;
     private int nbMoviesPerLine;
+    private int nbTvShowsPerPage;
+    private int nbTvShowsPerLine;
     private boolean fullMovieInfoInIndexes;
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
@@ -74,10 +76,20 @@ public class MovieJukeboxXMLWriter {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
         nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
         nbMoviesPerLine = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerLine", "5"));
+        nbTvShowsPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbTvThumbnailsPerPage", "0")); // If 0 then use the Movies setting
+        nbTvShowsPerLine = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbTvThumbnailsPerLine", "0")); // If 0 then use the Movies setting
         fullMovieInfoInIndexes = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.fullMovieInfoInIndexes", "false"));
         includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+        
+        if (nbTvShowsPerPage == 0) {
+            nbTvShowsPerPage = nbMoviesPerPage;
+        }
+        
+        if (nbTvShowsPerLine == 0) {
+            nbTvShowsPerLine = nbMoviesPerLine;
+        }
     }
 
     /**
@@ -466,11 +478,19 @@ public class MovieJukeboxXMLWriter {
 
                 String key = FileTools.createCategoryKey(group.getKey());
 
+                int nbVideosPerPage;
+                
+                if (key.equalsIgnoreCase("TV Shows")) {
+                    nbVideosPerPage = nbTvShowsPerPage;
+                } else {
+                    nbVideosPerPage = nbMoviesPerPage;
+                }
+                
                 int previous = 1;
                 int current = 1;
-                int last = 1 + (movies.size() - 1) / nbMoviesPerPage;
+                int last = 1 + (movies.size() - 1) / nbVideosPerPage;
                 int next = Math.min(2, last);
-                int nbMoviesLeft = nbMoviesPerPage;
+                int nbMoviesLeft = nbVideosPerPage;
 
                 List<Movie> moviesInASinglePage = new ArrayList<Movie>();
                 for (Movie movie : movies) {
@@ -490,7 +510,7 @@ public class MovieJukeboxXMLWriter {
                         previous = current;
                         current = Math.min(current + 1, last);
                         next = Math.min(current + 1, last);
-                        nbMoviesLeft = nbMoviesPerPage;
+                        nbMoviesLeft = nbVideosPerPage;
                     }
                 }
 
@@ -504,6 +524,19 @@ public class MovieJukeboxXMLWriter {
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
                     int next, int last) throws FileNotFoundException, XMLStreamException {
         String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
+        
+        // Is this a TV Show index?
+        int nbVideosPerPage, nbVideosPerLine;
+        
+        if (key.equalsIgnoreCase("TV Shows")) {
+            nbVideosPerPage = nbTvShowsPerPage;
+            nbVideosPerLine = nbTvShowsPerLine;
+        } else {
+            nbVideosPerPage = nbMoviesPerPage;
+            nbVideosPerLine = nbMoviesPerLine;
+        }
+        
+        
         File xmlFile = new File(rootPath, prefix + current + ".xml");
         xmlFile.getParentFile().mkdirs();
 
@@ -552,8 +585,8 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement(); // categories
         }
         writer.writeStartElement("movies");
-        writer.writeAttribute("count", "" + nbMoviesPerPage);
-        writer.writeAttribute("cols", "" + nbMoviesPerLine);
+        writer.writeAttribute("count", "" + nbVideosPerPage);
+        writer.writeAttribute("cols", "" + nbVideosPerLine);
 
         if (fullMovieInfoInIndexes) {
             for (Movie movie : movies) {
