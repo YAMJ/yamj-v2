@@ -55,6 +55,7 @@ public class MovieJukeboxHTMLWriter {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
+    private int nbTvShowsPerPage;
     private String skinHome;
     private TransformerFactory transformerFactory;
     private Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
@@ -73,6 +74,10 @@ public class MovieJukeboxHTMLWriter {
     public MovieJukeboxHTMLWriter() {
         forceHTMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceHTMLOverwrite", "false"));
         nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
+        nbTvShowsPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbTvThumbnailsPerPage", "0")); // If 0 then use the Movies setting
+        if (nbTvShowsPerPage == 0) {
+            nbTvShowsPerPage = nbMoviesPerPage;
+        }
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         
         // Issue 310
@@ -258,6 +263,8 @@ public class MovieJukeboxHTMLWriter {
     }
 
     public void generateMoviesIndexHTML(String rootPath, String detailsDirName, Library library) {
+        int nbVideosPerPage;
+        
         for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             String categoryName = category.getKey();
             if (!categoriesDisplayList.contains(categoryName)) continue;
@@ -266,11 +273,18 @@ public class MovieJukeboxHTMLWriter {
 
             for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
                 String key = indexEntry.getKey();
+                
+                if (key.equalsIgnoreCase("TV Shows")) {
+                    nbVideosPerPage = nbTvShowsPerPage;
+                } else {
+                    nbVideosPerPage = nbMoviesPerPage;
+                }
+
                 List<Movie> movies = indexEntry.getValue();
                 
                 // This is horrible! Issue 735 will get rid of it.
                 if (movies.size() >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                    int nbPages = 1 + (movies.size() - 1) / nbMoviesPerPage;
+                    int nbPages = 1 + (movies.size() - 1) / nbVideosPerPage;
                     for (int page = 1; page <= nbPages; page++) {
                         writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
                     }
