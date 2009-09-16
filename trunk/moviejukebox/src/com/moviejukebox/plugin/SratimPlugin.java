@@ -575,6 +575,15 @@ public class SratimPlugin extends ImdbPlugin {
         return src.replaceAll("\\<.*?>", "");
     }
 
+	protected ArrayList<String> removeHtmlTags(ArrayList<String> src) {
+		ArrayList<String> output = new ArrayList<String>();
+
+		for (int i = 0; i < src.size(); i++) {
+			output.add(removeHtmlTags(src.get(i)));
+		}
+		return output;
+	}
+
     /**
      * Scan Sratim html page for the specified movie
      */
@@ -639,8 +648,8 @@ public class SratimPlugin extends ImdbPlugin {
                     movie.setYear(HTMLTools.getTextAfterElem(xml, "<span id=\"ctl00_ctl00_Body_Body_Box_ProductionYear\">"));
                 }
             }
-
-            movie.setCast(logicalToVisual(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>")));
+			
+            movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>"))));
 
             // As last resort use sratim low quality poster
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || (preferredPosterSearchEngine.equalsIgnoreCase("sratim"))) {
