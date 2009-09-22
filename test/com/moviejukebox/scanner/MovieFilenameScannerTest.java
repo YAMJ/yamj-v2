@@ -24,6 +24,11 @@ import com.moviejukebox.model.MovieFileNameDTO;
 
 public class MovieFilenameScannerTest extends TestCase {
 
+    @Override
+    protected void setUp() throws Exception {
+        MovieFilenameScanner.setSkipKeywords(new String[] { "-xor", "REMUX", "vfua", "-SMB", "-hdclub", "Remastered", "[KB]" });
+    }
+
     public void testPatterns() {
         Matcher matcher = MovieFilenameScanner.TOKEN_DELIMITERS_MATCH_PATTERN.matcher("a]bc.def");
         assertTrue(matcher.find());
@@ -42,7 +47,6 @@ public class MovieFilenameScannerTest extends TestCase {
     }
 
     public void testScan() {
-        MovieFilenameScanner.setSkipKeywords(new String[] { "-xor", "REMUX", "vfua", "-SMB", "-hdclub", "Remastered", "[KB]" });
         MovieFileNameDTO d = scan("Desperate Housewives S04E01E02E03E06.iso");
         assertEquals("Desperate Housewives", d.getTitle());
         assertEquals("iso", d.getExtension());
@@ -170,15 +174,6 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(1, d.getLanguages().size());
         assertEquals("French", d.getLanguages().get(0));
 
-        d = scan("The_IT_Crowd.S02E03.rus.lostfilm - Moss and the German.avi");
-        assertEquals("The IT Crowd", d.getTitle());
-        assertEquals(2, d.getSeason());
-        assertEquals(1, d.getEpisodes().size());
-        assertEquals(3, d.getEpisodes().get(0).intValue());
-        assertEquals(1, d.getLanguages().size());
-        assertEquals("Russian", d.getLanguages().get(0));
-        assertEquals("Moss and the German", d.getEpisodeTitle());
-
         d = scan("Steamboy_(2004)_[720p,BluRay,x264,DTS]_-_THORA.mkv");
         assertEquals(2004, d.getYear());
         assertEquals("Steamboy", d.getTitle());
@@ -208,8 +203,11 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Cowboy Bebop", d.getTitle());
         assertEquals(7, d.getPart());
         assertNull(d.getPartTitle());
-        
-        d = scan("Time masters (Laloux Moebius) (1982) Eng.Hun.Fra.De.Ru.mkv");
+
+    }
+
+    public void testScanLanguages() {
+        MovieFileNameDTO d = scan("Time masters (Laloux Moebius) (1982) Eng.Hun.Fra.De.Ru.mkv");
         assertEquals(1982, d.getYear());
         assertEquals("Time masters (Laloux Moebius)", d.getTitle());
         assertEquals(5, d.getLanguages().size());
@@ -218,6 +216,26 @@ public class MovieFilenameScannerTest extends TestCase {
         assertTrue(d.getLanguages().contains("French"));
         assertTrue(d.getLanguages().contains("German"));
         assertTrue(d.getLanguages().contains("Russian"));
+
+        d = scan("The_IT_Crowd.S02E03.rus.lostfilm - Moss and the German.avi");
+        assertEquals("The IT Crowd", d.getTitle());
+        assertEquals(2, d.getSeason());
+        assertEquals(1, d.getEpisodes().size());
+        assertEquals(3, d.getEpisodes().get(0).intValue());
+        assertEquals(1, d.getLanguages().size());
+        assertEquals("Russian", d.getLanguages().get(0));
+        assertEquals("Moss and the German", d.getEpisodeTitle());
+
+        d = scan("Misery.1990[German]DTS.720p.BluRay.x264.mkv");
+        assertEquals("Misery", d.getTitle());
+        assertEquals(1990, d.getYear());
+        assertEquals(1, d.getLanguages().size());
+        assertTrue(d.getLanguages().contains("German"));
+
+        d = scan("The.Good.German.2006.720p.BluRay.x264.ts");
+        assertEquals("The Good German", d.getTitle());
+        assertEquals(2006, d.getYear());
+        assertEquals(0, d.getLanguages().size());
     }
 
     @SuppressWarnings("serial")
