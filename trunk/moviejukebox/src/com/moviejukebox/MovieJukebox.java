@@ -383,9 +383,8 @@ public class MovieJukebox {
         bannerDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
 
         // Multi-thread: Processing thread settings
-        int MaxThreadsScan = Integer.parseInt(PropertiesUtil.getProperty("mjb.MaxThreadsScan", "5"));
-        int MaxThreadsProcess = Integer.parseInt(PropertiesUtil.getProperty("mjb.MaxThreadsProcess", Integer.toString(2 * Runtime.getRuntime()
-                        .availableProcessors())));
+        int MaxThreadsScan = Integer.parseInt(PropertiesUtil.getProperty("mjb.MaxThreadsScan", "4"));
+        int MaxThreadsProcess = Integer.parseInt(PropertiesUtil.getProperty("mjb.MaxThreadsProcess", Integer.toString(Runtime.getRuntime().availableProcessors())));
         logger.fine("Using " + MaxThreadsScan + " scanning threads and " + MaxThreadsProcess + " processing threads...");
 
         int nbFiles = 0;

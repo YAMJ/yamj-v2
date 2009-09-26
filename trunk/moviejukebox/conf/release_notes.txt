@@ -61,6 +61,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #987 No IFO found for disk images
   - Fixed defect #988 Some SD content is erroneously flagged as HD
   - Fixed defect #996 Sratim plugin fails to correctly strip html tags from actor names
+  - Fixed defect #1020 fullMovieInfoInIndexes=false uses a "banner" entry instead of bannerFile or bannerURL
 
 MovieJukebox 1.0.17 beta
 ------------------------
