@@ -627,7 +627,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("thumbnail");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getThumbnailFilename())));
         writer.writeEndElement();
-        writer.writeStartElement("banner");
+        writer.writeStartElement("bannerFile");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBannerFilename())));
         writer.writeEndElement();
         writer.writeStartElement("certification");
