@@ -51,6 +51,7 @@ public class MovieDirectoryScanner {
     private String opensubtitles;
     private Boolean excludeFilesWithoutExternalSubtitles;
     private Boolean excludeMultiPartBluRay;
+    private Boolean playFullBluRayDisk;
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     // BD rip infos Scanner
@@ -69,7 +70,6 @@ public class MovieDirectoryScanner {
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
         excludeMultiPartBluRay = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.excludeMultiPartBluRay", "false"));
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
-
         localBDRipScanner = new BDRipScanner();
     }
 
@@ -203,16 +203,19 @@ public class MovieDirectoryScanner {
     protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
         File contentFiles[];
         int bdDuration = 0;
+        boolean isBluRay = false;
+        playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "false"));
 
         contentFiles = new File[1];
         contentFiles[0] = file;
-
+        
         if (file.isDirectory()) {
             // Scan BD Playlist files
             BDFilePropertiesMovie bdPropertiesMovie = localBDRipScanner.executeGetBDInfo(file);
 
             if (bdPropertiesMovie != null) {
-
+            	isBluRay = true;
+            	
                 // Exclude multi part BluRay that include more than one file
                 if (excludeMultiPartBluRay && bdPropertiesMovie.fileList.length > 1) {
                     logger.fine("File " + file.getName() + " excluded. (multi part BluRay)");
@@ -220,7 +223,10 @@ public class MovieDirectoryScanner {
                 }
 
                 bdDuration = bdPropertiesMovie.duration;
-                contentFiles = bdPropertiesMovie.fileList;
+                
+                // If we don't play the full disk, then we link to the directory.
+                if (!playFullBluRayDisk)
+                	contentFiles = bdPropertiesMovie.fileList;
             }
         }
 
@@ -246,8 +252,13 @@ public class MovieDirectoryScanner {
             relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
 
             if (contentFiles[i].isDirectory()) {
-                // For DVD images
-                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
+                // For DVD & BluRay images
+            	if (isBluRay) {
+                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/BDMV/STREAM");
+            	}
+            	else {
+                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
+            	}
             } else {
                 movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
             }
