@@ -238,6 +238,25 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(0, d.getLanguages().size());
     }
 
+    public void testScanSeries() {
+        MovieFileNameDTO d = scan("Formula.1.S2008E1.avi");
+        assertEquals("Formula 1", d.getTitle());
+        assertEquals(2008, d.getSeason());
+        assertEquals(1, d.getEpisodes().size());
+        assertEquals(1, d.getEpisodes().get(0).intValue());
+        d = scan("Horizon.S2009E03.avi");
+        assertEquals(2009, d.getSeason());
+        assertEquals(1, d.getEpisodes().size());
+        assertEquals(3, d.getEpisodes().get(0).intValue());
+        d = scan("World.Series.Of.Poker.S2008E11E12E13.avi.avi");
+        assertEquals("World Series Of Poker", d.getTitle());
+        assertEquals(2008, d.getSeason());
+        assertEquals(3, d.getEpisodes().size());
+        assertEquals(11, d.getEpisodes().get(0).intValue());
+        assertEquals(12, d.getEpisodes().get(1).intValue());
+        assertEquals(13, d.getEpisodes().get(2).intValue());
+    }
+
     @SuppressWarnings("serial")
     private static MovieFileNameDTO scan(String filename) {
         File file = new File(filename) {
