@@ -551,7 +551,8 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 
-  <xsl:if test="ends-with($url, 'BDMV/STREAM') or ends-with($url, 'bdmv/stream')">
+  <!-- For BluRay playback on the C-200 -->
+  <xsl:if test="ends-with($url, '/')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 </xsl:template>

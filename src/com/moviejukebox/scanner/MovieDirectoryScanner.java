@@ -254,7 +254,8 @@ public class MovieDirectoryScanner {
             if (contentFiles[i].isDirectory()) {
                 // For DVD & BluRay images
             	if (isBluRay) {
-                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/BDMV/STREAM");
+            		// BluRay rips on the C-200 with the BDMV/STREAM structure have to play from the parent directory. So add a "/" to the end of the play Filename
+                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/");
             	}
             	else {
                     movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");

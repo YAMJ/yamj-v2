@@ -238,7 +238,8 @@
                       <xsl:attribute name="zcd">2</xsl:attribute> 
                     </xsl:if>
 
-                    <xsl:if test="ends-with(fileURL, 'BDMV/STREAM') or ends-with(fileURL, 'bdmv/stream')">
+                    <!-- For BluRay playback on the C-200 -->
+                    <xsl:if test="ends-with(fileURL, '/')">
                       <xsl:attribute name="zcd">2</xsl:attribute> 
                     </xsl:if>
 
@@ -344,7 +345,8 @@
                             <xsl:attribute name="zcd">2</xsl:attribute> 
                           </xsl:if>
 
-                          <xsl:if test="substring(fileURL,string-length(fileURL)-10,11) = 'BDMV/STREAM'">
+                          <!-- For BluRay playback on the C-200 -->
+                          <xsl:if test="substring(fileURL,string-length(fileURL),1) = '/'">
                             <xsl:attribute name="zcd">2</xsl:attribute> 
                           </xsl:if>
 
@@ -440,7 +442,8 @@
                         <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
                           <xsl:attribute name="zcd">2</xsl:attribute>
                         </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-7) = 'BDMV/STREAM'">
+                        <!-- For BluRay playback on the C-200 -->
+                        <xsl:if test="substring(.,string-length(.)) = '/'">
                           <xsl:attribute name="zcd">2</xsl:attribute>
                         </xsl:if>
 
