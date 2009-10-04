@@ -492,8 +492,8 @@ public class PosterScanner {
                 }
             }
         } catch (Exception e) {
-            logger.severe("Failed retreiving Moviecovers poster URL: " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("PosterScanner Failed retreiving Moviecovers poster URL: " + movieName);
+            logger.severe("PosterScanner Error : " + e.getMessage());
             return Movie.UNKNOWN;
         }
 
@@ -528,13 +528,18 @@ public class PosterScanner {
             moviedb = TMDb.moviedbSearch(movie.getTitle());
         }
 
-        String posterUrl = moviedb.getPoster("original");
-        if (posterUrl.equals(MovieDB.UNKNOWN)) {
-            return Movie.UNKNOWN;
-        } else {
-            logger.finest("Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + moviedb.getId());
-            return posterUrl;
+        try {
+        	String posterUrl = moviedb.getPoster("original");
+            if (posterUrl.equals(MovieDB.UNKNOWN)) {
+                return Movie.UNKNOWN;
+            } else {
+                logger.finest("Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + moviedb.getId());
+                return posterUrl;
+            }
+        } catch (Exception error) {
+        	logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
         }
+        return Movie.UNKNOWN;
     }
 
     /**
