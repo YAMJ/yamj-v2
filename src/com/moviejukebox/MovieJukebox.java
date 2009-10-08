@@ -760,7 +760,7 @@ public class MovieJukebox {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - fanartToken.length());
                                     } else if (cleanCurrent.endsWith(bannerToken) && bannerDownload) {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - bannerToken.length());
-                                    } else if (cleanCurrent.endsWith(videoimageToken) && videoimageDownload) {
+                                    } else if ((cleanCurrent.indexOf(videoimageToken) > 0) && videoimageDownload) {
                                         cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - videoimageToken.length());
                                         // This will skip all videoimages. not really what we want
                                         // Need to create an exclusion list that can be added to
