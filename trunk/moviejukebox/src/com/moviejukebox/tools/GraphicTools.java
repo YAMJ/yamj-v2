@@ -43,11 +43,11 @@ public class GraphicTools {
         BufferedImage bi = null;
         try {
             bi = ImageIO.read(fis);
-        } catch (IIOException e) {
-            logger.finest("Error reading image file. Possibly corrupt image, please try another image.");
+        } catch (IIOException error) {
+            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
             return null;
         } catch (Exception ignore) {
-            ignore.printStackTrace();
+        	logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             return null;
         } finally {
             if (fis != null) {
@@ -67,7 +67,7 @@ public class GraphicTools {
         try {
             bi = loadJPEGImage(new URL(urlString));
         } catch (IOException ignore) {
-            ignore.printStackTrace();
+        	logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             bi = null;
         }
         return bi;
@@ -78,7 +78,7 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(url);
         } catch (Exception ignore) {
-            ignore.printStackTrace();
+        	logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             bi = null;
         }
         return bi;
@@ -97,7 +97,7 @@ public class GraphicTools {
             ImageIO.write(bufImage, "jpg", new File(str));
 
         } catch (Exception ignore) {
-            logger.severe("Failed Saving thumbnail file: " + str);
+            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + str);
             ignore.printStackTrace();
         }
     }
@@ -111,7 +111,7 @@ public class GraphicTools {
         try {
             ImageIO.write(bi, "png", new File(str));
         } catch (Exception ignore) {
-            logger.severe("Failed Saving thumbnail file: " + str);
+            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + str);
             ignore.printStackTrace();
         }
     }
