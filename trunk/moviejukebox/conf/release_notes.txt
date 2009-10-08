@@ -17,6 +17,7 @@ MovieJukebox 1.0.18 beta
   - Enhancement  #733 Local use of episode images..
   - Fixed defect #767 Link to video_ts must be case insensitive
   - Enhancement  #781 Detect the change of path for a file and update the XML
+  - Enhancement  #792 Support year based seasons from thetvdb
   - Enhancement  #836 Option for AppleTrailers to include or exclude trailer types
   - Fixed defect #846 appletrailers.download is case sensitive
   - Fixed defect #850 Exception generated if Jukebox directory can't be written to
@@ -49,6 +50,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #943 Apple Trailers no longer work
   - Enhancement  #947 Separate download of Movie/TV Show fanart
   - Fixed defect #950 Kinopoisk plugin doesn't use existing "Writer/Written by" value
+  - Fixed defect #956 VideoImages not downloaded for multiple episode disks
   - Fixed defect #958 Apple trailer links incorrect
   - Enhancement  #960 Separate fanart sizes for TV and Movie fanart
   - Enhancement  #967 Property to control the overwriting of VideoImages
@@ -63,7 +65,6 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #996 Sratim plugin fails to correctly strip html tags from actor names
   - Fixed defect #1020 fullMovieInfoInIndexes=false uses a "banner" entry instead of bannerFile or bannerURL
   - Enhancement  #1023 Playing BluRay backups with menu in C200
-  - Enhancement  #792 Support year based seasons from thetvdb
 
 MovieJukebox 1.0.17 beta
 ------------------------
