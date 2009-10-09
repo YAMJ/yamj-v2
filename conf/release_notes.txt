@@ -65,6 +65,7 @@ MovieJukebox 1.0.18 beta
   - Fixed defect #996 Sratim plugin fails to correctly strip html tags from actor names
   - Fixed defect #1020 fullMovieInfoInIndexes=false uses a "banner" entry instead of bannerFile or bannerURL
   - Enhancement  #1023 Playing BluRay backups with menu in C200
+  - Fixed defect #1039 Apple Trailers broken again
 
 MovieJukebox 1.0.17 beta
 ------------------------

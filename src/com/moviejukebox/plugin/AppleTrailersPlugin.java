@@ -123,8 +123,8 @@ public class AppleTrailersPlugin {
             
             // Issue with the naming of URL for trailer download
             // See: http://www.hd-trailers.net/blog/how-to-download-hd-trailers-from-apple/
-            trailerRealUrl = trailerRealUrl.replace("movies.apple.com", "www.apple.com");
-            trailerRealUrl = trailerRealUrl.replace("images.apple.com", "www.apple.com");
+            trailerRealUrl = trailerRealUrl.replace("www.apple.com", "movies.apple.com");
+            trailerRealUrl = trailerRealUrl.replace("images.apple.com", "movies.apple.com");
             
             logger.finer("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
             trailerDownloadCnt++;
