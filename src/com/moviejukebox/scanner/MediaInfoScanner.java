@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -91,6 +92,10 @@ public class MediaInfoScanner {
 
     @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
+    	Random generator = new Random();
+    	int randomNumber = generator.nextInt();
+    	String randomDirName = "./isoTEMP/" + randomNumber + "/VIDEO_TS";
+    	
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
@@ -112,7 +117,7 @@ public class MediaInfoScanner {
             }
             
             IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
-            File tempRep = new File("./isoTEMP/VIDEO_TS");
+            File tempRep = new File(randomDirName);
             tempRep.mkdirs();
             
             try {
@@ -121,7 +126,7 @@ public class MediaInfoScanner {
                 while (parcoursEntries.hasNext()) {
                     ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
                     if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
-                        File currentIFO = new File("./isoTEMP/VIDEO_TS/" + currentArchiveEntry.getName());
+                        File currentIFO = new File(randomDirName + File.separator + currentArchiveEntry.getName());
                         FileOutputStream fosCurrentIFO = new FileOutputStream(currentIFO);
                         byte[] ifoFileContent = new byte[Integer.parseInt(Long.toString(currentArchiveEntry.getSize()))];
                         scannedIsoFile.getEntryInputStream(currentArchiveEntry).read(ifoFileContent);
@@ -146,6 +151,7 @@ public class MediaInfoScanner {
                 isoList[nbFiles].delete();
             }
             tempRep.delete();
+            new File("./isoTEMP/" + randomNumber).delete();
         } else {
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
         }
