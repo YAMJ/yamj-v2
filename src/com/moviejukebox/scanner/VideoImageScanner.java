@@ -181,11 +181,15 @@ public class VideoImageScanner {
 	            if (mf.getVideoImageFilename(part) == null || mf.getVideoImageFilename(part).equalsIgnoreCase(Movie.UNKNOWN)) {
 	                if (videoimageExtension == null) {
 	                    videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
-	                	mf.setVideoImageFilename(part, localVideoImageBaseFilename + videoimageExtension);
-	                } else {
-	                // This is the YAMJ generated filename.
-	                	mf.setVideoImageFilename(part, localVideoImageBaseFilename);
+	                    
+	                    if (firstPart < lastPart)
+	                    	localVideoImageBaseFilename += partSuffix + videoimageExtension;
+	                    else
+	                    	localVideoImageBaseFilename += videoimageExtension;
 	                }
+	                // This is the YAMJ generated filename.
+                	mf.setVideoImageFilename(part, localVideoImageBaseFilename);
+	                
 	            }
 	
 	            // If we haven't found a local image, but a generic image exists, use that now.
