@@ -1,8 +1,6 @@
 **************************************************************
-** MovieJukebox V1.0 (beta16)
+** MovieJukebox V1.5
 ***************************************************************
-
-WARNING: THIS BETA VERSION IS A PROTOTYPE, YOU MAY EXPERIENCE PROBLEMS
 
 Features
 --------
@@ -207,11 +205,20 @@ Things you should know about
          In both cases, you'll have to delete the generated files those for this movie (.xml, 
           .jpg, _small.jpeg, .html) in the Jukebox directory, then relaunch MovieJukebox.
 
-       - When the poster used in the IMDb is not good enought, you can replace it with a good 
+       - When the poster used in the IMDb is not good enough, you can replace it with a good 
          one into the Jukebox directory.
 
-         If you then delete the correspondng thumbail file (XXXXX_small.jpg), and relaunch the 
+         If you then delete the corresponding thumbnail file (XXXXX_small.jpg), and relaunch the 
          Movie jukebox tool, the thumbnail file will be regenerated with you new poster.
+
+Multi-Threading Performance
+---------------------------
+
+    Version 1.5 of YAMJ introduces multi-threading to speed up the performance of YAMJ.
+    Initially the scanning parameters are set to a value of one each, meaning that there is
+    one scanning thread and one processing thread. You can try increasing these parameters to
+    larger values to increase performance. Increasing these parameters beyond "1" can lead to
+    unstable performance, such as skin compilation errors and downloaded image errors.
 
 
 Important notes
