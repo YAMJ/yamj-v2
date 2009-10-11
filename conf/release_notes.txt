@@ -2,7 +2,7 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 1.0.18 beta
+MovieJukebox 1.5
 ------------------------
   - Enhancement  #154 Better handling for trailers, extras & bonus material for movies and TV series
   - Enhancement  #323 TheMovieDB.org plugin (part 1)

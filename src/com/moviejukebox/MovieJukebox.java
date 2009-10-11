@@ -135,7 +135,16 @@ public class MovieJukebox {
         logger.addHandler(ch);
         logger.setLevel(Level.ALL);
 
+        logger.fine("Yet Another Movie Jukebox");
+        logger.fine("~~~ ~~~~~~~ ~~~~~ ~~~~~~~");
+        logger.fine("http://code.google.com/p/moviejukebox/");
+        logger.fine("Copyright (c) 2004-2009 YAMJ Members");
+        logger.fine("");
+        logger.fine("This software is licensed under a Creative Commons License");
+        logger.fine("See this page: http://code.google.com/p/moviejukebox/wiki/License");
+        logger.fine("");
         logger.fine("Processing started at " + new Date());
+        logger.fine("");
 
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
@@ -386,7 +395,7 @@ public class MovieJukebox {
         int MaxThreadsScan = Integer.parseInt(PropertiesUtil.getProperty("mjb.MaxThreadsScan", "4"));
         int MaxThreadsProcess = Integer.parseInt(PropertiesUtil.getProperty("mjb.MaxThreadsProcess", Integer.toString(Runtime.getRuntime().availableProcessors())));
         logger.fine("Using " + MaxThreadsScan + " scanning threads and " + MaxThreadsProcess + " processing threads...");
-
+        logger.fine("See README.TXT for increasing performance using these settings.");
         int nbFiles = 0;
         String cleanCurrent = "";
         String cleanCurrentExt = "";

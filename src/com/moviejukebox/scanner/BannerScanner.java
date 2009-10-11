@@ -62,6 +62,14 @@ public class BannerScanner {
         bannerOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forcePosterOverwrite", "false"));
     }
 
+    /**
+     * Scan for local banners and download if necessary
+     * 
+     * @param imagePlugin
+     * @param jukeboxDetailsRoot
+     * @param tempJukeboxDetailsRoot
+     * @param movie
+     */
     public static void scan(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String localBannerBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
         String fullBannerFilename = null;
