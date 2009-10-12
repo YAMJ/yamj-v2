@@ -26,10 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,8 +40,13 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.FileTools;
+import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
+import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
 public class SratimPlugin extends ImdbPlugin {
+
+    private static AbstractStringMetric metric = new MongeElkan();
+
     public static String SRATIM_PLUGIN_ID = "sratim";
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
@@ -74,12 +76,12 @@ public class SratimPlugin extends ImdbPlugin {
         plotLineMaxChar = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMaxChar", "50"));        
         plotLineMax = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMax", "2"));
         
-        subtitleDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("sratim.subtitlte", "false"));
+        subtitleDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("sratim.subtitle", "false"));
         login = PropertiesUtil.getProperty("sratim.username", "");
         pass = PropertiesUtil.getProperty("sratim.password", "");
         code = PropertiesUtil.getProperty("sratim.code", "");
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
-
+        
         if (subtitleDownload == true && !login.equals(""))
             loadSratimCookie();
     }
@@ -137,7 +139,7 @@ public class SratimPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-            sratimUrl = "http://www.sratim.co.il/" + detailsUrl;
+            sratimUrl = "http://www.sratim.co.il" + detailsUrl;
 
             return sratimUrl;
 
@@ -610,7 +612,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideTitle()) {
-                String title = removeTrailBracket(HTMLTools.extractTag(xml, "<td valign=\"top\" style=\"width:100%\"", 0, "</td>"));
+                String title = extractMovieTitle(xml);
 
                 movie.setTitle(logicalToVisual(title));
                 movie.setTitleSort(title);
@@ -648,7 +650,7 @@ public class SratimPlugin extends ImdbPlugin {
                     movie.setYear(HTMLTools.getTextAfterElem(xml, "<span id=\"ctl00_ctl00_Body_Body_Box_ProductionYear\">"));
                 }
             }
-			
+
             movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>"))));
 
             // As last resort use sratim low quality poster
@@ -915,36 +917,28 @@ public class SratimPlugin extends ImdbPlugin {
             return;
         }
 
-            
-        // Check if this movie already have subtitles for it
-        String path = mf.getFile().getAbsolutePath();
-        int lindex = path.lastIndexOf(".");
-        String basename = path.substring(0, lindex + 1);
-
-        File subtitleFile = new File(basename + "srt");
-
-        if (subtitleFile.exists()) {
+        // Check if this movie already have subtitles for it (.srt and .sub)
+        if (hasExistingSubtitles(mf)) {
             mf.setSubtitlesExchange(true);
             return;
         }
 
-
         // Get the file base name
-        path = mf.getFile().getName().toUpperCase();
-        lindex = path.lastIndexOf(".");
+        String path = mf.getFile().getName().toUpperCase();
+        int lindex = path.lastIndexOf(".");
         if (lindex==-1)
             return;
         
-        basename = path.substring(0, lindex);
+        String basename = path.substring(0, lindex);
 
         // Check if this is a bluray file
         boolean bluRay = false;
         if (path.endsWith(".M2TS") && path.startsWith("0"))
             bluRay = true;
             
-        basename = basename.replace('.',' ');
+        basename = basename.replace('.',' ').replace('-',' ').replace('_',' ');
 
-        logger.finest("downloadSubtitle: " +subtitleFile.getAbsolutePath() );
+        logger.finest("downloadSubtitle: " + mf.getFile().getAbsolutePath() );
         logger.finest("basename: " +basename );
         logger.finest("bluRay: " +bluRay );
 
@@ -956,26 +950,30 @@ public class SratimPlugin extends ImdbPlugin {
         String bestBlurayID="";
         String bestBlurayFPSID="";
         String bestFileID="";
-
+        String bestSimilar="";
 
         int index = 0;
         int endIndex = 0;
-        
-        
+
+        //find the end of hebrew subtitles section, to prevent downloading non-hebrew ones
+        int endHebrewSubsIndex = findEndOfHebrewSubtitlesSection(mainXML);
+
         // Check that hebrew subtitle exist
         String hebrewSub = HTMLTools.getTextAfterElem(mainXML, "<img src=\"/images/flags/Hebrew.gif\" alt=\"");
 
         logger.finest("hebrewSub: " +hebrewSub );
         
         // Check that there is no 0 hebrew sub
-        if (hebrewSub.startsWith("0 ")) {
+        if (Movie.UNKNOWN.equals(hebrewSub) || hebrewSub.startsWith("0 ")) {
             logger.finest("No Hebrew subtitles");
 
             return; 
         }        
-        
-        
-        while (true) {
+
+        float maxMatch = 0.0f;
+        float matchThreshold = Float.parseFloat( PropertiesUtil.getProperty("sratim.textMatchSimilarity", "0.8") );
+
+        while (index < endHebrewSubsIndex) {
 
             index = mainXML.indexOf("<a href=\"/movies/subtitles/download.aspx?", index);
             if (index == -1)
@@ -1041,8 +1039,6 @@ public class SratimPlugin extends ImdbPlugin {
 
             String scanFileName = mainXML.substring(index, endIndex).toUpperCase().replace('.',' ');
 
-
-
             index = mainXML.indexOf("</b> ", index);
             if (index == -1)
                 break;
@@ -1055,15 +1051,22 @@ public class SratimPlugin extends ImdbPlugin {
 
             String scanFPS = mainXML.substring(index, endIndex);
     
-    
 
-            logger.finest("scanFileName: " + scanFileName + " scanFPS: " + scanFPS + " scanID: " + scanID + " scanCount: "+scanCount + " scanDiscs: " + scanDiscs + " scanFormat: " +scanFormat);
+            // Check for best text similarity
+            float result = metric.getSimilarity(basename, scanFileName);
+            if(result > maxMatch)  {
+                maxMatch = result;
+                bestSimilar = scanID;
+            }
+
+            logger.finest("scanFileName: " + scanFileName + " scanFPS: " + scanFPS + " scanID: " + scanID + " scanCount: "+scanCount + " scanDiscs: " + scanDiscs + " scanFormat: " +scanFormat + " similarity: " + result);
 
 
-            // Check if this is a format supported by the popcorn hour
-            if (!scanDiscs.equals("1") || !scanFormat.equals("SubRip"))
+            // Check if movie parts matches
+            int nDiscs = movie.getMovieFiles().size();
+            if (!String.valueOf(nDiscs).equals(scanDiscs))
                 continue;
-                
+
 
             // Check for exact file name
             if (scanFileName.equals(basename)) {
@@ -1126,6 +1129,12 @@ public class SratimPlugin extends ImdbPlugin {
             bestID = bestFileID;
         } else
 
+        // Check for text similarity match, similarity threshold takes precedence over FPS check
+        if (maxMatch >= matchThreshold) {
+            logger.finest("Best Text Similarity threshold");
+            bestID = bestSimilar;
+        } else
+
         // Check for bluray match
         if (!bestBlurayFPSID.equals("")) {
             logger.finest("Best Bluray FPS");
@@ -1144,6 +1153,12 @@ public class SratimPlugin extends ImdbPlugin {
             bestID = bestFPSID;
         } else
         
+        // Check for text match, now just choose the best similar name
+        if (maxMatch > 0) {
+            logger.finest("Best Similar");
+            bestID = bestSimilar;
+        } else
+
         {
             logger.finest("No subtitle found");
             return;
@@ -1151,7 +1166,10 @@ public class SratimPlugin extends ImdbPlugin {
         
         logger.finest("bestID: " + bestID);
 
-        if (downloadSubtitleZip("http://www.sratim.co.il/movies/subtitles/download.aspx?"+bestID, subtitleFile)==false) {
+        //reconstruct movie filename with full path
+        String orgName = mf.getFile().getAbsolutePath();
+        File subtitleFile = new File( orgName.substring(0, orgName.lastIndexOf(".")) );
+        if (! downloadSubtitleZip(movie, "http://www.sratim.co.il/movies/subtitles/download.aspx?"+bestID, subtitleFile)) {
             logger.severe("Error - Sratim subtitle download failed");
             return;
         }
@@ -1161,8 +1179,9 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
 
-    public boolean downloadSubtitleZip(String subDownloadLink, File subtitleFile) {
+    public boolean downloadSubtitleZip(Movie movie, String subDownloadLink, File subtitleFile) {
 
+        boolean found = false;
         try {
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
@@ -1183,7 +1202,10 @@ public class SratimPlugin extends ImdbPlugin {
                 subtitleDownload=false;
                 return false;
             }
-            
+
+            Collection<MovieFile> parts = movie.getMovieFiles();
+            Iterator<MovieFile> partsIter = parts.iterator();
+
             byte[] buf = new byte[1024];
             ZipInputStream zipinputstream = null;
             ZipEntry zipentry;
@@ -1199,22 +1221,41 @@ public class SratimPlugin extends ImdbPlugin {
                 
                 
                 // Check if this is a subtitle file
-                if (entryName.toUpperCase().endsWith(".SRT")) {
+                if (entryName.toUpperCase().endsWith(".SRT") || entryName.toUpperCase().endsWith(".SUB")) {
                 
                     int n;
                     FileOutputStream fileoutputstream;
 
-                    fileoutputstream = new FileOutputStream(subtitleFile);             
+                    String entryExt = entryName.substring(entryName.lastIndexOf('.'));
+
+                    if(movie.isTVShow()) {
+                        // for tv show, use the subtitleFile parameter because tv show is
+                        // handled by downloading subtitle from the episode page (each episode for its own)
+                        fileoutputstream = new FileOutputStream(subtitleFile + entryExt);
+                    } else {
+                        // for movie, we need to save all subtitles entries
+                        // from inside the zip file, and name them according to
+                        // the movie file parts.
+                        if( partsIter.hasNext() ) {
+                            MovieFile moviePart = partsIter.next();
+                            String partName = moviePart.getFile().getAbsolutePath();
+                            partName = partName.substring(0, partName.lastIndexOf('.'));
+                            fileoutputstream = new FileOutputStream(partName + entryExt);
+                        }
+                        else {
+                            //in case of some mismatch, use the old code
+                            fileoutputstream = new FileOutputStream(subtitleFile + entryExt);
+                        }
+                    }
 
                     while ((n = zipinputstream.read(buf, 0, 1024)) > -1)
                         fileoutputstream.write(buf, 0, n);
 
                     fileoutputstream.close();
 
-                    zipinputstream.close();
-                    return true;
+                    found = true;
                 }
-                
+
                 zipinputstream.closeEntry();
                 zipentry = zipinputstream.getNextEntry();
 
@@ -1227,7 +1268,7 @@ public class SratimPlugin extends ImdbPlugin {
             return false;
         }
         
-        return false;
+        return found;
     }
 
 
@@ -1472,4 +1513,46 @@ public class SratimPlugin extends ImdbPlugin {
             logger.finer("No sratim url found in nfo !");
         }
     }
+
+    private int findEndOfHebrewSubtitlesSection(String mainXML){
+        int result = mainXML.length();
+        boolean onlyHeb = Boolean.parseBoolean(PropertiesUtil.getProperty("sratim.downloadOnlyHebrew", "false"));
+        if(onlyHeb) {
+            String pattern = "id=\"(Subtitles_[0-9][0-9]?)\"";
+            Pattern p = Pattern.compile( pattern );
+            Matcher m = p.matcher(mainXML);
+            while(m.find()){
+                String g = m.group(1);
+                if(! g.endsWith("_1")) {
+                    //hebrew subtitles has id 'Subtitles_1'
+                    result = m.start();
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    protected String extractMovieTitle(String xml) {
+        String result;
+        int start = xml.indexOf("<td valign=\"top\" style=\"width:100%\"");
+        int end = xml.indexOf("</td>",start);
+        String title = xml.substring(start+36,end);
+        result = HTMLTools.decodeHtml(title);
+        return removeTrailBracket(result);
+    }
+
+
+    protected boolean hasExistingSubtitles(MovieFile mf){
+        // Check if this movie already has subtitles for it, popcorn supports .srt and .sub
+        String path = mf.getFile().getAbsolutePath();
+        int lindex = path.lastIndexOf(".");
+        String basename = path.substring(0, lindex + 1);
+
+        File srtFile = new File(basename + "srt");
+        File subFile = new File(basename + "sub");
+
+        return srtFile.exists() || subFile.exists();
+    }
+
 }

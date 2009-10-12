@@ -2,8 +2,12 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.6 BETA
+---------------------
+  - Fixed defect #1043 Multiple bugs with SratimPlugin
+
 MovieJukebox 1.5
-------------------------
+----------------
   - Enhancement  #154 Better handling for trailers, extras & bonus material for movies and TV series
   - Enhancement  #323 TheMovieDB.org plugin (part 1)
   - Enhancement  #455 Split HD Category into 720 and 1080
