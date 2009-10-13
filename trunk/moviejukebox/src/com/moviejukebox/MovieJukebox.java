@@ -617,12 +617,25 @@ public class MovieJukebox {
 
                         // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
                         String oldPosterFilename = movie.getPosterFilename();
-                        // Don't add an extension to the poster filename, let the scanner find it.
-                        //movie.setPosterFilename(movie.getBaseName() + ".jpg");
-                        movie.setPosterFilename(movie.getBaseName());
+
+                        // Set a default poster name in case it's not found during the scan
+                        movie.setPosterFilename(movie.getBaseName() + ".jpg");
                         if (!PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
                             logger.finest("Local set poster (" + FileTools.makeSafeFilename(movie.getBaseName()) + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
+                        }
+                        
+                        // If this is a TV Show and we want to download banners, then also check for a banner Set file
+                        if (movie.isTVShow() && bannerDownload) {
+                            // Set a default banner filename in case it's not found during the scan
+                            movie.setBannerFilename(movie.getBaseName() + bannerToken + ".jpg");
+                            if (!BannerScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
+                                updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                                logger.finest("Local set banner (" + FileTools.makeSafeFilename(movie.getBaseName() + bannerToken) + ") not found, using " + oldPosterFilename);
+                                movie.setPosterFilename(oldPosterFilename);
+                            } else {
+                                logger.finest("Local set banner found, using " + movie.getBannerFilename());
+                            }
                         }
 
                         String thumbnailExtension = PropertiesUtil.getProperty("thumbnails.format", "png");

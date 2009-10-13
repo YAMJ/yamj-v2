@@ -40,8 +40,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private boolean includeWideBanners;
+    private boolean onlySeriesBanners;
+    private boolean cylceSeriesBanners;
     private boolean dvdEpisodes = false;
     protected static String fanartToken;
+    private static final String bannerSeasonType = "seasonwide";
+    private static final String bannerSeriesType = "graphical";
 
     public TheTvDBPlugin() {
         super();
@@ -50,6 +54,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
         includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
+        onlySeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
+        cylceSeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cylceSeriesBanners", "true"));
         dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
@@ -136,9 +142,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 if (movie.getCast().isEmpty()) {
                     movie.setCast(series.getActors());
                 }
+                
                 if (movie.getPosterURL().equals(Movie.UNKNOWN)) {
                     String urlNormal = null;
-                    String urlBanner = null;
 
                     if (!banners.getSeasonList().isEmpty()) {
                         for (Banner banner : banners.getSeasonList()) {
@@ -147,23 +153,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                     urlNormal = banner.getUrl();
                                 }
 
-                                // Look for season wide banners if requested
-                                if (includeWideBanners && urlBanner == null && banner.getBannerType2().equalsIgnoreCase("seasonwide")) {
-                                    urlBanner = banner.getUrl();
-                                }
-
-                                if (urlNormal != null && (!includeWideBanners || urlBanner != null)) {
+                                if (urlNormal != null) {
                                     break;
                                 }
-                            }
-                        }
-                    }
-                    // If we didn't find a season banner, check for a series banner (using the graphical format)
-                    if (includeWideBanners && urlBanner == null && !banners.getSeriesList().isEmpty()) {
-                        for (Banner banner : banners.getSeriesList()) {
-                            if (banner.getBannerType2().equalsIgnoreCase("graphical")) {
-                                urlBanner = banner.getUrl();
-                                break;
                             }
                         }
                     }
@@ -176,9 +168,50 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (urlNormal != null) {
                         movie.setPosterURL(urlNormal);
                     }
+                }
+
+                if (includeWideBanners && movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    String urlBanner = null;
+
+                    if (!banners.getSeasonList().isEmpty() && !onlySeriesBanners) {
+                        for (Banner banner : banners.getSeasonList()) {
+                            if (banner.getSeason() == movie.getSeason()) {  // only check for the correct season
+                                // Look for season wide banners if requested
+                                if (urlBanner == null && banner.getBannerType2().equalsIgnoreCase(bannerSeasonType)) {
+                                    urlBanner = banner.getUrl();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // If we didn't find a season banner or only want series banners, check for a series banner
+                    if (urlBanner == null && !banners.getSeriesList().isEmpty()) {
+                        String savedUrl = null;
+                        int counter = 0;
+                        
+                        for (Banner banner : banners.getSeriesList()) {
+                            if (banner.getBannerType2().equalsIgnoreCase(bannerSeriesType)) {
+                                // Increment the counter (before the test) and see if this is the right season
+                                if ((++counter == movie.getSeason()) || !cylceSeriesBanners) {
+                                    urlBanner = banner.getUrl();
+                                    break;
+                                } else {
+                                    // Save the URL in case this is the last one we find
+                                    savedUrl = banner.getUrl();
+                                }
+                            }
+                        }
+                        // Check to see if we found a banner
+                        if (urlBanner == null) {
+                            // No banner found, so use the last banner
+                            urlBanner = savedUrl;
+                        }
+                        
+                    }
                     if (urlBanner != null) {
                         movie.setBannerURL(urlBanner);
-                    }
+                    } 
                 }
                 
                 // TODO remove this once all skins are using the new fanart properties
