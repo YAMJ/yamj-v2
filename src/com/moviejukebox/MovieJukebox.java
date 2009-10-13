@@ -617,8 +617,11 @@ public class MovieJukebox {
 
                         // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
                         String oldPosterFilename = movie.getPosterFilename();
-                        movie.setPosterFilename(movie.getBaseName() + ".jpg");
+                        // Don't add an extension to the poster filename, let the scanner find it.
+                        //movie.setPosterFilename(movie.getBaseName() + ".jpg");
+                        movie.setPosterFilename(movie.getBaseName());
                         if (!PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
+                            logger.finest("Local set poster (" + FileTools.makeSafeFilename(movie.getBaseName()) + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
                         }
 

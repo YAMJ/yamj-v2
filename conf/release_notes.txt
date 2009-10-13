@@ -4,6 +4,7 @@
 
 MovieJukebox 1.6 BETA
 ---------------------
+  - Fixed defect #881 Custom image always picking season 1 for the "BOX set" image for escaped series names.
   - Fixed defect #1043 Multiple bugs with SratimPlugin
 
 MovieJukebox 1.5
