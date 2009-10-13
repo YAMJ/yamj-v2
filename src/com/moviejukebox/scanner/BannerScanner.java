@@ -70,7 +70,7 @@ public class BannerScanner {
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    public static void scan(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static boolean scan(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String localBannerBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
         String fullBannerFilename = null;
         String foundExtension = null;
@@ -153,8 +153,12 @@ public class BannerScanner {
             }
         } else {
             // logger.finer("BannerScanner : No local Banner found for " + movie.getBaseName() + " attempting to download");
-            downloadBanner(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            
+            // Don't download banners for sets as they will use the first banner from the set
+            if (!movie.isSetMaster()) 
+                downloadBanner(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
         }
+        return foundLocalBanner;
     }
 
     /**

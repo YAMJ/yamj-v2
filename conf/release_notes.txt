@@ -4,8 +4,12 @@
 
 MovieJukebox 1.6 BETA
 ---------------------
-  - Fixed defect #881 Custom image always picking season 1 for the "BOX set" image for escaped series names.
+  - Fixed defect  #881 Custom image always picking season 1 for the "BOX set" image for escaped series names.
+  - Enhancement   #955 Option to download SERIES banners instead of SEASON    
+  - Enhancement  #1005 Download different banners for different seasons
+  - Enhancement  #1010 Enable the use of Set banners for BoxedSets
   - Fixed defect #1043 Multiple bugs with SratimPlugin
+  - Fixed defect #1045 Banners not downloaded if Local Poster file exists
 
 MovieJukebox 1.5
 ----------------
