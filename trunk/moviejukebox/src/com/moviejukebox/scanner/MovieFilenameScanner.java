@@ -129,6 +129,7 @@ public class MovieFilenameScanner {
             put("Hungarian", "HUN HU HUNGARIAN hun hu hungarian");
             put("Italian", "ITA IT ITALIAN ita it italian Ita");
             put("Japanese", "JPN JP JAPANESE jpn jp japanese Jpn");
+            put("Norwegian", "NOR NORWEGIAN nor norwegian Norwegian");
             put("Polish", "POL PL POLISH PLDUB pol pl polish pldub Pol");
             put("Portuguese", "POR PT PORTUGUESE por pt portuguese Por");
             put("Russian", "RUS RU RUSSIAN rus ru russian Rus");
@@ -165,6 +166,7 @@ public class MovieFilenameScanner {
             put("Hungarian", "HUN HU HUNGARIAN");
             put("Italian", "ITA IT ITALIAN");
             put("Japanese", "JPN JP JAPANESE");
+            put("Norwegian", "NOR NORWEGIAN");
             put("Polish", "POL PL POLISH PLDUB");
             put("Portuguese", "POR PT PORTUGUESE");
             put("Russian", "RUS RU RUSSIAN");
