@@ -10,6 +10,7 @@ MovieJukebox 1.6 BETA
   - Enhancement  #1010 Enable the use of Set banners for BoxedSets
   - Fixed defect #1043 Multiple bugs with SratimPlugin
   - Fixed defect #1045 Banners not downloaded if Local Poster file exists
+  - Enhancement  #1037 Added Norwegian language to filename scanner
 
 MovieJukebox 1.5
 ----------------
