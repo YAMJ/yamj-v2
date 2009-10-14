@@ -230,17 +230,13 @@ public class MovieJukebox {
         MovieNFOScanner.setNFOdirectory(PropertiesUtil.getProperty("filename.nfo.directory", ""));
         MovieNFOScanner.setParentDirs(Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.parentDirs", "false")));
 
-        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| ");
-        Collection<String> keywords = new ArrayList<String>();
-        while (st.hasMoreTokens()) {
-            keywords.add(st.nextToken());
-        }
-        MovieFilenameScanner.setSkipKeywords(keywords.toArray(new String[] {}));
+        MovieFilenameScanner.setSkipKeywords(tokenizeToArray(PropertiesUtil.getProperty("filename.scanner.skip.keywords", ""), ",;| "));
+        MovieFilenameScanner.setExtrasKeys(tokenizeToArray(PropertiesUtil.getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| "));
         MovieFilenameScanner.setLanguageDetection(Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.language.detection", "true")));
 
         String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
         if (temp != null) {
-            st = new StringTokenizer(temp, ",");
+            StringTokenizer st = new StringTokenizer(temp, ",");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
                 if (token.startsWith("\"") && token.endsWith("\"")) {
@@ -286,6 +282,16 @@ public class MovieJukebox {
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         ml.generateLibrary(jukeboxClean, jukeboxPreserve);
+    }
+
+    private static String[] tokenizeToArray(String str, String delim) {
+        StringTokenizer st = new StringTokenizer(str, delim);
+        Collection<String> keywords = new ArrayList<String>();
+        while (st.hasMoreTokens()) {
+            keywords.add(st.nextToken());
+        }
+        final String[] array = keywords.toArray(new String[] {});
+        return array;
     }
 
     private static void help() {
