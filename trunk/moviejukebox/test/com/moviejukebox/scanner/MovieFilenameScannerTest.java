@@ -257,6 +257,13 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(13, d.getEpisodes().get(2).intValue());
     }
 
+    public void testScanYearAsEndTitle() {
+//        MovieFileNameDTO d = scan("Dark.City.1998.directors.cut.dvdrip.xvid-nodlabs.avi");
+//        assertEquals("Dark City", d.getTitle());
+//        assertEquals(1998, d.getSeason());
+    }
+    
+    
     @SuppressWarnings("serial")
     private static MovieFileNameDTO scan(String filename) {
         File file = new File(filename) {

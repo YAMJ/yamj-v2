@@ -49,18 +49,12 @@ public class MovieFilenameScanner {
     private static boolean languageDetection = true;
 
     /** All symbols within brackets [] if there is an EXTRA keyword */
-    private static final String EXTRA_PATTERN_START = "\\[([^\\[\\]]*";
-    private static final String EXTRA_PATTERN_END = "[^\\[]*)\\]";
-    private static final List<String> EXTRA_PATTERN_KEYWORDS = new ArrayList<String>();
+    private static String[] extrasKeywords;
+    private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
     {
-        {
-            StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| ");
-            while (st.hasMoreTokens())
-                EXTRA_PATTERN_KEYWORDS.add(st.nextToken());
-
-        }
+        setExtrasKeys(new String[] {"trailer"});
     }
-    // private static final Pattern EXTRA_PATTERN = ipatt("\\[([^\\[\\]]*(trailer|extra|bonus)[^\\[]*)\\]");
+    
 
     /** Everything in format [SET something] */
     private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
@@ -263,7 +257,14 @@ public class MovieFilenameScanner {
         return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
 
-    /**
+     /**
+     * @param regex
+     * @return Case insensitive pattern matched somewhere in square brackets
+     */
+    private static final Pattern pattInSBrackets(String regex) {
+        return ipatt("\\[([^\\[\\]]*" + regex + "[^\\[]*)\\]");
+    }
+   /**
      * @param regex
      * @return Case insensitive pattern with word delimiters around
      */
@@ -321,14 +322,12 @@ public class MovieFilenameScanner {
 
         // EXTRAS (Including Trailers)
         {
-            for (String patternString : EXTRA_PATTERN_KEYWORDS) {
-                Pattern pattern = ipatt(EXTRA_PATTERN_START + patternString + EXTRA_PATTERN_END);
+            for (Pattern pattern : extrasPatterns) {
                 Matcher matcher = pattern.matcher(rest);
-                patternString = patternString.toUpperCase();
                 if (matcher.find()) {
                     dto.setExtra(true);
                     dto.setPartTitle(matcher.group(1));
-                    rest = cutMatch(rest, matcher, "./" + patternString + "/.");
+                    rest = cutMatch(rest, matcher, "./EXTRA/.");
                     break;
                 }
             }
@@ -407,21 +406,12 @@ public class MovieFilenameScanner {
 
         // TITLE
         {
-            int iextra = rest.length(), itrailer = rest.length();
-
-            if (rest.indexOf("/TRAILER/") >= 0) {
-                itrailer = dto.isExtra() ? rest.indexOf("/TRAILER/") : rest.length();
-            } else if (rest.indexOf("/EXTRA/") >= 0) {
-                iextra = dto.isExtra() ? rest.indexOf("/EXTRA/") : rest.length();
-            }
-
+            int iextra = dto.isExtra() ? rest.indexOf("/EXTRA/") : rest.length();
             int itvshow = dto.getSeason() >= 0 ? rest.indexOf("/TVSHOW/") : rest.length();
             int ipart = dto.getPart() >= 0 ? rest.indexOf("/PART/") : rest.length();
 
             {
-                int min = iextra < itrailer ? iextra : itrailer;
-                min = min < itrailer ? min : itrailer;
-                min = min < itvshow ? min : itvshow;
+                int min = iextra < itvshow ? iextra : itvshow;
                 min = min < ipart ? min : ipart;
 
                 // Find first token before trailer, TV show and part
@@ -565,6 +555,18 @@ public class MovieFilenameScanner {
         skipPatterns.clear();
         for (String s : skipKeywords) {
             skipPatterns.add(ipatt(Pattern.quote(s)));
+        }
+    }
+    
+    public static String[] getExtrasKeywords() {
+        return extrasKeywords;
+    }
+
+    public static void setExtrasKeys(String[] extrasKeywords) {
+        MovieFilenameScanner.extrasKeywords = extrasKeywords;
+        extrasPatterns.clear();
+        for (String s : extrasKeywords) {
+            extrasPatterns.add(pattInSBrackets(Pattern.quote(s)));
         }
     }
 
