@@ -11,6 +11,7 @@ MovieJukebox 1.6 BETA
   - Fixed defect #1043 Multiple bugs with SratimPlugin
   - Fixed defect #1045 Banners not downloaded if Local Poster file exists
   - Enhancement  #1037 Added Norwegian language to filename scanner
+  - Fixed defect #1046 With "play full BluRay disks" selected, audio and video details are UNKNOWN
 
 MovieJukebox 1.5
 ----------------
