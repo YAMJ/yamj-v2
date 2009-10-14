@@ -224,9 +224,7 @@ public class MovieDirectoryScanner {
 
                 bdDuration = bdPropertiesMovie.duration;
                 
-                // If we don't play the full disk, then we link to the directory.
-                if (!playFullBluRayDisk)
-                	contentFiles = bdPropertiesMovie.fileList;
+            	contentFiles = bdPropertiesMovie.fileList;
             }
         }
 
@@ -252,16 +250,18 @@ public class MovieDirectoryScanner {
             relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
 
             if (contentFiles[i].isDirectory()) {
-                // For DVD & BluRay images
-            	if (isBluRay) {
-            		// BluRay rips on the C-200 with the BDMV/STREAM structure have to play from the parent directory. So add a "/" to the end of the play Filename
-                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/");
-            	}
-            	else {
-                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
-            	}
+                // For DVD images
+                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
             } else {
-                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
+            	if (isBluRay && playFullBluRayDisk) {
+            		// A BluRay File and playFullBluRayDisk, so link to the directory and not the file
+            		String tempFilename = srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
+            		tempFilename = tempFilename.substring(0, tempFilename.lastIndexOf("BDMV"));
+                    movieFile.setFilename(tempFilename);
+            	} else {
+            		// Normal movie file so link to it
+            		movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
+            	}
             }
             movieFile.setPart(i + 1);
             movieFile.setFile(contentFiles[i]);
