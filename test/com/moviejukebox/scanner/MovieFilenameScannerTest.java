@@ -13,6 +13,8 @@
 
 package com.moviejukebox.scanner;
 
+import static com.moviejukebox.MovieJukebox.tokenizeToArray;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -26,7 +28,8 @@ public class MovieFilenameScannerTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        MovieFilenameScanner.setSkipKeywords(new String[] { "-xor", "REMUX", "vfua", "-SMB", "-hdclub", "Remastered", "[KB]" });
+        MovieFilenameScanner.setSkipKeywords(new String[] { "-xor", "REMUX", "vfua", "-SMB", "-hdclub", "[KB]" });
+        MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray("remastered,directors cut,extended cut,final cut", ",;|"));
     }
 
     public void testPatterns() {
@@ -257,10 +260,17 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(13, d.getEpisodes().get(2).intValue());
     }
 
-    public void testScanYearAsEndTitle() {
-//        MovieFileNameDTO d = scan("Dark.City.1998.directors.cut.dvdrip.xvid-nodlabs.avi");
-//        assertEquals("Dark City", d.getTitle());
-//        assertEquals(1998, d.getSeason());
+    public void testScanVersion() {
+        MovieFileNameDTO d = scan("Ghost Rider.2007.Extended.Cut.720p.BluRay.x264.mkv");
+        assertEquals("Ghost Rider", d.getTitle());
+        assertEquals(2007, d.getYear());
+        
+        d = scan("Dark.City.1998.directors.cut.dvdrip.xvid-nodlabs.avi");
+        assertEquals("Dark City", d.getTitle());
+        assertEquals(1998, d.getYear());
+        
+        d = scan("Troy.Directors.Cut.HDDVDRip.720p.x264.HANSMER.mkv");
+        assertEquals("Troy", d.getTitle());
     }
     
     
