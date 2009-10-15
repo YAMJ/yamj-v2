@@ -52,8 +52,11 @@ public class MovieFilenameScanner {
     private static String[] extrasKeywords;
     private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
     {
-        setExtrasKeys(new String[] {"trailer"});
+        setExtrasKeywords(new String[] {"trailer"});
     }
+
+    private static String[] movieVersionKeywords;
+    private static final List<Pattern> movieVersionPatterns = new ArrayList<Pattern>();
     
 
     /** Everything in format [SET something] */
@@ -320,6 +323,11 @@ public class MovieFilenameScanner {
             rest = p.matcher(rest).replaceAll("./.");
         }
 
+        // Remove version info
+        for (Pattern p : movieVersionPatterns) {
+            rest = p.matcher(rest).replaceAll("./.");
+        }
+
         // EXTRAS (Including Trailers)
         {
             for (Pattern pattern : extrasPatterns) {
@@ -459,7 +467,7 @@ public class MovieFilenameScanner {
                         }
                     }
                 }
-
+                
                 // Search year within title (last 4 digits or 4 digits in parenthesis)
                 if (dto.getYear() < 0) {
                     Matcher ymatcher = MOVIE_YEAR_PATTERN.matcher(title);
@@ -518,6 +526,12 @@ public class MovieFilenameScanner {
         return language;
     }
 
+    /**
+     * Replace all dividers with spaces and trim trailing spaces and redundant 
+     * braces/minuses at the end. 
+     * @param token String to clean up.
+     * @return Prepared title.
+     */
     private String cleanUpTitle(String token) {
         String title = TITLE_CLEANUP_DIV_PATTERN.matcher(token).replaceAll(" ").trim();
         return TITLE_CLEANUP_CUT_PATTERN.matcher(title).replaceAll("").trim();
@@ -562,11 +576,25 @@ public class MovieFilenameScanner {
         return extrasKeywords;
     }
 
-    public static void setExtrasKeys(String[] extrasKeywords) {
+    public static void setExtrasKeywords(String[] extrasKeywords) {
         MovieFilenameScanner.extrasKeywords = extrasKeywords;
         extrasPatterns.clear();
         for (String s : extrasKeywords) {
             extrasPatterns.add(pattInSBrackets(Pattern.quote(s)));
+        }
+    }
+
+    public static String[] getMovieVersionKeywords() {
+        return movieVersionKeywords;
+    }
+
+    public static void setMovieVersionKeywords(String[] movieVersionKeywords) {
+        MovieFilenameScanner.movieVersionKeywords = movieVersionKeywords;
+        movieVersionPatterns.clear();
+        for (String s : movieVersionKeywords) {
+            movieVersionPatterns.add(
+                    iwpatt(s.replace(" ", WORD_DELIMITERS_MATCH_PATTERN.pattern()))
+                    );
         }
     }
 
