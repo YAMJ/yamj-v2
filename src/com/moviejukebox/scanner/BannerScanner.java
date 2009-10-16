@@ -119,7 +119,7 @@ public class BannerScanner {
         // If we've found the banner, copy it to the jukebox, otherwise download it.
         if (foundLocalBanner) {
             if (movie.getBannerFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setBannerFilename(movie.getBaseName() + bannerToken + ".jpg");
+                movie.setBannerFilename(movie.getBaseName() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
             }
             if (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setBannerURL(localBannerFile.toURI().toString());
