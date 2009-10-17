@@ -5,7 +5,8 @@
 MovieJukebox 1.6 BETA
 ---------------------
   - Fixed defect  #881 Custom image always picking season 1 for the "BOX set" image for escaped series names.
-  - Enhancement   #955 Option to download SERIES banners instead of SEASON    
+  - Enhancement   #955 Option to download SERIES banners instead of SEASON
+  - Enhancement   #970 Updated threading functionality to increase stability    
   - Enhancement  #1005 Download different banners for different seasons
   - Enhancement  #1010 Enable the use of Set banners for BoxedSets
   - Fixed defect #1043 Multiple bugs with SratimPlugin
@@ -14,6 +15,7 @@ MovieJukebox 1.6 BETA
   - Fixed defect #1046 With "play full BluRay disks" selected, audio and video details are UNKNOWN
   - Enhancement  #1048 Ignore special movie versions from filename: "Directors Cut", "Extended Cut" etc.
   - Enhancement  #1052 Append date & time to error log filename
+  - Enhancement  #1040 New NMT file path for PCH C-200
 
 MovieJukebox 1.5
 ----------------

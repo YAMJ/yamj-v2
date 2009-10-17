@@ -26,14 +26,24 @@ import java.util.logging.Logger;
 public class DatabasePluginController {
 
     private static final Logger LOG = Logger.getLogger("moviejukebox");
-    private static final Map<String, MovieDatabasePlugin> PLUGIN_MAP = new HashMap<String, MovieDatabasePlugin>(2);
 
+    /*
+     * Gabriel Corneanu:
+     * store the map in a thread local field to make it thread safe
+     */
+    private static ThreadLocal<Map<String, MovieDatabasePlugin>> 
+      PluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
+    	@Override protected Map<String, MovieDatabasePlugin> initialValue() {
+        	HashMap<String, MovieDatabasePlugin> m = new HashMap<String, MovieDatabasePlugin>(2);
 
-    static {
-        PLUGIN_MAP.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin")));
-        PLUGIN_MAP.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin")));
-    }
+        	m.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin")));
+            m.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin")));
+            
+            return m;
+        }
+    };    
 
+    
     public static void scan(Movie movie) {
         // if the movie id was set to 0 or -1 then do not continue with database scanning.
         // the user has disabled scanning for this movie
@@ -53,11 +63,11 @@ public class DatabasePluginController {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
             String origType = movie.getMovieType();
             if (!origType.equals(Movie.TYPE_UNKNOWN)) {
-                boolean isScanned = PLUGIN_MAP.get(origType).scan(movie);
+                boolean isScanned = PluginMap.get().get(origType).scan(movie);
                 String newType = movie.getMovieType();
                 // so if the movie wasn't scanned and it is now a different valid type, then rescan
                 if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(origType)) {
-                    isScanned = PLUGIN_MAP.get(newType).scan(movie);
+                    isScanned = PluginMap.get().get(newType).scan(movie);
                     if (!isScanned) {
                         LOG.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
                     }
@@ -67,11 +77,11 @@ public class DatabasePluginController {
     }
 
     public static void scanNFO(String nfo, Movie movie) {
-        PLUGIN_MAP.get(movie.getMovieType()).scanNFO(nfo, movie);
+        PluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie);
     }
 
     public static void scanTVShowTitles(Movie movie) {
-        PLUGIN_MAP.get(Movie.TYPE_TVSHOW).scanTVShowTitles(movie);
+        PluginMap.get().get(Movie.TYPE_TVSHOW).scanTVShowTitles(movie);
     }
 
     private static MovieDatabasePlugin getMovieDatabasePlugin(String className) {
