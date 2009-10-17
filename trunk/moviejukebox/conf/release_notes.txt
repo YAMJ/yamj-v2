@@ -13,6 +13,7 @@ MovieJukebox 1.6 BETA
   - Enhancement  #1037 Added Norwegian language to filename scanner
   - Fixed defect #1046 With "play full BluRay disks" selected, audio and video details are UNKNOWN
   - Enhancement  #1048 Ignore special movie versions from filename: "Directors Cut", "Extended Cut" etc.
+  - Enhancement  #1052 Append date & time to error log filename
 
 MovieJukebox 1.5
 ----------------
