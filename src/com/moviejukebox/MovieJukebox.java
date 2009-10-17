@@ -111,10 +111,10 @@ public class MovieJukebox {
     private AppleTrailersPlugin trailerPlugin;
 
     public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException, InterruptedException {
+        String logFilename = "moviejukebox.log";
+
         // Send logger output to our FileHandler.
-
         Formatter mjbFormatter = new Formatter() {
-
             public synchronized String format(LogRecord record) {
                 return record.getMessage() + (String)java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
 
@@ -125,7 +125,8 @@ public class MovieJukebox {
             }
         };
 
-        FileHandler fh = new FileHandler("moviejukebox.log");
+    	FileHandler fh = new FileHandler(logFilename);
+        
         fh.setFormatter(mjbFormatter);
         fh.setLevel(Level.ALL);
 
@@ -286,6 +287,23 @@ public class MovieJukebox {
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         ml.generateLibrary(jukeboxClean, jukeboxPreserve);
+        
+    	fh.close();
+        if (Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.appendDateToLogFile", "false"))) {
+            // File (or directory) with old name
+            File file = new File(logFilename);
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
+        	logFilename = "moviejukebox_" + dateFormat.format(timeStart) + ".log";
+        	
+            // File with new name
+            File file2 = new File(logFilename);
+        	
+            // Rename file (or directory)
+            if (!file.renameTo(file2)) {
+                System.err.println("Error renaming log file.");
+            }
+        }
     }
 
     public static String[] tokenizeToArray(String str, String delim) {
