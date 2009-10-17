@@ -368,8 +368,10 @@ public class MovieJukeboxHTMLWriter {
     /**
      * Creates and caches Transformer, one for every xsl file.
      */
-    private Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
-        if (! transformerCache.containsKey(xslFileName)) {
+    private synchronized Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
+        // Gabriel: transformers are NOT thread safe; use thread name to make get the cache thread specific
+    	// the method itself must be synchronized because transformerCache map is modified inside
+        if (! transformerCache.containsKey(Thread.currentThread().getId() + ":" + xslFileName)) {
             if (transformerFactory == null) {
                 transformerFactory = TransformerFactory.newInstance();
             }

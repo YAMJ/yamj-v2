@@ -396,15 +396,41 @@ public class MovieJukebox {
 
     private void generateLibrary(boolean jukeboxClean, boolean jukeboxPreserve) throws FileNotFoundException, XMLStreamException, ClassNotFoundException,
                     InterruptedException {
-        final MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
-        final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
-        final MovieImagePlugin imagePlugin = this.getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
-        final MovieImagePlugin backgroundPlugin = this.getBackgroundPlugin(getProperty("mjb.background.plugin",
-                        "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
+        /********************************************************************************
+         * Gabriel Corneanu:
+         * the tools used for parallel processing are NOT thread safe (some operations are, but not all)
+         * therefore all are added to a container which is instantiated one per thread
+         * 
+         * - xmlWriter looks thread safe
+         * - htmlWriter was not thread safe, getTransformer is fixed (simple workaround)
+         * - MovieImagePlugin : not clear, made thread specific for safety
+         * - MediaInfoScanner : not sure, made thread specific
+         * 
+         * Also important:
+         * - the library itself is not thread safe for modifications (API says so)
+         * it could be adjusted with concurrent versions, but it needs many changes
+         * it seems that it is safe for subsequent reads (iterators), so leave for now...
+         * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread) 
+         * 
+        */
+    	class ToolSet {
+            public MovieImagePlugin imagePlugin = getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
+            public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin",
+                            "com.moviejukebox.plugin.DefaultBackgroundPlugin"));    		
+            public MediaInfoScanner miScanner = new MediaInfoScanner();
+    	}
+
+    	final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
+    		protected ToolSet initialValue() {return new ToolSet(); };
+    	};
+
+//     final ToolSet localtools = threadTools.get();
+
+    	final MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
+    	final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
         MovieDirectoryScanner mds = new MovieDirectoryScanner();
-        final MediaInfoScanner miScanner = new MediaInfoScanner();
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
         final String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
@@ -412,7 +438,7 @@ public class MovieJukebox {
         subtitlePlugin = new OpenSubtitlesPlugin();
         trailerPlugin = new AppleTrailersPlugin();
 
-        MovieListingPlugin listingPlugin = this.getListingPlugin(getProperty("mjb.listing.plugin",
+        MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin",
                         "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = parseBoolean(getProperty("mjb.listing.generate", "false"));
 
@@ -492,7 +518,7 @@ public class MovieJukebox {
         }
 
         logger.fine("Initializing...");
-        String tempJukeboxRoot = "./temp";
+        final String tempJukeboxRoot = "./temp";
         final String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
 
         File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
@@ -543,6 +569,7 @@ public class MovieJukebox {
                 tasks.submit(new Callable<Object>() {
                     public Object call() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
 
+                    	ToolSet tools = threadTools.get();
                         // First get movie data (title, year, director, genre, etc...)
                         if (movie.isTVShow()) {
                             logger.fine("Updating data for: " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
@@ -552,7 +579,7 @@ public class MovieJukebox {
                             logger.fine("Updating data for: " + movie.getTitle());
                         }
 
-                        updateMovieData(xmlWriter, miScanner, backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                        updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                         // Then get this movie's poster
                         logger.finer("Updating poster for: " + movie.getTitle() + "...");
@@ -560,7 +587,7 @@ public class MovieJukebox {
 
                         // Download episode images if required
                         if (videoimageDownload) {
-                            VideoImageScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            VideoImageScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                         }
 
                         // TODO remove these checks once all skins have transitioned to the new format
@@ -570,12 +597,12 @@ public class MovieJukebox {
                         // Get Fanart only if requested
                         // Note that the FanartScanner will check if the file is newer / different
                         if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                            FanartScanner.scan(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            FanartScanner.scan(tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                         }
 
                         // Get Banner if requested and is a TV show
                         if (bannerDownload && movie.isTVShow()) {
-                            BannerScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                             updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                         }
 
@@ -636,6 +663,7 @@ public class MovieJukebox {
                 tasks.submit(new Callable<Object>() {
                     public Object call() throws FileNotFoundException, XMLStreamException {
 
+                    	ToolSet tools = threadTools.get();
                         // The master's movie XML is used for generating the
                         // playlist it will be overwritten by the index XML
                         logger.finest("Writing index data for master: " + movie.getBaseName());
@@ -657,7 +685,7 @@ public class MovieJukebox {
                         if (movie.isTVShow() && bannerDownload) {
                             // Set a default banner filename in case it's not found during the scan
                             movie.setBannerFilename(movie.getBaseName() + bannerToken + ".jpg");
-                            if (!BannerScanner.scan(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
+                            if (!BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
                                 updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                                 logger.finest("Local set banner (" + FileTools.makeSafeFilename(movie.getBaseName() + bannerToken) + ") not found, using " + oldPosterFilename);
                                 movie.setPosterFilename(oldPosterFilename);
@@ -674,12 +702,12 @@ public class MovieJukebox {
                         if (getProperty("mjb.sets.createPosters", "false").equalsIgnoreCase("true")) {
                             // Create a detail poster for each movie
                             logger.finest("Creating detail poster for index master: " + movie.getBaseName());
-                            createPoster(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                            createPoster(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
                         }
 
                         // Create a thumbnail for each movie
                         logger.finest("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
-                        createThumbnail(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                        createThumbnail(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
                         // No playlist for index masters
                         // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
@@ -700,17 +728,18 @@ public class MovieJukebox {
                 tasks.submit(new Callable<Object>() {
                     public Object call() throws FileNotFoundException, XMLStreamException {
 
+                    	ToolSet tools = threadTools.get();
                         // Update movie XML files with computed index information
                         logger.finest("Writing index data to movie: " + movie.getBaseName());
                         xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
 
                         // Create a detail poster for each movie
                         logger.finest("Creating detail poster for movie: " + movie.getBaseName());
-                        createPoster(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                        createPoster(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
 
                         // Create a thumbnail for each movie
                         logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-                        createThumbnail(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                        createThumbnail(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
                         if (!skipIndexGeneration) {
                             // write the movie details HTML
@@ -727,6 +756,8 @@ public class MovieJukebox {
             tasks.awaitTermination(3600 * 24, TimeUnit.SECONDS);
 
             if (!skipIndexGeneration) {
+                // this could also go parallel, but it make complicated;
+                // the library is also not thread safe...
                 logger.fine("Writing Indexes...");
                 xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
                 xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
@@ -1131,7 +1162,7 @@ public class MovieJukebox {
         return mlp;
     }
 
-    public MovieImagePlugin getImagePlugin(String className) {
+    public static MovieImagePlugin getImagePlugin(String className) {
         MovieImagePlugin imagePlugin;
 
         try {
@@ -1149,7 +1180,7 @@ public class MovieJukebox {
         return imagePlugin;
     }
 
-    public MovieImagePlugin getBackgroundPlugin(String className) {
+    public static MovieImagePlugin getBackgroundPlugin(String className) {
         MovieImagePlugin backgroundPlugin;
 
         try {
@@ -1167,7 +1198,7 @@ public class MovieJukebox {
         return backgroundPlugin;
     }
 
-    public MovieListingPlugin getListingPlugin(String className) {
+    public static MovieListingPlugin getListingPlugin(String className) {
         MovieListingPlugin listingPlugin;
         try {
             Thread t = Thread.currentThread();

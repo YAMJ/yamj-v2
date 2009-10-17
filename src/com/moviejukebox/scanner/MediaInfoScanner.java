@@ -78,7 +78,7 @@ public class MediaInfoScanner {
             mediaInfoExe = mediaInfoExeLinux;
             checkMediainfo = new File(mediaInfoPath.getAbsolutePath() + File.separator + "mediainfo");
         }
-        System.out.println(checkMediainfo.getAbsolutePath());
+        //System.out.println(checkMediainfo.getAbsolutePath());
         if (!checkMediainfo.canExecute()) {
             logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
             activated = false;
