@@ -1048,6 +1048,7 @@ public class MovieJukebox {
                     // Issue 201 : we now download to local temp dir
                     logger.finest("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
                     FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
+                    logger.finest("Downloaded poster for " + movie.getBaseName());
                 } catch (Exception e) {
                     logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
