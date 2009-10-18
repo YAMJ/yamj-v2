@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 /**
@@ -35,7 +36,6 @@ import java.util.logging.Logger;
  */
 public class WebBrowser {
 
-    @SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger("moviejukebox");
 
     private Map<String, String> browserProperties;
@@ -46,6 +46,66 @@ public class WebBrowser {
     private String mjbProxyPassword;
     private String mjbEncodedPassword;
 
+    private static Map<String, String> hostgrp= new HashMap<String, String>();
+    private static Map<String, Semaphore> grouplimits = null;
+    
+    /**
+     * Handle download slots allocation to avoid throttling / ban on source sites
+     * Find the proper semaphore for each host:
+     * - Map each unique host to a group (hostgrp)
+     * - Max each group (rule) to a semaphore
+     * 
+     * The usage pattern is:
+     * s = getSemaphore(host)
+     * s.acquire (or acquireUninterruptibly)
+     * <download...>
+     * s.release
+     * 
+     * @author Gabriel Corneanu
+     */
+    public static synchronized Semaphore getSemaphore(String host){
+   	
+        String semaphoreGroup;
+        // First we have to read/create the rules  
+    	if (grouplimits == null) {
+    		grouplimits = new HashMap<String, Semaphore>();
+    		// Default, can be overridden
+    		grouplimits.put(".*", new Semaphore(1));
+    		String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
+	    	logger.finer("WebBrowser: Using download limits: " + limitsProperty);
+
+	    	Pattern semaphorePattern = Pattern.compile(",?\\s*([^=]+)=(\\d+)");
+    	    Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
+    	    while (semaphoreMatcher.find()) {
+    	    	semaphoreGroup = semaphoreMatcher.group(1);
+    	    	try{
+    	    		Pattern.compile(semaphoreGroup);
+        	    	logger.finer("WebBrowser: " + semaphoreGroup + "=" + semaphoreMatcher.group(2));
+        	    	grouplimits.put(semaphoreGroup, new Semaphore( Integer.parseInt(semaphoreMatcher.group(2))));
+                } catch (Exception error) {
+                	logger.finer("WebBrowser: Limit rule \"" + semaphoreGroup + "\" is not valid regexp, ignored");
+    	    	}
+    	    }
+    	}
+
+    	semaphoreGroup = hostgrp.get(host);
+    	//first time not found, search for matching group
+        if (semaphoreGroup == null ) {
+        	semaphoreGroup = ".*";
+        	for(String searchGroup : grouplimits.keySet()){
+        		if (host.matches(searchGroup))
+        			if(searchGroup.length() > semaphoreGroup.length() )
+        				semaphoreGroup = searchGroup;
+        	}
+	    	logger.finer(String.format("WebBrowser: Download host: %s; rule: %s", host, semaphoreGroup));
+        	hostgrp.put(host, semaphoreGroup);
+        }
+
+        //there should be NO way to fail
+        return grouplimits.get(semaphoreGroup);
+    }
+    
+    
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -86,6 +146,9 @@ public class WebBrowser {
     public String request(URL url) throws IOException {
         StringWriter content = null;
 
+    	// get the download limit for the host 
+    	Semaphore s = getSemaphore(url.getHost().toLowerCase());
+    	s.acquireUninterruptibly();
         try {
             content = new StringWriter();
 
@@ -111,6 +174,7 @@ public class WebBrowser {
             if (content != null) {
                 content.close();
             }
+            s.release();
         }
     }
 
