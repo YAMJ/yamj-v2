@@ -191,20 +191,26 @@ public class WebBrowser {
         }
         
         URL url = new URL(imageURL);
-        URLConnection cnx = url.openConnection();
+        Semaphore s = getSemaphore(url.getHost().toLowerCase());
+        s.acquireUninterruptibly();
+        try{
+        	URLConnection cnx = url.openConnection();
 
-        // A workaround for the need to use a referrer for thetvdb.com
-        if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
-            cnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
-        
-        if (mjbProxyUsername != null) {
-            cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
+            // A workaround for the need to use a referrer for thetvdb.com
+            if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
+                cnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
+
+            if (mjbProxyUsername != null) {
+                cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
+            }
+
+            sendHeader(cnx);
+            readHeader(cnx);
+
+            FileTools.copy(cnx.getInputStream(), new FileOutputStream(imageFile));
+        } finally {
+        	s.release();
         }
-
-        sendHeader(cnx);
-        readHeader(cnx);
-
-        FileTools.copy(cnx.getInputStream(), new FileOutputStream(imageFile));
     }
 
     private void sendHeader(URLConnection cnx) {

@@ -14,6 +14,7 @@
 package com.moviejukebox.plugin;
 
 import java.util.StringTokenizer;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
@@ -23,6 +24,7 @@ import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * @author Stuart.Boston
@@ -33,6 +35,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
+    private static final String webhost = "themoviedb.org";
     private static final String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
     private TheMovieDb TMDb;
     @SuppressWarnings("unused")
@@ -53,6 +56,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         MovieDB moviedb = null;
         boolean retval = false;
 
+        Semaphore s = WebBrowser.getSemaphore(webhost);
+        s.acquireUninterruptibly();      
         // First look to see if we have a TMDb ID as this will make looking the film up easier
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Search based on TMdb ID
@@ -76,6 +81,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             tmdbID = moviedb.getId();
             moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb);
         }
+        //the rest is not web search anymore
+        s.release();
 
         if (moviedb.getId() != null && !moviedb.getId().equalsIgnoreCase(MovieDB.UNKNOWN)) {
             System.out.println(">>Found: (" + moviedb.getId() + ") " + moviedb.getTitle());
