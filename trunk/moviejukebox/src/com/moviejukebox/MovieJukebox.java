@@ -154,7 +154,7 @@ public class MovieJukebox {
         String jukeboxRoot = null;
         boolean jukeboxClean = false;
         boolean jukeboxPreserve = false;
-        String propertiesName = "moviejukebox.properties";
+        String propertiesName = "./properties/moviejukebox-default.properties";
         Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
 
         if (args.length == 0) {
@@ -194,7 +194,7 @@ public class MovieJukebox {
             return;
         }
 
-        // Load the moviejukebox.properties file
+        // Load the moviejukebox-default.properties file
         if (!PropertiesUtil.setPropertiesStreamName(propertiesName)) {
             return;
         }
@@ -210,10 +210,14 @@ public class MovieJukebox {
         }
 
         // Load the apikeys.properties file
-        if (!PropertiesUtil.setPropertiesStreamName("apikeys.properties")) {
+        if (!PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties")) {
             return;
         }
 
+        // Load the user properties file "moviejukebox.properties"
+        // No need to abort if we don't find this file
+        PropertiesUtil.setPropertiesStreamName("moviejukebox.properties");
+        
         // Load the rest of the command-line properties
         for (Map.Entry<String, String> propEntry : cmdLineProps.entrySet()) {
             PropertiesUtil.setProperty(propEntry.getKey(), propEntry.getValue());
