@@ -25,6 +25,7 @@ import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -204,6 +205,10 @@ public class MovieJukebox {
             PropertiesUtil.setProperty("mjb.skin.dir", cmdLineProps.get("mjb.skin.dir"));
         }
 
+        // Load the user properties file "moviejukebox.properties"
+        // No need to abort if we don't find this file
+        PropertiesUtil.setPropertiesStreamName("moviejukebox.properties");
+        
         // Load the skin.properties file
         if (!PropertiesUtil.setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties")) {
             return;
@@ -214,10 +219,6 @@ public class MovieJukebox {
             return;
         }
 
-        // Load the user properties file "moviejukebox.properties"
-        // No need to abort if we don't find this file
-        PropertiesUtil.setPropertiesStreamName("moviejukebox.properties");
-        
         // Load the rest of the command-line properties
         for (Map.Entry<String, String> propEntry : cmdLineProps.entrySet()) {
             PropertiesUtil.setProperty(propEntry.getKey(), propEntry.getValue());
@@ -434,8 +435,6 @@ public class MovieJukebox {
     	final MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
     	final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
-        MovieDirectoryScanner mds = new MovieDirectoryScanner();
-
         File mediaLibraryRoot = new File(movieLibraryRoot);
         final String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
 
@@ -544,12 +543,25 @@ public class MovieJukebox {
         logger.fine("Scanning library directory " + mediaLibraryRoot);
         logger.fine("Jukebox output goes to " + jukeboxRoot);
 
-        Library tmpLib = new Library();
-        for (MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
-            logger.finer("Scanning media library " + mediaLibraryPath.getPath());
-            tmpLib = mds.scan(mediaLibraryPath, tmpLib);
-        }
-        final Library library = tmpLib;
+        ExecutorService tasks = Executors.newFixedThreadPool(movieLibraryPaths.size());
+        final Library library = new Library();
+        for (final MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
+            // Multi-thread parallel processing
+        	tasks.submit(new Callable<Void>() {
+                public Void call() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
+                	logger.finer("Scanning media library " + mediaLibraryPath.getPath());
+                    MovieDirectoryScanner mds = new MovieDirectoryScanner();
+                	Library tmpLib = mds.scan(mediaLibraryPath, new Library());
+                    //put libraries together...
+                	synchronized(library){
+                		library.putAll(tmpLib);
+                	}
+                	return null;
+                };
+            });
+        };
+        tasks.shutdown();
+        tasks.awaitTermination(3600 * 24, TimeUnit.SECONDS);
 
         // If the user asked to preserve the existing movies, scan the output directory as well
         if (jukeboxPreserve) {
@@ -563,7 +575,7 @@ public class MovieJukebox {
 
         logger.fine("Found " + library.size() + " movies in your media library");
 
-        ExecutorService tasks = Executors.newFixedThreadPool(MaxThreadsScan);
+        tasks = Executors.newFixedThreadPool(MaxThreadsScan);
 
         if (library.size() > 0) {
             logger.fine("Searching for movies information...");
@@ -724,7 +736,7 @@ public class MovieJukebox {
 
             xmlWriter.writePreferences(jukeboxDetailsRoot);
 
-            final Collection<String> generatedFileNames = new ArrayList<String>();
+            final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
             // Multi-thread: Parallel Executor
             tasks = Executors.newFixedThreadPool(MaxThreadsProcess);
             for (final Movie movie : movies) {
