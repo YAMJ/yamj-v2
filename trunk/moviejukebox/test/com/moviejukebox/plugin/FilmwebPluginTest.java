@@ -30,7 +30,7 @@ public class FilmwebPluginTest extends TestCase {
     private boolean offline = true;
 
     static {
-        PropertiesUtil.setPropertiesStreamName("moviejukebox.properties");
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
     }
 
     protected void setUp() {

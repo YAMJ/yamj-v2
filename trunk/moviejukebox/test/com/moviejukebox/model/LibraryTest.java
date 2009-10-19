@@ -30,7 +30,7 @@ public class LibraryTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         // TODO Artem: Decouple library from config.
-        PropertiesUtil.setPropertiesStreamName("moviejukebox.properties");
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         lib = new Library();
         lib.clear();
 
