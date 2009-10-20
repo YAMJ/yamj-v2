@@ -17,6 +17,7 @@ MovieJukebox 1.6 BETA
   - Enhancement  #1048 Ignore special movie versions from filename: "Directors Cut", "Extended Cut" etc.
   - Enhancement  #1052 Append date & time to error log filename
   - Enhancement  #1040 New NMT file path for PCH C-200
+  - Fixed defect #1053 Allocine search engine and layout has changed, plugin broken.
 
 MovieJukebox 1.5
 ----------------
