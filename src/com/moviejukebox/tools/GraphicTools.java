@@ -24,6 +24,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -53,8 +56,11 @@ public class GraphicTools {
             if (fis != null) {
                 try {
                     fis.close();
-                } catch (Exception ignore) {
-                    ignore.printStackTrace();
+                } catch (Exception error) {
+                	final Writer eResult = new StringWriter();
+                    final PrintWriter printWriter = new PrintWriter(eResult);
+                    error.printStackTrace(printWriter);
+                    logger.severe(eResult.toString());
                     // ignore the error
                 }
             }
@@ -96,9 +102,12 @@ public class GraphicTools {
 
             ImageIO.write(bufImage, "jpg", new File(str));
 
-        } catch (Exception ignore) {
+        } catch (Exception error) {
             logger.severe("GraphicsTools: Failed Saving thumbnail file: " + str);
-            ignore.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -110,9 +119,12 @@ public class GraphicTools {
         // save image as PNG
         try {
             ImageIO.write(bi, "png", new File(str));
-        } catch (Exception ignore) {
+        } catch (Exception error) {
             logger.severe("GraphicsTools: Failed Saving thumbnail file: " + str);
-            ignore.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -279,7 +291,7 @@ public class GraphicTools {
         try {
             propertyValue = Float.valueOf(PropertiesUtil.getProperty(propertyName, propertyDefault));
         } catch (NumberFormatException nfe) {
-            System.err.println("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
+        	logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
         }
 
         return propertyValue;
@@ -328,13 +340,13 @@ public class GraphicTools {
         try {
             perspectiveTop = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveTop", "3"));
         } catch (NumberFormatException nfe) {
-            System.out.println("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
+        	logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
         }
 
         try {
             perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
         } catch (NumberFormatException nfe) {
-            System.out.println("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
+        	logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
         }        
 
         int Top3d = (int) (h * perspectiveTop / 100);

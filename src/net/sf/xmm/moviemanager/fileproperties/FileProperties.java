@@ -241,8 +241,8 @@ abstract class FileProperties {
     }
 
     /**
-     * Searchs in the inputStream stream the name following the string id
-     * (seperated by a \t).
+     * Searches in the inputStream stream the name following the string id
+     * (Separated by a \t).
      */
     protected String findName(InputStream stream, String id) throws Exception {
 

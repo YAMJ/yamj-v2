@@ -16,6 +16,9 @@ package com.moviejukebox.writer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -372,9 +375,12 @@ public class MovieJukeboxXMLWriter {
                     movie.addExtraFile(ef);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+        } catch (Exception error) {
+            logger.severe("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return false;
         }
 

@@ -14,6 +14,9 @@
 package com.moviejukebox.plugin;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.logging.Logger;
@@ -53,8 +56,8 @@ public class FilmwebPlugin extends ImdbPlugin {
         try {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
-        } catch (IOException e) {
-            logger.severe("Error : " + e.getMessage());
+        } catch (IOException error) {
+            logger.severe("Error : " + error.getMessage());
         }
     }
 
@@ -112,9 +115,9 @@ public class FilmwebPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving filmweb url for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -140,9 +143,9 @@ public class FilmwebPlugin extends ImdbPlugin {
             } else {
                 return Movie.UNKNOWN;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving filmweb url for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -165,9 +168,9 @@ public class FilmwebPlugin extends ImdbPlugin {
             } else {
                 return Movie.UNKNOWN;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving filmweb url for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -205,7 +208,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (movie.getTop250() == -1) {
                 try {
                     movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "top świat: #")));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException error) {
                     movie.setTop250(-1);
                 }
             }
@@ -274,9 +277,12 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return true;
     }
@@ -284,7 +290,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     private int parseRating(String rating) {
         try {
             return Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
-        } catch (Exception e) {
+        } catch (Exception error) {
             return -1;
         }
     }
@@ -310,7 +316,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (plot.equalsIgnoreCase(Movie.UNKNOWN)) {
                 plot = Movie.UNKNOWN;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             plot = Movie.UNKNOWN;
         }
 
@@ -337,7 +343,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                 try {
                     String imdbXml = webBrowser.request("http://www.imdb.com/title/" + imdbId);
                     posterURL = super.locatePosterURL(movie, imdbXml);
-                } catch (IOException e) {
+                } catch (IOException error) {
                     return posterURL;
                 }
             }
@@ -399,9 +405,9 @@ public class FilmwebPlugin extends ImdbPlugin {
                 updateImdbId(movie);
                 super.scanTVShowTitles(movie);
             }
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
         }
     }
 

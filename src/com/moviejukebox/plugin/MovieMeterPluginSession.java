@@ -18,6 +18,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -65,8 +68,11 @@ public class MovieMeterPluginSession {
             config.setServerURL(new URL("http://www.moviemeter.nl/ws"));
             client = new XmlRpcClient();
             client.setConfig(config);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        } catch (MalformedURLException error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -92,7 +98,7 @@ public class MovieMeterPluginSession {
                 setCounter(Integer.parseInt(savedSession[2]));
             }
             fread.close();        
-        } catch (IOException e) {
+        } catch (IOException error) {
         }
 
         logger.finest("MovieMeterPlugin: Stored session: " + getKey());
@@ -151,8 +157,11 @@ public class MovieMeterPluginSession {
                 // Choose first result
                 result = (HashMap) films[0];
             }
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
+        } catch (XmlRpcException error) {
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return result;
@@ -190,8 +199,11 @@ public class MovieMeterPluginSession {
                 // Choose first result
                 result = (HashMap) films[0];
             }
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
+        } catch (XmlRpcException error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return result;
@@ -233,8 +245,11 @@ public class MovieMeterPluginSession {
             }
             result = (HashMap) client.execute("film.retrieveDetails", params);
             increaseCounter();
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
+        } catch (XmlRpcException error) {
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return result;
@@ -269,11 +284,14 @@ public class MovieMeterPluginSession {
             increaseCounter();
 
             return true;
-        } catch (XmlRpcException e) {
-            logger.finest(e.getMessage());
+        } catch (XmlRpcException error) {
+            logger.finest(error.getMessage());
             return false;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        } catch (MalformedURLException error) {
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return false;
     }
@@ -293,8 +311,8 @@ public class MovieMeterPluginSession {
             fout = new FileOutputStream (SESSION_FILENAME);
             new PrintStream(fout).println (getKey() + "," + getTimestamp() + "," + getCounter());
             fout.close();        
-        } catch (IOException e) {
-            logger.severe(e.getMessage());
+        } catch (IOException error) {
+            logger.severe(error.getMessage());
         }        
     }
 

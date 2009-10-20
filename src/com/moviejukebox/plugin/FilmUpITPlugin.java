@@ -14,6 +14,9 @@
 package com.moviejukebox.plugin;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -87,9 +90,12 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 updateRate(movie, PageID);
                 logger.finest("Opinions page UID = " + PageID);
             }
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.severe("Failed retreiving FilmUP infos for movie : " + movie.getId(FILMUPIT_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return true;
     }
@@ -100,9 +106,12 @@ public class FilmUpITPlugin extends ImdbPlugin {
             String xml = webBrowser.request(baseUrl + opinionsPageID);
             float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
             movie.setRating((int) rating);
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.severe("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -134,9 +143,12 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 return;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving poster : " + pageUrl);
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -147,7 +159,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         int index = rating.indexOf("etoile_");
         try {
             return (int) (Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100);
-        } catch (Exception e) {
+        } catch (Exception error) {
             return -1;
         }
     }
@@ -178,7 +190,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 logger.finer("No Filmup Id available, we fall back to ImdbPlugin");
                 retval = super.scan(mediaFile);
             }
-        } catch (ParseException e) {
+        } catch (ParseException error) {
             // If no FilmUpITId found fallback to Imdb
             logger.finer("Parse error in FilmUpITPlugin we fall back to ImdbPlugin");
             retval = super.scan(mediaFile);
@@ -213,7 +225,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             logger.finer("No ID Found with request : " + sb.toString());
             return Movie.UNKNOWN;
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed to retrieve FilmUp ID for movie : " + movieName);
             logger.severe("We fall back to ImdbPlugin");
             throw new ParseException(FilmUpITId, 0);
@@ -238,8 +250,8 @@ public class FilmUpITPlugin extends ImdbPlugin {
             String value = HTMLTools.decodeHtml(subString.trim());
             // logger.finest("extractTag value=" + value);
             return value;
-        } catch (Exception e) {
-            logger.severe("extractTag an exception occurred during tag extraction : " + e);
+        } catch (Exception error) {
+            logger.severe("extractTag an exception occurred during tag extraction : " + error);
             return Movie.UNKNOWN;
         }
     }

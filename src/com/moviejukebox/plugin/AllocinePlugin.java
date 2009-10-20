@@ -14,6 +14,9 @@
 package com.moviejukebox.plugin;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -93,9 +96,12 @@ public class AllocinePlugin extends ImdbPlugin {
 
             updatePoster(movie);
             scanTVShowTitles(movie);
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving alloCine TVShow info for " + movie.getId(ALLOCINE_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -147,14 +153,14 @@ public class AllocinePlugin extends ImdbPlugin {
                             file.setTitle(sb.toString());
                         }
                     }
-                } catch (Exception e) {
+                } catch (Exception error) {
                     // logger.severe("Error while getting season infos " + e);
                     // nothing to do, we skip this season
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
         }
     }
 
@@ -252,9 +258,12 @@ public class AllocinePlugin extends ImdbPlugin {
             }
             updatePoster(movie);
 
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.severe("Failed retreiving allocine infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return true;
     }
@@ -288,9 +297,12 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 return;
             }
-       } catch (Exception e) {
+       } catch (Exception error) {
             logger.severe("Failed retreiving poster for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
     }
@@ -303,7 +315,7 @@ public class AllocinePlugin extends ImdbPlugin {
         
         try {
             return (int)(Float.parseFloat(floatRating) / 4.0 * 100);
-        } catch (Exception e) {
+        } catch (Exception error) {
             return -1;
         }
     }
@@ -333,7 +345,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 logger.finer("No Allocine Id available, we fall back to ImdbPlugin");
                 retval = super.scan(mediaFile);
             }
-        } catch (ParseException e) {
+        } catch (ParseException error) {
             // If no AllocineId found fallback to Imdb
             logger.finer("Parse error in AllocinePlugin we fall back to ImdbPlugin");
             retval = super.scan(mediaFile);
@@ -389,7 +401,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
             logger.finer("No AllocineId Found with request : " + sb.toString());
             return Movie.UNKNOWN;
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed to retrieve alloCine Id for movie : " + movieName);
             logger.severe("We fall back to ImdbPlugin");
             throw new ParseException(allocineId, 0);
@@ -414,8 +426,8 @@ public class AllocinePlugin extends ImdbPlugin {
             String value = HTMLTools.decodeHtml(subString.trim());
             // logger.finest("extractTag value=" + value);
             return value;
-        } catch (Exception e) {
-            logger.severe("extractTag an exception occurred during tag extraction : " + e);
+        } catch (Exception error) {
+            logger.severe("extractTag an exception occurred during tag extraction : " + error);
             return Movie.UNKNOWN;
         }
     }

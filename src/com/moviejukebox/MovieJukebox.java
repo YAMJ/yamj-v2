@@ -21,6 +21,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -155,7 +158,7 @@ public class MovieJukebox {
         String jukeboxRoot = null;
         boolean jukeboxClean = false;
         boolean jukeboxPreserve = false;
-        String propertiesName = "./properties/moviejukebox-default.properties";
+        String propertiesName = "./moviejukebox.properties";
         Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
 
         if (args.length == 0) {
@@ -189,14 +192,14 @@ public class MovieJukebox {
                     movieLibraryRoot = args[i];
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Wrong arguments specified");
+        } catch (Exception error) {
+        	logger.severe("Wrong arguments specified");
             help();
             return;
         }
 
         // Load the moviejukebox-default.properties file
-        if (!PropertiesUtil.setPropertiesStreamName(propertiesName)) {
+        if (!PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties")) {
             return;
         }
 
@@ -207,7 +210,8 @@ public class MovieJukebox {
 
         // Load the user properties file "moviejukebox.properties"
         // No need to abort if we don't find this file
-        PropertiesUtil.setPropertiesStreamName("moviejukebox.properties");
+        // Must be read before the skin, because this may contain an override skin
+        PropertiesUtil.setPropertiesStreamName(propertiesName);
         
         // Load the skin.properties file
         if (!PropertiesUtil.setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties")) {
@@ -287,7 +291,7 @@ public class MovieJukebox {
         }
 
         if (!new File(movieLibraryRoot).exists()) {
-            System.err.println("Directory not found : " + movieLibraryRoot);
+        	logger.severe("Directory not found : " + movieLibraryRoot);
             return;
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
@@ -306,7 +310,7 @@ public class MovieJukebox {
         	
             // Rename file (or directory)
             if (!file.renameTo(file2)) {
-                System.err.println("Error renaming log file.");
+            	logger.severe("Error renaming log file.");
             }
         }
     }
@@ -472,11 +476,11 @@ public class MovieJukebox {
             String skipPattStr = getProperty("mjb.clean.skip");
             Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
 
-            // Catch an exception when trying to read the Jukebox directory Issue 850
+            //  an exception when trying to read the Jukebox directory Issue 850
             try {
                 // This does nothing, but will generate an exception if the variable is null
                 nbFiles = cleanList.length;
-            } catch (Exception e) {
+            } catch (Exception error) {
                 logger.fine("Error writing to jukebox directory: " + jukeboxDetailsRoot);
                 logger.fine("Possibly read-only or you don't have permission to write to the directory.");
                 logger.fine("Process terminated with errors.");
@@ -543,7 +547,11 @@ public class MovieJukebox {
         logger.fine("Scanning library directory " + mediaLibraryRoot);
         logger.fine("Jukebox output goes to " + jukeboxRoot);
 
-        ExecutorService tasks = Executors.newFixedThreadPool(movieLibraryPaths.size());
+        int threadsMaxDirScan = movieLibraryPaths.size();
+        if (threadsMaxDirScan < 1)
+        	threadsMaxDirScan = 1;
+        
+        ExecutorService tasks = Executors.newFixedThreadPool(threadsMaxDirScan);
         final Library library = new Library();
         for (final MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
             // Multi-thread parallel processing
@@ -1061,7 +1069,7 @@ public class MovieJukebox {
                     logger.finest("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
                     FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
                     logger.finest("Downloaded poster for " + movie.getBaseName());
-                } catch (Exception e) {
+                } catch (Exception error) {
                     logger.finer("Failed downloading movie poster : " + movie.getPosterURL());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
                 }
@@ -1096,7 +1104,7 @@ public class MovieJukebox {
                 try {
                     logger.finest("Downloading banner for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
-                } catch (Exception e) {
+                } catch (Exception error) {
                     logger.finer("Failed downloading banner: " + movie.getBannerURL());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
                 }
@@ -1172,9 +1180,12 @@ public class MovieJukebox {
                     logger.fine("Skipped invalid media library: " + path);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
             logger.severe("Failed parsing moviejukebox library input file: " + f.getName());
-            e.printStackTrace();
+            logger.severe(eResult.toString());
         }
         return mlp;
     }
@@ -1187,11 +1198,14 @@ public class MovieJukebox {
             ClassLoader cl = t.getContextClassLoader();
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
             imagePlugin = pluginClass.newInstance();
-        } catch (Exception e) {
+        } catch (Exception error) {
             imagePlugin = new DefaultImagePlugin();
             logger.severe("Failed instanciating imagePlugin: " + className);
             logger.severe("Default poster plugin will be used instead.");
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return imagePlugin;
@@ -1205,11 +1219,14 @@ public class MovieJukebox {
             ClassLoader cl = t.getContextClassLoader();
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
             backgroundPlugin = pluginClass.newInstance();
-        } catch (Exception e) {
+        } catch (Exception error) {
             backgroundPlugin = new DefaultBackgroundPlugin();
             logger.severe("Failed instanciating BackgroundPlugin: " + className);
             logger.severe("Default background plugin will be used instead.");
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return backgroundPlugin;
@@ -1222,11 +1239,14 @@ public class MovieJukebox {
             ClassLoader cl = t.getContextClassLoader();
             Class<? extends MovieListingPlugin> pluginClass = cl.loadClass(className).asSubclass(MovieListingPlugin.class);
             listingPlugin = pluginClass.newInstance();
-        } catch (Exception e) {
+        } catch (Exception error) {
             listingPlugin = new MovieListingPluginBase();
             logger.severe("Failed instantiating ListingPlugin: " + className);
             logger.severe("NULL listing plugin will be used instead.");
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return listingPlugin;
@@ -1311,9 +1331,12 @@ public class MovieJukebox {
                     logger.finest("Generating left thumbnail from " + src + " to " + dst);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed creating thumbnail for " + movie.getTitle());
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -1398,9 +1421,12 @@ public class MovieJukebox {
                     logger.finest("Generating left poster from " + src + " to " + dst);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed creating poster for " + movie.getTitle());
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 }

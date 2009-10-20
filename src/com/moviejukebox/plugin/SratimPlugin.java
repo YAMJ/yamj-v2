@@ -22,6 +22,9 @@ import java.io.InputStreamReader;
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.DataOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -143,9 +146,9 @@ public class SratimPlugin extends ImdbPlugin {
 
             return sratimUrl;
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving sratim informations for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -567,8 +570,8 @@ public class SratimPlugin extends ImdbPlugin {
             String value = HTMLTools.decodeHtml(subString.trim());
             // logger.finest("extractTag value=" + value);
             return value;
-        } catch (Exception e) {
-            logger.severe("extractTag an exception occurred during tag extraction : " + e);
+        } catch (Exception error) {
+            logger.severe("extractTag an exception occurred during tag extraction : " + error);
             return Movie.UNKNOWN;
         }
     }
@@ -666,9 +669,12 @@ public class SratimPlugin extends ImdbPlugin {
                 downloadSubtitle(movie, movie.getFirstFile(), xml);
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return true;
     }
@@ -775,7 +781,7 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             return;
         }
 
@@ -784,7 +790,7 @@ public class SratimPlugin extends ImdbPlugin {
     private int parseRating(String rating) {
         try {
             return Math.round(Float.parseFloat(rating.replace(",", "."))) * 10;
-        } catch (Exception e) {
+        } catch (Exception error) {
             return -1;
         }
     }
@@ -813,9 +819,12 @@ public class SratimPlugin extends ImdbPlugin {
                 String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
 
                 mainXML = webBrowser.request(sratimUrl);
-            } catch (Exception e) {
+            } catch (Exception error) {
                 logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
-                e.printStackTrace();
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
                 return;
             }
         }
@@ -883,8 +892,8 @@ public class SratimPlugin extends ImdbPlugin {
                             // Download subtitles
                             downloadSubtitle(movie, file, xml);
                                                         
-                        } catch (Exception e) {
-                            logger.severe("Error : " + e.getMessage());
+                        } catch (Exception error) {
+                            logger.severe("Error : " + error.getMessage());
                         }
                             
                         break;
@@ -1079,13 +1088,13 @@ public class SratimPlugin extends ImdbPlugin {
                 int scanCountInt = 0;
                 try {
                     scanCountInt = Integer.parseInt(scanCount);
-                } catch (Exception e) {
+                } catch (Exception error) {
                 }
     
                 float scanFPSFloat = 0;
                 try {                
                     scanFPSFloat = Float.parseFloat(scanFPS);
-                } catch (Exception e) {
+                } catch (Exception error) {
                 }
     
                 
@@ -1115,7 +1124,7 @@ public class SratimPlugin extends ImdbPlugin {
                     bestFPSID = scanID;
                 }
                 
-            } catch (Exception e) {
+            } catch (Exception error) {
             }
 
         }
@@ -1263,8 +1272,8 @@ public class SratimPlugin extends ImdbPlugin {
 
             zipinputstream.close();
             
-        } catch (Exception e) {
-            logger.severe("Error : " + e.getMessage());
+        } catch (Exception error) {
+            logger.severe("Error : " + error.getMessage());
             return false;
         }
         
@@ -1285,7 +1294,7 @@ public class SratimPlugin extends ImdbPlugin {
             BufferedReader in = new BufferedReader(cookieFile);
             cookieHeader = in.readLine();
             in.close();
-        } catch (Exception e) {
+        } catch (Exception error) {
         }
 
         if (!cookieHeader.equals(""))
@@ -1312,8 +1321,8 @@ public class SratimPlugin extends ImdbPlugin {
                     return;
                 }
                     
-            } catch (Exception e) {
-                logger.severe("Error : " + e.getMessage());
+            } catch (Exception error) {
+                logger.severe("Error : " + error.getMessage());
                 return;
             }
 
@@ -1331,7 +1340,7 @@ public class SratimPlugin extends ImdbPlugin {
             BufferedReader in = new BufferedReader(sessionFile);
             cookieHeader = in.readLine();
             in.close();
-        } catch (Exception e) {
+        } catch (Exception error) {
         }
 
 
@@ -1422,8 +1431,8 @@ public class SratimPlugin extends ImdbPlugin {
                     
             logger.severe("Sratim Login Failed - Creating new session and jpg files");
 
-            } catch (Exception e) {
-                logger.severe("Error : " + e.getMessage());
+            } catch (Exception error) {
+                logger.severe("Error : " + error.getMessage());
                 return;
             }
 
@@ -1480,8 +1489,8 @@ public class SratimPlugin extends ImdbPlugin {
             logger.severe("#############################################################################");
             System.exit(0);
 
-        } catch (Exception e) {
-            logger.severe("Error : " + e.getMessage());
+        } catch (Exception error) {
+            logger.severe("Error : " + error.getMessage());
             return;
         }
         

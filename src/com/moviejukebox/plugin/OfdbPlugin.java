@@ -17,7 +17,9 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -130,9 +132,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 ofdbID = Movie.UNKNOWN;
             }
             return ofdbID;
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving ofdb URL for movie : ");
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -159,9 +161,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             }
             return ofdbID;
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving ofdb Id for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -193,8 +195,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 movie.setOutline(outline);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception error) {
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -316,7 +321,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 plot = plot.substring(0, maxZeichen - 3) + "...";
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             plot = "None";
         }
 

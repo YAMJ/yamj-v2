@@ -61,22 +61,18 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // First look to see if we have a TMDb ID as this will make looking the film up easier
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Search based on TMdb ID
-            System.out.println(">>moviedbGetInfo for " + movie.getTitle());
             moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Search based on IMDb ID
-            System.out.println(">>moviedbImdbLookup for " + movie.getTitle());
             moviedb = TMDb.moviedbImdbLookup(imdbID);
             tmdbID = moviedb.getId();
             if (tmdbID != null && !tmdbID.equals("")) {
-                System.out.println("TMDb ID: " + tmdbID);
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb);
             } else {
                 logger.fine("Error: No TMDb ID found for movie!");
             }
         } else {
             // Search using movie name
-            System.out.println(">>moviedbSearch for " + movie.getTitle());
             moviedb = TMDb.moviedbSearch(movie.getTitle());
             tmdbID = moviedb.getId();
             moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb);
@@ -85,10 +81,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         s.release();
 
         if (moviedb.getId() != null && !moviedb.getId().equalsIgnoreCase(MovieDB.UNKNOWN)) {
-            System.out.println(">>Found: (" + moviedb.getId() + ") " + moviedb.getTitle());
             movie.setMovieType(Movie.TYPE_MOVIE);
-        } else {
-            System.out.println(">> Not found: " + movie.getTitle());
         }
 
         if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -219,7 +212,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     @Override
     public void scanTVShowTitles(Movie movie) {
         // TheMovieDB.org does not have any TV Shows, so just return
-        System.out.println("No TV Shows");
         return;
     }
 

@@ -25,6 +25,9 @@
 
 package com.moviejukebox.plugin;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -131,9 +134,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving Kinopoisk Id for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -330,9 +333,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // Finally set title
             movie.setTitle(newTitle);
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return true;
     }

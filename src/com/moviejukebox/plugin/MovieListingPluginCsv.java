@@ -24,6 +24,9 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.sql.Timestamp;
 
 /**
@@ -239,8 +242,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
             }
 
             writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         // move to configured (default) location
