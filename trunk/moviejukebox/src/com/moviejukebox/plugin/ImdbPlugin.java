@@ -14,6 +14,9 @@
 package com.moviejukebox.plugin;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -113,9 +116,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 return Movie.UNKNOWN;
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -149,9 +152,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 return Movie.UNKNOWN;
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -227,9 +230,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
         }
         
         return Movie.UNKNOWN;
@@ -288,7 +291,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (movie.getTop250() == -1) {
                 try {
                     movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "Top 250: #")));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException error) {
                     movie.setTop250(-1);
                 }
             }
@@ -425,9 +428,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving IMDb rating for movie : " + movie.getId(IMDB_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return true;
     }
@@ -436,7 +442,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
         try {
             return (int)(Float.parseFloat(st.nextToken()) * 10);
-        } catch (Exception e) {
+        } catch (Exception error) {
             return -1;
         }
     }
@@ -489,9 +495,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     file.setTitle(title);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
         }
     }
 
@@ -521,7 +527,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (!result.equalsIgnoreCase(Movie.UNKNOWN) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = result;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             plot = Movie.UNKNOWN;
         }
 

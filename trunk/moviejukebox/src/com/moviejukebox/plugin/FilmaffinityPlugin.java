@@ -13,6 +13,9 @@
 
 package com.moviejukebox.plugin;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
 
@@ -85,9 +88,9 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving imdb Id for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -119,9 +122,12 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 movie.setPlot(plot);
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving filmaffinity data movie : " + movie.getId(IMDB_PLUGIN_ID));
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return true;
     }

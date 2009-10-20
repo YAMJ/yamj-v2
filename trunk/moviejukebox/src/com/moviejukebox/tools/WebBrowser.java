@@ -292,7 +292,7 @@ public class WebBrowser {
                 String encoding = m.group(1);
                 try {
                     charset = Charset.forName(encoding);
-                } catch (UnsupportedCharsetException e) {
+                } catch (UnsupportedCharsetException error) {
                     // there will be used default charset
                 }
             }

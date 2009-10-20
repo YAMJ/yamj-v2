@@ -134,8 +134,8 @@ public class MediaInfoScanner {
                         fosCurrentIFO.close();
                     }
                 }
-            } catch (Exception e) {
-                logger.fine(e.getMessage());
+            } catch (Exception error) {
+                logger.fine(error.getMessage());
             }
 
             // Scan IFO files

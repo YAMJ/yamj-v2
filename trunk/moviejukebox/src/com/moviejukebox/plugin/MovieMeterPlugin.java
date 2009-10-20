@@ -13,6 +13,9 @@
 
 package com.moviejukebox.plugin;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,8 +54,11 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
         try {
             session = new MovieMeterPluginSession();
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
+        } catch (XmlRpcException error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
     }
@@ -244,9 +250,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving moviemeter Id from Google for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -256,7 +262,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
         try {
             Integer.parseInt( input );
             return true;
-        } catch( Exception e) {
+        } catch( Exception error) {
             return false;
         }
     }

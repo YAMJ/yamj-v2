@@ -21,6 +21,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,14 +79,14 @@ public class FileTools {
                 if (is != null) {
                     is.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException error) {
                 // ignore
             }
             try {
                 if (os != null) {
                     os.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException error) {
                 // ignore
             }
         }
@@ -103,9 +106,12 @@ public class FileTools {
                 copy(new FileInputStream(src), new FileOutputStream(dst));
             }
 
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.severe("Failed copying file " + src + " to " + dst);
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -144,9 +150,12 @@ public class FileTools {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.severe("Failed copying file " + srcDir + " to " + dstDir);
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -168,7 +177,7 @@ public class FileTools {
                         in.close();
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException error) {
                 logger.severe("Failed reading file " + file.getName());
             }
         }

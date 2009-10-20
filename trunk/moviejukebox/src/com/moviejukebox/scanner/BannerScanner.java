@@ -145,7 +145,7 @@ public class BannerScanner {
                         movie.setBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
-                } catch (Exception e) {
+                } catch (Exception error) {
                     logger.finer("BannerScanner: Failed loading banner : " + fullBannerFilename);
                 }
             } else {
@@ -196,7 +196,7 @@ public class BannerScanner {
                         movie.setBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
-                } catch (Exception e) {
+                } catch (Exception error) {
                     logger.finer("Banner Scanner: Failed to download banner : " + movie.getBannerURL());
                 }
             } else {

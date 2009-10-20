@@ -351,7 +351,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
         int width = 0;
         try {
             width = Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
-        } catch (Exception e) {
+        } catch (Exception error) {
             // This will catch the exception if mediainfo is not installed.
             width = 0;
         }

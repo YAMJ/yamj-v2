@@ -18,7 +18,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -118,9 +120,12 @@ public class MovieJukeboxHTMLWriter {
                 outStream.flush();
                 outStream.close();
             }
-        } catch (Exception e) {
-            System.err.println("Failed generating HTML for movie " + movie);
-            e.printStackTrace();
+        } catch (Exception error) {
+        	logger.severe("Failed generating HTML for movie " + movie);
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -179,9 +184,12 @@ public class MovieJukeboxHTMLWriter {
                 
                 fileNames.add(baseName + filenameSuffix);
             }
-        } catch (Exception e) {
-            System.err.println("Failed generating playlist for movie " + movie);
-            e.printStackTrace();
+        } catch (Exception error) {
+        	logger.severe("Failed generating playlist for movie " + movie);
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         
         try {
@@ -190,9 +198,12 @@ public class MovieJukeboxHTMLWriter {
                     fileNames.add(generateSimplePlaylist(rootPath, tempRootPath, movie, movieFileArray, i));
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Failed generating playlist for movie " + movie);
-            e.printStackTrace();
+        } catch (Exception error) {
+        	logger.severe("Failed generating playlist for movie " + movie);
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         
         return fileNames;
@@ -256,9 +267,12 @@ public class MovieJukeboxHTMLWriter {
             transformer.transform(xmlSource, xmlResult);
             outStream.flush();
             outStream.close();
-        } catch (Exception e) {
-            System.err.println("Failed generating HTML library category index.");
-            e.printStackTrace();
+        } catch (Exception error) {
+        	logger.severe("Failed generating HTML library category index.");
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -333,9 +347,12 @@ public class MovieJukeboxHTMLWriter {
             writer.writeEndElement();
             writer.close();
             fos.close();
-        } catch (Exception e) {
-            System.err.println("Failed generating HTML library index.");
-            e.printStackTrace();
+        } catch (Exception error) {
+        	logger.severe("Failed generating HTML library index.");
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
 
@@ -359,9 +376,12 @@ public class MovieJukeboxHTMLWriter {
             transformer.transform(xmlSource, xmlResult);
             outStream.flush();
             outStream.close();
-        } catch (Exception e) {
-            System.err.println("Failed generating HTML library index.");
-            e.printStackTrace();
+        } catch (Exception error) {
+        	logger.severe("Failed generating HTML library index.");
+        	final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
     }
     

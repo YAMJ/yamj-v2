@@ -14,6 +14,9 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -825,9 +828,12 @@ public class Library implements Map<String, Movie> {
                     }
 
                 }
-            } catch (Exception e) {
+            } catch (Exception error) {
                 logger.severe("Failed parsing moviejukebox genre input file: " + f.getName());
-                e.printStackTrace();
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
             }
         } else {
             logger.severe("The moviejukebox genre input file you specified is invalid: " + f.getName());
@@ -852,9 +858,12 @@ public class Library implements Map<String, Movie> {
                         categoriesMap.put(origName, newName);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Exception error) {
                 logger.severe("Failed parsing moviejukebox category input file: " + f.getName());
-                e.printStackTrace();
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
             }
         } else {
             logger.severe("The moviejukebox category input file you specified is invalid: " + f.getName());

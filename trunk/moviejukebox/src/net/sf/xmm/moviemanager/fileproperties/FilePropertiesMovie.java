@@ -102,8 +102,8 @@ public class FilePropertiesMovie {
             /* Closes the input stream... */
             dataStream.close();
 
-        } catch (Exception e) {
-            log.info("Exception: " + e.getMessage());
+        } catch (Exception error) {
+            log.info("Exception: " + error.getMessage());
 
             /*
              * The file is corrupted, tries to save the info that may have been

@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.logging.Logger;
 import java.util.StringTokenizer;
 
@@ -56,7 +59,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         
         if ("posters|thumbnails|banners|videoimages".indexOf(imageType) < 0) {
             // This is an error with the calling function
-            System.err.println("YAMJ Error with calling function in DefaultImagePlugin.java");
+            logger.severe("YAMJ Error with calling function in DefaultImagePlugin.java");
             return imageGraphic;
         }
         
@@ -209,7 +212,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
                 logger.finest("Drew HD logo (" + logoName + ") in the middle");
             }
-        } catch (IOException e) {
+        } catch (IOException error) {
             logger.warning("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
 
@@ -244,9 +247,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     logger.finest("Drew TV logo in the middle");
                 }
 
-            } catch (IOException e) {
+            } catch (IOException error) {
                 logger.warning("Failed drawing TV logo to thumbnail file: Please check that tv.png is in the resources directory.");
-                e.printStackTrace();
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
             }
         }
 
@@ -272,7 +278,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 BufferedImage biLang = ImageIO.read(in);
                 Graphics g = bi.getGraphics();
                 g.drawImage(biLang, 1, 1, null);
-            } catch (IOException e) {
+            } catch (IOException error) {
                 logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + lang
                                 + ".png) is in the resources/languages directory.");
             }
@@ -293,7 +299,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             BufferedImage biSet = ImageIO.read(in);
             Graphics g = bi.getGraphics();
             g.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
-        } catch(IOException e) {
+        } catch(IOException error) {
             logger.warning("Failed drawing set logo to thumbnail file:"
                 + "Please check that set graphic (set.png) is in the resources directory.");
         }

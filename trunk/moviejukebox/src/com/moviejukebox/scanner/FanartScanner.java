@@ -140,7 +140,7 @@ public class FanartScanner {
                         movie.setFanartFilename(Movie.UNKNOWN);
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
-                } catch (Exception e) {
+                } catch (Exception error) {
                     logger.finer("FanartScanner: Failed loading fanart : " + fullFanartFilename);
                 }
             } else {
@@ -177,7 +177,7 @@ public class FanartScanner {
                         movie.setFanartFilename(Movie.UNKNOWN);
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
-                } catch (Exception e) {
+                } catch (Exception error) {
                     logger.finer("Fanart Scanner: Failed to download fanart : " + movie.getFanartURL());
                 }
             } else {

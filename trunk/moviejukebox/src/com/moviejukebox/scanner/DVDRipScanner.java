@@ -104,7 +104,7 @@ public class DVDRipScanner {
                             longestDurationIndex = i;
                         }
 
-                    } catch (Exception e) {
+                    } catch (Exception error) {
                         log.finer("Error when parsing file:" + ifo[i]);
                     }
                 }

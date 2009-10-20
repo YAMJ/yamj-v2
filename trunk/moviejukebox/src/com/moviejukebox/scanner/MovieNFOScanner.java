@@ -16,6 +16,9 @@ package com.moviejukebox.scanner;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -500,9 +503,12 @@ public class MovieNFOScanner {
             }
 
             return isMovieTag;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+        } catch (Exception error) {
+            logger.severe("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return false;
@@ -754,9 +760,12 @@ public class MovieNFOScanner {
                 }
             }
             return isTVTag;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Failed parsing NFO file for tvshow: " + movie.getTitle() + ". Please fix or remove it.");
+        } catch (Exception error) {
+            logger.severe("Failed parsing NFO file for tvshow: " + movie.getTitle() + ". Please fix or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
 
         return false;

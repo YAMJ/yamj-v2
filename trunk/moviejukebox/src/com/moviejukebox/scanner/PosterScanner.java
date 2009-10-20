@@ -363,9 +363,9 @@ public class PosterScanner {
             } else {
                 return Movie.UNKNOWN;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("PosterScanner: Failed retreiving poster URL from google images : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -394,9 +394,9 @@ public class PosterScanner {
             } else {
                 return Movie.UNKNOWN;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("PosterScanner: Failed retreiving poster URL from yahoo images : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -411,7 +411,7 @@ public class PosterScanner {
     public static String getPosterURLFromMotechnet(String movieID) {
         try {
             webBrowser.request("http://posters.motechnet.com/title/" + movieID + "/");
-        } catch (Exception e) {
+        } catch (Exception error) {
             // The URL wasn't found, so the poster doesn't exist
             return Movie.UNKNOWN;
         }
@@ -435,7 +435,7 @@ public class PosterScanner {
         try {
             content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q="
                             + URLEncoder.encode(movieName + " " + movieYear, "UTF-8"));
-        } catch (Exception e) {
+        } catch (Exception error) {
             // The movie doesn't exists, so return unknown
             return Movie.UNKNOWN;
         }
@@ -493,9 +493,9 @@ public class PosterScanner {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("PosterScanner: Failed retreiving Moviecovers poster URL: " + movieName);
-            logger.severe("PosterScanner: Error : " + e.getMessage());
+            logger.severe("PosterScanner: Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
 
@@ -598,9 +598,9 @@ public class PosterScanner {
                     returnString = tmdbMatch.group();
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving TheMovieDB.org poster URL: " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             returnString = Movie.UNKNOWN;
         }
         return returnString;

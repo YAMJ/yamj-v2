@@ -243,9 +243,9 @@ public class AppleTrailersPlugin {
 
 
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving trailer for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     
@@ -298,8 +298,8 @@ public class AppleTrailersPlugin {
             }
 
 
-        } catch (Exception e) {
-            logger.severe("Error : " + e.getMessage());
+        } catch (Exception error) {
+            logger.severe("Error : " + error.getMessage());
             return;
         }
     }
@@ -314,7 +314,7 @@ public class AppleTrailersPlugin {
             ret = webBrowser.request(url);
             return ret;
             
-        } catch (Exception e) {
+        } catch (Exception error) {
             return ret;
         }
     }
@@ -457,8 +457,8 @@ public class AppleTrailersPlugin {
             
             return absRealURL;
             
-        } catch (Exception e) {
-            logger.severe("Error : " + e.getMessage());
+        } catch (Exception error) {
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -497,7 +497,7 @@ public class AppleTrailersPlugin {
             
             return AbsUrl;
             
-        } catch (Exception e) {
+        } catch (Exception error) {
             return Movie.UNKNOWN;
         }
     }
@@ -569,7 +569,7 @@ public class AppleTrailersPlugin {
             out.close();
             return true;
             
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("AppleTrailers Plugin: Download Exception");
             return false;
         } finally {

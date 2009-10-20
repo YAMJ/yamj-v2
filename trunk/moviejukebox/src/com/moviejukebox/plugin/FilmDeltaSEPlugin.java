@@ -20,6 +20,9 @@
 
 package com.moviejukebox.plugin;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -165,9 +168,9 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             }
 
             
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("FilmdeltaSE: failed retreiving Filmdelta Id for movie : " + movieName);
-            logger.severe(" -Error : " + e.getMessage());
+            logger.severe(" -Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -220,9 +223,12 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
             result = removeIllegalHtmlChars(result);
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Failed retreiving movie data from filmdelta.se : " + filmdeltaId);
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return result;
     }
@@ -425,9 +431,9 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 logger.finer("FilmdeltaSE: error finding movieURL..");
             }
             return movieURL;
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Error while retreiving CDON image for movie : " + movieName);
-            logger.severe("Error : " + e.getMessage());
+            logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -446,7 +452,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 logger.finer("Error in fetching movie detail page from CDON for movie: " + movieName);
                 return Movie.UNKNOWN;
             }
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("Error while retreiving CDON image for movie : " + movieName);
             // logger.severe("Error : " + e.getMessage());
             return Movie.UNKNOWN;

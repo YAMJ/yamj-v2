@@ -81,7 +81,7 @@ public class OpenSubtitlesPlugin {
 //                String l1 = login.equals("") ? "Anonymous" : login;
             }
             ;
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("OpenSubtitles Plugin: Login Failed");
         }
         ;
@@ -103,7 +103,7 @@ public class OpenSubtitlesPlugin {
             String p1[] = {token};
             String xml = generateXMLRPC("LogOut", p1);
             sendRPC(xml);
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("OpenSubtitles Plugin: Logout Failed");
         }
         ;
@@ -291,7 +291,7 @@ public class OpenSubtitlesPlugin {
 
             return true;
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("OpenSubtitles Plugin: Download Exception (Movie Not Found)");
             return false;
         }
@@ -369,7 +369,7 @@ public class OpenSubtitlesPlugin {
 
             return true;
 
-        } catch (Exception e) {
+        } catch (Exception error) {
             logger.severe("OpenSubtitles Plugin: Update Failed");
             return false;
         }
@@ -631,7 +631,7 @@ public class OpenSubtitlesPlugin {
                 tri |= (s[iii] & 0xff) << 16;
                 tri |= (s[iii + 1] & 0xff) << 8;
                 tri |= (s[iii + 2] & 0xff);
-            } catch (Exception e) {
+            } catch (Exception error) {
             }
             ;
             for (int j = 0; j < 4; j++) {

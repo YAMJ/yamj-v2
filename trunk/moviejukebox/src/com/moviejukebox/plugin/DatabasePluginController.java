@@ -15,6 +15,10 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -25,11 +29,11 @@ import java.util.logging.Logger;
  */
 public class DatabasePluginController {
 
-    private static final Logger LOG = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger("moviejukebox");
 
-    /*
-     * Gabriel Corneanu:
-     * store the map in a thread local field to make it thread safe
+    /**
+     * @author Gabriel Corneanu:
+     * Store the map in a thread local field to make it thread safe
      */
     private static ThreadLocal<Map<String, MovieDatabasePlugin>> 
       PluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
@@ -69,7 +73,7 @@ public class DatabasePluginController {
                 if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(origType)) {
                     isScanned = PluginMap.get().get(newType).scan(movie);
                     if (!isScanned) {
-                        LOG.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                    	logger.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
                     }
                 }
             }
@@ -90,11 +94,15 @@ public class DatabasePluginController {
         try {
             Class<? extends MovieDatabasePlugin> pluginClass = Class.forName(className).asSubclass(MovieDatabasePlugin.class);
             movieDB = pluginClass.newInstance();
-        } catch (Exception e) {
+        } catch (Exception error) {
             movieDB = new ImdbPlugin();
-            LOG.severe("Failed instantiating MovieDatabasePlugin: " + className);
-            LOG.severe("Default IMDb plugin will be used instead.");
-            e.printStackTrace();
+            logger.severe("Failed instantiating MovieDatabasePlugin: " + className);
+            logger.severe("Default IMDb plugin will be used instead.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+
         }
         return movieDB;
     }
