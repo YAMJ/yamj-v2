@@ -233,7 +233,8 @@ public class Library implements Map<String, Movie> {
         return key;
     }
 
-    public void addMovie(String key, Movie movie) {
+    // synchronized because scanning can be multi-threaded
+    public synchronized void addMovie(String key, Movie movie) {
         Movie existingMovie = library.get(key);
         logger.finest("Adding video " + key + ", new part: " + (existingMovie != null));
 
