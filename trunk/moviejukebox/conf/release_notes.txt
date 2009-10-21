@@ -21,7 +21,8 @@ MovieJukebox 1.6 BETA
   - Enhancement  #1055 Output all errors to log file as well as console
   - Fixed defect #1058 Bug commandline -p parameter no longer works properly
   - Fixed defect #1053 Allocine search engine and layout has changed, plugin broken.
-  - Fixed issue  #1059 Avoid potential problem in rare combination: multiple library folders, distributed movie parts
+  - Fixed defect #1059 Avoid potential problem in rare combination: multiple library folders, distributed movie parts
+  - Fixed defect #1063 Error creating XML file with r1165 & Allocine plugin
 
 MovieJukebox 1.5
 ----------------
