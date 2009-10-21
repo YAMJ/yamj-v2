@@ -530,6 +530,8 @@ public class MovieJukeboxXMLWriter {
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
                     int next, int last) throws FileNotFoundException, XMLStreamException {
         String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
+        File xmlFile = null;
+        XMLWriter writer = null;
         
         // Is this a TV Show index?
         int nbVideosPerPage, nbVideosPerLine;
@@ -542,73 +544,79 @@ public class MovieJukeboxXMLWriter {
             nbVideosPerLine = nbMoviesPerLine;
         }
         
-        
-        File xmlFile = new File(rootPath, prefix + current + ".xml");
-        xmlFile.getParentFile().mkdirs();
+        try {
+            xmlFile = new File(rootPath, prefix + current + ".xml");
+            xmlFile.getParentFile().mkdirs();        	
 
-        XMLWriter writer = new XMLWriter(xmlFile);
+            writer = new XMLWriter(xmlFile);
 
-        writer.writeStartDocument("UTF-8", "1.0");
-        writer.writeStartElement("library");
+            writer.writeStartDocument("UTF-8", "1.0");
+            writer.writeStartElement("library");
 
-        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
-            String categoryKey = category.getKey();
-            Map<String, List<Movie>> index = category.getValue();
-            writer.writeStartElement("category");
-            writer.writeAttribute("name", categoryKey);
-            if (categoryKey.equalsIgnoreCase(categoryName)) {
-                writer.writeAttribute("current", "true");
-            }
-
-            for (String akey : index.keySet()) {
-                String encakey = FileTools.createCategoryKey(akey);
-
-                // This is horrible! Issue 735 will get rid of it.
-                if (index.get(akey).size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
-                    continue;
-                }
-
-                prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
-
-                writer.writeStartElement("index");
-                writer.writeAttribute("name", akey);
-
-                // if currently writing this page then add current attribute with value true
-                if (encakey.equalsIgnoreCase(key)) {
+            for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
+                String categoryKey = category.getKey();
+                Map<String, List<Movie>> index = category.getValue();
+                writer.writeStartElement("category");
+                writer.writeAttribute("name", categoryKey);
+                if (categoryKey.equalsIgnoreCase(categoryName)) {
                     writer.writeAttribute("current", "true");
-                    writer.writeAttribute("first", prefix + '1');
-                    writer.writeAttribute("previous", prefix + previous);
-                    writer.writeAttribute("next", prefix + next);
-                    writer.writeAttribute("last", prefix + last);
-                    writer.writeAttribute("currentIndex", Integer.toString(current));
-                    writer.writeAttribute("lastIndex", Integer.toString(last));
                 }
 
-                writer.writeCharacters(prefix + '1');
-                writer.writeEndElement(); // index
-            }
+                for (String akey : index.keySet()) {
+                    String encakey = FileTools.createCategoryKey(akey);
 
-            writer.writeEndElement(); // categories
+                    // This is horrible! Issue 735 will get rid of it.
+                    if (index.get(akey).size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+                        continue;
+                    }
+
+                    prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
+
+                    writer.writeStartElement("index");
+                    writer.writeAttribute("name", akey);
+
+                    // if currently writing this page then add current attribute with value true
+                    if (encakey.equalsIgnoreCase(key)) {
+                        writer.writeAttribute("current", "true");
+                        writer.writeAttribute("first", prefix + '1');
+                        writer.writeAttribute("previous", prefix + previous);
+                        writer.writeAttribute("next", prefix + next);
+                        writer.writeAttribute("last", prefix + last);
+                        writer.writeAttribute("currentIndex", Integer.toString(current));
+                        writer.writeAttribute("lastIndex", Integer.toString(last));
+                    }
+
+                    writer.writeCharacters(prefix + '1');
+                    writer.writeEndElement(); // index
+                }
+
+                writer.writeEndElement(); // categories
+            }
+            writer.writeStartElement("movies");
+            writer.writeAttribute("count", "" + nbVideosPerPage);
+            writer.writeAttribute("cols", "" + nbVideosPerLine);
+
+            if (fullMovieInfoInIndexes) {
+                for (Movie movie : movies) {
+                    writeMovie(writer, movie, library);
+                }
+            } else {
+                for (Movie movie : movies) {
+                    writeMovieForIndex(writer, movie);
+                }
+            }
+            writer.writeEndElement(); // movies
+
+            writer.writeEndElement(); // library
+            writer.writeEndDocument();
+        } catch (Exception error) {
+        	
+        } finally {
+            writer.flush();
+            writer.close();
         }
-        writer.writeStartElement("movies");
-        writer.writeAttribute("count", "" + nbVideosPerPage);
-        writer.writeAttribute("cols", "" + nbVideosPerLine);
-
-        if (fullMovieInfoInIndexes) {
-            for (Movie movie : movies) {
-                writeMovie(writer, movie, library);
-            }
-        } else {
-            for (Movie movie : movies) {
-                writeMovieForIndex(writer, movie);
-            }
-        }
-        writer.writeEndElement(); // movies
-
-        writer.writeEndElement(); // library
-        writer.writeEndDocument();
-        writer.flush();
-        writer.close();
+        
+        return;
     }
 
     private void writeMovieForIndex(XMLWriter writer, Movie movie) throws XMLStreamException {

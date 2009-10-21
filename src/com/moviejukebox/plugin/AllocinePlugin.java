@@ -441,6 +441,7 @@ public class AllocinePlugin extends ImdbPlugin {
     protected String removeOpenedHtmlTags(String src) {
         String result = src.replaceAll("^.*?>", "");
         result = result.replaceAll("<.*?$", "");
+        result = result.trim();
 //         logger.finest("removeOpenedHtmlTags before=[" + src + "], after=["+ result + "]");
         return result;
     }
