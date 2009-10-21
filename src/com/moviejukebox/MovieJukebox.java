@@ -559,11 +559,8 @@ public class MovieJukebox {
                 public Void call() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
                 	logger.finer("Scanning media library " + mediaLibraryPath.getPath());
                     MovieDirectoryScanner mds = new MovieDirectoryScanner();
-                	Library tmpLib = mds.scan(mediaLibraryPath, new Library());
-                    //put libraries together...
-                	synchronized(library){
-                		library.putAll(tmpLib);
-                	}
+                    // scan uses synchronized method Library.addMovie
+                    mds.scan(mediaLibraryPath, library);
                 	return null;
                 };
             });
