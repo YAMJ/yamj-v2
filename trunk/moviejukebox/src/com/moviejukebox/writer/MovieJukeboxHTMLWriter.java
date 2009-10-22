@@ -27,9 +27,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -46,6 +49,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -276,35 +280,43 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    public void generateMoviesIndexHTML(String rootPath, String detailsDirName, Library library) {
-        int nbVideosPerPage;
-        
-        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
-            String categoryName = category.getKey();
-            if (!categoriesDisplayList.contains(categoryName)) continue;
-            
-            Map<String, List<Movie>> index = category.getValue();
+    public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, Library library, int threadcount) throws Throwable {
+        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
+        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
+            tasks.submit(new Callable<Void>() {
+                public Void call() {
+                    int nbVideosPerPage;
+                    String categoryName = category.getKey();
+                    if (!categoriesDisplayList.contains(categoryName)) return null;
 
-            for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
-                String key = indexEntry.getKey();
-                
-                if (key.equalsIgnoreCase("TV Shows")) {
-                    nbVideosPerPage = nbTvShowsPerPage;
-                } else {
-                    nbVideosPerPage = nbMoviesPerPage;
-                }
+                    Map<String, List<Movie>> index = category.getValue();
 
-                List<Movie> movies = indexEntry.getValue();
-                
-                // This is horrible! Issue 735 will get rid of it.
-                if (movies.size() >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                    int nbPages = 1 + (movies.size() - 1) / nbVideosPerPage;
-                    for (int page = 1; page <= nbPages; page++) {
-                        writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
+                    for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
+                        String key = indexEntry.getKey();
+
+                        if (key.equalsIgnoreCase("TV Shows")) {
+                            nbVideosPerPage = nbTvShowsPerPage;
+                        } else {
+                            nbVideosPerPage = nbMoviesPerPage;
+                        }
+
+                        List<Movie> movies = indexEntry.getValue();
+
+                        // This is horrible! Issue 735 will get rid of it.
+                        if (movies.size() >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                            int nbPages = 1 + (movies.size() - 1) / nbVideosPerPage;
+                            for (int page = 1; page <= nbPages; page++) {
+                                writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
+                            }
+                        }
                     }
-                }
-            }
+                    return null;
+                };
+            });
         }
+
+        tasks.waitFor();
+
         try {
             File htmlFile = new File(rootPath, PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             htmlFile.getParentFile().mkdirs();

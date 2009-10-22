@@ -1,4 +1,4 @@
-﻿**************************************************************
+**************************************************************
 ** MovieJukebox Release note
 ***************************************************************
 
@@ -7,7 +7,7 @@ MovieJukebox 1.6 BETA
   - Enhancement   #777 Override file for moviejukebox.properties 
   - Fixed defect  #881 Custom image always picking season 1 for the "BOX set" image for escaped series names.
   - Enhancement   #955 Option to download SERIES banners instead of SEASON
-  - Enhancement   #970 Updated threading functionality to increase stability & throttle downloads on a per site basis
+  - Enhancement   #970 Updated/improved threading functionality to increase stability & throttle downloads on a per site basis
   - Enhancement  #1005 Download different banners for different seasons
   - Enhancement  #1010 Enable the use of Set banners for BoxedSets
   - Fixed defect #1043 Multiple bugs with SratimPlugin

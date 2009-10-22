@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
@@ -44,6 +45,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.XMLWriter;
 
 /**
@@ -466,65 +468,74 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Write the set of index XML files for the library
+     * @throws Throwable 
      */
-    public void writeIndexXML(String rootPath, String detailsDirName, Library library) throws FileNotFoundException, XMLStreamException {
+    public void writeIndexXML(final String rootPath, String detailsDirName, final Library library, int threadcount) throws Throwable {
 
-        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
-            String categoryName = category.getKey();
-            Map<String, List<Movie>> index = category.getValue();
+        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
+        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
+            tasks.submit(new Callable<Void>() {
+                public Void call() throws XMLStreamException, FileNotFoundException{
 
-            for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
-                List<Movie> movies = group.getValue();
+                    String categoryName = category.getKey();
+                    Map<String, List<Movie>> index = category.getValue();
 
-                // This is horrible! Issue 735 will get rid of it.
-                if (movies.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                    logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies, skipping XML generation.");
-                    continue;
-                }
+                    for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
+                        List<Movie> movies = group.getValue();
 
-                String key = FileTools.createCategoryKey(group.getKey());
-
-                int nbVideosPerPage;
-                
-                if (key.equalsIgnoreCase("TV Shows")) {
-                    nbVideosPerPage = nbTvShowsPerPage;
-                } else {
-                    nbVideosPerPage = nbMoviesPerPage;
-                }
-                
-                int previous = 1;
-                int current = 1;
-                int last = 1 + (movies.size() - 1) / nbVideosPerPage;
-                int next = Math.min(2, last);
-                int nbMoviesLeft = nbVideosPerPage;
-
-                List<Movie> moviesInASinglePage = new ArrayList<Movie>();
-                for (Movie movie : movies) {
-                    moviesInASinglePage.add(movie);
-                    nbMoviesLeft--;
-
-                    if (nbMoviesLeft == 0) {
-                        if (current == 1) {
-                            // If this is the first page, link the previous page to the last page.
-                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last);
-                        } else {
-                            // This is a "middle" page, so process as normal.
-                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                        // This is horrible! Issue 735 will get rid of it.
+                        if (movies.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                            logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies, skipping XML generation.");
+                            continue;
                         }
-                        // */writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
-                        moviesInASinglePage = new ArrayList<Movie>();
-                        previous = current;
-                        current = Math.min(current + 1, last);
-                        next = Math.min(current + 1, last);
-                        nbMoviesLeft = nbVideosPerPage;
-                    }
-                }
 
-                if (moviesInASinglePage.size() > 0) {
-                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last);
+                        String key = FileTools.createCategoryKey(group.getKey());
+
+                        int nbVideosPerPage;
+
+                        if (key.equalsIgnoreCase("TV Shows")) {
+                            nbVideosPerPage = nbTvShowsPerPage;
+                        } else {
+                            nbVideosPerPage = nbMoviesPerPage;
+                        }
+
+                        int previous = 1;
+                        int current = 1;
+                        int last = 1 + (movies.size() - 1) / nbVideosPerPage;
+                        int next = Math.min(2, last);
+                        int nbMoviesLeft = nbVideosPerPage;
+
+                        List<Movie> moviesInASinglePage = new ArrayList<Movie>();
+                        for (Movie movie : movies) {
+                            moviesInASinglePage.add(movie);
+                            nbMoviesLeft--;
+
+                            if (nbMoviesLeft == 0) {
+                                if (current == 1) {
+                                    // If this is the first page, link the previous page to the last page.
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last);
+                                } else {
+                                    // This is a "middle" page, so process as normal.
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                                }
+                                // */writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                                moviesInASinglePage = new ArrayList<Movie>();
+                                previous = current;
+                                current = Math.min(current + 1, last);
+                                next = Math.min(current + 1, last);
+                                nbMoviesLeft = nbVideosPerPage;
+                            }
+                        }
+
+                        if (moviesInASinglePage.size() > 0) {
+                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last);
+                        }
+                    }
+                    return null;
                 }
-            }
+            });
         }
+        tasks.waitFor();
     }
 
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
