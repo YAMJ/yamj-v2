@@ -203,16 +203,16 @@ public class MovieJukebox {
             return;
         }
 
-        // Grab the skin from the command-line properties
-        if (cmdLineProps.containsKey("mjb.skin.dir")) {
-            PropertiesUtil.setProperty("mjb.skin.dir", cmdLineProps.get("mjb.skin.dir"));
-        }
-
         // Load the user properties file "moviejukebox.properties"
         // No need to abort if we don't find this file
         // Must be read before the skin, because this may contain an override skin
         PropertiesUtil.setPropertiesStreamName(propertiesName);
         
+        // Grab the skin from the command-line properties
+        if (cmdLineProps.containsKey("mjb.skin.dir")) {
+            PropertiesUtil.setProperty("mjb.skin.dir", cmdLineProps.get("mjb.skin.dir"));
+        }
+
         // Load the skin.properties file
         if (!PropertiesUtil.setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties")) {
             return;
