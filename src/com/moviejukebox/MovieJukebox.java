@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -78,6 +79,7 @@ import com.moviejukebox.scanner.VideoImageScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -114,7 +116,7 @@ public class MovieJukebox {
     private OpenSubtitlesPlugin subtitlePlugin;
     private AppleTrailersPlugin trailerPlugin;
 
-    public static void main(String[] args) throws XMLStreamException, SecurityException, IOException, ClassNotFoundException, InterruptedException {
+    public static void main(String[] args) throws Throwable {
         String logFilename = "moviejukebox.log";
 
         // Send logger output to our FileHandler.
@@ -296,7 +298,7 @@ public class MovieJukebox {
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         ml.generateLibrary(jukeboxClean, jukeboxPreserve);
-        
+
     	fh.close();
         if (Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.appendDateToLogFile", "false"))) {
             // File (or directory) with old name
@@ -403,8 +405,7 @@ public class MovieJukebox {
         }
     }
 
-    private void generateLibrary(boolean jukeboxClean, boolean jukeboxPreserve) throws FileNotFoundException, XMLStreamException, ClassNotFoundException,
-                    InterruptedException {
+    private void generateLibrary(boolean jukeboxClean, boolean jukeboxPreserve) throws Throwable {
 
         /********************************************************************************
          * Gabriel Corneanu:
@@ -551,22 +552,21 @@ public class MovieJukebox {
         if (threadsMaxDirScan < 1)
         	threadsMaxDirScan = 1;
         
-        ExecutorService tasks = Executors.newFixedThreadPool(threadsMaxDirScan);
+        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadsMaxDirScan);
         final Library library = new Library();
         for (final MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
             // Multi-thread parallel processing
-        	tasks.submit(new Callable<Void>() {
-                public Void call() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
-                	logger.finer("Scanning media library " + mediaLibraryPath.getPath());
+            tasks.submit(new Callable<Void>() {
+                public Void call() {
+                    logger.finer("Scanning media library " + mediaLibraryPath.getPath());
                     MovieDirectoryScanner mds = new MovieDirectoryScanner();
                     // scan uses synchronized method Library.addMovie
                     mds.scan(mediaLibraryPath, library);
-                	return null;
+                    return null;
                 };
             });
         };
-        tasks.shutdown();
-        tasks.awaitTermination(3600 * 24, TimeUnit.SECONDS);
+        tasks.waitFor();
 
         // If the user asked to preserve the existing movies, scan the output directory as well
         if (jukeboxPreserve) {
@@ -580,15 +580,15 @@ public class MovieJukebox {
 
         logger.fine("Found " + library.size() + " movies in your media library");
 
-        tasks = Executors.newFixedThreadPool(MaxThreadsScan);
+        tasks = new ThreadExecutor<Void>(MaxThreadsScan);
 
         if (library.size() > 0) {
             logger.fine("Searching for movies information...");
             for (final Movie movie : library.values()) {
 
                 // Multi-thread parallel processing
-                tasks.submit(new Callable<Object>() {
-                    public Object call() throws FileNotFoundException, XMLStreamException, ClassNotFoundException {
+                tasks.submit(new Callable<Void>() {
+                    public Void call() throws FileNotFoundException, XMLStreamException {
 
                     	ToolSet tools = threadTools.get();
                         // First get movie data (title, year, director, genre, etc...)
@@ -645,8 +645,7 @@ public class MovieJukebox {
                     };
                 });
             }
-            tasks.shutdown();
-            tasks.awaitTermination(3600 * 24, TimeUnit.SECONDS);
+            tasks.waitFor();
 
             // re-run the merge in case there were additional trailers that were downloaded
             library.mergeExtras();
@@ -677,12 +676,12 @@ public class MovieJukebox {
             indexMasters.removeAll(movies);
 
             // Multi-thread: Parallel Executor
-            tasks = Executors.newFixedThreadPool(MaxThreadsProcess);
+            tasks = new ThreadExecutor<Void>(MaxThreadsProcess);
 
             for (final Movie movie : indexMasters) {
                 // Multi-tread: Start Parallel Processing
-                tasks.submit(new Callable<Object>() {
-                    public Object call() throws FileNotFoundException, XMLStreamException {
+                tasks.submit(new Callable<Void>() {
+                    public Void call() throws FileNotFoundException, XMLStreamException {
 
                     	ToolSet tools = threadTools.get();
                         // The master's movie XML is used for generating the
@@ -736,18 +735,17 @@ public class MovieJukebox {
                     };
                 });
             }
-            tasks.shutdown();
-            tasks.awaitTermination(3600 * 24, TimeUnit.SECONDS);
+            tasks.waitFor();
 
             xmlWriter.writePreferences(jukeboxDetailsRoot);
 
             final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
             // Multi-thread: Parallel Executor
-            tasks = Executors.newFixedThreadPool(MaxThreadsProcess);
+            tasks = new ThreadExecutor<Void>(MaxThreadsProcess);
             for (final Movie movie : movies) {
                 // Multi-tread: Start Parallel Processing
-                tasks.submit(new Callable<Object>() {
-                    public Object call() throws FileNotFoundException, XMLStreamException {
+                tasks.submit(new Callable<Void>() {
+                    public Void call() throws FileNotFoundException, XMLStreamException {
 
                     	ToolSet tools = threadTools.get();
                         // Update movie XML files with computed index information
@@ -773,16 +771,13 @@ public class MovieJukebox {
                     };
                 });
             }
-            tasks.shutdown();
-            tasks.awaitTermination(3600 * 24, TimeUnit.SECONDS);
+            tasks.waitFor();
 
             if (!skipIndexGeneration) {
-                // this could also go parallel, but it make complicated;
-                // the library is also not thread safe...
                 logger.fine("Writing Indexes...");
-                xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library);
+                xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library, MaxThreadsProcess);
                 xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
-                htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library);
+                htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library, MaxThreadsProcess);
                 htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
             }
 
