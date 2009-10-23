@@ -51,7 +51,7 @@ public class MovieFilenameScanner {
     /** All symbols within brackets [] if there is an EXTRA keyword */
     private static String[] extrasKeywords;
     private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
-    {
+    static {
         setExtrasKeywords(new String[] {"trailer"});
     }
 
