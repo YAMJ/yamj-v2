@@ -44,7 +44,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean includeVideoImages;
     private boolean includeWideBanners;
     private boolean onlySeriesBanners;
-    private boolean cylceSeriesBanners;
+    private boolean cycleSeriesBanners;
     private boolean dvdEpisodes = false;
     protected static String fanartToken;
     private static final String bannerSeasonType = "seasonwide";
@@ -58,7 +58,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
         includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
         onlySeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
-        cylceSeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cylceSeriesBanners", "true"));
+        cycleSeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cycleSeriesBanners", "true"));
         dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
@@ -204,7 +204,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         for (Banner banner : banners.getSeriesList()) {
                             if (banner.getBannerType2().equalsIgnoreCase(bannerSeriesType)) {
                                 // Increment the counter (before the test) and see if this is the right season
-                                if ((++counter == movie.getSeason()) || !cylceSeriesBanners) {
+                                if ((++counter == movie.getSeason()) || !cycleSeriesBanners) {
                                     urlBanner = banner.getUrl();
                                     break;
                                 } else {
