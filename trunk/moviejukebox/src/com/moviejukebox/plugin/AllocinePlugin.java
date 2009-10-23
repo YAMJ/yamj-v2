@@ -85,11 +85,14 @@ public class AllocinePlugin extends ImdbPlugin {
 				}
 			}
 
-			for (String actor : extractTags(xml, "Avec : ", "<br />", "<a", "</a>")) {
-				String cleanActor = removeOpenedHtmlTags(actor);
-				if (!cleanActor.equalsIgnoreCase("plus...")){
-//					logger.finest("Actor added : " + cleanActor);
-					movie.addActor(cleanActor);
+			if (movie.getCast().isEmpty()) {
+				for (String actor : extractTags(xml, "Avec ", "<br />", "<a", "</a>")) {
+//					logger.finest("actorTag=["+actor+"]");
+					if (actor.contains("/personne/fichepersonne_gen_cpersonne")) {
+					String cleanActor = removeOpenedHtmlTags(actor);
+//						logger.finest("Actor added : " + cleanActor);
+						movie.addActor(cleanActor);
+					}
 				}
 			}
 
@@ -260,8 +263,9 @@ public class AllocinePlugin extends ImdbPlugin {
 
 			if (movie.getCast().isEmpty()) {
 				for (String actor : extractTags(xml, "Avec ", "<br />", "<a", "</a>")) {
+//					logger.finest("actorTag=["+actor+"]");
+					if (actor.contains("/personne/fichepersonne_gen_cpersonne")) {
 					String cleanActor = removeOpenedHtmlTags(actor);
-					if (!cleanActor.equalsIgnoreCase("plus...")){
 //						logger.finest("Actor added : " + cleanActor);
 						movie.addActor(cleanActor);
 					}
