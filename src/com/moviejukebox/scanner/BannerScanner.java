@@ -179,7 +179,7 @@ public class BannerScanner {
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing banner unless ForceBannerOverwrite = true
-            if ((!bannerFile.exists() && !tmpDestFile.exists()) || bannerOverwrite) {
+            if ((!bannerFile.exists() && !tmpDestFile.exists()) || bannerOverwrite || movie.isDirtyBanner()) {
                 bannerFile.getParentFile().mkdirs();
 
                 try {
@@ -235,4 +235,5 @@ public class BannerScanner {
             return "";
         }
     }
+
 }

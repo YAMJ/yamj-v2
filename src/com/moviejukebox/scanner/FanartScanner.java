@@ -252,5 +252,4 @@ public class FanartScanner {
             return fanartUrl;
         }
     }
-
 }

@@ -108,6 +108,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private boolean isDirtyNFO = false;
     private boolean isDirtyPoster = false;
     private boolean isDirtyFanart = false;
+    private boolean isDirtyBanner = false;
     private File file;
     private File containerFile;
     // Get the minimum widths for a high-definition movies
@@ -413,6 +414,10 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public boolean isDirtyFanart() {
         return isDirtyFanart;
     }
+    
+    public boolean isDirtyBanner() {
+    	return isDirtyBanner;
+    }
 
     public boolean isHasSubtitles() {
         return hasSubtitles;
@@ -534,6 +539,11 @@ public class Movie implements Comparable<Movie>, Cloneable {
     public void setDirtyFanart(boolean isDirtyFanart) {
         // Used to check if the fanart has changed or the URL changed to force a re-download of the poster.
         this.isDirtyFanart = isDirtyFanart;
+    }
+
+    public void setDirtyBanner(boolean isDirtyBanner) {
+        // Used to check if the banner has changed or the URL changed to force a re-download of the banner.
+        this.isDirtyBanner = isDirtyBanner;
     }
 
     public void setFirst(String first) {

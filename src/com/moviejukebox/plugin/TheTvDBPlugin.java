@@ -13,6 +13,7 @@
 
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,6 +41,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private TheTVDB tvDB;
     private String language;
+    private boolean forceBannerOverwrite;
+    private boolean forceFanartOverwrite;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private boolean includeWideBanners;
@@ -61,6 +64,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
         dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
         fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
+        forceFanartOverwrite = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
+        forceBannerOverwrite = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
     }
 
     @Override
@@ -179,8 +184,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setPosterURL(urlNormal);
                     }
                 }
-
-                if (includeWideBanners && movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (includeWideBanners && (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceBannerOverwrite) || movie.isDirtyBanner()){
                     String urlBanner = null;
 
                     if (!banners.getSeasonList().isEmpty() && !onlySeriesBanners) {
@@ -223,11 +227,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setBannerURL(urlBanner);
                     } 
                 }
-                
+
                 // TODO remove this once all skins are using the new fanart properties
                 downloadFanart = checkDownloadFanart(movie.isTVShow());
                 
-                if (downloadFanart && movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (downloadFanart && (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceFanartOverwrite) || (movie.isDirtyFanart())){
                     String url = null;
                     if (!banners.getFanartList().isEmpty()) {
                         int index = movie.getSeason();
