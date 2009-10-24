@@ -20,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -43,12 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ExecutionException;
-
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -100,6 +94,7 @@ public class MovieJukebox {
     private boolean forcePosterOverwrite;
     private boolean forceThumbnailOverwrite;
     private boolean forceBannerOverwrite;
+    
     // Scanner Tokens
     private static String posterToken;
     private static String thumbnailToken;
@@ -378,6 +373,7 @@ public class MovieJukebox {
         this.detailsDirName = getProperty("mjb.detailsDirName", "Jukebox");
         this.forcePosterOverwrite = parseBoolean(getProperty("mjb.forcePostersOverwrite", "false"));
         this.forceThumbnailOverwrite = parseBoolean(getProperty("mjb.forceThumbnailsOverwrite", "false"));
+        this.forceBannerOverwrite = parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
         this.fanartMovieDownload = parseBoolean(getProperty("fanart.movie.download", "false"));
@@ -408,7 +404,7 @@ public class MovieJukebox {
     private void generateLibrary(boolean jukeboxClean, boolean jukeboxPreserve) throws Throwable {
 
         /********************************************************************************
-         * Gabriel Corneanu:
+         * @author Gabriel Corneanu:
          * the tools used for parallel processing are NOT thread safe (some operations are, but not all)
          * therefore all are added to a container which is instantiated one per thread
          * 
@@ -623,8 +619,9 @@ public class MovieJukebox {
 
                         // Get Banner if requested and is a TV show
                         if (bannerDownload && movie.isTVShow()) {
-                            BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-                            updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            if (!BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
+                                updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            }
                         }
 
                         // Get subtitle
@@ -708,7 +705,6 @@ public class MovieJukebox {
                             if (!BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
                                 updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
                                 logger.finest("Local set banner (" + FileTools.makeSafeFilename(movie.getBaseName() + bannerToken) + ") not found, using " + oldPosterFilename);
-                                movie.setPosterFilename(oldPosterFilename);
                             } else {
                                 logger.finest("Local set banner found, using " + movie.getBannerFilename());
                             }
@@ -957,12 +953,16 @@ public class MovieJukebox {
                 movie.setDirtyNFO(true);
                 movie.setDirtyPoster(true);
                 movie.setDirtyFanart(true);
+                movie.setDirtyBanner(true);
                 forceXMLOverwrite = true;
                 break; // one is enough
             }
         }
 
-        if (xmlFile.exists() && !forceXMLOverwrite) {
+        // ForceBannerOverwrite is set here to force the re-load of TV Show data including the banners
+        if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
+        	
+        	// *** START of routine to check if the file has changed location
             // Set up some arrays to store the directory scanner files and the xml files
             Collection<MovieFile> scannedFiles = new ArrayList<MovieFile>();
             Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>();
@@ -995,7 +995,9 @@ public class MovieJukebox {
                     movie.addMovieFile(xmlLoop);
                 }
             }
+            // *** END of file location change
 
+            
             // update new episodes titles if new MovieFiles were added
             DatabasePluginController.scanTVShowTitles(movie);
 
@@ -1025,7 +1027,7 @@ public class MovieJukebox {
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
                 PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
-
+            
             miScanner.scan(movie);
             DatabasePluginController.scan(movie);
         }
@@ -1086,7 +1088,7 @@ public class MovieJukebox {
         // Download banner
 
         // Do not overwrite existing banners, unless there is a new poster URL in the nfo file.
-        if ((!tmpDestFile.exists() && !bannerFile.exists()) || (movie.isDirtyPoster()) || forceBannerOverwrite) {
+        if ((!tmpDestFile.exists() && !bannerFile.exists()) || (movie.isDirtyBanner()) || forceBannerOverwrite) {
             bannerFile.getParentFile().mkdirs();
 
             if (movie.getBannerURL() == null || movie.getBannerURL().equals(Movie.UNKNOWN)) {
