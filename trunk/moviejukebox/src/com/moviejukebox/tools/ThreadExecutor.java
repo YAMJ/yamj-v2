@@ -13,6 +13,8 @@
 
 package com.moviejukebox.tools;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -26,6 +28,7 @@ public class ThreadExecutor<T> {
 
     private Collection<Future<T>> values = new ArrayList<Future<T>>();
     private ExecutorService pool;
+    private boolean ignoreErrors = true;
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     /**
@@ -48,17 +51,28 @@ public class ThreadExecutor<T> {
         values.add(pool.submit(c));
     }
 
+    public static String getStackTrace(Throwable t)
+    {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw, true);
+        t.printStackTrace(pw);
+        pw.flush();
+        sw.flush();
+        return sw.toString();
+    }
+
     public void waitFor() throws Throwable{
         pool.shutdown();
         for(Future<T> f: values){
             try{
                 f.get();
             } catch (ExecutionException e) {
-                logger.fine("Execution Exception: " + e.getMessage());
-                throw e.getCause();
+                if(ignoreErrors)
+                    logger.fine(getStackTrace(e.getCause()));
+                else
+                    throw e.getCause();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
             }
         }
         pool.shutdownNow();
