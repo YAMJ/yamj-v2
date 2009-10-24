@@ -333,17 +333,14 @@ public class AllocinePlugin extends ImdbPlugin {
 	private int parseRating(String rating) {
 
 		int index = rating.indexOf("(");
-		if (index < 0) {
-		    if(rating.length() > 0)
-		        logger.finest("Could not understand rating:"+rating);
-		    return -1;
-		}
-		String floatRating= rating.substring(index+1, index + 4).replace(',','.');
-		//logger.finest("String floatRating =["+ floatRating+"]");
+        if (index < 0) return -1;
+        try {
+            String floatRating= rating.substring(index+1, index + 4).replace(',','.');
+            //logger.finest("String floatRating =["+ floatRating+"]");
 
-		try {
-			return (int)(Float.parseFloat(floatRating) / 4.0 * 100);
+            return (int)(Float.parseFloat(floatRating) / 4.0 * 100);
 		} catch (Exception error) {
+            logger.finest("Error parsing rating:"+rating);
 			return -1;
 		}
 	}
