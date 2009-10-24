@@ -44,7 +44,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected WebBrowser webBrowser;
     protected boolean downloadFanart;
     protected boolean extractCertificationFromMPAA;
-    protected static String fanartToken;
+    protected String fanartToken;
 
     public ImdbPlugin() {
         webBrowser                  = new WebBrowser();

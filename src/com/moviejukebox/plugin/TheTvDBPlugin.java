@@ -46,7 +46,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean onlySeriesBanners;
     private boolean cycleSeriesBanners;
     private boolean dvdEpisodes = false;
-    protected static String fanartToken;
     private static final String bannerSeasonType = "seasonwide";
     private static final String bannerSeriesType = "graphical";
 
