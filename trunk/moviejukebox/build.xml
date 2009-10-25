@@ -3,7 +3,10 @@
   <target name="all" depends="clean, compile, test, delivery"/>
 
   <target name="init">
-    <property name="version" value="v1.5"/>
+    <property name="version" value="v1.6 Beta"/>
+  	<!-- This only works if the build is done through Hudson, otherwise it stays the same -->
+  	<property environment="env" />
+  	<property name="revision" value="${env.SVN_REVISION}"/>
   </target>
 
   <target name="clean">
@@ -80,7 +83,19 @@
   <target name="delivery" depends="clean, compile">
     <mkdir dir="dist/lib"/>
 
-    <jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class"/>
+    <tstamp>
+      <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+    </tstamp>
+
+    <manifest file="MANIFEST.MF">
+      <attribute name="Built-By" value="${user.name}"/>
+      <attribute name="Specification-Title" value="Yet Another Movie Jukebox"/>
+      <attribute name="Specification-Version" value="${version}"/>
+      <attribute name="Implementation-Version" value="${revision}"/>
+      <attribute name="Implementation-Title" value="${TODAY}"/> 
+    </manifest>
+
+    <jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class" manifest="MANIFEST.MF"/>
 
     <copy todir="dist/lib">
       <fileset dir="lib">

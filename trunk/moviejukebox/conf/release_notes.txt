@@ -10,6 +10,7 @@ MovieJukebox 1.6 BETA
   - Enhancement   #970 Updated/improved threading functionality to increase stability & throttle downloads on a per site basis
   - Enhancement  #1005 Download different banners for different seasons
   - Enhancement  #1010 Enable the use of Set banners for BoxedSets
+  - Enhancement  #1017 Output YAMJ revision number for Beta builds
   - Fixed defect #1043 Multiple bugs with SratimPlugin
   - Fixed defect #1045 Banners not downloaded if Local Poster file exists
   - Enhancement  #1037 Added Norwegian language to filename scanner
