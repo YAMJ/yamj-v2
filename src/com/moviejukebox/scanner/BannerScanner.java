@@ -78,13 +78,7 @@ public class BannerScanner {
         boolean foundLocalBanner = false;
 
         // Look for the banner.bannerToken.Extension
-        if (movie.getFile().isDirectory()) { // for VIDEO_TS
-            fullBannerFilename = movie.getFile().getPath();
-        } else {
-            fullBannerFilename = movie.getFile().getParent();
-        }
-
-        fullBannerFilename += File.separator + localBannerBaseFilename + bannerToken;
+        fullBannerFilename = FileTools.getParentFolder(movie.getFile()) + File.separator + localBannerBaseFilename + bannerToken;
         foundExtension = findBannerFile(fullBannerFilename, bannerExtensions);
         if (!foundExtension.equals("")) {
             // The filename and extension was found

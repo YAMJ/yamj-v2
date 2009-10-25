@@ -248,4 +248,25 @@ public class FileTools {
         webBrowser.downloadImage(imageFile, imageURL);
     }
 
+    /**
+     * Find the parent directory of the movie file.
+     * @param movie
+     * @return Parent folder
+     * @author Stuart Boston
+     */
+    public static String getParentFolder(File movieFile) {
+    	String parentFolder = null;
+    	
+        if (movieFile.isDirectory()) { // for VIDEO_TS
+        	parentFolder = movieFile.getPath();
+        } else {
+        	parentFolder = movieFile.getParent();
+        }
+        
+        // Issue 1070, /BDMV/STREAM is being appended to the parent path
+        if (parentFolder.substring(parentFolder.length()-12).equalsIgnoreCase(File.separator + "BDMV" + File.separator + "STREAM"))
+        	parentFolder = parentFolder.substring(0, parentFolder.length() - 12);
+
+    	return parentFolder;
+    }
 }
