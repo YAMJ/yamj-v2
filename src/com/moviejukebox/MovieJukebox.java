@@ -140,14 +140,31 @@ public class MovieJukebox {
         logger.addHandler(ch);
         logger.setLevel(Level.ALL);
 
-        logger.fine("Yet Another Movie Jukebox");
-        logger.fine("~~~ ~~~~~~~ ~~~~~ ~~~~~~~");
+        // These are pulled from the Manifest.MF file that is created by the Ant build script
+        String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
+        String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
+        String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
+        // Just create a pretty underline.
+        String mjbTitle = "";
+        for (int i=1; i <= mjbVersion.length(); i++) {
+        	mjbTitle += "~";
+        }
+        
+        logger.fine("Yet Another Movie Jukebox " + mjbVersion);
+        logger.fine("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + mjbTitle);
         logger.fine("http://code.google.com/p/moviejukebox/");
         logger.fine("Copyright (c) 2004-2009 YAMJ Members");
         logger.fine("");
         logger.fine("This software is licensed under a Creative Commons License");
         logger.fine("See this page: http://code.google.com/p/moviejukebox/wiki/License");
         logger.fine("");
+
+        // Print the revision information if it was populated by Hudson CI
+        if ( !((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) ) {
+        	logger.fine("  Revision: " + mjbRevision);
+        	logger.fine("Build Date: " + mjbBuildDate);
+        	logger.fine("");
+        }
         logger.fine("Processing started at " + new Date());
         logger.fine("");
 
@@ -899,6 +916,7 @@ public class MovieJukebox {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
+        logger.fine("");
         logger.fine("MovieJukebox process completed at " + new Date());
         logger.fine("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
     }
