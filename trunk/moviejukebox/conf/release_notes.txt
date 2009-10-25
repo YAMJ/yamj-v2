@@ -24,6 +24,7 @@ MovieJukebox 1.6 BETA
   - Fixed defect #1059 Avoid potential problem in rare combination: multiple library folders, distributed movie parts
   - Fixed defect #1063 Error creating XML file with r1165 & Allocine plugin
   - Fixed defect #1068 TheMovieDb API change
+  - Fixed defect #1070 Local fanart, posters & videoimages for Bluray with BDMV/STREAM is not detected
 
 MovieJukebox 1.5
 ----------------

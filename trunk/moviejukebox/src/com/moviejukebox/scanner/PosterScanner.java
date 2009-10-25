@@ -121,11 +121,8 @@ public class PosterScanner {
         boolean foundLocalCoverArt = false;
 
         for (String extension : coverArtExtensions) {
-            if (movie.getFile().isDirectory()) { // for VIDEO_TS
-                fullPosterFilename = movie.getFile().getPath();
-            } else {
-                fullPosterFilename = movie.getFile().getParent();
-            }
+        	fullPosterFilename = FileTools.getParentFolder(movie.getFile());
+
             if (!coverArtDirectory.equals("")) {
                 fullPosterFilename += File.separator + coverArtDirectory;
             }

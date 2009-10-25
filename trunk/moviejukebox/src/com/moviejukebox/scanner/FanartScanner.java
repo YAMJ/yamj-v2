@@ -72,11 +72,7 @@ public class FanartScanner {
         boolean foundLocalFanart = false;
 
         // Look for the videoname.fanartToken.Extension
-        if (movie.getFile().isDirectory()) { // for VIDEO_TS
-            fullFanartFilename = movie.getFile().getPath();
-        } else {
-            fullFanartFilename = movie.getFile().getParent();
-        }
+        fullFanartFilename = FileTools.getParentFolder(movie.getFile());
 
         fullFanartFilename += File.separator + localFanartBaseFilename + fanartToken;
         foundExtension = findFanartFile(fullFanartFilename, fanartExtensions);

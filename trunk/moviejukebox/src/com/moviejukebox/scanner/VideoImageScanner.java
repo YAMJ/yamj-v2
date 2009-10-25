@@ -90,11 +90,8 @@ public class VideoImageScanner {
         logger.finest("Checking for videoimages for " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
 
         // Check for the generic video image for use in the loop later.
-        if (movie.getFile().isDirectory()) { // for VIDEO_TS
-            localVideoImageBaseFilename = movie.getFile().getPath();
-        } else {
-            localVideoImageBaseFilename = movie.getFile().getParent();
-        }
+        localVideoImageBaseFilename = FileTools.getParentFolder(movie.getFile());
+       
         localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator) + 1);
         genericVideoImageFilename = movie.getFile().getParent() + File.separator + localVideoImageBaseFilename + videoimageToken;
 
@@ -117,20 +114,15 @@ public class VideoImageScanner {
                 foundLocalVideoImage = false;   // Reset the "found" variable
             	String partSuffix = "_" + (part - firstPart + 1);
 
-	            if (mf.getFile().isDirectory()) {
-	                localVideoImageBaseFilename = mf.getFile().getPath();
+            	localVideoImageBaseFilename = FileTools.getParentFolder(mf.getFile());
+            	
+	            if (new File(localVideoImageBaseFilename).isDirectory()) {
 	                localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
 	            } else {
-	                localVideoImageBaseFilename = mf.getFile().getName();
 	                localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;                
 	            }
 	            
-	            if (mf.getFile().isDirectory()) { // for VIDEO_TS
-	                fullVideoImageFilename = mf.getFile().getPath();
-	            } else {
-	                fullVideoImageFilename = mf.getFile().getParent();
-	            }
-	            fullVideoImageFilename += File.separator + localVideoImageBaseFilename;
+	            fullVideoImageFilename = FileTools.getParentFolder(mf.getFile()) + File.separator + localVideoImageBaseFilename;
 	            
 	            originalLocalVideoImageBaseFilename = localVideoImageBaseFilename;
 	            originalFullVideoImageFilename = fullVideoImageFilename;
