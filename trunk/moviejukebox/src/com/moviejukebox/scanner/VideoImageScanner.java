@@ -114,13 +114,17 @@ public class VideoImageScanner {
                 foundLocalVideoImage = false;   // Reset the "found" variable
             	String partSuffix = "_" + (part - firstPart + 1);
 
-            	localVideoImageBaseFilename = FileTools.getParentFolder(mf.getFile());
-            	
-	            if (new File(localVideoImageBaseFilename).isDirectory()) {
-	                localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
-	            } else {
-	                localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;                
-	            }
+            	if (mf.getFile().isDirectory()) {
+            		localVideoImageBaseFilename = mf.getFile().getPath();
+            		localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
+            	} else if (mf.getFile().getParent().toString().contains("BDMV" + File.separator + "STREAM")) {
+            		localVideoImageBaseFilename = mf.getFile().getPath().toString();
+            		localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.indexOf("BDMV" + File.separator + "STREAM") - 1); 
+            		localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
+            	} else {
+            		localVideoImageBaseFilename = mf.getFile().getName();
+            		localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;
+            	}
 	            
 	            fullVideoImageFilename = FileTools.getParentFolder(mf.getFile()) + File.separator + localVideoImageBaseFilename;
 	            
