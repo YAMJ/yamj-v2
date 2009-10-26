@@ -161,7 +161,7 @@ public class MovieJukebox {
 
         // Print the revision information if it was populated by Hudson CI
         if ( !((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) ) {
-        	logger.fine("  Revision: " + mjbRevision);
+        	logger.fine("  Revision: r" + mjbRevision);
         	logger.fine("Build Date: " + mjbBuildDate);
         	logger.fine("");
         }

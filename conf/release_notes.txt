@@ -20,12 +20,13 @@ MovieJukebox 1.6 BETA
   - Enhancement  #1040 New NMT file path for PCH C-200
   - Fixed defect #1053 Allocine search engine and layout has changed, plugin broken.
   - Enhancement  #1055 Output all errors to log file as well as console
-  - Fixed defect #1058 Bug commandline -p parameter no longer works properly
+  - Fixed defect #1058 Bug command line -p parameter no longer works properly
   - Fixed defect #1053 Allocine search engine and layout has changed, plugin broken.
   - Fixed defect #1059 Avoid potential problem in rare combination: multiple library folders, distributed movie parts
   - Fixed defect #1063 Error creating XML file with r1165 & Allocine plugin
   - Fixed defect #1068 TheMovieDb API change
   - Fixed defect #1070 Local fanart, posters & videoimages for Bluray with BDMV/STREAM is not detected
+  - Fixed defect #1071 r1181 does not fetch local videoimages
 
 MovieJukebox 1.5
 ----------------
