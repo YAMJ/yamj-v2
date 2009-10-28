@@ -13,22 +13,8 @@
 
 package com.moviejukebox.plugin;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.FileWriter;
-import java.io.FileReader;
-import java.io.DataOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -48,9 +34,15 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
 public class SratimPlugin extends ImdbPlugin {
 
-    private static AbstractStringMetric metric = new MongeElkan();
-
     public static String SRATIM_PLUGIN_ID = "sratim";
+
+    private static final String ARGUMENT_VIEWSTATE = "__VIEWSTATE";
+    private static final String SEASON_FORM_NAME = "__EVENTTARGET";
+    private static final String SEASON_FORM_VALUE = "ctl00$ctl00$Body$Body$Box$Menu_";
+    private static final String ARGUMENT_FORM_NAME = "__EVENTARGUMENT";
+    private static final String ARGUMENT_FORM_VALUE = "lbl";
+
+    private static AbstractStringMetric metric = new MongeElkan();
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
     private static String[] genereStringEnglish = { "Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
@@ -471,11 +463,12 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     private static String logicalToVisual(String text) {
-        char[] ret = new char[text.length()];
+        char[] ret;
 
         ret = text.toCharArray();
-
-        LogicalToVisual(ret, BCT_R);
+        if(containsHebrew(ret)) {
+            LogicalToVisual(ret, BCT_R);
+        }
         String s = new String(ret);
         return s;
     }
@@ -670,7 +663,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
+            logger.severe("Failed retrieving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -814,17 +807,25 @@ public class SratimPlugin extends ImdbPlugin {
             return;
         }
 
-        if (mainXML == null) {
-            try {
-                String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
-
-                mainXML = webBrowser.request(sratimUrl);
-            } catch (Exception error) {
-                logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+        // in sratim.co.il website, seasons are displayed in tabs and since
+        // on page load only the last season is displayed, we need to get the correct
+        // season according to movie details.
+        try {
+            String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
+            String html = webBrowser.request(sratimUrl);
+            String viewState = HTMLTools.extractTag(html, "<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"", 0, "\"");
+            int season = movie.getSeason();
+            String seasonUrl = buildSeasonUrl(sratimUrl, season, viewState);
+            // season details needs to be retrieved using POST submission.
+            // in case of exception use the xml retrieved by the parent plugin (imdb or thetvdb)
+            mainXML = postRequest(seasonUrl);
+        } catch (Exception error) {
+            logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+            if(mainXML == null) {
                 return;
             }
         }
@@ -880,7 +881,7 @@ public class SratimPlugin extends ImdbPlugin {
                         } else {
                             sb.append(" / ");
                         }
-                        sb.append(logicalToVisual(scanName));
+                        sb.append(logicalToVisual(HTMLTools.decodeHtml(scanName)));
                     
 
                         try {
@@ -1564,4 +1565,86 @@ public class SratimPlugin extends ImdbPlugin {
         return srtFile.exists() || subFile.exists();
     }
 
+    protected String buildSeasonUrl(String baseUrl, int i, String viewState) throws UnsupportedEncodingException {
+        StringBuilder surl = new StringBuilder();
+
+        surl.append(baseUrl);
+        if(baseUrl.indexOf('?')>-1)
+            surl.append('&');
+        else
+            surl.append('?');
+
+        surl.append("ctl00$ctl00$Body$ScriptManager=ctl00$ctl00$Body$Body$Box$UpdatePanel|");
+        surl.append(SEASON_FORM_VALUE);
+        surl.append(i);
+
+        surl.append('&').append(SEASON_FORM_NAME).append('=').append(SEASON_FORM_VALUE).append(i);
+        surl.append('&').append(ARGUMENT_FORM_NAME).append('=').append(ARGUMENT_FORM_VALUE);
+        surl.append("&ctl00$ctl00$Body$Body$Box$Comments$Header=");
+        surl.append("&ctl00$ctl00$Body$Body$Box$Comments$Body=");
+        surl.append("&__LASTFOCUS=");
+        surl.append('&').append(ARGUMENT_VIEWSTATE).append('=').append(URLEncoder.encode(viewState,"UTF-8"));
+        surl.append("&ctl00$ctl00$Body$Body$Box$SubtitlesLanguage=1"); //hebrew subtitles
+        surl.append("&__ASYNCPOST=true");
+
+        return surl.toString();
+    }
+
+    protected String postRequest(String url){
+        StringBuilder content = new StringBuilder();
+        try {
+            int queryStart = url.indexOf('&');
+            if(queryStart==-1)
+                queryStart = url.length();
+            String baseUrl = url.substring(0, queryStart);
+            URL ourl = new URL(baseUrl);
+            String data="";
+            if(queryStart>-1)
+                data = url.substring(queryStart+1);
+
+            // Send data
+            URLConnection conn = ourl.openConnection();
+            conn.setDoOutput(true);
+
+            conn.setRequestProperty("Host", "www.sratim.co.il");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.2; en-US; rv:1.9.0.11) Gecko/2009060215 Firefox/3.0.11");
+            conn.setRequestProperty("Accept","*/*");
+            conn.setRequestProperty("Accept-Language","he");
+            conn.setRequestProperty("Accept-Encoding","deflate");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+            conn.setRequestProperty("Accept-Charset","utf-8");
+            conn.setRequestProperty("Referer",baseUrl);
+
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(data); //post data
+            wr.flush();
+
+            conn.getHeaderFields(); //unused
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+            String line;
+
+            while ((line = rd.readLine()) != null) {
+                content.append(line);
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception error) {
+            logger.severe("Failed retrieving sratim season episodes information.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+        return content.toString();
+    }
+
+    protected static boolean containsHebrew(char[] chars){
+        if(chars==null) return false;
+        for( int i=0; i<chars.length ; i++ ) {
+            if(GetCharType(chars[i])==BCT_R)
+                return true;
+        }
+        return false;
+    }
 }
