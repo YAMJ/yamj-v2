@@ -121,7 +121,7 @@ public class MovieFilenameScanner {
             put("English", "ENG EN ENGLISH eng en english Eng");
             put("French", "FRA FR FRENCH VF fra fr french vf Fra");
             put("German", "GER DE GERMAN ger de german Ger");
-            put("Hebrew", "HEB HE HEBREW EBDUB heb he hebrew ebdub Heb");
+            put("Hebrew", "HEB HE HEBREW HEBDUB heb he hebrew hebdub Heb");
             put("Hindi", "HI HIN HINDI hi hin hindi Hin Hindi");
             put("Hungarian", "HUN HU HUNGARIAN hun hu hungarian");
             put("Italian", "ITA IT ITALIAN ita it italian Ita");
@@ -158,7 +158,7 @@ public class MovieFilenameScanner {
             put("English", "ENG EN ENGLISH");
             put("French", "FRA FR FRENCH");
             put("German", "GER DE GERMAN");
-            put("Hebrew", "HEB HE HEBREW EBDUB");
+            put("Hebrew", "HEB HE HEBREW HEBDUB");
             put("Hindi", "HI HIN HINDI");
             put("Hungarian", "HUN HU HUNGARIAN");
             put("Italian", "ITA IT ITALIAN");

@@ -27,7 +27,8 @@ MovieJukebox 1.6 BETA
   - Fixed defect #1068 TheMovieDb API change
   - Fixed defect #1070 Local fanart, posters & videoimages for Bluray with BDMV/STREAM is not detected
   - Fixed defect #1071 r1181 does not fetch local videoimages
-  - Fixed defect #1080 SratimPlugin does not retrieve previous seasons 
+  - Fixed defect #1078 Correct language detection for HEBDUB
+  - Fixed defect #1080 SratimPlugin does not retrieve previous seasons
 
 MovieJukebox 1.5
 ----------------
