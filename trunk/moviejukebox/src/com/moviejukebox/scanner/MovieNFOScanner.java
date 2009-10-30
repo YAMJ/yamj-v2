@@ -36,8 +36,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;

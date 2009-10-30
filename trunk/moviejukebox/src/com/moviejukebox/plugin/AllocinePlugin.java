@@ -72,7 +72,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // "<h5>Certification:</h5>", "</div>",
             // "<a href=\"/List?certificates=", "</a>")));
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase("Unknown")) {
+            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(removeOpenedHtmlTags(extractTag(xml, "en <a href=\"/series/toutes/", "</a>")));
                 // logger.finest("TV Show year = " + movie.getYear());
             }
@@ -292,7 +292,7 @@ public class AllocinePlugin extends ImdbPlugin {
         String xml = "";
 
         // make an IMDb request for poster
-        if (movie.getPosterURL() != null && !movie.getPosterURL().equalsIgnoreCase("Unknown")) {
+        if (movie.getPosterURL() != null && !movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             // we already have a poster URL
             logger.finer("Movie already has PosterURL : " + movie.getPosterURL());
             return;

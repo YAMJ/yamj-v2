@@ -264,7 +264,7 @@ public class FileTools {
         }
         
         // Issue 1070, /BDMV/STREAM is being appended to the parent path
-        if (parentFolder.toUpperCase().contains(File.separator + "BDMV" + File.separator + "STREAM")) {
+        if (parentFolder.toUpperCase().endsWith(File.separator + "BDMV" + File.separator + "STREAM")) {
         	parentFolder = parentFolder.substring(0, parentFolder.length() - 12);
         }
 

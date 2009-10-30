@@ -709,7 +709,7 @@ public class MovieJukebox {
                         String oldPosterFilename = movie.getPosterFilename();
 
                         // Set a default poster name in case it's not found during the scan
-                        movie.setPosterFilename(movie.getBaseName() + ".jpg");
+                        movie.setPosterFilename(movie.getBaseName() + "." + PropertiesUtil.getProperty("posters.format", "jpg"));
                         if (!PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
                             logger.finest("Local set poster (" + FileTools.makeSafeFilename(movie.getBaseName()) + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);

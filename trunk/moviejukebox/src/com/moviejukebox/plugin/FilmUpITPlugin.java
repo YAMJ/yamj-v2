@@ -70,7 +70,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 }
             }
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase("Unknown")) {
+            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
             }
 
@@ -80,12 +80,12 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
             String posterPageUrl = extractTag(xml, "href=\"posters/locp/", "\"");
-            if (!posterPageUrl.equalsIgnoreCase("Unknown")) {
+            if (!posterPageUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
                 updatePoster(movie, posterPageUrl);
             }
 
             String opinionsPageID = extractTag(xml, "/opinioni/op.php?uid=", "\"");
-            if (!opinionsPageID.equalsIgnoreCase("Unknown")) {
+            if (!opinionsPageID.equalsIgnoreCase(Movie.UNKNOWN)) {
                 int PageID = Integer.parseInt(opinionsPageID);
                 updateRate(movie, PageID);
                 logger.finest("Opinions page UID = " + PageID);
@@ -116,11 +116,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
     }
 
     private void updatePoster(Movie movie, String pageUrl) {
-        String posterURL = "Unknown";
+        String posterURL = Movie.UNKNOWN;
         String xml = "";
 
         // make an IMDb request for poster
-        if (movie.getPosterURL() != null && !movie.getPosterURL().equalsIgnoreCase("Unknown")) {
+        if (movie.getPosterURL() != null && !movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             // we already have a poster URL
             logger.finer("Movie already has PosterURL : " + movie.getPosterURL());
             return;
@@ -132,7 +132,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 String baseUrl = "http://filmup.leonardo.it/posters/locp/";
                 xml = webBrowser.request(baseUrl + pageUrl);
                 String tmpPosterURL = extractTag(xml, "\"../loc/", "\"");
-                if (!tmpPosterURL.equalsIgnoreCase("Unknown")) {
+                if (!tmpPosterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
                     posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
                     logger.finest("Movie PosterURL : " + posterURL);
                     movie.setPosterURL(posterURL);
