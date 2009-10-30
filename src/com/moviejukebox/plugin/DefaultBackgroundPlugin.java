@@ -27,27 +27,39 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 // private static Logger logger = Logger.getLogger("moviejukebox");
     private int backgroundWidth;
     private int backgroundHeight;
+    private boolean addPerspective;
 
     public DefaultBackgroundPlugin() {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
-        backgroundWidth = Integer.parseInt(PropertiesUtil.getProperty("fanart.movie.width", "1280"));
-        backgroundHeight = Integer.parseInt(PropertiesUtil.getProperty("fanart.movie.height", "720"));
     }
 
     @Override
     public BufferedImage generate(Movie movie, BufferedImage backgroundImage, String imageType, String perspectiveDirection) {
-        // imageType & persepectiveDirection not used. Needs to be here because of the way the plugins work.
+        // persepectiveDirection is not currently used. Needs to be here because of the way the plugins work.
+
+    	// Validate the image type.
+    	if (imageType == null) {
+    		imageType = "fanart";
+    	}
+    	
+        backgroundWidth = checkWidth(movie.isTVShow(), imageType);
+        backgroundHeight = checkHeight(movie.isTVShow(), imageType);
+        addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));
         
-        //TODO remove these checks once all the skins have upgraded to the new properties
-        backgroundWidth = checkWidth(movie.isTVShow());
-        backgroundHeight = checkHeight(movie.isTVShow());
-        
-        BufferedImage img = null;
+        BufferedImage bi = null;
         if (backgroundImage != null) {
-            img = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
+            bi = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
         }
-        return img;
+        
+        if (addPerspective) {
+            if (perspectiveDirection == null) // make sure the perspectiveDirection is populated
+                perspectiveDirection = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
+
+            bi = GraphicTools.create3DPicture(bi, imageType, perspectiveDirection);
+        }
+        
+        return bi;
     }
 
     /**
@@ -55,15 +67,16 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
      * TODO: Remove this procedure at some point 
      * @return the width of the fanart
      */
-    public static int checkWidth(boolean isTvShow) {
+    public static int checkWidth(boolean isTvShow, String imageType) {
         String widthProperty = null;
         int backgroundWidth = 0;
         
         if (isTvShow) 
-            widthProperty = PropertiesUtil.getProperty("fanart.tv.width");
+            widthProperty = PropertiesUtil.getProperty(imageType + ".tv.width");
         else
-            widthProperty = PropertiesUtil.getProperty("fanart.movie.width");
+            widthProperty = PropertiesUtil.getProperty(imageType + ".movie.width");
         
+        //TODO remove these checks once all the skins have upgraded to the new properties
         // If this is null, then the property wasn't found, so look for the original
         if (widthProperty == null)
             backgroundWidth = Integer.parseInt(PropertiesUtil.getProperty("background.width", "1280"));
@@ -77,15 +90,16 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
      * TODO: Remove this procedure at some point 
      * @return the width of the fanart
      */
-    public static int checkHeight(boolean isTvShow) {
+    public static int checkHeight(boolean isTvShow, String imageType) {
         String heightProperty = null;
         int backgroundHeight = 0;
         
         if (isTvShow) 
-            heightProperty = PropertiesUtil.getProperty("fanart.tv.height");
+            heightProperty = PropertiesUtil.getProperty(imageType + ".tv.height");
         else
-            heightProperty = PropertiesUtil.getProperty("fanart.movie.height");
+            heightProperty = PropertiesUtil.getProperty(imageType + ".movie.height");
         
+        //TODO remove these checks once all the skins have upgraded to the new properties
         // If this is null, then the property wasn't found, so look for the original
         if (heightProperty == null)
             backgroundHeight = Integer.parseInt(PropertiesUtil.getProperty("background.height", "720"));

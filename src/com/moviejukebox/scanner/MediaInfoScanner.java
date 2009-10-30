@@ -461,7 +461,7 @@ public class MediaInfoScanner {
         }
 
         // Cycle through Audio Streams
-        movie.setAudioCodec("UNKNOWN");
+        movie.setAudioCodec(Movie.UNKNOWN);
 
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
@@ -479,7 +479,7 @@ public class MediaInfoScanner {
 
             if (infoValue != null) {
                 String oldInfo = movie.getAudioCodec();
-                if (oldInfo.equals("UNKNOWN")) {
+                if (oldInfo.toUpper().equals(Movie.UNKNOWN)) {
                     movie.setAudioCodec(infoValue + infoLanguage);
                 } else {
                     movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
@@ -489,7 +489,7 @@ public class MediaInfoScanner {
             infoValue = infosCurAudio.get("Channel(s)");
             if (infoValue != null) {
                 String oldInfo = movie.getAudioChannels();
-                if (oldInfo.equals("UNKNOWN")) {
+                if (oldInfo.toUpper().equals(Movie.UNKNOWN)) {
                     movie.setAudioChannels(infoValue);
                 } else {
                     movie.setAudioChannels(oldInfo + " / " + infoValue);

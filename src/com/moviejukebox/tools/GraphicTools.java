@@ -90,8 +90,8 @@ public class GraphicTools {
         return bi;
     }
 
-    public static void saveImageAsJpeg(BufferedImage bi, String str) {
-        if (bi == null || str == null) {
+    public static void saveImageAsJpeg(BufferedImage bi, String filename) {
+        if (bi == null || filename == null) {
             return;
         }
 
@@ -100,10 +100,10 @@ public class GraphicTools {
             BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
             bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
 
-            ImageIO.write(bufImage, "jpg", new File(str));
+            ImageIO.write(bufImage, "jpg", new File(filename));
 
         } catch (Exception error) {
-            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + str);
+            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + filename);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -111,16 +111,16 @@ public class GraphicTools {
         }
     }
 
-    public static void saveImageAsPng(BufferedImage bi, String str) {
-        if (bi == null || str == null) {
+    public static void saveImageAsPng(BufferedImage bi, String filename) {
+        if (bi == null || filename == null) {
             return;
         }
 
         // save image as PNG
         try {
-            ImageIO.write(bi, "png", new File(str));
+            ImageIO.write(bi, "png", new File(filename));
         } catch (Exception error) {
-            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + str);
+            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + filename);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -128,13 +128,18 @@ public class GraphicTools {
         }
     }
 
-    public static void saveImageToDisk(BufferedImage bi, String str) {
-        if (str.endsWith("jpg") | str.endsWith("jpeg")) {
-            saveImageAsJpeg(bi, str);
-        } else if (str.endsWith("png")) {
-            saveImageAsPng(bi, str);
+    /**
+     * Save the buffered image to disk as either a JPG or PNG
+     * @param bi
+     * @param filename
+     */
+    public static void saveImageToDisk(BufferedImage bi, String filename) {
+        if (filename.toUpperCase().endsWith("JPG") || filename.toUpperCase().endsWith("JPEG")) {
+            saveImageAsJpeg(bi, filename);
+        } else if (filename.toUpperCase().endsWith("PNG")) {
+            saveImageAsPng(bi, filename);
         } else {
-            saveImageAsJpeg(bi, str);
+            saveImageAsJpeg(bi, filename);
         }
     }
 

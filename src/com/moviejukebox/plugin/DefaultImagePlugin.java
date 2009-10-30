@@ -271,7 +271,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     private BufferedImage drawLanguage(Movie movie, BufferedImage bi) {
         String lang = movie.getLanguage();
-        if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase("Unknown")) {
+        if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase(Movie.UNKNOWN)) {
 
             try {
                 InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + lang + ".png");

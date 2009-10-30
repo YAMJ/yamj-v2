@@ -109,7 +109,6 @@ public class FanartScanner {
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
         if (foundLocalFanart) {
             if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
-                // movie.setFanartFilename(localFanartFile.getName());
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + foundExtension);
             }
             if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -129,7 +128,11 @@ public class FanartScanner {
                 try {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(new FileInputStream(fullFanartFile));
                     if (fanartImage != null) {
-                        fanartImage = backgroundPlugin.generate(movie, fanartImage, null, null);
+                        fanartImage = backgroundPlugin.generate(movie, fanartImage, "fanart", null);
+                        if (Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.perspective", "false"))) {
+                        	destFileName = destFileName.subSequence(0, destFileName.lastIndexOf(".") + 1) + "png";
+                        	movie.setFanartFilename(destFileName);
+                        }
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);
                         logger.finer("FanartScanner: " + fullFanartFilename + " has been copied to " + destFileName);
                     } else {

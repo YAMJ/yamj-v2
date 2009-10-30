@@ -69,7 +69,7 @@ public class Library implements Map<String, Movie> {
         }
 
         protected void addMovie(String category, Movie movie) {
-            if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("UNKNOWN")) {
+            if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase(Movie.UNKNOWN)) {
                 return;
             }
 
