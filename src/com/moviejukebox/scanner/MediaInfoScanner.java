@@ -479,7 +479,7 @@ public class MediaInfoScanner {
 
             if (infoValue != null) {
                 String oldInfo = movie.getAudioCodec();
-                if (oldInfo.toUpper().equals(Movie.UNKNOWN)) {
+                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
                     movie.setAudioCodec(infoValue + infoLanguage);
                 } else {
                     movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
@@ -489,7 +489,7 @@ public class MediaInfoScanner {
             infoValue = infosCurAudio.get("Channel(s)");
             if (infoValue != null) {
                 String oldInfo = movie.getAudioChannels();
-                if (oldInfo.toUpper().equals(Movie.UNKNOWN)) {
+                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
                     movie.setAudioChannels(infoValue);
                 } else {
                     movie.setAudioChannels(oldInfo + " / " + infoValue);
