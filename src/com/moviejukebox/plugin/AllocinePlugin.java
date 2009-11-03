@@ -207,7 +207,8 @@ public class AllocinePlugin extends ImdbPlugin {
 
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
                 // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
-                String tmpPlot = removeHtmlTags(extractTag(xml, "<span class=\"bold\">Synopsis :</span>", "</p>")).trim();
+                String tmpPlot = removeHtmlTags(extractTag(xml, "Synopsis :", "</p>")).trim();
+                logger.finest("tmpPlot = [" + tmpPlot + "]");
                 if (tmpPlot.length() > ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT) {
                     tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
                 }
