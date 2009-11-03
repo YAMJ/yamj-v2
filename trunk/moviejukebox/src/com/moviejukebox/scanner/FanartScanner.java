@@ -22,6 +22,7 @@ package com.moviejukebox.scanner;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
+import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
@@ -166,7 +168,7 @@ public class FanartScanner {
                 try {
                     logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
 
-                    FileTools.downloadImage(fanartFile, movie.getFanartURL());
+                    FileTools.downloadImage(fanartFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(new FileInputStream(fanartFilename));
 
                     if (fanartImage != null) {
@@ -177,7 +179,9 @@ public class FanartScanner {
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.finer("Fanart Scanner: Failed to download fanart : " + movie.getFanartURL());
+                    logger.finer("Fanart Scanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
+                    movie.setFanartFilename(Movie.UNKNOWN);
+                    movie.setFanartURL(Movie.UNKNOWN);
                 }
             } else {
                 logger.finest("Fanart Scanner: Fanart exists for " + movie.getBaseName());
@@ -224,6 +228,7 @@ public class FanartScanner {
      */
     public static String getFanartURL(Movie movie) {
         String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
+        String language = PropertiesUtil.getProperty("themoviedb.language", "en");
         String imdbID = null;
         String tmdbID = null;
         TheMovieDb TMDb;
@@ -236,15 +241,21 @@ public class FanartScanner {
         tmdbID = movie.getId("themoviedb");
 
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbGetInfo(tmdbID);
+            moviedb = TMDb.moviedbGetInfo(tmdbID, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbImdbLookup(imdbID);
+            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
         } else {
-            moviedb = TMDb.moviedbSearch(movie.getTitle());
+            moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
         }
 
-        String fanartUrl = moviedb.getBackdrop(MovieDB.SIZE_ORIGINAL);
-        if (fanartUrl.equals(MovieDB.UNKNOWN)) {
+        // Check that the returned movie bean isn't null
+        if (moviedb == null) {
+        	logger.finer("FanartScanner: Error getting fanart for " + movie.getBaseName());
+        	return Movie.UNKNOWN;
+        }
+        
+        String fanartUrl = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL).getUrl();
+        if (fanartUrl == null || fanartUrl.equals(MovieDB.UNKNOWN)) {
             return Movie.UNKNOWN;
         } else {
             movie.setDirtyFanart(true);
