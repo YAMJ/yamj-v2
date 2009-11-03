@@ -79,7 +79,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
             // Get Fanart
             if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
-                movie.setFanartURL(super.getFanartURL(movie));
+                movie.setFanartURL(getFanartURL(movie));
                 if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
@@ -254,16 +254,12 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Get Fanart
-        	System.out.println("***** Scanning for fanart: Before " + movie.getFanartURL() + " " + downloadFanart);
-
             if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
-System.out.println("***** Running getFanrtURL for " + movie.getBaseName());
-                movie.setFanartURL(super.getFanartURL(movie));
+                movie.setFanartURL(getFanartURL(movie));
                 if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
-        	System.out.println("***** Scanning for fanart: After  " + movie.getFanartURL());
 
             if (movie.getCast().isEmpty()) {
                 for (String actor : extractTags(xml, "Avec ", "<br />", "<a", "</a>")) {
