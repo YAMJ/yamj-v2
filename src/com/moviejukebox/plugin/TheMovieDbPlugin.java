@@ -38,8 +38,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private static final String webhost = "themoviedb.org";
     private static final String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
     private TheMovieDb TMDb;
-    @SuppressWarnings("unused")
-    private String language; // This is used in v2.1 of the API
+    private String language;
     protected boolean downloadFanart;
     protected static String fanartToken;
 
@@ -61,21 +60,21 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // First look to see if we have a TMDb ID as this will make looking the film up easier
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Search based on TMdb ID
-            moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb);
+            moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Search based on IMDb ID
-            moviedb = TMDb.moviedbImdbLookup(imdbID);
+            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
             tmdbID = moviedb.getId();
             if (tmdbID != null && !tmdbID.equals("")) {
-                moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb);
+                moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
             } else {
                 logger.fine("Error: No TMDb ID found for movie!");
             }
         } else {
             // Search using movie name
-            moviedb = TMDb.moviedbSearch(movie.getTitle());
+            moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
             tmdbID = moviedb.getId();
-            moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb);
+            moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
         }
         //the rest is not web search anymore
         s.release();

@@ -179,7 +179,7 @@ public class WebBrowser {
     }
 
     /**
-     * Download the image for the specified url into the specified file.
+     * Download the image for the specified URL into the specified file.
      *
      * @throws IOException
      */
