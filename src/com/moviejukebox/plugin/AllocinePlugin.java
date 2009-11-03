@@ -39,7 +39,7 @@ public class AllocinePlugin extends ImdbPlugin {
     }
 
     /**
-     * Scan Allocine html page for the specified Tv Show
+     * Scan Allocine html page for the specified TV Show
      */
     protected void updateTVShowInfo(Movie movie) {
         try {
@@ -272,9 +272,10 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
             }
             String posterMediaIdTag = extractTag(xml, "<div class=\"poster\">", " alt=");
-            // logger.finest("Allocine posterMediaIdTag : [" + posterMediaIdTag+"]");
+            posterMediaIdTag = extractTag(posterMediaIdTag, "<img src='", "'");
+            //logger.finest("Allocine posterMediaIdTag : [" + posterMediaIdTag+"]");
             String posterMediaId = posterMediaIdTag.substring(posterMediaIdTag.lastIndexOf('/') + 1, posterMediaIdTag.lastIndexOf('.'));
-            // logger.finest("Allocine posterMediaId : [" + posterMediaId+"]");
+            //logger.finest("Allocine posterMediaId : [" + posterMediaId+"]");
             updatePoster(movie, posterMediaId);
 
         } catch (IOException error) {

@@ -26,7 +26,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
@@ -530,16 +529,7 @@ public class PosterScanner {
 
         try {
         	Artwork artwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL);
-        	System.out.println("First: " + artwork.getType() + " - " + artwork.getSize() + " - "  + artwork.getUrl());
-
         	String posterUrl = artwork.getUrl();
-        	
-        	List<Artwork> artworkList = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL); 
-        	
-        	for (Artwork artwork2 : artworkList) {
-        		System.out.println(artwork2.getType() + " - " + artwork2.getSize() + " - "  + artwork2.getUrl());
-        	}
-        	
         	
             if (posterUrl == null || posterUrl.equals(MovieDB.UNKNOWN)) {
                 return Movie.UNKNOWN;
