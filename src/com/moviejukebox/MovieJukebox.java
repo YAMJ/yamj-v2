@@ -108,8 +108,6 @@ public class MovieJukebox {
     private boolean bannerDownload;
     private boolean moviejukeboxListing;
     private static boolean skipIndexGeneration = false;
-    private OpenSubtitlesPlugin subtitlePlugin;
-    private AppleTrailersPlugin trailerPlugin;
 
     public static void main(String[] args) throws Throwable {
         String logFilename = "moviejukebox.log";
@@ -442,6 +440,8 @@ public class MovieJukebox {
             public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin",
                             "com.moviejukebox.plugin.DefaultBackgroundPlugin"));    		
             public MediaInfoScanner miScanner = new MediaInfoScanner();
+            public AppleTrailersPlugin trailerPlugin = new AppleTrailersPlugin();
+            public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
     	}
 
     	final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -455,9 +455,6 @@ public class MovieJukebox {
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
         final String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
-
-        subtitlePlugin = new OpenSubtitlesPlugin();
-        trailerPlugin = new AppleTrailersPlugin();
 
         MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin",
                         "com.moviejukebox.plugin.MovieListingPluginBase"));
@@ -642,10 +639,10 @@ public class MovieJukebox {
                         }
 
                         // Get subtitle
-                        subtitlePlugin.generate(movie);
+                        tools.subtitlePlugin.generate(movie);
 
                         // Get Trailer
-                        trailerPlugin.generate(movie);
+                        tools.trailerPlugin.generate(movie);
 
                         if (movie.isTVShow()) {
                             logger.fine("Finished: " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
@@ -664,7 +661,7 @@ public class MovieJukebox {
             // re-run the merge in case there were additional trailers that were downloaded
             library.mergeExtras();
 
-            subtitlePlugin.logOut();
+            OpenSubtitlesPlugin.logOut();
 
             /********************************************************************************
              * 
@@ -677,9 +674,10 @@ public class MovieJukebox {
                 logger.fine("Indexing of libraries skipped.");
             } else {
                 logger.fine("Indexing libraries...");
-                library.buildIndex();
+                library.buildIndex(MaxThreadsProcess);
             }
 
+            logger.fine("Indexing masters...");
             /*
              * This is kind of a hack -- library.values() are the movies that were found in the library and library.getMoviesList() are the ones that are there
              * now. So the movies that are in getMoviesList but not in values are the index masters.
@@ -752,9 +750,11 @@ public class MovieJukebox {
 
             xmlWriter.writePreferences(jukeboxDetailsRoot);
 
+            logger.fine("Writing movie data...");
+
             final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
             // Multi-thread: Parallel Executor
-            tasks = new ThreadExecutor<Void>(MaxThreadsProcess);
+            tasks.restart();
             for (final Movie movie : movies) {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
@@ -787,9 +787,10 @@ public class MovieJukebox {
             tasks.waitFor();
 
             if (!skipIndexGeneration) {
-                logger.fine("Writing Indexes...");
+                logger.fine("Writing Indexes XML...");
                 xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library, MaxThreadsProcess);
                 xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
+                logger.fine("Writing Indexes HTML...");
                 htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library, MaxThreadsProcess);
                 htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
             }

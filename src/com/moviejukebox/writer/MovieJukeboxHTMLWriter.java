@@ -401,14 +401,15 @@ public class MovieJukeboxHTMLWriter {
     private synchronized Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
         // Gabriel: transformers are NOT thread safe; use thread name to make get the cache thread specific
     	// the method itself must be synchronized because transformerCache map is modified inside
-        if (! transformerCache.containsKey(Thread.currentThread().getId() + ":" + xslFileName)) {
+        String lookupID = Thread.currentThread().getId() + ":" + xslFileName;
+        if (! transformerCache.containsKey(lookupID)) {
             if (transformerFactory == null) {
                 transformerFactory = TransformerFactory.newInstance();
             }
             Source xslSource = new StreamSource(new File(xslFileName));
             Transformer transformer = transformerFactory.newTransformer(xslSource);
-            transformerCache.put(xslFileName, transformer);
+            transformerCache.put(lookupID, transformer);
         }
-        return transformerCache.get(xslFileName);
+        return transformerCache.get(lookupID);
     }
 }

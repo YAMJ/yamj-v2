@@ -473,20 +473,21 @@ public class MovieJukeboxXMLWriter {
     public void writeIndexXML(final String rootPath, String detailsDirName, final Library library, int threadcount) throws Throwable {
 
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
-        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
-            tasks.submit(new Callable<Void>() {
-                public Void call() throws XMLStreamException, FileNotFoundException{
+        
+        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()){
+            final String categoryName = category.getKey();
+            Map<String, List<Movie>> index = category.getValue();
 
-                    String categoryName = category.getKey();
-                    Map<String, List<Movie>> index = category.getValue();
+            for (final Map.Entry<String, List<Movie>> group : index.entrySet()) {
+                tasks.submit(new Callable<Void>() {
+                    public Void call() throws XMLStreamException, FileNotFoundException{
 
-                    for (Map.Entry<String, List<Movie>> group : index.entrySet()) {
                         List<Movie> movies = group.getValue();
 
                         // This is horrible! Issue 735 will get rid of it.
                         if (movies.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
                             logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies, skipping XML generation.");
-                            continue;
+                            return null;
                         }
 
                         String key = FileTools.createCategoryKey(group.getKey());
@@ -530,11 +531,11 @@ public class MovieJukeboxXMLWriter {
                         if (moviesInASinglePage.size() > 0) {
                             writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last);
                         }
+                        return null;
                     }
-                    return null;
-                }
-            });
-        }
+                });
+            }
+        };
         tasks.waitFor();
     }
 

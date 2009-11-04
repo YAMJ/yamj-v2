@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -39,6 +40,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 
 public class Library implements Map<String, Movie> {
 
@@ -341,11 +343,13 @@ public class Library implements Map<String, Movie> {
         }
     }
 
-    public void buildIndex() {
+    public void buildIndex(int threadcount) throws Throwable {
         moviesList.clear();
         indexes.clear();
 
-        List<Movie> indexMovies = new ArrayList<Movie>(library.values());
+        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
+        
+        final List<Movie> indexMovies = new ArrayList<Movie>(library.values());
         moviesList.addAll(library.values());
 
         if (indexMovies.size() > 0) {
@@ -353,28 +357,35 @@ public class Library implements Map<String, Movie> {
             // Add the sets FIRST! That allows users to put series inside sets
             dynamic_indexes.put(SET, indexBySets(indexMovies));
 
-            for (String indexStr : indexList.split(",")) {
-                if (indexStr.equals("Other"))
-                    indexes.put("Other", indexByProperties(indexMovies));
-                else if (indexStr.equals("Genres"))
-                    indexes.put("Genres", indexByGenres(indexMovies));
-                else if (indexStr.equals("Title"))
-                    indexes.put("Title", indexByTitle(indexMovies));
-                else if (indexStr.equals("Rating"))
-                    indexes.put("Rating", indexByCertification(indexMovies));
-                else if (indexStr.equals("Year"))
-                    indexes.put("Year", indexByYear(indexMovies));
-                else if (indexStr.equals("Library"))
-                    indexes.put("Library", indexByLibrary(indexMovies));
-                else if (indexStr.equals("Cast"))
-                    indexes.put("Cast", indexByCast(indexMovies));
-                else if (indexStr.equals("Director"))
-                    indexes.put("Director", indexByDirector(indexMovies));
-                else if (indexStr.equals("Country"))
-                    indexes.put("Country", indexByCountry(indexMovies));
-                else if (indexStr.equals("Writer"))
-                    indexes.put("Writer", indexByWriter(indexMovies));
+            final Map<String, Index> syncindexes = Collections.synchronizedMap(indexes);
+            for (final String indexStr : indexList.split(",")) {
+                tasks.submit(new Callable<Void>() {
+                    public Void call(){
+                        if (indexStr.equals("Other"))
+                            syncindexes.put("Other", indexByProperties(indexMovies));
+                        else if (indexStr.equals("Genres"))
+                            syncindexes.put("Genres", indexByGenres(indexMovies));
+                        else if (indexStr.equals("Title"))
+                            syncindexes.put("Title", indexByTitle(indexMovies));
+                        else if (indexStr.equals("Rating"))
+                            syncindexes.put("Rating", indexByCertification(indexMovies));
+                        else if (indexStr.equals("Year"))
+                            syncindexes.put("Year", indexByYear(indexMovies));
+                        else if (indexStr.equals("Library"))
+                            syncindexes.put("Library", indexByLibrary(indexMovies));
+                        else if (indexStr.equals("Cast"))
+                            syncindexes.put("Cast", indexByCast(indexMovies));
+                        else if (indexStr.equals("Director"))
+                            syncindexes.put("Director", indexByDirector(indexMovies));
+                        else if (indexStr.equals("Country"))
+                            syncindexes.put("Country", indexByCountry(indexMovies));
+                        else if (indexStr.equals("Writer"))
+                            syncindexes.put("Writer", indexByWriter(indexMovies));
+                        return null;
+                    }
+                });
             }
+            tasks.waitFor();
 
             Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
             for (Map.Entry<String, Index> dyn_entry : dynamic_indexes.entrySet()) {
@@ -403,17 +414,24 @@ public class Library implements Map<String, Movie> {
                 }
             }
 
+            tasks.restart();
             // OK, now that all the index masters are in-place, sort everything.
-            for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
-                for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
-                    Comparator<Movie> comp = getComparator(indexes_entry.getKey(), index_entry.getKey());
-                    if (null != comp) {
-                        Collections.sort(index_entry.getValue(), comp);
-                    } else {
-                        Collections.sort(index_entry.getValue());
-                    }
+            for (final Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
+                for (final Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
+                    tasks.submit(new Callable<Void>() {
+                        public Void call() {
+                            Comparator<Movie> comp = getComparator(indexes_entry.getKey(), index_entry.getKey());
+                            if (null != comp) {
+                                Collections.sort(index_entry.getValue(), comp);
+                            } else {
+                                Collections.sort(index_entry.getValue());
+                            }
+                            return null;
+                        }
+                    });
                 }
             }
+            tasks.waitFor();
 
             // Cut off the Other/New list if it's too long
             String newcat = categoriesMap.get("New");
@@ -884,6 +902,8 @@ public class Library implements Map<String, Movie> {
         return null;
     }
 
+    static LastModifiedComparator cmpLast = new LastModifiedComparator();
+    static Top250Comparator cmp250 = new Top250Comparator();
     @SuppressWarnings("unchecked")
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> c = null;
@@ -893,10 +913,10 @@ public class Library implements Map<String, Movie> {
         } else if (category.equals("Other")) {
 
             if (key.equals(categoriesMap.get("New"))) {
-                c = new LastModifiedComparator();
+                c = cmpLast;
 
             } else if (key.equals(categoriesMap.get("Top250"))) {
-                c = new Top250Comparator();
+                c = cmp250;
             }
         }
 

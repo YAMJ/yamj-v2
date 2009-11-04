@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,31 +41,25 @@ public class AppleTrailersPlugin {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
 
-    private String  configResolution;
-    private boolean configDownload;
-    private String  configTrailerTypes;
-    private int     configMax;
-    private boolean configTypesInclude;
-    
-    protected WebBrowser webBrowser;
 
-    private WebStats stats;
-    
-    public AppleTrailersPlugin() {
-    
-        webBrowser = new WebBrowser();
-
-        configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
-        configDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.download", "false"));
+    private static String  configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
+    private static boolean configDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.download", "false"));
+    private static String  configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
+    private static int     configMax;
+    private static boolean configTypesInclude = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.typesinclude", "true"));
+    static {
         try {
             configMax = Integer.parseInt(PropertiesUtil.getProperty("appletrailers.max", "0"));
         } catch (Exception ignored) {
             configMax = 0;
         }
-        configTypesInclude = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.typesinclude", "true"));
-        configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
-    }
+    };
 
+    protected WebBrowser webBrowser;
+
+    public AppleTrailersPlugin() {
+        webBrowser = new WebBrowser();
+    }
 
     public void generate(Movie movie) {
 
@@ -534,20 +529,31 @@ public class AppleTrailersPlugin {
         
         return r;
     }
-    
-    private boolean trailerDownload(Movie movie, String trailerUrl, File trailerFile) {
+
+    private boolean trailerDownload(final Movie movie, String trailerUrl, File trailerFile) {
         Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            public void run() {
-                stats.print();
-            }
-        }, 1000, 1000);
 
+        Semaphore s = null;
         try {
-            logger.fine("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
-
             URL url = new URL(trailerUrl);
-            stats = WebStats.make(url);
+            s = WebBrowser.getSemaphore(url.getHost());
+            s.acquireUninterruptibly();
+
+            logger.fine("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
+            final WebStats stats = WebStats.make(url);
+            // after make!
+            timer.schedule(new TimerTask() {
+                private String lastStatus = "";
+                public void run() {
+                    String status = stats.calculatePercentageComplete();
+                    // only print if percentage changed
+                    if (status.equals(lastStatus)) return;
+                    lastStatus = status;
+                    // this runs in a thread, so there is no way to output on one line...
+                    // try to keep it visible at least...
+                    System.out.println(stats.statusString() + " for "+movie.getTitle());
+                }
+            }, 1000, 1000);
 
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
             connection.setRequestProperty("User-Agent", "QuickTime/7.6.2");
@@ -567,15 +573,15 @@ public class AppleTrailersPlugin {
                 stats.bytes(len);
             }
             out.close();
+            System.out.println(stats.statusString() + " for "+movie.getTitle()); // Output the final stat information (100%)
             return true;
-            
+
         } catch (Exception error) {
             logger.severe("AppleTrailers Plugin: Download Exception");
             return false;
         } finally {
-            stats.print();          // Output the final stat information (100%)
-            System.out.print("\n"); // Complete the line for aesthetic purposes
             timer.cancel();         // Close the timer
+            if(s!=null) s.release();
         }
     }
  

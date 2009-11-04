@@ -28,6 +28,7 @@ public class ThreadExecutor<T> {
 
     private Collection<Future<T>> values = new ArrayList<Future<T>>();
     private ExecutorService pool;
+    private int threadcount;
     private boolean ignoreErrors = true;
     private static Logger logger = Logger.getLogger("moviejukebox");
 
@@ -44,9 +45,14 @@ public class ThreadExecutor<T> {
      */
 
     public ThreadExecutor(int threadcount) {
-        pool = Executors.newFixedThreadPool(threadcount);
+        this.threadcount = threadcount;
+        restart();
     }
 
+    public void restart(){
+        pool = Executors.newFixedThreadPool(threadcount);        
+    }
+    
     public void submit(Callable<T> c){
         values.add(pool.submit(c));
     }
