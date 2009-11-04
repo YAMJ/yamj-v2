@@ -42,18 +42,14 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class OpenSubtitlesPlugin {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    private static String login = "";
-    private static String pass = "";
+    private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
+    private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
     private static String useragent = "moviejukebox 1.0.15";
     private static String OSdbServer = "http://www.opensubtitles.org/xml-rpc";
     private static String token = "";
-    private static String sublanguageid;
-
-    public OpenSubtitlesPlugin() {
-        sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
-        login = PropertiesUtil.getProperty("opensubtitles.username", "");
-        pass = PropertiesUtil.getProperty("opensubtitles.password", "");
-
+    private static String sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
+    
+    static {
         // Check if subtitle language was selected
         if (!sublanguageid.equals("")) {
 
@@ -65,6 +61,9 @@ public class OpenSubtitlesPlugin {
         } else {
             logger.finest("OpenSubtitles Plugin: No language selected in moviejukebox.properties");
         }
+    }
+
+    public OpenSubtitlesPlugin() {
     }
 
     private static void logIn() {
@@ -87,7 +86,7 @@ public class OpenSubtitlesPlugin {
         ;
     }
 
-    public void logOut() {
+    public static void logOut() {
 
         // Check if subtitle language was selected
         if (sublanguageid.equals("")) {

@@ -21,7 +21,7 @@ import java.io.IOException;
  * See here: http://www.javaspecialists.eu/archive/Issue122.html
  */
 public abstract class WebStats {
-    private volatile int totalBytes;
+    protected volatile int totalBytes;
     private long start = System.currentTimeMillis();
     
     public int seconds() {
@@ -33,13 +33,33 @@ public abstract class WebStats {
         totalBytes += length;
     }
     public void print() {
-        int kbpersecond = (int) (totalBytes / seconds() / 1024);
         System.out.print("\r");
-        System.out.printf("%10d KB%5s%%  (%d KB/s)", totalBytes/1024,
-            calculatePercentageComplete(totalBytes), kbpersecond);
+        System.out.printf(statusString());
     }
 
-    public abstract String calculatePercentageComplete(int bytes);
+    public String statusString() {
+        int kbpersecond = (int) (totalBytes / seconds() / 1024);
+        return String.format("%10d KB%5s%%  (%d KB/s)", totalBytes/1024,
+            calculatePercentageComplete(), kbpersecond);
+    }
+
+    public abstract String calculatePercentageComplete();
+
+    //actual classes
+    private static class WebStatsBasic extends WebStats {
+        public String calculatePercentageComplete(){
+            return "???";
+        }
+    }
+    public static class WebStatsProgress extends WebStats {
+        private long contentLength;
+        public WebStatsProgress(long contentLength) {
+            this.contentLength = contentLength;
+        }
+        public String calculatePercentageComplete() {
+            return Long.toString((totalBytes * 100L / contentLength));
+        }
+    }
 
     public static WebStats make(URL url) throws IOException {
         URLConnection con = url.openConnection();
