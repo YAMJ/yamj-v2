@@ -253,13 +253,18 @@ public class FanartScanner {
         	logger.finer("FanartScanner: Error getting fanart for " + movie.getBaseName());
         	return Movie.UNKNOWN;
         }
-        
-        String fanartUrl = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL).getUrl();
-        if (fanartUrl == null || fanartUrl.equals(MovieDB.UNKNOWN)) {
-            return Movie.UNKNOWN;
-        } else {
-            movie.setDirtyFanart(true);
-            return fanartUrl;
+        try {
+	        Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
+	        if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
+	        	logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseName());
+	        	return Movie.UNKNOWN;
+	        } else {
+	            movie.setDirtyFanart(true);
+	            return fanartArtwork.getUrl();
+	        }
+        } catch (Exception error) {
+        	logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
+        	return Movie.UNKNOWN;
         }
     }
 }

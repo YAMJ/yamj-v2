@@ -529,18 +529,18 @@ public class PosterScanner {
 
         try {
         	Artwork artwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL);
-        	String posterUrl = artwork.getUrl();
         	
-            if (posterUrl == null || posterUrl.equals(MovieDB.UNKNOWN)) {
+            if (artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN)) {
                 return Movie.UNKNOWN;
             } else {
                 logger.finest("PosterScanner: Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + moviedb.getId());
-                return posterUrl;
+                movie.setDirtyPoster(true);
+                return artwork.getUrl();
             }
         } catch (Exception error) {
         	logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
+        	return Movie.UNKNOWN;
         }
-        return Movie.UNKNOWN;
     }
 
     /**
