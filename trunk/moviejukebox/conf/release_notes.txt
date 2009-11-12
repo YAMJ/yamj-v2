@@ -2,8 +2,8 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 1.6 BETA
----------------------
+MovieJukebox 1.6
+----------------
   - Enhancement   #777 Override file for moviejukebox.properties 
   - Fixed defect  #881 Custom image always picking season 1 for the "BOX set" image for escaped series names.
   - Enhancement   #955 Option to download SERIES banners instead of SEASON
@@ -30,6 +30,7 @@ MovieJukebox 1.6 BETA
   - Fixed defect #1078 Correct language detection for HEBDUB
   - Fixed defect #1080 SratimPlugin does not retrieve previous seasons
   - Fixed defect #1088 Allocine Plugin problem with NFO file
+  - Fixed defect #1093 ImdbPlugin: Broken Country, Company and Runtime scraping
 
 MovieJukebox 1.5
 ----------------
