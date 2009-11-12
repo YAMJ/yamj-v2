@@ -2,6 +2,10 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 1.7 BETA
+---------------------
+  - Fixed defect #1094 IMDb Rating not detected
+
 MovieJukebox 1.6
 ----------------
   - Enhancement   #777 Override file for moviejukebox.properties 
