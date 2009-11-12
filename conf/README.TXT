@@ -1,5 +1,5 @@
 **************************************************************
-** MovieJukebox V1.5
+** MovieJukebox V1.6
 ***************************************************************
 
 Features
@@ -7,7 +7,7 @@ Features
     - Recursively scan your video library for video files (AVI, MKV, etc.)
     - Generate jukebox from multiple video library sources
     - Analyze each video file filename to extract information like:
-            year, language, subtitles, container, part, fps, audio and video codecs
+            year, language, subtitles, container, part, FPS, audio and video codecs
     - Analyze NFO files (for IMDb id)
     - Support for TV shows (season, episode number, episode title)
     - IMDb search plugin
@@ -28,7 +28,7 @@ How does it work?
 
     - Install Java Runtime Environment (JRE) 1.6
 
-    - Unrar the MovieJukebox archive
+    - Unpack the MovieJukebox archive
 
     - Install MediaInfo CLI (not full version, only command line version)
       right into the movieJukebox directory (moviejukebox/mediaInfo)

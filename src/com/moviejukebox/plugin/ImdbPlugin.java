@@ -263,7 +263,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         }
-        return value;
+        return HTMLTools.stripTags(value);
     }
 
     /**
@@ -318,11 +318,23 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getCountry().equals(Movie.UNKNOWN)) {
-                movie.setCountry(HTMLTools.extractTag(xml, "<h5>Country:</h5>", 1));
-            }
+            	for (String country : HTMLTools.extractTags(xml, "<h5>Country:</h5>", "</div>", "<a href", "</a>")) {
+            		if (country != null) {
+            			// TODO Save more than one country
+                        movie.setCountry(country);
+            			break;
+            		}
+            	}
+        	}
 
             if (movie.getCompany().equals(Movie.UNKNOWN)) {
-                movie.setCompany(HTMLTools.extractTag(xml, "<h5>Company:</h5>", 1));
+            	for (String company : HTMLTools.extractTags(xml, "<h5>Company:</h5>", "</div>", "<a href", "</a>")) {
+            		if (company != null) {
+            			// TODO Save more than one company
+            			movie.setCompany(company);
+            			break;
+            		}
+            	}
             }
 
             if (movie.getGenres().isEmpty()) {
