@@ -285,7 +285,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setOriginalTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
             }
             if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 1)));
+            	System.out.println("Rating: " + HTMLTools.extractTag(xml, "<div class=\"meta\">", 2));
+                movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 2)));
             }
 
             if (movie.getTop250() == -1) {
