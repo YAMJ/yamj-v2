@@ -163,6 +163,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year) {
+    	/*
+    	 * IMDb matches seem to come in several "flavours". Firstly, if there is one exact match it returns
+    	 * the matching IMDb page. If that fails to produce an unique hit then a list of possible matches
+    	 * are returned categorised as:
+    	 *     Popular Titles (Displaying ? Results)
+    	 *     Titles (Exact Matches) (Displaying ? Results)
+    	 *     Titles (Partial Matches) (Displaying ? Results)
+    	 * 
+    	 * We should check the Exact match section first, then the poplar titles and finally the partial matches.
+    	 * Note: That even with exact matches there can be more than 1 hit, for example "Star Trek"
+    	 * 
+    	 */
+
         try {
             StringBuffer sb = new StringBuffer("http://www.imdb.com/find?q=");
             sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
@@ -183,18 +196,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 return titlematch.group(1);
             }
             
-            Pattern imdbregex = Pattern.compile(
-                 "\\<a(?:\\s*[^\\>])\\s*"       // start of a-tag, and cruft before the href
-                +"href=\"/title/(tt\\d+)"       // the href, grab the id
-                +"(?:\\s*[^\\>])*\\>"           // cruft after the href, to the end of the a-tag
-                +"([^\\<]+)\\</a\\>"            // grab link text (ie, title), match to the close a-tag
-                +"\\s*"
-                +"\\((\\d{4})(?:/[^\\)]+)?\\)"  // year, eg (1999) or (1999/II), grab the 4-digit year only
-                +"\\s*"
-                +"((?:\\(VG\\))?)"              // video game flag (if present)
-            );
-            // Groups: 1=id, 2=title, 3=year, 4=(VG)
-            
             /* This is what the wiki says imdb.perfect.match is supposed to do, but the result doesn't make a lot of
                sense to me. See the discussion for issue 567.
             if (perfectMatch) {
@@ -213,29 +214,69 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
             */
-
-            Matcher match = imdbregex.matcher(xml);
-            while (match.find()) {
-                // Find the first title where the year matches (if present) and that isn't a video game
-                if (!"(VG)".equals(match.group(4))
-                    // Don't worry about matching title/year info -- IMDB took care of that already.
-                    //&& (null == year || Movie.UNKNOWN == year || year.equals(match.group(3)))
-                    //&& (!perfectMatch || movieName.equalsIgnoreCase(match.group(2)))
-                    ) {
-                    logger.finest(movieName + ": found IMDB match, "
-                        + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
-                    return match.group(1);
-                } else {
-                    logger.finest(movieName + ": rejected IMDB match "
-                        + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
-                }
+            
+            String searchXML = xml;
+            // Check the perfect match section first
+            if (perfectMatch) {
+            	int perfectStart = xml.indexOf("Titles (Exact Matches)");
+            	if (perfectStart > -1) {
+            		int perfectEnd = xml.substring(perfectStart).indexOf("</table>");
+            		if (perfectEnd > -1) {
+            			// Don't forget to add the start value as the end is from the substring
+            			searchXML = xml.substring(perfectStart, perfectStart + perfectEnd);
+            		}
+            	}
             }
+            
+            String matchedTitle = searchForTitle(searchXML, movieName);
+            if (perfectMatch && matchedTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
+            	// We didn't find a perfect match, so search the whole XML string.
+            	// This will usually return the top entry from the "popular title" section
+            	searchXML = xml;
+            	matchedTitle = searchForTitle(searchXML, movieName);
+            }
+
+            return matchedTitle;
         } catch (Exception error) {
             logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
             logger.severe("Error : " + error.getMessage());
         }
         
         return Movie.UNKNOWN;
+    }
+    
+    private String searchForTitle(String imdbXML, String movieName) {
+        Pattern imdbregex = Pattern.compile(
+                "\\<a(?:\\s*[^\\>])\\s*"       // start of a-tag, and cruft before the href
+               +"href=\"/title/(tt\\d+)"       // the href, grab the id
+               +"(?:\\s*[^\\>])*\\>"           // cruft after the href, to the end of the a-tag
+               +"([^\\<]+)\\</a\\>"            // grab link text (ie, title), match to the close a-tag
+               +"\\s*"
+               +"\\((\\d{4})(?:/[^\\)]+)?\\)"  // year, eg (1999) or (1999/II), grab the 4-digit year only
+               +"\\s*"
+               +"((?:\\(VG\\))?)"              // video game flag (if present)
+           );
+        // Groups: 1=id, 2=title, 3=year, 4=(VG)
+
+        Matcher match = imdbregex.matcher(imdbXML);
+        while (match.find()) {
+            // Find the first title where the year matches (if present) and that isn't a video game
+            if (!"(VG)".equals(match.group(4))
+                // Don't worry about matching title/year info -- IMDB took care of that already.
+                //&& (null == year || Movie.UNKNOWN == year || year.equals(match.group(3)))
+                //&& (!perfectMatch || movieName.equalsIgnoreCase(match.group(2)))
+                ) {
+                logger.finest(movieName + ": found IMDB match, "
+                    + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
+                return match.group(1);
+            } else {
+                logger.finest(movieName + ": rejected IMDB match "
+                    + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
+            }
+        }
+
+        // Return UNKNOWN if the match isn't found
+    	return Movie.UNKNOWN;
     }
 
     protected String getPreferredValue(ArrayList<String> values) {
@@ -285,7 +326,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setOriginalTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
             }
             if (movie.getRating() == -1) {
-            	System.out.println("Rating: " + HTMLTools.extractTag(xml, "<div class=\"meta\">", 2));
                 movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 2)));
             }
 
