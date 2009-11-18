@@ -506,7 +506,7 @@ public class PosterScanner {
      * @return A string containing the URL of the poster
      */
     public static String getPosterURLFromMovieDbAPI(Movie movie) {
-        String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
+        String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
         String language = PropertiesUtil.getProperty("themoviedb.language", "en");
         String imdbID = null;
         String tmdbID = null;
@@ -518,17 +518,20 @@ public class PosterScanner {
         //TODO move these Ids to a preferences file.
         imdbID = movie.getId("imdb");
         tmdbID = movie.getId("themoviedb");
-
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+            //moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+            moviedb = TMDb.moviedbGetImages(tmdbID, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+            //moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+        	moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
+        	// We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
             moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
         }
 
         try {
-        	Artwork artwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL);
+        	Artwork artwork;
+        	artwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL);
         	
             if (artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN)) {
                 return Movie.UNKNOWN;
@@ -537,6 +540,9 @@ public class PosterScanner {
                 movie.setDirtyPoster(true);
                 return artwork.getUrl();
             }
+        } catch (NullPointerException error) {
+        	logger.finer("PosterScanner: Unable to find posters for " + movie.getBaseName() + " IMDb ID: " + imdbID);
+        	return Movie.UNKNOWN;
         } catch (Exception error) {
         	logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
         	return Movie.UNKNOWN;

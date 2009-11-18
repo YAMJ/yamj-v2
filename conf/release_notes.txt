@@ -5,6 +5,7 @@
 MovieJukebox 1.7 BETA
 ---------------------
   - Fixed defect #1094 IMDb Rating not detected
+  - Enhancement  #1102 Sort the moviedb.org poster images by age (oldest first)
 
 MovieJukebox 1.6
 ----------------

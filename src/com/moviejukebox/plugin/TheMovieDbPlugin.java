@@ -36,7 +36,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final String webhost = "themoviedb.org";
-    private static final String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
+    private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private TheMovieDb TMDb;
     private String language;
     protected boolean downloadFanart;
