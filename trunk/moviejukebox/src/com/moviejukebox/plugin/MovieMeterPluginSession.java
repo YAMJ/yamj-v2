@@ -49,8 +49,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class MovieMeterPluginSession {
 
     public static String SESSION_FILENAME = "./temp/moviemeter.session";
-    //private static String MOVIEMETER_API_KEY = "tyk0awf19uqm65mjfsqw9z9rx6t706pe";
-    private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("MovieMeter");
+    private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
     
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private String key;
@@ -110,12 +109,12 @@ public class MovieMeterPluginSession {
 
     /**
      * Creates a new session to www.moviemeter.nl
-     * @param apiKey
+     * @param API_KEY
      * @throws XmlRpcException
      */
     @SuppressWarnings("unchecked")
-    private void createNewSession(String apiKey) throws XmlRpcException {
-        Object[] params = new Object[]{apiKey};
+    private void createNewSession(String API_KEY) throws XmlRpcException {
+        Object[] params = new Object[]{API_KEY};
         HashMap session = (HashMap) client.execute("api.startSession", params);
         if (session != null) {
             if (session.size() > 0) {

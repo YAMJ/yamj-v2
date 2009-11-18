@@ -227,7 +227,7 @@ public class FanartScanner {
      * @return A string URL pointing to the fanart
      */
     public static String getFanartURL(Movie movie) {
-        String API_KEY = PropertiesUtil.getProperty("TheMovieDB");
+        String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
         String language = PropertiesUtil.getProperty("themoviedb.language", "en");
         String imdbID = null;
         String tmdbID = null;
@@ -241,9 +241,11 @@ public class FanartScanner {
         tmdbID = movie.getId("themoviedb");
 
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+            //moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+            moviedb = TMDb.moviedbGetImages(tmdbID, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+            //moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+            moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
             moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
         }

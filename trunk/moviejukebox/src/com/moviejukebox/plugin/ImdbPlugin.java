@@ -236,7 +236,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             	matchedTitle = searchForTitle(searchXML, movieName);
             }
 
-            return matchedTitle;
+            return matchedTitle.trim();
         } catch (Exception error) {
             logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
             logger.severe("Error : " + error.getMessage());

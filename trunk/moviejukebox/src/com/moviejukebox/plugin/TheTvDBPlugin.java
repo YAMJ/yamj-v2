@@ -36,7 +36,7 @@ import com.moviejukebox.tools.WebBrowser;
 public class TheTvDBPlugin extends ImdbPlugin {
 
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
-    private static final String API_KEY = PropertiesUtil.getProperty("TheTVDb");
+    private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String webhost = "thetvdb.com";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private TheTVDB tvDB;
