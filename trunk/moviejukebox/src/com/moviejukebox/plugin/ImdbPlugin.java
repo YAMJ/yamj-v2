@@ -163,18 +163,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year) {
-    	/*
-    	 * IMDb matches seem to come in several "flavours". Firstly, if there is one exact match it returns
-    	 * the matching IMDb page. If that fails to produce an unique hit then a list of possible matches
-    	 * are returned categorised as:
-    	 *     Popular Titles (Displaying ? Results)
-    	 *     Titles (Exact Matches) (Displaying ? Results)
-    	 *     Titles (Partial Matches) (Displaying ? Results)
-    	 * 
-    	 * We should check the Exact match section first, then the poplar titles and finally the partial matches.
-    	 * Note: That even with exact matches there can be more than 1 hit, for example "Star Trek"
-    	 * 
-    	 */
+        /*
+         * IMDb matches seem to come in several "flavours". Firstly, if there is one exact match it returns
+         * the matching IMDb page. If that fails to produce an unique hit then a list of possible matches
+         * are returned categorised as:
+         *     Popular Titles (Displaying ? Results)
+         *     Titles (Exact Matches) (Displaying ? Results)
+         *     Titles (Partial Matches) (Displaying ? Results)
+         * 
+         * We should check the Exact match section first, then the poplar titles and finally the partial matches.
+         * Note: That even with exact matches there can be more than 1 hit, for example "Star Trek"
+         * 
+         */
 
         try {
             StringBuffer sb = new StringBuffer("http://www.imdb.com/find?q=");
@@ -215,28 +215,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             */
             
-            String searchXML = xml;
-            // Check the perfect match section first
-            if (perfectMatch) {
-            	int perfectStart = xml.indexOf("Titles (Exact Matches)");
-            	if (perfectStart > -1) {
-            		int perfectEnd = xml.substring(perfectStart).indexOf("</table>");
-            		if (perfectEnd > -1) {
-            			// Don't forget to add the start value as the end is from the substring
-            			searchXML = xml.substring(perfectStart, perfectStart + perfectEnd);
-            		}
-            	}
-            }
-            
-            String matchedTitle = searchForTitle(searchXML, movieName);
-            if (perfectMatch && matchedTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
-            	// We didn't find a perfect match, so search the whole XML string.
-            	// This will usually return the top entry from the "popular title" section
-            	searchXML = xml;
-            	matchedTitle = searchForTitle(searchXML, movieName);
-            }
-
-            return matchedTitle.trim();
+            return searchForTitle(xml, movieName);
         } catch (Exception error) {
             logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
             logger.severe("Error : " + error.getMessage());
@@ -276,7 +255,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // Return UNKNOWN if the match isn't found
-    	return Movie.UNKNOWN;
+        return Movie.UNKNOWN;
     }
 
     protected String getPreferredValue(ArrayList<String> values) {
@@ -359,23 +338,23 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getCountry().equals(Movie.UNKNOWN)) {
-            	for (String country : HTMLTools.extractTags(xml, "<h5>Country:</h5>", "</div>", "<a href", "</a>")) {
-            		if (country != null) {
-            			// TODO Save more than one country
+                for (String country : HTMLTools.extractTags(xml, "<h5>Country:</h5>", "</div>", "<a href", "</a>")) {
+                    if (country != null) {
+                        // TODO Save more than one country
                         movie.setCountry(country);
-            			break;
-            		}
-            	}
-        	}
+                        break;
+                    }
+                }
+            }
 
             if (movie.getCompany().equals(Movie.UNKNOWN)) {
-            	for (String company : HTMLTools.extractTags(xml, "<h5>Company:</h5>", "</div>", "<a href", "</a>")) {
-            		if (company != null) {
-            			// TODO Save more than one company
-            			movie.setCompany(company);
-            			break;
-            		}
-            	}
+                for (String company : HTMLTools.extractTags(xml, "<h5>Company:</h5>", "</div>", "<a href", "</a>")) {
+                    if (company != null) {
+                        // TODO Save more than one company
+                        movie.setCompany(company);
+                        break;
+                    }
+                }
             }
 
             if (movie.getGenres().isEmpty()) {

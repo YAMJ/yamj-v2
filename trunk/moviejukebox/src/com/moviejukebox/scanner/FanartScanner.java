@@ -132,8 +132,8 @@ public class FanartScanner {
                     if (fanartImage != null) {
                         fanartImage = backgroundPlugin.generate(movie, fanartImage, "fanart", null);
                         if (Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.perspective", "false"))) {
-                        	destFileName = destFileName.subSequence(0, destFileName.lastIndexOf(".") + 1) + "png";
-                        	movie.setFanartFilename(destFileName);
+                            destFileName = destFileName.subSequence(0, destFileName.lastIndexOf(".") + 1) + "png";
+                            movie.setFanartFilename(destFileName);
                         }
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);
                         logger.finer("FanartScanner: " + fullFanartFilename + " has been copied to " + destFileName);
@@ -252,21 +252,21 @@ public class FanartScanner {
 
         // Check that the returned movie bean isn't null
         if (moviedb == null) {
-        	logger.finer("FanartScanner: Error getting fanart for " + movie.getBaseName());
-        	return Movie.UNKNOWN;
+            logger.finer("FanartScanner: Error getting fanart for " + movie.getBaseName());
+            return Movie.UNKNOWN;
         }
         try {
-	        Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
-	        if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
-	        	logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseName());
-	        	return Movie.UNKNOWN;
-	        } else {
-	            movie.setDirtyFanart(true);
-	            return fanartArtwork.getUrl();
-	        }
+            Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
+            if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
+                logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseName());
+                return Movie.UNKNOWN;
+            } else {
+                movie.setDirtyFanart(true);
+                return fanartArtwork.getUrl();
+            }
         } catch (Exception error) {
-        	logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
-        	return Movie.UNKNOWN;
+            logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
+            return Movie.UNKNOWN;
         }
     }
 }

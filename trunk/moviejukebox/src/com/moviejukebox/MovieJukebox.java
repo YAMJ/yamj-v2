@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,19 +34,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-import java.util.logging.*;
-import java.util.regex.Pattern;
 import java.util.concurrent.Callable;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
-import com.moviejukebox.model.*;
-import com.moviejukebox.plugin.*;
-import com.moviejukebox.scanner.*;
-import com.moviejukebox.tools.*;
-import com.moviejukebox.writer.*;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.MediaLibraryPath;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.plugin.AppleTrailersPlugin;
+import com.moviejukebox.plugin.DatabasePluginController;
+import com.moviejukebox.plugin.DefaultBackgroundPlugin;
+import com.moviejukebox.plugin.DefaultImagePlugin;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.plugin.MovieListingPlugin;
+import com.moviejukebox.plugin.MovieListingPluginBase;
+import com.moviejukebox.plugin.OpenSubtitlesPlugin;
+import com.moviejukebox.scanner.BannerScanner;
+import com.moviejukebox.scanner.FanartScanner;
+import com.moviejukebox.scanner.MediaInfoScanner;
+import com.moviejukebox.scanner.MovieDirectoryScanner;
+import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.scanner.MovieNFOScanner;
+import com.moviejukebox.scanner.OutputDirectoryScanner;
+import com.moviejukebox.scanner.PosterScanner;
+import com.moviejukebox.scanner.VideoImageScanner;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.LogFormatter;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
+import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
 public class MovieJukebox {
 
@@ -83,36 +110,20 @@ public class MovieJukebox {
 
     public static void main(String[] args) throws Throwable {
         String logFilename = "moviejukebox.log";
+        LogFormatter mjbFormatter = new LogFormatter();
 
-        // Send logger output to our FileHandler.
-        Formatter mjbFormatter = new Formatter() {
-            public synchronized String format(LogRecord record) {
-                return record.getMessage() + (String)java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
-
-                    public Object run() {
-                        return System.getProperty("line.separator");
-                    }
-                });
-            }
-        };
-
-    	FileHandler fh = new FileHandler(logFilename);
-        
+        FileHandler fh = new FileHandler(logFilename);
         fh.setFormatter(mjbFormatter);
         fh.setLevel(Level.ALL);
 
-        LogFormatter formatter = new LogFormatter();
         ConsoleHandler ch = new ConsoleHandler();
         ch.setFormatter(mjbFormatter);
         ch.setLevel(Level.FINE);
-        ch.setFormatter(formatter);
-        fh.setFormatter(formatter);
 
         logger.setUseParentHandlers(false);
         logger.addHandler(fh);
         logger.addHandler(ch);
         logger.setLevel(Level.ALL);
-        
 
         // These are pulled from the Manifest.MF file that is created by the Ant build script
         String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();

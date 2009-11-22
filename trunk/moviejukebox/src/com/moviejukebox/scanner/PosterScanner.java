@@ -508,6 +508,7 @@ public class PosterScanner {
     public static String getPosterURLFromMovieDbAPI(Movie movie) {
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
         String language = PropertiesUtil.getProperty("themoviedb.language", "en");
+        int posterPosition = Integer.parseInt(PropertiesUtil.getProperty("themoviedb.posterPosition", "1"));
         String imdbID = null;
         String tmdbID = null;
         TheMovieDb TMDb;
@@ -531,8 +532,7 @@ public class PosterScanner {
 
         try {
         	Artwork artwork;
-        	artwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL);
-        	
+        	artwork = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL, posterPosition);
             if (artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN)) {
                 return Movie.UNKNOWN;
             } else {
