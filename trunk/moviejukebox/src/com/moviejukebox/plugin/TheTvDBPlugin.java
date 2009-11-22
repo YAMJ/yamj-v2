@@ -130,7 +130,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
                 if (movie.getYear().equals(Movie.UNKNOWN)) {
                 	sem.acquireUninterruptibly();
-                    String year = tvDB.getSeasonYear(id, movie.getSeason());
+                    String year = tvDB.getSeasonYear(id, movie.getSeason(), language);
                     sem.release();
                     if (year != null && !year.isEmpty()) {
                         movie.setYear(year);
