@@ -1,5 +1,6 @@
 package com.moviejukebox.tools;
 
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.LogRecord;
@@ -7,16 +8,21 @@ import java.util.logging.LogRecord;
 public class LogFormatter extends java.util.logging.Formatter 
 {
     private static ArrayList<String> API_KEYS = new ArrayList<String>();
+    private static String EOL = (String)java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
+    								public Object run() {
+    									return System.getProperty("line.separator");
+    								}
+								});
     
-	public String format(LogRecord log) {
-		String logMessage = log.getMessage();
+	public synchronized String format(LogRecord logRecord) {
+		String logMessage = logRecord.getMessage();
 
 		for (String ApiKey : API_KEYS) {
-			logMessage = logMessage.replace(ApiKey, "..APIKEY..");
+			logMessage = logMessage.replace(ApiKey, "[APIKEY]");
 		}
-		logMessage += "\n";
+		logMessage += EOL;
 		
-		Throwable thrown = log.getThrown();
+		Throwable thrown = logRecord.getThrown();
 		if (thrown != null) { 
 			logMessage = logMessage + thrown.toString(); 
 		}

@@ -416,7 +416,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     }
     
     public boolean isDirtyBanner() {
-    	return isDirtyBanner;
+        return isDirtyBanner;
     }
 
     public boolean isHasSubtitles() {

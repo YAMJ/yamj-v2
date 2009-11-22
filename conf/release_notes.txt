@@ -4,8 +4,10 @@
 
 MovieJukebox 1.7 BETA
 ---------------------
+  - Fixed defect #1067 No more fanart displayed with allocine plugin
   - Fixed defect #1094 IMDb Rating not detected
   - Enhancement  #1102 Sort the moviedb.org poster images by age (oldest first)
+  - Fixed defect #1106 Fanart doesn't exist/download
 
 MovieJukebox 1.6
 ----------------
