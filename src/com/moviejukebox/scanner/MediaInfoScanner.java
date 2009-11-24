@@ -92,10 +92,10 @@ public class MediaInfoScanner {
 
     @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
-    	Random generator = new Random();
-    	int randomNumber = generator.nextInt();
-    	String randomDirName = "./isoTEMP/" + randomNumber + "/VIDEO_TS";
-    	
+        Random generator = new Random();
+        int randomNumber = generator.nextInt();
+        String randomDirName = "./isoTEMP/" + randomNumber + "/VIDEO_TS";
+        
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());

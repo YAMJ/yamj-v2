@@ -64,41 +64,41 @@ public class WebBrowser {
      * @author Gabriel Corneanu
      */
     public static synchronized Semaphore getSemaphore(String host){
-   	
+    
         String semaphoreGroup;
         // First we have to read/create the rules  
-    	if (grouplimits == null) {
-    		grouplimits = new HashMap<String, Semaphore>();
-    		// Default, can be overridden
-    		grouplimits.put(".*", new Semaphore(1));
-    		String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
-	    	logger.finer("WebBrowser: Using download limits: " + limitsProperty);
+        if (grouplimits == null) {
+            grouplimits = new HashMap<String, Semaphore>();
+            // Default, can be overridden
+            grouplimits.put(".*", new Semaphore(1));
+            String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
+            logger.finer("WebBrowser: Using download limits: " + limitsProperty);
 
-	    	Pattern semaphorePattern = Pattern.compile(",?\\s*([^=]+)=(\\d+)");
-    	    Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
-    	    while (semaphoreMatcher.find()) {
-    	    	semaphoreGroup = semaphoreMatcher.group(1);
-    	    	try{
-    	    		Pattern.compile(semaphoreGroup);
-        	    	logger.finer("WebBrowser: " + semaphoreGroup + "=" + semaphoreMatcher.group(2));
-        	    	grouplimits.put(semaphoreGroup, new Semaphore( Integer.parseInt(semaphoreMatcher.group(2))));
+            Pattern semaphorePattern = Pattern.compile(",?\\s*([^=]+)=(\\d+)");
+            Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
+            while (semaphoreMatcher.find()) {
+                semaphoreGroup = semaphoreMatcher.group(1);
+                try{
+                    Pattern.compile(semaphoreGroup);
+                    logger.finer("WebBrowser: " + semaphoreGroup + "=" + semaphoreMatcher.group(2));
+                    grouplimits.put(semaphoreGroup, new Semaphore( Integer.parseInt(semaphoreMatcher.group(2))));
                 } catch (Exception error) {
-                	logger.finer("WebBrowser: Limit rule \"" + semaphoreGroup + "\" is not valid regexp, ignored");
-    	    	}
-    	    }
-    	}
+                    logger.finer("WebBrowser: Limit rule \"" + semaphoreGroup + "\" is not valid regexp, ignored");
+                }
+            }
+        }
 
-    	semaphoreGroup = hostgrp.get(host);
-    	//first time not found, search for matching group
+        semaphoreGroup = hostgrp.get(host);
+        //first time not found, search for matching group
         if (semaphoreGroup == null ) {
-        	semaphoreGroup = ".*";
-        	for(String searchGroup : grouplimits.keySet()){
-        		if (host.matches(searchGroup))
-        			if(searchGroup.length() > semaphoreGroup.length() )
-        				semaphoreGroup = searchGroup;
-        	}
-	    	logger.finer(String.format("WebBrowser: Download host: %s; rule: %s", host, semaphoreGroup));
-        	hostgrp.put(host, semaphoreGroup);
+            semaphoreGroup = ".*";
+            for(String searchGroup : grouplimits.keySet()){
+                if (host.matches(searchGroup))
+                    if(searchGroup.length() > semaphoreGroup.length() )
+                        semaphoreGroup = searchGroup;
+            }
+            logger.finer(String.format("WebBrowser: Download host: %s; rule: %s", host, semaphoreGroup));
+            hostgrp.put(host, semaphoreGroup);
         }
 
         //there should be NO way to fail
@@ -146,9 +146,9 @@ public class WebBrowser {
     public String request(URL url) throws IOException {
         StringWriter content = null;
 
-    	// get the download limit for the host 
-    	Semaphore s = getSemaphore(url.getHost().toLowerCase());
-    	s.acquireUninterruptibly();
+        // get the download limit for the host 
+        Semaphore s = getSemaphore(url.getHost().toLowerCase());
+        s.acquireUninterruptibly();
         try {
             content = new StringWriter();
 
@@ -194,7 +194,7 @@ public class WebBrowser {
         Semaphore s = getSemaphore(url.getHost().toLowerCase());
         s.acquireUninterruptibly();
         try{
-        	URLConnection cnx = url.openConnection();
+            URLConnection cnx = url.openConnection();
 
             // A workaround for the need to use a referrer for thetvdb.com
             if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
@@ -209,7 +209,7 @@ public class WebBrowser {
 
             FileTools.copy(cnx.getInputStream(), new FileOutputStream(imageFile));
         } finally {
-        	s.release();
+            s.release();
         }
     }
 

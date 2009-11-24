@@ -247,8 +247,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // Certification from MPAA
                 String mpaa = null;
                 for (String mpaaTag : HTMLTools.extractTags(item, ">рейтинг MPAA<", "</tr>", "<a href=\"/level/38", "</a>")) {
-                	mpaa = mpaaTag;
-                	break;
+                    mpaa = mpaaTag;
+                    break;
                 }
                 
                 if (mpaa != null) {

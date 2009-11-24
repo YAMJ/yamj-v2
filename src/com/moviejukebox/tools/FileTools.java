@@ -255,19 +255,19 @@ public class FileTools {
      * @author Stuart Boston
      */
     public static String getParentFolder(File movieFile) {
-    	String parentFolder = null;
-    	
+        String parentFolder = null;
+        
         if (movieFile.isDirectory()) { // for VIDEO_TS
-        	parentFolder = movieFile.getPath();
+            parentFolder = movieFile.getPath();
         } else {
-        	parentFolder = movieFile.getParent();
+            parentFolder = movieFile.getParent();
         }
         
         // Issue 1070, /BDMV/STREAM is being appended to the parent path
         if (parentFolder.toUpperCase().endsWith(File.separator + "BDMV" + File.separator + "STREAM")) {
-        	parentFolder = parentFolder.substring(0, parentFolder.length() - 12);
+            parentFolder = parentFolder.substring(0, parentFolder.length() - 12);
         }
 
-    	return parentFolder;
+        return parentFolder;
     }
 }

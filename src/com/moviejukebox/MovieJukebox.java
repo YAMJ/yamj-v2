@@ -132,7 +132,7 @@ public class MovieJukebox {
         // Just create a pretty underline.
         String mjbTitle = "";
         for (int i=1; i <= mjbVersion.length(); i++) {
-        	mjbTitle += "~";
+            mjbTitle += "~";
         }
         
         logger.fine("Yet Another Movie Jukebox " + mjbVersion);
@@ -146,9 +146,9 @@ public class MovieJukebox {
 
         // Print the revision information if it was populated by Hudson CI
         if ( !((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) ) {
-        	logger.fine("  Revision: r" + mjbRevision);
-        	logger.fine("Build Date: " + mjbBuildDate);
-        	logger.fine("");
+            logger.fine("  Revision: r" + mjbRevision);
+            logger.fine("Build Date: " + mjbBuildDate);
+            logger.fine("");
         }
         logger.fine("Processing started at " + new Date());
         logger.fine("");
@@ -192,7 +192,7 @@ public class MovieJukebox {
                 }
             }
         } catch (Exception error) {
-        	logger.severe("Wrong arguments specified");
+            logger.severe("Wrong arguments specified");
             help();
             return;
         }
@@ -221,8 +221,8 @@ public class MovieJukebox {
         if (!PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties")) {
             return;
         } else {
-        	// This is needed to update the static reference for the API Keys in the log formatted because the log formatter is initialised before the properties files are read
-        	LogFormatter.addApiKeys();
+            // This is needed to update the static reference for the API Keys in the log formatted because the log formatter is initialised before the properties files are read
+            LogFormatter.addApiKeys();
         }
 
         // Load the rest of the command-line properties
@@ -293,26 +293,26 @@ public class MovieJukebox {
         }
 
         if (!new File(movieLibraryRoot).exists()) {
-        	logger.severe("Directory not found : " + movieLibraryRoot);
+            logger.severe("Directory not found : " + movieLibraryRoot);
             return;
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         ml.generateLibrary(jukeboxClean, jukeboxPreserve);
 
-    	fh.close();
+        fh.close();
         if (Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.appendDateToLogFile", "false"))) {
             // File (or directory) with old name
             File file = new File(logFilename);
             
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
-        	logFilename = "moviejukebox_" + dateFormat.format(timeStart) + ".log";
-        	
+            logFilename = "moviejukebox_" + dateFormat.format(timeStart) + ".log";
+            
             // File with new name
             File file2 = new File(logFilename);
-        	
+            
             // Rename file (or directory)
             if (!file.renameTo(file2)) {
-            	logger.severe("Error renaming log file.");
+                logger.severe("Error renaming log file.");
             }
         }
     }
@@ -425,23 +425,23 @@ public class MovieJukebox {
          * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread) 
          * 
         */
-    	class ToolSet {
+        class ToolSet {
             public MovieImagePlugin imagePlugin = getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
             public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin",
-                            "com.moviejukebox.plugin.DefaultBackgroundPlugin"));    		
+                            "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
             public MediaInfoScanner miScanner = new MediaInfoScanner();
             public AppleTrailersPlugin trailerPlugin = new AppleTrailersPlugin();
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
-    	}
+        }
 
-    	final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
-    		protected ToolSet initialValue() {return new ToolSet(); };
-    	};
+        final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
+            protected ToolSet initialValue() {return new ToolSet(); };
+        };
 
 //     final ToolSet localtools = threadTools.get();
 
-    	final MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
-    	final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
+        final MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
+        final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
         final String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
@@ -550,7 +550,7 @@ public class MovieJukebox {
 
         int threadsMaxDirScan = movieLibraryPaths.size();
         if (threadsMaxDirScan < 1)
-        	threadsMaxDirScan = 1;
+            threadsMaxDirScan = 1;
         
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadsMaxDirScan);
         final Library library = new Library();
@@ -590,7 +590,7 @@ public class MovieJukebox {
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
 
-                    	ToolSet tools = threadTools.get();
+                        ToolSet tools = threadTools.get();
                         // First get movie data (title, year, director, genre, etc...)
                         if (movie.isTVShow()) {
                             logger.fine("Updating data for: " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
@@ -685,7 +685,7 @@ public class MovieJukebox {
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
 
-                    	ToolSet tools = threadTools.get();
+                        ToolSet tools = threadTools.get();
                         // The master's movie XML is used for generating the
                         // playlist it will be overwritten by the index XML
                         logger.finest("Writing index data for master: " + movie.getBaseName());
@@ -750,7 +750,7 @@ public class MovieJukebox {
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
 
-                    	ToolSet tools = threadTools.get();
+                        ToolSet tools = threadTools.get();
                         // Update movie XML files with computed index information
                         logger.finest("Writing index data to movie: " + movie.getBaseName());
                         xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
@@ -970,8 +970,8 @@ public class MovieJukebox {
 
         // ForceBannerOverwrite is set here to force the re-load of TV Show data including the banners
         if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
-        	
-        	// *** START of routine to check if the file has changed location
+            
+            // *** START of routine to check if the file has changed location
             // Set up some arrays to store the directory scanner files and the xml files
             Collection<MovieFile> scannedFiles = new ArrayList<MovieFile>();
             Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>();

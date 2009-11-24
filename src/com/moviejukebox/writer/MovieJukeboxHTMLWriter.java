@@ -123,8 +123,8 @@ public class MovieJukeboxHTMLWriter {
                 outStream.close();
             }
         } catch (Exception error) {
-        	logger.severe("Failed generating HTML for movie " + movie);
-        	final Writer eResult = new StringWriter();
+            logger.severe("Failed generating HTML for movie " + movie);
+            final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
@@ -187,8 +187,8 @@ public class MovieJukeboxHTMLWriter {
                 fileNames.add(baseName + filenameSuffix);
             }
         } catch (Exception error) {
-        	logger.severe("Failed generating playlist for movie " + movie);
-        	final Writer eResult = new StringWriter();
+            logger.severe("Failed generating playlist for movie " + movie);
+            final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
@@ -201,8 +201,8 @@ public class MovieJukeboxHTMLWriter {
                 }
             }
         } catch (Exception error) {
-        	logger.severe("Failed generating playlist for movie " + movie);
-        	final Writer eResult = new StringWriter();
+            logger.severe("Failed generating playlist for movie " + movie);
+            final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
@@ -270,8 +270,8 @@ public class MovieJukeboxHTMLWriter {
             outStream.flush();
             outStream.close();
         } catch (Exception error) {
-        	logger.severe("Failed generating HTML library category index.");
-        	final Writer eResult = new StringWriter();
+            logger.severe("Failed generating HTML library category index.");
+            final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
@@ -358,8 +358,8 @@ public class MovieJukeboxHTMLWriter {
             writer.close();
             fos.close();
         } catch (Exception error) {
-        	logger.severe("Failed generating HTML library index.");
-        	final Writer eResult = new StringWriter();
+            logger.severe("Failed generating HTML library index.");
+            final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
@@ -387,8 +387,8 @@ public class MovieJukeboxHTMLWriter {
             outStream.flush();
             outStream.close();
         } catch (Exception error) {
-        	logger.severe("Failed generating HTML library index.");
-        	final Writer eResult = new StringWriter();
+            logger.severe("Failed generating HTML library index.");
+            final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
@@ -400,7 +400,7 @@ public class MovieJukeboxHTMLWriter {
      */
     private synchronized Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
         // Gabriel: transformers are NOT thread safe; use thread name to make get the cache thread specific
-    	// the method itself must be synchronized because transformerCache map is modified inside
+        // the method itself must be synchronized because transformerCache map is modified inside
         String lookupID = Thread.currentThread().getId() + ":" + xslFileName;
         if (! transformerCache.containsKey(lookupID)) {
             if (transformerFactory == null) {
