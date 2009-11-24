@@ -573,14 +573,14 @@ public class SratimPlugin extends ImdbPlugin {
         return src.replaceAll("\\<.*?>", "");
     }
 
-	protected ArrayList<String> removeHtmlTags(ArrayList<String> src) {
-		ArrayList<String> output = new ArrayList<String>();
+    protected ArrayList<String> removeHtmlTags(ArrayList<String> src) {
+        ArrayList<String> output = new ArrayList<String>();
 
-		for (int i = 0; i < src.size(); i++) {
-			output.add(removeHtmlTags(src.get(i)));
-		}
-		return output;
-	}
+        for (int i = 0; i < src.size(); i++) {
+            output.add(removeHtmlTags(src.get(i)));
+        }
+        return output;
+    }
 
     /**
      * Scan Sratim html page for the specified movie

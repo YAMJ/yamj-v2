@@ -38,11 +38,11 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     public BufferedImage generate(Movie movie, BufferedImage backgroundImage, String imageType, String perspectiveDirection) {
         // persepectiveDirection is not currently used. Needs to be here because of the way the plugins work.
 
-    	// Validate the image type.
-    	if (imageType == null) {
-    		imageType = "fanart";
-    	}
-    	
+        // Validate the image type.
+        if (imageType == null) {
+            imageType = "fanart";
+        }
+        
         backgroundWidth = checkWidth(movie.isTVShow(), imageType);
         backgroundHeight = checkHeight(movie.isTVShow(), imageType);
         addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));

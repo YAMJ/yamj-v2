@@ -50,14 +50,14 @@ public class GraphicTools {
             logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
             return null;
         } catch (Exception ignore) {
-        	logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
+            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             return null;
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
                 } catch (Exception error) {
-                	final Writer eResult = new StringWriter();
+                    final Writer eResult = new StringWriter();
                     final PrintWriter printWriter = new PrintWriter(eResult);
                     error.printStackTrace(printWriter);
                     logger.severe(eResult.toString());
@@ -73,7 +73,7 @@ public class GraphicTools {
         try {
             bi = loadJPEGImage(new URL(urlString));
         } catch (IOException ignore) {
-        	logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
+            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             bi = null;
         }
         return bi;
@@ -84,7 +84,7 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(url);
         } catch (Exception ignore) {
-        	logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
+            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             bi = null;
         }
         return bi;
@@ -296,7 +296,7 @@ public class GraphicTools {
         try {
             propertyValue = Float.valueOf(PropertiesUtil.getProperty(propertyName, propertyDefault));
         } catch (NumberFormatException nfe) {
-        	logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
+            logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
         }
 
         return propertyValue;
@@ -345,13 +345,13 @@ public class GraphicTools {
         try {
             perspectiveTop = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveTop", "3"));
         } catch (NumberFormatException nfe) {
-        	logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
+            logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
         }
 
         try {
             perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
         } catch (NumberFormatException nfe) {
-        	logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
+            logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
         }        
 
         int Top3d = (int) (h * perspectiveTop / 100);

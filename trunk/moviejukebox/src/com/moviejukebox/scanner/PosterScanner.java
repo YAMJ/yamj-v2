@@ -120,7 +120,7 @@ public class PosterScanner {
         boolean foundLocalCoverArt = false;
 
         for (String extension : coverArtExtensions) {
-        	fullPosterFilename = FileTools.getParentFolder(movie.getFile());
+            fullPosterFilename = FileTools.getParentFolder(movie.getFile());
 
             if (!coverArtDirectory.equals("")) {
                 fullPosterFilename += File.separator + coverArtDirectory;
@@ -524,15 +524,15 @@ public class PosterScanner {
             moviedb = TMDb.moviedbGetImages(tmdbID, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             //moviedb = TMDb.moviedbImdbLookup(imdbID, language);
-        	moviedb = TMDb.moviedbGetImages(imdbID, language);
+            moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
-        	// We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
+            // We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
             moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
         }
 
         try {
-        	Artwork artwork;
-        	artwork = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL, posterPosition);
+            Artwork artwork;
+            artwork = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL, posterPosition);
             if (artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN)) {
                 return Movie.UNKNOWN;
             } else {
@@ -541,11 +541,11 @@ public class PosterScanner {
                 return artwork.getUrl();
             }
         } catch (NullPointerException error) {
-        	logger.finer("PosterScanner: Unable to find posters for " + movie.getBaseName() + " IMDb ID: " + imdbID);
-        	return Movie.UNKNOWN;
+            logger.finer("PosterScanner: Unable to find posters for " + movie.getBaseName() + " IMDb ID: " + imdbID);
+            return Movie.UNKNOWN;
         } catch (Exception error) {
-        	logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
-        	return Movie.UNKNOWN;
+            logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
+            return Movie.UNKNOWN;
         }
     }
 

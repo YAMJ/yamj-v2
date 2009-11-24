@@ -214,8 +214,8 @@ public class MovieDirectoryScanner {
             BDFilePropertiesMovie bdPropertiesMovie = localBDRipScanner.executeGetBDInfo(file);
 
             if (bdPropertiesMovie != null) {
-            	isBluRay = true;
-            	
+                isBluRay = true;
+                
                 // Exclude multi part BluRay that include more than one file
                 if (excludeMultiPartBluRay && bdPropertiesMovie.fileList.length > 1) {
                     logger.fine("File " + file.getName() + " excluded. (multi part BluRay)");
@@ -224,7 +224,7 @@ public class MovieDirectoryScanner {
 
                 bdDuration = bdPropertiesMovie.duration;
                 
-            	contentFiles = bdPropertiesMovie.fileList;
+                contentFiles = bdPropertiesMovie.fileList;
             }
         }
 
@@ -253,15 +253,15 @@ public class MovieDirectoryScanner {
                 // For DVD images
                 movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
             } else {
-            	if (isBluRay && playFullBluRayDisk) {
-            		// A BluRay File and playFullBluRayDisk, so link to the directory and not the file
-            		String tempFilename = srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
-            		tempFilename = tempFilename.substring(0, tempFilename.lastIndexOf("BDMV"));
+                if (isBluRay && playFullBluRayDisk) {
+                    // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
+                    String tempFilename = srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
+                    tempFilename = tempFilename.substring(0, tempFilename.lastIndexOf("BDMV"));
                     movieFile.setFilename(tempFilename);
-            	} else {
-            		// Normal movie file so link to it
-            		movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
-            	}
+                } else {
+                    // Normal movie file so link to it
+                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
+                }
             }
             movieFile.setPart(i + 1);
             movieFile.setFile(contentFiles[i]);

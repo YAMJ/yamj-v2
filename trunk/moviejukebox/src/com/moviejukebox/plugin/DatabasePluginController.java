@@ -37,10 +37,10 @@ public class DatabasePluginController {
      */
     private static ThreadLocal<Map<String, MovieDatabasePlugin>> 
       PluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
-    	@Override protected Map<String, MovieDatabasePlugin> initialValue() {
-        	HashMap<String, MovieDatabasePlugin> m = new HashMap<String, MovieDatabasePlugin>(2);
+        @Override protected Map<String, MovieDatabasePlugin> initialValue() {
+            HashMap<String, MovieDatabasePlugin> m = new HashMap<String, MovieDatabasePlugin>(2);
 
-        	m.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin")));
+            m.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin")));
             m.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin")));
             
             return m;
@@ -73,7 +73,7 @@ public class DatabasePluginController {
                 if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(origType)) {
                     isScanned = PluginMap.get().get(newType).scan(movie);
                     if (!isScanned) {
-                    	logger.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                        logger.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
                     }
                 }
             }

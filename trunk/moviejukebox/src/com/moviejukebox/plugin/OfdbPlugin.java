@@ -196,7 +196,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             }
 
         } catch (Exception error) {
-        	final Writer eResult = new StringWriter();
+            final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());

@@ -558,7 +558,7 @@ public class MovieJukeboxXMLWriter {
         
         try {
             xmlFile = new File(rootPath, prefix + current + ".xml");
-            xmlFile.getParentFile().mkdirs();        	
+            xmlFile.getParentFile().mkdirs();
 
             writer = new XMLWriter(xmlFile);
 
@@ -622,7 +622,6 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement(); // library
             writer.writeEndDocument();
         } catch (Exception error) {
-        	
         } finally {
             writer.flush();
             writer.close();
