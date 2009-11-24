@@ -330,7 +330,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
-                movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>Release Date:</h5>"));
+                movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>Release Date:</h5>", 1));
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
