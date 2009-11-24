@@ -16,23 +16,79 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <title>MovieJukebox</title>
 <script type="text/javascript">
+var cols = <xsl:value-of select="$nbCols"/>;
+var rows = <xsl:value-of select="$nbLines"/>;
+var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
+<xsl:text disable-output-escaping="yes">
+//<![CDATA[
   var title = 1;
-  function show(x, jsp)
-  {
-    if ( title == 1 )
-      title = document.getElementById('title');
+  var play = 1;
+  var pgup = 1, pgupload = 1;
+  var pgupHref;
+  var pgdn = 1, pgdnload = 1;
+  var pgdnHref;
+  function bind() {
+    if ( title == 1 ) title = document.getElementById('title');
+    if ( play == 1 ) play = document.getElementById('play');
+    if ( pgup == 1 ) {
+    	pgup = document.getElementById('pgup');
+    	pgupload = document.getElementById('pgupload');
+    	pgupHref = (pgup == null) ? null : pgup.getAttribute('href');
+    	}
+    if ( pgdn == 1 ) {
+    	pgdn = document.getElementById('pgdn');
+    	pgdnload = document.getElementById('pgdnload');
+    	pgdnHref = (pgdn == null) ? null : pgdn.getAttribute('href');
+    	}
+  }
+  
+  function show(x, jsp) {
     title.firstChild.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
-    var play = document.getElementById('play');
     play.setAttribute('href', jsp);
     play.setAttribute('tvid', 'PLAY');
+    if (pgup != null) pgup.setAttribute('href', pgupHref + '?t=u1&s=' + x);
+    if (pgdn != null) pgdn.setAttribute('href', pgdnHref + '?t=d1&s=' + x);
+    if (pgupload != null) pgupload.setAttribute('href', pgupHref + '?t=u2&s=' + x);
+    if (pgdnload != null) pgdnload.setAttribute('href', pgdnHref + '?t=d2&s=' + x);
   }
-  function hide(x)
-  {
-    if ( title == 1 )
-      title = document.getElementById('title');
+  
+  function hide(x) {
     title.firstChild.nodeValue = "";
-    document.getElementById('play').setAttribute('tvid', '#');
+    play.setAttribute('tvid', '#');
   }
+  
+  function init() {
+  	bind();
+  	
+	if (cols <= 1 || rows < 1) return;
+
+ 	var l = "" + location.href;
+ 	var it = l.indexOf("?t=");
+ 	var is = l.indexOf("&s=");
+
+ 	if (it <= 0 || is <= 0 || is < it) return;
+ 	
+	try {
+		var x = parseInt(l.substr(is + 3));
+		var t = l.substr(it + 3, 2).toLowerCase();
+		var c = ((x - 1) % cols) + 1;
+		
+		if (t == "u2") {
+			x =	((rows - 1) * cols) + c;
+		} else if (t == "d2") {
+			x = c;
+		}
+		
+		if (x > nmov) {
+			if (nmov <= c) x = nmov;
+			else x = (Math.floor(nmov / cols) * cols) + c;
+		}
+		
+		document.body.setAttribute('onloadset', "" + x);
+	} catch (e) {}
+  }
+//]]>
+</xsl:text>
 </script>
 </head>
 <body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
@@ -94,8 +150,8 @@
              <td valign="center">
               <div class="counter"><xsl:value-of select="$currentIndex"/> / <xsl:value-of select="$lastIndex" /></div></td>
              <td valign="top">
-                 <a name="pgdn" tvid="pgdn"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute><img src="pictures/nav_down.png" /></a>
-                 <a name="pgup" tvid="pgup"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute><img src="pictures/nav_up.png" /></a>
+                 <a name="pgdn" tvid="pgdn" id="pgdn"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute><img src="pictures/nav_down.png" /></a>
+                 <a name="pgup" tvid="pgup" id="pgup"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute><img src="pictures/nav_up.png" /></a>
              </td>
              </tr></table>
            </td></tr>
@@ -138,10 +194,15 @@
   </xsl:for-each>
   <div class="title">
     <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="$homePage"/></xsl:attribute>Home</a>
-    <a name="pgdnload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
-    <a name="pgupload" onfocusload=""><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
+    <a name="pgdnload" onfocusload="" id="pgdnload"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
+    <a name="pgupload" onfocusload="" id="pgupload"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
   </div>
+
+	<script type="text/javascript" defer="defer">
+	init();
+	</script>
 </body>
+
 </html>
 </xsl:template>
 
@@ -155,6 +216,7 @@
           <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
           <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute>
+          <xsl:attribute name="id">movie<xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>
             <xsl:text>, '</xsl:text>
             <xsl:value-of>

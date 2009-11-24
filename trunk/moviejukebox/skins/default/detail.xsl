@@ -17,17 +17,17 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 //<![CDATA[
   var title = 1;
   var lnk = 1;
-  function lnkt() {
+  function bind() {
     if ( title == 1 ) title = document.getElementById('title').firstChild;
     if ( lnk == 1 ) lnk = document.getElementById('playLink');
   }
   function show(x) {
-    lnkt();
+    bind();
     title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
     if(lnk)lnk.setAttribute('HREF', baseFilename + '.playlist' + x + '.jsp');
   }
   function hide() {
-    lnkt();
+    bind();
     title.nodeValue = "-";
     if(lnk)lnk.setAttribute('HREF', '');
   }
