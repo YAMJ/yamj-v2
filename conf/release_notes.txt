@@ -4,13 +4,14 @@
 
 MovieJukebox 1.7 BETA
 ---------------------
+  - Enhancement   #358 Intuitive movie highlight when surfing up/down pages in the movies index (default skin)  
   - Fixed defect #1067 No more fanart displayed with allocine plugin
   - Fixed defect #1094 IMDb Rating not detected
   - Enhancement  #1102 Sort the moviedb.org poster images by age (oldest first)
   - Fixed defect #1106 Fanart doesn't exist/download
   - Fixed defect #1107 Error Message when Scraping TV Series in TheTVDB API
   - Enhancement  #1108 Release date parsing for IMDB broken
-  - Enhancement   #358 Intuitive movie highlight when surfing up/down pages in the movies index (default skin)  
+  - Fixed defect #1117 Local videoimages copy error
 
 MovieJukebox 1.6
 ----------------

@@ -207,11 +207,17 @@ public class VideoImageScanner {
                     
                     // Derive the URL to the local file
                     if (mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
-                        if (localVideoImageFile != null)
+                        // This occurs when there isn't a videoimage URL in the XML
+                        if (localVideoImageFile != null)  {
                             mf.setVideoImageURL(part, localVideoImageFile.toURI().toString());
-                        else
+                            mf.setVideoImageFilename(part, localVideoImageFile.getName().toString());
+                        }
+                        else {
                             mf.setVideoImageURL(part, new File(genericVideoImageFilename).toURI().toString());
+                            mf.setVideoImageFilename(part, genericVideoImageFilename);
+                        }
                     }
+logger.fine("VI Filename: " + mf.getVideoImageFilename(part));
                     String videoimageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
                     String finalDestinationFileName = jukeboxDetailsRoot + File.separator + videoimageFilename;
                     String tmpDestFilename = tempJukeboxDetailsRoot + File.separator + videoimageFilename;
