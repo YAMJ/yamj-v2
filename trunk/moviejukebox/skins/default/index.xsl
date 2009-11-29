@@ -107,7 +107,6 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
         <xsl:if test="position()>1"> - </xsl:if>
         <a>
         <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
-        <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
         <xsl:value-of select="@name" />
         </a>
       </xsl:for-each>
