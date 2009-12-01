@@ -19,10 +19,12 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
@@ -688,6 +691,12 @@ public class MovieJukeboxXMLWriter {
     }
 
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
+        // These are pulled from the Manifest.MF file that is created by the Ant build script
+        String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
+        String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
+        Date xmlGenerationDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
@@ -698,6 +707,20 @@ public class MovieJukeboxXMLWriter {
             writer.writeCharacters(e.getValue());
             writer.writeEndElement();
         }
+        writer.writeStartElement("mjbVersion");
+        writer.writeCharacters(mjbVersion);
+        writer.writeEndElement();
+        writer.writeStartElement("mjbRevision");
+        // Print the revision information if it was populated by Hudson CI
+        if ( !((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) ) {
+            writer.writeCharacters(mjbRevision);
+        } else {
+            writer.writeCharacters(Movie.UNKNOWN);
+        }
+        writer.writeEndElement();
+        writer.writeStartElement("xmlGenerationDate");
+        writer.writeCharacters(dateFormat.format(xmlGenerationDate));
+        writer.writeEndElement();
         writer.writeStartElement("baseFilename");
         writer.writeCharacters(movie.getBaseName());
         writer.writeEndElement();
@@ -811,6 +834,13 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("fps");
         writer.writeCharacters(Float.toString(movie.getFps()));
+        writer.writeEndElement();
+        writer.writeStartElement("fileDate");
+        if (movie.getFileDate() == null) {
+            writer.writeCharacters(Movie.UNKNOWN);
+        } else {
+            writer.writeCharacters(dateFormat.format(movie.getFileDate()));
+        }
         writer.writeEndElement();
         writer.writeStartElement("first");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getFirst())));

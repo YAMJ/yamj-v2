@@ -17,6 +17,7 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -95,6 +96,8 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
     private String bannerFilename = UNKNOWN; // The resized banner file
+    // XML file version and date
+    private Date fileDate = null;
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
@@ -1105,6 +1108,18 @@ public class Movie implements Comparable<Movie>, Cloneable {
 
     public void setSetMaster(boolean isSetMaster) {
         this.isSetMaster = isSetMaster;
+    }
+
+    public void setFileDate(Date fileDate) {
+        this.fileDate = fileDate;
+        
+        if (fileDate.after(this.fileDate)) {
+            this.fileDate = fileDate;
+        }
+    }
+    
+    public Date getFileDate() {
+        return fileDate;
     }
 
     // ***** All the graphics methods go here *****

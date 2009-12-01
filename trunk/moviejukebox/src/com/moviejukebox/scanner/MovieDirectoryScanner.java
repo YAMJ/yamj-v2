@@ -16,6 +16,7 @@ package com.moviejukebox.scanner;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -280,6 +281,8 @@ public class MovieDirectoryScanner {
             m.setSubtitles(hasSubtitles(m.getFile()));
             m.setLibraryDescription(srcPath.getDescription());
             m.setPrebuf(srcPath.getPrebuf());
+            m.setFileDate(new Date(file.lastModified()));
+            
 
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
             m.mergeFileNameDTO(dto);
