@@ -1005,7 +1005,6 @@ public class MovieJukebox {
                 }
             }
             // *** END of file location change
-
             
             // update new episodes titles if new MovieFiles were added
             DatabasePluginController.scanTVShowTitles(movie);
