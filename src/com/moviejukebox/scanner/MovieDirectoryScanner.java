@@ -282,6 +282,7 @@ public class MovieDirectoryScanner {
             m.setLibraryDescription(srcPath.getDescription());
             m.setPrebuf(srcPath.getPrebuf());
             m.setFileDate(new Date(file.lastModified()));
+            m.setFileSize(file.length());
             
 
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
