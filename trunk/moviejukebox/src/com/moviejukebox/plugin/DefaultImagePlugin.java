@@ -268,7 +268,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      *            The image file to draw on
      * @return The new image file with the language flag on it
      */
-
     private BufferedImage drawLanguage(Movie movie, BufferedImage bi) {
         String lang = movie.getLanguage();
         if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase(Movie.UNKNOWN)) {
