@@ -842,6 +842,9 @@ public class MovieJukeboxXMLWriter {
             writer.writeCharacters(dateFormat.format(movie.getFileDate()));
         }
         writer.writeEndElement();
+        writer.writeStartElement("fileSize");
+        writer.writeCharacters(movie.getFileSizeString());
+        writer.writeEndElement();
         writer.writeStartElement("first");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getFirst())));
         writer.writeEndElement();

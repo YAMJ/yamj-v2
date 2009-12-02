@@ -96,8 +96,9 @@ public class Movie implements Comparable<Movie>, Cloneable {
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
     private String bannerFilename = UNKNOWN; // The resized banner file
-    // XML file version and date
+    // File information
     private Date fileDate = null;
+    private long fileSize = 0;
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
@@ -1122,6 +1123,47 @@ public class Movie implements Comparable<Movie>, Cloneable {
         return fileDate;
     }
 
+    public void setFileSize(long fileSize) {
+        this.fileSize += fileSize;
+    }
+    
+    public long getFileSize() {
+        return fileSize;
+    }
+    
+    public String getFileSizeString() {
+        String returnSize = UNKNOWN;
+        long calcFileSize = this.fileSize;
+        
+        if (calcFileSize > 1024) {
+            calcFileSize = calcFileSize / 1024;
+            if (calcFileSize > 1024) {
+                calcFileSize = calcFileSize / 1024;
+                if (calcFileSize > 1024) {
+                    calcFileSize = calcFileSize / 1024;
+                    if (calcFileSize > 1024) {
+                        calcFileSize = calcFileSize / 1024;
+                        if (calcFileSize > 1024) {
+                            calcFileSize = calcFileSize / 1024;
+                        } else {
+                            returnSize = calcFileSize + "TB";
+                        }
+                    } else {
+                        returnSize = calcFileSize + "GB";
+                    }
+                } else {
+                    returnSize = calcFileSize + "MB";
+                }
+            } else {
+                returnSize = calcFileSize + "KB";
+            }
+        } else {
+            returnSize = calcFileSize + "Bytes";
+        }
+
+        return returnSize;
+    }
+    
     // ***** All the graphics methods go here *****
 
     // ***** Posters
