@@ -1124,7 +1124,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
     }
 
     public void setFileSize(long fileSize) {
-        this.fileSize += fileSize;
+        this.fileSize = this.fileSize + fileSize;
     }
     
     public long getFileSize() {

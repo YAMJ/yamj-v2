@@ -247,6 +247,11 @@ public class Library implements Map<String, Movie> {
             library.put(key, movie);
         } else {
             existingMovie.addMovieFile(movie.getFirstFile());
+            // Update these counters
+            if (!movie.isTVShow()) {
+                existingMovie.setFileSize(movie.getFileSize());
+            }
+            existingMovie.setFileDate(movie.getFileDate());
         }
     }
 
