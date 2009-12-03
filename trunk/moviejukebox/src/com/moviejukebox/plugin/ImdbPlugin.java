@@ -479,6 +479,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
     }
 
+    /**
+     * Get the fanart for the movie from the FanartScanner
+     * @param movie
+     * @return
+     */
     protected String getFanartURL(Movie movie) {
         return FanartScanner.getFanartURL(movie);
     }
