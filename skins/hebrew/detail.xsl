@@ -1,4 +1,4 @@
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+﻿<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
 <xsl:include href="preferences.xsl"/>
@@ -539,6 +539,11 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
   </xsl:if>
 
   <xsl:if test="ends-with($url, 'VIDEO_TS') or ends-with($url, 'video_ts')">
+    <xsl:attribute name="zcd">2</xsl:attribute>
+  </xsl:if>
+
+  <!-- For BluRay playback on the C-200 -->
+  <xsl:if test="ends-with($url, '/')">
     <xsl:attribute name="zcd">2</xsl:attribute>
   </xsl:if>
 </xsl:template>
