@@ -103,15 +103,16 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 <table class="main" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td COLSPAN="2" align="center"> 
-    	<xsl:apply-templates select="library/category[@name='Title']" mode="t9TitleNavigation"/>
-      <!--<xsl:for-each select="library/category[@name='Title']/index">
+    	<!--<xsl:apply-templates select="library/category[@name='Title']" mode="t9TitleNavigation"/>-->
+      <xsl:for-each select="library/category[@name='Title']/index">
         <xsl:if test="position()>1"> - </xsl:if>
         <a>
         <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+        <xsl:if test="@current = 'true'"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
         <xsl:value-of select="@name" />
         </a>
       </xsl:for-each>
-    --></td>
+    </td>
   </tr>
   <tr align="left" valign="top">
     <td width="120">
