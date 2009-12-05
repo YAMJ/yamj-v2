@@ -69,6 +69,7 @@ public class MovieJukeboxHTMLWriter {
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
     private static String  playlistFile = skinHome + File.separator + "playlist.xsl";
     private static String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
+    private static boolean generateMultiPartPlaylist = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playlist.generateMultiPart", "true"));
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
@@ -157,14 +158,15 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * 
-     * @param rootPath
-     * @param tempRootPath
-     * @param movie
-     * @return List of generated file names
+     * Generates a playlist per part of the video. Used primarily with 
+     * @param   rootPath
+     * @param   tempRootPath
+     * @param   movie
+     * @return  List of generated file names
      */
     public Collection<String> generatePlaylist(String rootPath, String tempRootPath, Movie movie) {
         Collection<String> fileNames = new ArrayList<String>();
+
         if (playlistFile == null || playlistFile.equals("")) {
             return fileNames;
         }
@@ -223,18 +225,21 @@ public class MovieJukeboxHTMLWriter {
             logger.severe(eResult.toString());
         }
         
-        try {
-            if (movie.getFiles().size() > 1) {
-                for (int i = 0; i < movieFileArray.length; i++) {
-                    fileNames.add(generateSimplePlaylist(rootPath, tempRootPath, movie, movieFileArray, i));
+        // if the multi part playlists are not required
+        if (generateMultiPartPlaylist) {
+            try {
+                if (movie.getFiles().size() > 1) {
+                    for (int i = 0; i < movieFileArray.length; i++) {
+                        fileNames.add(generateSimplePlaylist(rootPath, tempRootPath, movie, movieFileArray, i));
+                    }
                 }
+            } catch (Exception error) {
+                logger.severe("Failed generating playlist for movie " + movie);
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
             }
-        } catch (Exception error) {
-            logger.severe("Failed generating playlist for movie " + movie);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
         }
         
         return fileNames;
@@ -252,8 +257,8 @@ public class MovieJukeboxHTMLWriter {
      * @throws UnsupportedEncodingException
      * @return generated file name
      */
-    private String generateSimplePlaylist(String rootPath, String tempRootPath,
-            Movie movie, MovieFile[] movieFiles, int offset) throws FileNotFoundException, UnsupportedEncodingException {
+    private String generateSimplePlaylist(String rootPath, String tempRootPath, Movie movie, MovieFile[] movieFiles, int offset) 
+            throws FileNotFoundException, UnsupportedEncodingException {
         String fileSuffix = ".playlist"+ movieFiles[offset % movieFiles.length].getFirstPart() + ".jsp";
         String baseName = FileTools.makeSafeFilename(movie.getBaseName());
         String tempFilename = tempRootPath + File.separator + baseName;
