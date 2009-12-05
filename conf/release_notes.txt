@@ -6,6 +6,7 @@ MovieJukebox 1.7 BETA
 ---------------------
   - Enhancement   #358 Intuitive movie highlight when surfing up/down pages in the movies index (default skin)  
   - Enhancement   #983 Add file date to the basename.xml files
+  - Fixed defect #1050 YAMJ doesn't include myiHome server IP in *.playlist.jsp
   - Fixed defect #1067 No more fanart displayed with Allocine plugin
   - Fixed defect #1094 IMDb Rating not detected
   - Enhancement  #1102 Sort the moviedb.org poster images by age (oldest first)

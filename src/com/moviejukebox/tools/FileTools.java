@@ -92,6 +92,33 @@ public class FileTools {
         }
     }
 
+    public static void copyFile(String src, String dst) {
+        File srcFile, dstFile;
+        
+        try {
+            srcFile = new File(src);
+        } catch (Exception error) {
+            logger.severe("Failed copying file " + src + " to " + dst);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+            return;
+        }
+        
+        try {
+            dstFile = new File(dst);
+        } catch (Exception error) {
+            logger.severe("Failed copying file " + src + " to " + dst);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+            return;
+        }
+        copyFile(srcFile, dstFile);
+    }
+    
     public static void copyFile(File src, File dst) {
         try {
             if (!src.exists()) {

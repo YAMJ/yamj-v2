@@ -60,19 +60,44 @@ public class MovieJukeboxHTMLWriter {
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
     private int nbTvShowsPerPage;
-    private String skinHome;
+    private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     private TransformerFactory transformerFactory;
     private Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList;
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
+    private static String  playlistFile = skinHome + File.separator + "playlist.xsl";
+    private static String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
+
+        // Check to see if the playlist file exists in the skin directory. If not, try to copy it.
+        if (!(new File(playlistFile).exists())) {
+            try {
+                String defaultPlaylist = "." + File.separator + "properties" + File.separator + "playlist.xsl";
+                FileTools.copyFile(defaultPlaylist, playlistFile);
+                logger.fine("HTML Writer: Copied playlist.xsl file to skin dir (" + skinHome + ")");
+                
+                if (new File("playlist.xsl").exists()) {
+                    try {
+                        new File("playlist.xsl").delete();
+                        logger.finest("HTML Writer: Deleted old playlist.xsl file");
+                    } catch (Exception error) {
+                        // Ignore
+                    }
+                }
+            } catch (Exception error) {
+                logger.severe("HTML Writer: Failed to copy playlist.xsl file to your skin dir (" + skinHome + ")");
+                logger.severe("HTML Writer: TV Playlist will NOT work until this is corrected");
+                // Set the playlist file to blank
+                playlistFile = "";
+            }
+        }
     }
 
     public MovieJukeboxHTMLWriter() {
@@ -82,7 +107,7 @@ public class MovieJukeboxHTMLWriter {
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
         }
-        skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        // skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         
         // Issue 310
         String transformerFactory = PropertiesUtil.getProperty("javax.xml.transform.TransformerFactory", null);
@@ -140,6 +165,10 @@ public class MovieJukeboxHTMLWriter {
      */
     public Collection<String> generatePlaylist(String rootPath, String tempRootPath, Movie movie) {
         Collection<String> fileNames = new ArrayList<String>();
+        if (playlistFile == null || playlistFile.equals("")) {
+            return fileNames;
+        }
+        
         MovieFile[] movieFileArray = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()]);
 
         try {
@@ -168,7 +197,7 @@ public class MovieJukeboxHTMLWriter {
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempPlaylistFile.getParentFile().mkdirs();
 
-                Transformer transformer = getTransformer("playlist.xsl");
+                Transformer transformer = getTransformer(playlistFile);
 
                 if (tempXmlFile.exists()) {
                     // Use the temp file
@@ -225,7 +254,6 @@ public class MovieJukeboxHTMLWriter {
      */
     private String generateSimplePlaylist(String rootPath, String tempRootPath,
             Movie movie, MovieFile[] movieFiles, int offset) throws FileNotFoundException, UnsupportedEncodingException {
-        String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
         String fileSuffix = ".playlist"+ movieFiles[offset % movieFiles.length].getFirstPart() + ".jsp";
         String baseName = FileTools.makeSafeFilename(movie.getBaseName());
         String tempFilename = tempRootPath + File.separator + baseName;
