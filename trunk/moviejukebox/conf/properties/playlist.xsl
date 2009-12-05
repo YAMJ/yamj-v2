@@ -1,5 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="text" indent="no" omit-xml-declaration="yes"/>
+<xsl:output method="xml" indent="no" omit-xml-declaration="yes"/>
+
+<xsl:include href="preferences.xsl"/>
 
 <xsl:template match="/">
 
@@ -32,7 +34,7 @@ Intro 0|0|0|file:///opt/sybhttpd/localhost.drives/HARD_DISK/foo/bar.avi|
     <xsl:text> </xsl:text>
     <xsl:value-of select="position()" />
     <xsl:text>|0|0|</xsl:text>
-    <xsl:value-of select="//details/preferences/mjb.myiHome.IP" />
+    <xsl:value-of select="$mjb.myiHome.IP"/>
     <xsl:value-of select="fileURL" />|
 </xsl:for-each>
 
