@@ -7,6 +7,6 @@ a { font-size: 18pt; color: #AAAAAA; text-decoration: none; }
 img { border: 0; }
 table.main { width:1090; height:626; }
 table.categories { width:180; }
-table.categories a.current { font-weight: bold; color: #FFF;}
+a.current { font-weight: bold; color: #FFF;}
 td { text-decoration: none;}
 td.movies { padding-right: 10px;}
