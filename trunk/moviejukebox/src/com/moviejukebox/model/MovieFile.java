@@ -16,7 +16,10 @@ package com.moviejukebox.model;
 import java.io.File;
 import java.util.LinkedHashMap;
 
-public class MovieFile implements Comparable<MovieFile> {
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType public class MovieFile implements Comparable<MovieFile> {
 
     private String  filename    = Movie.UNKNOWN;
     private String  title       = Movie.UNKNOWN;
@@ -28,6 +31,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
     private File file;
+    private MovieFileNameDTO info;
 
     public String getFilename() {
         return filename;
@@ -165,6 +169,9 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
+        
+        info = dto;
+        
         // TODO do not skip titles (store all provided)
         setTitle(dto.isExtra() ? dto.getPartTitle() : (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
 
@@ -191,5 +198,13 @@ public class MovieFile implements Comparable<MovieFile> {
             firstPart = 1;
             lastPart = 1;
         }
+    }
+
+    @XmlElement public MovieFileNameDTO getInfo() {
+        return info;
+    }
+
+    public void setInfo(MovieFileNameDTO info) {
+        this.info = info;
     }
 }

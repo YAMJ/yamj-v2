@@ -83,17 +83,6 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(3, d.getSeason());
         assertEquals(Arrays.asList(new Integer[] { 101, 19, 3 }), d.getEpisodes());
 
-        d = scan("The File [cd3]h.264.avi");
-        assertEquals(-1, d.getSeason());
-        assertEquals(3, d.getPart());
-        assertEquals("H.264", d.getVideoCodec());
-
-        d = scan("The File 60p part66 - The File Strikes Back.avi");
-        assertEquals(-1, d.getSeason());
-        assertEquals(66, d.getPart());
-        assertEquals(60, d.getFps());
-        assertEquals("The File", d.getTitle());
-
         d = scan("File (5 DVD)aac.avi");
         assertEquals(-1, d.getSeason());
         assertEquals(5, d.getPart());
@@ -121,21 +110,6 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("The French Connection", d.getTitle());
         assertEquals(0, d.getLanguages().size());
 
-        d = scan("House.S03E14.HDTV.XviD-XOR.avi");
-        assertEquals("House", d.getTitle());
-        assertEquals(3, d.getSeason());
-        assertEquals(1, d.getEpisodes().size());
-        assertNull(d.getPartTitle());
-        assertNull(d.getEpisodeTitle());
-
-        d = scan("Dead_Like_Me_S02E12 - Forget Me Not.HDTV.XviD-vfua.avi");
-        assertEquals("Dead Like Me", d.getTitle());
-        assertEquals(2, d.getSeason());
-        assertEquals(1, d.getEpisodes().size());
-        assertEquals("HDTV", d.getVideoSource());
-        assertEquals("XviD", d.getVideoCodec());
-        assertNull(d.getPartTitle());
-        assertEquals("Forget Me Not", d.getEpisodeTitle());
 
         d = scan("Burn-E.[2008].[Pixar.Short].[BDrip.720p.x264].mkv");
         assertEquals(2008, d.getYear());
@@ -251,6 +225,7 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(2009, d.getSeason());
         assertEquals(1, d.getEpisodes().size());
         assertEquals(3, d.getEpisodes().get(0).intValue());
+        
         d = scan("World.Series.Of.Poker.S2008E11E12E13.avi.avi");
         assertEquals("World Series Of Poker", d.getTitle());
         assertEquals(2008, d.getSeason());
@@ -258,6 +233,22 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(11, d.getEpisodes().get(0).intValue());
         assertEquals(12, d.getEpisodes().get(1).intValue());
         assertEquals(13, d.getEpisodes().get(2).intValue());
+
+        d = scan("House.S03E14.HDTV.XviD-XOR.avi");
+        assertEquals("House", d.getTitle());
+        assertEquals(3, d.getSeason());
+        assertEquals(1, d.getEpisodes().size());
+        assertNull(d.getPartTitle());
+        assertNull(d.getEpisodeTitle());
+
+        d = scan("Dead_Like_Me_S02E12 - Forget Me Not.HDTV.XviD-vfua.avi");
+        assertEquals("Dead Like Me", d.getTitle());
+        assertEquals(2, d.getSeason());
+        assertEquals(1, d.getEpisodes().size());
+        assertEquals("HDTV", d.getVideoSource());
+        assertEquals("XviD", d.getVideoCodec());
+        assertNull(d.getPartTitle());
+        assertEquals("Forget Me Not", d.getEpisodeTitle());
     }
 
     public void testScanVersion() {
@@ -271,6 +262,25 @@ public class MovieFilenameScannerTest extends TestCase {
         
         d = scan("Troy.Directors.Cut.HDDVDRip.720p.x264.HANSMER.mkv");
         assertEquals("Troy", d.getTitle());
+    }
+    
+    public void testScanParts() {
+        MovieFileNameDTO d = scan("How Music Works - part 1 of 4 - Melody.avi");
+        assertEquals(-1, d.getSeason());
+        assertEquals(-1, d.getPart());
+
+        d = scan("The File [cd3]h.264.avi");
+        assertEquals(-1, d.getSeason());
+        assertEquals(3, d.getPart());
+        assertEquals("H.264", d.getVideoCodec());
+
+        d = scan("The File 60p part66 - The File Strikes Back.avi");
+        assertEquals(-1, d.getSeason());
+        assertEquals(66, d.getPart());
+        assertEquals(60, d.getFps());
+        assertEquals("The File", d.getTitle());
+        assertEquals("The File Strikes Back", d.getPartTitle());
+
     }
     
     
