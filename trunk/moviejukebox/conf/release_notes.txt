@@ -8,6 +8,7 @@ MovieJukebox 1.7 BETA
   - Enhancement   #983 Add file date to the basename.xml files
   - Fixed defect #1050 YAMJ doesn't include myiHome server IP in *.playlist.jsp
   - Fixed defect #1067 No more fanart displayed with Allocine plugin
+  - Fixed defect #1086 BluRay Disk folders with multiple .m2ts files making up the main movie are handled as if they're multiple parts
   - Fixed defect #1094 IMDb Rating not detected
   - Enhancement  #1102 Sort the moviedb.org poster images by age (oldest first)
   - Fixed defect #1105 Black bar at the top of images if aspect ratio is wrong

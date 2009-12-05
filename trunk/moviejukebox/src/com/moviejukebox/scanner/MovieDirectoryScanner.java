@@ -299,6 +299,10 @@ public class MovieDirectoryScanner {
             }
 
             library.addMovie(m);
+            
+            // Stop after first file part if full BluRay Disk
+            if (isBluRay && playFullBluRayDisk)
+                break;
         }
     }
 }
