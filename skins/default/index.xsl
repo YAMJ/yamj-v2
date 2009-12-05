@@ -103,14 +103,15 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 <table class="main" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td COLSPAN="2" align="center"> 
-      <xsl:for-each select="library/category[@name='Title']/index">
+    	<xsl:apply-templates select="library/category[@name='Title']" mode="t9TitleNavigation"/>
+      <!--<xsl:for-each select="library/category[@name='Title']/index">
         <xsl:if test="position()>1"> - </xsl:if>
         <a>
         <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
         <xsl:value-of select="@name" />
         </a>
       </xsl:for-each>
-    </td>
+    --></td>
   </tr>
   <tr align="left" valign="top">
     <td width="120">
@@ -120,6 +121,7 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
             <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
+            <xsl:if test="@current = 'true'"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
             <xsl:value-of select="@name" />
             </a>
           </td></tr>
@@ -129,6 +131,7 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
             <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
+            <xsl:if test="@current = 'true'"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
             <xsl:value-of select="@name" />
             </a>
           </td></tr>
@@ -138,6 +141,7 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
             <a>
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
             <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
+            <xsl:if test="@current = 'true'"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
             <xsl:value-of select="@name" />
             </a>
           </td></tr>
@@ -249,6 +253,10 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
           </img>
         </a>
      </td>
+</xsl:template>
+
+<xsl:template mode="t9TitleNavigation" match="category[@name='Title']">
+	1-0...9 2-ABC  3-DEF 4-GHI 5-JKL 6-MNO 7-PQRS 8-TUV 9-WXYZ 
 </xsl:template>
 
 <!-- http://www.dpawson.co.uk/xsl/sect4/N9745.html#d15577e189 -->
