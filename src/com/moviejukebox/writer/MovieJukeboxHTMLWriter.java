@@ -61,8 +61,8 @@ public class MovieJukeboxHTMLWriter {
     private int nbMoviesPerPage;
     private int nbTvShowsPerPage;
     private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-    private TransformerFactory transformerFactory;
-    private Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
+    private static TransformerFactory transformerFactory;
+    private static final Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList;
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
@@ -426,7 +426,7 @@ public class MovieJukeboxHTMLWriter {
     /**
      * Creates and caches Transformer, one for every xsl file.
      */
-    private synchronized Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
+    public static synchronized Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
         // Gabriel: transformers are NOT thread safe; use thread name to make get the cache thread specific
         // the method itself must be synchronized because transformerCache map is modified inside
         String lookupID = Thread.currentThread().getId() + ":" + xslFileName;

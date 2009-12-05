@@ -14,12 +14,14 @@
 package com.moviejukebox;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static com.moviejukebox.writer.MovieJukeboxHTMLWriter.getTransformer;
 import static java.lang.Boolean.parseBoolean;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -41,7 +43,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -131,6 +140,7 @@ public class MovieJukebox {
         String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
         // Just create a pretty underline.
         String mjbTitle = "";
+        if (mjbVersion == null) mjbVersion = "";
         for (int i=1; i <= mjbVersion.length(); i++) {
             mjbTitle += "~";
         }
@@ -406,6 +416,11 @@ public class MovieJukebox {
         }
     }
 
+    @XmlRootElement(name = "jukebox") public static class JukeboxXml {
+        @SuppressWarnings("unused")
+        @XmlElement private Collection<Movie> movies;
+    }
+
     private void generateLibrary(boolean jukeboxClean, boolean jukeboxPreserve) throws Throwable {
 
         /********************************************************************************
@@ -584,26 +599,26 @@ public class MovieJukebox {
 
         if (library.size() > 0) {
             logger.fine("Searching for movies information...");
+            int movieCounter = 0;
             for (final Movie movie : library.values()) {
+                final int count = ++movieCounter;
+                final String movieTitleExt = movie.getTitle() 
+                        + (movie.isTVShow() ? (" [Season " + movie.getSeason() + "]") : "") 
+                        + (movie.isExtra() ? " [Extra]" : "");
 
                 // Multi-thread parallel processing
                 tasks.submit(new Callable<Void>() {
+                    
                     public Void call() throws FileNotFoundException, XMLStreamException {
 
                         ToolSet tools = threadTools.get();
                         // First get movie data (title, year, director, genre, etc...)
-                        if (movie.isTVShow()) {
-                            logger.fine("Updating data for: " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
-                        } else if (movie.isExtra()) {
-                            logger.fine("Updating data for: " + movie.getTitle() + " [Extra]");
-                        } else {
-                            logger.fine("Updating data for: " + movie.getTitle());
-                        }
+                        logger.fine("Updating data for: " + movieTitleExt);
 
                         updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                         // Then get this movie's poster
-                        logger.finer("Updating poster for: " + movie.getTitle() + "...");
+                        logger.finer("Updating poster for: " + movieTitleExt);
                         updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                         // Download episode images if required
@@ -634,13 +649,7 @@ public class MovieJukebox {
                         // Get Trailer
                         tools.trailerPlugin.generate(movie);
 
-                        if (movie.isTVShow()) {
-                            logger.fine("Finished: " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
-                        } else if (movie.isExtra()) {
-                            logger.fine("Finished: " + movie.getTitle() + " [Extra]");
-                        } else {
-                            logger.fine("Finished: " + movie.getTitle());
-                        }
+                        logger.fine("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
 
                         return null;
                     };
@@ -658,6 +667,7 @@ public class MovieJukebox {
              * PART 3 : Indexing the library
              * 
              */
+            final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
 
             // This is for programs like NMTServer where they don't need the indexes.
             if (skipIndexGeneration) {
@@ -676,7 +686,36 @@ public class MovieJukebox {
             List<Movie> indexMasters = new ArrayList<Movie>();
             indexMasters.addAll(library.getMoviesList());
             indexMasters.removeAll(movies);
+            
+            JAXBContext context = JAXBContext.newInstance(JukeboxXml.class);
+            final JukeboxXml jukeboxXml = new JukeboxXml();
+//            for (Movie movie : library.values()) {
+//                jukeboxXml.movies.add(movie.getFileName());
+//            }
+            jukeboxXml.movies = library.values();
 
+
+            try {
+                final String totalMoviesXmlFileName = "CompleteMovies.xml";
+                final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
+                context.createMarshaller().marshal(jukeboxXml, new FileOutputStream(totalMoviesXmlFile));
+                generatedFileNames.add(totalMoviesXmlFileName);
+    
+                
+                Transformer transformer = getTransformer("rss.xsl");
+    
+                final String rssXmlFileName = "RSS.xml";
+                FileOutputStream outStream = new FileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName));
+                generatedFileNames.add(rssXmlFileName);
+
+                Result xmlResult = new StreamResult(outStream);
+    
+                transformer.transform(new StreamSource(new FileInputStream(totalMoviesXmlFile)), xmlResult);
+                outStream.flush();
+                outStream.close();
+                } catch(Exception e) {
+                    logger.finest("RSS is not generated." /* + e.getStackTrace().toString()*/);
+                }
             // Multi-thread: Parallel Executor
             tasks = new ThreadExecutor<Void>(MaxThreadsProcess);
 
@@ -742,7 +781,6 @@ public class MovieJukebox {
 
             logger.fine("Writing movie data...");
 
-            final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
             // Multi-thread: Parallel Executor
             tasks.restart();
             for (final Movie movie : movies) {

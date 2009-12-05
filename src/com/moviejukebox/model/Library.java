@@ -667,7 +667,7 @@ public class Library implements Map<String, Movie> {
                     index.addMovie(movie.getOriginalTitle(), movie);
                 }
 
-                for (String set_key : movie.getSets()) {
+                for (String set_key : movie.getSetsKeys()) {
                     index.addMovie(set_key, movie);
                 }
             }

@@ -14,7 +14,6 @@
 package com.moviejukebox.model;
 
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -24,6 +23,9 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlType;
+
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -32,7 +34,7 @@ import com.moviejukebox.tools.PropertiesUtil;
  * 
  * @author jjulien
  */
-public class Movie implements Comparable<Movie>, Cloneable {
+@XmlType public class Movie implements Comparable<Movie>, Cloneable {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     public static String UNKNOWN = "UNKNOWN";
@@ -149,6 +151,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
             for (MovieFile mf : this.movieFiles) {
                 if (mf.compareTo(movieFile) == 0) {
                     movieFile.setFile(mf.getFile());
+                    movieFile.setInfo(mf.getInfo());
                 }
             }
             this.movieFiles.remove(movieFile);
@@ -284,7 +287,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
         return genres;
     }
 
-    public Collection<String> getSets() {
+    public Collection<String> getSetsKeys() {
         return sets.keySet();
     }
 
@@ -371,31 +374,31 @@ public class Movie implements Comparable<Movie>, Cloneable {
         return season;
     }
 
-    public String getTitle() {
+    @XmlAttribute public String getTitle() {
         return title;
     }
 
-    public String getTitleSort() {
+    @XmlAttribute public String getTitleSort() {
         return titleSort;
     }
 
-    public String getOriginalTitle() {
+    @XmlAttribute public String getOriginalTitle() {
         return originalTitle;
     }
 
-    public String getVideoCodec() {
+    @XmlAttribute public String getVideoCodec() {
         return videoCodec;
     }
 
-    public String getVideoOutput() {
+    @XmlAttribute public String getVideoOutput() {
         return videoOutput;
     }
 
-    public String getVideoSource() {
+    @XmlAttribute public String getVideoSource() {
         return videoSource;
     }
 
-    public String getYear() {
+    @XmlAttribute public String getYear() {
         return year;
     }
 
@@ -427,7 +430,7 @@ public class Movie implements Comparable<Movie>, Cloneable {
         return hasSubtitles;
     }
 
-    public boolean isTVShow() {
+    @XmlAttribute public boolean isTVShow() {
         // return (season != -1);
         return (this.movieType.equals(TYPE_TVSHOW) || this.season != -1);
     }
@@ -1278,6 +1281,5 @@ public class Movie implements Comparable<Movie>, Cloneable {
         }
         this.bannerFilename = bannerFilename;
     }
-
     // ***** END of graphics *****
 }

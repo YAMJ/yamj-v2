@@ -16,6 +16,9 @@ package com.moviejukebox.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * Container of parsed data from movie file name.
  * DTO. No methods. Only getters/setters.
@@ -24,7 +27,7 @@ import java.util.List;
  * 
  * @author Artem.Gratchev
  */
-public class MovieFileNameDTO {
+@XmlType public class MovieFileNameDTO {
     private String  title = null;
     private int     year = -1;
     private String  partTitle = null;
@@ -41,7 +44,7 @@ public class MovieFileNameDTO {
     private String  hdResolution = null;
     private String  videoSource = null;
 
-    public static class Set {
+    @XmlType public static class Set {
         private String title = null;
         private int index = -1;
 
@@ -173,11 +176,11 @@ public class MovieFileNameDTO {
         this.videoSource = videoSource;
     }
 
-    public List<Set> getSets() {
+    @XmlElement public List<Set> getSets() {
         return sets;
     }
 
-    public List<String> getLanguages() {
+    @XmlElement public List<String> getLanguages() {
         return languages;
     }
 

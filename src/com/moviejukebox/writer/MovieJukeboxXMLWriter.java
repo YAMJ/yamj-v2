@@ -874,7 +874,7 @@ public class MovieJukeboxXMLWriter {
             }
             writer.writeEndElement();
         }
-        Collection<String> items = movie.getSets();
+        Collection<String> items = movie.getSetsKeys();
         if (items.size() > 0) {
             writer.writeStartElement("sets");
             for (String item : items) {
@@ -900,6 +900,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("lastPart", Integer.toString(mf.getLastPart()));
             writer.writeAttribute("title", mf.getTitle());
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
+            writer.writeAttribute("size", Long.toString(mf.getFile().length()));
             writer.writeStartElement("fileURL");
             writer.writeCharacters(mf.getFilename()); // should already be a URL
             writer.writeEndElement();
