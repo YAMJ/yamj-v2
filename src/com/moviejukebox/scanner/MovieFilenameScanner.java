@@ -216,7 +216,7 @@ public class MovieFilenameScanner {
                     put("SDTV", "TVRip,PAL,NTSC");
                     put("D-THEATER", "DTH,DTHEATER");
                     put("HDDVD", "HD-DVD,HDDVDRIP");
-                    put("BluRay", "BDRIP,BLURAYRIP,BLU-RAY");
+                    put("BluRay", "BDRIP,BLURAYRIP,BLU-RAY,BD-RIP");
                     put("DVDRip", "DVDR");
                 }
             };

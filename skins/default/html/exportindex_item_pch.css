@@ -3,10 +3,16 @@ div.title{ visibility:hidden; }
 div.counter {font-size: 15pt; color: #AAAAAA; }
 
 body { font-size: 10pt; color: #AAAAAA; text-decoration: none; }
-a { font-size: 18pt; color: #AAAAAA; text-decoration: none; }
+a { font-size: 18pt; text-decoration: none; }
+.a { font-size: 18pt; text-decoration: none; }
+a { color: #AAAAAA; }
+.a { color: #888888; }
+a.current { color: #FFFFFF;}
+small { font-size: 8pt; color: #AAAA55 }
 img { border: 0; }
 table.main { width:1090; height:626; }
 table.categories { width:180; }
-a.current { font-weight: bold; color: #FFF;}
 td { text-decoration: none;}
 td.movies { padding-right: 10px;}
+table#t9 td {width: 27;}
+table#t9 td.separator {width: 7;}
