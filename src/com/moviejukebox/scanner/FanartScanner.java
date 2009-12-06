@@ -66,7 +66,7 @@ public class FanartScanner {
         fanartOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceFanartOverwrite", "false"));
     }
 
-    public static void scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static boolean scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String localFanartBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
         String fullFanartFilename = null;
         String foundExtension = null;
@@ -151,6 +151,8 @@ public class FanartScanner {
             // logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
             downloadFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
         }
+        
+        return foundLocalFanart;
     }
 
     private static void downloadFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {

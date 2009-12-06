@@ -755,6 +755,17 @@ public class MovieJukebox {
                                 logger.finest("Local set banner found, using " + movie.getBannerFilename());
                             }
                         }
+                        
+                        // Check for Set Fanart
+                        if (true) {
+                            // Set a default fanart filename in case it's not found during the scan
+                            movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                            if (!FanartScanner.scan(tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
+                                logger.finest("Local set fanart (" + FileTools.makeSafeFilename(movie.getBaseName() + fanartToken) + ") not found, using " + oldPosterFilename);
+                            } else {
+                                logger.finest("Local set fanart found, using " + movie.getFanartFilename());
+                            }
+                        }
 
                         String thumbnailExtension = getProperty("thumbnails.format", "png");
                         movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailExtension);

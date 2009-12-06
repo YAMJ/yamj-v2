@@ -56,6 +56,12 @@ public class MediaInfoScanner {
     private boolean activated;
     private boolean enableMetadata;
 
+    static {
+        logger.finer("OS name : " + OS_NAME);
+        logger.finer("OS version : " + OS_VERSION);
+        logger.finer("OS archi : " + OS_ARCH);
+    }
+    
     // Dvd rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
@@ -66,10 +72,6 @@ public class MediaInfoScanner {
         mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
 
         File checkMediainfo = null;
-
-        logger.finer("OS name : " + OS_NAME);
-        logger.finer("OS version : " + OS_VERSION);
-        logger.finer("OS archi : " + OS_ARCH);
 
         if (OS_NAME.contains("Windows")) {
             mediaInfoExe = mediaInfoExeWindows;
