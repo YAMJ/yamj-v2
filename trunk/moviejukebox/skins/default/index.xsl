@@ -103,16 +103,8 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 <table class="main" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td COLSPAN="2" align="center"> 
-    	<!--<xsl:apply-templates select="library/category[@name='Title']" mode="t9TitleNavigation"/>-->
-      <xsl:for-each select="library/category[@name='Title']/index">
-        <xsl:if test="position()>1"> - </xsl:if>
-        <a>
-        <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
-        <xsl:if test="@current = 'true'"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
-        <xsl:value-of select="@name" />
-        </a>
-      </xsl:for-each>
-    </td>
+    	<xsl:apply-templates select="library/category[@name='Title']" mode="t9TitleNavigation"/>
+	</td>
   </tr>
   <tr align="left" valign="top">
     <td width="120">
@@ -123,8 +115,10 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
             <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
             <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
             <xsl:if test="@current = 'true'"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
+            <!-- xsl:if test="position() = 1"><xsl:attribute name="tvid">0</xsl:attribute></xsl:if-->
             <xsl:value-of select="@name" />
             </a>
+            <!-- xsl:if test="position() = 1"><small>0</small></xsl:if-->
           </td></tr>
         </xsl:for-each>
         <xsl:for-each select="library/category[@name='Genres']/index">
@@ -164,7 +158,7 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
       </table>
     </td>
     <td>
-      <table class="movies" border="0">
+      <table layout="fixed" class="movies" border="0" width="100%">
         <xsl:for-each select="library/movies/movie[$nbCols = 1 or position() mod $nbCols = 1]">
           <tr>
             <xsl:apply-templates
@@ -174,6 +168,13 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
               <xsl:with-param name="lastIndex" select="$lastIndex" />
               <xsl:with-param name="lastGap" select="($nbLines - 1) * $nbCols" />
             </xsl:apply-templates>
+            <xsl:if test="count(following-sibling::movie[position() &lt; $nbCols]) &lt; ($nbCols - 1)">
+            	<td>
+            		<xsl:attribute name="colspan"><xsl:value-of select="($nbCols - 1) - count(following-sibling::movie[position() &lt; $nbCols])" /></xsl:attribute>
+            		<xsl:attribute name="width"><xsl:value-of select="($nbCols - 1) - count(following-sibling::movie[position() &lt; $nbCols])" /></xsl:attribute>
+            		<xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+            	</td>
+            </xsl:if>
           </tr>
         </xsl:for-each>
       </table><br/>
@@ -215,10 +216,9 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
   <xsl:param name="currentIndex" />
   <xsl:param name="lastIndex" />
   <xsl:param name="lastGap" />
-     <td>
+     <td width="1">
         <a>
           <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
-          <xsl:attribute name="TVID"><xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="id">movie<xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>
@@ -257,7 +257,141 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 </xsl:template>
 
 <xsl:template mode="t9TitleNavigation" match="category[@name='Title']">
-	1-0...9 2-ABC  3-DEF 4-GHI 5-JKL 6-MNO 7-PQRS 8-TUV 9-WXYZ 
+	<!-- 1-0...9 2-ABC 3-DEF 4-GHI 5-JKL 6-MNO 7-PQRS 8-TUV 9-WXYZ-->
+
+	<table id="t9">
+	<tr>
+		<xsl:call-template name="letter">
+			<xsl:with-param name="name">09</xsl:with-param>
+			<xsl:with-param name="navigate">1</xsl:with-param>
+			<xsl:with-param name="neighbors">09</xsl:with-param>
+		</xsl:call-template>
+		
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">ABC</xsl:with-param>
+			<xsl:with-param name="navigate">2</xsl:with-param>
+		</xsl:call-template>
+
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">DEF</xsl:with-param>
+			<xsl:with-param name="navigate">3</xsl:with-param>
+		</xsl:call-template>
+
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">GHI</xsl:with-param>
+			<xsl:with-param name="navigate">4</xsl:with-param>
+		</xsl:call-template>
+
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">JKL</xsl:with-param>
+			<xsl:with-param name="navigate">5</xsl:with-param>
+		</xsl:call-template>
+
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">MNO</xsl:with-param>
+			<xsl:with-param name="navigate">6</xsl:with-param>
+		</xsl:call-template>
+
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">PQRS</xsl:with-param>
+			<xsl:with-param name="navigate">7</xsl:with-param>
+		</xsl:call-template>
+
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">TUV</xsl:with-param>
+			<xsl:with-param name="navigate">8</xsl:with-param>
+		</xsl:call-template>
+
+		<td class="separator"></td>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters">WXYZ</xsl:with-param>
+			<xsl:with-param name="navigate">9</xsl:with-param>
+		</xsl:call-template>
+	</tr>
+	</table>
+</xsl:template>
+
+
+<xsl:template name="lettersgroup">
+	<xsl:param name="letters"/>
+	<xsl:param name="navigate"/>
+	<xsl:param name="neighbors"/>
+	
+	<xsl:variable name="nb">
+		<xsl:choose>
+			<xsl:when test="$neighbors"><xsl:value-of select="$neighbors"/></xsl:when>
+			<xsl:otherwise><xsl:value-of select="$letters"/></xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	
+	<xsl:if test="string-length($letters) > 0">
+		<xsl:call-template name="letter">
+			<xsl:with-param name="name" select="substring($letters, 1, 1)"/>
+			<xsl:with-param name="navigate" select="$navigate"/>
+			<xsl:with-param name="neighbors" select="$nb"/>
+		</xsl:call-template>
+
+		<xsl:call-template name="lettersgroup">
+			<xsl:with-param name="letters"><xsl:value-of select="substring($letters, 2)"/></xsl:with-param>
+			<xsl:with-param name="navigate" select="$navigate"/>
+			<xsl:with-param name="neighbors" select="$nb"/>
+		</xsl:call-template>
+	</xsl:if>
+</xsl:template>
+
+
+<xsl:template name="letter">
+	<xsl:param name="name"/>
+	<xsl:param name="navigate"/>
+	<xsl:param name="neighbors"/>
+	
+	<td>
+
+    <xsl:variable name="lastcurrent" select="index[contains($neighbors, @name)][last()]/@current" />
+	
+	<xsl:choose>
+		<xsl:when test="index[@name=$name]">
+			<xsl:for-each select="index[@name=$name]">
+			
+			<xsl:variable name="tvid">
+				<xsl:if test="preceding-sibling::*[position() = 1 and contains($neighbors, @name) and @current]">
+		        	<xsl:value-of select="normalize-space($navigate)" />
+				</xsl:if>
+		        <xsl:if test="not(preceding-sibling::*[contains($neighbors, @name)])">
+			        <xsl:if test="$lastcurrent or (not(@current) and not(following-sibling::*[contains($neighbors, @name) and @current]))">
+			        	<xsl:value-of select="normalize-space($navigate)" />
+			        </xsl:if>
+		        </xsl:if>
+			</xsl:variable>
+	        <a>
+		        <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+		        <xsl:if test="@current"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
+		        <xsl:if test="string-length($tvid) > 0"><xsl:attribute name="tvid"><xsl:value-of select="$tvid" /></xsl:attribute></xsl:if>
+		        <xsl:value-of select="@name" />
+	        </a>
+        	<xsl:if test="string-length($tvid) > 0"><small><xsl:value-of select="$tvid" /></small></xsl:if>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:otherwise><span class="a"><xsl:value-of select="$name" /></span></xsl:otherwise>
+	</xsl:choose>
+
+	</td>
+	
 </xsl:template>
 
 <!-- http://www.dpawson.co.uk/xsl/sect4/N9745.html#d15577e189 -->

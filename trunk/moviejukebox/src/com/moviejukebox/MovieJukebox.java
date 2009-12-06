@@ -14,6 +14,8 @@
 package com.moviejukebox;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static com.moviejukebox.tools.PropertiesUtil.setPropertiesStreamName;
+import static com.moviejukebox.tools.PropertiesUtil.setProperty;
 import static com.moviejukebox.writer.MovieJukeboxHTMLWriter.getTransformer;
 import static java.lang.Boolean.parseBoolean;
 
@@ -208,27 +210,27 @@ public class MovieJukebox {
         }
 
         // Load the moviejukebox-default.properties file
-        if (!PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties")) {
+        if (!setPropertiesStreamName("./properties/moviejukebox-default.properties")) {
             return;
         }
 
         // Load the user properties file "moviejukebox.properties"
         // No need to abort if we don't find this file
         // Must be read before the skin, because this may contain an override skin
-        PropertiesUtil.setPropertiesStreamName(propertiesName);
+        setPropertiesStreamName(propertiesName);
         
         // Grab the skin from the command-line properties
         if (cmdLineProps.containsKey("mjb.skin.dir")) {
-            PropertiesUtil.setProperty("mjb.skin.dir", cmdLineProps.get("mjb.skin.dir"));
+            setProperty("mjb.skin.dir", cmdLineProps.get("mjb.skin.dir"));
         }
 
         // Load the skin.properties file
-        if (!PropertiesUtil.setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties")) {
+        if (!setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties")) {
             return;
         }
 
         // Load the apikeys.properties file
-        if (!PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties")) {
+        if (!setPropertiesStreamName("./properties/apikeys.properties")) {
             return;
         } else {
             // This is needed to update the static reference for the API Keys in the log formatted because the log formatter is initialised before the properties files are read
@@ -237,7 +239,7 @@ public class MovieJukebox {
 
         // Load the rest of the command-line properties
         for (Map.Entry<String, String> propEntry : cmdLineProps.entrySet()) {
-            PropertiesUtil.setProperty(propEntry.getKey(), propEntry.getValue());
+            setProperty(propEntry.getKey(), propEntry.getValue());
         }
 
         StringBuilder sb = new StringBuilder("{");
@@ -310,7 +312,7 @@ public class MovieJukebox {
         ml.generateLibrary(jukeboxClean, jukeboxPreserve);
 
         fh.close();
-        if (Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.appendDateToLogFile", "false"))) {
+        if (Boolean.parseBoolean(getProperty("mjb.appendDateToLogFile", "false"))) {
             // File (or directory) with old name
             File file = new File(logFilename);
             
@@ -736,7 +738,7 @@ public class MovieJukebox {
                         String oldPosterFilename = movie.getPosterFilename();
 
                         // Set a default poster name in case it's not found during the scan
-                        movie.setPosterFilename(movie.getBaseName() + "." + PropertiesUtil.getProperty("posters.format", "jpg"));
+                        movie.setPosterFilename(movie.getBaseName() + "." + getProperty("posters.format", "jpg"));
                         if (!PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
                             logger.finest("Local set poster (" + FileTools.makeSafeFilename(movie.getBaseName()) + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
