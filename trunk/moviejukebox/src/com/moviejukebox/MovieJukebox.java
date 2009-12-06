@@ -117,6 +117,7 @@ public class MovieJukebox {
     private boolean videoimageDownload;
     private boolean bannerDownload;
     private boolean moviejukeboxListing;
+    private boolean setIndexFanart;
     private static boolean skipIndexGeneration = false;
 
     public static void main(String[] args) throws Throwable {
@@ -395,6 +396,8 @@ public class MovieJukebox {
 
         this.fanartMovieDownload = parseBoolean(getProperty("fanart.movie.download", "false"));
         this.fanartTvDownload = parseBoolean(getProperty("fanart.tv.download", "false"));
+        
+        this.setIndexFanart = parseBoolean(getProperty("mjb.sets.indexFanart", "false"));
 
         fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
@@ -757,7 +760,7 @@ public class MovieJukebox {
                         }
                         
                         // Check for Set Fanart
-                        if (true) {
+                        if (setIndexFanart) {
                             // Set a default fanart filename in case it's not found during the scan
                             movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                             if (!FanartScanner.scan(tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
