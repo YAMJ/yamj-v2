@@ -607,7 +607,7 @@ public class MovieJukebox {
             int movieCounter = 0;
             for (final Movie movie : library.values()) {
                 final int count = ++movieCounter;
-                final String movieTitleExt = movie.getTitle() 
+                final String movieTitleExt = movie.getOriginalTitle() 
                         + (movie.isTVShow() ? (" [Season " + movie.getSeason() + "]") : "") 
                         + (movie.isExtra() ? " [Extra]" : "");
 
@@ -735,7 +735,7 @@ public class MovieJukebox {
                         logger.finest("Writing index data for master: " + movie.getBaseName());
                         xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
 
-                        logger.finer("Updating poster for index master: " + movie.getTitle() + "...");
+                        logger.finer("Updating poster for index master: " + movie.getOriginalTitle() + "...");
 
                         // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
                         String oldPosterFilename = movie.getPosterFilename();
@@ -1012,7 +1012,7 @@ public class MovieJukebox {
         for (File nfoFile : nfoFiles) {
             // Only re-scan the nfo files if one of them is newer and the xml file exists (2nd run or greater)
             if (FileTools.isNewer(nfoFile, xmlFile) && checkNewer && xmlFile.exists()) {
-                logger.fine("NFO for " + movie.getTitle() + " has changed, will rescan file.");
+                logger.fine("NFO for " + movie.getOriginalTitle() + "(" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
                 movie.setDirtyNFO(true);
                 movie.setDirtyPoster(true);
                 movie.setDirtyFanart(true);
@@ -1342,7 +1342,7 @@ public class MovieJukebox {
 
                 BufferedImage bi = GraphicTools.loadJPEGImage(fis);
                 if (bi == null) {
-                    logger.info("Using dummy thumbnail image for " + movie.getTitle());
+                    logger.info("Using dummy thumbnail image for " + movie.getOriginalTitle());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), new File(rootPath + File.separator
                                     + safePosterFilename));
                     fis = new FileInputStream(src);
@@ -1388,7 +1388,7 @@ public class MovieJukebox {
                 }
             }
         } catch (Exception error) {
-            logger.severe("Failed creating thumbnail for " + movie.getTitle());
+            logger.severe("Failed creating thumbnail for " + movie.getOriginalTitle());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -1431,7 +1431,7 @@ public class MovieJukebox {
                 BufferedImage bi = GraphicTools.loadJPEGImage(fis);
 
                 if (bi == null) {
-                    logger.info("Using dummy poster image for " + movie.getTitle());
+                    logger.info("Using dummy poster image for " + movie.getOriginalTitle());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), new File(rootPath + File.separator
                                     + safePosterFilename));
                     fis = new FileInputStream(src);
@@ -1478,7 +1478,7 @@ public class MovieJukebox {
                 }
             }
         } catch (Exception error) {
-            logger.severe("Failed creating poster for " + movie.getTitle());
+            logger.severe("Failed creating poster for " + movie.getOriginalTitle());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
