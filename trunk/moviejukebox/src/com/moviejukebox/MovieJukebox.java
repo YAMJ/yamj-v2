@@ -705,9 +705,8 @@ public class MovieJukebox {
                 final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
                 context.createMarshaller().marshal(jukeboxXml, new FileOutputStream(totalMoviesXmlFile));
                 generatedFileNames.add(totalMoviesXmlFileName);
-    
                 
-                Transformer transformer = getTransformer("rss.xsl");
+                Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
     
                 final String rssXmlFileName = "RSS.xml";
                 FileOutputStream outStream = new FileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName));
@@ -792,8 +791,6 @@ public class MovieJukebox {
                 });
             }
             tasks.waitFor();
-
-            xmlWriter.writePreferences(jukeboxDetailsRoot);
 
             logger.fine("Writing movie data...");
 
