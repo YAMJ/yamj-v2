@@ -157,8 +157,8 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 
       </table>
     </td>
-    <td>
-      <table layout="fixed" class="movies" border="0" width="100%">
+    <td align="left">
+      <table class="movies" border="0">
         <xsl:for-each select="library/movies/movie[$nbCols = 1 or position() mod $nbCols = 1]">
           <tr>
             <xsl:apply-templates
@@ -360,7 +360,7 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 	<xsl:param name="navigate"/>
 	<xsl:param name="neighbors"/>
 	
-	<td>
+	<td align="right">
 
     <xsl:variable name="lastcurrent" select="index[contains($neighbors, @name)][last()]/@current" />
 	
@@ -378,13 +378,13 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 			        </xsl:if>
 		        </xsl:if>
 			</xsl:variable>
+        	<xsl:if test="string-length($tvid) > 0"><small><xsl:value-of select="$tvid" /></small></xsl:if>
 	        <a>
 		        <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
 		        <xsl:if test="@current"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
 		        <xsl:if test="string-length($tvid) > 0"><xsl:attribute name="tvid"><xsl:value-of select="$tvid" /></xsl:attribute></xsl:if>
 		        <xsl:value-of select="@name" />
 	        </a>
-        	<xsl:if test="string-length($tvid) > 0"><small><xsl:value-of select="$tvid" /></small></xsl:if>
 			</xsl:for-each>
 		</xsl:when>
 		<xsl:otherwise><span class="a"><xsl:value-of select="$name" /></span></xsl:otherwise>
