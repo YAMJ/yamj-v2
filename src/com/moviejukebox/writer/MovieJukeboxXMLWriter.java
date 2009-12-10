@@ -67,7 +67,6 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
-    private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
@@ -943,48 +942,6 @@ public class MovieJukeboxXMLWriter {
         }
 
         writer.writeEndElement();
-    }
-
-    private void writeVariable(XMLWriter writer, String name, String value) throws XMLStreamException {
-        writer.writeStartElement("xsl:variable");
-        writer.writeAttribute("name", name);
-        writer.writeCharacters(value);
-        writer.writeEndElement();
-
-    }
-
-    public void writePreferences(String rootPath) throws XMLStreamException {
-        File xslFile = new File(PropertiesUtil.getProperty("mjb.skin.dir"), "preferences.xsl");
-        XMLWriter writer = new XMLWriter(xslFile);
-
-        writer.writeStartDocument("UTF-8", "1.0");
-
-        writer.writeStartElement("xsl:stylesheet");
-        writer.writeAttribute("version", "1.0");
-        writer.writeAttribute("xmlns:xsl", "http://www.w3.org/1999/XSL/Transform");
-
-        writer.writeStartElement("xsl:output");
-        writer.writeAttribute("method", "xml");
-        writer.writeAttribute("omit-xml-declaration", "yes");
-        writer.writeEndElement();
-
-        // Issue 436: Bounce off the index.htm to get to the real homePage
-        // since homePage is now calculated by the Library.
-        writeVariable(writer, "homePage", indexFile);
-
-        // Issue 310
-        writeVariable(writer, "rootPath", new File(rootPath).getAbsolutePath().replace('\\', '/'));
-
-        // Issue 309
-        for (Map.Entry<Object, Object> entry : PropertiesUtil.getEntrySet()) {
-            writeVariable(writer, (String)entry.getKey(), (String)entry.getValue());
-        }
-
-        writer.writeEndElement();
-        writer.writeEndDocument();
-
-        writer.flush();
-        writer.close();
     }
 
     /**

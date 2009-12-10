@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -53,6 +54,7 @@ import com.moviejukebox.tools.ThreadExecutor;
  * Generate HTML pages from XML movies and indexes
  * 
  * @author Julien
+ * @author artem.gratchev
  */
 public class MovieJukeboxHTMLWriter {
 
@@ -60,14 +62,15 @@ public class MovieJukeboxHTMLWriter {
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
     private int nbTvShowsPerPage;
-    private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+    private static String skinHome;
     private static TransformerFactory transformerFactory;
     private static final Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList;
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
-    private static String  playlistFile = skinHome + File.separator + "playlist.xsl";
+    private static File playlistFile;
+    private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     private static String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
     private static boolean generateMultiPartPlaylist = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playlist.generateMultiPart", "true"));
 
@@ -76,29 +79,6 @@ public class MovieJukeboxHTMLWriter {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
-
-        // Check to see if the playlist file exists in the skin directory. If not, try to copy it.
-        if (!(new File(playlistFile).exists())) {
-            try {
-                String defaultPlaylist = "." + File.separator + "properties" + File.separator + "playlist.xsl";
-                FileTools.copyFile(defaultPlaylist, playlistFile);
-                logger.fine("HTML Writer: Copied playlist.xsl file to skin dir (" + skinHome + ")");
-                
-                if (new File("playlist.xsl").exists()) {
-                    try {
-                        new File("playlist.xsl").delete();
-                        logger.finest("HTML Writer: Deleted old playlist.xsl file");
-                    } catch (Exception error) {
-                        // Ignore
-                    }
-                }
-            } catch (Exception error) {
-                logger.severe("HTML Writer: Failed to copy playlist.xsl file to your skin dir (" + skinHome + ")");
-                logger.severe("HTML Writer: TV Playlist will NOT work until this is corrected");
-                // Set the playlist file to blank
-                playlistFile = "";
-            }
-        }
     }
 
     public MovieJukeboxHTMLWriter() {
@@ -108,7 +88,8 @@ public class MovieJukeboxHTMLWriter {
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
         }
-        // skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        playlistFile = new File("playlist.xsl");
         
         // Issue 310
         String transformerFactory = PropertiesUtil.getProperty("javax.xml.transform.TransformerFactory", null);
@@ -122,15 +103,15 @@ public class MovieJukeboxHTMLWriter {
             String baseName = FileTools.makeSafeFilename(movie.getBaseName());
             String tempFilename = tempRootPath + File.separator + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
-            File oldXmlFile = new File(rootPath + File.separator + baseName + ".xml");
-            File finalHtmlFile = new File(rootPath + File.separator + baseName + ".html");
+            File oldXmlFile = new File(rootPath, baseName + ".xml");
+            File finalHtmlFile = new File(rootPath, baseName + ".html");
             File tempHtmlFile = new File(tempFilename + ".html");
             Source xmlSource;
 
             if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempHtmlFile.getParentFile().mkdirs();
 
-                Transformer transformer = getTransformer(skinHome + File.separator + "detail.xsl");
+                Transformer transformer = getTransformer(new File(skinHome,  "detail.xsl"), rootPath);
 
                 // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
                 // the original source directory
@@ -199,7 +180,7 @@ public class MovieJukeboxHTMLWriter {
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempPlaylistFile.getParentFile().mkdirs();
 
-                Transformer transformer = getTransformer(playlistFile);
+                Transformer transformer = getTransformer(playlistFile, rootPath);
 
                 if (tempXmlFile.exists()) {
                     // Use the temp file
@@ -293,7 +274,7 @@ public class MovieJukeboxHTMLWriter {
 
             htmlFile.getParentFile().mkdirs();
 
-            Transformer transformer = getTransformer(skinHome + File.separator + "categories.xsl");
+            Transformer transformer = getTransformer(new File(skinHome, "categories.xsl"), rootPath);
 
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
             FileOutputStream outStream = new FileOutputStream(htmlFile);
@@ -410,7 +391,7 @@ public class MovieJukeboxHTMLWriter {
             File xmlFile = new File(detailsDir, filename + ".xml");
             File htmlFile = new File(detailsDir, filename + ".html");
 
-            Transformer transformer = getTransformer(skinHome + File.separator + "index.xsl");
+            Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
 
             FileOutputStream outStream = new FileOutputStream(htmlFile);
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
@@ -431,16 +412,22 @@ public class MovieJukeboxHTMLWriter {
     /**
      * Creates and caches Transformer, one for every xsl file.
      */
-    public static synchronized Transformer getTransformer(String xslFileName) throws TransformerConfigurationException {
+    public static synchronized Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) throws TransformerConfigurationException {
         // Gabriel: transformers are NOT thread safe; use thread name to make get the cache thread specific
         // the method itself must be synchronized because transformerCache map is modified inside
-        String lookupID = Thread.currentThread().getId() + ":" + xslFileName;
+        String lookupID = Thread.currentThread().getId() + ":" + xslFile.getAbsolutePath();
         if (! transformerCache.containsKey(lookupID)) {
             if (transformerFactory == null) {
                 transformerFactory = TransformerFactory.newInstance();
             }
-            Source xslSource = new StreamSource(new File(xslFileName));
+            Source xslSource = new StreamSource(xslFile);
             Transformer transformer = transformerFactory.newTransformer(xslSource);
+            transformer.setParameter("homePage", indexFile);
+            transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
+            for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
+                if (e.getKey() != null && e.getValue() != null)
+                    transformer.setParameter(e.getKey().toString(), e.getValue().toString());
+            }
             transformerCache.put(lookupID, transformer);
         }
         return transformerCache.get(lookupID);

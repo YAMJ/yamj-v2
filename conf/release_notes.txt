@@ -25,6 +25,7 @@ MovieJukebox 1.7 BETA
   - Fixed defect #1125 Better handling of non-English characters in the command window output
   - Enhancement        Default skin: Highlighting of current category
   - Enhancement        Default skin: "T9"-navigation over title first letters  
+  - Enhancement  #1129 Skins: XSL parameters instead of variables (preferences.xsl)
 
 MovieJukebox 1.6
 ----------------
