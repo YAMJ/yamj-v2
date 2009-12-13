@@ -63,13 +63,17 @@ public class FileTools {
         }
     }
 
-    public static void copy(InputStream is, OutputStream os) throws IOException {
-        try {
+    public static int copy(InputStream is, OutputStream os) throws IOException {
+    	int bytesCopied = 0;
+    	try {
             while (true) {
                 synchronized (buffer) {
                     int amountRead = is.read(buffer);
                     if (amountRead == -1) {
                         break;
+                    }
+                    else {
+                    	bytesCopied += amountRead;
                     }
                     os.write(buffer, 0, amountRead);
                 }
@@ -90,6 +94,7 @@ public class FileTools {
                 // ignore
             }
         }
+        return bytesCopied;
     }
 
     public static void copyFile(String src, String dst) {
