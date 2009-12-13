@@ -45,8 +45,9 @@ public class WebBrowser {
     private String mjbProxyUsername;
     private String mjbProxyPassword;
     private String mjbEncodedPassword;
+    private int imageRetryCount;
 
-    private static Map<String, String> hostgrp= new HashMap<String, String>();
+    private static Map<String, String> hostgrp = new HashMap<String, String>();
     private static Map<String, Semaphore> grouplimits = null;
     
     /**
@@ -115,6 +116,12 @@ public class WebBrowser {
         mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort", null);
         mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
         mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
+        
+        imageRetryCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.imageRetryCount", "3"));
+        if (imageRetryCount < 1) {
+            imageRetryCount = 1;
+        }
+        logger.finest("WebBrowser: Will try to download images up to " + imageRetryCount + " times");
 
         if (mjbProxyUsername != null) {
             mjbEncodedPassword = mjbProxyUsername + ":" + mjbProxyPassword;
@@ -193,23 +200,39 @@ public class WebBrowser {
         URL url = new URL(imageURL);
         Semaphore s = getSemaphore(url.getHost().toLowerCase());
         s.acquireUninterruptibly();
-        try{
-            URLConnection cnx = url.openConnection();
+        boolean success = false;
+        int retryCount = imageRetryCount;
+        while (!success && retryCount > 0) {
+            try{
+                URLConnection cnx = url.openConnection();
 
-            // A workaround for the need to use a referrer for thetvdb.com
-            if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
-                cnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
-
-            if (mjbProxyUsername != null) {
-                cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
+                // A workaround for the need to use a referrer for thetvdb.com
+                if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
+                    cnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
+           
+                if (mjbProxyUsername != null) {
+                    cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
+                }
+           
+                sendHeader(cnx);
+                readHeader(cnx);
+           
+                int reportedLength = cnx.getContentLength();
+                java.io.InputStream inputStream = cnx.getInputStream(); 
+                int inputStreamLength = FileTools.copy(inputStream, new FileOutputStream(imageFile));
+            
+                if (reportedLength < 0 || reportedLength == inputStreamLength) {
+                    success = true;
+                } else {
+                    retryCount--;
+                    logger.finest("WebBrowser: Image download attempt failed, bytes expected: " +  reportedLength + ", bytes received: " + inputStreamLength);
+                }
+            } finally {
+                s.release();
             }
-
-            sendHeader(cnx);
-            readHeader(cnx);
-
-            FileTools.copy(cnx.getInputStream(), new FileOutputStream(imageFile));
-        } finally {
-            s.release();
+        }
+        if (!success) {
+            logger.finest("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
         }
     }
 

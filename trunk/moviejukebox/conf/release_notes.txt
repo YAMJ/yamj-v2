@@ -26,6 +26,7 @@ MovieJukebox 1.7 BETA
   - Enhancement        Default skin: Highlighting of current category
   - Enhancement        Default skin: "T9"-navigation over title first letters  
   - Enhancement  #1129 Skins: XSL parameters instead of variables (preferences.xsl)
+  - Enhancement  #1136 Retry downloading incomplete images (Artwork)
 
 MovieJukebox 1.6
 ----------------
