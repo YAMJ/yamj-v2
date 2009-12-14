@@ -899,7 +899,13 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("lastPart", Integer.toString(mf.getLastPart()));
             writer.writeAttribute("title", mf.getTitle());
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
-            writer.writeAttribute("size", Long.toString(mf.getFile().length()));
+            // Fixes an issue with null file lengths
+            try {
+                writer.writeAttribute("size", Long.toString(mf.getFile().length()));
+            } catch (Exception error) {
+                logger.finest("XML Writer: File length error for file " + mf.getFilename());
+                writer.writeAttribute("size", "0");
+            }
             writer.writeStartElement("fileURL");
             writer.writeCharacters(mf.getFilename()); // should already be a URL
             writer.writeEndElement();
