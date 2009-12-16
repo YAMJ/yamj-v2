@@ -19,7 +19,7 @@ import java.util.Collection;
 public class MediaLibraryPath {
 
     String path;
-    String nmtRootPath;
+    String playerRootPath;
     Collection<String> excludes;
     String description;
     boolean scrapeLibrary = true;
@@ -33,12 +33,12 @@ public class MediaLibraryPath {
         this.path = path;
     }
 
-    public String getNmtRootPath() {
-        return nmtRootPath;
+    public String getPlayerRootPath() {
+        return playerRootPath;
     }
 
-    public void setNmtRootPath(String nmtRootPath) {
-        this.nmtRootPath = nmtRootPath;
+    public void setPlayerRootPath(String playerRootPath) {
+        this.playerRootPath = playerRootPath;
     }
 
     public Collection<String> getExcludes() {
@@ -65,7 +65,7 @@ public class MediaLibraryPath {
     public String toString() {
         StringBuffer sb = new StringBuffer("[MediaLibraryPath");
         sb.append("[path=").append(path).append("]");
-        sb.append("[nmtRootPath=").append(nmtRootPath).append("]");
+        sb.append("[playerRootPath=").append(playerRootPath).append("]");
         sb.append("[scrape=").append(scrapeLibrary).append("]");
         for (String excluded : excludes) {
             sb.append("[excludes=").append(excluded).append("]");

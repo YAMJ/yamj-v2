@@ -252,16 +252,16 @@ public class MovieDirectoryScanner {
 
             if (contentFiles[i].isDirectory()) {
                 // For DVD images
-                movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
+                movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
             } else {
                 if (isBluRay && playFullBluRayDisk) {
                     // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
-                    String tempFilename = srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
+                    String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
                     tempFilename = tempFilename.substring(0, tempFilename.lastIndexOf("BDMV"));
                     movieFile.setFilename(tempFilename);
                 } else {
                     // Normal movie file so link to it
-                    movieFile.setFilename(srcPath.getNmtRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
+                    movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
                 }
             }
             movieFile.setPart(i + 1);
