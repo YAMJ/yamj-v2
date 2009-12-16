@@ -121,7 +121,6 @@ public class WebBrowser {
         if (imageRetryCount < 1) {
             imageRetryCount = 1;
         }
-        logger.finest("WebBrowser: Will try to download images up to " + imageRetryCount + " times");
 
         if (mjbProxyUsername != null) {
             mjbEncodedPassword = mjbProxyUsername + ":" + mjbProxyPassword;
