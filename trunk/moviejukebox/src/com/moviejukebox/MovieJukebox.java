@@ -414,7 +414,12 @@ public class MovieJukebox {
             movieLibraryPaths = new ArrayList<MediaLibraryPath>();
             MediaLibraryPath mlp = new MediaLibraryPath();
             mlp.setPath(source);
-            mlp.setNmtRootPath(getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/"));
+            // We'll get the new playerpath value first, then the nmt path so it overrides the default player path
+            String playerRootPath = getProperty("mjb.playerRootPath", "");
+            if (playerRootPath.equals("")) {
+                playerRootPath = getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/");
+            }            
+            mlp.setPlayerRootPath(playerRootPath);
             mlp.setScrapeLibrary(true);
             mlp.setExcludes(new ArrayList<String>());
             movieLibraryPaths.add(mlp);
@@ -1182,7 +1187,8 @@ public class MovieJukebox {
                 HierarchicalConfiguration sub = it.next();
                 // sub contains now all data about a single medialibrary node
                 String path = sub.getString("path");
-                String nmtpath = sub.getString("nmtpath");
+                String nmtpath = sub.getString("nmtpath"); // This should be depreciated
+                String playerpath = sub.getString("playerpath");
                 String description = sub.getString("description");
                 boolean scrapeLibrary = true;
 
@@ -1203,10 +1209,19 @@ public class MovieJukebox {
                     }
                 }
 
+                // Note that the nmtpath should no longer be used in the library file and instead "playerpath" should be used.
                 // Check that the nmtpath terminates with a "/" or "\"
-                if (!(nmtpath.endsWith("/") || nmtpath.endsWith("\\"))) {
-                    // This is the NMTPATH so add the unix path separator rather than File.separator
-                    nmtpath = nmtpath + "/";
+                if (nmtpath != null) {
+                    if (!(nmtpath.endsWith("/") || nmtpath.endsWith("\\"))) {
+                        // This is the NMTPATH so add the unix path separator rather than File.separator
+                        nmtpath = nmtpath + "/";
+                    }
+                }
+
+                // Check that the playerpath terminates with a "/" or "\"
+                if (!(playerpath.endsWith("/") || playerpath.endsWith("\\"))) {
+                    // This is the PlayerPath so add the Unix path separator rather than File.separator
+                    playerpath = playerpath + "/";
                 }
 
                 List<String> excludes = sub.getList("exclude[@name]");
@@ -1214,7 +1229,11 @@ public class MovieJukebox {
                 if (new File(path).exists()) {
                     MediaLibraryPath medlib = new MediaLibraryPath();
                     medlib.setPath(path);
-                    medlib.setNmtRootPath(nmtpath);
+                    if (playerpath.equals("")) {
+                        medlib.setPlayerRootPath(nmtpath);
+                    } else {
+                        medlib.setPlayerRootPath(playerpath);
+                    }
                     medlib.setExcludes(excludes);
                     medlib.setDescription(description);
                     medlib.setScrapeLibrary(scrapeLibrary);
