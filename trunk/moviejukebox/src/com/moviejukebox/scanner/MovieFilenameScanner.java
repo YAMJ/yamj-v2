@@ -357,7 +357,6 @@ public class MovieFilenameScanner {
                 while (ematcher.find()) {
                     dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
                 }
-
             }
         }
 
