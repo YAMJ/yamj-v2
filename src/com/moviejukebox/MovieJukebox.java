@@ -1219,9 +1219,11 @@ public class MovieJukebox {
                 }
 
                 // Check that the playerpath terminates with a "/" or "\"
-                if (!(playerpath.endsWith("/") || playerpath.endsWith("\\"))) {
-                    // This is the PlayerPath so add the Unix path separator rather than File.separator
-                    playerpath = playerpath + "/";
+                if (playerpath != null) {
+                    if (!(playerpath.endsWith("/") || playerpath.endsWith("\\"))) {
+                        // This is the PlayerPath so add the Unix path separator rather than File.separator
+                        playerpath = playerpath + "/";
+                    }
                 }
 
                 List<String> excludes = sub.getList("exclude[@name]");
@@ -1229,7 +1231,7 @@ public class MovieJukebox {
                 if (new File(path).exists()) {
                     MediaLibraryPath medlib = new MediaLibraryPath();
                     medlib.setPath(path);
-                    if (playerpath.equals("")) {
+                    if (playerpath == null || playerpath.equals("")) {
                         medlib.setPlayerRootPath(nmtpath);
                     } else {
                         medlib.setPlayerRootPath(playerpath);
