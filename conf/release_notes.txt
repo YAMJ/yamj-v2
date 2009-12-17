@@ -24,6 +24,7 @@ MovieJukebox 1.7 BETA
   - Enhancement  #1124 Hebrew skin - playing BluRay backups with menu in C200
   - Fixed defect #1125 Better handling of non-English characters in the command window output
   - Enhancement  #1129 Skins: XSL parameters instead of variables (preferences.xsl)
+  - Fixed defect #1130 YAMJ gives a titleless episode 00 the same title as episode 01
   - Enhancement  #1136 Retry downloading incomplete images (Artwork)
   - Enhancement  #1140 Add WEB-DL and iTunes to list of source keywords
   - Enhancement        Default skin: Highlighting of current category

@@ -286,6 +286,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (episode != null) {
+                        System.out.println(movie.getTitle() + " " + movie.getSeason() + " " + part + " NOT NULL");
+                        // FIXME SB: I think this causes an issue when re-scanning multi-episode files/disks 
                         if (first) {
                             first = false;
                         } else {
@@ -303,8 +305,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             // Director is a single entry, not a list, so only get the first director
                             movie.setDirector(episode.getDirectors().get(0));
                         }
-
-                        sb.append(episode.getEpisodeName());
+                        
+                        if (file.getFirstPart() > 0)
+                            sb.append(episode.getEpisodeName());
 
                         if (includeEpisodePlots) {
                             file.setPlot(part, episode.getOverview());
@@ -315,9 +318,22 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         } else {
                             file.setVideoImageURL(part, Movie.UNKNOWN);
                         }
+                    } else {
+                        // This occurs if the episode is not found
+                        System.out.println(movie.getTitle() + " " + movie.getSeason() + " " + part + " NULL");
+                        if (movie.getSeason() > 0 && file.getFirstPart() == 0) {
+                            // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
+                            if (file.hasTitle()) {
+                                sb.append(file.getTitle());
+                            } else {
+                                sb.append("Special");
+                            }
+                        }
+
                     }
                 }
                 String title = sb.toString();
+                
                 if (!sb.equals("") && !file.hasTitle()) {
                     file.setTitle(title);
                 }
