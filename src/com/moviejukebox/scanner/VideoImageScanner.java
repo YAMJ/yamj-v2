@@ -217,7 +217,6 @@ public class VideoImageScanner {
                             mf.setVideoImageFilename(part, genericVideoImageFilename);
                         }
                     }
-logger.fine("VI Filename: " + mf.getVideoImageFilename(part));
                     String videoimageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
                     String finalDestinationFileName = jukeboxDetailsRoot + File.separator + videoimageFilename;
                     String tmpDestFilename = tempJukeboxDetailsRoot + File.separator + videoimageFilename;

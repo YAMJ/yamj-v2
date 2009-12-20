@@ -192,7 +192,6 @@ public class BDRipScanner {
 
         fileReader.close();
 
-
         byte[] fileType = new byte[8];
         System.arraycopy(data, 0, fileType, 0, fileType.length);
 
@@ -222,7 +221,6 @@ public class BDRipScanner {
 
         int streamFileCount =
                 ((((int) playlistData[2] & 0xFF) << 8) + ((int) playlistData[3] & 0xFF));
-
 
         ret.streamList = new String[streamFileCount];
 
