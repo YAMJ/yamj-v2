@@ -133,11 +133,14 @@ public class AppleTrailersPlugin {
                 MovieFile mf = movie.getFirstFile();
                 String parentPath = mf.getFile().getParent();
                 String name = mf.getFile().getName();
-                
                 String basename;
+
                 if (mf.getFilename().toUpperCase().endsWith("/VIDEO_TS")) {
                     parentPath += File.separator + name;
                     basename = name;
+                } else if (mf.getFile().getAbsolutePath().toUpperCase().contains("BDMV")) {
+                    parentPath = parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1);
+                    basename = parentPath.substring(parentPath.lastIndexOf(File.separator) + 1);
                 } else {
                     int index = name.lastIndexOf(".");
                     basename = index == -1 ? name : name.substring(0, index);
@@ -168,7 +171,7 @@ public class AppleTrailersPlugin {
                     movie.addExtraFile(new ExtraFile(tmf));
                     //movie.setTrailer(true);
                     
-                } else if (trailerDownload(movie,trailerRealUrl,trailerFile)) {
+                } else if (trailerDownload(movie, trailerRealUrl, trailerFile)) {
                     tmf.setFilename(trailerPlayFileName);
                     movie.addExtraFile(new ExtraFile(tmf));
                     //movie.setTrailer(true);
@@ -332,7 +335,6 @@ public class AppleTrailersPlugin {
                 trailersUrl.add(movieUrl);
         }
     }
-     
 
     private void selectBestTrailer(ArrayList<String> trailersUrl,ArrayList<String> bestTrailersUrl) {
         
@@ -458,7 +460,6 @@ public class AppleTrailersPlugin {
         }
     }
 
-
     private String getTrailerTitle(String url) {
         int start=url.lastIndexOf('/');
         int end=url.indexOf(".mov",start);
@@ -551,7 +552,7 @@ public class AppleTrailersPlugin {
                     lastStatus = status;
                     // this runs in a thread, so there is no way to output on one line...
                     // try to keep it visible at least...
-                    System.out.println(stats.statusString() + " for "+movie.getTitle());
+                    System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString());
                 }
             }, 1000, 1000);
 
@@ -573,7 +574,8 @@ public class AppleTrailersPlugin {
                 stats.bytes(len);
             }
             out.close();
-            System.out.println(stats.statusString() + " for "+movie.getTitle()); // Output the final stat information (100%)
+            System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
+
             return true;
 
         } catch (Exception error) {
