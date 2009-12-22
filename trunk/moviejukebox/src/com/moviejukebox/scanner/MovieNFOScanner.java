@@ -358,6 +358,13 @@ public class MovieNFOScanner {
                                 ExtraFile ef = new ExtraFile();
                                 ef.setNewFile(false);
                                 ef.setFilename(trailer);
+                                // The title isn't contained in the NFO file so we'll need to default one
+                                if (trailer.contains("youtube")) {
+                                    ef.setTitle("TRAILER-YouTube");
+                                } else {
+                                    ef.setTitle("TRAILER-NFO");
+                                }
+                                
                                 movie.addExtraFile(ef);
                             }
                         } else if (tag.equalsIgnoreCase("genre")) {

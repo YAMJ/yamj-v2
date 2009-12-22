@@ -27,6 +27,7 @@ MovieJukebox 1.7 BETA
   - Fixed defect #1130 YAMJ gives a titleless episode 00 the same title as episode 01
   - Enhancement  #1136 Retry downloading incomplete images (Artwork)
   - Enhancement  #1140 Add WEB-DL and iTunes to list of source keywords
+  - Fixed defect #1147 Trailer tag in NFO being interpreted as an EXTRA by YAMJ
   - Enhancement        Default skin: Highlighting of current category
   - Enhancement        Default skin: "T9"-navigation over title first letters  
 
