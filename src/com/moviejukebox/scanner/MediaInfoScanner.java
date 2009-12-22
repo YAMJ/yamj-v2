@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -94,9 +93,7 @@ public class MediaInfoScanner {
 
     @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
-        Random generator = new Random();
-        int randomNumber = generator.nextInt();
-        String randomDirName = "./isoTEMP/" + randomNumber + "/VIDEO_TS";
+        String randomDirName = "./isoTEMP/" + Thread.currentThread().getName() + "/VIDEO_TS";
         
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
@@ -153,7 +150,7 @@ public class MediaInfoScanner {
                 isoList[nbFiles].delete();
             }
             tempRep.delete();
-            new File("./isoTEMP/" + randomNumber).delete();
+            new File("./isoTEMP/" + Thread.currentThread().getName()).delete();
         } else {
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
         }
