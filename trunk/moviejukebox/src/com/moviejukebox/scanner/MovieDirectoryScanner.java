@@ -169,12 +169,16 @@ public class MovieDirectoryScanner {
         }
 
         String relativeFileNameLower = relativeFilename.toLowerCase();
+        String jukeboxName = PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox");
         for (String excluded : srcPath.getExcludes()) {
             if (excluded.length() > 0) {
                 excluded = excluded.replace("/", File.separator);
                 excluded = excluded.replace("\\", File.separator);
                 if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
-                    logger.fine((isDirectory ? "Directory " : "File ") + filename + " excluded.");
+                    // Don't print a message for the exclusion of Jukebox files
+                    if (!relativeFileNameLower.contains(jukeboxName)) {
+                        logger.fine((isDirectory ? "Directory " : "File ") + filename + " excluded.");
+                    }
                     return true;
                 }
             }
