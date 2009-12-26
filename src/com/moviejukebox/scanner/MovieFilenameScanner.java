@@ -222,7 +222,7 @@ public class MovieFilenameScanner {
             };
 
             for (String s : sourceKeywords.split(",")) {
-                // Set the default the long way to allow 'keyword.XXX=' to blank the value instead of using default
+                // Set the default the long way to allow 'keyword.???=' to blank the value instead of using default
                 String mappedKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords." + s, null);
                 if (null == mappedKeywords) {
                     mappedKeywords = mappedKeywordsDefaults.get(s);
@@ -271,7 +271,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Case insensitive pattern with word delimiters around
      */
-    private static final Pattern iwpatt(String regex) {
+    public static final Pattern iwpatt(String regex) {
         return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN, Pattern.CASE_INSENSITIVE);
     }
 
