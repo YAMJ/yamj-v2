@@ -25,11 +25,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -45,6 +48,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -56,6 +60,7 @@ import com.moviejukebox.tools.XMLWriter;
  * 
  * @author Julien
  */
+@SuppressWarnings("serial")
 public class MovieJukeboxXMLWriter {
 
     private boolean forceXMLOverwrite;
@@ -67,6 +72,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
+    private static boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk","true"));
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
@@ -78,6 +84,36 @@ public class MovieJukeboxXMLWriter {
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
     }
+    
+    private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
+        {
+            String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD,RAR");
+
+            HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
+                {
+                    put("ZCD","ISO,IMG,VOB,MDF,NRG,BIN");
+                    put("VOD","");
+                    put("RAR","RAR");
+                }
+            };
+
+            for (String s : scannerTypes.split(",")) {
+                // Set the default the long way to allow 'keyword.???=' to blank the value instead of using default
+                String mappedScannerTypes = PropertiesUtil.getProperty("filename.scanner.types." + s, null);
+                if (null == mappedScannerTypes) {
+                    mappedScannerTypes = scannerTypeDefaults.get(s);
+                }
+
+                String patt = s;
+                if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
+                    for (String t : mappedScannerTypes.split(",")) {
+                        patt += "|" + t;
+                    }
+                }
+                put(s, MovieFilenameScanner.iwpatt(patt));
+            }
+        }
+    };
 
     public MovieJukeboxXMLWriter() {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
@@ -909,6 +945,12 @@ public class MovieJukeboxXMLWriter {
             writer.writeStartElement("fileURL");
             writer.writeCharacters(mf.getFilename()); // should already be a URL
             writer.writeEndElement();
+            
+            // This code determines the playlink code for a given file.
+            //logger.fine("Type Suffix for " + mf.getFile().getName() + ": " + calculateTypeSuffix(mf));
+            writer.writeStartElement("playLink");
+            writer.writeCharacters(calculatePlayLink(mf));
+            writer.writeEndElement();
 
             if (includeEpisodePlots || includeVideoImages) {
                 for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
@@ -972,5 +1014,51 @@ public class MovieJukeboxXMLWriter {
             writer.flush();
             writer.close();
         }
+    }
+    
+    /**
+     * Calculate the playlink additional information for each file.
+     * @param MovieFile mf
+     * @return String containing the playlink
+     */
+    private String calculatePlayLink(MovieFile mf) {
+        File file = mf.getFile();
+        String filename = file.getName();
+        String extension = getExtension(file);
+        String returnValue = "";
+        
+        if (playFullBluRayDisk && filename.toUpperCase().contains("BDMV")) {
+            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.BLURAY", "BLURAY") + " ";
+        }
+        
+        if (filename.toUpperCase().contains("VIDEO_TS")) {
+            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VIDEO_TS", "VIDEO_TS") + " ";
+        }
+
+        for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
+            Matcher matcher = e.getValue().matcher(extension);
+            if (matcher.find()) {
+                returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey(), "") + " ";
+            }
+        }
+        
+        // Default to VOD if there's no other type found
+        if (returnValue.equals("")) {
+            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "") + " ";
+        }
+        
+        return returnValue.trim();
+    }
+    
+    private String getExtension(File file) {
+        String filename = file.getName();
+        
+        if (file.isFile()) {
+            int i = filename.lastIndexOf(".");
+            if (i > 0) {
+                return (filename.substring(i + 1));
+            }
+        }
+        return "";
     }
 }
