@@ -71,7 +71,7 @@ public class MovieNFOScanner {
      */
     public static void scan(Movie movie, List<File> nfoFiles) {
         for (File nfoFile : nfoFiles) {
-            logger.finest("Scanning NFO file for Infos : " + nfoFile.getName());
+            logger.finest("Scanning NFO file for Infos: " + nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirtyNFO(true);
 
@@ -257,7 +257,7 @@ public class MovieNFOScanner {
 
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
-                    logger.finest("In parseMovieNFO found new startElement=" + tag);
+                    // logger.finest("In parseMovieNFO found new startElement=" + tag);
                     if (tag.equalsIgnoreCase("movie")) {
                         isMovieTag = true;
                     }
