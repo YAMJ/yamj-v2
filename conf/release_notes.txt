@@ -29,6 +29,7 @@ MovieJukebox 1.7 BETA
   - Enhancement  #1140 Add WEB-DL and iTunes to list of source keywords
   - Fixed defect #1146 Apple Movie Trailers not downloaded in the proper BDMV directory with BluRays
   - Fixed defect #1147 Trailer tag in NFO being interpreted as an EXTRA by YAMJ
+  - Fixed defect #1166 Correct the URL for streaming Apple Trailers
   - Enhancement        Default skin: Highlighting of current category
   - Enhancement        Default skin: "T9"-navigation over title first letters  
 

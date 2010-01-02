@@ -93,7 +93,7 @@ public class AppleTrailersPlugin {
         
         getTrailerSubUrl(trailerPageUrl, trailersUrl);
         
-        selectBestTrailer(trailersUrl,bestTrailersUrl);
+        selectBestTrailer(trailersUrl, bestTrailersUrl);
 
         int trailerCnt = bestTrailersUrl.size();
         int trailerDownloadCnt = 0;
@@ -126,10 +126,19 @@ public class AppleTrailersPlugin {
             
             // Check if we need to download the trailer, or just link to it
             if (!configDownload) {
+                // Just link to the trailer
+                int underscore = trailerRealUrl.lastIndexOf("_");
+                if (underscore > 0) {
+                    if (trailerRealUrl.substring(underscore + 1, underscore + 2).equals("h")) {
+                        // remove the "h" from the trailer url for streaming
+                        trailerRealUrl = trailerRealUrl.substring(0, underscore + 1) + trailerRealUrl.substring(underscore + 2);
+                    }
+                }
                 tmf.setFilename(trailerRealUrl);
                 movie.addExtraFile(new ExtraFile(tmf));
                 //movie.setTrailer(true);
             } else {
+                // Download the trailer
                 MovieFile mf = movie.getFirstFile();
                 String parentPath = mf.getFile().getParent();
                 String name = mf.getFile().getName();
