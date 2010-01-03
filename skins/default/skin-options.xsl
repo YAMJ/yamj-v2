@@ -15,7 +15,7 @@
 <xsl:variable name="skin-certification">false</xsl:variable>
 
 <!-- Index Option #4:  This turns parental controls on in the index -->
-<xsl:variable name="parental-control-on">true</xsl:variable>
+<xsl:variable name="parental-control-on">false</xsl:variable>
 
 <!--Index Option #5:  This sets the number of children you have, Only applies if you have parental-control-on set to true.  The value can only be 1,2 or 3 currently-->
 <xsl:variable name="number-of-children">3</xsl:variable>
