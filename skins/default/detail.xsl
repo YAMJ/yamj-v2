@@ -49,6 +49,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
         <xsl:attribute name="TVID">HOME</xsl:attribute>
         <xsl:attribute name="href"><xsl:value-of select="$homePage" /></xsl:attribute>
       </a>
+      <xsl:if test="$parental-control-on != 'true'">
       <a TVID="PGDN">
         <xsl:attribute name="href"><xsl:choose><xsl:when
           test="contains(next,'UNKNOWN')"><xsl:value-of select="first" />.html</xsl:when><xsl:otherwise><xsl:value-of
@@ -59,6 +60,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
           test="contains(previous,'UNKNOWN')"><xsl:value-of select="last" />.html</xsl:when><xsl:otherwise><xsl:value-of
           select="previous" />.html</xsl:otherwise></xsl:choose></xsl:attribute>
       </a>
+      </xsl:if>
     </td>
   </tr>
 

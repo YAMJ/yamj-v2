@@ -14,6 +14,30 @@
 <!-- Index Option #3: Show movie (certification) rating after title (and year if applicable) -->
 <xsl:variable name="skin-certification">false</xsl:variable>
 
+<!-- Index Option #4:  This turns parental controls on in the index -->
+<xsl:variable name="parental-control-on">true</xsl:variable>
+
+<!--Index Option #5:  This sets the number of children you have, Only applies if you have parental-control-on set to true.  The value can only be 1,2 or 3 currently-->
+<xsl:variable name="number-of-children">3</xsl:variable>
+
+<!-- Index Option #6: Age of your youngest child, if applicable (NOTE: use this one if you only have one child)-->
+<xsl:variable name="childs-age-youngest">8</xsl:variable>
+
+<!-- Index Option #7: Age of your middle child, if applicable-->
+<xsl:variable name="childs-age-middle">12</xsl:variable>
+
+<!-- Index Option #8: Age of your oldest child, if applicable-->
+<xsl:variable name="childs-age-oldest">14</xsl:variable>
+
+<!-- Index Option #9: This is the password to give to your middle child (if applicable)-->
+<xsl:variable name="parental-password-middle">aaa</xsl:variable>
+
+<!-- Index Option #10: This is the password to give to your oldest child-->
+<xsl:variable name="parental-password-oldest">jjj</xsl:variable>
+
+<!-- Index Option #11: This is the master password for parental controls, it works on all movies-->
+<xsl:variable name="parental-password-master">ttt</xsl:variable>
+
 
 
 <!-- ************Detail Page Options***************************** -->

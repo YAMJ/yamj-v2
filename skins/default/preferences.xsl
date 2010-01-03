@@ -1,345 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-
-<!-- Common parameters -->
-
-<xsl:param name="homePage"/>
-<xsl:param name="rootPath"/>
-
-<!-- Copy of the YAMJ properties. All unused properties can be removed. -->
-
-
-<xsl:param name="mjb.libraryRoot"/>
-
-<xsl:param name="mjb.jukeboxRoot"/>
-
-<xsl:param name="mjb.detailsDirName"/>
-
-<xsl:param name="mjb.forceXMLOverwrite"/>
-
-<xsl:param name="mjb.forceThumbnailsOverwrite"/>
-
-<xsl:param name="mjb.forcePostersOverwrite"/>
-
-<xsl:param name="mjb.forceHTMLOverwrite"/>
-
-<xsl:param name="mjb.forceFanartOverwrite"/>
-
-<xsl:param name="mjb.forceBannersOverwrite"/>
-
-<xsl:param name="mjb.forceVideoImagesOverwrite"/>
-
-<xsl:param name="mjb.nmtRootPath"/>
-
-
-<xsl:param name="mjb.extensions"/>
-
-<xsl:param name="mjb.skin.dir"/>
-
-<xsl:param name="mjb.xmlGenreFile"/>
-
-<xsl:param name="mjb.xmlCategoryFile"/>
-
-<xsl:param name="mjb.newdays"/>
-<xsl:param name="mjb.newcount"/>
-
-<xsl:param name="mjb.myiHome.IP"/>
-
-<xsl:param name="mjb.playlist.IgnoreExtensions"/>
-
-<xsl:param name="mjb.playlist.generateMultiPart"/>
-
-<xsl:param name="mjb.forceNFOEncoding"/>
-
-<xsl:param name="mjb.excludeMultiPartBluRay"/>
-
-<xsl:param name="mjb.playFullBluRayDisk"/>
-
-<xsl:param name="mjb.scanner.fanartToken"/>
-<xsl:param name="mjb.scanner.bannerToken"/>
-<xsl:param name="mjb.scanner.posterToken"/>
-<xsl:param name="mjb.scanner.thumbnailToken"/>
-<xsl:param name="mjb.scanner.videoimageToken"/>
-
-<xsl:param name="mjb.appendDateToLogFile"/>
-
-<xsl:param name="mjb.logTimeStamp"/>
-
-<xsl:param name="mjb.logThreadName"/>
-
-<xsl:param name="mjb.MaxThreadsScan"/>
-
-<xsl:param name="mjb.MaxThreadsProcess"/>
-
-<xsl:param name="mjb.MaxDownloadSlots"/>
-
-<xsl:param name="filename.scanner.language.detection"/>
-
-<xsl:param name="filename.scanner.skip.keywords"/>
-
-<xsl:param name="filename.movie.versions.keywords"/>
-
-<xsl:param name="filename.scanner.source.keywords"/>
-
-<xsl:param name="filename.scanner.source.keywords.SDTV"/>
-<xsl:param name="filename.scanner.source.keywords.D-THEATER"/>
-<xsl:param name="filename.scanner.source.keywords.HDDVD"/>
-<xsl:param name="filename.scanner.source.keywords.BluRay"/>
-<xsl:param name="filename.scanner.source.keywords.DVDRip"/>
-
-<xsl:param name="filename.nfo.directory"/>
-
-<xsl:param name="filename.nfo.parentDirs"/>
-
-<xsl:param name="filename.nfo.checknewer"/>
-
-<xsl:param name="filename.extras.keywords"/>
-
-<xsl:param name="poster.scanner.searchForExistingCoverArt"/>
-
-<xsl:param name="poster.scanner.coverArtExtensions"/>
-
-
-
-<xsl:param name="poster.scanner.useFolderImage"/>
-
-<xsl:param name="poster.scanner.SearchPriority"/>
-
-<xsl:param name="poster.scanner.Validate"/>
-
-<xsl:param name="poster.scanner.ValidateMatch"/>
-
-<xsl:param name="poster.scanner.ValidateAspect"/>
-
-
-<xsl:param name="mjb.singleSeriesPage"/>
-
-<xsl:param name="mjb.sets.minSetCount"/>
-
-<xsl:param name="mjb.sets.requireAll"/>
-
-<xsl:param name="mjb.categories.indexList"/>
-
-<xsl:param name="mjb.categories.displayList"/>
-
-<xsl:param name="mjb.categories.minCount"/>
-
-<xsl:param name="mjb.sets.indexFanart"/>
-
-<xsl:param name="mediainfo.home"/>
-<xsl:param name="mediainfo.metadata.enable"/>
-
-
-
-
-<xsl:param name="mjb.subtitles.ExcludeFilesWithoutExternal"/>
-
-<xsl:param name="appletrailers.download"/>
-<xsl:param name="appletrailers.max"/>
-<xsl:param name="appletrailers.typesinclude"/>
-<xsl:param name="appletrailers.trailertypes"/>
-
-
-
-<xsl:param name="mjb.listing.generate"/>
-<xsl:param name="mjb.listing.plugin"/>
-<xsl:param name="mjb.listing.output.filename"/>
-<xsl:param name="mjb.listing.types"/>
-<xsl:param name="mjb.listing.GroupByType"/>
-<xsl:param name="mjb.listing.clear.UNKNOWN"/>
-
-<xsl:param name="mjb.charset.unsafeFilenameChars"/>
-<xsl:param name="mjb.charset.filenameEncodingEscapeChar"/>
-
-<xsl:param name="mjb.internet.plugin"/>
-
-<xsl:param name="mjb.internet.tv.plugin"/>
-
-
-<xsl:param name="imdb.id.search"/>
-
-<xsl:param name="imdb.perfect.match"/>
-
-<xsl:param name="thetvdb.language"/>
-<xsl:param name="thetvdb.dvd.episodes"/>
-
-<xsl:param name="filmweb.id.search"/>
-
-<xsl:param name="kinopoisk.plot.maxlength"/>
-
-<xsl:param name="kinopoisk.rating"/>
-
-<xsl:param name="moviemeter.id.search"/>
- 
-<xsl:param name="filmdelta.plot.maxlength"/>
-
-<xsl:param name="filmdelta.rating"/>
-
-<xsl:param name="filmdelta.getcdonposter"/>
-
-<xsl:param name="sratim.subtitle"/>
-
-<xsl:param name="sratim.downloadOnlyHebrew"/>
-
-<xsl:param name="sratim.username"/>
-
-<xsl:param name="sratim.password"/>
-
-<xsl:param name="sratim.code"/>
-
-<xsl:param name="sratim.textMatchSimilarity"/>
-
-<!-- API keys -->
-<xsl:param name="API_KEY_TheTVDb"/>
-<xsl:param name="API_KEY_TheMovieDB"/>
-<xsl:param name="API_KEY_MovieMeter"/>
-
-
-<!-- Skin properties -->
-<xsl:param name="mjb.homePage"/>
-<xsl:param name="mjb.indexFile"/>
-
-<xsl:param name="mjb.clean.skip"/>
-
-<xsl:param name="genres.max"/>
-
-<xsl:param name="actors.max"/>
-
-<xsl:param name="imdb.plot"/>
-
-<xsl:param name="mjb.fullMovieInfoInIndexes"/>
-
-<xsl:param name="filmweb.plot"/>
-
-<xsl:param name="fanart.movie.download"/>
-<xsl:param name="fanart.movie.width"/>
-<xsl:param name="fanart.movie.height"/>
-
-<xsl:param name="fanart.tv.download"/>
-<xsl:param name="fanart.tv.width"/>
-<xsl:param name="fanart.tv.height"/>
-
-<xsl:param name="mjb.includeEpisodePlots"/>
-
-<xsl:param name="mjb.includeVideoImages"/>
-
-<xsl:param name="mjb.includeWideBanners"/>
-
-<xsl:param name="mjb.onlySeriesBanners"/>
-
-<xsl:param name="mjb.cycleSeriesBanners"/>
-
-<xsl:param name="mjb.nbThumbnailsPerPage"/>
-
-<xsl:param name="mjb.nbThumbnailsPerLine"/>
-
-<xsl:param name="mjb.nbTvThumbnailsPerPage"/>
-
-<xsl:param name="mjb.nbTvThumbnailsPerLine"/>
-
-<xsl:param name="mjb.filter.genres"/>
-
-<xsl:param name="thumbnails.format"/>
-
-<xsl:param name="thumbnails.width"/>
-<xsl:param name="thumbnails.height"/>
-
-<xsl:param name="thumbnails.logoHD"/>
-
-<xsl:param name="thumbnails.logoTV"/>
-
-<xsl:param name="thumbnails.logoSet"/>
-
-<xsl:param name="thumbnails.language"/>
-
-<xsl:param name="thumbnails.normalize"/>
-
-<xsl:param name="thumbnails.reflection"/>
-
-<xsl:param name="thumbnails.reflectionHeight"/>
-
-<xsl:param name="thumbnails.reflectionStart"/>
-
-<xsl:param name="thumbnails.reflectionEnd"/>
-
-<xsl:param name="thumbnails.opacityStart"/>
-
-<xsl:param name="thumbnails.opacityEnd"/>
-
-<xsl:param name="thumbnails.perspective"/>
-
-<xsl:param name="thumbnails.perspectiveTop"/>
-<xsl:param name="thumbnails.perspectiveBottom"/>
-
-<xsl:param name="thumbnails.perspectiveDirection"/>
-
-<xsl:param name="posters.format"/>
-<xsl:param name="posters.width"/>
-<xsl:param name="posters.height"/>
-<xsl:param name="posters.normalize"/>
-<xsl:param name="posters.reflection"/>
-<xsl:param name="posters.logoHD"/>
-<xsl:param name="posters.logoTV"/>
-<xsl:param name="posters.language"/>
-<xsl:param name="posters.reflectionHeight"/>
-<xsl:param name="posters.reflectionStart"/>
-<xsl:param name="posters.reflectionEnd"/>
-<xsl:param name="posters.opacityStart"/>
-<xsl:param name="posters.opacityEnd"/>
-<xsl:param name="posters.perspective"/>
-<xsl:param name="posters.perspectiveTop"/>
-<xsl:param name="posters.perspectiveBottom"/>
-<xsl:param name="posters.perspectiveDirection"/>
-
-<xsl:param name="banners.format"/>
-<xsl:param name="banners.width"/>
-<xsl:param name="banners.height"/>
-<xsl:param name="banners.normalize"/>
-<xsl:param name="banners.reflection"/>
-<xsl:param name="banners.logoHD"/>
-<xsl:param name="banners.logoTV"/>
-<xsl:param name="banners.language"/>
-<xsl:param name="banners.reflectionHeight"/>
-<xsl:param name="banners.reflectionStart"/>
-<xsl:param name="banners.reflectionEnd"/>
-<xsl:param name="banners.opacityStart"/>
-<xsl:param name="banners.opacityEnd"/>
-<xsl:param name="banners.perspective"/>
-<xsl:param name="banners.perspectiveTop"/>
-<xsl:param name="banners.perspectiveBottom"/>
-<xsl:param name="banners.perspectiveDirection"/>
-
-<xsl:param name="videoimages.format"/>
-<xsl:param name="videoimages.width"/>
-<xsl:param name="videoimages.height"/>
-<xsl:param name="videoimages.normalize"/>
-<xsl:param name="videoimages.reflection"/>
-<xsl:param name="videoimages.logoHD"/>
-<xsl:param name="videoimages.logoTV"/>
-<xsl:param name="videoimages.language"/>
-<xsl:param name="videoimages.reflectionHeight"/>
-<xsl:param name="videoimages.reflectionStart"/>
-<xsl:param name="videoimages.reflectionEnd"/>
-<xsl:param name="videoimages.opacityStart"/>
-<xsl:param name="videoimages.opacityEnd"/>
-<xsl:param name="videoimages.perspective"/>
-<xsl:param name="videoimages.perspectiveTop"/>
-<xsl:param name="videoimages.perspectiveBottom"/>
-<xsl:param name="videoimages.perspectiveDirection"/>
-
-<xsl:param name="mjb.image.plugin"/>
-<xsl:param name="mjb.background.plugin"/>
-
-<xsl:param name="sorting.strip.prefixes"/>
-
-<xsl:param name="certification.ordering"/>
-
-<xsl:param name="indexing.character.replacement"/>
-
-<xsl:param name="indexing.character.groupEnglish"/>
-
-<xsl:param name="highdef.differentiate"/>
-<xsl:param name="highdef.720.width"/>
-<xsl:param name="highdef.1080.width"/>
-
-
+    <xsl:output method="xml" omit-xml-declaration="yes"
+    ></xsl:output>
+    <xsl:variable name="homePage">../index.htm</xsl:variable>
+    <xsl:variable name="rootPath">x:/redefined/yamj</xsl:variable>
+    <xsl:variable name="API_KEY_MovieMeter">tyk0awf19uqm65mjfsqw9z9rx6t706pe</xsl:variable>
+    <xsl:variable name="API_KEY_TheMovieDB">5a1a77e2eba8984804586122754f969f</xsl:variable>
+    <xsl:variable name="API_KEY_TheTVDb">2805AD2873519EC5</xsl:variable>
+    <xsl:variable name="actors.max">2</xsl:variable>
+    <xsl:variable name="appletrailers.download">false</xsl:variable>
+    <xsl:variable name="appletrailers.max">3</xsl:variable>
+    <xsl:variable name="appletrailers.trailertypes">tlr,clip,tsr,30sec,640w</xsl:variable>
+    <xsl:variable name="appletrailers.typesinclude">true</xsl:variable>
+    <xsl:variable name="banners.format">jpg</xsl:variable>
+    <xsl:variable name="banners.height">140</xsl:variable>
+    <xsl:variable name="banners.language">false</xsl:variable>
+    <xsl:variable name="banners.logoHD">false</xsl:variable>
+    <xsl:variable name="banners.logoTV">false</xsl:variable>
+    <xsl:variable name="banners.normalize">false</xsl:variable>
+    <xsl:variable name="banners.opacityEnd">100.0</xsl:variable>
+    <xsl:variable name="banners.opacityStart">30.0</xsl:variable>
+    <xsl:variable name="banners.perspective">true</xsl:variable>
+    <xsl:variable name="banners.perspectiveBottom">3.0</xsl:variable>
+    <xsl:variable name="banners.perspectiveDirection">right</xsl:variable>
+    <xsl:variable name="banners.perspectiveTop">3.0</xsl:variable>
+    <xsl:variable name="banners.reflection">false</xsl:variable>
+    <xsl:variable name="banners.reflectionEnd">100.0</xsl:variable>
+    <xsl:variable name="banners.reflectionHeight">12.5</xsl:variable>
+    <xsl:variable name="banners.reflectionStart">0.0</xsl:variable>
+    <xsl:variable name="banners.width">760</xsl:variable>
+    <xsl:variable name="certification.ordering">G,TV-G,PG,TV-PG,PG-13,TV-14,R,NC-17,Unrated,Not Rated</xsl:variable>
+    <xsl:variable name="fanart.movie.download">false</xsl:variable>
+    <xsl:variable name="fanart.movie.height">720</xsl:variable>
+    <xsl:variable name="fanart.movie.width">1280</xsl:variable>
+    <xsl:variable name="fanart.tv.download">false</xsl:variable>
+    <xsl:variable name="fanart.tv.height">720</xsl:variable>
+    <xsl:variable name="fanart.tv.width">1280</xsl:variable>
+    <xsl:variable name="filename.extras.keywords">trailer,bonus,extra</xsl:variable>
+    <xsl:variable name="filename.movie.versions.keywords">directors cut,extended cut,final cut,remastered</xsl:variable>
+    <xsl:variable name="filename.nfo.checknewer">true</xsl:variable>
+    <xsl:variable name="filename.nfo.directory">NFO</xsl:variable>
+    <xsl:variable name="filename.nfo.parentDirs">false</xsl:variable>
+    <xsl:variable name="filename.scanner.language.detection">true</xsl:variable>
+    <xsl:variable name="filename.scanner.skip.keywords">LIMITED,DiAMOND,AXXO,PUKKA,iDHD,PROPER,REPACK,DSR,STV,UNRATED,RERIP,REMUX</xsl:variable>
+    <xsl:variable name="filename.scanner.source.keywords">HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV</xsl:variable>
+    <xsl:variable name="filename.scanner.source.keywords.BluRay">BDRIP,BLURAYRIP,BLU-RAY</xsl:variable>
+    <xsl:variable name="filename.scanner.source.keywords.D-THEATER">DTH,DTHEATER</xsl:variable>
+    <xsl:variable name="filename.scanner.source.keywords.DVDRip">DVDR</xsl:variable>
+    <xsl:variable name="filename.scanner.source.keywords.HDDVD">HD-DVD,HDDVDRIP</xsl:variable>
+    <xsl:variable name="filename.scanner.source.keywords.SDTV">TVRip,PAL,NTSC</xsl:variable>
+    <xsl:variable name="filmdelta.getcdonposter">true</xsl:variable>
+    <xsl:variable name="filmdelta.plot.maxlength">300</xsl:variable>
+    <xsl:variable name="filmdelta.rating">filmdelta</xsl:variable>
+    <xsl:variable name="filmweb.id.search">filmweb</xsl:variable>
+    <xsl:variable name="filmweb.plot">short</xsl:variable>
+    <xsl:variable name="genres.max">3</xsl:variable>
+    <xsl:variable name="highdef.1080.width">1920</xsl:variable>
+    <xsl:variable name="highdef.720.width">1280</xsl:variable>
+    <xsl:variable name="highdef.differentiate">false</xsl:variable>
+    <xsl:variable name="imdb.id.search">imdb</xsl:variable>
+    <xsl:variable name="imdb.perfect.match">true</xsl:variable>
+    <xsl:variable name="imdb.plot">short</xsl:variable>
+    <xsl:variable name="indexing.character.groupEnglish">false</xsl:variable>
+    <xsl:variable name="indexing.character.replacement">À-A,Á-A,Â-A,Ã-A,Ä-A,Ç-C,È-E,É-E,Ê-E,Ë-E,Ì-I,Í-I,Î-I,Ï-I,Ñ-N,Ò-O,Ó-O,Ô-O,Õ-O,Ö-O,Ù-U,Ú-U,Û-U,Ü-U</xsl:variable>
+    <xsl:variable name="kinopoisk.plot.maxlength">400</xsl:variable>
+    <xsl:variable name="kinopoisk.rating">average</xsl:variable>
+    <xsl:variable name="mediainfo.home">./mediaInfo/</xsl:variable>
+    <xsl:variable name="mediainfo.metadata.enable">false</xsl:variable>
+    <xsl:variable name="mjb.MaxDownloadSlots">.*=2,.*imdb.*=2,.*google.*=10,.*yahoo.*=10,.*themoviedb.*=1,.*thetvdb.*=1,.*apple.*=2</xsl:variable>
+    <xsl:variable name="mjb.MaxThreadsProcess">1</xsl:variable>
+    <xsl:variable name="mjb.MaxThreadsScan">1</xsl:variable>
+    <xsl:variable name="mjb.appendDateToLogFile">false</xsl:variable>
+    <xsl:variable name="mjb.background.plugin">com.moviejukebox.plugin.DefaultBackgroundPlugin</xsl:variable>
+    <xsl:variable name="mjb.categories.displayList"></xsl:variable>
+    <xsl:variable name="mjb.categories.indexList">Other,Genres,Title,Rating,Year,Library,Set</xsl:variable>
+    <xsl:variable name="mjb.categories.minCount">3</xsl:variable>
+    <xsl:variable name="mjb.charset.filenameEncodingEscapeChar">$</xsl:variable>
+    <xsl:variable name="mjb.charset.unsafeFilenameChars">&lt;&gt;:"/\|?*</xsl:variable>
+    <xsl:variable name="mjb.clean.skip">categories.css|exportindex_item_pch.css|exportdetails_item_popcorn.css</xsl:variable>
+    <xsl:variable name="mjb.cycleSeriesBanners">true</xsl:variable>
+    <xsl:variable name="mjb.detailsDirName">yamj</xsl:variable>
+    <xsl:variable name="mjb.excludeMultiPartBluRay">false</xsl:variable>
+    <xsl:variable name="mjb.extensions">AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV MP4 M1V M2V M4V M2P TP TRP M2T MTS ASF RMP4 IMG</xsl:variable>
+    <xsl:variable name="mjb.filter.genres">true</xsl:variable>
+    <xsl:variable name="mjb.forceBannersOverwrite">false</xsl:variable>
+    <xsl:variable name="mjb.forceFanartOverwrite">false</xsl:variable>
+    <xsl:variable name="mjb.forceHTMLOverwrite">true</xsl:variable>
+    <xsl:variable name="mjb.forceNFOEncoding">AUTO</xsl:variable>
+    <xsl:variable name="mjb.forcePostersOverwrite">true</xsl:variable>
+    <xsl:variable name="mjb.forceThumbnailsOverwrite">false</xsl:variable>
+    <xsl:variable name="mjb.forceVideoImagesOverwrite">false</xsl:variable>
+    <xsl:variable name="mjb.forceXMLOverwrite">false</xsl:variable>
+    <xsl:variable name="mjb.fullMovieInfoInIndexes">true</xsl:variable>
+    <xsl:variable name="mjb.homePage"></xsl:variable>
+    <xsl:variable name="mjb.image.plugin">com.moviejukebox.plugin.DefaultImagePlugin</xsl:variable>
+    <xsl:variable name="mjb.includeEpisodePlots">false</xsl:variable>
+    <xsl:variable name="mjb.includeVideoImages">false</xsl:variable>
+    <xsl:variable name="mjb.includeWideBanners">false</xsl:variable>
+    <xsl:variable name="mjb.indexFile">index.htm</xsl:variable>
+    <xsl:variable name="mjb.internet.plugin">com.moviejukebox.plugin.ImdbPlugin</xsl:variable>
+    <xsl:variable name="mjb.internet.tv.plugin">com.moviejukebox.plugin.TheTvDBPlugin</xsl:variable>
+    <xsl:variable name="mjb.listing.GroupByType">true</xsl:variable>
+    <xsl:variable name="mjb.listing.clear.UNKNOWN">true</xsl:variable>
+    <xsl:variable name="mjb.listing.generate">false</xsl:variable>
+    <xsl:variable name="mjb.listing.output.filename">MovieJukebox-listing</xsl:variable>
+    <xsl:variable name="mjb.listing.plugin">com.moviejukebox.plugin.MovieListingPluginCsv</xsl:variable>
+    <xsl:variable name="mjb.listing.types">All</xsl:variable>
+    <xsl:variable name="mjb.nbThumbnailsPerLine">5</xsl:variable>
+    <xsl:variable name="mjb.nbThumbnailsPerPage">10</xsl:variable>
+    <xsl:variable name="mjb.nbTvThumbnailsPerLine">5</xsl:variable>
+    <xsl:variable name="mjb.nbTvThumbnailsPerPage">10</xsl:variable>
+    <xsl:variable name="mjb.newcount">0</xsl:variable>
+    <xsl:variable name="mjb.newdays">7</xsl:variable>
+    <xsl:variable name="mjb.nmtRootPath">file:///opt/sybhttpd/localhost.drives/SATA_DISK/Video/</xsl:variable>
+    <xsl:variable name="mjb.onlySeriesBanners">false</xsl:variable>
+    <xsl:variable name="mjb.playFullBluRayDisk">true</xsl:variable>
+    <xsl:variable name="mjb.playlist.IgnoreExtensions">img,iso</xsl:variable>
+    <xsl:variable name="mjb.scanner.bannerToken">.banner</xsl:variable>
+    <xsl:variable name="mjb.scanner.fanartToken">.fanart</xsl:variable>
+    <xsl:variable name="mjb.scanner.posterToken">_large</xsl:variable>
+    <xsl:variable name="mjb.scanner.thumbnailToken">_small</xsl:variable>
+    <xsl:variable name="mjb.scanner.videoimageToken">.videoimage</xsl:variable>
+    <xsl:variable name="mjb.sets.minSetCount">2</xsl:variable>
+    <xsl:variable name="mjb.sets.requireAll">false</xsl:variable>
+    <xsl:variable name="mjb.singleSeriesPage">true</xsl:variable>
+    <xsl:variable name="mjb.skin.dir">./skins/default</xsl:variable>
+    <xsl:variable name="mjb.subtitles.ExcludeFilesWithoutExternal">false</xsl:variable>
+    <xsl:variable name="mjb.xmlCategoryFile">categories.xml</xsl:variable>
+    <xsl:variable name="mjb.xmlGenreFile">genres.xml</xsl:variable>
+    <xsl:variable name="moviemeter.id.search">moviemeter</xsl:variable>
+    <xsl:variable name="poster.scanner.SearchPriority">moviedb,impawards,imdb,moviecovers,google,yahoo,motechnet</xsl:variable>
+    <xsl:variable name="poster.scanner.Validate">true</xsl:variable>
+    <xsl:variable name="poster.scanner.ValidateAspect">true</xsl:variable>
+    <xsl:variable name="poster.scanner.ValidateMatch">75</xsl:variable>
+    <xsl:variable name="poster.scanner.coverArtExtensions">jpg,jpeg,gif,bmp,png,tbn</xsl:variable>
+    <xsl:variable name="poster.scanner.searchForExistingCoverArt">moviename</xsl:variable>
+    <xsl:variable name="poster.scanner.useFolderImage">false</xsl:variable>
+    <xsl:variable name="posters.format">png</xsl:variable>
+    <xsl:variable name="posters.height">600</xsl:variable>
+    <xsl:variable name="posters.language">false</xsl:variable>
+    <xsl:variable name="posters.logoHD">false</xsl:variable>
+    <xsl:variable name="posters.logoTV">false</xsl:variable>
+    <xsl:variable name="posters.normalize">true</xsl:variable>
+    <xsl:variable name="posters.opacityEnd">100.0</xsl:variable>
+    <xsl:variable name="posters.opacityStart">30.0</xsl:variable>
+    <xsl:variable name="posters.perspective">true</xsl:variable>
+    <xsl:variable name="posters.perspectiveBottom">3.0</xsl:variable>
+    <xsl:variable name="posters.perspectiveDirection">right</xsl:variable>
+    <xsl:variable name="posters.perspectiveTop">3.0</xsl:variable>
+    <xsl:variable name="posters.reflection">true</xsl:variable>
+    <xsl:variable name="posters.reflectionEnd">100.0</xsl:variable>
+    <xsl:variable name="posters.reflectionHeight">12.5</xsl:variable>
+    <xsl:variable name="posters.reflectionStart">0.0</xsl:variable>
+    <xsl:variable name="posters.width">400</xsl:variable>
+    <xsl:variable name="sorting.strip.prefixes">"A ","An ","The ","Le ","Les ", "De ", "Het ", "Een "</xsl:variable>
+    <xsl:variable name="sratim.code"></xsl:variable>
+    <xsl:variable name="sratim.downloadOnlyHebrew">false</xsl:variable>
+    <xsl:variable name="sratim.password"></xsl:variable>
+    <xsl:variable name="sratim.subtitle">false</xsl:variable>
+    <xsl:variable name="sratim.textMatchSimilarity">0.8</xsl:variable>
+    <xsl:variable name="sratim.username"></xsl:variable>
+    <xsl:variable name="thetvdb.dvd.episodes">false</xsl:variable>
+    <xsl:variable name="thetvdb.language">en</xsl:variable>
+    <xsl:variable name="thumbnails.format">png</xsl:variable>
+    <xsl:variable name="thumbnails.height">243</xsl:variable>
+    <xsl:variable name="thumbnails.language">true</xsl:variable>
+    <xsl:variable name="thumbnails.logoHD">true</xsl:variable>
+    <xsl:variable name="thumbnails.logoSet">true</xsl:variable>
+    <xsl:variable name="thumbnails.logoTV">false</xsl:variable>
+    <xsl:variable name="thumbnails.normalize">true</xsl:variable>
+    <xsl:variable name="thumbnails.opacityEnd">100.0</xsl:variable>
+    <xsl:variable name="thumbnails.opacityStart">30.0</xsl:variable>
+    <xsl:variable name="thumbnails.perspective">true</xsl:variable>
+    <xsl:variable name="thumbnails.perspectiveBottom">3.0</xsl:variable>
+    <xsl:variable name="thumbnails.perspectiveDirection">right</xsl:variable>
+    <xsl:variable name="thumbnails.perspectiveTop">3.0</xsl:variable>
+    <xsl:variable name="thumbnails.reflection">true</xsl:variable>
+    <xsl:variable name="thumbnails.reflectionEnd">100.00</xsl:variable>
+    <xsl:variable name="thumbnails.reflectionHeight">12.5</xsl:variable>
+    <xsl:variable name="thumbnails.reflectionStart">0.0</xsl:variable>
+    <xsl:variable name="thumbnails.width">171</xsl:variable>
+    <xsl:variable name="videoimages.format">jpg</xsl:variable>
+    <xsl:variable name="videoimages.height">250</xsl:variable>
+    <xsl:variable name="videoimages.language">false</xsl:variable>
+    <xsl:variable name="videoimages.logoHD">false</xsl:variable>
+    <xsl:variable name="videoimages.logoTV">false</xsl:variable>
+    <xsl:variable name="videoimages.normalize">true</xsl:variable>
+    <xsl:variable name="videoimages.opacityEnd">100.0</xsl:variable>
+    <xsl:variable name="videoimages.opacityStart">30.0</xsl:variable>
+    <xsl:variable name="videoimages.perspective">true</xsl:variable>
+    <xsl:variable name="videoimages.perspectiveBottom">3.0</xsl:variable>
+    <xsl:variable name="videoimages.perspectiveDirection">right</xsl:variable>
+    <xsl:variable name="videoimages.perspectiveTop">3.0</xsl:variable>
+    <xsl:variable name="videoimages.reflection">false</xsl:variable>
+    <xsl:variable name="videoimages.reflectionEnd">100.0</xsl:variable>
+    <xsl:variable name="videoimages.reflectionHeight">12.5</xsl:variable>
+    <xsl:variable name="videoimages.reflectionStart">0.0</xsl:variable>
+    <xsl:variable name="videoimages.width">400</xsl:variable>
 </xsl:stylesheet>

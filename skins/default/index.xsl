@@ -90,6 +90,129 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
 //]]>
 </xsl:text>
 </script>
+
+
+
+<xsl:if test="$parental-control-on='true'">
+<script>
+var ratingsys= new Array();
+
+ratingsys['G']=1;
+ratingsys['PG']=10;
+ratingsys['PG-13']=13;
+ratingsys['R']=18;
+ratingsys['NC-17']=17;
+ratingsys['Not Rated']=18;
+
+ratingsys['TV-Y']=1;
+ratingsys['TV-Y7']=8;
+ratingsys['TV-G']=10;
+ratingsys['TV-PG']=13;
+ratingsys['TV-14']=15;
+ratingsys['TV-MA']=16;
+
+ratingsys['U']=1;
+ratingsys['PG']=10;
+ratingsys['12']=12;
+ratingsys['12A']=13;
+ratingsys['15']=15;
+ratingsys['18']=18;
+ratingsys['R18']=99;
+
+ratingsys['X']=99;
+ratingsys['XX']=99;
+ratingsys['XXX']=99;
+
+var ratingnow=0;
+</script>
+
+
+<script type="text/javascript">
+
+function prompter(y) 
+{
+ratingnow=ratingsys[y];
+
+<xsl:choose>
+<xsl:when test="$number-of-children > 1">
+
+if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
+{
+	if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-oldest"/>)
+		{		
+			var reply = prompt("Password?", "")
+
+				if (reply=="<xsl:value-of select="$parental-password-master"/>")
+					{
+						return
+					}
+				else 
+					{
+						alert ( "Sorry,You have entered the wrong password")
+						return false
+					}
+		}
+	<xsl:if test="$number-of-children=3">
+	else if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-middle"/>)
+		{		
+			var reply = prompt("Password?", "")
+
+				if (reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
+					{
+						return
+					}
+				else 
+					{
+						alert ( "Sorry,You have entered the wrong password")
+						return false
+					}
+		}
+	</xsl:if>
+
+	else
+		{		
+			var reply = prompt("Password?", "")
+
+				if (reply=="<xsl:value-of select="$parental-password-middle"/>" || reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
+					{
+						return
+					}
+				else 
+					{
+						alert ( "Sorry,You have entered the wrong password")
+						return false
+					}
+		}
+}
+</xsl:when>
+<xsl:otherwise>
+if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
+{
+	var reply = prompt("What's the Password?", "")
+
+				if (reply=="<xsl:value-of select="$parental-password-master"/>")
+					{
+						return
+					}
+				else 
+					{
+						alert ( "Sorry,You have entered the wrong password")
+						return false
+					}
+		}
+}
+</xsl:otherwise>
+</xsl:choose>
+else
+{
+return
+}
+
+
+}
+</script>
+</xsl:if>
+
 </head>
 <body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
 
@@ -231,6 +354,7 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
             <xsl:text>.playlist.jsp')</xsl:text>
           </xsl:attribute>
           <xsl:attribute name="onblur">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
+	  <xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute>
           <xsl:if test="$lastIndex != 1">
             <xsl:if test="$gap=0 and $currentIndex != 1">
               <xsl:attribute name="onkeyupset">pgupload</xsl:attribute>
