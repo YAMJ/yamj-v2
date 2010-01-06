@@ -25,14 +25,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -48,7 +45,6 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -60,7 +56,6 @@ import com.moviejukebox.tools.XMLWriter;
  * 
  * @author Julien
  */
-@SuppressWarnings("serial")
 public class MovieJukeboxXMLWriter {
 
     private boolean forceXMLOverwrite;
@@ -72,7 +67,6 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
-    private static boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk","true"));
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
@@ -85,36 +79,6 @@ public class MovieJukeboxXMLWriter {
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
     }
     
-    private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
-        {
-            String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD,RAR");
-
-            HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
-                {
-                    put("ZCD","ISO,IMG,VOB,MDF,NRG,BIN");
-                    put("VOD","");
-                    put("RAR","RAR");
-                }
-            };
-
-            for (String s : scannerTypes.split(",")) {
-                // Set the default the long way to allow 'keyword.???=' to blank the value instead of using default
-                String mappedScannerTypes = PropertiesUtil.getProperty("filename.scanner.types." + s, null);
-                if (null == mappedScannerTypes) {
-                    mappedScannerTypes = scannerTypeDefaults.get(s);
-                }
-
-                String patt = s;
-                if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
-                    for (String t : mappedScannerTypes.split(",")) {
-                        patt += "|" + t;
-                    }
-                }
-                put(s, MovieFilenameScanner.iwpatt(patt));
-            }
-        }
-    };
-
     public MovieJukeboxXMLWriter() {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
         nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
@@ -125,7 +89,7 @@ public class MovieJukeboxXMLWriter {
         includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        
+
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
         }
@@ -353,6 +317,8 @@ public class MovieJukeboxXMLWriter {
                         tag = e.toString();
                         if (tag.equalsIgnoreCase("<fileURL>")) {
                             mf.setFilename(parseCData(r));
+                        } else if (tag.equalsIgnoreCase("<playLink>")) {
+                            mf.setPlayLink(parseCData(r));
                         } else if (tag.toLowerCase().startsWith("<fileplot")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
@@ -530,10 +496,16 @@ public class MovieJukeboxXMLWriter {
 
                         String key = FileTools.createCategoryKey(group.getKey());
 
+                        // Try and determine if the set contains TV shows and therefore use the TV show settings
+                        // TODO have a custom property so that you can set this on a per-set basis.
                         int nbVideosPerPage;
-
-                        if (key.equalsIgnoreCase("TV Shows")) {
-                            nbVideosPerPage = nbTvShowsPerPage;
+                        
+                        if (movies.size() > 0) {
+                            if (key.equalsIgnoreCase("TV Shows")) {
+                                nbVideosPerPage = nbTvShowsPerPage;
+                            } else {
+                                nbVideosPerPage = nbMoviesPerPage;
+                            }
                         } else {
                             nbVideosPerPage = nbMoviesPerPage;
                         }
@@ -577,6 +549,20 @@ public class MovieJukeboxXMLWriter {
         tasks.waitFor();
     }
 
+    /**
+     * Write out the index pages
+     * @param library
+     * @param movies
+     * @param rootPath
+     * @param categoryName
+     * @param key
+     * @param previous
+     * @param current
+     * @param next
+     * @param last
+     * @throws FileNotFoundException
+     * @throws XMLStreamException
+     */
     public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
                     int next, int last) throws FileNotFoundException, XMLStreamException {
         String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
@@ -615,7 +601,7 @@ public class MovieJukeboxXMLWriter {
                 for (String akey : index.keySet()) {
                     String encakey = FileTools.createCategoryKey(akey);
 
-                    // This is horrible! Issue 735 will get rid of it.
+                    //FIXME This is horrible! Issue 735 will get rid of it.
                     if (index.get(akey).size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
                         continue;
                     }
@@ -634,6 +620,8 @@ public class MovieJukeboxXMLWriter {
                         writer.writeAttribute("last", prefix + last);
                         writer.writeAttribute("currentIndex", Integer.toString(current));
                         writer.writeAttribute("lastIndex", Integer.toString(last));
+                        //logger.fine("**********");
+                        //logger.fine("Index (" + akey + "): "+ index.get(akey).toString());
                     }
 
                     writer.writeCharacters(prefix + '1');
@@ -642,6 +630,7 @@ public class MovieJukeboxXMLWriter {
 
                 writer.writeEndElement(); // categories
             }
+            //FIXME
             writer.writeStartElement("movies");
             writer.writeAttribute("count", "" + nbVideosPerPage);
             writer.writeAttribute("cols", "" + nbVideosPerLine);
@@ -672,6 +661,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
+        writer.writeAttribute("isTV", Boolean.toString(movie.isTVShow()));
         writer.writeStartElement("details");
         writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBaseName())) + ".html");
         writer.writeEndElement();
@@ -735,6 +725,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
+        writer.writeAttribute("isTV", Boolean.toString(movie.isTVShow()));
 
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
             writer.writeStartElement("id");
@@ -946,10 +937,8 @@ public class MovieJukeboxXMLWriter {
             writer.writeCharacters(mf.getFilename()); // should already be a URL
             writer.writeEndElement();
             
-            // This code determines the playlink code for a given file.
-            //logger.fine("Type Suffix for " + mf.getFile().getName() + ": " + calculateTypeSuffix(mf));
             writer.writeStartElement("playLink");
-            writer.writeCharacters(calculatePlayLink(mf));
+            writer.writeCharacters(mf.getPlayLink());
             writer.writeEndElement();
 
             if (includeEpisodePlots || includeVideoImages) {
@@ -1014,51 +1003,5 @@ public class MovieJukeboxXMLWriter {
             writer.flush();
             writer.close();
         }
-    }
-    
-    /**
-     * Calculate the playlink additional information for each file.
-     * @param MovieFile mf
-     * @return String containing the playlink
-     */
-    private String calculatePlayLink(MovieFile mf) {
-        File file = mf.getFile();
-        String filename = file.getName();
-        String extension = getExtension(file);
-        String returnValue = "";
-        
-        if (playFullBluRayDisk && filename.toUpperCase().contains("BDMV")) {
-            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.BLURAY", "BLURAY") + " ";
-        }
-        
-        if (filename.toUpperCase().contains("VIDEO_TS")) {
-            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VIDEO_TS", "VIDEO_TS") + " ";
-        }
-
-        for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
-            Matcher matcher = e.getValue().matcher(extension);
-            if (matcher.find()) {
-                returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey(), "") + " ";
-            }
-        }
-        
-        // Default to VOD if there's no other type found
-        if (returnValue.equals("")) {
-            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "") + " ";
-        }
-        
-        return returnValue.trim();
-    }
-    
-    private String getExtension(File file) {
-        String filename = file.getName();
-        
-        if (file.isFile()) {
-            int i = filename.lastIndexOf(".");
-            if (i > 0) {
-                return (filename.substring(i + 1));
-            }
-        }
-        return "";
     }
 }

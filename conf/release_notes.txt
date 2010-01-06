@@ -8,6 +8,7 @@ MovieJukebox 1.7 BETA
   - Enhancement   #743 Fanart for Set index pages
   - Enhancement   #811 Property to disable multipart playlists
   - Enhancement   #983 Add file date to the basename.xml files
+  - Fixed defect #1028 nbTvThumbnailsPerPage doesn't carry over to TV sets when using singleSeriesPage=true
   - Fixed defect #1050 YAMJ doesn't include myiHome server IP in *.playlist.jsp
   - Fixed defect #1067 No more fanart displayed with Allocine plugin
   - Fixed defect #1086 BluRay Disk folders with multiple .m2ts files making up the main movie are handled as if they're multiple parts
