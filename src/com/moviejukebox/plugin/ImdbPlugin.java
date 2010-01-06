@@ -305,7 +305,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setOriginalTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
             }
             if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"meta\">", 2)));
+                movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"starbar-meta\">", 2)));
             }
 
             if (movie.getTop250() == -1) {
@@ -461,7 +461,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } catch (Exception error) {
-            logger.severe("Failed retreiving IMDb rating for movie : " + movie.getId(IMDB_PLUGIN_ID));
+            logger.severe("Failed retreiving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -471,6 +471,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     private int parseRating(String rating) {
+        //FIXME
+        System.out.println("*** RATING: " + rating);
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
         try {
             return (int)(Float.parseFloat(st.nextToken()) * 10);
