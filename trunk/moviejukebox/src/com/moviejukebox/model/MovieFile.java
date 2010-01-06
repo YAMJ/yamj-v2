@@ -14,11 +14,19 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.PropertiesUtil;
+
+@SuppressWarnings("serial")
 @XmlType public class MovieFile implements Comparable<MovieFile> {
 
     private String  filename    = Movie.UNKNOWN;
@@ -27,11 +35,44 @@ import javax.xml.bind.annotation.XmlType;
     private int     lastPart    = 1;
     private boolean newFile     = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
+    private String  playLink    = Movie.UNKNOWN;
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
+    private static boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk","true"));
+
+    private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
+        {
+            String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD,RAR");
+
+            HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
+                {
+                    put("ZCD","ISO,IMG,VOB,MDF,NRG,BIN");
+                    put("VOD","");
+                    put("RAR","RAR");
+                }
+            };
+
+            for (String s : scannerTypes.split(",")) {
+                // Set the default the long way to allow 'keyword.???=' to blank the value instead of using default
+                String mappedScannerTypes = PropertiesUtil.getProperty("filename.scanner.types." + s, null);
+                if (null == mappedScannerTypes) {
+                    mappedScannerTypes = scannerTypeDefaults.get(s);
+                }
+
+                String patt = s;
+                if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
+                    for (String t : mappedScannerTypes.split(",")) {
+                        patt += "|" + t;
+                    }
+                }
+                put(s, MovieFilenameScanner.iwpatt(patt));
+            }
+        }
+    };
+
 
     public String getFilename() {
         return filename;
@@ -40,7 +81,7 @@ import javax.xml.bind.annotation.XmlType;
     public void setFilename(String filename) {
         this.filename = filename;
     }
-
+    
     public String getPlot(int part) {
         String plot = plots.get(part);
         return plot != null ? plot : Movie.UNKNOWN;
@@ -206,5 +247,71 @@ import javax.xml.bind.annotation.XmlType;
 
     public void setInfo(MovieFileNameDTO info) {
         this.info = info;
+    }
+
+    public String getPlayLink() {
+        if (playLink.equals("") || playLink.equals(Movie.UNKNOWN)) {
+            this.playLink = calculatePlayLink();
+        }
+        return playLink;
+    }
+    
+    public void setPlayLink(String playLink) {
+        if (playLink == null || playLink.equals("")) {
+            this.playLink = calculatePlayLink();
+        } else {
+            this.playLink = playLink;
+        }
+    }
+
+    /**
+     * Calculate the playlink additional information for the file
+     */
+    private String calculatePlayLink() {
+        File file = getFile();
+        String filename = file.getName();
+        String returnValue = "";
+        
+        if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
+            //System.out.println(filename + " matched to BLURAY");
+            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.BLURAY", "zcd=2") + " ";
+            // We can return at this point because there won't be additional playlinks
+            return returnValue.trim();
+        }
+        
+        if (file.isDirectory() && (new File(file.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
+            //System.out.println(filename + " matched to VIDEO_TS");
+            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VIDEO_TS", "zcd=2") + " ";
+            // We can return at this point because there won't be additional playlinks
+            return returnValue.trim();
+        }
+
+        for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
+            Matcher matcher = e.getValue().matcher(getExtension(file));
+            if (matcher.find()) {
+                System.out.println(filename + " matched to " + e.getKey());
+                returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey(), "") + " ";
+            }
+        }
+        
+        // Default to VOD if there's no other type found
+        if (returnValue.equals("")) {
+            //System.out.println(filename + " not matched, defaulted to VOD");
+            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "vod") + " ";
+        }
+        
+        return returnValue.trim();
+    }
+
+    private String getExtension(File file) {
+        String filename = file.getName();
+        
+        if (file.isFile()) {
+            int i = filename.lastIndexOf(".");
+            if (i > 0) {
+                return (filename.substring(i + 1));
+            }
+        }
+        return "";
     }
 }
