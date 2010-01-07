@@ -488,7 +488,7 @@ public class MovieJukeboxXMLWriter {
 
                         List<Movie> movies = group.getValue();
 
-                        // This is horrible! Issue 735 will get rid of it.
+                        //FIXME This is horrible! Issue 735 will get rid of it.
                         if (movies.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
                             logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies, skipping XML generation.");
                             return null;
@@ -498,16 +498,19 @@ public class MovieJukeboxXMLWriter {
 
                         // Try and determine if the set contains TV shows and therefore use the TV show settings
                         // TODO have a custom property so that you can set this on a per-set basis.
-                        int nbVideosPerPage;
+                        int nbVideosPerPage, nbVideosPerLine;
                         
                         if (movies.size() > 0) {
-                            if (key.equalsIgnoreCase("TV Shows")) {
+                            if (key.equalsIgnoreCase("TV Shows") || (categoryName.equalsIgnoreCase("Set") && movies.get(0).isTVShow()) ) {
                                 nbVideosPerPage = nbTvShowsPerPage;
+                                nbVideosPerLine = nbTvShowsPerLine;
                             } else {
                                 nbVideosPerPage = nbMoviesPerPage;
+                                nbVideosPerLine = nbMoviesPerLine;
                             }
                         } else {
                             nbVideosPerPage = nbMoviesPerPage;
+                            nbVideosPerLine = nbMoviesPerLine;
                         }
 
                         int previous = 1;
@@ -524,12 +527,14 @@ public class MovieJukeboxXMLWriter {
                             if (nbMoviesLeft == 0) {
                                 if (current == 1) {
                                     // If this is the first page, link the previous page to the last page.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last);
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last, nbVideosPerPage, nbVideosPerLine);
+                                } else if (current == last) {
+                                    // This is the last page, so link the next page to the first.
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage, nbVideosPerLine);
                                 } else {
                                     // This is a "middle" page, so process as normal.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last, nbVideosPerPage, nbVideosPerLine);
                                 }
-                                // */writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last);
                                 moviesInASinglePage = new ArrayList<Movie>();
                                 previous = current;
                                 current = Math.min(current + 1, last);
@@ -539,7 +544,7 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (moviesInASinglePage.size() > 0) {
-                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last);
+                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage, nbVideosPerLine);
                         }
                         return null;
                     }
@@ -563,22 +568,11 @@ public class MovieJukeboxXMLWriter {
      * @throws FileNotFoundException
      * @throws XMLStreamException
      */
-    public void writeIndexPage(Library library, Collection<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
-                    int next, int last) throws FileNotFoundException, XMLStreamException {
+    public void writeIndexPage(Library library, List<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
+                    int next, int last, int nbVideosPerPage, int nbVideosPerLine) throws FileNotFoundException, XMLStreamException {
         String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
         File xmlFile = null;
         XMLWriter writer = null;
-        
-        // Is this a TV Show index?
-        int nbVideosPerPage, nbVideosPerLine;
-        
-        if (key.equalsIgnoreCase("TV Shows")) {
-            nbVideosPerPage = nbTvShowsPerPage;
-            nbVideosPerLine = nbTvShowsPerLine;
-        } else {
-            nbVideosPerPage = nbMoviesPerPage;
-            nbVideosPerLine = nbMoviesPerLine;
-        }
         
         try {
             xmlFile = new File(rootPath, prefix + current + ".xml");
