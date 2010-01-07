@@ -304,17 +304,16 @@ public class MovieJukeboxHTMLWriter {
                     Map<String, List<Movie>> index = category.getValue();
 
                     for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
-                        String key = indexEntry.getKey();
+                        String key          = indexEntry.getKey();
+                        List<Movie> movies  = indexEntry.getValue();
 
-                        if (key.equalsIgnoreCase("TV Shows")) {
+                        if (key.equalsIgnoreCase("TV Shows") || (categoryName.equalsIgnoreCase("Set") && movies.get(0).isTVShow())) {
                             nbVideosPerPage = nbTvShowsPerPage;
                         } else {
                             nbVideosPerPage = nbMoviesPerPage;
                         }
 
-                        List<Movie> movies = indexEntry.getValue();
-
-                        // This is horrible! Issue 735 will get rid of it.
+                        //FIXME This is horrible! Issue 735 will get rid of it.
                         if (movies.size() >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
                             int nbPages = 1 + (movies.size() - 1) / nbVideosPerPage;
                             for (int page = 1; page <= nbPages; page++) {
