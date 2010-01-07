@@ -65,8 +65,8 @@ public class MovieJukeboxHTMLWriter {
     private static String skinHome;
     private static TransformerFactory transformerFactory;
     private static final Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
-    private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
-    private static List<String> categoriesDisplayList;
+    private static String str_categoriesIndexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
+    private static List<String> categoriesIndexList;
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
     private static File playlistFile;
@@ -75,10 +75,7 @@ public class MovieJukeboxHTMLWriter {
     private static boolean generateMultiPartPlaylist = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playlist.generateMultiPart", "true"));
 
     static {
-        if (str_categoriesDisplayList.length() == 0) {
-            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
-        }
-        categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
+        categoriesIndexList = Arrays.asList(str_categoriesIndexList.split(","));
     }
 
     public MovieJukeboxHTMLWriter() {
@@ -299,7 +296,7 @@ public class MovieJukeboxHTMLWriter {
                 public Void call() {
                     int nbVideosPerPage;
                     String categoryName = category.getKey();
-                    if (!categoriesDisplayList.contains(categoryName)) return null;
+                    if (!categoriesIndexList.contains(categoryName)) return null;
 
                     Map<String, List<Movie>> index = category.getValue();
 

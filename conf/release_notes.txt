@@ -7,6 +7,7 @@ MovieJukebox 1.7 BETA
   - Enhancement   #358 Intuitive movie highlight when surfing up/down pages in the movies index (default skin)
   - Enhancement   #503 Simplify skins by figuring out the vod/vcd/playlist attributes in YAMJ itself
   - Enhancement   #743 Fanart for Set index pages
+  - Fixed defect  #783 mjb.categories.displayList and Sets
   - Enhancement   #811 Property to disable multipart playlists
   - Enhancement   #983 Add file date to the basename.xml files
   - Fixed defect #1028 nbTvThumbnailsPerPage doesn't carry over to TV sets when using singleSeriesPage=true
@@ -28,6 +29,7 @@ MovieJukebox 1.7 BETA
   - Enhancement  #1129 Skins: XSL parameters instead of variables (preferences.xsl)
   - Fixed defect #1130 YAMJ gives a titleless episode 00 the same title as episode 01
   - Enhancement  #1136 Retry downloading incomplete images (Artwork)
+  - Fixed defect #1137 HTML files for sets are not generated if mjb.categories.displayList does not contain set
   - Enhancement  #1140 Add WEB-DL and iTunes to list of source keywords
   - Fixed defect #1146 Apple Movie Trailers not downloaded in the proper BDMV directory with BluRays
   - Fixed defect #1147 Trailer tag in NFO being interpreted as an EXTRA by YAMJ
