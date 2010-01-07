@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2009 YAMJ Members
+ *      Copyright (c) 20042009 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list 
  *  
  *      Web: http://code.google.com/p/moviejukebox/
@@ -75,6 +75,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
     private String audioChannels = UNKNOWN; // Number of audio channels
     private String resolution = UNKNOWN; // 1280x528
+    private float  aspect = 1.0f;
     private String videoSource = UNKNOWN;
     private String videoOutput = UNKNOWN;
     private float fps = 60;
@@ -1165,6 +1166,14 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
 
         return returnSize;
+    }
+    
+    public void setAspectRatio(float aspect) {
+        this.aspect = aspect;
+    }
+    
+    public float getAspectRatio() {
+        return aspect;
     }
     
     // ***** All the graphics methods go here *****

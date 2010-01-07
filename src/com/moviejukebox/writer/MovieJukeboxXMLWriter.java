@@ -254,6 +254,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<videoOutput>")) {
                     movie.setVideoOutput(parseCData(r));
                 }
+                if (tag.equalsIgnoreCase("<aspect>")) {
+                    movie.setAspectRatio(Float.parseFloat(parseCData(r)));
+                }
                 if (tag.equalsIgnoreCase("<fps>")) {
                     movie.setFps(Float.parseFloat(parseCData(r)));
                 }
@@ -851,6 +854,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("videoOutput");
         writer.writeCharacters(movie.getVideoOutput());
+        writer.writeEndElement();
+        writer.writeStartElement("aspect");
+        writer.writeCharacters(Float.toString(movie.getAspectRatio()));
         writer.writeEndElement();
         writer.writeStartElement("fps");
         writer.writeCharacters(Float.toString(movie.getFps()));
