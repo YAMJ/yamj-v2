@@ -242,7 +242,8 @@ public class MovieNFOScanner {
     }
 
     /**
-     * Used to parse out the XBMC nfo xml data for movies
+     * Used to parse out the XBMC NFO XML data for movies
+     * The specification is here: http://xbmc.org/wiki/?title=Import_-_Export_Library
      * 
      * @param xmlFile
      * @param movie
@@ -270,7 +271,16 @@ public class MovieNFOScanner {
                                 movie.setOverrideTitle(true);
                             }
                         } else if (tag.equalsIgnoreCase("originaltitle")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setOriginalTitle(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("sorttitle")) {
                             // ignored
+                        } else if (tag.equalsIgnoreCase("set")) {
+                            String set = XMLHelper.getCData(r);
+                            Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
+                            movie.addSet(set, orderAttribute == null ? null : Integer.parseInt(orderAttribute.getValue()));
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
                             if (val != 0.0f) {
@@ -310,7 +320,7 @@ public class MovieNFOScanner {
                             if (!val.isEmpty()) {
                                 movie.setPosterURL(val);
                             }
-                        } else if (tag.equalsIgnoreCase("fanart")) {
+                        } else if (tag.equalsIgnoreCase("fanart")) {  // This is a custom YAMJ tag
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 movie.setFanartURL(val);
@@ -372,10 +382,6 @@ public class MovieNFOScanner {
                             List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
-                        } else if (tag.equalsIgnoreCase("set")) {
-                            String set = XMLHelper.getCData(r);
-                            Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
-                            movie.addSet(set, orderAttribute == null ? null : Integer.parseInt(orderAttribute.getValue()));
                         } else if (tag.equalsIgnoreCase("credits")) {
                             // ignored
                         } else if (tag.equalsIgnoreCase("director")) {
@@ -415,7 +421,10 @@ public class MovieNFOScanner {
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
-                                            // Unused
+                                            float val = XMLHelper.parseFloat(r);
+                                            if (val != 0.0f) {
+                                                movie.setAspectRatio(val);
+                                            }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<width>")) {
@@ -499,6 +508,12 @@ public class MovieNFOScanner {
                             if (!val.isEmpty()) {
                                 movie.setVideoOutput(val);
                             }
+                        } else if (tag.equalsIgnoreCase("Company")) {
+                            // Issue 1173 - Even though it's not strictly XBMC standard
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setCompany(val);
+                            }
                         }
                     }
                 } else if (e.isEndElement()) {
@@ -508,7 +523,6 @@ public class MovieNFOScanner {
                     }
                 }
             }
-
             return isMovieTag;
         } catch (Exception error) {
             logger.severe("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
@@ -674,7 +688,10 @@ public class MovieNFOScanner {
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
-                                            // Unused
+                                            float val = XMLHelper.parseFloat(r);
+                                            if (val != 0.0f) {
+                                                movie.setAspectRatio(val);
+                                            }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<width>")) {

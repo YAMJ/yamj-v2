@@ -269,7 +269,7 @@ import com.moviejukebox.tools.PropertiesUtil;
      */
     private String calculatePlayLink() {
         File file = getFile();
-        String filename = file.getName();
+        //String filename = file.getName();
         String returnValue = "";
         
         if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
@@ -289,7 +289,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
             Matcher matcher = e.getValue().matcher(getExtension(file));
             if (matcher.find()) {
-                System.out.println(filename + " matched to " + e.getKey());
+                //System.out.println(filename + " matched to " + e.getKey());
                 returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey(), "") + " ";
             }
         }

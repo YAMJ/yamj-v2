@@ -22,6 +22,7 @@ MovieJukebox 1.7 BETA
   - Enhancement  #1108 Release date parsing for IMDB broken
   - Fixed defect #1117 Local videoimages copy error
   - Enhancement  #1119 Include movie counter in cmd window
+  - Enhancement  #1120 Support for <aspect></aspect> NFO Tags
   - Enhancement  #1121 File size scanning/support for skin details
   - Enhancement  #1122 YAMJ Version Stamp in XML files.
   - Enhancement  #1124 Hebrew skin - playing BluRay backups with menu in C200
@@ -34,6 +35,7 @@ MovieJukebox 1.7 BETA
   - Fixed defect #1146 Apple Movie Trailers not downloaded in the proper BDMV directory with BluRays
   - Fixed defect #1147 Trailer tag in NFO being interpreted as an EXTRA by YAMJ
   - Fixed defect #1166 Correct the URL for streaming Apple Trailers
+  - Enhancement  #1173 Studio Field added to NFO format
   - Fixed defect #1177 IMDb Rating not detected
   - Enhancement        Default skin: Highlighting of current category
   - Enhancement        Default skin: "T9"-navigation over title first letters  
