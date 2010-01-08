@@ -44,6 +44,9 @@ import com.moviejukebox.tools.PropertiesUtil;
     public static String TYPE_UNKNOWN = UNKNOWN;
     public static String TYPE_VIDEO_UNKNOWN = UNKNOWN;
     public static String TYPE_VIDEO_HD = "HD";
+    public static String TYPE_BLURAY = "BLURAY";    // Used to indicate what physical format the video is
+    public static String TYPE_DVD = "DVD";          // Used to indicate what physical format the video is
+    public static String TYPE_FILE = "FILE";        // Used to indicate what physical format the video is
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
     private String baseName;
@@ -75,7 +78,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
     private String audioChannels = UNKNOWN; // Number of audio channels
     private String resolution = UNKNOWN; // 1280x528
-    private float  aspect = 1.0f;
+    private String aspect = UNKNOWN;
     private String videoSource = UNKNOWN;
     private String videoOutput = UNKNOWN;
     private float fps = 60;
@@ -85,6 +88,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     private boolean trailerExchange = false;
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
+    private String formatType = TYPE_FILE;
     private boolean overrideTitle = false;
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
@@ -436,6 +440,18 @@ import com.moviejukebox.tools.PropertiesUtil;
         return (this.movieType.equals(TYPE_TVSHOW) || this.season != -1);
     }
 
+    public boolean isBluray() {
+        return this.formatType.equals(TYPE_BLURAY);
+    }
+    
+    public boolean isDVD() {
+        return this.formatType.equals(TYPE_DVD);
+    }
+    
+    public boolean isFile() {
+        return this.formatType.equals(TYPE_FILE);
+    }
+    
     public boolean isHD() {
         // Depreciated this check in favour of the width check
         // return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
@@ -937,6 +953,21 @@ import com.moviejukebox.tools.PropertiesUtil;
         return this.movieType;
     }
 
+    public void setFormatType(String formatType) {
+        if (formatType == null) {
+            formatType = TYPE_FILE;
+        }
+        if (!this.formatType.equals(formatType)) {
+            this.isDirty = true;
+            this.formatType = formatType;
+        }
+    }
+
+    public String getFormatType() {
+        return this.formatType;
+    }
+
+
     public void setVideoType(String videoType) {
         if (videoType == null) {
             videoType = UNKNOWN;
@@ -1168,11 +1199,11 @@ import com.moviejukebox.tools.PropertiesUtil;
         return returnSize;
     }
     
-    public void setAspectRatio(float aspect) {
+    public void setAspectRatio(String aspect) {
         this.aspect = aspect;
     }
     
-    public float getAspectRatio() {
+    public String getAspectRatio() {
         return aspect;
     }
     

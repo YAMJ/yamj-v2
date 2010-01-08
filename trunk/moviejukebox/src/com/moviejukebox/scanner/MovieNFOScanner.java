@@ -421,8 +421,8 @@ public class MovieNFOScanner {
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
-                                            float val = XMLHelper.parseFloat(r);
-                                            if (val != 0.0f) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
                                                 movie.setAspectRatio(val);
                                             }
                                         }
@@ -694,8 +694,8 @@ public class MovieNFOScanner {
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
-                                            float val = XMLHelper.parseFloat(r);
-                                            if (val != 0.0f) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
                                                 movie.setAspectRatio(val);
                                             }
                                         }
