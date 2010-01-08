@@ -514,6 +514,12 @@ public class MovieNFOScanner {
                             if (!val.isEmpty()) {
                                 movie.setCompany(val);
                             }
+                        } else if (tag.equalsIgnoreCase("Studio")) {
+                            // Issue 1173 - Even though it's not strictly XBMC standard
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                movie.setCompany(val);
+                            }
                         }
                     }
                 } else if (e.isEndElement()) {
