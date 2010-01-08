@@ -1093,6 +1093,7 @@ public class MovieJukebox {
             }
             
             miScanner.scan(movie);
+            
             DatabasePluginController.scan(movie);
         }
     }

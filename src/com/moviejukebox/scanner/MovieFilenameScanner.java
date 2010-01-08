@@ -296,7 +296,6 @@ public class MovieFilenameScanner {
     private MovieFilenameScanner(File file) {
         this.file = file;
         this.filename = file.getName();
-
         rest = filename;
 
         // EXTENSION AND CONTAINER

@@ -109,8 +109,10 @@ public class MovieDirectoryScanner {
                 // Prescan files list. Ignore directory if file with predefined name is found.
                 // TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 for (File file : files) {
-                    if (file.getName().equalsIgnoreCase(".mjbignore"))
+                    if (file.getName().equalsIgnoreCase(".mjbignore")) {
+                        logger.finest("Scanning of directory " + directory.getAbsolutePath() + " skipped due to override file");
                         return;
+                    }
                 }
 
                 for (File file : fileList) {
@@ -234,16 +236,12 @@ public class MovieDirectoryScanner {
         }
 
         for (int i = 0; i < contentFiles.length; i++) {
+            Movie movie = new Movie();
+            String baseFileName = Movie.UNKNOWN;
+            
             // Hopefully this is a fix for issue #670 -- I can't duplicate it, since I don't have an BD rips
             if (contentFiles[i] == null)
                 continue;
-
-            // Compute the baseFilename: This is the filename without the extension
-            String baseFileName = file.getName();
-
-            if (!file.isDirectory()) {
-                baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
-            }
 
             // Compute the relative filename
             String relativeFilename = contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex);
@@ -252,57 +250,61 @@ public class MovieDirectoryScanner {
             }
 
             MovieFile movieFile = new MovieFile();
-            relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
+            relativeFilename = relativeFilename.replace('\\', '/'); // make it Unix!
 
             if (contentFiles[i].isDirectory()) {
                 // For DVD images
+                baseFileName = file.getName();
                 movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
+                movie.setFormatType(Movie.TYPE_DVD);
+            } else if (isBluRay && playFullBluRayDisk) {
+                baseFileName = file.getName();
+                // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
+                String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
+                tempFilename = tempFilename.substring(0, tempFilename.lastIndexOf("BDMV"));
+                movieFile.setFilename(tempFilename);
+                movie.setFormatType(Movie.TYPE_BLURAY);
             } else {
-                if (isBluRay && playFullBluRayDisk) {
-                    // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
-                    String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
-                    tempFilename = tempFilename.substring(0, tempFilename.lastIndexOf("BDMV"));
-                    movieFile.setFilename(tempFilename);
-                } else {
-                    // Normal movie file so link to it
-                    movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
-                }
+                baseFileName = file.getName().substring(0, file.getName().lastIndexOf("."));
+
+                // Normal movie file so link to it
+                movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
+                movie.setFormatType(Movie.TYPE_FILE);
             }
+
             movieFile.setPart(i + 1);
             movieFile.setFile(contentFiles[i]);
 
-            Movie m = new Movie();
-            m.setScrapeLibrary(srcPath.isScrapeLibrary());
-            m.addMovieFile(movieFile);
-            m.setFile(contentFiles[i]);
-            m.setContainerFile(file);
-            m.setBaseName(baseFileName);
-            m.setLibraryPath(srcPath.getPath());
-            m.setPosterFilename(baseFileName + ".jpg");
-            m.setThumbnailFilename(baseFileName + thumbnailToken + "." + thumbnailsFormat);
-            m.setDetailPosterFilename(baseFileName + posterToken + "." + postersFormat);
-            m.setBannerFilename(baseFileName + bannerToken + "." + bannersFormat);
-            m.setSubtitles(hasSubtitles(m.getFile()));
-            m.setLibraryDescription(srcPath.getDescription());
-            m.setPrebuf(srcPath.getPrebuf());
-            m.setFileDate(new Date(file.lastModified()));
-            m.setFileSize(file.length());
+            movie.setScrapeLibrary(srcPath.isScrapeLibrary());
+            movie.addMovieFile(movieFile);
+            movie.setFile(contentFiles[i]);
+            movie.setContainerFile(file);
+            movie.setBaseName(baseFileName);
+            movie.setLibraryPath(srcPath.getPath());
+            movie.setPosterFilename(baseFileName + ".jpg");
+            movie.setThumbnailFilename(baseFileName + thumbnailToken + "." + thumbnailsFormat);
+            movie.setDetailPosterFilename(baseFileName + posterToken + "." + postersFormat);
+            movie.setBannerFilename(baseFileName + bannerToken + "." + bannersFormat);
+            movie.setSubtitles(hasSubtitles(movie.getFile()));
+            movie.setLibraryDescription(srcPath.getDescription());
+            movie.setPrebuf(srcPath.getPrebuf());
+            movie.setFileDate(new Date(file.lastModified()));
+            movie.setFileSize(file.length());
             
-
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
-            m.mergeFileNameDTO(dto);
+            movie.mergeFileNameDTO(dto);
 
             if (bdDuration == 0) {
                 // Do not merge file information for BD
                 movieFile.mergeFileNameDTO(dto);
             } else {
                 // Set duration for BD disks using the data in the playlist + mark bd source and container
-                m.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
-                m.setContainer("BluRay");
-                m.setVideoSource("BluRay");
+                movie.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
+                movie.setContainer("BluRay");
+                movie.setVideoSource("BluRay");
             }
 
-            library.addMovie(m);
+            library.addMovie(movie);
             
             // Stop after first file part if full BluRay Disk
             if (isBluRay && playFullBluRayDisk)
