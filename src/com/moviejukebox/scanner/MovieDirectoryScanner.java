@@ -292,13 +292,19 @@ public class MovieDirectoryScanner {
             movie.setFileSize(file.length());
             
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
+            
             movie.mergeFileNameDTO(dto);
 
             if (bdDuration == 0) {
-                // Do not merge file information for BD
+                // XXX Why do we not merge Bluray information?
+                // Do not merge file information for Bluray
                 movieFile.mergeFileNameDTO(dto);
             } else {
-                // Set duration for BD disks using the data in the playlist + mark bd source and container
+                if (playFullBluRayDisk && movie.isTVShow()) {
+                    // This is needed for multi-part disks and TV shows
+                    movieFile.mergeFileNameDTO(dto);
+                }
+                // Set duration for BD disks using the data in the playlist + mark Bluray source and container
                 movie.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
                 movie.setContainer("BluRay");
                 movie.setVideoSource("BluRay");
