@@ -184,7 +184,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setPosterURL(urlNormal);
                     }
                 }
-                if (includeWideBanners && (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceBannerOverwrite) || movie.isDirtyBanner()){
+                
+                if (includeWideBanners && (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceBannerOverwrite) || movie.isDirtyBanner()) {
                     String urlBanner = null;
 
                     if (!banners.getSeasonList().isEmpty() && !onlySeriesBanners) {
@@ -231,7 +232,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 // TODO remove this once all skins are using the new fanart properties
                 downloadFanart = checkDownloadFanart(movie.isTVShow());
                 
-                if (downloadFanart && (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceFanartOverwrite) || (movie.isDirtyFanart())){
+                if (downloadFanart && (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceFanartOverwrite) || (movie.isDirtyFanart())) {
                     String url = null;
                     if (!banners.getFanartList().isEmpty()) {
                         int index = movie.getSeason();
@@ -255,7 +256,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                     }
                 }
-                // we may not have here the semaphore aquired, could lead to deadlock if limit is 1 and this function also needs a slot
+                // we may not have here the semaphore acquired, could lead to deadlock if limit is 1 and this function also needs a slot
                 scanTVShowTitles(movie);
             }
         }
@@ -276,6 +277,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             if (movie.getSeason() >= 0) {
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
+                
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
                     Episode episode = null;
                     if (dvdEpisodes) {
