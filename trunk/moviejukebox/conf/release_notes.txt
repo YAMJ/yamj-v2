@@ -2,8 +2,12 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 1.7 BETA
+MovieJukebox 1.8 BETA
 ---------------------
+
+
+MovieJukebox 1.7
+----------------
   - Enhancement   #358 Intuitive movie highlight when surfing up/down pages in the movies index (default skin)
   - Enhancement   #503 Simplify skins by figuring out the vod/vcd/playlist attributes in YAMJ itself
   - Enhancement   #743 Fanart for Set index pages
