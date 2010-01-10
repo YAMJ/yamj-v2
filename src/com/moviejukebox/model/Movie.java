@@ -1200,6 +1200,12 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
     
     public void setAspectRatio(String aspect) {
+        // Format the aspect slightly and change "16/9" to "16:9"
+        aspect.replaceAll("/", ":");
+        if (!aspect.contains(":")) {
+            aspect += ":1";
+        }
+        
         this.aspect = aspect;
     }
     
