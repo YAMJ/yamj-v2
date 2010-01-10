@@ -261,7 +261,7 @@ public class MovieDirectoryScanner {
                 baseFileName = file.getName();
                 // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
                 String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
-                tempFilename = tempFilename.substring(0, tempFilename.lastIndexOf("BDMV"));
+                tempFilename = tempFilename.substring(0, tempFilename.toUpperCase().lastIndexOf("BDMV"));
                 movieFile.setFilename(tempFilename);
                 movie.setFormatType(Movie.TYPE_BLURAY);
             } else {
