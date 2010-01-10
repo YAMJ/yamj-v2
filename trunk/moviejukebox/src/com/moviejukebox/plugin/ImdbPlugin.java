@@ -369,14 +369,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 plotBegin += "<h5>Plot:</h5>".length();
                 int plotEnd = xml.indexOf("<a class=\"tn15more", plotBegin);
                 if (plotEnd > -1) {
-                    String outline = HTMLTools.stripTags(xml.substring(plotBegin, plotEnd));
+                    String outline = HTMLTools.stripTags(xml.substring(plotBegin, plotEnd)).trim();
                     if (outline.length() > 0) {
                         if (outline.endsWith("|")) {
                             // Remove the bar character from the end of the plot
                             outline = outline.substring(0, outline.length() - 1);
                         }
                         
-                        imdbOutline = outline;
+                        imdbOutline = outline.trim();
                     }
                 }
             }
