@@ -349,8 +349,8 @@ public class MediaInfoScanner {
             movie.setContainer(infoValue);
         }
 
-        // get Infos from first Video Stream
-        // - can evolve to get info from longuest Video Stream
+        // get Info from first Video Stream
+        // - can evolve to get info from longest Video Stream
         if (infosVideo.size() > 0) {
             HashMap<String, String> infosMainVideo = infosVideo.get(0);
 
@@ -411,6 +411,12 @@ public class MediaInfoScanner {
                 normeHD = "1080";
             } else if (width > 1024) { // 1024 is the maximum width that SD content could be, this compensates for cropped HD720 content 
                 normeHD = "720";
+            }
+            
+            // Save the aspect ratio for the video
+            infoValue = infosMainVideo.get("Display aspect ratio");
+            if (infoValue != null) {
+                movie.setAspectRatio(infoValue);
             }
 
             if (!normeHD.equals("SD")) {
