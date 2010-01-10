@@ -116,6 +116,7 @@ public class MovieFilenameScanner {
         }
 
         {
+            // http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
             put("Chinese", "ZH Zh zh CHI Chi chi CHINESE Chinese chinese");
             put("Dual Language", "DL dl");
             put("English", "ENG EN ENGLISH eng en english Eng");
@@ -134,6 +135,7 @@ public class MovieFilenameScanner {
             put("Swedish", "SV Sv sv SWE Swe swe SWEDISH Swedish swedish");
             put("Thai", "TH Th th THA Tha tha THAI Thai thai");
             put("VO", "VO VOSTFR vo vostfr");
+            put("Danish", "DA DAN DANISH da dan danish");
         }
     };
 
@@ -171,6 +173,7 @@ public class MovieFilenameScanner {
             put("Swedish", "SV SWE SWEDISH");
             put("Thai", "TH THA THAI");
             put("VO", "VO VOSTFR");
+            put("Danish", "DA DAN DANISH");
         }
     };
 
