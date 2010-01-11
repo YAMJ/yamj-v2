@@ -42,7 +42,7 @@ import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
  */
 public class DVDRipScanner {
 
-    private static Logger log = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger("moviejukebox");
 
     public DVDRipScanner() {
     }
@@ -87,7 +87,7 @@ public class DVDRipScanner {
             File[] ifo = (File[]) ifoList.toArray(new File[ifoList.size()]);
 
             if (ifo == null || ifo.length == 0) {
-                log.info("No Ifo Found");
+                logger.info("DVDRipScanner: No Ifo Found with disk format.");
             } else {
 
                 int longestDuration = 0;
@@ -105,7 +105,7 @@ public class DVDRipScanner {
                         }
 
                     } catch (Exception error) {
-                        log.finer("Error when parsing file:" + ifo[i]);
+                        logger.finer("DVDRipScanner: Error when parsing file:" + ifo[i]);
                     }
                 }
 
