@@ -355,44 +355,50 @@ public class MediaInfoScanner {
             HashMap<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
-            if (movie.getMovieFiles().size() == 1) {
-                // Duration
-                infoValue = infosMainVideo.get("Duration");
-                if (infoValue != null) {
-
-                    int duration;
-                    duration = Integer.parseInt(infoValue) / 1000;
-
-                    movie.setRuntime(formatDuration(duration));
+            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                if (movie.getMovieFiles().size() == 1) {
+                    // Duration
+                    infoValue = infosMainVideo.get("Duration");
+                    if (infoValue != null) {
+    
+                        int duration;
+                        duration = Integer.parseInt(infoValue) / 1000;
+    
+                        movie.setRuntime(formatDuration(duration));
+                    }
                 }
             }
 
             // Codec (most relevant Info depending on mediainfo result)
-            infoValue = infosMainVideo.get("Codec ID/Hint");
-            if (infoValue != null) {
-                movie.setVideoCodec(infoValue);
-            } else {
-                infoValue = infosMainVideo.get("Codec ID");
+            if (movie.getVideoCodec().equals(Movie.UNKNOWN)) {
+                infoValue = infosMainVideo.get("Codec ID/Hint");
                 if (infoValue != null) {
                     movie.setVideoCodec(infoValue);
                 } else {
-                    infoValue = infosMainVideo.get("Format");
+                    infoValue = infosMainVideo.get("Codec ID");
                     if (infoValue != null) {
                         movie.setVideoCodec(infoValue);
+                    } else {
+                        infoValue = infosMainVideo.get("Format");
+                        if (infoValue != null) {
+                            movie.setVideoCodec(infoValue);
+                        }
                     }
                 }
             }
 
             // Resolution
-            int width = 0;
-
-            infoValue = infosMainVideo.get("Width");
-            if (infoValue != null) {
-                width = Integer.parseInt(infoValue);
-
-                infoValue = infosMainVideo.get("Height");
+            if (movie.getResolution().equals(Movie.UNKNOWN)) {
+                int width = 0;
+    
+                infoValue = infosMainVideo.get("Width");
                 if (infoValue != null) {
-                    movie.setResolution(width + "x" + infoValue);
+                    width = Integer.parseInt(infoValue);
+    
+                    infoValue = infosMainVideo.get("Height");
+                    if (infoValue != null) {
+                        movie.setResolution(width + "x" + infoValue);
+                    }
                 }
             }
 
@@ -405,102 +411,105 @@ public class MediaInfoScanner {
                 movie.setFps(fps);
             }
 
-            // Guessing Video Output (Issue 988)
-            String normeHD = "SD";
-            if (width > 1280) { // If width is greater than 720p then it must be 1080
-                normeHD = "1080";
-            } else if (width > 1024) { // 1024 is the maximum width that SD content could be, this compensates for cropped HD720 content 
-                normeHD = "720";
-            }
-            
             // Save the aspect ratio for the video
-            infoValue = infosMainVideo.get("Display aspect ratio");
-            if (infoValue != null) {
-                movie.setAspectRatio(infoValue);
+            if (movie.getAspectRatio().equals(Movie.UNKNOWN)) {
+                infoValue = infosMainVideo.get("Display aspect ratio");
+                if (infoValue != null) {
+                    movie.setAspectRatio(infoValue);
+                }
             }
 
-            if (!normeHD.equals("SD")) {
-                infoValue = infosMainVideo.get("Scan type");
-                if (infoValue != null) {
-                    if (infoValue.equals("Progressive")) {
-                        normeHD += "p";
+            if (movie.getVideoOutput().equalsIgnoreCase(Movie.UNKNOWN)) {
+                // Guessing Video Output (Issue 988)
+                String normeHD;
+                if (movie.isHD()) {
+                    if (movie.isHD1080()) {
+                        normeHD = "1080";
                     } else {
-                        normeHD += "i";
+                        normeHD = "720";
                     }
-                }
-                movie.setVideoOutput(normeHD + " " + Math.round(movie.getFps()) + "Hz");
-
-            } else {
-                String videoOutput;
-                switch (Math.round(movie.getFps())) {
-                    case 24:
-                        videoOutput = "24";
-                        break;
-                    case 25:
-                        videoOutput = "PAL 25";
-                        break;
-                    case 30:
-                        videoOutput = "NTSC 30";
-                        break;
-                    case 50:
-                        videoOutput = "PAL 50";
-                        break;
-                    case 60:
-                        videoOutput = "NTSC 60";
-                        break;
-                    default:
-                        videoOutput = "NTSC";
-                        break;
-                }
-                infoValue = infosMainVideo.get("Scan type");
-                if (infoValue != null) {
-                    if (infoValue.equals("Progressive")) {
-                        videoOutput += "p";
-                    } else {
-                        videoOutput += "i";
+                    
+                    infoValue = infosMainVideo.get("Scan type");
+                    if (infoValue != null) {
+                        if (infoValue.equals("Progressive")) {
+                            normeHD += "p";
+                        } else {
+                            normeHD += "i";
+                        }
                     }
+                    movie.setVideoOutput(normeHD + " " + Math.round(movie.getFps()) + "Hz");
+                } else {
+                    normeHD = "SD";
+                    String videoOutput;
+                    switch (Math.round(movie.getFps())) {
+                        case 24:
+                            videoOutput = "24";
+                            break;
+                        case 25:
+                            videoOutput = "PAL 25";
+                            break;
+                        case 30:
+                            videoOutput = "NTSC 30";
+                            break;
+                        case 50:
+                            videoOutput = "PAL 50";
+                            break;
+                        case 60:
+                            videoOutput = "NTSC 60";
+                            break;
+                        default:
+                            videoOutput = "NTSC";
+                            break;
+                    }
+                    infoValue = infosMainVideo.get("Scan type");
+                    if (infoValue != null) {
+                        if (infoValue.equals("Progressive")) {
+                            videoOutput += "p";
+                        } else {
+                            videoOutput += "i";
+                        }
+                    }
+                    movie.setVideoOutput(videoOutput);
                 }
-                movie.setVideoOutput(videoOutput);
-
             }
         }
 
         // Cycle through Audio Streams
-        movie.setAudioCodec(Movie.UNKNOWN);
-
-        for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
-            HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
-
-            String infoLanguage = "";
-            infoValue = infosCurAudio.get("Language");
-            if (infoValue != null) {
-                infoLanguage = " (" + infoValue + ")";
-            }
-
-            infoValue = infosCurAudio.get("Codec ID/Hint");
-            if (infoValue == null) {
-                infoValue = infosCurAudio.get("Codec");
-            }
-
-            if (infoValue != null) {
-                String oldInfo = movie.getAudioCodec();
-                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
-                    movie.setAudioCodec(infoValue + infoLanguage);
-                } else {
-                    movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
+        if (movie.getAudioCodec().equals(Movie.UNKNOWN)) {
+            for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
+                HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
+    
+                String infoLanguage = "";
+                infoValue = infosCurAudio.get("Language");
+                if (infoValue != null) {
+                    infoLanguage = " (" + infoValue + ")";
                 }
-            }
-
-            infoValue = infosCurAudio.get("Channel(s)");
-            if (infoValue != null) {
-                String oldInfo = movie.getAudioChannels();
-                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
-                    movie.setAudioChannels(infoValue);
-                } else {
-                    movie.setAudioChannels(oldInfo + " / " + infoValue);
+    
+                infoValue = infosCurAudio.get("Codec ID/Hint");
+                if (infoValue == null) {
+                    infoValue = infosCurAudio.get("Codec");
                 }
+    
+                if (infoValue != null) {
+                    String oldInfo = movie.getAudioCodec();
+                    if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
+                        movie.setAudioCodec(infoValue + infoLanguage);
+                    } else {
+                        movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
+                    }
+                }
+    
+                infoValue = infosCurAudio.get("Channel(s)");
+                if (infoValue != null) {
+                    String oldInfo = movie.getAudioChannels();
+                    if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
+                        movie.setAudioChannels(infoValue);
+                    } else {
+                        movie.setAudioChannels(oldInfo + " / " + infoValue);
+                    }
+                }
+    
             }
-
         }
 
         // Cycle through Text Streams
