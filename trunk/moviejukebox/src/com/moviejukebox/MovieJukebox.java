@@ -705,26 +705,6 @@ public class MovieJukebox {
             jukeboxXml.movies = library.values();
 
 
-            try {
-                final String totalMoviesXmlFileName = "CompleteMovies.xml";
-                final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
-                context.createMarshaller().marshal(jukeboxXml, new FileOutputStream(totalMoviesXmlFile));
-                generatedFileNames.add(totalMoviesXmlFileName);
-                
-                Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
-    
-                final String rssXmlFileName = "RSS.xml";
-                FileOutputStream outStream = new FileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName));
-                generatedFileNames.add(rssXmlFileName);
-
-                Result xmlResult = new StreamResult(outStream);
-    
-                transformer.transform(new StreamSource(new FileInputStream(totalMoviesXmlFile)), xmlResult);
-                outStream.flush();
-                outStream.close();
-                } catch(Exception e) {
-                    logger.finest("RSS is not generated." /* + e.getStackTrace().toString()*/);
-                }
             // Multi-thread: Parallel Executor
             tasks = new ThreadExecutor<Void>(MaxThreadsProcess);
 
@@ -840,6 +820,27 @@ public class MovieJukebox {
                 htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library, MaxThreadsProcess);
                 htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
             }
+
+            try {
+                final String totalMoviesXmlFileName = "CompleteMovies.xml";
+                final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
+                context.createMarshaller().marshal(jukeboxXml, new FileOutputStream(totalMoviesXmlFile));
+                generatedFileNames.add(totalMoviesXmlFileName);
+                
+                Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
+    
+                final String rssXmlFileName = "RSS.xml";
+                FileOutputStream outStream = new FileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName));
+                generatedFileNames.add(rssXmlFileName);
+
+                Result xmlResult = new StreamResult(outStream);
+    
+                transformer.transform(new StreamSource(new FileInputStream(totalMoviesXmlFile)), xmlResult);
+                outStream.flush();
+                outStream.close();
+                } catch(Exception e) {
+                    logger.finest("RSS is not generated." /* + e.getStackTrace().toString()*/);
+                }
 
             /********************************************************************************
              * 

@@ -703,16 +703,25 @@ public class MovieJukeboxXMLWriter {
     }
 
     private void writeIndexAttribute(XMLWriter writer, Library l, String cat, String val) throws XMLStreamException {
+        final String index = createIndexAttribute(l, cat, val);
+        if (index != null) {
+            writer.writeAttribute("index", index);
+        }
+    }
+
+    private String createIndexAttribute(Library l, String cat, String val) throws XMLStreamException {
         Library.Index i = l.getIndexes().get(cat);
         if (null != i) {
             List<Movie> ml = i.get(val);
             if (null != ml && ml.size() >= categoriesMinCount) {
-                writer.writeAttribute("index", HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(cat, val)) + 1));
+                return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(cat, val)) + 1);
             }
         }
+        return null;
     }
 
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
+        
         // These are pulled from the Manifest.MF file that is created by the Ant build script
         String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
         String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
@@ -926,6 +935,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("lastPart", Integer.toString(mf.getLastPart()));
             writer.writeAttribute("title", mf.getTitle());
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
+            writer.writeAttribute("discImage", Boolean.toString(mf.isDiscImage()));
             // Fixes an issue with null file lengths
             try {
                 writer.writeAttribute("size", Long.toString(mf.getFile().length()));
@@ -972,6 +982,7 @@ public class MovieJukeboxXMLWriter {
             for (ExtraFile ef : extraFiles) {
                 writer.writeStartElement("extra");
                 writer.writeAttribute("title", ef.getTitle());
+                writer.writeAttribute("discImage", Boolean.toString(ef.isDiscImage()));
                 writer.writeCharacters(ef.getFilename()); // should already be URL-encoded
                 writer.writeEndElement();
             }

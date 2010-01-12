@@ -383,7 +383,7 @@ public class MovieFilenameScanner {
                 }
                 rest = cutMatch(rest, matcher, " / ");
 
-                MovieFileNameDTO.Set set = new MovieFileNameDTO.Set();
+                MovieFileNameDTO.SetDTO set = new MovieFileNameDTO.SetDTO();
                 dto.getSets().add(set);
 
                 String n = matcher.group(1);

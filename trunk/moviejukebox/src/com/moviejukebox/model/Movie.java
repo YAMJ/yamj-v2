@@ -14,40 +14,57 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Movie bean
  * 
  * @author jjulien
+ * @author artem.gratchev
  */
 @XmlType public class Movie implements Comparable<Movie>, Cloneable {
+// Preparing to JAXB
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    public static String UNKNOWN = "UNKNOWN";
-    public static String NOTRATED = "Not Rated";
-    public static String TYPE_MOVIE = "MOVIE";
-    public static String TYPE_TVSHOW = "TVSHOW";
-    public static String TYPE_UNKNOWN = UNKNOWN;
-    public static String TYPE_VIDEO_UNKNOWN = UNKNOWN;
-    public static String TYPE_VIDEO_HD = "HD";
-    public static String TYPE_BLURAY = "BLURAY";    // Used to indicate what physical format the video is
-    public static String TYPE_DVD = "DVD";          // Used to indicate what physical format the video is
-    public static String TYPE_FILE = "FILE";        // Used to indicate what physical format the video is
+    public static final String UNKNOWN = "UNKNOWN";
+    public static final String NOTRATED = "Not Rated";
+    public static final String TYPE_MOVIE = "MOVIE";
+    public static final String TYPE_TVSHOW = "TVSHOW";
+    public static final String TYPE_UNKNOWN = UNKNOWN;
+    public static final String TYPE_VIDEO_UNKNOWN = UNKNOWN;
+    public static final String TYPE_VIDEO_HD = "HD";
+    public static final String TYPE_BLURAY = "BLURAY";    // Used to indicate what physical format the video is
+    public static final String TYPE_DVD = "DVD";          // Used to indicate what physical format the video is
+    public static final String TYPE_FILE = "FILE";        // Used to indicate what physical format the video is
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
+
+    private final String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
+    private final String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
 
     private String baseName;
     private boolean scrapeLibrary;
@@ -69,10 +86,10 @@ import com.moviejukebox.tools.PropertiesUtil;
     private String videoType = UNKNOWN;
     private int season = -1;
     private boolean hasSubtitles = false;
-    private Collection<String> genres = new TreeSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
-    private Collection<String> cast = new ArrayList<String>();
-    private Collection<String> writers = new ArrayList<String>();
+    private SortedSet<String> genres = new TreeSet<String>();
+    private List<String> cast = new ArrayList<String>();
+    private List<String> writers = new ArrayList<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
@@ -128,6 +145,57 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     // True if movie actually is only a entry point to movies set.
     private boolean isSetMaster = false;
+
+    // http://stackoverflow.com/questions/343669/how-to-let-jaxb-render-boolean-as-0-and-1-not-true-and-false
+    public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean>
+    {
+        @Override
+        public Boolean unmarshal( String s )
+        {
+            return s == null ? null : "YES".equalsIgnoreCase(s);
+        }
+
+        @Override
+        public String marshal( Boolean c )
+        {
+            return c == null ? null : c ? "YES" : "NO";
+        }
+    }
+
+    public static class UrlCodecAdapter extends XmlAdapter<String, String>
+    {
+        @Override
+        public String unmarshal( String s )
+        {
+            return s == null ? null : HTMLTools.decodeUrl(s);
+        }
+
+        @Override
+        public String marshal( String c )
+        {
+            return c == null ? null : HTMLTools.encodeUrl(c);
+        }
+    }
+
+    
+    
+    @XmlElement public String getMjbVersion() {
+        return mjbVersion;
+    }
+
+    @XmlElement public String getMjbRevision() {
+        if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
+            return mjbRevision;
+        } else {
+            return Movie.UNKNOWN;
+        }
+        
+    }
+    
+    @XmlElement public String getXmlGenerationDate() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    }
+
 
     public void addGenre(String genre) {
         if (genre != null && !extra) {
@@ -228,10 +296,14 @@ import com.moviejukebox.tools.PropertiesUtil;
         return baseName;
     }
 
+    @XmlElementWrapper(name = "cast")
+    @XmlElement(name = "actor")
     public Collection<String> getCast() {
         return cast;
     }
 
+    @XmlElementWrapper(name = "writers")
+    @XmlElement(name = "writer")
     public Collection<String> getWriters() {
         return writers;
     }
@@ -256,6 +328,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         return movieFiles;
     }
 
+    @XmlElementWrapper(name = "extras")
+    @XmlElement(name = "extra")
     public Collection<ExtraFile> getExtraFiles() {
         return extraFiles;
     }
@@ -264,6 +338,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         return certification;
     }
 
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getFirst() {
         return first;
     }
@@ -288,6 +363,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         return fps;
     }
 
+    @XmlElementWrapper(name = "genres")
+    @XmlElement(name = "genre")
     public Collection<String> getGenres() {
         return genres;
     }
@@ -322,19 +399,48 @@ import com.moviejukebox.tools.PropertiesUtil;
     public Map<String, String> getIdMap() {
         return idMap;
     }
+    
+    public static class MovieId {
+        @XmlAttribute public String movieDatabase;
+        @XmlValue public String value;
+    }
+    
+    @XmlElement(name = "id")
+    public List<MovieId> getMovieIds() {
+        List<MovieId> list = new ArrayList<MovieId>();
+        for (Entry<String, String> e : idMap.entrySet()) {
+            MovieId id = new MovieId();
+            id.movieDatabase = e.getKey();
+            id.value = e.getValue();
+            list.add(id);
+        }
+        return list;
+    }
+    
+    public void setMovieIds(List<MovieId> list) {
+        idMap.clear();
+        for (MovieId id : list) {
+            idMap.put(id.movieDatabase, id.value);
+        }
+    }
+    
 
     public String getLanguage() {
         return language;
     }
 
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getLast() {
         return last;
     }
 
+    @XmlElementWrapper(name = "files")
+    @XmlElement(name = "file")
     public Collection<MovieFile> getMovieFiles() {
         return movieFiles;
     }
 
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getNext() {
         return next;
     }
@@ -343,6 +449,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         return plot;
     }
 
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getPrevious() {
         return previous;
     }
@@ -379,86 +486,88 @@ import com.moviejukebox.tools.PropertiesUtil;
         return season;
     }
 
-    @XmlAttribute public String getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    @XmlAttribute public String getTitleSort() {
+    public String getTitleSort() {
         return titleSort;
     }
 
-    @XmlAttribute public String getOriginalTitle() {
+    public String getOriginalTitle() {
         return originalTitle;
     }
 
-    @XmlAttribute public String getVideoCodec() {
+    public String getVideoCodec() {
         return videoCodec;
     }
 
-    @XmlAttribute public String getVideoOutput() {
+    public String getVideoOutput() {
         return videoOutput;
     }
 
-    @XmlAttribute public String getVideoSource() {
+    public String getVideoSource() {
         return videoSource;
     }
 
-    @XmlAttribute public String getYear() {
+    public String getYear() {
         return year;
     }
-
+    
     public boolean hasSubtitles() {
         return hasSubtitles;
     }
 
-    public boolean isDirty() {
+    @XmlTransient public boolean isDirty() {
         return isDirty;
     }
 
-    public boolean isDirtyNFO() {
+    @XmlTransient public boolean isDirtyNFO() {
         return isDirtyNFO;
     }
 
-    public boolean isDirtyPoster() {
+    @XmlTransient public boolean isDirtyPoster() {
         return isDirtyPoster;
     }
 
-    public boolean isDirtyFanart() {
+    @XmlTransient public boolean isDirtyFanart() {
         return isDirtyFanart;
     }
     
-    public boolean isDirtyBanner() {
+    @XmlTransient public boolean isDirtyBanner() {
         return isDirtyBanner;
     }
 
+    @XmlElement(name = "subtitles")
+    @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
     public boolean isHasSubtitles() {
         return hasSubtitles;
     }
 
-    @XmlAttribute public boolean isTVShow() {
+    @XmlAttribute(name = "isTV") public boolean isTVShow() {
         // return (season != -1);
         return (this.movieType.equals(TYPE_TVSHOW) || this.season != -1);
     }
 
-    public boolean isBluray() {
+    @XmlTransient public boolean isBluray() {
         return this.formatType.equals(TYPE_BLURAY);
     }
     
-    public boolean isDVD() {
+    @XmlTransient public boolean isDVD() {
         return this.formatType.equals(TYPE_DVD);
     }
     
-    public boolean isFile() {
+    @XmlTransient public boolean isFile() {
         return this.formatType.equals(TYPE_FILE);
     }
     
-    public boolean isHD() {
+    @XmlTransient public boolean isHD() {
         // Depreciated this check in favour of the width check
         // return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
         return (getWidth() >= highdef720);
     }
 
-    public boolean isHD1080() {
+    @XmlTransient public boolean isHD1080() {
         return (getWidth() >= highdef1080);
     }
 
@@ -491,7 +600,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     public void setCast(Collection<String> cast) {
         this.isDirty = true;
-        this.cast = cast;
+        this.cast = new ArrayList<String>(cast);
     }
 
     public void addWriter(String writer) {
@@ -503,7 +612,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     public void setWriters(Collection<String> writers) {
         this.isDirty = true;
-        this.writers = writers;
+        this.writers = new ArrayList<String>(writers);
     }
 
     public void setCompany(String company) {
@@ -537,13 +646,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     public void setDirector(String director) {
-        if (director == null) {
-            director = UNKNOWN;
-        }
-        if (!director.equalsIgnoreCase(this.director)) {
-            this.isDirty = true;
-            this.director = director;
-        }
+        this.director = director;
     }
 
     public void setDirty(boolean isDirty) {
@@ -590,7 +693,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     public void setGenres(Collection<String> genres) {
         if (!extra) {
             this.isDirty = true;
-            this.genres = genres;
+            this.genres = new TreeSet<String>(genres);
         }
     }
 
@@ -605,6 +708,7 @@ import com.moviejukebox.tools.PropertiesUtil;
      *             instead. Ex: movie.setId(ImdbPlugin.IMDB_PLUGIN_ID,"tt12345") {@link setId(String key, String id)}
      */
     @Deprecated
+    @XmlTransient
     public void setId(String id) {
         if (id != null) {
             setId(ImdbPlugin.IMDB_PLUGIN_ID, id);
@@ -833,7 +937,8 @@ import com.moviejukebox.tools.PropertiesUtil;
             this.year = year;
         }
     }
-
+    
+    @XmlTransient
     public File getFile() {
         return file;
     }
@@ -842,6 +947,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.file = file;
     }
 
+    @XmlTransient
     public File getContainerFile() {
         return containerFile;
     }
@@ -931,10 +1037,13 @@ import com.moviejukebox.tools.PropertiesUtil;
     /**
      * @return Boolean flag indicating if this file is an extra
      */
+    @XmlAttribute(name = "isExtra")
     public boolean isExtra() {
         return extra;
     }
 
+    
+    @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
     public boolean isTrailerExchange() {
         return trailerExchange;
     }
@@ -1039,6 +1148,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.prebuf = prebuf;
     }
 
+    @XmlTransient
     public boolean isScrapeLibrary() {
         return scrapeLibrary;
     }
@@ -1068,7 +1178,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         setContainer(dto.getContainer());
         setFps(dto.getFps() > 0 ? dto.getFps() : 60);
         setSeason(dto.getSeason());
-        for (MovieFileNameDTO.Set set : dto.getSets()) {
+        for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }
         setYear(dto.getYear() > 0 ? "" + dto.getYear() : null);
@@ -1138,6 +1248,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
+    @XmlAttribute(name = "isSet")
     public boolean isSetMaster() {
         return isSetMaster;
     }
@@ -1216,6 +1327,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     // ***** All the graphics methods go here *****
 
     // ***** Posters
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getPosterURL() {
         return posterURL;
     }
@@ -1230,6 +1342,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
+    @XmlElement(name = "posterFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getPosterFilename() {
         return posterFilename;
     }
@@ -1241,6 +1355,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.posterFilename = posterFilename;
     }
 
+    @XmlElement(name = "detailPosterFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getDetailPosterFilename() {
         return detailPosterFilename;
     }
@@ -1268,6 +1384,8 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     // ***** Thumbnails
+    @XmlElement(name = "thumbnail")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getThumbnailFilename() {
         return this.thumbnailFilename;
     }
@@ -1280,6 +1398,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     // ***** Fanart
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getFanartURL() {
         return fanartURL;
     }
@@ -1291,6 +1410,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.fanartURL = fanartURL;
     }
 
+    @XmlElement(name = "fanartFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getFanartFilename() {
         return fanartFilename;
     }
@@ -1303,6 +1424,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     // ***** Banners
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getBannerURL() {
         return bannerURL;
     }
@@ -1317,6 +1439,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getBannerFilename() {
         return bannerFilename;
     }

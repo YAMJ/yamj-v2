@@ -284,11 +284,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                     <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                     <xsl:attribute name="TVID">Play</xsl:attribute>
                     <xsl:attribute name="name">Play</xsl:attribute>
-
-                    <xsl:call-template name="zcd">
-                      <xsl:with-param name="url" select="fileURL"/>
-                      <xsl:with-param name="container" select="//movie/container"/>
-                    </xsl:call-template>
+					<xsl:if test="@discImage"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
 
                     <xsl:attribute name="vod"/>
 
@@ -384,11 +380,8 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                           <xsl:attribute name="onkeyrightset">e<xsl:value-of select="position()+1"/></xsl:attribute>
                           <xsl:attribute name="onfocus">show(<xsl:value-of select="@firstPart"/>)</xsl:attribute>
                           <xsl:attribute name="onblur">hide()</xsl:attribute>
-
-                          <xsl:call-template name="zcd">
-                            <xsl:with-param name="url" select="fileURL"/>
-                            <xsl:with-param name="container" select="//movie/container"/>
-                          </xsl:call-template>
+                          
+						  <xsl:if test="@discImage"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
 
                           <xsl:attribute name="vod"/>
 
@@ -451,9 +444,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                       <a>
                         <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
 
-                        <xsl:call-template name="zcd">
-                          <xsl:with-param name="url" select="."/>
-                        </xsl:call-template>
+					    <xsl:if test="@discImage"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
 
                         <xsl:if test="//movie/prebuf != -1">
                           <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
@@ -537,27 +528,6 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 </xsl:for-each>
 </xsl:template>
 
-<xsl:template name="zcd">
-  <xsl:param name="url"/>
-  <xsl:param name="container"/>
-
-  <xsl:if test="$container = 'ISO' or ends-with($url, '.ISO') or ends-with($url, '.iso')">
-    <xsl:attribute name="zcd">2</xsl:attribute>
-  </xsl:if>
-
-  <xsl:if test="$container = 'IMG' or ends-with($url, '.IMG') or ends-with($url, '.img')">
-    <xsl:attribute name="zcd">2</xsl:attribute>
-  </xsl:if>
-
-  <xsl:if test="ends-with($url, 'VIDEO_TS') or ends-with($url, 'video_ts')">
-    <xsl:attribute name="zcd">2</xsl:attribute>
-  </xsl:if>
-
-  <!-- For BluRay playback on the C-200 -->
-  <xsl:if test="ends-with($url, '/')">
-    <xsl:attribute name="zcd">2</xsl:attribute>
-  </xsl:if>
-</xsl:template>
 
 <xsl:template name="PreserveLineBreaks">
     <xsl:param name="text"/>
