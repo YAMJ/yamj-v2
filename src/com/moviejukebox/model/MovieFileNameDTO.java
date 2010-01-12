@@ -16,8 +16,10 @@ package com.moviejukebox.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlValue;
 
 /**
  * Container of parsed data from movie file name.
@@ -44,10 +46,11 @@ import javax.xml.bind.annotation.XmlType;
     private String  hdResolution = null;
     private String  videoSource = null;
 
-    @XmlType public static class Set {
+    @XmlType public static class SetDTO {
         private String title = null;
         private int index = -1;
 
+        @XmlValue
         public String getTitle() {
             return title;
         }
@@ -56,6 +59,7 @@ import javax.xml.bind.annotation.XmlType;
             this.title = title;
         }
 
+        @XmlAttribute
         public int getIndex() {
             return index;
         }
@@ -65,7 +69,7 @@ import javax.xml.bind.annotation.XmlType;
         }
     }
 
-    private final List<Set> sets = new ArrayList<Set>();
+    private final List<SetDTO> sets = new ArrayList<SetDTO>();
     private final List<String> languages = new ArrayList<String>();
 
     public String getTitle() {
@@ -76,6 +80,7 @@ import javax.xml.bind.annotation.XmlType;
         this.title = title;
     }
     
+    @XmlAttribute
     public int getYear() {
         return year;
     }
@@ -92,6 +97,7 @@ import javax.xml.bind.annotation.XmlType;
         this.partTitle = partTitle;
     }
 
+    @XmlAttribute
     public int getSeason() {
         return season;
     }
@@ -100,6 +106,7 @@ import javax.xml.bind.annotation.XmlType;
         this.season = season;
     }
 
+    @XmlAttribute
     public int getPart() {
         return part;
     }
@@ -112,6 +119,7 @@ import javax.xml.bind.annotation.XmlType;
         return episodes;
     }
 
+    @XmlAttribute
     public boolean isExtra() {
         return extra;
     }
@@ -136,6 +144,7 @@ import javax.xml.bind.annotation.XmlType;
         this.container = container;
     }
 
+    @XmlAttribute
     public String getExtension() {
         return extension;
     }
@@ -144,6 +153,7 @@ import javax.xml.bind.annotation.XmlType;
         this.extension = extension;
     }
 
+    @XmlAttribute
     public int getFps() {
         return fps;
     }
@@ -176,7 +186,7 @@ import javax.xml.bind.annotation.XmlType;
         this.videoSource = videoSource;
     }
 
-    @XmlElement public List<Set> getSets() {
+    @XmlElement public List<SetDTO> getSets() {
         return sets;
     }
 

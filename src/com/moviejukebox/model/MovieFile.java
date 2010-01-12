@@ -14,15 +14,22 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.moviejukebox.model.Movie.BooleanYesNoAdapter;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -42,6 +49,8 @@ import com.moviejukebox.tools.PropertiesUtil;
     private File file;
     private MovieFileNameDTO info;
     private static boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk","true"));
+    private boolean includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+    private boolean includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
 
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         {
@@ -74,6 +83,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     };
 
 
+    @XmlElement(name = "fileURL")
     public String getFilename() {
         return filename;
     }
@@ -120,10 +130,12 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.videoImageFilename.put(part, videoImageFilename);
     }
 
+    @XmlAttribute
     public int getFirstPart() {
         return firstPart;
     }
 
+    @XmlAttribute
     public int getLastPart() {
         return lastPart;
     }
@@ -142,6 +154,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         lastPart = part;
     }
 
+    @XmlAttribute
     public String getTitle() {
         return title;
     }
@@ -154,10 +167,57 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
+/**
+ * http://www.networkedmediatank.com/archive/index.php/thread-111.html
+ * 
+ * (08-10-2008 04:53 AM)tux99 Wrote: [ -> ]What is zcd="2" supposed to do? I haven't seen it in the technical docs.
+        It's supposed to launch the amp_test app, used by PCH to play DVD structures.
+        
+        But if I remember well, it doesn't like relative path name.
+        Try with a full pathname :
+        Code:
+        <a href="file:///opt/sybhttpd/localhost.drives/[NFS] ServerName::ShareName/DvdRepository/VIDEO_TS" TVID="PLAY" zcd="2" vod><b>P L A Y</b></a>
+ * 
+ * 
+ * 
+                        <xsl:if test="substring(.,string-length(.)-2) = 'ISO'">
+                          <xsl:attribute name="zcd">2</xsl:attribute>
+                        </xsl:if>
+                        <xsl:if test="substring(.,string-length(.)-2) = 'iso'">
+                          <xsl:attribute name="zcd">2</xsl:attribute>
+                        </xsl:if>
+                        <xsl:if test="substring(.,string-length(.)-2) = 'IMG'">
+                          <xsl:attribute name="zcd">2</xsl:attribute>
+                        </xsl:if>
+                        <xsl:if test="substring(.,string-length(.)-2) = 'img'">
+                          <xsl:attribute name="zcd">2</xsl:attribute>
+                        </xsl:if>
+                        <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
+                          <xsl:attribute name="zcd">2</xsl:attribute>
+                        </xsl:if>
+                        <!-- For BluRay playback on the C-200 -->
+                        <xsl:if test="substring(.,string-length(.)) = '/'">
+                          <xsl:attribute name="zcd">2</xsl:attribute>
+                        </xsl:if>
+ */
+    @XmlAttribute
+    public boolean isDiscImage() {
+        if (filename == null) {
+            return false;
+        }
+        String fn = filename.toUpperCase();
+        return fn.endsWith("ISO") 
+            || fn.endsWith("IMG") 
+            || fn.endsWith("VIDEO_TS") 
+            // For BluRay playback on the C-200
+            || fn.endsWith("/"); 
+    }
+
     public boolean hasTitle() {
         return !title.equals(Movie.UNKNOWN);
     }
 
+    @XmlAttribute
     public boolean isNewFile() {
         return newFile;
     }
@@ -166,12 +226,20 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.newFile = newFile;
     }
 
+    @XmlAttribute
+    @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
     public boolean isSubtitlesExchange() {
         return subtitlesExchange;
     }
 
     public void setSubtitlesExchange(boolean subtitlesExchange) {
         this.subtitlesExchange = subtitlesExchange;
+    }
+
+    @XmlAttribute
+    public long getSize() {
+        if (getFile() == null) return 0;
+        return getFile().length();
     }
 
     /*
@@ -201,6 +269,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         return this.getFirstPart() - anotherMovieFile.getFirstPart();
     }
 
+    @XmlTransient
     public File getFile() {
         return file;
     }
@@ -263,9 +332,65 @@ import com.moviejukebox.tools.PropertiesUtil;
             this.playLink = playLink;
         }
     }
+    
+    public static class PartDataDTO {
+        @XmlAttribute public int part;
+        @XmlValue public String value;
+    }
+    
+    @XmlElement(name = "filePlot")
+    public List<PartDataDTO> getFilePlots() {
+        if (!includeEpisodePlots) return null;
+        return toPartDataList(plots);
+    }
+    
+    public void setFilePlots(List<PartDataDTO> list) {
+        fromPartDataList(plots, list);
+    }
 
+    @XmlElement(name = "fileImageURL")
+    public List<PartDataDTO> getFileImageUrls() {
+        if (!includeVideoImages) return null;
+        return toPartDataList(videoImageURL);
+    }
+    
+    public void setFileImageUrls(List<PartDataDTO> list) {
+        fromPartDataList(videoImageURL, list);
+    }
+
+    @XmlElement(name = "fileImageFile")
+    public List<PartDataDTO> getFileImageFiles() {
+        if (!includeVideoImages) return null;
+        return toPartDataList(videoImageFilename);
+    }
+    
+    public void setFileImageFiles(List<PartDataDTO> list) {
+        fromPartDataList(videoImageFilename, list);
+    }
+    
+    private static List<PartDataDTO> toPartDataList(LinkedHashMap<Integer, String> map) {
+        List<PartDataDTO> list = new ArrayList<PartDataDTO>();
+        for (Integer part : map.keySet()) {
+            PartDataDTO p = new PartDataDTO();
+            p.part = part;
+            p.value = map.get(part);
+            list.add(p);
+        }
+        return list;
+    }
+    
+    private static void fromPartDataList(LinkedHashMap<Integer, String> map, List<PartDataDTO> list) {
+        map.clear();
+        for (PartDataDTO p : list) {
+            map.put(p.part, p.value);
+        }
+    }
+    
+    
     /**
      * Calculate the playlink additional information for the file
+     * 
+     * TODO: Check if the method is used anywhere (impossible to use in XSL). Remove.
      */
     private String calculatePlayLink() {
         File file = getFile();
