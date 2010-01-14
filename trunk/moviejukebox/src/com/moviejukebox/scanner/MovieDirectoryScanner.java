@@ -265,11 +265,15 @@ public class MovieDirectoryScanner {
                 movieFile.setFilename(tempFilename);
                 movie.setFormatType(Movie.TYPE_BLURAY);
             } else {
-                baseFileName = file.getName().substring(0, file.getName().lastIndexOf("."));
-
-                // Normal movie file so link to it
-                movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
-                movie.setFormatType(Movie.TYPE_FILE);
+                int extIndex = file.getName().lastIndexOf(".");
+                if (extIndex >0) {
+                    baseFileName = file.getName().substring(0, extIndex);
+                    // Normal movie file so link to it
+                    movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
+                    movie.setFormatType(Movie.TYPE_FILE);
+                } else {
+                    // Skip the file as it's not valid?
+                }
             }
 
             movieFile.setPart(i + 1);
