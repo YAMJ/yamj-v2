@@ -43,6 +43,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.XMLHelper;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * NFO file parser.
@@ -57,11 +58,20 @@ public class MovieNFOScanner {
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private static String fanartToken = null; // WARNING: This needs to be set elsewhere
-    private static String forceNFOEncoding = null;
-    private static String NFOdirectory = "";
-    @SuppressWarnings("unused")
-    private static boolean parentDirs = false;
+    private static String fanartToken;
+    private static String forceNFOEncoding;
+    private static String NFOdirectory;
+
+    static {
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+
+        forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", null);
+        if (forceNFOEncoding.equalsIgnoreCase("AUTO")) {
+            forceNFOEncoding = null;
+        }
+
+        NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
+    }
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -799,33 +809,5 @@ public class MovieNFOScanner {
         }
 
         return false;
-    }
-
-    public static String getForceNFOEncoding() {
-        return forceNFOEncoding;
-    }
-
-    public static void setForceNFOEncoding(String forceNFOEncoding) {
-        MovieNFOScanner.forceNFOEncoding = forceNFOEncoding;
-    }
-
-    public static String getFanartToken() {
-        return fanartToken;
-    }
-
-    public static void setFanartToken(String fanartToken) {
-        MovieNFOScanner.fanartToken = fanartToken;
-    }
-
-    public static String getNFOdirectory() {
-        return NFOdirectory;
-    }
-
-    public static void setNFOdirectory(String odirectory) {
-        NFOdirectory = odirectory;
-    }
-
-    public static void setParentDirs(boolean parentDirs) {
-        MovieNFOScanner.parentDirs = parentDirs;
     }
 }
