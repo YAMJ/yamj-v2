@@ -540,7 +540,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     @XmlElement(name = "subtitles")
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
-    public boolean isHasSubtitles() {
+    public Boolean isHasSubtitles() {
         return hasSubtitles;
     }
 
@@ -1041,10 +1041,9 @@ import com.moviejukebox.tools.PropertiesUtil;
     public boolean isExtra() {
         return extra;
     }
-
     
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
-    public boolean isTrailerExchange() {
+    public Boolean isTrailerExchange() {
         return trailerExchange;
     }
 
