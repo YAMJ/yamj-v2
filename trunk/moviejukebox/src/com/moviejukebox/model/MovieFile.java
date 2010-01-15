@@ -228,7 +228,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     @XmlAttribute
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
-    public boolean isSubtitlesExchange() {
+    public Boolean isSubtitlesExchange() {
         return subtitlesExchange;
     }
 
