@@ -53,7 +53,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         preferredCountry            = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot                    = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart              = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
-        fanartToken                 = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+        fanartToken                 = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
     }
 
@@ -360,6 +360,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (movie.getGenres().isEmpty()) {
                 for (String genre : HTMLTools.extractTags(xml, "<h5>Genre:</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")) {
                     movie.addGenre(Library.getIndexingGenre(genre));
+                }
+            }
+            
+            if (movie.getQuote().equals(Movie.UNKNOWN)) {
+                for (String quote : HTMLTools.extractTags(xml, "<h5>Quotes:</h5>", "</div>", "<a href=\"/name/nm", "</a class=\"")) {
+                    if (quote != null) {
+                        quote = HTMLTools.stripTags(quote);
+                        if (quote.endsWith("more")) {
+                            quote = quote.substring(0, quote.length() - 4);
+                        }
+                        movie.setQuote(quote);
+                        break;
+                    }
                 }
             }
 

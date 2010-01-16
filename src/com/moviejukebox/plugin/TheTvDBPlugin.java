@@ -62,7 +62,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         onlySeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
         cycleSeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cycleSeriesBanners", "true"));
         dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
-        fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
         forceFanartOverwrite = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
         forceBannerOverwrite = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));

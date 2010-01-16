@@ -61,7 +61,7 @@ public class FanartScanner {
         }
         fanartExtensions = extensions.toArray(new String[] {});
 
-        fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 
         fanartOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceFanartOverwrite", "false"));
     }

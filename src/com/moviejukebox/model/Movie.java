@@ -78,6 +78,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     private int rating = -1;
     private String plot = UNKNOWN;
     private String outline = UNKNOWN;
+    private String quote = UNKNOWN;
     private String director = UNKNOWN;
     private String country = UNKNOWN;
     private String company = UNKNOWN;
@@ -938,6 +939,20 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
     
+    public String getQuote() {
+        return quote;
+    }
+
+    public void setQuote(String quote) {
+        if (quote == null) {
+            quote = UNKNOWN;
+        }
+        if (!quote.equalsIgnoreCase(this.quote)) {
+            this.isDirty = true;
+            this.quote = quote;
+        }
+    }
+
     @XmlTransient
     public File getFile() {
         return file;
