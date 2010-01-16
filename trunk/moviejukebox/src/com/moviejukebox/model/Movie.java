@@ -1201,6 +1201,11 @@ import com.moviejukebox.tools.PropertiesUtil;
         if (dto.getHdResolution() != null) {
             setVideoType(TYPE_VIDEO_HD);
 
+            // Check if the videoOutput is UNKNOWN and clear it if it is
+            if (videoOutput.equals(Movie.UNKNOWN)) {
+                videoOutput = "";
+            }
+            
             switch (dto.getFps()) {
             case 23:
                 videoOutput = "1080p 23.976Hz";

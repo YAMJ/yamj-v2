@@ -8,6 +8,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1187 Trailing '|' character in IMDB plots
   - Enhancement  #1188 Add support for Danish language tag in the filename
   - Fixed defect #1194 NFO fileinfo streamdetails are not overriding the MediaInfo scraped information
+  - Fixed defect #1204 Video output in the YAMJ generated XML file is always 'UNKNOWN 60Hz' 
 
 MovieJukebox 1.7
 ----------------
