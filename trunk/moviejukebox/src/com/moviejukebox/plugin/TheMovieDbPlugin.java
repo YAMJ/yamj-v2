@@ -46,7 +46,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         TMDb = new TheMovieDb(API_KEY);
         language = PropertiesUtil.getProperty("themoviedb.language", "en");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
-        fanartToken = PropertiesUtil.getProperty("fanart.scanner.fanartToken", ".fanart");
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
     }
 
     public boolean scan(Movie movie) {

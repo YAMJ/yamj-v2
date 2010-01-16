@@ -183,6 +183,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<outline>")) {
                     movie.setOutline(parseCData(r));
                 }
+                if (tag.equalsIgnoreCase("<quote>")) {
+                    movie.setQuote(parseCData(r));
+                }
                 if (tag.toLowerCase().startsWith("<director ") || tag.equalsIgnoreCase("<director>")) {
                     movie.setDirector(parseCData(r));
                 }
@@ -813,6 +816,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("outline");
         writer.writeCharacters(movie.getOutline());
+        writer.writeEndElement();
+        writer.writeStartElement("quote");
+        writer.writeCharacters(movie.getQuote());
         writer.writeEndElement();
         writer.writeStartElement("director");
         writeIndexAttribute(writer, library, "Director", movie.getDirector());
