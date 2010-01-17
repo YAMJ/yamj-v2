@@ -28,7 +28,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
     public static String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
     //Define plot length
-    int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("filmaffinity.plot.length", "500"));
+    int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 
     public FilmaffinityPlugin() {
         super();
@@ -116,7 +116,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
                 String plot = HTMLTools.extractTag(xml, "SINOPSIS:", 0, "><|");
                 if (plot.length() > preferredPlotLength) {
-                    plot = plot.substring(0, preferredPlotLength) + "...";
+                    plot = plot.substring(0, preferredPlotLength - 3) + "...";
                 }
 
                 movie.setPlot(plot);

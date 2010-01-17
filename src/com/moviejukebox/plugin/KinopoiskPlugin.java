@@ -42,7 +42,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
     //Define plot length
-    int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("kinopoisk.plot.maxlength", "400"));
+    int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
     protected TheTvDBPlugin tvdb;
 
@@ -188,10 +188,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     plot += p;
                 }
             }
+            
             if (plot.isEmpty())
                 plot = movie.getPlot();
+            
             if (plot.length() > preferredPlotLength) 
-                plot = plot.substring(0, preferredPlotLength) + "...";
+                plot = plot.substring(0, preferredPlotLength - 3) + "...";
             movie.setPlot(plot);
             
             // Cast

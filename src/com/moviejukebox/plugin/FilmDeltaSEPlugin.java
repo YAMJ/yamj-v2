@@ -47,8 +47,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     protected TheTvDBPlugin tvdb;
     
     //Get properties for plotlength and rating
-    //private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("filmdelta.plot.maxlength", "350"));
-    private int preferredPlotLength = 500;
+    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     private String preferredRating = PropertiesUtil.getProperty("filmdelta.rating", "filmdelta");
     private String getcdonposter = PropertiesUtil.getProperty("filmdelta.getcdonposter", "true");
 
@@ -276,7 +275,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         logger.finest("FilmdeltaSE: scraped plot: " + plot);
         if (!plot.equals(Movie.UNKNOWN)) {
             if (plot.length() > preferredPlotLength) {
-                plot = plot.substring(0, preferredPlotLength) + "...";
+                plot = plot.substring(0, preferredPlotLength - 3) + "...";
             }
             movie.setPlot(plot);
         }

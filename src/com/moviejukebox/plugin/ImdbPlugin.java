@@ -45,6 +45,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected boolean downloadFanart;
     protected boolean extractCertificationFromMPAA;
     protected String fanartToken;
+    private int preferredPlotLength;
 
     public ImdbPlugin() {
         webBrowser                  = new WebBrowser();
@@ -54,7 +55,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         imdbPlot                    = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart              = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
         fanartToken                 = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        preferredPlotLength         = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
+
     }
 
     @Override
@@ -390,6 +393,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         }
                         
                         imdbOutline = outline.trim();
+                        if (imdbOutline.length() > preferredPlotLength) {
+                            imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
+                        }
                     }
                 }
             }
@@ -579,6 +585,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         } catch (Exception error) {
             plot = Movie.UNKNOWN;
+        }
+
+        if (plot.length() > preferredPlotLength) {
+            plot = plot.substring(0, Math.min(plot.length(), preferredPlotLength - 3)) + "...";
         }
 
         return plot;
