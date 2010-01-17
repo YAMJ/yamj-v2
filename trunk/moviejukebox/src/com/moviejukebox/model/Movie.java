@@ -647,6 +647,14 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     public void setDirector(String director) {
+        if (director == null) {
+            director = UNKNOWN;
+        }
+
+        if (!director.equalsIgnoreCase(this.director)) {
+            this.isDirty = true;
+            this.director = director;
+       }
         this.director = director;
     }
 
