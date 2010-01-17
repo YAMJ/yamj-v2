@@ -237,11 +237,17 @@ public class MovieDirectoryScanner {
 
         for (int i = 0; i < contentFiles.length; i++) {
             Movie movie = new Movie();
-            String baseFileName = Movie.UNKNOWN;
             
             // Hopefully this is a fix for issue #670 -- I can't duplicate it, since I don't have an BD rips
             if (contentFiles[i] == null)
                 continue;
+
+            // Compute the baseFilename: This is the filename without the extension
+            String baseFileName = file.getName();
+
+            if (!file.isDirectory()) {
+                baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
+            }
 
             // Compute the relative filename
             String relativeFilename = contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex);
@@ -250,30 +256,28 @@ public class MovieDirectoryScanner {
             }
 
             MovieFile movieFile = new MovieFile();
-            relativeFilename = relativeFilename.replace('\\', '/'); // make it Unix!
+            relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
 
             if (contentFiles[i].isDirectory()) {
                 // For DVD images
-                baseFileName = file.getName();
                 movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename) + "/VIDEO_TS");
                 movie.setFormatType(Movie.TYPE_DVD);
-            } else if (isBluRay && playFullBluRayDisk) {
-                baseFileName = file.getName();
-                // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
-                String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
-                tempFilename = tempFilename.substring(0, tempFilename.toUpperCase().lastIndexOf("BDMV"));
-                movieFile.setFilename(tempFilename);
-                movie.setFormatType(Movie.TYPE_BLURAY);
             } else {
-                int extIndex = file.getName().lastIndexOf(".");
-                if (extIndex >0) {
-                    baseFileName = file.getName().substring(0, extIndex);
+                if (isBluRay && playFullBluRayDisk) {
+                    // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
+                    String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
+                    tempFilename = tempFilename.substring(0, tempFilename.toUpperCase().lastIndexOf("BDMV"));
+                    movieFile.setFilename(tempFilename);
+                } else {
                     // Normal movie file so link to it
                     movieFile.setFilename(srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename));
                     movie.setFormatType(Movie.TYPE_FILE);
-                } else {
-                    // Skip the file as it's not valid?
                 }
+            }
+            
+            if (isBluRay) {
+                // This is to overwrite the TYPE_FILE check above if the disk is bluray but not playFullBluRayDisk
+                movie.setFormatType(Movie.TYPE_BLURAY);
             }
 
             movieFile.setPart(i + 1);
