@@ -49,6 +49,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         super(); // use IMDB if filmweb doesn't know movie
         init();
     }
+    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 
     public void init() {
         filmwebPreferredSearchEngine = PropertiesUtil.getProperty("filmweb.id.search", "filmweb");
@@ -250,6 +251,10 @@ public class FilmwebPlugin extends ImdbPlugin {
                 // even if "long" is set we will default to the "short" one if none was found
                 if (filmwebPlot.equalsIgnoreCase("short") || Movie.UNKNOWN.equals(plot)) {
                     plot = movie.getOutline();
+                }
+
+                if (plot.length() > preferredPlotLength) {
+                    plot = plot.substring(0, Math.min(plot.length(), preferredPlotLength - 3)) + "...";
                 }
                 movie.setPlot(plot);
             }

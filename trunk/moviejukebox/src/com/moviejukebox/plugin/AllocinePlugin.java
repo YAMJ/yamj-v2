@@ -31,12 +31,12 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class AllocinePlugin extends ImdbPlugin {
 
     public static String ALLOCINE_PLUGIN_ID = "allocine";
-    private static int ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT = 600;
 
     public AllocinePlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
     }
+    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 
     /**
      * Scan Allocine html page for the specified TV Show
@@ -52,8 +52,8 @@ public class AllocinePlugin extends ImdbPlugin {
             // logger.finest("AllocinePlugin: TV Show rating = " + movie.getRating());
             String tmpPlot = removeHtmlTags(extractTag(xml, "Synopsis :", "</p>"));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
-            if (tmpPlot.length() > ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT) {
-                tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
+            if (tmpPlot.length() > preferredPlotLength) {
+                tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
             }
             movie.setPlot(tmpPlot);
             // logger.finest("AllocinePlugin: TV Show Plot = " + movie.getPlot());
@@ -209,8 +209,8 @@ public class AllocinePlugin extends ImdbPlugin {
                 // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
                 String tmpPlot = removeHtmlTags(extractTag(xml, "Synopsis :", "</p>")).trim();
                 // logger.finest("AllocinePlugin: tmpPlot = [" + tmpPlot + "]");
-                if (tmpPlot.length() > ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT) {
-                    tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
+                if (tmpPlot.length() > preferredPlotLength) {
+                    tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
                 }
                 movie.setPlot(tmpPlot);
                 // logger.finest("AllocinePlugin: Movie Plot = " + movie.getPlot());

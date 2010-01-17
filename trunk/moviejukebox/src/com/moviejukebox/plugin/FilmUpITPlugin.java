@@ -29,15 +29,15 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class FilmUpITPlugin extends ImdbPlugin {
 
     public static String FILMUPIT_PLUGIN_ID = "filmupit";
-    private static int FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT = 600;
 
     public FilmUpITPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
     }
+    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 
     /**
-     * Scan FilmUp.IT html page for the specified movie
+     * Scan FilmUp.IT HTML page for the specified movie
      */
     private boolean updateMovieInfo(Movie movie) {
         try {
@@ -48,8 +48,8 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
             // limit plot to FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT char
             String tmpPlot = removeHtmlTags(extractTag(xml, "Trama:<br>", "</font><br>"));
-            if (tmpPlot.length() > FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT) {
-                tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT)) + "...";
+            if (tmpPlot.length() > preferredPlotLength) {
+                tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
             }
             movie.setPlot(tmpPlot);
 

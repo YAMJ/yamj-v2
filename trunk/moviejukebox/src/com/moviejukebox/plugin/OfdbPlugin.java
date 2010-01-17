@@ -38,30 +38,19 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class OfdbPlugin implements MovieDatabasePlugin {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected int maxZeichen;
     public static String OFDB_PLUGIN_ID = "ofdb";
-    protected int outlineLength;
     boolean getplot;
     boolean gettitle;
-
+    private int preferredPlotLength;
+    
     com.moviejukebox.plugin.ImdbPlugin imdbp;
 
     public OfdbPlugin() {
         // TODO Auto-generated method stub
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
 
-        try {
-            String temp = PropertiesUtil.getProperty("ofdb.plot.length", "600");
-            maxZeichen = Integer.parseInt(temp);
-        } catch (NumberFormatException ex) {
-            maxZeichen = 600;
-        }
-        try {
-            String temp = PropertiesUtil.getProperty("ofdb.outline.length", "150");
-            outlineLength = Integer.parseInt(temp);
-        } catch (NumberFormatException ex) {
-            outlineLength = 150;
-        }
+        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        
         getplot = Boolean.parseBoolean(PropertiesUtil.getProperty("ofdb.getplot", "true"));
         gettitle = Boolean.parseBoolean(PropertiesUtil.getProperty("ofdb.gettitle", "true"));
     }
@@ -317,8 +306,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             plot = xml.substring(firstindex, lastindex);
             plot = plot.replaceAll("<br />", " ");
 
-            if (plot.length() > maxZeichen) {
-                plot = plot.substring(0, maxZeichen - 3) + "...";
+            if (plot.length() > preferredPlotLength) {
+                plot = plot.substring(0, preferredPlotLength - 3) + "...";
             }
 
         } catch (Exception error) {
