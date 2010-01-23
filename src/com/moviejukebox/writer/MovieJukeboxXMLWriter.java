@@ -100,7 +100,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Parse a single movie detail xml file
+     * Parse a single movie detail XML file
      */
     @SuppressWarnings("unchecked")
     public boolean parseMovieXML(File xmlFile, Movie movie) {
@@ -220,6 +220,10 @@ public class MovieJukeboxXMLWriter {
                 if (tag.toLowerCase().startsWith("<actor ") || tag.equalsIgnoreCase("<actor>")) {
                     String actor = parseCData(r);
                     movie.addActor(actor);
+                }
+                if (tag.equalsIgnoreCase("<writer>")) {
+                    String writer = parseCData(r);
+                    movie.addWriter(writer);
                 }
                 if (tag.equalsIgnoreCase("<certification>")) {
                     movie.setCertification(parseCData(r));
