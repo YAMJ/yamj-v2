@@ -158,7 +158,6 @@ public class MediaInfoScanner {
     }
 
     public void scan(Movie currentMovie, String movieFilePath) {
-
         if (!activated) {
             return;
         }
@@ -419,7 +418,7 @@ public class MediaInfoScanner {
                 }
             }
 
-            if (movie.getVideoOutput().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (movie.getVideoOutput().equals(Movie.UNKNOWN)) {
                 // Guessing Video Output (Issue 988)
                 String normeHD;
                 if (movie.isHD()) {
@@ -508,7 +507,6 @@ public class MediaInfoScanner {
                         movie.setAudioChannels(oldInfo + " / " + infoValue);
                     }
                 }
-    
             }
         }
 
