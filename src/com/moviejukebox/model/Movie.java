@@ -1231,16 +1231,24 @@ import com.moviejukebox.tools.PropertiesUtil;
                 videoOutput = "1080p 30Hz";
                 break;
             case 50:
-                videoOutput += " 50Hz";
+                if (!videoOutput.equals(""))
+                    videoOutput += " ";
+                videoOutput += "50Hz";
                 break;
             case 59:
-                videoOutput += "1080p 59.94Hz";
+                videoOutput = "1080p 59.94Hz";
                 break;
             case 60:
-                videoOutput += " 60Hz";
+                if (!videoOutput.equals(""))
+                    videoOutput += " ";
+                videoOutput += "60Hz";
                 break;
             default:
-                videoOutput += " 60Hz";
+                if (videoOutput.equals("")) {
+                    videoOutput = Movie.UNKNOWN;
+                } else {
+                    videoOutput += " 60Hz";
+                }
             }
         } else {
             switch (dto.getFps()) {
@@ -1269,7 +1277,7 @@ import com.moviejukebox.tools.PropertiesUtil;
                 videoOutput = "NTSC";
                 break;
             default:
-                videoOutput = "NTSC";
+                videoOutput = Movie.UNKNOWN;
                 break;
             }
         }
