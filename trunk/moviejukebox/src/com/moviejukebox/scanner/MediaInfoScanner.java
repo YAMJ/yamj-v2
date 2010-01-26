@@ -474,30 +474,30 @@ public class MediaInfoScanner {
         }
 
         // Cycle through Audio Streams
-        if (movie.getAudioCodec().equals(Movie.UNKNOWN)) {
-            for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
-                HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
-    
-                String infoLanguage = "";
-                infoValue = infosCurAudio.get("Language");
-                if (infoValue != null) {
-                    infoLanguage = " (" + infoValue + ")";
+        for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
+            HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
+
+            String infoLanguage = "";
+            infoValue = infosCurAudio.get("Language");
+            if (infoValue != null) {
+                infoLanguage = " (" + infoValue + ")";
+            }
+
+            infoValue = infosCurAudio.get("Codec ID/Hint");
+            if (infoValue == null) {
+                infoValue = infosCurAudio.get("Codec");
+            }
+
+            if (infoValue != null) {
+                String oldInfo = movie.getAudioCodec();
+                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
+                    movie.setAudioCodec(infoValue + infoLanguage);
+                } else {
+                    movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
                 }
+            }
     
-                infoValue = infosCurAudio.get("Codec ID/Hint");
-                if (infoValue == null) {
-                    infoValue = infosCurAudio.get("Codec");
-                }
-    
-                if (infoValue != null) {
-                    String oldInfo = movie.getAudioCodec();
-                    if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
-                        movie.setAudioCodec(infoValue + infoLanguage);
-                    } else {
-                        movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
-                    }
-                }
-    
+            if (movie.getAudioChannels().equals(Movie.UNKNOWN)) {
                 infoValue = infosCurAudio.get("Channel(s)");
                 if (infoValue != null) {
                     String oldInfo = movie.getAudioChannels();
