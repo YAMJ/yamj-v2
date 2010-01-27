@@ -13,7 +13,8 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1204 Video output in the YAMJ generated XML file is always 'UNKNOWN 60Hz'
   - Fixed defect #1205 Video Output does not use MediaInfo information
   - Fixed defect #1211 Audio channels always UNKNOWN
-  - Fixed defect #1221 Audio information defect in XML files 
+  - Fixed defect #1221 Audio information defect in XML files
+  - Fixed defect #1224 Google/Yahoo thread defaults too high, reduced to 5 each
   
 
 MovieJukebox 1.7
