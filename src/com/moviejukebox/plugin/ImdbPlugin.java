@@ -304,8 +304,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (!movie.isOverrideTitle()) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
-                movie.setOriginalTitle(HTMLTools.extractTag(xml, "<title>", 0, "()><"));
+                String title = HTMLTools.extractTag(xml, "<title>");
+                title = title.replaceAll(" \\(VG\\)$", "");
+                title = title.replaceAll(" \\(\\d+\\)$", "");
+                movie.setTitle(title);
+                movie.setOriginalTitle(title);
             }
             if (movie.getRating() == -1) {
                 movie.setRating(parseRating(HTMLTools.extractTag(xml, "<div class=\"starbar-meta\">", 2)));
