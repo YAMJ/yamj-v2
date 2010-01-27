@@ -474,6 +474,9 @@ public class MediaInfoScanner {
         }
 
         // Cycle through Audio Streams
+        boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN);          // Do we have AudioCodec already?
+        boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN);    // Do we have AudioChannels already?
+        
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
 
@@ -488,22 +491,25 @@ public class MediaInfoScanner {
                 infoValue = infosCurAudio.get("Codec");
             }
 
-            if (infoValue != null) {
-                String oldInfo = movie.getAudioCodec();
+            if (infoValue != null) {  // Make sure we have a codec before continuing
+                String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
                 if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
                     movie.setAudioCodec(infoValue + infoLanguage);
                 } else {
-                    movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
+                    if (!previousAudioCodec) {
+                        // Don't overwrite what is there currently
+                        movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
+                    }
                 }
             }
     
-            if (movie.getAudioChannels().equals(Movie.UNKNOWN)) {
-                infoValue = infosCurAudio.get("Channel(s)");
-                if (infoValue != null) {
-                    String oldInfo = movie.getAudioChannels();
-                    if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
-                        movie.setAudioChannels(infoValue);
-                    } else {
+            infoValue = infosCurAudio.get("Channel(s)");
+            if (infoValue != null) {
+                String oldInfo = movie.getAudioChannels();
+                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
+                    movie.setAudioChannels(infoValue);
+                } else {
+                    if (!previousAudioChannels) {
                         movie.setAudioChannels(oldInfo + " / " + infoValue);
                     }
                 }
