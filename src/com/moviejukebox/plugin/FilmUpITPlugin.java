@@ -47,26 +47,39 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 movie.setTitle(extractTag(xml, "<font face=\"arial, helvetica\" size=\"3\"><b>", "</b>"));
             }
             // limit plot to FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT char
-            String tmpPlot = removeHtmlTags(extractTag(xml, "Trama:<br>", "</font><br>"));
-            if (tmpPlot.length() > preferredPlotLength) {
-                tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
+            if (movie.getPlot().equals(Movie.UNKNOWN)) {
+                String tmpPlot = removeHtmlTags(extractTag(xml, "Trama:<br>", "</font><br>"));
+                if (tmpPlot.length() > preferredPlotLength) {
+                    tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
+                }
+                movie.setPlot(tmpPlot);
             }
-            movie.setPlot(tmpPlot);
 
-            movie.setDirector(removeHtmlTags(extractTag(xml, "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                    "</font></td></tr>")));
-            movie.setReleaseDate(extractTag(xml, "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                    "</font></td></tr>"));
-            movie.setRuntime(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
-            movie.setCountry(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
-            movie.setCompany(removeHtmlTags(extractTag(xml, "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                    "</font></td></tr>")));
+            if (movie.getDirector().equals(Movie.UNKNOWN)) {
+                movie.setDirector(removeHtmlTags(extractTag(xml, "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
+            }
 
-// int count = 0;
-            for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                    "</font></td></tr>").split(",")) {
-                for (String genre : tmp_genre.split("/")) {
-                    movie.addGenre(genre.trim());
+            if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
+                movie.setReleaseDate(extractTag(xml, "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+            }
+
+            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                movie.setRuntime(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+            }
+
+            if (movie.getCountry().equals(Movie.UNKNOWN)) {
+                movie.setCountry(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+            }
+
+            if (movie.getCompany().equals(Movie.UNKNOWN)) {
+                movie.setCompany(removeHtmlTags(extractTag(xml, "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
+            }
+
+            if (movie.getGenres().size() == 0) {
+                for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>").split(",")) {
+                    for (String genre : tmp_genre.split("/")) {
+                        movie.addGenre(genre.trim());
+                    }
                 }
             }
 
@@ -74,9 +87,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 movie.setYear(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
             }
 
-            for (String actor : removeHtmlTags(
-                    extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(",")) {
-                movie.addActor(actor.trim());
+            if (movie.getCast().size() == 0) {
+                for (String actor : removeHtmlTags(
+                        extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(",")) {
+                    movie.addActor(actor.trim());
+                }
             }
 
             String posterPageUrl = extractTag(xml, "href=\"posters/locp/", "\"");
