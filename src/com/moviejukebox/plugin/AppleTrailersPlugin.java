@@ -47,6 +47,7 @@ public class AppleTrailersPlugin {
     private static String  configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
     private static int     configMax;
     private static boolean configTypesInclude = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.typesinclude", "true"));
+    private static String  configReplaceUrl = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
     static {
         try {
             configMax = Integer.parseInt(PropertiesUtil.getProperty("appletrailers.max", "0"));
@@ -118,26 +119,15 @@ public class AppleTrailersPlugin {
             
             // Issue with the naming of URL for trailer download
             // See: http://www.hd-trailers.net/blog/how-to-download-hd-trailers-from-apple/
-            trailerRealUrl = trailerRealUrl.replace("www.apple.com", "movies.apple.com");
-            trailerRealUrl = trailerRealUrl.replace("images.apple.com", "movies.apple.com");
+            trailerRealUrl = trailerRealUrl.replace("www.apple.com", configReplaceUrl);
+            trailerRealUrl = trailerRealUrl.replace("images.apple.com", configReplaceUrl);
+            trailerRealUrl = trailerRealUrl.replace("movies.apple.com", configReplaceUrl);
             
             logger.finer("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
             trailerDownloadCnt++;
             
             // Check if we need to download the trailer, or just link to it
-            if (!configDownload) {
-                // Just link to the trailer
-                int underscore = trailerRealUrl.lastIndexOf("_");
-                if (underscore > 0) {
-                    if (trailerRealUrl.substring(underscore + 1, underscore + 2).equals("h")) {
-                        // remove the "h" from the trailer url for streaming
-                        trailerRealUrl = trailerRealUrl.substring(0, underscore + 1) + trailerRealUrl.substring(underscore + 2);
-                    }
-                }
-                tmf.setFilename(trailerRealUrl);
-                movie.addExtraFile(new ExtraFile(tmf));
-                //movie.setTrailer(true);
-            } else {
+            if (configDownload) {
                 // Download the trailer
                 MovieFile mf = movie.getFirstFile();
                 String parentPath = mf.getFile().getParent();
@@ -173,18 +163,28 @@ public class AppleTrailersPlugin {
                 
                 // Check if the file already exists - after jukebox directory was deleted for example
                 if (trailerFile.exists()) {
-                
                     logger.finer("AppleTrailers Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
                 
                     tmf.setFilename(trailerPlayFileName);
                     movie.addExtraFile(new ExtraFile(tmf));
                     //movie.setTrailer(true);
-                    
                 } else if (trailerDownload(movie, trailerRealUrl, trailerFile)) {
                     tmf.setFilename(trailerPlayFileName);
                     movie.addExtraFile(new ExtraFile(tmf));
                     //movie.setTrailer(true);
                 }
+            } else {
+                // Just link to the trailer
+                int underscore = trailerRealUrl.lastIndexOf("_");
+                if (underscore > 0) {
+                    if (trailerRealUrl.substring(underscore + 1, underscore + 2).equals("h")) {
+                        // remove the "h" from the trailer url for streaming
+                        trailerRealUrl = trailerRealUrl.substring(0, underscore + 1) + trailerRealUrl.substring(underscore + 2);
+                    }
+                }
+                tmf.setFilename(trailerRealUrl);
+                movie.addExtraFile(new ExtraFile(tmf));
+                //movie.setTrailer(true);
             }
         }
         
