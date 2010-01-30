@@ -109,7 +109,12 @@ public class DVDRipScanner {
                     }
                 }
 
-                return fileProperties[longestDurationIndex];
+                if (longestDurationIndex == -1) {
+                    logger.info("DVDRipScanner: Error retrieving file durations for IFO file, processing skipped.");
+                    return null;
+                } else {
+                    return fileProperties[longestDurationIndex];
+                }
             }
         } catch (Exception err) {
             err.printStackTrace();

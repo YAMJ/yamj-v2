@@ -397,7 +397,7 @@ public class MovieJukeboxHTMLWriter {
             outStream.flush();
             outStream.close();
         } catch (Exception error) {
-            logger.severe("Failed generating HTML library index.");
+            logger.severe("Failed generating HTML library index for Category: " + categoryName + ", Key: " + key + ", Page: " + page);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);

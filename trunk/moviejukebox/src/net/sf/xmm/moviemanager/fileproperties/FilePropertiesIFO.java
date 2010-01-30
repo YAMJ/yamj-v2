@@ -19,9 +19,9 @@
  * -----------------------------------------------------
  * gaelead modifications :
  * - org.apache.log4j.Logger switched to java.util.logging.Logger
- * - Use only getRuntime (Video/Audio/Subs infos will be scanned by mediainfo)
+ * - Use only getRuntime (Video/Audio/Subs info will be scanned by mediainfo)
  * - removed all unused code
- * - fixed the way duration is computed (minutes and secondes intepretation was
+ * - fixed the way duration is computed (minutes and seconds interpretation was
  *   faulty)
  **/
 package net.sf.xmm.moviemanager.fileproperties;
@@ -63,7 +63,6 @@ class FilePropertiesIFO extends FileProperties {
     }
 
     void processIfoFile(byte[] ifoFile) throws Exception {
-
         getRuntime(ifoFile);
     }
 

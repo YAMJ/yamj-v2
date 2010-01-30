@@ -238,7 +238,7 @@ public class Library implements Map<String, Movie> {
     // synchronized because scanning can be multi-threaded
     public synchronized void addMovie(String key, Movie movie) {
         Movie existingMovie = library.get(key);
-        logger.finest("Adding video " + key + ", new part: " + (existingMovie != null));
+        //logger.finest("Adding video " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isExtra()) {
             logger.finest("  It's an extra: " + movie.getBaseName());
@@ -314,10 +314,7 @@ public class Library implements Map<String, Movie> {
 
             indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
             indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
-            logger.finest("Setting index master " + indexMaster.getTitle());
-            logger.finest("  isTV: " + indexMaster.isTVShow());
-            logger.finest("  isHD: " + indexMaster.isHD());
-            logger.finest("  top250: " + indexMaster.getTop250());
+            logger.finest("Setting index master >" + indexMaster.getTitle() + "< - isTV: " + indexMaster.isTVShow() + " - isHD: " + indexMaster.isHD() + " - top250: " + indexMaster.getTop250());
             indexMaster.setTop250(top250);
             indexMaster.setMovieFiles(master_mf_col);
             masters.put(index_name, indexMaster);
