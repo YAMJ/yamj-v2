@@ -15,6 +15,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1211 Audio channels always UNKNOWN
   - Fixed defect #1221 Audio information defect in XML files
   - Fixed defect #1224 Google/Yahoo thread defaults too high, reduced to 5 each
+  - Fixed defect #1229 CSV listing fields may have quotes inside them
   
 
 MovieJukebox 1.7

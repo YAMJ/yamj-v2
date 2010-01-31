@@ -81,6 +81,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput("Kinopoisk ID")
                 + prepOutput("Sratim ID")
                 + prepOutput("Last Modified Date", false)
+                + prepOutput("File Size")
                 ;
     } // headerLine();
 
@@ -136,6 +137,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput(movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID))
                 + prepOutput(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID))
                 + prepOutput(new Timestamp(movie.getLastModifiedTimestamp()).toString()) //, false)
+                + prepOutput(movie.getFileSizeString())
                 ;
     } // toCSV()
 
@@ -153,7 +155,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
 
     /**
      * @param str
-     * @return String enclosed in quotes if needed, ALWAYS comma appended
+     * @return String cleaned up, ALWAYS comma appended
      */
     protected String prepOutput(String str) {
         return prepOutput(str, true);
@@ -162,7 +164,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
     /**
      * @param str
      * @param bAddComma
-     * @return String enclosed in quotes if needed, optional comma appended
+     * @return String cleaned up, optional comma appended
      */
     protected String prepOutput(String str, boolean bAddComma) {
         if (null == str) {
@@ -170,6 +172,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         } else if (blankUNKNOWN && UNKNOWN.equals(str)) {
             // clean 'UNKNOWN' values
             str = "";
+        }
+		
+        // remove quotes from the string (before encapsulation)
+        if (str.contains("\"")) {
+            str = str.replace("\"", "");
         }
 
         // enclose strings with commas in quotes
