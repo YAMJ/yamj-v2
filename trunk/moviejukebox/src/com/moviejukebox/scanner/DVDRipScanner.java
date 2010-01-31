@@ -14,6 +14,9 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -116,8 +119,11 @@ public class DVDRipScanner {
                     return fileProperties[longestDurationIndex];
                 }
             }
-        } catch (Exception err) {
-            err.printStackTrace();
+        } catch (Exception error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return null;
         }
         return null;

@@ -14,7 +14,10 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.logging.Logger;
 
 /**
@@ -40,7 +43,7 @@ import java.util.logging.Logger;
  */
 public class BDRipScanner {
 
-    private static Logger log = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger("moviejukebox");
 
     public class BDPlaylistInfo {
 
@@ -171,8 +174,11 @@ public class BDRipScanner {
 
             return ret;
 
-        } catch (Exception err) {
-            err.printStackTrace();
+        } catch (Exception error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return null;
         }
     }
@@ -197,7 +203,7 @@ public class BDRipScanner {
 
         String FileType = new String(fileType);
         if ((FileType.equals("MPLS0100") && FileType.equals("MPLS0200")) /*|| data[45] != 1*/) {
-            log.info("Invalid playlist file " + FileType);
+            logger.info("Invalid playlist file " + FileType);
             return ret;
         }
 
