@@ -105,6 +105,14 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 updateRate(movie, PageID);
                 logger.finest("Opinions page UID = " + PageID);
             }
+            
+            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+                movie.setFanartURL(getFanartURL(movie));
+                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                }
+            }
+
         } catch (IOException error) {
             logger.severe("Failed retreiving FilmUP infos for movie : " + movie.getId(FILMUPIT_PLUGIN_ID));
             final Writer eResult = new StringWriter();
