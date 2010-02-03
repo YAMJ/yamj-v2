@@ -61,6 +61,7 @@ public class MovieNFOScanner {
     private static String fanartToken;
     private static String forceNFOEncoding;
     private static String NFOdirectory;
+    private static boolean getCertificationFromMPAA;
 
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
@@ -71,6 +72,7 @@ public class MovieNFOScanner {
         }
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
+        getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
     }
 
     /**
@@ -336,7 +338,7 @@ public class MovieNFOScanner {
                                 movie.setFanartURL(val);
                                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                             }
-                        } else if (tag.equalsIgnoreCase("mpaa")) {
+                        } else if (tag.equalsIgnoreCase("mpaa") && getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 // Issue 333
@@ -351,6 +353,16 @@ public class MovieNFOScanner {
                                     } else {
                                         val = val.substring(start);
                                     }
+                                }
+                                movie.setCertification(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("certification") && !getCertificationFromMPAA) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
+                                int pos = val.lastIndexOf(":");
+                                if (pos > 0) {
+                                    // Strip the country code from the rating for certification like "UK:PG-12"
+                                    val = val.substring(pos + 1);
                                 }
                                 movie.setCertification(val);
                             }
@@ -595,7 +607,7 @@ public class MovieNFOScanner {
                             if (val != 0.0f) {
                                 movie.setRating(Math.round(val * 10f));
                             }
-                        } else if (tag.equalsIgnoreCase("mpaa")) {
+                        } else if (tag.equalsIgnoreCase("mpaa") && getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty()) {
                                 // Issue 333
@@ -611,6 +623,11 @@ public class MovieNFOScanner {
                                         val = val.substring(start);
                                     }
                                 }
+                                movie.setCertification(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("certification") && !getCertificationFromMPAA) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty()) {
                                 movie.setCertification(val);
                             }
                         } else if (tag.equalsIgnoreCase("season")) {
