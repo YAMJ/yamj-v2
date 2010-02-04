@@ -272,11 +272,16 @@ public class AllocinePlugin extends ImdbPlugin {
                     }
                 }
             }
-            String posterMediaIdTag = extractTag(xml, "<div class=\"poster\">", " alt=");
-            posterMediaIdTag = extractTag(posterMediaIdTag, "<img src='", "'");
-            //logger.finest("AllocinePlugin: posterMediaIdTag : [" + posterMediaIdTag+"]");
-            String posterMediaId = posterMediaIdTag.substring(posterMediaIdTag.lastIndexOf('/') + 1, posterMediaIdTag.lastIndexOf('.'));
-            //logger.finest("AllocinePlugin: posterMediaId : [" + posterMediaId+"]");
+            
+            
+            xml = webBrowser.request("http://www.allocine.fr/film/fichefilm-" + movie.getId(ALLOCINE_PLUGIN_ID) + "/affiches/");
+            String posterMediaId =  extractTag(xml, "<a href=\"/film/fichefilm-" + movie.getId(ALLOCINE_PLUGIN_ID) + "/affiches/detail/?cmediafile=", "\" ><img");
+            
+//            String posterMediaIdTag = extractTag(xml, "<div class=\"poster\">", " alt=");
+//            posterMediaIdTag = extractTag(posterMediaIdTag, "<img src='", "'");
+//            //logger.finest("AllocinePlugin: posterMediaIdTag : [" + posterMediaIdTag+"]");
+//            String posterMediaId = posterMediaIdTag.substring(posterMediaIdTag.lastIndexOf('/') + 1, posterMediaIdTag.lastIndexOf('.'));
+//            //logger.finest("AllocinePlugin: posterMediaId : [" + posterMediaId+"]");
             updatePoster(movie, posterMediaId);
 
         } catch (IOException error) {
@@ -303,20 +308,22 @@ public class AllocinePlugin extends ImdbPlugin {
         try {
             // Check alloCine first only for movies because TV Show posters are wrong.
             if (!movie.isTVShow()) {
-                String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + movie.getId(ALLOCINE_PLUGIN_ID) + "/affiches/detail/?cmediafile="
-                                + posterMediaId;
-                logger.finest("AllocinePlugin: mediaFileURL : " + mediaFileURL);
-                xml = webBrowser.request(mediaFileURL);
-
-                String posterURLTag = extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
-                // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
-                posterURL = extractTag(posterURLTag, "<img src=\"", "\"");
-
-                if (!posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-                    logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
-                    movie.setPosterURL(posterURL);
-                    return;
-                }
+            	if(posterMediaId.compareToIgnoreCase(Movie.UNKNOWN)!=0 ){
+	                String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + movie.getId(ALLOCINE_PLUGIN_ID) + "/affiches/detail/?cmediafile="
+	                                + posterMediaId;
+	                logger.finest("AllocinePlugin: mediaFileURL : " + mediaFileURL);
+	                xml = webBrowser.request(mediaFileURL);
+	
+	                String posterURLTag = extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
+	                // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
+	                posterURL = extractTag(posterURLTag, "<img src=\"", "\"");
+	
+	                if (!posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+	                    logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
+	                    movie.setPosterURL(posterURL);
+	                    return;
+	                }
+            	}
 
                 posterURL = PosterScanner.getPosterURL(movie, xml, IMDB_PLUGIN_ID);
                 logger.finest("AllocinePlugin: Movie PosterURL from other source : " + posterURL);
