@@ -478,6 +478,9 @@ public class MediaInfoScanner {
         boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN); // Do we have AudioCodec already?
         boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN); // Do we have AudioChannels already?
 
+        String infoFullLanguage = "";
+        ArrayList<String> foundLanguages = new ArrayList<String>();
+        
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
 
@@ -485,6 +488,15 @@ public class MediaInfoScanner {
             infoValue = infosCurAudio.get("Language");
             if (infoValue != null) {
                 infoLanguage = " (" + infoValue + ")";
+                // Add determination of language.
+                String determineLanguage = MovieFilenameScanner.determineLanguage(infoValue);
+                if(!foundLanguages.contains(determineLanguage)){
+                    foundLanguages.add(determineLanguage);
+                    if (infoFullLanguage.length() > 0) {
+                        infoFullLanguage += " / ";
+                    }
+                    infoFullLanguage += determineLanguage;
+                }
             }
 
             infoValue = infosCurAudio.get("Codec ID/Hint");
@@ -517,6 +529,11 @@ public class MediaInfoScanner {
             }
         }
 
+        // TODO Add an option to choose to override FileName / NFO language info.
+        if (infoFullLanguage != null && infoFullLanguage.length() > 0 && movie.getLanguage().equalsIgnoreCase(Movie.UNKNOWN)) {
+            movie.setLanguage(infoFullLanguage);
+        }
+
         // Cycle through Text Streams
         for (int numText = 0; numText < infosText.size(); numText++) {
             HashMap<String, String> infosCurText = infosText.get(numText);
@@ -524,7 +541,7 @@ public class MediaInfoScanner {
             String infoLanguage = "";
             infoValue = infosCurText.get("Language");
             if (infoValue != null) {
-                infoLanguage =  infoValue;
+                infoLanguage = infoValue;
             }
 
             String infoFormat = "";
@@ -543,12 +560,12 @@ public class MediaInfoScanner {
                 if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE") || infoFormat.equals("PGS")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
                     if (oldInfo.toUpperCase().equals(Movie.UNKNOWN) || oldInfo.toUpperCase().equals("NO")) {
-                        movie.setSubtitles( infoLanguage);
+                        movie.setSubtitles(infoLanguage);
                     } else {
                         // Don't overwrite what is there currently
                         movie.setSubtitles(oldInfo + " / " + infoLanguage);
                     }
-                }else{
+                } else {
                     logger.finest("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
                 }
             }
