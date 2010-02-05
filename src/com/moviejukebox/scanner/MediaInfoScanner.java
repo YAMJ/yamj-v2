@@ -229,7 +229,7 @@ public class MediaInfoScanner {
             // Get cat ArrayList from cat name.
             ArrayList<HashMap<String, String>> currentCat = matches.get(line);
             if (currentCat != null) {
-                logger.info("Current categorie : " + line);
+                logger.finer("Current categorie : " + line);
                 HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
