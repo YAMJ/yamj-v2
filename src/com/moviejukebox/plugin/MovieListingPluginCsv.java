@@ -123,7 +123,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput("" + (null == extras ? "0" : extras.size()))
                 + prepOutput("" + (null == genres ? "0" : genres.size()))
                 + prepOutput("" + (null == cast ? "0" : cast.size()))
-                + prepOutput(movie.hasSubtitles() ? "True" : "False")
+                + prepOutput(movie.getSubtitles())
                 + prepOutput("" + (null != movie.getPosterURL() ? "True" : "False"))
                 + prepOutput("" + (null != movie.getDetailPosterFilename() ? "True" : "False"))
                 + prepOutput("" + movie.getRating())

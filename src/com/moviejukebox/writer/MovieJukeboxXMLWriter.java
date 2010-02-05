@@ -235,7 +235,7 @@ public class MovieJukeboxXMLWriter {
                     movie.setLanguage(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<subtitles>")) {
-                    movie.setSubtitles(parseCData(r).equalsIgnoreCase("YES"));
+                    movie.setSubtitles(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<trailerExchange>")) {
                     movie.setTrailerExchange(parseCData(r).equalsIgnoreCase("YES"));
@@ -848,7 +848,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getLanguage());
         writer.writeEndElement();
         writer.writeStartElement("subtitles");
-        writer.writeCharacters(movie.hasSubtitles() ? "YES" : "NO");
+        writer.writeCharacters(movie.getSubtitles());
         writer.writeEndElement();
         writer.writeStartElement("trailerExchange");
         writer.writeCharacters(movie.isTrailerExchange() ? "YES" : "NO");

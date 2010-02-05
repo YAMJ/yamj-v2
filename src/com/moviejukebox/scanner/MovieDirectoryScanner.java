@@ -197,7 +197,7 @@ public class MovieDirectoryScanner {
         if (index >= 0) {
             return (new File(basename + "srt").exists() || new File(basename + "SRT").exists() || new File(basename + "sub").exists()
                             || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists()
-                            || new File(basename + "ssa").exists() || new File(basename + "SSA").exists());
+                            || new File(basename + "ssa").exists() || new File(basename + "SSA").exists() || new File(basename + "pgs").exists() || new File(basename + "PGS").exists());
         }
 
         String fn = path.toUpperCase();
@@ -293,7 +293,7 @@ public class MovieDirectoryScanner {
             movie.setThumbnailFilename(baseFileName + thumbnailToken + "." + thumbnailsFormat);
             movie.setDetailPosterFilename(baseFileName + posterToken + "." + postersFormat);
             movie.setBannerFilename(baseFileName + bannerToken + "." + bannersFormat);
-            movie.setSubtitles(hasSubtitles(movie.getFile()));
+            movie.setSubtitles(hasSubtitles(movie.getFile())==true?"YES":"NO");
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());
             movie.setFileDate(new Date(file.lastModified()));

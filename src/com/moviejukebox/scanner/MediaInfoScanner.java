@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -50,8 +51,8 @@ public class MediaInfoScanner {
 
     // mediaInfo command line, depend on OS
     private String[] mediaInfoExe;
-    private String[] mediaInfoExeWindows = {"cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null};
-    private String[] mediaInfoExeLinux = {"./mediainfo", "-f", null};
+    private String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null };
+    private String[] mediaInfoExeLinux = { "./mediainfo", "-f", null };
     public final static String OS_NAME = System.getProperty("os.name");
     public final static String OS_VERSION = System.getProperty("os.version");
     public final static String OS_ARCH = System.getProperty("os.arch");
@@ -63,7 +64,7 @@ public class MediaInfoScanner {
         logger.finer("OS version : " + OS_VERSION);
         logger.finer("OS archi : " + OS_ARCH);
     }
-    
+
     // Dvd rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
@@ -82,7 +83,7 @@ public class MediaInfoScanner {
             mediaInfoExe = mediaInfoExeLinux;
             checkMediainfo = new File(mediaInfoPath.getAbsolutePath() + File.separator + "mediainfo");
         }
-        //System.out.println(checkMediainfo.getAbsolutePath());
+        // System.out.println(checkMediainfo.getAbsolutePath());
         if (!checkMediainfo.canExecute()) {
             logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
             activated = false;
@@ -97,7 +98,7 @@ public class MediaInfoScanner {
     @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
         String randomDirName = "./isoTEMP/" + Thread.currentThread().getName() + "/VIDEO_TS";
-        
+
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
@@ -108,7 +109,7 @@ public class MediaInfoScanner {
         } else if ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img"))) {
             // extracting IFO files from ISO file
             AbstractFile abstractIsoFile = null;
-            
+
             // Issue 979: Split the reading of the ISO file to catch any errors
             try {
                 abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
@@ -117,16 +118,16 @@ public class MediaInfoScanner {
                 logger.fine(error.getMessage());
                 return;
             }
-            
+
             IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
             File tempRep = new File(randomDirName);
             tempRep.mkdirs();
-            
+
             try {
                 Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
-                    ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
+                    ArchiveEntry currentArchiveEntry = (ArchiveEntry)parcoursEntries.next();
                     if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
                         File currentIFO = new File(randomDirName + File.separator + currentArchiveEntry.getName());
                         FileOutputStream fosCurrentIFO = new FileOutputStream(currentIFO);
@@ -204,75 +205,54 @@ public class MediaInfoScanner {
     }
 
     private void parseMediaInfo(Process p, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
+                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
 
         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
+        // Improvement, less code line, each cat have same code, so use the same for all.
+        Map<String, ArrayList<HashMap<String, String>>> matches = new HashMap<String, ArrayList<HashMap<String, String>>>();
+        // Create a fake one for General, we got only one, but to use the same algo we must create this one.
+        matches.put("General", new ArrayList<HashMap<String, String>>());
+        matches.put("Video", infosVideo);
+        matches.put("Audio", infosAudio);
+        matches.put("Text", infosText);
+
         String line = localInputReadLine(input);
+        String label = null;
 
         while (line != null) {
-            if (line.equals("General")) {
-                int indexSeparateur = -1;
-                while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
-                    int longueurUtile = indexSeparateur - 1;
-                    while (line.charAt(longueurUtile) == ' ') {
-                        longueurUtile--;
-                    }
-                    if (infosGeneral.get(line.substring(0, longueurUtile + 1)) == null) {
-                        infosGeneral.put(line.substring(0, longueurUtile + 1), line.substring(indexSeparateur + 3));
-                    }
-                }
-            } else if (line.startsWith("Video")) {
-                HashMap<String, String> vidCourante = new HashMap<String, String>();
+            // In case of new format : Text #1, Audio #1
+            if (line.indexOf("#") >= 0) {
+                line = line.substring(0, line.indexOf("#")).trim();
+            }
 
+            // Get cat ArrayList from cat name.
+            ArrayList<HashMap<String, String>> currentCat = matches.get(line);
+            if (currentCat != null) {
+                logger.info("Current categorie : " + line);
+                HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
-                    int longueurUtile = indexSeparateur - 1;
-                    while (line.charAt(longueurUtile) == ' ') {
-                        longueurUtile--;
-                    }
-                    if (vidCourante.get(line.substring(0, longueurUtile + 1)) == null) {
-                        vidCourante.put(line.substring(0, longueurUtile + 1), line.substring(indexSeparateur + 3));
+                    label = line.substring(0, indexSeparateur).trim();
+                    if (currentData.get(label) == null) {
+                        currentData.put(label, line.substring(indexSeparateur + 3));
                     }
                 }
-                infosVideo.add(vidCourante);
-            } else if (line.startsWith("Audio")) {
-                HashMap<String, String> audioCourant = new HashMap<String, String>();
-
-                int indexSeparateur = -1;
-                while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
-                    int longueurUtile = indexSeparateur - 1;
-                    while (line.charAt(longueurUtile) == ' ') {
-                        longueurUtile--;
-                    }
-                    if (audioCourant.get(line.substring(0, longueurUtile + 1)) == null) {
-                        audioCourant.put(line.substring(0, longueurUtile + 1), line.substring(indexSeparateur + 3));
-                    }
-                }
-                infosAudio.add(audioCourant);
-            } else if (line.startsWith("Text")) {
-                HashMap<String, String> textCourant = new HashMap<String, String>();
-
-                int indexSeparateur = -1;
-                while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
-                    int longueurUtile = indexSeparateur - 1;
-                    while (line.charAt(longueurUtile) == ' ') {
-                        longueurUtile--;
-                    }
-                    textCourant.put(line.substring(0, longueurUtile + 1), line.substring(indexSeparateur + 3));
-                }
-                infosText.add(textCourant);
+                currentCat.add(currentData);
             } else {
                 line = localInputReadLine(input);
             }
-
         }
+
+        // Setting General Info - Beware of lose data if infosGeneral already have some ...
+        infosGeneral = matches.get("General").get(0);
+
         input.close();
 
     }
 
     private void updateMovieInfo(Movie movie, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) {
+                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) {
 
         String infoValue;
 
@@ -354,6 +334,16 @@ public class MediaInfoScanner {
             movie.setContainer(infoValue);
         }
 
+        infoValue = infosGeneral.get("PlayTime");
+        if (infoValue != null) {
+            int duration = 0;
+            if (infoValue.indexOf('.') >= 0) {
+                infoValue = infoValue.substring(0, infoValue.indexOf('.'));
+            }
+            duration = Integer.parseInt(infoValue) / 1000;
+
+            movie.setRuntime(formatDuration(duration));
+        }
         // get Info from first Video Stream
         // - can evolve to get info from longest Video Stream
         if (infosVideo.size() > 0) {
@@ -365,10 +355,10 @@ public class MediaInfoScanner {
                     // Duration
                     infoValue = infosMainVideo.get("Duration");
                     if (infoValue != null) {
-    
+
                         int duration;
                         duration = Integer.parseInt(infoValue) / 1000;
-    
+
                         movie.setRuntime(formatDuration(duration));
                     }
                 }
@@ -387,6 +377,11 @@ public class MediaInfoScanner {
                         infoValue = infosMainVideo.get("Format");
                         if (infoValue != null) {
                             movie.setVideoCodec(infoValue);
+                        } else {
+                            infoValue = infosMainVideo.get("Codec");
+                            if (infoValue != null) {
+                                movie.setVideoCodec(infoValue);
+                            }
                         }
                     }
                 }
@@ -395,11 +390,11 @@ public class MediaInfoScanner {
             // Resolution
             if (movie.getResolution().equals(Movie.UNKNOWN)) {
                 int width = 0;
-    
+
                 infoValue = infosMainVideo.get("Width");
                 if (infoValue != null) {
                     width = Integer.parseInt(infoValue);
-    
+
                     infoValue = infosMainVideo.get("Height");
                     if (infoValue != null) {
                         movie.setResolution(width + "x" + infoValue);
@@ -433,7 +428,7 @@ public class MediaInfoScanner {
                     } else {
                         normeHD = "720";
                     }
-                    
+
                     infoValue = infosMainVideo.get("Scan type");
                     if (infoValue != null) {
                         if (infoValue.equals("Progressive")) {
@@ -447,24 +442,24 @@ public class MediaInfoScanner {
                     normeHD = "SD";
                     String videoOutput;
                     switch (Math.round(movie.getFps())) {
-                        case 24:
-                            videoOutput = "24";
-                            break;
-                        case 25:
-                            videoOutput = "PAL 25";
-                            break;
-                        case 30:
-                            videoOutput = "NTSC 30";
-                            break;
-                        case 50:
-                            videoOutput = "PAL 50";
-                            break;
-                        case 60:
-                            videoOutput = "NTSC 60";
-                            break;
-                        default:
-                            videoOutput = "NTSC";
-                            break;
+                    case 24:
+                        videoOutput = "24";
+                        break;
+                    case 25:
+                        videoOutput = "PAL 25";
+                        break;
+                    case 30:
+                        videoOutput = "NTSC 30";
+                        break;
+                    case 50:
+                        videoOutput = "PAL 50";
+                        break;
+                    case 60:
+                        videoOutput = "NTSC 60";
+                        break;
+                    default:
+                        videoOutput = "NTSC";
+                        break;
                     }
                     infoValue = infosMainVideo.get("Scan type");
                     if (infoValue != null) {
@@ -480,9 +475,9 @@ public class MediaInfoScanner {
         }
 
         // Cycle through Audio Streams
-        boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN);          // Do we have AudioCodec already?
-        boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN);    // Do we have AudioChannels already?
-        
+        boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN); // Do we have AudioCodec already?
+        boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN); // Do we have AudioChannels already?
+
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
 
@@ -497,7 +492,7 @@ public class MediaInfoScanner {
                 infoValue = infosCurAudio.get("Codec");
             }
 
-            if (infoValue != null) {  // Make sure we have a codec before continuing
+            if (infoValue != null) { // Make sure we have a codec before continuing
                 String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
                 if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
                     movie.setAudioCodec(infoValue + infoLanguage);
@@ -508,7 +503,7 @@ public class MediaInfoScanner {
                     }
                 }
             }
-    
+
             infoValue = infosCurAudio.get("Channel(s)");
             if (infoValue != null) {
                 String oldInfo = movie.getAudioChannels();
@@ -526,17 +521,36 @@ public class MediaInfoScanner {
         for (int numText = 0; numText < infosText.size(); numText++) {
             HashMap<String, String> infosCurText = infosText.get(numText);
 
+            String infoLanguage = "";
+            infoValue = infosCurText.get("Language");
+            if (infoValue != null) {
+                infoLanguage =  infoValue;
+            }
+
             String infoFormat = "";
             infoValue = infosCurText.get("Format");
             if (infoValue != null) {
                 infoFormat = infoValue;
+            } else {
+                // take care of label for "Format" in mediaInfo 0.6.1.1
+                infoValue = infosCurText.get("Codec");
+                if (infoValue != null) {
+                    infoFormat = infoValue;
+                }
             }
 
-            // Check that the format can be viewed on the popcorn
-            if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE")) {
-                movie.setSubtitles(true);
-            } else {
-                logger.finest("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
+            if (infoFormat != null) { // Make sure we have a codec before continuing
+                if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE") || infoFormat.equals("PGS")) {
+                    String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
+                    if (oldInfo.toUpperCase().equals(Movie.UNKNOWN) || oldInfo.toUpperCase().equals("NO")) {
+                        movie.setSubtitles( infoLanguage);
+                    } else {
+                        // Don't overwrite what is there currently
+                        movie.setSubtitles(oldInfo + " / " + infoLanguage);
+                    }
+                }else{
+                    logger.finest("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
+                }
             }
         }
     }

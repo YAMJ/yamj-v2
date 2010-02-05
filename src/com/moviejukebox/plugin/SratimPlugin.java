@@ -1185,7 +1185,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
         
         mf.setSubtitlesExchange(true);
-        movie.setSubtitles(true);
+        movie.setSubtitles("YES");
     }
 
 
