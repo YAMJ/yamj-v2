@@ -44,7 +44,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             String xml = webBrowser.request("http://filmup.leonardo.it/sc_" + movie.getId(FILMUPIT_PLUGIN_ID) + ".htm");
 
             if (!movie.isOverrideTitle()) {
-                movie.setTitle(extractTag(xml, "<font face=\"arial, helvetica\" size=\"3\"><b>", "</b>"));
+                movie.setTitle(removeHtmlTags(extractTag(xml, "<font face=\"arial, helvetica\" size=\"3\"><b>", "</b>")));
             }
             // limit plot to FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT char
             if (movie.getPlot().equals(Movie.UNKNOWN)) {
@@ -56,19 +56,19 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
             if (movie.getDirector().equals(Movie.UNKNOWN)) {
-                movie.setDirector(removeHtmlTags(extractTag(xml, "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
+                movie.setDirector(removeHtmlTags(removeHtmlTags(extractTag(xml, "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"))));
             }
 
             if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
-                movie.setReleaseDate(extractTag(xml, "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+                movie.setReleaseDate(removeHtmlTags(extractTag(xml, "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+                movie.setRuntime(removeHtmlTags(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
             }
 
             if (movie.getCountry().equals(Movie.UNKNOWN)) {
-                movie.setCountry(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+                movie.setCountry(removeHtmlTags(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
             }
 
             if (movie.getCompany().equals(Movie.UNKNOWN)) {
@@ -84,7 +84,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setYear(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+                movie.setYear(removeHtmlTags(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
             }
 
             if (movie.getCast().size() == 0) {
