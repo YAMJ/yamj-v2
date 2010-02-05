@@ -4,9 +4,10 @@
 
 MovieJukebox 1.8 BETA
 ---------------------
-  - Enhancement	 #145  Dual Language-Flag for DVDs
+  - Enhancement	  #145  Dual Language-Flag for DVDs
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
+  - Fixed defect #1156 BAd forma date with plugin mjb.internet.plugin=com.moviejukebox.plugin.FilmUpITPlugin  
   - Enhancement  #1175 Also detect PGS subtiltes  
   - Fixed defect #1187 Trailing '|' character in IMDB plots
   - Fixed defect #1190 IMDb parser gets wrong title for movie with parentheses
