@@ -48,7 +48,7 @@ public class OpenSubtitlesPlugin {
     private static String OSdbServer = "http://www.opensubtitles.org/xml-rpc";
     private static String token = "";
     private static String sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
-    
+
     static {
         // Check if subtitle language was selected
         if (!sublanguageid.equals("")) {
@@ -69,7 +69,7 @@ public class OpenSubtitlesPlugin {
     private static void logIn() {
         try {
             if (token.equals("")) {
-                String parm[] = {login, pass, "", useragent};
+                String parm[] = { login, pass, "", useragent };
                 String xml = generateXMLRPC("LogIn", parm);
                 String ret = sendRPC(xml);
                 getValue("status", ret);
@@ -77,7 +77,7 @@ public class OpenSubtitlesPlugin {
                 if (token.equals("")) {
                     logger.severe("OpenSubtitles Plugin: Login error." + "\n" + ret);
                 }
-//                String l1 = login.equals("") ? "Anonymous" : login;
+                // String l1 = login.equals("") ? "Anonymous" : login;
             }
             ;
         } catch (Exception error) {
@@ -99,7 +99,7 @@ public class OpenSubtitlesPlugin {
         }
 
         try {
-            String p1[] = {token};
+            String p1[] = { token };
             String xml = generateXMLRPC("LogOut", p1);
             sendRPC(xml);
         } catch (Exception error) {
@@ -110,58 +110,33 @@ public class OpenSubtitlesPlugin {
 
     public void generate(Movie movie) {
 
-        // Check if subtitle language was selected
-        if (sublanguageid.equals("")) {
-            return;
-        }
-        
-        // Check to see if we scrape the library, if we don't then skip the download
-        if (!movie.isScrapeLibrary()) {
-            logger.finest("OpenSubtitles Plugin: Skipped for " + movie.getTitle() + " due to scrape library flag");
-            return;
-        }
-
-        // Check that the login was successful
-        if (token.equals("")) {
-            return;
-        }
-
-        // Check if all files have subtitle
-        boolean allSubtitleExist = true;
-        boolean allSubtitleExchange = true;
-
-
-        // Go over all the movie files and check subtitle status
-        for (MovieFile mf : movie.getMovieFiles()) {
-
-            if (!mf.isSubtitlesExchange()) {
-                allSubtitleExchange = false;
+        if (movie.getSubtitles().equalsIgnoreCase(Movie.UNKNOWN) || movie.getSubtitles().equalsIgnoreCase("NO")) {
+            // Check if subtitle language was selected
+            if (sublanguageid.equals("")) {
+                return;
             }
 
-            // Check if this movie already have subtitles for it
-            String path = mf.getFile().getAbsolutePath();
-            int index = path.lastIndexOf(".");
-            String basename = path.substring(0, index + 1);
-
-            File subtitleFile = new File(basename + "srt");
-
-            if (!subtitleFile.exists()) {
-                allSubtitleExchange = false;
-                allSubtitleExist = false;
-                break;
+            // Check to see if we scrape the library, if we don't then skip the download
+            if (!movie.isScrapeLibrary()) {
+                logger.finest("OpenSubtitles Plugin: Skipped for " + movie.getTitle() + " due to scrape library flag");
+                return;
             }
-        }
 
-        if (allSubtitleExchange) {
-            return;
-        }
+            // Check that the login was successful
+            if (token.equals("")) {
+                return;
+            }
 
+            // Check if all files have subtitle
+            boolean allSubtitleExist = true;
+            boolean allSubtitleExchange = true;
 
-        // Check if all files have subtitle , or this is a tv show, that each episode is by itself
-        if (!allSubtitleExist || movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-
-            // Go over all the movie files
+            // Go over all the movie files and check subtitle status
             for (MovieFile mf : movie.getMovieFiles()) {
+
+                if (!mf.isSubtitlesExchange()) {
+                    allSubtitleExchange = false;
+                }
 
                 // Check if this movie already have subtitles for it
                 String path = mf.getFile().getAbsolutePath();
@@ -171,54 +146,81 @@ public class OpenSubtitlesPlugin {
                 File subtitleFile = new File(basename + "srt");
 
                 if (!subtitleFile.exists()) {
-                    if (subtitleDownload(movie, mf.getFile(), subtitleFile) == true) {
-                        movie.setDirty(true);
-                        mf.setSubtitlesExchange(true);
-                    }
-                } else {
-                    if (!mf.isSubtitlesExchange()) {
-                        File movieFileArray[] = new File[1];
-                        File subtitleFileArray[] = new File[1];
+                    allSubtitleExchange = false;
+                    allSubtitleExist = false;
+                    break;
+                }
+            }
 
-                        movieFileArray[0] = mf.getFile();
-                        subtitleFileArray[0] = subtitleFile;
+            if (allSubtitleExchange) {
+                return;
+            }
 
-                        if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
+            // Check if all files have subtitle , or this is a tv show, that each episode is by itself
+            if (!allSubtitleExist || movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+
+                // Go over all the movie files
+                for (MovieFile mf : movie.getMovieFiles()) {
+
+                    // Check if this movie already have subtitles for it
+                    String path = mf.getFile().getAbsolutePath();
+                    int index = path.lastIndexOf(".");
+                    String basename = path.substring(0, index + 1);
+
+                    File subtitleFile = new File(basename + "srt");
+
+                    if (!subtitleFile.exists()) {
+                        if (subtitleDownload(movie, mf.getFile(), subtitleFile) == true) {
                             movie.setDirty(true);
                             mf.setSubtitlesExchange(true);
                         }
+                    } else {
+                        if (!mf.isSubtitlesExchange()) {
+                            File movieFileArray[] = new File[1];
+                            File subtitleFileArray[] = new File[1];
+
+                            movieFileArray[0] = mf.getFile();
+                            subtitleFileArray[0] = subtitleFile;
+
+                            if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
+                                movie.setDirty(true);
+                                mf.setSubtitlesExchange(true);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Upload all movie files as a group
+                File movieFileArray[] = new File[movie.getMovieFiles().size()];
+                File subtitleFileArray[] = new File[movie.getMovieFiles().size()];
+                int i = 0;
+
+                // Go over all the movie files
+                for (MovieFile mf : movie.getMovieFiles()) {
+
+                    // Check if this movie already have subtitles for it
+                    String path = mf.getFile().getAbsolutePath();
+                    int index = path.lastIndexOf(".");
+                    String basename = path.substring(0, index + 1);
+
+                    File subtitleFile = new File(basename + "srt");
+
+                    movieFileArray[i] = mf.getFile();
+                    subtitleFileArray[i] = subtitleFile;
+                    i++;
+                }
+
+                if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
+                    movie.setDirty(true);
+
+                    // Go over all the movie files and mark the exchange
+                    for (MovieFile mf : movie.getMovieFiles()) {
+                        mf.setSubtitlesExchange(true);
                     }
                 }
             }
-        } else {
-            // Upload all movie files as a group
-            File movieFileArray[] = new File[movie.getMovieFiles().size()];
-            File subtitleFileArray[] = new File[movie.getMovieFiles().size()];
-            int i = 0;
-
-            // Go over all the movie files
-            for (MovieFile mf : movie.getMovieFiles()) {
-
-                // Check if this movie already have subtitles for it
-                String path = mf.getFile().getAbsolutePath();
-                int index = path.lastIndexOf(".");
-                String basename = path.substring(0, index + 1);
-
-                File subtitleFile = new File(basename + "srt");
-
-                movieFileArray[i] = mf.getFile();
-                subtitleFileArray[i] = subtitleFile;
-                i++;
-            }
-
-            if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
-                movie.setDirty(true);
-
-                // Go over all the movie files and mark the exchange
-                for (MovieFile mf : movie.getMovieFiles()) {
-                    mf.setSubtitlesExchange(true);
-                }
-            }
+        }else{
+            logger.fine("Skipping subtitle download, movie have already subtitles : " + movie.getSubtitles());
         }
     }
 
@@ -255,7 +257,6 @@ public class OpenSubtitlesPlugin {
                 }
             }
 
-
             if (subDownloadLink.equals("")) {
                 logger.finer("OpenSubtitles Plugin: Subtitle not found for " + movie.getBaseName());
                 return false;
@@ -263,9 +264,8 @@ public class OpenSubtitlesPlugin {
 
             logger.finer("OpenSubtitles Plugin: Download subtitle for " + movie.getBaseName());
 
-
             URL url = new URL(subDownloadLink);
-            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
             connection.setRequestProperty("Connection", "Close");
             InputStream inputStream = connection.getInputStream();
 
@@ -285,8 +285,12 @@ public class OpenSubtitlesPlugin {
             }
             out.close();
 
-
-            movie.setSubtitles(true);
+            String subLanguageID = getValue("SubLanguageID", ret);
+            if (subLanguageID != null) {
+                movie.setSubtitles(subLanguageID);
+            } else {
+                movie.setSubtitles("YES");
+            }
 
             return true;
 
@@ -316,7 +320,6 @@ public class OpenSubtitlesPlugin {
             String movieframes[] = new String[movieFile.length];
             String moviefps[] = new String[movieFile.length];
             String moviefilename[] = new String[movieFile.length];
-
 
             for (int i = 0; i < movieFile.length; i++) {
 
@@ -392,8 +395,7 @@ public class OpenSubtitlesPlugin {
 
         str += "</struct></value></param></params></methodCall>";
         return str;
-    }
-    ;
+    };
 
     private static String generateXMLRPCSS(String query) {
         String str = "";
@@ -412,10 +414,10 @@ public class OpenSubtitlesPlugin {
 
         str += "</struct></value></param></params></methodCall>";
         return str;
-    }
-    ;
+    };
 
-    private static String generateXMLRPCUS(String idmovieimdb, String subhash[], String subcontent[], String subfilename[], String moviehash[], String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
+    private static String generateXMLRPCUS(String idmovieimdb, String subhash[], String subcontent[], String subfilename[], String moviehash[],
+                    String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
         String str = "";
         str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
         str += "UploadSubtitles";
@@ -447,12 +449,12 @@ public class OpenSubtitlesPlugin {
 
         str += "</struct></value></member>";
 
-
         str += "</struct></value></param></params></methodCall>";
         return str;
     }
 
-    private static String generateXMLRPCTUS(String subhash[], String subfilename[], String moviehash[], String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
+    private static String generateXMLRPCTUS(String subhash[], String subfilename[], String moviehash[], String moviebytesize[], String movietimems[],
+                    String movieframes[], String moviefps[], String moviefilename[]) {
         String str = "";
         str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
         str += "TryUploadSubtitles";
@@ -476,44 +478,27 @@ public class OpenSubtitlesPlugin {
 
         str += "</struct></value></param></params></methodCall>";
         return str;
-    }
-    ;
+    };
 
-/*
- * 
-
-    private static String sendRPCDetectLang(byte text[]) throws MalformedURLException, IOException {
-        String str = "";
-        String strona = OSdbServer;
-        // String logowanie=xml;
-        URL url = new URL(strona);
-        URLConnection connection = url.openConnection();
-        connection.setRequestProperty("Connection", "Close");
-
-        // connection.setRequestProperty("Accept","text/html");
-        connection.setRequestProperty("Content-Type", "text/xml");
-        connection.setDoOutput(true);
-        //PrintWriter out= new PrintWriter(connection.getOutputStream());
-        //out.print(logowanie);
-        String str2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>" + "DetectLanguage" + "</methodName><params>" + "<param><value><string>" + token + "</string></value></param>" + "<param><value>" + "<struct><value><string>";
-
-
-        String str3 = "</string></value></struct></value></param></params></methodCall>";
-
-        connection.getOutputStream().write(str2.getBytes("UTF-8"));
-        connection.getOutputStream().write(text);
-        connection.getOutputStream().write(str3.getBytes("UTF-8"));
-
-        Scanner in;
-        in = new Scanner(connection.getInputStream());
-        while (in.hasNextLine()) {
-            str += in.nextLine();
-        }
-        ;
-        return str;
-    }
-    ;
- */
+    /*
+     * 
+     * 
+     * private static String sendRPCDetectLang(byte text[]) throws MalformedURLException, IOException { String str = ""; String strona = OSdbServer; // String
+     * logowanie=xml; URL url = new URL(strona); URLConnection connection = url.openConnection(); connection.setRequestProperty("Connection", "Close");
+     * 
+     * // connection.setRequestProperty("Accept","text/html"); connection.setRequestProperty("Content-Type", "text/xml"); connection.setDoOutput(true);
+     * //PrintWriter out= new PrintWriter(connection.getOutputStream()); //out.print(logowanie); String str2 =
+     * "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>" + "DetectLanguage" + "</methodName><params>" + "<param><value><string>" + token +
+     * "</string></value></param>" + "<param><value>" + "<struct><value><string>";
+     * 
+     * 
+     * String str3 = "</string></value></struct></value></param></params></methodCall>";
+     * 
+     * connection.getOutputStream().write(str2.getBytes("UTF-8")); connection.getOutputStream().write(text);
+     * connection.getOutputStream().write(str3.getBytes("UTF-8"));
+     * 
+     * Scanner in; in = new Scanner(connection.getInputStream()); while (in.hasNextLine()) { str += in.nextLine(); } ; return str; } ;
+     */
 
     private static String sendRPC(String xml) throws MalformedURLException, IOException {
 
@@ -572,7 +557,7 @@ public class OpenSubtitlesPlugin {
         String hex = "0123456789abcdef";
         for (int i = 0; i < arayhash.length; i++) {
             int m = arayhash[i] & 0xff;
-            s = s + hex.charAt(m >> 4) + hex.charAt(m & 0xf);//do not use "s+="
+            s = s + hex.charAt(m >> 4) + hex.charAt(m & 0xf);// do not use "s+="
         }
         ;
         return s;
@@ -612,11 +597,11 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String tuBase64(byte s[]) {
-        // You may use this for lower  applet size
-        // return new  sun.misc.BASE64Encoder().encode(s);
+        // You may use this for lower applet size
+        // return new sun.misc.BASE64Encoder().encode(s);
 
-//        char tx;
-//        long mili = Calendar.getInstance().getTimeInMillis();
+        // char tx;
+        // long mili = Calendar.getInstance().getTimeInMillis();
         String str = "";
         String t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         char t2[] = t.toCharArray();
@@ -636,7 +621,7 @@ public class OpenSubtitlesPlugin {
             for (int j = 0; j < 4; j++) {
                 wynik[i * 4 + j] = (iii * 8 + j * 6 >= s.length * 8) ? '=' : t2[(tri >> 6 * (3 - j)) & 0x3f];
             }
-        //  if((i+1) % 19 ==0 ) str +="\n";
+            // if((i+1) % 19 ==0 ) str +="\n";
         }
         ;
         str = new String(wynik);
@@ -648,9 +633,7 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String addymember(String name, String value) {
-        return "<member><name>" +
-                name + "</name><value><string>" +
-                OpenSubtitlesPlugin.addEncje(value) + "</string></value></member>";
+        return "<member><name>" + name + "</name><value><string>" + OpenSubtitlesPlugin.addEncje(value) + "</string></value></member>";
     }
 
     private static String getHash(File f) throws IOException {

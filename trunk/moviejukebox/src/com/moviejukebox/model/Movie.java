@@ -86,7 +86,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     private String language = UNKNOWN;
     private String videoType = UNKNOWN;
     private int season = -1;
-    private boolean hasSubtitles = false;
+    private String subtitles = UNKNOWN;
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private SortedSet<String> genres = new TreeSet<String>();
     private List<String> cast = new ArrayList<String>();
@@ -515,8 +515,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         return year;
     }
     
-    public boolean hasSubtitles() {
-        return hasSubtitles;
+    public String getSubtitles() {
+        return subtitles;
     }
 
     @XmlTransient public boolean isDirty() {
@@ -537,12 +537,6 @@ import com.moviejukebox.tools.PropertiesUtil;
     
     @XmlTransient public boolean isDirtyBanner() {
         return isDirtyBanner;
-    }
-
-    @XmlElement(name = "subtitles")
-    @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
-    public Boolean isHasSubtitles() {
-        return hasSubtitles;
     }
 
     @XmlAttribute(name = "isTV") public boolean isTVShow() {
@@ -860,10 +854,13 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
-    public void setSubtitles(boolean hasSubtitles) {
-        if (hasSubtitles != this.hasSubtitles) {
+    public void setSubtitles(String subtitles) {
+        if (subtitles == null) {
+            subtitles = UNKNOWN;
+        }
+        if (!subtitles.equals(this.subtitles)) {
             this.isDirty = true;
-            this.hasSubtitles = hasSubtitles;
+            this.subtitles = subtitles;
         }
     }
 
@@ -1019,7 +1016,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         sb.append("[runtime=").append(runtime).append("]");
         sb.append("[season=").append(season).append("]");
         sb.append("[language=").append(language).append("]");
-        sb.append("[hasSubtitles=").append(hasSubtitles).append("]");
+        sb.append("[subtitles=").append(subtitles).append("]");
         sb.append("[container=").append(container).append("]"); // AVI, MKV, TS, etc.
         sb.append("[videoCodec=").append(videoCodec).append("]"); // DIVX, XVID, H.264, etc.
         sb.append("[audioCodec=").append(audioCodec).append("]"); // MP3, AC3, DTS, etc.
