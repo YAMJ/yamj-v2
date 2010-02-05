@@ -4,6 +4,7 @@
 
 MovieJukebox 1.8 BETA
 ---------------------
+  - Enhancement	 #145  Dual Language-Flag for DVDs
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
   - Enhancement  #1175 Also detect PGS subtiltes  
@@ -21,6 +22,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1230 Add fanart detection to FilmUpIT plugin
   - Fixed defect #1232 Subtitle field incorrect for mkv embedded subs
   - Fixed defect #1233 Allocine plugin IOException
+
   
 
 MovieJukebox 1.7

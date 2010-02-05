@@ -17,6 +17,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -26,6 +27,8 @@ import java.util.logging.Logger;
 import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
@@ -56,13 +59,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     @Override
     public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String imageType, String perspectiveDirection) {
         imageType = imageType.toLowerCase();
-        
+
         if ("posters|thumbnails|banners|videoimages".indexOf(imageType) < 0) {
             // This is an error with the calling function
             logger.severe("YAMJ Error with calling function in DefaultImagePlugin.java");
             return imageGraphic;
         }
-        
+
         // Specific Properties (dependent upon the imageType)
         imageWidth = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".width", "400"));
         imageHeight = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".height", "600"));
@@ -74,7 +77,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addSetLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
         addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
         ratio = (float)imageWidth / (float)imageHeight;
-        
+
         BufferedImage bi = imageGraphic;
 
         if (imageGraphic != null) {
@@ -270,26 +273,84 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      */
     private BufferedImage drawLanguage(Movie movie, BufferedImage bi) {
         String lang = movie.getLanguage();
-        if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase(Movie.UNKNOWN)) {
 
+        if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase(Movie.UNKNOWN)) {
+            String[] languages = lang.split("/");
+
+            String fullLanguage = "";
+            for (String language : languages) {
+                if (fullLanguage.length() > 0) {
+                    fullLanguage += "_";
+                }
+                fullLanguage += language.trim();
+            }
             try {
-                InputStream in = new FileInputStream(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + lang + ".png");
-                BufferedImage biLang = ImageIO.read(in);
+
                 Graphics g = bi.getGraphics();
-                g.drawImage(biLang, 1, 1, null);
-            } catch (IOException error) {
+                File imageFile = new File(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + fullLanguage + ".png");
+                if (imageFile.exists()) {
+                    InputStream in = new FileInputStream(imageFile);
+                    BufferedImage biLang = ImageIO.read(in);
+                    g.drawImage(biLang, 1, 1, null);
+                } else {
+                    if (languages.length == 1) {
+                        logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + fullLanguage
+                                        + ".png) is in the resources/languages directory.");
+                    } else {
+                        logger.warning("Unable to find multiple language image (" + fullLanguage
+                                        + ".png) in the resources/languages directory, generate it from single one.");
+                        int width = -1;
+                        int height = -1;
+                        int nbCols = (int)Math.sqrt(languages.length);
+                        int nbRows = languages.length / nbCols;
+
+                        BufferedImage[] imageFiles = new BufferedImage[languages.length];
+                        // Looking for image file
+                        for (int i = 0; i < languages.length; i++) {
+                            String language = languages[i].trim();
+                            imageFile = new File(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + language + ".png");
+                            if (imageFile.exists()) {
+
+                                InputStream in = new FileInputStream(imageFile);
+                                BufferedImage biLang = ImageIO.read(in);
+                                imageFiles[i] = biLang;
+
+                                // Determine image size.
+                                if (width == -1) {
+
+                                    width = biLang.getWidth() / nbCols;
+                                    height = biLang.getHeight() / nbRows;
+                                }
+                            } else {
+                                logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + language
+                                                + ".png) is in the resources/languages directory.");
+                            }
+                        }
+
+                        for (int i = 0; i < imageFiles.length; i++) {
+                            int indexCol = (i) % nbCols;
+                            int indexRow = (i / nbCols);
+                            g.drawImage(imageFiles[i], 1 + (width * indexCol), 1 + (height * indexRow), width, height, null);
+                        }
+                    }
+                }
+            } catch (IOException e) {
                 logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + lang
                                 + ".png) is in the resources/languages directory.");
             }
+
         }
 
         return bi;
     }
-    
+
     /**
      * Draw the set logo onto a poster
-     * @param movie the movie to check
-     * @param bi the image to draw on
+     * 
+     * @param movie
+     *            the movie to check
+     * @param bi
+     *            the image to draw on
      * @return the new buffered image
      */
     private BufferedImage drawSet(Movie movie, BufferedImage bi) {
@@ -298,11 +359,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             BufferedImage biSet = ImageIO.read(in);
             Graphics g = bi.getGraphics();
             g.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
-        } catch(IOException error) {
-            logger.warning("Failed drawing set logo to thumbnail file:"
-                + "Please check that set graphic (set.png) is in the resources directory.");
+        } catch (IOException error) {
+            logger.warning("Failed drawing set logo to thumbnail file:" + "Please check that set graphic (set.png) is in the resources directory.");
         }
-        
+
         return bi;
     }
 

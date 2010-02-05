@@ -117,6 +117,7 @@ public class MovieFilenameScanner {
 
         {
             // http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+            // TODO : Extract this to an extrenal config file, it let people customize without rebuild.
             put("Chinese", "ZH Zh zh CHI Chi chi CHINESE Chinese chinese");
             put("Dual Language", "DL dl");
             put("English", "ENG EN ENGLISH eng en english Eng");
@@ -516,7 +517,9 @@ public class MovieFilenameScanner {
      * Decode the language tag passed in, into standard YAMJ language code
      * @param language The language tag to decode
      * @return
+     *
      */
+    //TODO : Extract this from here, it's not specific on MovieFileNameScanner
     public static String determineLanguage(String language) {
         for (Map.Entry<String, Pattern> e : STRICT_LANGUAGES_MAP.entrySet()) {
             Matcher matcher = e.getValue().matcher(language);
