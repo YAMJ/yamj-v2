@@ -23,7 +23,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1230 Add fanart detection to FilmUpIT plugin
   - Fixed defect #1232 Subtitle field incorrect for mkv embedded subs
   - Fixed defect #1233 Allocine plugin IOException
-
+  - Fixed defect #1241 Movie size for folder-movies (BluRay, AVCHD, etc.) always "0Bytes"
   
 
 MovieJukebox 1.7
