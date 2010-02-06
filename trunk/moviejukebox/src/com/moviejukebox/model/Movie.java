@@ -778,7 +778,8 @@ import com.moviejukebox.tools.PropertiesUtil;
             plot = UNKNOWN;
         }
         if (!plot.equalsIgnoreCase(this.plot)) {
-            this.isDirty = true;
+            this.isDirty = true;            
+            plot = plot.replaceAll("\"", "'");
             this.plot = plot;
         }
     }
@@ -793,6 +794,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
         if (!outline.equalsIgnoreCase(this.outline)) {
             this.isDirty = true;
+            outline = outline.replaceAll("\"", "'");
             this.outline = outline;
         }
     }
