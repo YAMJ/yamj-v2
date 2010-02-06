@@ -297,7 +297,8 @@ public class MovieDirectoryScanner {
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());
             movie.setFileDate(new Date(file.lastModified()));
-            movie.setFileSize(file.length());
+            // Issue 1241 - Take care of directory for size.
+            movie.setFileSize(this.calculateFileSize(file));
             
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
             
@@ -324,5 +325,25 @@ public class MovieDirectoryScanner {
             if (isBluRay && playFullBluRayDisk)
                 break;
         }
+    }
+
+    /**
+     * Return the file length, or if file is the directory, the sum of all files in directory.
+     * Created for issue 1241
+     * @param file
+     * @return
+     */
+    private long calculateFileSize(File file) {
+        long total=0;
+        if(file.isDirectory()){
+            File[] listFiles = file.listFiles();
+            for (File fileTmp : listFiles) {
+                total+=calculateFileSize(fileTmp);
+            }
+        }
+        else{
+            total+=file.length();
+        }
+        return total;
     }
 }
