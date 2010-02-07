@@ -41,12 +41,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private String language;
     protected boolean downloadFanart;
     protected static String fanartToken;
+    private int preferredPlotLength;
 
     public TheMovieDbPlugin() {
-        TMDb = new TheMovieDb(API_KEY);
-        language = PropertiesUtil.getProperty("themoviedb.language", "en");
-        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
-        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        TMDb                = new TheMovieDb(API_KEY);
+        language            = PropertiesUtil.getProperty("themoviedb.language", "en");
+        downloadFanart      = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
+        fanartToken         = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     }
 
     public boolean scan(Movie movie) {
@@ -135,8 +137,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         // plot
         if (overwriteCheck(moviedb.getOverview(), movie.getPlot())) {
-            movie.setPlot(moviedb.getOverview());
-            movie.setOutline(moviedb.getOverview());
+            String plot = moviedb.getOverview();
+            if (plot.length() > preferredPlotLength) {
+                plot = plot.substring(0, Math.min(plot.length(), preferredPlotLength - 3)) + "...";
+            }
+            movie.setPlot(plot);
+            movie.setOutline(plot);
         }
 
         // rating
