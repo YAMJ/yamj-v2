@@ -51,21 +51,23 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean dvdEpisodes = false;
     private static final String bannerSeasonType = "seasonwide";
     private static final String bannerSeriesType = "graphical";
+    private int preferredPlotLength;
 
     public TheTvDBPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
         language = PropertiesUtil.getProperty("thetvdb.language", "en");
-        includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
-        includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
-        onlySeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
-        cycleSeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cycleSeriesBanners", "true"));
-        dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
-        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
-        forceFanartOverwrite = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
-        forceBannerOverwrite = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
+        includeEpisodePlots     = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+        includeVideoImages      = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+        includeWideBanners      = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
+        onlySeriesBanners       = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
+        cycleSeriesBanners      = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cycleSeriesBanners", "true"));
+        dvdEpisodes             = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
+        fanartToken             =  PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        downloadFanart          = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
+        forceFanartOverwrite    = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
+        forceBannerOverwrite    = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
+        preferredPlotLength     = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     }
 
     @Override
@@ -311,7 +313,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             sb.append(episode.getEpisodeName());
 
                         if (includeEpisodePlots) {
-                            file.setPlot(part, episode.getOverview());
+                            String episodePlot = episode.getOverview();
+                            if (episodePlot.length() > preferredPlotLength) {
+                                episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
+                            }
+                            file.setPlot(part, episodePlot);
+                            
                         }
 
                         if (includeVideoImages) {
