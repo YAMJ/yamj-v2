@@ -1536,7 +1536,7 @@ public class SratimPlugin extends ImdbPlugin {
             Matcher m = p.matcher(mainXML);
             while(m.find()){
                 String g = m.group(1);
-                if(! g.endsWith("_1")) {
+                if(g.endsWith("_1")) {
                     //hebrew subtitles has id 'Subtitles_1'
                     result = m.start();
                     break;
