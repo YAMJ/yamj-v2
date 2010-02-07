@@ -67,6 +67,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
+    private boolean isPlayonhd;
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
@@ -89,6 +90,7 @@ public class MovieJukeboxXMLWriter {
         includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+        isPlayonhd = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.PlayOnHD", "false"));
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -954,7 +956,14 @@ public class MovieJukeboxXMLWriter {
                 writer.writeAttribute("size", "0");
             }
             writer.writeStartElement("fileURL");
-            writer.writeCharacters(mf.getFilename()); // should already be a URL
+            String filename = mf.getFilename();
+            // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD path
+            if (isPlayonhd) {
+                if (!filename.endsWith("VIDEO_TS.IFO")) {
+                    filename = filename + "/VIDEO_TS.IFO";
+                }
+            }
+            writer.writeCharacters(filename); // should already be a URL
             writer.writeEndElement();
             
             writer.writeStartElement("playLink");
