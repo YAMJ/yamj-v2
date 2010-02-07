@@ -9,6 +9,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect  #535 Appears the order of libraries in the xml makes a difference on output.  
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
+  - Fixed defect #1152 Moviejukebox does not complete - stuck on Sratim plugin  
   - Fixed defect #1156 BAd forma date with plugin mjb.internet.plugin=com.moviejukebox.plugin.FilmUpITPlugin  
   - Enhancement  #1175 Also detect PGS subtiltes  
   - Fixed defect #1176 Use of runtime element in NFO  
