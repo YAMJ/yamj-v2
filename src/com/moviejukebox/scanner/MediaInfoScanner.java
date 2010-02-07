@@ -229,7 +229,7 @@ public class MediaInfoScanner {
             // Get cat ArrayList from cat name.
             ArrayList<HashMap<String, String>> currentCat = matches.get(line);
             if (currentCat != null) {
-                logger.finer("Current categorie : " + line);
+                logger.finer("Current category : " + line);
                 HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
@@ -245,7 +245,11 @@ public class MediaInfoScanner {
         }
 
         // Setting General Info - Beware of lose data if infosGeneral already have some ...
-        infosGeneral = matches.get("General").get(0);
+        try {
+            infosGeneral = matches.get("General").get(0);
+        } catch (Exception ignore) {
+            // We don't care about this exception
+        }
 
         input.close();
 
