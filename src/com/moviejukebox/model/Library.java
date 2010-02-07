@@ -246,9 +246,33 @@ public class Library implements Map<String, Movie> {
         } else if (existingMovie == null) {
             library.put(key, movie);
         } else {
-            existingMovie.addMovieFile(movie.getFirstFile());
-            // Update these counters
-            if (!movie.isTVShow()) {
+            MovieFile firstMovieFile = movie.getFirstFile();
+            // Take care of TV-Show (order by episode). Issue  535 - Not sure it's the best place do to this.
+            if(existingMovie.isTVShow()){
+                // The lower episode have to be the main movie.
+                int newEpisodeNumber = firstMovieFile.getFirstPart();
+                int oldEpisodesFirstNumber = Integer.MAX_VALUE;
+                Collection<MovieFile> espisodesFiles = existingMovie.getFiles();
+                for (MovieFile movieFile : espisodesFiles) {
+                    if(movieFile.getFirstPart()<oldEpisodesFirstNumber){
+                        oldEpisodesFirstNumber=movieFile.getFirstPart();
+                    }
+                }
+                // If the new episode was < than old ( espisode 1 < episode 2)
+                if(newEpisodeNumber<oldEpisodesFirstNumber){
+                    // The New episode have to be the 'main'
+                    for (MovieFile movieFile : espisodesFiles) {
+                        movie.addMovieFile(movieFile);
+                        library.put(key, movie);  // Replace the old one by the lower.
+                        existingMovie=movie;
+                    }
+                }else{
+                    // no change
+                    existingMovie.addMovieFile(firstMovieFile);
+                }
+            }else{
+                existingMovie.addMovieFile(firstMovieFile);
+                // Update these counters
                 existingMovie.setFileSize(movie.getFileSize());
             }
             existingMovie.setFileDate(movie.getFileDate());
@@ -804,7 +828,8 @@ public class Library implements Map<String, Movie> {
     }
 
     public Collection<Movie> values() {
-        return library.values();
+        List<Movie> retour = new ArrayList<Movie>(library.values());
+        return retour;
     }
 
     public List<Movie> getMoviesList() {
