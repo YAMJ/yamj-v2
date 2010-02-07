@@ -621,7 +621,10 @@ public class SratimPlugin extends ImdbPlugin {
 
             movie.setDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "במאי:")));
             movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "תאריך יציאה לקולנוע בחו\"ל:"));
-            movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך:"))));
+            // Issue 1176 - Prevent lost of NFO Data
+            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך:"))));
+            }
             movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")));
 
             // Prefer IMDB genres

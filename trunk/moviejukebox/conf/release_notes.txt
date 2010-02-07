@@ -11,6 +11,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
   - Fixed defect #1156 BAd forma date with plugin mjb.internet.plugin=com.moviejukebox.plugin.FilmUpITPlugin  
   - Enhancement  #1175 Also detect PGS subtiltes  
+  - Fixed defect #1176 Use of runtime element in NFO  
   - Fixed defect #1187 Trailing '|' character in IMDB plots
   - Fixed defect #1190 IMDb parser gets wrong title for movie with parentheses
   - Enhancement  #1188 Add support for Danish language tag in the filename

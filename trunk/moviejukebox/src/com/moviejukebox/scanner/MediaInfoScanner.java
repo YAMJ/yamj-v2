@@ -104,7 +104,10 @@ public class MediaInfoScanner {
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
             if (mainMovieIFO != null) {
                 scan(currentMovie, mainMovieIFO.getLocation());
-                currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
+                // Issue 1176 - Prevent lost of NFO Data
+                if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                    currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
+                }
             }
         } else if ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img"))) {
             // extracting IFO files from ISO file
@@ -145,7 +148,10 @@ public class MediaInfoScanner {
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
             if (mainMovieIFO != null) {
                 scan(currentMovie, mainMovieIFO.getLocation());
-                currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
+                // Issue 1176 - Prevent lost of NFO Data
+                if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                    currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
+                }
             }
 
             // Clean up
@@ -345,8 +351,10 @@ public class MediaInfoScanner {
                 infoValue = infoValue.substring(0, infoValue.indexOf('.'));
             }
             duration = Integer.parseInt(infoValue) / 1000;
-
-            movie.setRuntime(formatDuration(duration));
+            // Issue 1176 - Prevent lost of NFO Data
+            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                movie.setRuntime(formatDuration(duration));
+            }
         }
         // get Info from first Video Stream
         // - can evolve to get info from longest Video Stream
@@ -362,8 +370,10 @@ public class MediaInfoScanner {
 
                         int duration;
                         duration = Integer.parseInt(infoValue) / 1000;
-
-                        movie.setRuntime(formatDuration(duration));
+                        // Issue 1176 - Prevent lost of NFO Data
+                        if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                            movie.setRuntime(formatDuration(duration));
+                        }
                     }
                 }
             }

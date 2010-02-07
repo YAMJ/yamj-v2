@@ -314,7 +314,10 @@ public class MovieDirectoryScanner {
                     movieFile.mergeFileNameDTO(dto);
                 }
                 // Set duration for BD disks using the data in the playlist + mark Bluray source and container
-                movie.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
+                // Issue 1176 - Prevent lost of NFO Data
+                if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                    movie.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
+                }
                 movie.setContainer("BluRay");
                 movie.setVideoSource("BluRay");
             }
