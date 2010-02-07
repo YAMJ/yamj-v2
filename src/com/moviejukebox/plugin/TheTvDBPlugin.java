@@ -127,8 +127,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 Banners banners = tvDB.getBanners(id);
 
                 if (!movie.isOverrideTitle()) {
-                    movie.setTitle(series.getSeriesName());
-                    movie.setOriginalTitle(series.getSeriesName());
+                    // issue 1214 : prevent replacing data with blank when tv plugin fail
+                    if(series.getSeriesName()!= null && series.getSeriesName().trim().length()>0){
+                        movie.setTitle(series.getSeriesName());
+                        movie.setOriginalTitle(series.getSeriesName());
+                    }
                 }
                 if (movie.getYear().equals(Movie.UNKNOWN)) {
                     sem.acquireUninterruptibly();
