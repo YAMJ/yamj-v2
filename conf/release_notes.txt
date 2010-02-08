@@ -15,9 +15,10 @@ MovieJukebox 1.8 BETA
   - Enhancement  #1175 Also detect PGS subtiltes  
   - Fixed defect #1176 Use of runtime element in NFO  
   - Fixed defect #1187 Trailing '|' character in IMDB plots
+  - Enhancement  #1188 Add support for Danish language tag in the filename  
   - Fixed defect #1190 IMDb parser gets wrong title for movie with parentheses
-  - Enhancement  #1188 Add support for Danish language tag in the filename
   - Fixed defect #1194 NFO fileinfo streamdetails are not overriding the MediaInfo scraped information
+  - Fixed defect #1195 Problems with a Trailer file and a Trailer link in condition with [Disc],[Part].. in file name  
   - Enhancement  #1199 Hebrew plot for episodes using Sratim plugin 
   - Fixed defect #1202 Standardised plot length across plugins
   - Fixed defect #1204 Video output in the YAMJ generated XML file is always 'UNKNOWN 60Hz'
