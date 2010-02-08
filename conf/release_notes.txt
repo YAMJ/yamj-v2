@@ -18,6 +18,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1190 IMDb parser gets wrong title for movie with parentheses
   - Enhancement  #1188 Add support for Danish language tag in the filename
   - Fixed defect #1194 NFO fileinfo streamdetails are not overriding the MediaInfo scraped information
+  - Enhancement  #1199 Hebrew plot for episodes using Sratim plugin 
   - Fixed defect #1202 Standardised plot length across plugins
   - Fixed defect #1204 Video output in the YAMJ generated XML file is always 'UNKNOWN 60Hz'
   - Fixed defect #1205 Video Output does not use MediaInfo information
