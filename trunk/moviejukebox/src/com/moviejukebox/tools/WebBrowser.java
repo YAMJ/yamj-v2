@@ -133,6 +133,10 @@ public class WebBrowser {
         return request(new URL(url));
     }
     
+    public String request(String url, Charset charset) throws IOException {
+        return request(new URL(url),charset);
+    }
+    
     public URLConnection openProxiedConnection(URL url) throws IOException {
         if (mjbProxyHost != null) {
             System.getProperties().put("proxySet", "true");
@@ -150,6 +154,10 @@ public class WebBrowser {
     }
 
     public String request(URL url) throws IOException {
+        return request(url, null);
+    }
+    
+    public String request(URL url, Charset charset) throws IOException {
         StringWriter content = null;
 
         // get the download limit for the host 
@@ -164,8 +172,10 @@ public class WebBrowser {
 
                 sendHeader(cnx);
                 readHeader(cnx);
-
-                in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), getCharset(cnx)));
+                if(charset==null){
+                    charset=getCharset(cnx);
+                }
+                in = new BufferedReader(new InputStreamReader(cnx.getInputStream(),charset));
                 String line;
                 while ((line = in.readLine()) != null) {
                     content.write(line);

@@ -5,6 +5,7 @@
 MovieJukebox 1.8 BETA
 ---------------------
   - Enhancement	  #145 Dual Language-Flag for DVDs
+  - Enhancement	  #274 Danish Plugin  
   - Enhancement   #400 Option to trim plot length for TheTVDB plots
   - Fixed defect  #535 Appears the order of libraries in the xml makes a difference on output.  
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
