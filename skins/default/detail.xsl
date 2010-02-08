@@ -5,6 +5,8 @@
 
 <xsl:include href="skin-options.xsl"/>
 
+<xsl:include href="../functions.xsl"/>
+
 <xsl:template match="/">
 <xsl:for-each select="details/movie">
 <html>
@@ -213,9 +215,16 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                 <xsl:if test="string-length(plot) >= 700">x</xsl:if>
                 <xsl:if test="string-length(plot) >= 250">large-</xsl:if>plot</xsl:attribute>
 
-              <xsl:call-template name="PreserveLineBreaks">
-                <xsl:with-param name="text" select="plot"/>
-              </xsl:call-template>
+ 			  <xsl:variable name="plotLinebreakPreserved">
+                <xsl:call-template name="PreserveLineBreaks">
+                  <xsl:with-param name="text" select="plot"/>
+                </xsl:call-template>
+              </xsl:variable>
+              
+    			<xsl:call-template name="string-replace-plot-BR">
+      				<xsl:with-param name="text" select='$plotLinebreakPreserved' />
+    			</xsl:call-template>
+              
             </td>
           </tr>
         </xsl:if>

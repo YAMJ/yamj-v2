@@ -29,5 +29,7 @@
 <!-- Detail Option #3: Text to use for the Play All link on the details page -->
 <xsl:variable name="skin-playAllText">PLAY ALL</xsl:variable>
 
+<!-- Change the <BR> by what you want in plot -->
+<xsl:variable name="skin-PlotLineBreak">&lt;br/&gt;</xsl:variable>
 
 </xsl:stylesheet>
