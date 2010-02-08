@@ -903,7 +903,7 @@ public class SratimPlugin extends ImdbPlugin {
                                 int endPlotIndex = xml.indexOf("</div>",plotStartIndex+plotStart.length());
                                 if(endPlotIndex>-1 ){
                                     file.setPlot(part,removeHtmlTags(xml.substring(plotStartIndex+plotStart.length(), endPlotIndex)));
-                                    logger.info("Plot found : http://www.sratim.co.il/movies/view.aspx?id=" + scanID + " - "  + file.getPlot(part));
+                                    logger.finest("Plot found : http://www.sratim.co.il/movies/view.aspx?id=" + scanID + " - "  + file.getPlot(part));
                                 }
                             }
                             
