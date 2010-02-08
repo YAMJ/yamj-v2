@@ -822,6 +822,7 @@ public class SratimPlugin extends ImdbPlugin {
             // season details needs to be retrieved using POST submission.
             // in case of exception use the xml retrieved by the parent plugin (imdb or thetvdb)
             mainXML = postRequest(seasonUrl);
+
         } catch (Exception error) {
             logger.severe("Failed retreiving sratim informations for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
             final Writer eResult = new StringWriter();
@@ -891,7 +892,20 @@ public class SratimPlugin extends ImdbPlugin {
                         
                             // Get the episode page url
                             String xml = webBrowser.request("http://www.sratim.co.il/movies/view.aspx?id=" + scanID);
-                            
+                            //System.err.println("http://www.sratim.co.il/movies/view.aspx?id=" + scanID);
+                            //System.err.println(xml);
+
+                            // Update Plot
+                            //TODO Be sure this is enought to go straigh to the plot ...
+                            String plotStart = "<u>תקציר:</u></b><br />";
+                            int plotStartIndex = xml.indexOf(plotStart);
+                            if(plotStartIndex>-1){
+                                int endPlotIndex = xml.indexOf("</div>",plotStartIndex+plotStart.length());
+                                if(endPlotIndex>-1 ){
+                                    file.setPlot(part,removeHtmlTags(xml.substring(plotStartIndex+plotStart.length(), endPlotIndex)));
+                                    logger.info("Plot found : http://www.sratim.co.il/movies/view.aspx?id=" + scanID + " - "  + file.getPlot(part));
+                                }
+                            }
                             
                             // Download subtitles
                             downloadSubtitle(movie, file, xml);
@@ -912,6 +926,8 @@ public class SratimPlugin extends ImdbPlugin {
             }
         }
     }
+    
+
 
     protected void updateTVShowInfo(Movie movie, String mainXML) throws MalformedURLException, IOException {
         scanTVShowTitles(movie, mainXML);
