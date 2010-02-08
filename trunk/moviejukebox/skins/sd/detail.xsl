@@ -5,6 +5,8 @@
 
 <xsl:include href="skin-options.xsl"/>
 
+<xsl:include href="../functions.xsl"/>
+
 <xsl:template match="details/preferences"></xsl:template>
 
 <xsl:template match="details/movie">
@@ -153,9 +155,15 @@
         <tr>
           <td width="100%" class="normal" colspan="2">
             <xsl:if test="plot != 'UNKNOWN'">
-              <xsl:call-template name="PreserveLineBreaks">
-                <xsl:with-param name="text" select="plot"/>
-              </xsl:call-template>
+ 			  <xsl:variable name="plotLinebreakPreserved">
+                <xsl:call-template name="PreserveLineBreaks">
+                  <xsl:with-param name="text" select="plot"/>
+                </xsl:call-template>
+              </xsl:variable>
+              
+    			<xsl:call-template name="string-replace-plot-BR">
+      				<xsl:with-param name="text" select='$plotLinebreakPreserved' />
+    			</xsl:call-template>
               
             </xsl:if>
           </td>

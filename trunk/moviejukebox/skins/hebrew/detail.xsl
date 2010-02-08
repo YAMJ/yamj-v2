@@ -5,6 +5,8 @@
 
 <xsl:include href="skin-options.xsl"/>
 
+<xsl:include href="../functions.xsl"/>
+
 <xsl:template match="/">
 <xsl:for-each select="details/movie">
 <html>
@@ -212,7 +214,14 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
         <tr>
           <td width="95%" class="normal" colspan="2" align="right">
             <xsl:if test="plot != 'UNKNOWN'">
-              <xsl:value-of disable-output-escaping="yes" select='translate(plot,"{}","&lt;&gt;")' />
+			  <xsl:variable name="plotLinebreakReplaced">
+    			<xsl:call-template name="string-replace-plot-BR">
+      				<xsl:with-param name="text" select='translate(plot,"{}","&lt;&gt;")' />
+    			</xsl:call-template>
+  			  </xsl:variable>
+            
+            
+              <xsl:value-of disable-output-escaping="yes" select='$plotLinebreakReplaced' />
             </xsl:if>
           </td>
         </tr>
