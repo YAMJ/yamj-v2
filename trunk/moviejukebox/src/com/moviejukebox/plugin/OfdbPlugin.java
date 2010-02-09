@@ -32,7 +32,7 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 /**
- *
+ * 
  * @author Durin
  */
 public class OfdbPlugin implements MovieDatabasePlugin {
@@ -42,7 +42,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     boolean getplot;
     boolean gettitle;
     private int preferredPlotLength;
-    
+
     com.moviejukebox.plugin.ImdbPlugin imdbp;
 
     public OfdbPlugin() {
@@ -50,7 +50,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
 
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
-        
+
         getplot = Boolean.parseBoolean(PropertiesUtil.getProperty("ofdb.getplot", "true"));
         gettitle = Boolean.parseBoolean(PropertiesUtil.getProperty("ofdb.gettitle", "true"));
     }
@@ -68,13 +68,12 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         return true;
     }
 
-    public void getOfdbId(Movie mediaFile){
+    public void getOfdbId(Movie mediaFile) {
         if (mediaFile.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
             if (!mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
                 mediaFile.setId(OFDB_PLUGIN_ID, getOfdbIdFromOfdb(mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
-            }
-            else {
-                mediaFile.setId(OFDB_PLUGIN_ID,getofdbIDfromGoogle(mediaFile.getTitle(), mediaFile.getYear()));
+            } else {
+                mediaFile.setId(OFDB_PLUGIN_ID, getofdbIDfromGoogle(mediaFile.getTitle(), mediaFile.getYear()));
             }
         }
     }
@@ -162,26 +161,31 @@ public class OfdbPlugin implements MovieDatabasePlugin {
      */
     private void updateOfdbMediaInfo(Movie movie) {
         try {
-            if(movie.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)){
+            if (movie.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
                 return;
             }
             String xml = request(new URL(movie.getId(OFDB_PLUGIN_ID)));
 
-            if(gettitle){
+            if (gettitle) {
                 movie.setTitleSort(extractTag(xml, "<title>OFDb - ", 0, "("));
                 movie.setTitle(movie.getTitleSort());
             }
 
             if (getplot) {
-                //plot url auslesen:
+                // plot url auslesen:
                 URL plotURL = new URL("http://www.ofdb.de/plot/" + extractTag(xml, "<a href=\"plot/", 0, "\""));
                 String plot = getPlot(plotURL);
-                movie.setPlot(plot);
-                String outline = plot;
-                if (outline.length() > 150) {
-                    outline = outline.substring(0, 150) + "... ";
+                // Issue 797, preserve Plot from NFO
+                if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    movie.setPlot(plot);
                 }
-                movie.setOutline(outline);
+                if (movie.getOutline().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    String outline = plot;
+                    if (outline.length() > 150) {
+                        outline = outline.substring(0, 150) + "... ";
+                    }
+                    movie.setOutline(outline);
+                }
             }
 
         } catch (Exception error) {
@@ -201,8 +205,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             BufferedReader in = null;
             try {
                 URLConnection cnx = url.openConnection();
-                cnx.setRequestProperty("User-Agent",
-                        "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
+                cnx.setRequestProperty("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
                 in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), "UTF-8"));
                 String line;
                 while ((line = in.readLine()) != null) {
@@ -245,8 +248,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         return extractTags(src, sectionStart, sectionEnd, null, "|");
     }
 
-    protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag,
-            String endTag) {
+    protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {

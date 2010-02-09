@@ -10,7 +10,8 @@ MovieJukebox 1.8 BETA
   - Enhancement   #503 Simplify skins by figuring out the vod/vcd/playlist attributes in YAMJ itself (updated)
   - Fixed defect  #535 Appears the order of libraries in the xml makes a difference on output.
   - Fixed defect  #779 1x00 files lastPart is incorrect    
-  - Fixed defect  #794 NFO partsing problem for IMDb link  
+  - Fixed defect  #794 NFO partsing problem for IMDb link
+  - Fixed defect  #797 r965: OfdbPlugin ignores Plot from NFO
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
   - Enhancement  #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)  
