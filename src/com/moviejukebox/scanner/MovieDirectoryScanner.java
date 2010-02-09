@@ -207,7 +207,7 @@ public class MovieDirectoryScanner {
         return false;
     }
 
-    protected void scanFile(MediaLibraryPath srcPath, File file, Library library) {
+    public void scanFile(MediaLibraryPath srcPath, File file, Library library) {
         File contentFiles[];
         int bdDuration = 0;
         boolean isBluRay = false;
