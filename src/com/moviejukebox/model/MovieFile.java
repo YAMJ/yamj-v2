@@ -42,7 +42,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     private int     lastPart    = 1;
     private boolean newFile     = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
-    private String  playLink    = Movie.UNKNOWN;
+    private Map<String, String> playLink = new HashMap<String, String>();
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
@@ -318,14 +318,18 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.info = info;
     }
 
-    public String getPlayLink() {
-        if (playLink.equals("") || playLink.equals(Movie.UNKNOWN)) {
+    public Map<String, String> getPlayLink() {
+//        if (playLink.equals("") || playLink.equals(Movie.UNKNOWN)) {
             this.playLink = calculatePlayLink();
-        }
+  //      }
         return playLink;
     }
     
-    public void setPlayLink(String playLink) {
+    public void addPlayLink(String key, String value) {
+        playLink.put(key, value);
+    }
+    
+    public void setPlayLink(Map<String, String> playLink) {
         if (playLink == null || playLink.equals("")) {
             this.playLink = calculatePlayLink();
         } else {
@@ -392,42 +396,46 @@ import com.moviejukebox.tools.PropertiesUtil;
      * 
      * TODO: Check if the method is used anywhere (impossible to use in XSL). Remove.
      */
-    private String calculatePlayLink() {
+    private Map<String, String> calculatePlayLink() {
+        Map<String, String> playLinkMap = new HashMap<String, String>();
         File file = getFile();
-        //String filename = file.getName();
-        String returnValue = "";
         
         if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
             //System.out.println(filename + " matched to BLURAY");
-            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.BLURAY", "zcd=2") + " ";
+            playLinkMap.put("zcd", "2");
             // We can return at this point because there won't be additional playlinks
-            return returnValue.trim();
+            return playLinkMap;
         }
         
         if (file.isDirectory() && (new File(file.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
             //System.out.println(filename + " matched to VIDEO_TS");
-            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VIDEO_TS", "zcd=2") + " ";
+            playLinkMap.put("zcd", "2");
             // We can return at this point because there won't be additional playlinks
-            return returnValue.trim();
+            return playLinkMap;
         }
 
         for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
             Matcher matcher = e.getValue().matcher(getExtension(file));
             if (matcher.find()) {
                 //System.out.println(filename + " matched to " + e.getKey());
-                returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey(), "") + " ";
+                playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey(), ""));
             }
         }
         
         // Default to VOD if there's no other type found
-        if (returnValue.equals("")) {
+        if (playLinkMap.size() == 0) {
             //System.out.println(filename + " not matched, defaulted to VOD");
-            returnValue += PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "vod") + " ";
+            playLinkMap.put("vod", "");
         }
         
-        return returnValue.trim();
+        return playLinkMap;
     }
 
+    /**
+     * Return the extension of the file, this will be blank for directories
+     * @param file
+     * @return
+     */
     private String getExtension(File file) {
         String filename = file.getName();
         
