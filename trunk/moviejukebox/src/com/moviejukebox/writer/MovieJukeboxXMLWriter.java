@@ -944,7 +944,6 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("lastPart", Integer.toString(mf.getLastPart()));
             writer.writeAttribute("title", mf.getTitle());
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
-            writer.writeAttribute("discImage", Boolean.toString(mf.isDiscImage()));
             // Fixes an issue with null file lengths
             try {
                 writer.writeAttribute("size", Long.toString(mf.getFile().length()));
@@ -1000,7 +999,10 @@ public class MovieJukeboxXMLWriter {
             for (ExtraFile ef : extraFiles) {
                 writer.writeStartElement("extra");
                 writer.writeAttribute("title", ef.getTitle());
-                writer.writeAttribute("discImage", Boolean.toString(ef.isDiscImage()));
+                // Playlink values
+                for (Map.Entry<String, String> e : ef.getPlayLink().entrySet()) {
+                    writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
+                }
                 writer.writeCharacters(ef.getFilename()); // should already be URL-encoded
                 writer.writeEndElement();
             }

@@ -51,6 +51,8 @@ import com.moviejukebox.tools.PropertiesUtil;
     private static boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk","true"));
     private boolean includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
     private boolean includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+    private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
+    private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");        
 
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         {
@@ -165,52 +167,6 @@ import com.moviejukebox.tools.PropertiesUtil;
         } else {
             this.title = title;
         }
-    }
-
-/**
- * http://www.networkedmediatank.com/archive/index.php/thread-111.html
- * 
- * (08-10-2008 04:53 AM)tux99 Wrote: [ -> ]What is zcd="2" supposed to do? I haven't seen it in the technical docs.
-        It's supposed to launch the amp_test app, used by PCH to play DVD structures.
-        
-        But if I remember well, it doesn't like relative path name.
-        Try with a full pathname :
-        Code:
-        <a href="file:///opt/sybhttpd/localhost.drives/[NFS] ServerName::ShareName/DvdRepository/VIDEO_TS" TVID="PLAY" zcd="2" vod><b>P L A Y</b></a>
- * 
- * 
- * 
-                        <xsl:if test="substring(.,string-length(.)-2) = 'ISO'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-2) = 'iso'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-2) = 'IMG'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-2) = 'img'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <!-- For BluRay playback on the C-200 -->
-                        <xsl:if test="substring(.,string-length(.)) = '/'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
- */
-    @XmlAttribute
-    public boolean isDiscImage() {
-        if (filename == null) {
-            return false;
-        }
-        String fn = filename.toUpperCase();
-        return fn.endsWith("ISO") 
-            || fn.endsWith("IMG") 
-            || fn.endsWith("VIDEO_TS") 
-            // For BluRay playback on the C-200
-            || fn.endsWith("/"); 
     }
 
     public boolean hasTitle() {
@@ -402,14 +358,14 @@ import com.moviejukebox.tools.PropertiesUtil;
         
         if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
             //System.out.println(filename + " matched to BLURAY");
-            playLinkMap.put("zcd", "2");
+            playLinkMap.put("zcd", playLinkZCD);
             // We can return at this point because there won't be additional playlinks
             return playLinkMap;
         }
         
         if (file.isDirectory() && (new File(file.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
             //System.out.println(filename + " matched to VIDEO_TS");
-            playLinkMap.put("zcd", "2");
+            playLinkMap.put("zcd", playLinkZCD);
             // We can return at this point because there won't be additional playlinks
             return playLinkMap;
         }
@@ -418,14 +374,14 @@ import com.moviejukebox.tools.PropertiesUtil;
             Matcher matcher = e.getValue().matcher(getExtension(file));
             if (matcher.find()) {
                 //System.out.println(filename + " matched to " + e.getKey());
-                playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey(), ""));
+                playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey().toUpperCase(), ""));
             }
         }
         
         // Default to VOD if there's no other type found
         if (playLinkMap.size() == 0) {
             //System.out.println(filename + " not matched, defaulted to VOD");
-            playLinkMap.put("vod", "");
+            playLinkMap.put("vod", playLinkVOD);
         }
         
         return playLinkMap;
