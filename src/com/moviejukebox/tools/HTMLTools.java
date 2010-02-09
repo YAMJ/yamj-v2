@@ -424,6 +424,10 @@ public class HTMLTools {
         return Movie.UNKNOWN;
     }
 
+    public static String removeHtmlTags(String src) {
+        return src.replaceAll("\\<.*?>", "");
+    }
+    
     public static String extractTag(String src, String findStr) {
         return extractTag(src, findStr, 0);
     }
