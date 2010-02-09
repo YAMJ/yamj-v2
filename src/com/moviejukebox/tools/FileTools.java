@@ -201,7 +201,7 @@ public class FileTools {
                     in = new BufferedReader(new FileReader(file));
                     String line = in.readLine();
                     while (line != null) {
-                        out.append(line);
+                        out.append(line+ " "); // Add a space to avoid unwanted concatenation
                         line = in.readLine();
                     }
                 } finally {
