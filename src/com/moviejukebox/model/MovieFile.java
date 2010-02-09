@@ -286,7 +286,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         setTitle(dto.isExtra() ? dto.getPartTitle() : (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
 
         if (dto.getEpisodes().size() > 0) {
-            lastPart = 1;
+            lastPart = 0;
             firstPart = Integer.MAX_VALUE;
             for (int e : dto.getEpisodes()) {
                 if (e >= lastPart) {
