@@ -988,7 +988,7 @@ public class MovieJukebox {
      * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. Once scanned, the <tt>movie</tt>
      * object is persisted.
      */
-    private void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot,
+    public void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot,
                     String tempJukeboxDetailsRoot, Movie movie) throws FileNotFoundException, XMLStreamException {
 
         boolean forceXMLOverwrite = parseBoolean(getProperty("mjb.forceXMLOverwrite", "false"));
@@ -1098,7 +1098,7 @@ public class MovieJukebox {
      * 
      * @param tempJukeboxDetailsRoot
      */
-    private void updateMoviePoster(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public void updateMoviePoster(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String posterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
         File posterFile = new File(jukeboxDetailsRoot + File.separator + posterFilename);
         File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + posterFilename);
@@ -1135,7 +1135,7 @@ public class MovieJukebox {
      * 
      * @param tempJukeboxDetailsRoot
      */
-    private void updateTvBanner(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public void updateTvBanner(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String bannerFilename = FileTools.makeSafeFilename(movie.getBannerFilename());
         File bannerFile = new File(jukeboxDetailsRoot + File.separator + bannerFilename);
         File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + bannerFilename);
