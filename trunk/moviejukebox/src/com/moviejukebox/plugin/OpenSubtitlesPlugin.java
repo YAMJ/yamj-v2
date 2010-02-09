@@ -220,7 +220,7 @@ public class OpenSubtitlesPlugin {
                 }
             }
         }else{
-            logger.fine("Skipping subtitle download, movie have already subtitles : " + movie.getSubtitles());
+            logger.finest("Skipping subtitle download for " + movie.getTitle() +", subtitles already exist: " + movie.getSubtitles());
         }
     }
 

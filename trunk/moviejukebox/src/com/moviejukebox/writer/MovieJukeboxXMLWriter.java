@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
-
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -329,8 +328,6 @@ public class MovieJukeboxXMLWriter {
                         tag = e.toString();
                         if (tag.equalsIgnoreCase("<fileURL>")) {
                             mf.setFilename(parseCData(r));
-                        } else if (tag.equalsIgnoreCase("<playLink>")) {
-                            mf.setPlayLink(parseCData(r));
                         } else if (tag.toLowerCase().startsWith("<fileplot")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
@@ -955,6 +952,12 @@ public class MovieJukeboxXMLWriter {
                 logger.finest("XML Writer: File length error for file " + mf.getFilename());
                 writer.writeAttribute("size", "0");
             }
+            
+            // Playlink values
+            for (Map.Entry<String, String> e : mf.getPlayLink().entrySet()) {
+                writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
+            }
+
             writer.writeStartElement("fileURL");
             String filename = mf.getFilename();
             // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD path
@@ -964,10 +967,6 @@ public class MovieJukeboxXMLWriter {
                 }
             }
             writer.writeCharacters(filename); // should already be a URL
-            writer.writeEndElement();
-            
-            writer.writeStartElement("playLink");
-            writer.writeCharacters(mf.getPlayLink());
             writer.writeEndElement();
 
             if (includeEpisodePlots || includeVideoImages) {

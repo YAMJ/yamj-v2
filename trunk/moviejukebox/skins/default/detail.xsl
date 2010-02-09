@@ -293,9 +293,10 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                     <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                     <xsl:attribute name="TVID">Play</xsl:attribute>
                     <xsl:attribute name="name">Play</xsl:attribute>
-					<xsl:if test="@discImage='true'"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
 
-                    <xsl:attribute name="vod"/>
+                    <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
+                    <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
+                    <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
 
                     <xsl:if test="//movie/prebuf != -1">
                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
@@ -390,9 +391,9 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                           <xsl:attribute name="onfocus">show(<xsl:value-of select="@firstPart"/>)</xsl:attribute>
                           <xsl:attribute name="onblur">hide()</xsl:attribute>
                           
-						  <xsl:if test="@discImage='true'"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
-
-                          <xsl:attribute name="vod"/>
+                          <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
+                          <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
+                          <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
 
                           <xsl:if test="//movie/prebuf != -1">
                             <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
@@ -453,13 +454,14 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                       <a>
                         <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
 
-					    <xsl:if test="@discImage='true'"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
+                        <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
+                        <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
+                        <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
 
                         <xsl:if test="//movie/prebuf != -1">
                           <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
                         </xsl:if>
 
-                        <xsl:attribute name="vod"/>
                         <img src="pictures/play_small.png" onfocussrc="pictures/play_selected_small.png" align="top"/>
                         <xsl:text>&#160;</xsl:text>
                         <xsl:value-of select="@title"/>

@@ -218,25 +218,9 @@
                     <xsl:attribute name="TVID">Play</xsl:attribute>
                     <xsl:attribute name="name">1</xsl:attribute>
 
-                    <xsl:if test="//movie/container = 'ISO' or ends-with(fileURL, '.ISO') or ends-with(fileURL, '.iso')">
-                      <xsl:attribute name="zcd">2</xsl:attribute>
-                    </xsl:if>
-
-                    <xsl:if test="//movie/container = 'IMG' or ends-with(fileURL, '.IMG') or ends-with(fileURL, '.img')">
-                      <xsl:attribute name="zcd">2</xsl:attribute>
-                    </xsl:if>
-
-                    <xsl:if test="ends-with(fileURL, 'VIDEO_TS') or ends-with(fileURL, 'video_ts')">
-                      <xsl:attribute name="zcd">2</xsl:attribute>
-                    </xsl:if>
-                    
-                    
-                    <!-- For BluRay playback on the C-200 -->
-					<xsl:if test="ends-with(fileURL, '/')">
-    					<xsl:attribute name="zcd">2</xsl:attribute>
-  					</xsl:if>
-
-                    <xsl:attribute name="vod"/>
+                    <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
+                    <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
+                    <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
 
                     <xsl:if test="//movie/prebuf != -1">
                       <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
@@ -330,23 +314,9 @@
 
                           <xsl:attribute name="TVID"><xsl:value-of select="@firstPart"/></xsl:attribute>
 
-                          <xsl:if test="//movie/container = 'ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.ISO' or substring(fileURL,string-length(fileURL)-3,4) = '.iso'">
-                            <xsl:attribute name="zcd">2</xsl:attribute>
-                          </xsl:if>
-
-                          <xsl:if test="//movie/container = 'IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.IMG' or substring(fileURL,string-length(fileURL)-3,4) = '.img'">
-                            <xsl:attribute name="zcd">2</xsl:attribute>
-                          </xsl:if>
-
-                          <xsl:if test="substring(fileURL,string-length(fileURL)-7,8) = 'VIDEO_TS'">
-                            <xsl:attribute name="zcd">2</xsl:attribute>
-                          </xsl:if>
-
-                          <xsl:if test="substring(fileURL,string-length(fileURL),1) = '/'">
-                            <xsl:attribute name="zcd">2</xsl:attribute>
-                          </xsl:if>
-
-                          <xsl:attribute name="vod"/>
+                          <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
+                          <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
+                          <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
 
                           <xsl:if test="//movie/prebuf != -1">
                             <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
@@ -417,27 +387,9 @@
                       <a>
                         <xsl:attribute name="href"><xsl:value-of select="." /></xsl:attribute>
 
-                        <xsl:if test="substring(.,string-length(.)-2) = 'ISO'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-2) = 'iso'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-2) = 'IMG'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-2) = 'img'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <xsl:if test="substring(.,string-length(.)-7) = 'VIDEO_TS'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-                        <!-- For BluRay playback on the C-200 -->
-                        <xsl:if test="substring(.,string-length(.)-1) = '/'">
-                          <xsl:attribute name="zcd">2</xsl:attribute>
-                        </xsl:if>
-
-                        <xsl:attribute name="vod"/>
+                        <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
+                        <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
+                        <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
 
                         <xsl:if test="//movie/prebuf != -1">
                           <xsl:attribute name="prebuf"><xsl:value-of select="//movie/prebuf" /></xsl:attribute>
