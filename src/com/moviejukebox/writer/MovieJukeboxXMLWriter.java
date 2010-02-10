@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -78,7 +79,7 @@ public class MovieJukeboxXMLWriter {
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
     }
-    
+
     public MovieJukeboxXMLWriter() {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
         nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
@@ -94,7 +95,7 @@ public class MovieJukeboxXMLWriter {
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
         }
-        
+
         if (nbTvShowsPerLine == 0) {
             nbTvShowsPerLine = nbMoviesPerLine;
         }
@@ -445,8 +446,9 @@ public class MovieJukeboxXMLWriter {
 
             for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                 List<Movie> value = index.getValue();
+                int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
                 logger.finest("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
-                if (value.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
+                if (countMovieCat < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
                     logger.finest("Category " + category.getKey() + " " + index.getKey() + " does not contain enough movies, not adding to categories.xml");
                     continue;
                 }
@@ -481,25 +483,27 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Write the set of index XML files for the library
-     * @throws Throwable 
+     * 
+     * @throws Throwable
      */
     public void writeIndexXML(final String rootPath, String detailsDirName, final Library library, int threadcount) throws Throwable {
-
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
-        
-        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()){
+
+        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             final String categoryName = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
 
             for (final Map.Entry<String, List<Movie>> group : index.entrySet()) {
                 tasks.submit(new Callable<Void>() {
-                    public Void call() throws XMLStreamException, FileNotFoundException{
+                    public Void call() throws XMLStreamException, FileNotFoundException {
 
                         List<Movie> movies = group.getValue();
 
-                        //FIXME This is horrible! Issue 735 will get rid of it.
-                        if (movies.size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                            logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies, skipping XML generation.");
+                        // FIXME This is horrible! Issue 735 will get rid of it.
+                        int categorieCount = library.getMovieCountForIndex(categoryName, group.getKey());
+                        if (categorieCount < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                            logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies(" + categorieCount
+                                            + "), skipping XML generation.");
                             return null;
                         }
 
@@ -508,9 +512,9 @@ public class MovieJukeboxXMLWriter {
                         // Try and determine if the set contains TV shows and therefore use the TV show settings
                         // TODO have a custom property so that you can set this on a per-set basis.
                         int nbVideosPerPage, nbVideosPerLine;
-                        
+
                         if (movies.size() > 0) {
-                            if (key.equalsIgnoreCase("TV Shows") || (categoryName.equalsIgnoreCase("Set") && movies.get(0).isTVShow()) ) {
+                            if (key.equalsIgnoreCase("TV Shows") || (categoryName.equalsIgnoreCase("Set") && movies.get(0).isTVShow())) {
                                 nbVideosPerPage = nbTvShowsPerPage;
                                 nbVideosPerLine = nbTvShowsPerLine;
                             } else {
@@ -536,13 +540,16 @@ public class MovieJukeboxXMLWriter {
                             if (nbMoviesLeft == 0) {
                                 if (current == 1) {
                                     // If this is the first page, link the previous page to the last page.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last, nbVideosPerPage, nbVideosPerLine);
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last, nbVideosPerPage,
+                                                    nbVideosPerLine);
                                 } else if (current == last) {
                                     // This is the last page, so link the next page to the first.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage, nbVideosPerLine);
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage,
+                                                    nbVideosPerLine);
                                 } else {
                                     // This is a "middle" page, so process as normal.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last, nbVideosPerPage, nbVideosPerLine);
+                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last, nbVideosPerPage,
+                                                    nbVideosPerLine);
                                 }
                                 moviesInASinglePage = new ArrayList<Movie>();
                                 previous = current;
@@ -553,18 +560,21 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (moviesInASinglePage.size() > 0) {
-                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage, nbVideosPerLine);
+                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage,
+                                            nbVideosPerLine);
                         }
                         return null;
                     }
                 });
             }
-        };
+        }
+        ;
         tasks.waitFor();
     }
 
     /**
      * Write out the index pages
+     * 
      * @param library
      * @param movies
      * @param rootPath
@@ -577,12 +587,12 @@ public class MovieJukeboxXMLWriter {
      * @throws FileNotFoundException
      * @throws XMLStreamException
      */
-    public void writeIndexPage(Library library, List<Movie> movies, String rootPath, String categoryName, String key, int previous, int current,
-                    int next, int last, int nbVideosPerPage, int nbVideosPerLine) throws FileNotFoundException, XMLStreamException {
+    public void writeIndexPage(Library library, List<Movie> movies, String rootPath, String categoryName, String key, int previous, int current, int next,
+                    int last, int nbVideosPerPage, int nbVideosPerLine) throws FileNotFoundException, XMLStreamException {
         String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
         File xmlFile = null;
         XMLWriter writer = null;
-        
+
         try {
             xmlFile = new File(rootPath, prefix + current + ".xml");
             xmlFile.getParentFile().mkdirs();
@@ -604,7 +614,7 @@ public class MovieJukeboxXMLWriter {
                 for (String akey : index.keySet()) {
                     String encakey = FileTools.createCategoryKey(akey);
 
-                    //FIXME This is horrible! Issue 735 will get rid of it.
+                    // FIXME This is horrible! Issue 735 will get rid of it.
                     if (index.get(akey).size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
                         continue;
                     }
@@ -623,8 +633,8 @@ public class MovieJukeboxXMLWriter {
                         writer.writeAttribute("last", prefix + last);
                         writer.writeAttribute("currentIndex", Integer.toString(current));
                         writer.writeAttribute("lastIndex", Integer.toString(last));
-                        //logger.fine("**********");
-                        //logger.fine("Index (" + akey + "): "+ index.get(akey).toString());
+                        // logger.fine("**********");
+                        // logger.fine("Index (" + akey + "): "+ index.get(akey).toString());
                     }
 
                     writer.writeCharacters(prefix + '1');
@@ -633,7 +643,7 @@ public class MovieJukeboxXMLWriter {
 
                 writer.writeEndElement(); // categories
             }
-            //FIXME
+            // FIXME
             writer.writeStartElement("movies");
             writer.writeAttribute("count", "" + nbVideosPerPage);
             writer.writeAttribute("cols", "" + nbVideosPerLine);
@@ -656,7 +666,7 @@ public class MovieJukeboxXMLWriter {
             writer.flush();
             writer.close();
         }
-        
+
         return;
     }
 
@@ -727,7 +737,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
-        
+
         // These are pulled from the Manifest.MF file that is created by the Ant build script
         String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
         String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
@@ -750,7 +760,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("mjbRevision");
         // Print the revision information if it was populated by Hudson CI
-        if ( !((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) ) {
+        if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             writer.writeCharacters(mjbRevision);
         } else {
             writer.writeCharacters(Movie.UNKNOWN);
@@ -951,7 +961,7 @@ public class MovieJukeboxXMLWriter {
                 logger.finest("XML Writer: File length error for file " + mf.getFilename());
                 writer.writeAttribute("size", "0");
             }
-            
+
             // Playlink values
             for (Map.Entry<String, String> e : mf.getPlayLink().entrySet()) {
                 writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());

@@ -688,7 +688,7 @@ public class MovieJukebox {
             List<Movie> indexMasters = new ArrayList<Movie>();
             indexMasters.addAll(library.getMoviesList());
             indexMasters.removeAll(movies);
-            
+
             JAXBContext context = JAXBContext.newInstance(JukeboxXml.class);
             final JukeboxXml jukeboxXml = new JukeboxXml();
 //            for (Movie movie : library.values()) {
@@ -770,7 +770,6 @@ public class MovieJukebox {
             tasks.waitFor();
 
             logger.fine("Writing movie data...");
-
             // Multi-thread: Parallel Executor
             tasks.restart();
             for (final Movie movie : movies) {
