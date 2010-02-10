@@ -255,7 +255,7 @@ public class PosterScanner {
             } else if (posterSearchToken.equalsIgnoreCase("impawards")) {
                 posterURL = getPosterURLFromImpAwards(movie.getTitle(), movie.getYear());
             } else if (posterSearchToken.equalsIgnoreCase("moviecovers")) {
-                posterURL = getPosterURLFromMovieCovers(movie.getTitle());
+                posterURL = getPosterURLFromMovieCovers(movie);
             } else if (posterSearchToken.equalsIgnoreCase("moviedb")) {
                 posterURL = getPosterURLFromMovieDbAPI(movie);
             } else if (posterSearchToken.equalsIgnoreCase("imdb") && imdbXML != null) {
@@ -470,19 +470,29 @@ public class PosterScanner {
      *            The name of the movie to search for
      * @return A poster URL to use for the movie.
      */
-    public static String getPosterURLFromMovieCovers(String movieName) {
+    public static String getPosterURLFromMovieCovers(Movie movie) {
         String returnString = Movie.UNKNOWN;
+        String movieName = movie.getTitle();
 
         try {
             StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
+            // tryout another google layout Issue #1250
+            sb.append('\"');
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
-
+            sb.append('\"');
+            // adding movie year in search could reduce ambiguities
+            if (movie.getYear() != null && !movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+                sb.append(URLEncoder.encode(" ", "UTF-8"));
+                sb.append(URLEncoder.encode(movie.getYear(), "UTF-8"));
+            }
             String content = webBrowser.request(sb.toString());
             if (content != null) {
-                int indexStartLink = content.indexOf("<a href=\"http://www.moviecovers.com/film/titre_");
-                if (indexStartLink >= 0) {
-                    int indexEndLink = content.indexOf("\" class=l>", indexStartLink);
-                    if (indexEndLink > 0) {
+
+                int indexEndLink = content.indexOf("html\"><b>");
+                if (indexEndLink >= 0) {
+                    String subContent = content.substring(0, indexEndLink);
+                    int indexStartLink = subContent.lastIndexOf("<a href=\"http://www.moviecovers.com/film/titre_");
+                    if (indexStartLink >= 0) {
                         String findMovieUrl = content.substring(indexStartLink + 47, indexEndLink);
                         returnString = "http://www.moviecovers.com/getjpg.html/" + findMovieUrl.substring(0, findMovieUrl.lastIndexOf('.')).replace("+", "%20")
                                         + ".jpg";
