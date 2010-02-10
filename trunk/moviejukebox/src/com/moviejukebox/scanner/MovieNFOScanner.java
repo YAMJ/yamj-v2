@@ -474,31 +474,79 @@ public class MovieNFOScanner {
                                     }
                                 }
 
+                                // Issue 1251 - Multiple audio info - the last override all previous 
                                 if (fiEvent.equalsIgnoreCase("<audio>")) {
+                                    // Start of audio info, using temp data to concatains codec + languague
+                                    String tmpCodec=Movie.UNKNOWN;
+                                    String tmpLanguage=Movie.UNKNOWN;
+                                    String tmpChannels=Movie.UNKNOWN;
+                                    
                                     while (!fiEvent.equalsIgnoreCase("</audio>")) {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (!val.isEmpty()) {
-                                                movie.setAudioCodec(val);
+                                                // codec come first
+                                                if(tmpCodec.equalsIgnoreCase(Movie.UNKNOWN)){
+                                                    tmpCodec=val.toUpperCase();                                                    
+                                                }else{
+                                                    // We alerady have language info, need to concat
+                                                    tmpCodec=val.toUpperCase() + " " + tmpCodec;
+                                                }
+                                                //movie.setAudioCodec(val);
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (!val.isEmpty()) {
-                                                movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
+                                                tmpLanguage=MovieFilenameScanner.determineLanguage(val);
+                                                if(tmpCodec.equalsIgnoreCase(Movie.UNKNOWN)){
+                                                    tmpCodec="("+val+")";
+                                                }else{
+                                                    tmpCodec+= " ("+val+")";
+                                                }
+                                                //movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<channels>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (!val.isEmpty()) {
-                                                movie.setAudioChannels(val);
+                                                tmpChannels=val;
+                                                //movie.setAudioChannels(val);
                                             }
                                         }
 
                                         if (r.hasNext())
                                             fiEvent = r.nextEvent().toString();
+                                    }
+                                    // Parsing of audio end - setting data to movie.
+                                    if(!tmpCodec.equalsIgnoreCase(Movie.UNKNOWN)){
+                                        // First one.
+                                        if(movie.getAudioCodec().equalsIgnoreCase(Movie.UNKNOWN)){
+                                            movie.setAudioCodec(tmpCodec);
+                                        }else{
+                                            movie.setAudioCodec(movie.getAudioCodec() +" / " +tmpCodec);
+                                        }
+                                        
+                                    }
+                                    if(!tmpLanguage.equalsIgnoreCase(Movie.UNKNOWN)){
+                                        // First one.
+                                        if(movie.getLanguage().equalsIgnoreCase(Movie.UNKNOWN)){
+                                            movie.setLanguage(tmpLanguage);
+                                        }else{
+                                            movie.setLanguage(movie.getLanguage() +" / " +tmpLanguage);
+                                        }
+                                        
+                                    }
+                                    if(!tmpChannels.equalsIgnoreCase(Movie.UNKNOWN)){
+                                        // First one.
+                                        if(movie.getAudioChannels().equalsIgnoreCase(Movie.UNKNOWN)){
+                                            movie.setAudioChannels(tmpChannels);
+                                        }else{
+                                            movie.setAudioChannels(movie.getAudioChannels() +" / " +tmpChannels);
+                                        }
+                                        
                                     }
                                 }
 

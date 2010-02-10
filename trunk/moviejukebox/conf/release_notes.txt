@@ -41,6 +41,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1241 Movie size for folder-movies (BluRay, AVCHD, etc.) always "0Bytes"
   - Enhancement  #1242 An option to specify different plot line break type (other then {br})
   - Fixed defect #1249 IMDb genres have extra word "more" added for movies with more than 3 genres
+  - Fixed defect #1251 NFOs with multiple audio section
   
 
 MovieJukebox 1.7
