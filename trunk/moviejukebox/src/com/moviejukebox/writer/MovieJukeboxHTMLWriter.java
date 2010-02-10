@@ -289,7 +289,7 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, Library library, int threadcount) throws Throwable {
+    public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, final Library library, int threadcount) throws Throwable {
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
         for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
             tasks.submit(new Callable<Void>() {
@@ -311,7 +311,8 @@ public class MovieJukeboxHTMLWriter {
                         }
 
                         //FIXME This is horrible! Issue 735 will get rid of it.
-                        if (movies.size() >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                        int countNbMovies= library.getMovieCountForIndex(categoryName, key);
+                        if (countNbMovies >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
                             int nbPages = 1 + (movies.size() - 1) / nbVideosPerPage;
                             for (int page = 1; page <= nbPages; page++) {
                                 writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);

@@ -50,6 +50,7 @@ public class Library implements Map<String, Movie> {
     public static class Index extends TreeMap<String, List<Movie>> {
         private int maxCategories = -1;
         private boolean display = true;
+        private Map<String, Integer> countByCategories= new TreeMap<String, Integer>();
 
         private static final long serialVersionUID = -6240040588085931654L;
 
@@ -91,8 +92,22 @@ public class Library implements Map<String, Movie> {
             if (!list.contains(movie)) {
                 list.add(movie);
             }
+            countByCategories.put(category, list.size()); // Preserve count of movie in categorie, before Set compression.
         }
 
+        /**
+         * Return the number of movie in categorie, before SET compression.
+         * @param category
+         * @return
+         */
+        public int getMoviesCountUnCompressed(String category){
+            Integer integer = countByCategories.get(category);
+            if(integer==null) {
+                return -1;
+            }
+            return integer;
+        }
+        
         public int getMaxCategories() {
             return maxCategories;
         }
@@ -100,7 +115,6 @@ public class Library implements Map<String, Movie> {
         public void setMaxCategories(int maxCategories) {
             this.maxCategories = maxCategories;
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -412,13 +426,13 @@ public class Library implements Map<String, Movie> {
                 });
             }
             tasks.waitFor();
-
             Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
             for (Map.Entry<String, Index> dyn_entry : dynamic_indexes.entrySet()) {
                 Map<String, Movie> indexMasters = buildIndexMasters(dyn_entry.getKey(), dyn_entry.getValue(), indexMovies);
                 dyn_index_masters.put(dyn_entry.getKey(), indexMasters);
 
                 for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
+                    // For each categorie in index, compress this one.
                     for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
                         compressSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
                     }
@@ -477,7 +491,6 @@ public class Library implements Map<String, Movie> {
                     masters_entry.getValue().setFile(set.get(0).getFile()); // ensure PosterScanner looks in the right directory
                 }
             }
-
             Collections.sort(indexMovies);
             setMovieListNavigation(indexMovies);
         }
@@ -747,6 +760,10 @@ public class Library implements Map<String, Movie> {
         return index;
     }
 
+    public int getMovieCountForIndex(String indexName, String category){
+        return indexes.get(indexName).getMoviesCountUnCompressed(category);
+    }
+    
     /**
      * Checks if there is a master (will be shown in the index) genre for the specified one.
      * 
