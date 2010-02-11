@@ -387,6 +387,9 @@ public class MovieJukeboxXMLWriter {
                     }
 
                     ef.setFilename(parseCData(r));
+                    // Issue 1259:       Multipart videos cause playlink null pointer
+                    // FIXME - To check ... xml read run after directory scan and replace existing extra file  ... 
+                    ef.setFile(new File(ef.getFilename()));
                     // add or replace extra based on XML data
                     movie.addExtraFile(ef);
                 }
