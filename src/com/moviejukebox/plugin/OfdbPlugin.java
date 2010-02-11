@@ -58,13 +58,14 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     @Override
     public boolean scan(Movie mediaFile) {
         boolean plotBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getPlot()); // Issue 797 - we don't want to override plot from NFO
+        boolean titleBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getTitle()); // Issue 1022 - we don't want to override title from NFO
         imdbp.scan(mediaFile); // Grab data from imdb
 
         if (mediaFile.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
             getOfdbId(mediaFile);
         }
 
-        this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb);
+        this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb, titleBeforeImdb);
         return true;
     }
 
@@ -159,9 +160,10 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     /**
      * Scan OFDB html page for the specified movie
      * 
-     * @param plotBeforeImdb 
+     * @param plotBeforeImdb
+     * @param titleBeforeImdb
      */
-    private void updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
+    private void updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb, boolean titleBeforeImdb) {
         try {
             if (movie.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
                 return;
@@ -169,8 +171,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             String xml = request(new URL(movie.getId(OFDB_PLUGIN_ID)));
 
             if (gettitle) {
-                movie.setTitleSort(extractTag(xml, "<title>OFDb - ", 0, "("));
-                movie.setTitle(movie.getTitleSort());
+                String titleShort = extractTag(xml, "<title>OFDb - ", 0, "(");
+                if (!Movie.UNKNOWN.equalsIgnoreCase(titleShort) && !titleBeforeImdb) {
+                    movie.setTitleSort(titleShort);
+                    movie.setTitle(movie.getTitleSort());
+                }
             }
 
             if (getplot) {
