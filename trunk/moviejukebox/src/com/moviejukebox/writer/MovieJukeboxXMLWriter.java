@@ -969,9 +969,9 @@ public class MovieJukeboxXMLWriter {
 
             writer.writeStartElement("fileURL");
             String filename = mf.getFilename();
-            // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD path
+            // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD VIDEO_TS path names
             if (isPlayonhd) {
-                if (!filename.endsWith("VIDEO_TS.IFO")) {
+                if (filename.toUpperCase().endsWith("VIDEO_TS")) {
                     filename = filename + "/VIDEO_TS.IFO";
                 }
                 
