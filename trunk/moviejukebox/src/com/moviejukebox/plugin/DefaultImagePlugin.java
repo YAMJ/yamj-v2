@@ -17,18 +17,15 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.logging.Logger;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-
-import org.apache.commons.lang.StringUtils;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
@@ -297,8 +294,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + fullLanguage
                                         + ".png) is in the resources/languages directory.");
                     } else {
-                        logger.warning("Unable to find multiple language image (" + fullLanguage
-                                        + ".png) in the resources/languages directory, generate it from single one.");
+                        logger.finer("Unable to find multiple language image (" + fullLanguage
+                                        + ".png) in the resources/languages directory, generating it from single one.");
                         int width = -1;
                         int height = -1;
                         int nbCols = (int)Math.sqrt(languages.length);

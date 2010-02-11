@@ -21,6 +21,15 @@
 <xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute>
 
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
+  <xsl:choose>
+    <xsl:when test="$use-fanart='true'">
+      <xsl:attribute name="background"><xsl:value-of select="fanartFile"/></xsl:attribute>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:attribute name="background">pictures/background.jpg</xsl:attribute>
+    </xsl:otherwise>
+  </xsl:choose>
+
   <tr>
     <td align="center" colspan="2">
       <!-- Navigation using remote keys: Home, PageUP/PageDown (Previous/Next) -->
@@ -48,6 +57,9 @@
     
     <td>
       <table border="0" width="100%">
+        <xsl:if test="$use-fanart='true'">
+          <xsl:attribute name="bgcolor">black-alpha2</xsl:attribute>
+        </xsl:if>
         <tr>
           <td class="title1" valign="top" colspan="2">
             <xsl:value-of select="title"/> 

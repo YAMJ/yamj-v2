@@ -179,7 +179,7 @@ public class MovieDirectoryScanner {
                 if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
                     // Don't print a message for the exclusion of Jukebox files
                     if (!relativeFileNameLower.contains(jukeboxName)) {
-                        logger.fine((isDirectory ? "Directory " : "File ") + filename + " excluded.");
+                        logger.fine((isDirectory ? "Directory >" : "File >") + relativeFilename + "< excluded.");
                     }
                     return true;
                 }
