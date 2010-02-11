@@ -35,6 +35,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1221 Audio information defect in XML files
   - Fixed defect #1224 Google/Yahoo thread defaults too high, reduced to 5 each
   - Enhancement  #1225 Add fanart to default & SD skins
+  - Fixed defect #1227 Audio information in xml files are still defect with r1315  
   - Fixed defect #1229 CSV listing fields may have quotes inside them
   - Fixed defect #1230 Add fanart detection to FilmUpIT plugin
   - Fixed defect #1232 Subtitle field incorrect for mkv embedded subs
