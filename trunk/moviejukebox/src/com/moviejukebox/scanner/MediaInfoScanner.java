@@ -501,6 +501,10 @@ public class MediaInfoScanner {
             String infoLanguage = "";
             infoValue = infosCurAudio.get("Language");
             if (infoValue != null) {
+                // Issue 1227 - Make some clean up in mediainfo datas.
+                if(infoValue.contains("/")){
+                    infoValue = infoValue.substring(0,infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
+                }
                 infoLanguage = " (" + infoValue + ")";
                 // Add determination of language.
                 String determineLanguage = MovieFilenameScanner.determineLanguage(infoValue);
@@ -555,6 +559,10 @@ public class MediaInfoScanner {
             String infoLanguage = "";
             infoValue = infosCurText.get("Language");
             if (infoValue != null) {
+                // Issue 1227 - Make some clean up in mediainfo datas.
+                if(infoValue.contains("/")){
+                    infoValue = infoValue.substring(0,infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
+                }
                 infoLanguage = infoValue;
             }
 
