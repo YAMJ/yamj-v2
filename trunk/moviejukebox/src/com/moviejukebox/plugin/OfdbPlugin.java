@@ -57,14 +57,14 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-
-        imdbp.scan(mediaFile);
+        boolean plotBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getPlot()); // Issue 797 - we don't want to override plot from NFO
+        imdbp.scan(mediaFile); // Grab data from imdb
 
         if (mediaFile.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
             getOfdbId(mediaFile);
         }
 
-        this.updateOfdbMediaInfo(mediaFile);
+        this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb);
         return true;
     }
 
@@ -158,8 +158,10 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Scan OFDB html page for the specified movie
+     * 
+     * @param plotBeforeImdb 
      */
-    private void updateOfdbMediaInfo(Movie movie) {
+    private void updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
         try {
             if (movie.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
                 return;
@@ -176,10 +178,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 URL plotURL = new URL("http://www.ofdb.de/plot/" + extractTag(xml, "<a href=\"plot/", 0, "\""));
                 String plot = getPlot(plotURL);
                 // Issue 797, preserve Plot from NFO
-                if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+                // Did we get some translated plot and didn't have previous plotFromNfo ?
+                if (!Movie.UNKNOWN.equalsIgnoreCase(plot) && !plotBeforeImdb) {
                     movie.setPlot(plot);
-                }
-                if (movie.getOutline().equalsIgnoreCase(Movie.UNKNOWN)) {
                     String outline = plot;
                     if (outline.length() > 150) {
                         outline = outline.substring(0, 150) + "... ";
@@ -313,7 +314,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             }
 
         } catch (Exception error) {
-            plot = "None";
+            plot = Movie.UNKNOWN;
         }
 
         return plot;
