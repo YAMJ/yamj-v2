@@ -44,8 +44,8 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1249 IMDb genres have extra word "more" added for movies with more than 3 genres
   - Fixed defect #1250 getting poster from MovieCovers not correct
   - Fixed defect #1251 NFOs with multiple audio section
+  - Fixed defect #1255 VIDEO_TS.IFO incorrectly added for ISO movies (PoHD)
   - Fixed defect #1258 index XML Files are broken  
-  
 
 MovieJukebox 1.7
 ----------------
