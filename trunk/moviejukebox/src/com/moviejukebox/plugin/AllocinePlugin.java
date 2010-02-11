@@ -308,22 +308,26 @@ public class AllocinePlugin extends ImdbPlugin {
         try {
             // Check alloCine first only for movies because TV Show posters are wrong.
             if (!movie.isTVShow()) {
-            	if(posterMediaId.compareToIgnoreCase(Movie.UNKNOWN)!=0 ){
-	                String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + movie.getId(ALLOCINE_PLUGIN_ID) + "/affiches/detail/?cmediafile="
-	                                + posterMediaId;
-	                logger.finest("AllocinePlugin: mediaFileURL : " + mediaFileURL);
-	                xml = webBrowser.request(mediaFileURL);
-	
-	                String posterURLTag = extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
-	                // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
-	                posterURL = extractTag(posterURLTag, "<img src=\"", "\"");
-	
-	                if (!posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-	                    logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
-	                    movie.setPosterURL(posterURL);
-	                    return;
-	                }
-            	}
+                try { // sometimes the mediaFileURL is wrong and give IO error
+                    if (posterMediaId.compareToIgnoreCase(Movie.UNKNOWN) != 0) {
+                        String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + movie.getId(ALLOCINE_PLUGIN_ID) + "/affiches/detail/?cmediafile="
+                                        + posterMediaId;
+                        logger.finest("AllocinePlugin: mediaFileURL : " + mediaFileURL);
+                        xml = webBrowser.request(mediaFileURL);
+
+                        String posterURLTag = extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
+                        // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
+                        posterURL = extractTag(posterURLTag, "<img src=\"", "\"");
+
+                        if (!posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+                            logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
+                            movie.setPosterURL(posterURL);
+                            return;
+                        }
+                    }
+                } catch (IOException ioerror) {
+                    // just do nothing and pass the search of poster to PosterScanner
+                }
 
                 posterURL = PosterScanner.getPosterURL(movie, xml, IMDB_PLUGIN_ID);
                 logger.finest("AllocinePlugin: Movie PosterURL from other source : " + posterURL);
@@ -422,6 +426,8 @@ public class AllocinePlugin extends ImdbPlugin {
                 String searchResultYear = searchResult.substring(searchResult.lastIndexOf(alloCineYearTagStart) + alloCineYearTagStart.length(), searchResult
                                 .length());
                 searchResultYear = searchResultYear.substring(0, searchResultYear.indexOf(alloCineYearTagEnd)).trim();
+                // Issue #1265: to prevent some strange layout where tags <b></b> are inside the movie year
+                searchResultYear = removeHtmlTags(searchResultYear);
                 // logger.finest("AllocinePlugin: searchResultYear = [" + searchResultYear+"] while year=["+year+"]");
                 if (year == null || year.equalsIgnoreCase(Movie.UNKNOWN) || year.equalsIgnoreCase(searchResultYear)) {
                     int allocineIndexBegin = 0;
