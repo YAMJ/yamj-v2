@@ -974,6 +974,15 @@ public class MovieJukeboxXMLWriter {
                 if (!filename.endsWith("VIDEO_TS.IFO")) {
                     filename = filename + "/VIDEO_TS.IFO";
                 }
+                
+                // There is currently an issue with PoHD filenames exceeding 83 characters
+                // This is a temporary warning to alert users to the fact that this file
+                // Will cause an issue when playing the file.
+                if (filename.length() > 82) {
+                    logger.warning("*** WARNING: This filename is " + filename.length() + " characters long and any filename over 83 characters and may cause an issue with your PlayOn!HD");
+                    logger.warning("      MOVIE: " + movie.getTitle());
+                    logger.warning("   FILENAME: " + filename);
+                }
             }
             writer.writeCharacters(filename); // should already be a URL
             writer.writeEndElement();
