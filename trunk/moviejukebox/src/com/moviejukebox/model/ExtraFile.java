@@ -22,6 +22,7 @@ public class ExtraFile extends MovieFile {
     }
 
     public ExtraFile(MovieFile mf) {
+        this.setFile(mf.getFile());
         this.setFilename(mf.getFilename());
         this.setPart(mf.getFirstPart());
         this.setTitle(mf.getTitle());
