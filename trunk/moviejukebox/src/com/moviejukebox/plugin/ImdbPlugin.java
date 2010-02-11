@@ -45,25 +45,24 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     static {
         // 
-        matchsDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Release Date", "Runtime", "Country", "Company",
-                        "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer"));
-        
-        matchsDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Date de sortie",
-                        "Dur&#xE9;e", "Pays", "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie",
-                        "Sc&#xE9;naristes"));
-        
-        matchsDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Fecha de Estreno", "Duración", "País", "Compañía",
-                        "Género", "Quotes", "Trama", "Rated", "Clasificación", "Fecha de Estreno", "Escritores"));        
+        matchsDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Release Date", "Runtime", "Country",
+                        "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer"));
 
-        matchsDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Premierendatum", "L&#xE4;nge", "Land", "Firma",
-                        "Genre", "Quotes", "Handlung", "Rated", "Clasificación", "Premierendatum", "Guionista"));        
-        
-        matchsDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista", "Data di uscita", "Durata", "Nazionalit&#xE0;", "Compagnia",
-                        "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore"));
-        
-        matchsDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Pa&#xED;s", "Companhia",
-                        "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento", "Roteirista"));        
-        
+        matchsDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Date de sortie", "Dur&#xE9;e", "Pays",
+                        "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes"));
+
+        matchsDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Fecha de Estreno", "Duración", "País",
+                        "Compañía", "Género", "Quotes", "Trama", "Rated", "Clasificación", "Fecha de Estreno", "Escritores"));
+
+        matchsDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Premierendatum", "L&#xE4;nge", "Land",
+                        "Firma", "Genre", "Quotes", "Handlung", "Rated", "Clasificación", "Premierendatum", "Guionista"));
+
+        matchsDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Data di uscita", "Durata",
+                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore"));
+
+        matchsDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
+                        "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
+                        "Roteirista"));
 
     }
     public static String IMDB_PLUGIN_ID = "imdb";
@@ -350,7 +349,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 // Note this is a hack for the change to IMDB for Issue 875
                 // TODO: Change the directors into a collection for better processing.
                 ArrayList<String> tempDirectors = null;
-                tempDirectors = HTMLTools.extractTags(xml, "<h5>" + siteDef.getDirector(), "</div>", "<a href=\"/name/", "</a>");
+                // Issue 1261 : Allow multiple text maching for one "element".
+                String[] directorMatches = siteDef.getDirector().split("\\|");
+
+                for (String directorMatch : directorMatches) {
+                    tempDirectors = HTMLTools.extractTags(xml, "<h5>" + directorMatch, "</div>", "<a href=\"/name/", "</a>");
+                    if (!tempDirectors.isEmpty()) {
+                        // We match stop search.
+                        break;
+                    }
+                }
 
                 if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
                     if (!tempDirectors.isEmpty()) {
@@ -368,8 +376,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getCountry().equals(Movie.UNKNOWN)) {
-                //HTMLTools.extractTags(xml, "<h5>" + siteDef.getCountry() + ":</h5>", "</div>", "<a href", "</a>")
-                for (String country : HTMLTools.extractTags(xml, "<h5>" + siteDef.getCountry() + ":</h5>", "</div>") ) {
+                // HTMLTools.extractTags(xml, "<h5>" + siteDef.getCountry() + ":</h5>", "</div>", "<a href", "</a>")
+                for (String country : HTMLTools.extractTags(xml, "<h5>" + siteDef.getCountry() + ":</h5>", "</div>")) {
                     if (country != null) {
                         // TODO Save more than one country
                         movie.setCountry(HTMLTools.removeHtmlTags(country));
@@ -389,8 +397,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getGenres().isEmpty()) {
-                //  HTMLTools.extractTags(xml, "<h5>" + siteDef.getGenre() + ":</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")
-                for (String genre :  HTMLTools.extractTags(xml, "<h5>" + siteDef.getGenre() + ":</h5>", "</div>")) {
+                // HTMLTools.extractTags(xml, "<h5>" + siteDef.getGenre() + ":</h5>", "</div>", "<a href=\"/Sections/Genres/", "</a>")
+                for (String genre : HTMLTools.extractTags(xml, "<h5>" + siteDef.getGenre() + ":</h5>", "</div>")) {
                     genre = HTMLTools.removeHtmlTags(genre);
                     if (genre.toLowerCase().endsWith("more")) {
                         genre = genre.substring(0, genre.length() - 4).trim();
@@ -418,11 +426,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 plotBegin += ("<h5>" + siteDef.getPlot() + ":</h5>").length();
                 int plotEnd = xml.indexOf("<a class=\"tn15more", plotBegin);
                 int plotEndOther = xml.indexOf("</a>", plotBegin);
-                if (plotEnd > -1 || plotEndOther>-1) {
-                    if((plotEnd>-1 && plotEndOther<plotEnd) || plotEnd==-1){
-                        plotEnd=plotEndOther;
+                if (plotEnd > -1 || plotEndOther > -1) {
+                    if ((plotEnd > -1 && plotEndOther < plotEnd) || plotEnd == -1) {
+                        plotEnd = plotEndOther;
                     }
-                    
+
                     String outline = HTMLTools.stripTags(xml.substring(plotBegin, plotEnd)).trim();
                     if (outline.length() > 0) {
                         if (outline.endsWith("|")) {
@@ -434,7 +442,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         if (imdbOutline.length() > preferredPlotLength) {
                             imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
                         }
-                        
+
                     }
                 }
             }
@@ -489,11 +497,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
                 if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>",0);
-                    if(!fullReleaseDate.equalsIgnoreCase(Movie.UNKNOWN)){
+                    String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 0);
+                    if (!fullReleaseDate.equalsIgnoreCase(Movie.UNKNOWN)) {
                         movie.setYear(fullReleaseDate.split(" ")[2]);
                     }
-                    //HTMLTools.extractTag(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 2, " ")
+                    // HTMLTools.extractTag(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 2, " ")
                 }
             }
 
@@ -625,20 +633,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String plot = Movie.UNKNOWN;
 
         try {
-            String xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary",siteDef.getCharset());
+            String xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary", siteDef.getCharset());
 
             String result = HTMLTools.extractTag(xml, "<p class=\"plotpar\">");
             if (!result.equalsIgnoreCase(Movie.UNKNOWN) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = result;
             }
-            
+
             // Second parsing other site (fr/ es / ect ...)
-            result= HTMLTools.getTextAfterElem(xml, "<div id=\"swiki.2.1\">");
+            result = HTMLTools.getTextAfterElem(xml, "<div id=\"swiki.2.1\">");
             if (!result.equalsIgnoreCase(Movie.UNKNOWN) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = result;
-            }            
-           
-            
+            }
+
         } catch (Exception error) {
             plot = Movie.UNKNOWN;
         }
