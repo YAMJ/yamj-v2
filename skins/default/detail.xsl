@@ -43,6 +43,15 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 <body bgproperties="fixed" background="pictures/background.jpg" onloadset="Play">
 <!-- xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute-->
 
+<xsl:choose>
+  <xsl:when test="$use-fanart='true'">
+    <xsl:attribute name="background"><xsl:value-of select="fanartFile"/></xsl:attribute>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:attribute name="background">pictures/background.jpg</xsl:attribute>
+  </xsl:otherwise>
+</xsl:choose>
+
 <table class="main" align="center" border="0" cellpadding="0" cellspacing="0">
   <tr height="30">
     <td height="50" align="center" colspan="2">
@@ -73,6 +82,9 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 
     <td>
       <table border="0" width="85%">
+        <xsl:if test="$use-fanart='true'">
+          <xsl:attribute name="bgcolor">black-alpha2</xsl:attribute>
+        </xsl:if>
         <tr>
           <td class="title1" valign="top" colspan="2">
             <xsl:value-of select="title"/> 

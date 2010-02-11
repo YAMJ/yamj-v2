@@ -18,18 +18,21 @@
 
 <!-- ************Detail Page Options***************************** -->
 
-<!-- Detail Option #1: List TV episodes in reversed order (last to first) -->
+<!-- Detail Option #1: Chooses whether to use fanart on the details page or not-->
+<xsl:variable name="use-fanart">false</xsl:variable>
+
+<!-- Detail Option #2: List TV episodes in reversed order (last to first) -->
 <xsl:variable name="skin-reverseEpisodeOrder">false</xsl:variable>
 
-<!-- Detail Option #2: Where to show Play All link on the details page -->
+<!-- Detail Option #3: Where to show Play All link on the details page -->
 <!-- Valid values are: top, bottom, false/none, where top is now the default for movies -->
 <xsl:variable name="skin-playAllMovie">top</xsl:variable>
 <xsl:variable name="skin-playAllTV">bottom</xsl:variable>
 
-<!-- Detail Option #3: Text to use for the Play All link on the details page -->
+<!-- Detail Option #4: Text to use for the Play All link on the details page -->
 <xsl:variable name="skin-playAllText">PLAY ALL</xsl:variable>
 
-<!-- Change the <BR> by what you want in plot -->
+<!-- Detail Option #5: Change the <BR> by what you want in the plot -->
 <xsl:variable name="skin-PlotLineBreak">&lt;br/&gt;</xsl:variable>
 
 </xsl:stylesheet>

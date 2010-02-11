@@ -34,6 +34,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1214 Tv Episode title not used from filename if plugin times out  
   - Fixed defect #1221 Audio information defect in XML files
   - Fixed defect #1224 Google/Yahoo thread defaults too high, reduced to 5 each
+  - Enhancement  #1225 Add fanart to default & SD skins
   - Fixed defect #1229 CSV listing fields may have quotes inside them
   - Fixed defect #1230 Add fanart detection to FilmUpIT plugin
   - Fixed defect #1232 Subtitle field incorrect for mkv embedded subs
