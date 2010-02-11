@@ -46,7 +46,8 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1251 NFOs with multiple audio section
   - Fixed defect #1255 VIDEO_TS.IFO incorrectly added for ISO movies (PoHD)
   - Fixed defect #1258 index XML Files are broken  
-
+  - Fixed defect #1261 Director field blank with italian imdb and two directors in a movie
+  
 MovieJukebox 1.7
 ----------------
   - Enhancement   #358 Intuitive movie highlight when surfing up/down pages in the movies index (default skin)
