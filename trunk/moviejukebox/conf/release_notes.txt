@@ -49,6 +49,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1258 index XML Files are broken  
   - Fixed defect #1259 Multipart videos cause playlink null pointer
   - Fixed defect #1261 Director field blank with italian imdb and two directors in a movie
+  - Fixed defect #1265 Allocine adds html tags to the year of films
   
 MovieJukebox 1.7
 ----------------
