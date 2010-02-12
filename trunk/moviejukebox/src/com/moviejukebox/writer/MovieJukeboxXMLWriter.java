@@ -70,6 +70,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private boolean isPlayonhd;
+    private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
@@ -547,28 +548,38 @@ public class MovieJukeboxXMLWriter {
 
                         List<Movie> moviesInASinglePage = new ArrayList<Movie>();
                         for (Movie movie : movies) {
-                            moviesInASinglePage.add(movie);
-                            nbMoviesLeft--;
+                            List<Movie> tmpMovieList = new ArrayList<Movie>();
+                            // Issue 1263 - Allow explode of Set in category .
+                            if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
+                                logger.finest("Exploding set for " + categoryName + "[" + movie.getTitle() + "]");
+                                tmpMovieList = library.getIndexes().get("Set").get(movie.getTitle());
+                            } else {
+                                tmpMovieList.add(movie);
+                            }
+                            for (Movie movie2 : tmpMovieList) {
+                                moviesInASinglePage.add(movie2);
+                                nbMoviesLeft--;
 
-                            if (nbMoviesLeft == 0) {
-                                if (current == 1) {
-                                    // If this is the first page, link the previous page to the last page.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last, nbVideosPerPage,
-                                                    nbVideosPerLine);
-                                } else if (current == last) {
-                                    // This is the last page, so link the next page to the first.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage,
-                                                    nbVideosPerLine);
-                                } else {
-                                    // This is a "middle" page, so process as normal.
-                                    writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last, nbVideosPerPage,
-                                                    nbVideosPerLine);
+                                if (nbMoviesLeft == 0) {
+                                    if (current == 1) {
+                                        // If this is the first page, link the previous page to the last page.
+                                        writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last, nbVideosPerPage,
+                                                        nbVideosPerLine);
+                                    } else if (current == last) {
+                                        // This is the last page, so link the next page to the first.
+                                        writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage,
+                                                        nbVideosPerLine);
+                                    } else {
+                                        // This is a "middle" page, so process as normal.
+                                        writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last,
+                                                        nbVideosPerPage, nbVideosPerLine);
+                                    }
+                                    moviesInASinglePage = new ArrayList<Movie>();
+                                    previous = current;
+                                    current = Math.min(current + 1, last);
+                                    next = Math.min(current + 1, last);
+                                    nbMoviesLeft = nbVideosPerPage;
                                 }
-                                moviesInASinglePage = new ArrayList<Movie>();
-                                previous = current;
-                                current = Math.min(current + 1, last);
-                                next = Math.min(current + 1, last);
-                                nbMoviesLeft = nbVideosPerPage;
                             }
                         }
 
