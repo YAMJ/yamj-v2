@@ -51,7 +51,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         
         // Fill in the rest of the fields from IMDB, taking care not to allow the title to get overwritten
         boolean overrideTitle = mediaFile.isOverrideTitle();
-        mediaFile.setOverrideTitle(false);
+        mediaFile.setOverrideTitle(true);
         super.scan(mediaFile);
         mediaFile.setOverrideTitle(overrideTitle);
         
