@@ -575,7 +575,9 @@ public class MovieFilenameScanner {
         MovieFilenameScanner.skipKeywords = skipKeywords;
         skipPatterns.clear();
         for (String s : skipKeywords) {
-            skipPatterns.add(ipatt(Pattern.quote(s)));
+            // adding Boundary \b, to match only : word.
+            skipPatterns.add(ipatt("\\b"+Pattern.quote(s)+"\\b"));
+            //skipPatterns.add(ipatt(Pattern.quote(s)));
         }
     }
     
