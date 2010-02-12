@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -44,6 +45,7 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Library.Index;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -387,8 +389,8 @@ public class MovieJukeboxXMLWriter {
                     }
 
                     ef.setFilename(parseCData(r));
-                    // Issue 1259:       Multipart videos cause playlink null pointer
-                    // FIXME - To check ... xml read run after directory scan and replace existing extra file  ... 
+                    // Issue 1259: Multipart videos cause playlink null pointer
+                    // FIXME - To check ... xml read run after directory scan and replace existing extra file ...
                     ef.setFile(new File(ef.getFilename()));
                     // add or replace extra based on XML data
                     movie.addExtraFile(ef);
@@ -439,44 +441,52 @@ public class MovieJukeboxXMLWriter {
             }
         }
 
-        for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
-            if (category.getValue().isEmpty() || !categoriesDisplayList.contains(category.getKey())) {
-                continue;
-            }
+        // Issue 1148, generate categorie in the order specified in properties
+        for (String categorie : categoriesDisplayList) {
+            boolean openedCategory = false;
+            for (Entry<String, Index> category : library.getIndexes().entrySet()) {
+                // Category not empty and match the current cat.
+                if (!category.getValue().isEmpty() && categorie.equalsIgnoreCase(category.getKey())) {
+                    openedCategory = true;
+                    writer.writeStartElement("category");
+                    writer.writeAttribute("name", category.getKey());
 
-            writer.writeStartElement("category");
-            writer.writeAttribute("name", category.getKey());
+                    for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
+                        List<Movie> value = index.getValue();
+                        int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
+                        logger.finest("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
+                        if (countMovieCat < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
+                            logger.finest("Category " + category.getKey() + " " + index.getKey()
+                                            + " does not contain enough movies, not adding to categories.xml");
+                            continue;
+                        }
 
-            for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
-                List<Movie> value = index.getValue();
-                int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
-                logger.finest("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
-                if (countMovieCat < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
-                    logger.finest("Category " + category.getKey() + " " + index.getKey() + " does not contain enough movies, not adding to categories.xml");
-                    continue;
-                }
+                        String key = index.getKey();
+                        String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(category.getKey(), key)) + "1";
 
-                String key = index.getKey();
-                String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(category.getKey(), key)) + "1";
+                        writer.writeStartElement("index");
+                        writer.writeAttribute("name", key);
 
-                writer.writeStartElement("index");
-                writer.writeAttribute("name", key);
+                        if (includeMoviesInCategories) {
+                            writer.writeAttribute("filename", indexFilename);
 
-                if (includeMoviesInCategories) {
-                    writer.writeAttribute("filename", indexFilename);
+                            for (Movie movie : value) {
+                                writer.writeStartElement("movie");
+                                writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
+                                writer.writeEndElement();
+                            }
+                        } else {
+                            writer.writeCharacters(indexFilename);
+                        }
 
-                    for (Movie movie : value) {
-                        writer.writeStartElement("movie");
-                        writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
                         writer.writeEndElement();
                     }
-                } else {
-                    writer.writeCharacters(indexFilename);
+                    break;
                 }
-
-                writer.writeEndElement();
             }
-            writer.writeEndElement(); // category
+            if (openedCategory) {
+                writer.writeEndElement(); // category
+            }
         }
         writer.writeEndElement(); // library
         writer.writeEndDocument();
@@ -977,12 +987,13 @@ public class MovieJukeboxXMLWriter {
                 if (filename.toUpperCase().endsWith("VIDEO_TS")) {
                     filename = filename + "/VIDEO_TS.IFO";
                 }
-                
+
                 // There is currently an issue with PoHD filenames exceeding 83 characters
                 // This is a temporary warning to alert users to the fact that this file
                 // Will cause an issue when playing the file.
                 if (filename.length() > 82) {
-                    logger.warning("*** WARNING: This filename is " + filename.length() + " characters long and any filename over 83 characters and may cause an issue with your PlayOn!HD");
+                    logger.warning("*** WARNING: This filename is " + filename.length()
+                                    + " characters long and any filename over 83 characters and may cause an issue with your PlayOn!HD");
                     logger.warning("      MOVIE: " + movie.getTitle());
                     logger.warning("   FILENAME: " + filename);
                 }
