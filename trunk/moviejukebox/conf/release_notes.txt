@@ -14,6 +14,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect  #797 r965: OfdbPlugin ignores Plot from NFO
   - Fixed defect  #832 Indexing of Cast, Director, etc is not performed when the movie is in a set  
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
+  - Fixed defect  #998 NFO files not read correctly with filmaffinity plugin  
   - Fixed defect #1004 Unable to scan tv series or movies since enabling index for cast and director  
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
   - Enhancement  #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)  
