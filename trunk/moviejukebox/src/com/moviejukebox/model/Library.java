@@ -478,10 +478,16 @@ public class Library implements Map<String, Movie> {
             // Cut off the Other/New list if it's too long
             String newcat = categoriesMap.get("New");
             if (newCount > 0 && newcat != null) {
-                List<Movie> newList = indexes.get("Other").get("New");
-                if (newList != null && newList.size() > newCount) {
-                    newList = newList.subList(0, newCount);
-                    indexes.get("Other").put(newcat, newList);
+                
+                Index otherIndexes = indexes.get("Other");
+                if(otherIndexes!=null){
+                    List<Movie> newList = otherIndexes.get("New");
+                    if (newList != null && newList.size() > newCount) {
+                        newList = newList.subList(0, newCount);
+                        otherIndexes.put(newcat, newList);
+                    }
+                }else{
+                    logger.warning("Warning : You need to enable index 'Other' to get 'New' categorie");
                 }
             }
 
