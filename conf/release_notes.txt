@@ -16,6 +16,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
   - Enhancement  #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)  
+  - Fixed issue  #1018 Null pointer in main if you remove Title index from moviejukebox.properties.  
   - Fixed defect #1022 ofdb.plugin overwrites nfo information
   - Enhancement  #1148 Categories.xml list ordering  
   - Fixed defect #1152 Moviejukebox does not complete - stuck on Sratim plugin  

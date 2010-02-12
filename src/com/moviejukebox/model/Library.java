@@ -442,18 +442,20 @@ public class Library implements Map<String, Movie> {
             }
 
             // Now add the masters to the titles index
-            for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
-                Index mastersTitlesIndex = indexByTitle(dyn_index_masters_entry.getValue().values());
-                for (Map.Entry<String, List<Movie>> index_entry : mastersTitlesIndex.entrySet()) {
-                    for (Movie m : index_entry.getValue()) {
-                        int setCount = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(m.getTitle()).size();
-                        if (setCount >= minSetCount) {
-                            indexes.get("Title").addMovie(index_entry.getKey(), m);
+            // Issue 1018 - Check that this indexe was selected
+            if(indexList.contains("Title")){
+                for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
+                    Index mastersTitlesIndex = indexByTitle(dyn_index_masters_entry.getValue().values());
+                    for (Map.Entry<String, List<Movie>> index_entry : mastersTitlesIndex.entrySet()) {
+                        for (Movie m : index_entry.getValue()) {
+                            int setCount = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(m.getTitle()).size();
+                            if (setCount >= minSetCount) {
+                                indexes.get("Title").addMovie(index_entry.getKey(), m);
+                            }
                         }
                     }
                 }
             }
-
             tasks.restart();
             // OK, now that all the index masters are in-place, sort everything.
             for (final Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
