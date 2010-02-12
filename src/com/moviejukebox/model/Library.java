@@ -784,7 +784,12 @@ public class Library implements Map<String, Movie> {
         if (index == null) {
             index = indexes.get(indexName);
         }
-        return index.get(category).size();
+        List<Movie> categoryList = index.get(category);
+        if (categoryList != null) {
+            return categoryList.size();
+        } else {
+            return -1;
+        }
     }
 
     /**

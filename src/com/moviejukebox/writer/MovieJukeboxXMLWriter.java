@@ -755,8 +755,7 @@ public class MovieJukeboxXMLWriter {
     private String createIndexAttribute(Library l, String cat, String val) throws XMLStreamException {
         Library.Index i = l.getIndexes().get(cat);
         if (null != i) {
-            List<Movie> ml = i.get(val);
-            if (null != ml && ml.size() >= categoriesMinCount) {
+            if (l.getMovieCountForIndex(cat, val) >= categoriesMinCount) {
                 return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(cat, val)) + 1);
             }
         }
