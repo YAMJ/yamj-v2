@@ -468,7 +468,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String certification = movie.getCertification();
             if (certification.equals(Movie.UNKNOWN)) {
                 if (extractCertificationFromMPAA) {
-                    String mpaa = HTMLTools.extractTag(xml, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>");
+                    String mpaa = HTMLTools.extractTag(xml, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>",1);
                     if (!mpaa.equals(Movie.UNKNOWN)) {
                         String key = siteDef.getRated() + " ";
                         int pos = mpaa.indexOf(key);
