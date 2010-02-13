@@ -14,11 +14,15 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,13 +38,15 @@ import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 
 @SuppressWarnings("serial")
-@XmlType public class MovieFile implements Comparable<MovieFile> {
+@XmlType
+public class MovieFile implements Comparable<MovieFile> {
 
-    private String  filename    = Movie.UNKNOWN;
-    private String  title       = Movie.UNKNOWN;
-    private int     firstPart   = 1; // #1, #2, CD1, CD2, etc.
-    private int     lastPart    = 1;
-    private boolean newFile     = true; // is new file or already exists in XML data
+    private static Logger logger = Logger.getLogger("moviejukebox");
+    private String filename = Movie.UNKNOWN;
+    private String title = Movie.UNKNOWN;
+    private int firstPart = 1; // #1, #2, CD1, CD2, etc.
+    private int lastPart = 1;
+    private boolean newFile = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
     private Map<String, String> playLink = new HashMap<String, String>();
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
@@ -48,11 +54,11 @@ import com.moviejukebox.tools.PropertiesUtil;
     private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
-    private static boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk","true"));
+    private boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "true"));
     private boolean includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
     private boolean includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
-    private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");        
+    private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
 
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         {
@@ -60,9 +66,9 @@ import com.moviejukebox.tools.PropertiesUtil;
 
             HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
                 {
-                    put("ZCD","ISO,IMG,VOB,MDF,NRG,BIN");
-                    put("VOD","");
-                    put("RAR","RAR");
+                    put("ZCD", "ISO,IMG,VOB,MDF,NRG,BIN");
+                    put("VOD", "");
+                    put("RAR", "RAR");
                 }
             };
 
@@ -84,7 +90,6 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     };
 
-
     @XmlElement(name = "fileURL")
     public String getFilename() {
         return filename;
@@ -93,7 +98,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     public void setFilename(String filename) {
         this.filename = filename;
     }
-    
+
     public String getPlot(int part) {
         String plot = plots.get(part);
         return plot != null ? plot : Movie.UNKNOWN;
@@ -194,7 +199,8 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     @XmlAttribute
     public long getSize() {
-        if (getFile() == null) return 0;
+        if (getFile() == null)
+            return 0;
         return getFile().length();
     }
 
@@ -235,9 +241,9 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
-        
+
         info = dto;
-        
+
         // TODO do not skip titles (store all provided)
         setTitle(dto.isExtra() ? dto.getPartTitle() : (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
 
@@ -266,7 +272,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
-    @XmlElement public MovieFileNameDTO getInfo() {
+    @XmlElement
+    public MovieFileNameDTO getInfo() {
         return info;
     }
 
@@ -275,16 +282,16 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     public Map<String, String> getPlayLink() {
-//        if (playLink.equals("") || playLink.equals(Movie.UNKNOWN)) {
-            this.playLink = calculatePlayLink();
-  //      }
+        // if (playLink.equals("") || playLink.equals(Movie.UNKNOWN)) {
+        this.playLink = calculatePlayLink();
+        // }
         return playLink;
     }
-    
+
     public void addPlayLink(String key, String value) {
         playLink.put(key, value);
     }
-    
+
     public void setPlayLink(Map<String, String> playLink) {
         if (playLink == null || playLink.equals("")) {
             this.playLink = calculatePlayLink();
@@ -292,42 +299,47 @@ import com.moviejukebox.tools.PropertiesUtil;
             this.playLink = playLink;
         }
     }
-    
+
     public static class PartDataDTO {
-        @XmlAttribute public int part;
-        @XmlValue public String value;
+        @XmlAttribute
+        public int part;
+        @XmlValue
+        public String value;
     }
-    
+
     @XmlElement(name = "filePlot")
     public List<PartDataDTO> getFilePlots() {
-        if (!includeEpisodePlots) return null;
+        if (!includeEpisodePlots)
+            return null;
         return toPartDataList(plots);
     }
-    
+
     public void setFilePlots(List<PartDataDTO> list) {
         fromPartDataList(plots, list);
     }
 
     @XmlElement(name = "fileImageURL")
     public List<PartDataDTO> getFileImageUrls() {
-        if (!includeVideoImages) return null;
+        if (!includeVideoImages)
+            return null;
         return toPartDataList(videoImageURL);
     }
-    
+
     public void setFileImageUrls(List<PartDataDTO> list) {
         fromPartDataList(videoImageURL, list);
     }
 
     @XmlElement(name = "fileImageFile")
     public List<PartDataDTO> getFileImageFiles() {
-        if (!includeVideoImages) return null;
+        if (!includeVideoImages)
+            return null;
         return toPartDataList(videoImageFilename);
     }
-    
+
     public void setFileImageFiles(List<PartDataDTO> list) {
         fromPartDataList(videoImageFilename, list);
     }
-    
+
     private static List<PartDataDTO> toPartDataList(LinkedHashMap<Integer, String> map) {
         List<PartDataDTO> list = new ArrayList<PartDataDTO>();
         for (Integer part : map.keySet()) {
@@ -338,15 +350,14 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
         return list;
     }
-    
+
     private static void fromPartDataList(LinkedHashMap<Integer, String> map, List<PartDataDTO> list) {
         map.clear();
         for (PartDataDTO p : list) {
             map.put(p.part, p.value);
         }
     }
-    
-    
+
     /**
      * Calculate the playlink additional information for the file
      * 
@@ -354,47 +365,60 @@ import com.moviejukebox.tools.PropertiesUtil;
      */
     private Map<String, String> calculatePlayLink() {
         Map<String, String> playLinkMap = new HashMap<String, String>();
-        File file = getFile();
-        
-        if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
-            //System.out.println(filename + " matched to BLURAY");
-            playLinkMap.put("zcd", playLinkZCD);
-            // We can return at this point because there won't be additional playlinks
-            return playLinkMap;
-        }
-        
-        if (file.isDirectory() && (new File(file.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
-            //System.out.println(filename + " matched to VIDEO_TS");
-            playLinkMap.put("zcd", playLinkZCD);
-            // We can return at this point because there won't be additional playlinks
-            return playLinkMap;
-        }
+        File file = this.getFile();
 
-        for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
-            Matcher matcher = e.getValue().matcher(getExtension(file));
-            if (matcher.find()) {
-                //System.out.println(filename + " matched to " + e.getKey());
-                playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey().toUpperCase(), ""));
+        logger.finest("DEBUG: playFullBluRayDisk=" + playFullBluRayDisk);
+        logger.finest("DEBUG: path  = " + file.getAbsolutePath());
+        logger.finest("DEBUG: isDir = " + file.isDirectory());
+
+        try {
+            if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
+                logger.finest(filename + " matched to BLURAY");
+                playLinkMap.put("zcd", playLinkZCD);
+                // We can return at this point because there won't be additional playlinks
+                return playLinkMap;
+            }
+
+            if (file.isDirectory() && (new File(file.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
+                logger.finest(filename + " matched to VIDEO_TS");
+                playLinkMap.put("zcd", playLinkZCD);
+                // We can return at this point because there won't be additional playlinks
+                return playLinkMap;
+            }
+
+            for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
+                Matcher matcher = e.getValue().matcher(getExtension(file));
+                if (matcher.find()) {
+                    logger.finest(filename + " matched to " + e.getKey());
+                    playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey().toUpperCase(), ""));
+                }
+            }
+        } catch (Exception error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe("Error calculating playlink for file " + file.getName());
+            logger.severe(eResult.toString());
+        } finally {
+            // Default to VOD if there's no other type found
+            if (playLinkMap.size() == 0) {
+                logger.finest(filename + " not matched, defaulted to VOD");
+                playLinkMap.put("vod", playLinkVOD);
             }
         }
-        
-        // Default to VOD if there's no other type found
-        if (playLinkMap.size() == 0) {
-            //System.out.println(filename + " not matched, defaulted to VOD");
-            playLinkMap.put("vod", playLinkVOD);
-        }
-        
+
         return playLinkMap;
     }
 
     /**
      * Return the extension of the file, this will be blank for directories
+     * 
      * @param file
      * @return
      */
     private String getExtension(File file) {
         String filename = file.getName();
-        
+
         if (file.isFile()) {
             int i = filename.lastIndexOf(".");
             if (i > 0) {
