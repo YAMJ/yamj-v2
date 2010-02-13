@@ -1050,10 +1050,11 @@ public class MovieJukeboxXMLWriter {
             for (ExtraFile ef : extraFiles) {
                 writer.writeStartElement("extra");
                 writer.writeAttribute("title", ef.getTitle());
-                // Playlink values
-                for (Map.Entry<String, String> e : ef.getPlayLink().entrySet()) {
-                    writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
-                }
+                // Issue 1259 - Removing this, appear in r1353 cause null pointer.
+//                // Playlink values
+//                for (Map.Entry<String, String> e : ef.getPlayLink().entrySet()) {
+//                    writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
+//                }
                 writer.writeCharacters(ef.getFilename()); // should already be URL-encoded
                 writer.writeEndElement();
             }
