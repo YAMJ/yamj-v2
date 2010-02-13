@@ -57,6 +57,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1261 Director field blank with italian imdb and two directors in a movie
   - Fixed defect #1263 Indexing of Cast, Director, etc is not performed when the movie is in a set (again)  
   - Fixed defect #1265 Allocine adds html tags to the year of films
+  - Fixed defect #1270 Movies don't get proper rating from IMDB  
   
 MovieJukebox 1.7
 ----------------
