@@ -995,20 +995,25 @@ public class MovieJukeboxXMLWriter {
 
             writer.writeStartElement("fileURL");
             String filename = mf.getFilename();
+            String tempFilename = filename;
             // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD VIDEO_TS path names
             if (isPlayonhd) {
+                int maxLength = 83;
                 if (filename.toUpperCase().endsWith("VIDEO_TS")) {
                     filename = filename + "/VIDEO_TS.IFO";
+                    tempFilename = filename.substring(0, filename.lastIndexOf("/VIDEO_TS/"));
+                    maxLength = 63;
                 }
 
                 // There is currently an issue with PoHD filenames exceeding 83 characters
                 // This is a temporary warning to alert users to the fact that this file
                 // Will cause an issue when playing the file.
-                if (filename.length() > 82) {
-                    logger.warning("*** WARNING: This filename is " + filename.length()
-                                    + " characters long and any filename over 83 characters and may cause an issue with your PlayOn!HD");
+                tempFilename = tempFilename.substring(tempFilename.lastIndexOf("/") + 1, tempFilename.length());
+                if (tempFilename.length() > maxLength) {
+                    logger.warning("*** WARNING: This filename is " + tempFilename.length()
+                                    + " characters long and any filename over " + maxLength + " characters and may cause an issue with your PlayOn!HD");
                     logger.warning("      MOVIE: " + movie.getTitle());
-                    logger.warning("   FILENAME: " + filename);
+                    logger.warning("   FILENAME: " + tempFilename);
                 }
             }
             writer.writeCharacters(filename); // should already be a URL
