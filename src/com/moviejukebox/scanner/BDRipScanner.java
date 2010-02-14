@@ -137,7 +137,7 @@ public class BDRipScanner {
 
             selectedFile = new File(selectedFile.getAbsolutePath(), bdmv);
 
-            /* Gets the STREAM path... */
+            // Gets the STREAM path...
             list = selectedFile.listFiles();
 
             String stream = "";
@@ -152,26 +152,33 @@ public class BDRipScanner {
 
             selectedFile = new File(selectedFile.getAbsolutePath(), stream);
 
-
-            /* Get the m2ts files */
+            // Get the m2ts files
             list = selectedFile.listFiles();
 
             BDFilePropertiesMovie ret = new BDFilePropertiesMovie();
-            ret.fileList = new File[longestFiles.length];
-
-            for (int i = 0; i < list.length; i++) {
-
-                // Go over the playlist file names
-                for (int j = 0; j < longestFiles.length; j++) {
-
-                    if (list[i].getName().equalsIgnoreCase(longestFiles[j])) {
-                        ret.fileList[j] = list[i];
+            
+            if (longestFiles == null) {
+                return null;
+            }
+            
+            if (longestFiles.length > 0) {
+                ret.fileList = new File[longestFiles.length];
+    
+                for (int i = 0; i < list.length; i++) {
+    
+                    // Go over the playlist file names
+                    for (int j = 0; j < longestFiles.length; j++) {
+    
+                        if (list[i].getName().equalsIgnoreCase(longestFiles[j])) {
+                            ret.fileList[j] = list[i];
+                        }
                     }
                 }
+                ret.duration = longestDuration;
+            } else {
+                ret.duration = 0;
             }
-
-            ret.duration = longestDuration;
-
+            
             return ret;
 
         } catch (Exception error) {
