@@ -13,6 +13,9 @@
 
 package com.moviejukebox.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 
  * @author altman.matthew
@@ -33,4 +36,18 @@ public class ExtraFile extends MovieFile {
     public int compareTo(MovieFile that) {
         return this.getFilename().compareToIgnoreCase(that.getFilename());
     }
+
+    @Override
+    public Map<String, String> getPlayLink() {
+        // Ovveriding this getPlayLink to avoid nullpointer.
+        Map<String, String> result;
+        if (this.getFile() != null) {
+            result = super.getPlayLink();
+        } else {
+            result = new HashMap<String, String>();
+            result.put("URL", this.getFilename());
+        }
+        return result;
+    }
+
 }
