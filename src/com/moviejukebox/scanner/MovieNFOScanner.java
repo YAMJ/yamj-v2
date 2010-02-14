@@ -432,6 +432,7 @@ public class MovieNFOScanner {
                             String finalCodec = Movie.UNKNOWN;
                             String finalLanguage = Movie.UNKNOWN;
                             String finalChannels = Movie.UNKNOWN;
+                            String tmpSubtitleLanguage = Movie.UNKNOWN;
                             while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
                                 if (fiEvent.equalsIgnoreCase("<video>")) {
                                     String nfoWidth = null;
@@ -555,6 +556,14 @@ public class MovieNFOScanner {
                                 if (fiEvent.equalsIgnoreCase("<subtitle>")) {
                                     while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
+                                            String val = XMLHelper.getCData(r);
+                                            if (!val.isEmpty()) {
+                                                if (tmpSubtitleLanguage.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                                    tmpSubtitleLanguage = val;
+                                                } else {
+                                                    tmpSubtitleLanguage = tmpSubtitleLanguage + " / " + val;
+                                                }
+                                            }
                                             // Unused
                                         }
 
@@ -579,6 +588,9 @@ public class MovieNFOScanner {
                             }
                             if (!finalLanguage.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setLanguage(finalLanguage);
+                            }
+                            if (!tmpSubtitleLanguage.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setSubtitles(tmpSubtitleLanguage);
                             }
 
                         } else if (tag.equalsIgnoreCase("VideoSource")) {
