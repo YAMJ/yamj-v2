@@ -1164,14 +1164,15 @@ public class MovieJukebox {
                 logger.finer("XML file not found. Scanning internet for information on " + movie.getBaseName());
             }
 
+            // Changing call order, first MediaInfo then NFO. NFO will overwrite every info it will contains.
+            miScanner.scan(movie);
+            
             MovieNFOScanner.scan(movie, nfoFiles);
 
             // Added forceXMLOverwrite for issue 366
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
                 PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
-
-            miScanner.scan(movie);
 
             DatabasePluginController.scan(movie);
         }

@@ -58,6 +58,7 @@ MovieJukebox 1.8 BETA
   - Fixed defect #1263 Indexing of Cast, Director, etc is not performed when the movie is in a set (again)  
   - Fixed defect #1265 Allocine adds html tags to the year of films
   - Fixed defect #1270 Movies don't get proper rating from IMDB  
+  - Fixed defect #1273 Add a filename.scanner.codec.detection properties
   
 MovieJukebox 1.7
 ----------------
