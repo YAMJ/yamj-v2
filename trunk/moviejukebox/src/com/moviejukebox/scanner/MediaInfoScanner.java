@@ -489,12 +489,14 @@ public class MediaInfoScanner {
         }
 
         // Cycle through Audio Streams
-        boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN); // Do we have AudioCodec already?
-        boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN); // Do we have AudioChannels already?
+        // boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN); // Do we have AudioCodec already?
+        // boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN); // Do we have AudioChannels already?
 
-        String infoFullLanguage = "";
         ArrayList<String> foundLanguages = new ArrayList<String>();
-        
+
+        String tmpAudioCodec = Movie.UNKNOWN;
+        String tmpAudioChannels = Movie.UNKNOWN;
+
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
 
@@ -502,18 +504,14 @@ public class MediaInfoScanner {
             infoValue = infosCurAudio.get("Language");
             if (infoValue != null) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
-                if(infoValue.contains("/")){
-                    infoValue = infoValue.substring(0,infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
+                if (infoValue.contains("/")) {
+                    infoValue = infoValue.substring(0, infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
                 }
                 infoLanguage = " (" + infoValue + ")";
                 // Add determination of language.
                 String determineLanguage = MovieFilenameScanner.determineLanguage(infoValue);
-                if(!foundLanguages.contains(determineLanguage)){
+                if (!foundLanguages.contains(determineLanguage)) {
                     foundLanguages.add(determineLanguage);
-                    if (infoFullLanguage.length() > 0) {
-                        infoFullLanguage += " / ";
-                    }
-                    infoFullLanguage += determineLanguage;
                 }
             }
 
@@ -523,33 +521,43 @@ public class MediaInfoScanner {
             }
 
             if (infoValue != null) { // Make sure we have a codec before continuing
-                String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
-                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
-                    movie.setAudioCodec(infoValue + infoLanguage);
+                // String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
+                if (tmpAudioCodec.toUpperCase().equals(Movie.UNKNOWN)) {
+                    tmpAudioCodec = infoValue + infoLanguage;
                 } else {
-                    if (!previousAudioCodec) {
-                        // Don't overwrite what is there currently
-                        movie.setAudioCodec(oldInfo + " / " + infoValue + infoLanguage);
-                    }
+                    tmpAudioCodec = tmpAudioCodec + " / " + infoValue + infoLanguage;
                 }
             }
 
             infoValue = infosCurAudio.get("Channel(s)");
             if (infoValue != null) {
-                String oldInfo = movie.getAudioChannels();
-                if (oldInfo.toUpperCase().equals(Movie.UNKNOWN)) {
-                    movie.setAudioChannels(infoValue);
+                // String oldInfo = movie.getAudioChannels();
+                if (tmpAudioChannels.toUpperCase().equals(Movie.UNKNOWN)) {
+                    tmpAudioChannels = infoValue;
                 } else {
-                    if (!previousAudioChannels) {
-                        movie.setAudioChannels(oldInfo + " / " + infoValue);
-                    }
+                    tmpAudioChannels = tmpAudioChannels + " / " + infoValue;
                 }
             }
         }
 
-        // TODO Add an option to choose to override FileName / NFO language info.
-        if (infoFullLanguage != null && infoFullLanguage.length() > 0 && movie.getLanguage().equalsIgnoreCase(Movie.UNKNOWN)) {
-            movie.setLanguage(infoFullLanguage);
+        if (!tmpAudioChannels.equalsIgnoreCase(Movie.UNKNOWN)) {
+            movie.setAudioChannels(tmpAudioChannels);
+        }
+
+        if (!tmpAudioCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
+            movie.setAudioCodec(tmpAudioCodec);
+        }
+
+        // TODO Add an option to choose to override FileName language info.
+        if (foundLanguages.size() > 0) {// && movie.getLanguage().equalsIgnoreCase(Movie.UNKNOWN)) {
+            int index = 0;
+            for (String language : foundLanguages) {
+                if (index++ > 0) {
+                    movie.setLanguage(movie.getLanguage() + " / " + language);
+                }else{
+                    movie.setLanguage(language);
+                }
+            }
         }
 
         // Cycle through Text Streams
@@ -560,8 +568,8 @@ public class MediaInfoScanner {
             infoValue = infosCurText.get("Language");
             if (infoValue != null) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
-                if(infoValue.contains("/")){
-                    infoValue = infoValue.substring(0,infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
+                if (infoValue.contains("/")) {
+                    infoValue = infoValue.substring(0, infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
                 }
                 infoLanguage = infoValue;
             }
