@@ -367,10 +367,6 @@ public class MovieFile implements Comparable<MovieFile> {
         Map<String, String> playLinkMap = new HashMap<String, String>();
         File file = this.getFile();
 
-        logger.finest("DEBUG: playFullBluRayDisk=" + playFullBluRayDisk);
-        logger.finest("DEBUG: path  = " + file.getAbsolutePath());
-        logger.finest("DEBUG: isDir = " + file.isDirectory());
-
         try {
             if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
                 logger.finest(filename + " matched to BLURAY");

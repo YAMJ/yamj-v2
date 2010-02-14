@@ -175,6 +175,7 @@ public class BDRipScanner {
             return ret;
 
         } catch (Exception error) {
+            logger.warning("BDRip Scanner: Error processing file " + mediaRep.getName());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
