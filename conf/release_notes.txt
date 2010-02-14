@@ -2,8 +2,11 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 1.8 BETA
+MovieJukebox 1.9 BETA
 ---------------------
+
+MovieJukebox 1.8
+----------------
   - Enhancement	  #145 Dual Language-Flag for DVDs
   - Enhancement	  #274 Danish Plugin  
   - Enhancement   #400 Option to trim plot length for TheTVDB plots
