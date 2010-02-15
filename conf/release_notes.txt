@@ -4,6 +4,7 @@
 
 MovieJukebox 1.9 BETA
 ---------------------
+  - Fixed defect #1283 IMDB update for non-mpaa Certification
 
 MovieJukebox 1.8
 ----------------

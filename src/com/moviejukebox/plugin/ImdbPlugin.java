@@ -486,7 +486,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
                 if (certification.equals(Movie.UNKNOWN)) {
                     certification = getPreferredValue(HTMLTools.extractTags(xml, "<h5>" + siteDef.getCertification() + ":</h5>", "</div>",
-                                    "<a href=\"/List?certificates=", "</a>"));
+                                    "<a href=\"/search/title?certificates=", "</a>"));
                 }
                 if (certification == null || certification.equalsIgnoreCase(Movie.UNKNOWN)) {
                     certification = Movie.NOTRATED;
