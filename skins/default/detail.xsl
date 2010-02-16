@@ -208,11 +208,11 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
               <xsl:value-of select="runtime" /> 
             </xsl:if>
             <xsl:if test="certification != 'UNKNOWN'">
-              <xsl:if test="count(genres) != 0 and runtime != 'UNKNOWN'">, </xsl:if>
+              <xsl:if test="count(genres) != 0 or runtime != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="certification" /> 
             </xsl:if>
             <xsl:if test="language != 'UNKNOWN'">
-              <xsl:if test="count(genres) != 0 and runtime != 'UNKNOWN' and certification != 'UNKNOWN'">, </xsl:if>
+              <xsl:if test="count(genres) != 0 or runtime != 'UNKNOWN' or certification != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="language" /> 
             </xsl:if>
           </td>
