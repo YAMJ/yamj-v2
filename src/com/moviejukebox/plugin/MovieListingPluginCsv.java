@@ -80,8 +80,8 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput("FilmWeb ID")
                 + prepOutput("Kinopoisk ID")
                 + prepOutput("Sratim ID")
-                + prepOutput("Last Modified Date", false)
-                + prepOutput("File Size")
+                + prepOutput("Last Modified Date")
+                + prepOutput("File Size", false)
                 ;
     } // headerLine();
 
