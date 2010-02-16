@@ -29,13 +29,16 @@ public class PosterScannerTest extends TestCase {
 
     public void testGetPosterURLFromMovieCovers() throws UnsupportedEncodingException {
         String baseURL = "http://www.moviecovers.com/getjpg.html/";
+        String expectedURL = Movie.UNKNOWN;
+        String returnURL = Movie.UNKNOWN;
 
+        /*
         movieTest.setTitle("Marius");
         movieTest.setYear("1931");
-        String expectedURL = baseURL + "MARIUS.jpg";
-        String returnURL = PosterScanner.getPosterURLFromMovieCovers(movieTest);
+        expectedURL = baseURL + "MARIUS.jpg";
+        returnURL = PosterScanner.getPosterURLFromMovieCovers(movieTest);
         assertEquals(expectedURL, returnURL);
-
+         */
         movieTest.setTitle("FANNY");
         movieTest.setYear("1932");
         expectedURL = baseURL + "FANNY.jpg";
