@@ -14,6 +14,7 @@
 package com.moviejukebox.plugin;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,17 +58,17 @@ public class TheTvDBPlugin extends ImdbPlugin {
         super();
         tvDB = new TheTVDB(API_KEY);
         language = PropertiesUtil.getProperty("thetvdb.language", "en");
-        includeEpisodePlots     = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
-        includeVideoImages      = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        includeWideBanners      = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
-        onlySeriesBanners       = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
-        cycleSeriesBanners      = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cycleSeriesBanners", "true"));
-        dvdEpisodes             = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
-        fanartToken             =  PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-        downloadFanart          = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
-        forceFanartOverwrite    = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
-        forceBannerOverwrite    = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
-        preferredPlotLength     = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+        includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+        includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
+        onlySeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
+        cycleSeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cycleSeriesBanners", "true"));
+        dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
+        forceFanartOverwrite = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
+        forceBannerOverwrite = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
+        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     }
 
     @Override
@@ -128,7 +129,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 if (!movie.isOverrideTitle()) {
                     // issue 1214 : prevent replacing data with blank when tv plugin fail
-                    if(series.getSeriesName()!= null && series.getSeriesName().trim().length()>0){
+                    if (series.getSeriesName() != null && series.getSeriesName().trim().length() > 0) {
                         movie.setTitle(series.getSeriesName());
                         movie.setOriginalTitle(series.getSeriesName());
                     }
@@ -162,13 +163,13 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 if (movie.getCast().isEmpty()) {
                     movie.setCast(series.getActors());
                 }
-                
+
                 if (movie.getPosterURL().equals(Movie.UNKNOWN)) {
                     String urlNormal = null;
 
                     if (!banners.getSeasonList().isEmpty()) {
                         for (Banner banner : banners.getSeasonList()) {
-                            if (banner.getSeason() == movie.getSeason()) {  // only check for the correct season
+                            if (banner.getSeason() == movie.getSeason()) { // only check for the correct season
                                 if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
                                     urlNormal = banner.getUrl();
                                 }
@@ -189,13 +190,13 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setPosterURL(urlNormal);
                     }
                 }
-                
+
                 if (includeWideBanners && (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceBannerOverwrite) || movie.isDirtyBanner()) {
                     String urlBanner = null;
 
                     if (!banners.getSeasonList().isEmpty() && !onlySeriesBanners) {
                         for (Banner banner : banners.getSeasonList()) {
-                            if (banner.getSeason() == movie.getSeason()) {  // only check for the correct season
+                            if (banner.getSeason() == movie.getSeason()) { // only check for the correct season
                                 // Look for season wide banners if requested
                                 if (urlBanner == null && banner.getBannerType2().equalsIgnoreCase(bannerSeasonType)) {
                                     urlBanner = banner.getUrl();
@@ -204,12 +205,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             }
                         }
                     }
-                    
+
                     // If we didn't find a season banner or only want series banners, check for a series banner
                     if (urlBanner == null && !banners.getSeriesList().isEmpty()) {
                         String savedUrl = null;
                         int counter = 0;
-                        
+
                         for (Banner banner : banners.getSeriesList()) {
                             if (banner.getBannerType2().equalsIgnoreCase(bannerSeriesType)) {
                                 // Increment the counter (before the test) and see if this is the right season
@@ -227,16 +228,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             // No banner found, so use the last banner
                             urlBanner = savedUrl;
                         }
-                        
+
                     }
                     if (urlBanner != null) {
                         movie.setBannerURL(urlBanner);
-                    } 
+                    }
                 }
 
                 // TODO remove this once all skins are using the new fanart properties
                 downloadFanart = checkDownloadFanart(movie.isTVShow());
-                
+
                 if (downloadFanart && (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceFanartOverwrite) || (movie.isDirtyFanart())) {
                     String url = null;
                     if (!banners.getFanartList().isEmpty()) {
@@ -282,7 +283,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             if (movie.getSeason() >= 0) {
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
-                
+
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
                     Episode episode = null;
                     if (dvdEpisodes) {
@@ -293,7 +294,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (episode != null) {
-                        // FIXME SB: I think this causes an issue when re-scanning multi-episode files/disks 
+                        // FIXME SB: I think this causes an issue when re-scanning multi-episode files/disks
                         if (first) {
                             first = false;
                         } else {
@@ -311,7 +312,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             // Director is a single entry, not a list, so only get the first director
                             movie.setDirector(episode.getDirectors().get(0));
                         }
-                        
+
                         if (file.getFirstPart() > 0)
                             sb.append(episode.getEpisodeName());
 
@@ -321,7 +322,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                 episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
                             }
                             file.setPlot(part, episodePlot);
-                            
+
                         }
 
                         if (includeVideoImages) {
@@ -343,7 +344,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
                 String title = sb.toString();
-                
+
                 if (!sb.equals("") && !file.hasTitle()) {
                     file.setTitle(title);
                 }
@@ -383,8 +384,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     id = compareString.substring(beginIdx + length);
                 }
                 if (id != null && !id.isEmpty()) {
-                    movie.setId(THETVDB_PLUGIN_ID, id);
-                    logger.finer("TheTVDB Id found in nfo = " + id);
+                    movie.setId(THETVDB_PLUGIN_ID, id.trim());
+                    logger.finer("TheTVDB Id found in nfo = " + id.trim());
                 }
             }
         }
