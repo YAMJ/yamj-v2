@@ -663,6 +663,7 @@ public class OpenSubtitlesPlugin {
 
         String s = String.format("%016x", sum);
         fc.close();
+        fis.close();
         return s;
     }
 }

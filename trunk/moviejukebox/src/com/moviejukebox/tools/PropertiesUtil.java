@@ -45,7 +45,8 @@ public class PropertiesUtil {
 
             Reader reader = new InputStreamReader(propertiesStream, PROPERTIES_CHARSET);
             props.load(reader);
-
+            propertiesStream.close();
+            reader.close();
         } catch (IOException error) {
             // Output a warning if moviejukebox.properties isn't found. Otherwise it's an error
             if (streamName.contains("moviejukebox.properties")) {
