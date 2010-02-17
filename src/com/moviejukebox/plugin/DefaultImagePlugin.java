@@ -212,6 +212,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
                 logger.finest("Drew HD logo (" + logoName + ") in the middle");
             }
+            in.close();
+            
         } catch (IOException error) {
             logger.warning("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
@@ -246,7 +248,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     g.drawImage(biTV, bi.getWidth() / 2 - biTV.getWidth() / 2, bi.getHeight() - biTV.getHeight() - 5, null);
                     logger.finest("Drew TV logo in the middle");
                 }
-
+                in.close();
             } catch (IOException error) {
                 logger.warning("Failed drawing TV logo to thumbnail file: Please check that tv.png is in the resources directory.");
                 final Writer eResult = new StringWriter();
@@ -289,6 +291,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     InputStream in = new FileInputStream(imageFile);
                     BufferedImage biLang = ImageIO.read(in);
                     g.drawImage(biLang, 1, 1, null);
+                    in.close();
                 } else {
                     if (languages.length == 1) {
                         logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + fullLanguage
@@ -318,6 +321,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     width = biLang.getWidth() / nbCols;
                                     height = biLang.getHeight() / nbRows;
                                 }
+                                in.close();
                             } else {
                                 logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + language
                                                 + ".png) is in the resources/languages directory.");
@@ -354,6 +358,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         try {
             InputStream in = new FileInputStream(getResourcesPath() + "set.png");
             BufferedImage biSet = ImageIO.read(in);
+            in.close();
+            
             Graphics g = bi.getGraphics();
             g.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
         } catch (IOException error) {
