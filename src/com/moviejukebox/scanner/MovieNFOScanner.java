@@ -277,13 +277,13 @@ public class MovieNFOScanner {
                     if (isMovieTag) {
                         if (tag.equalsIgnoreCase("title")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setTitle(val);
                                 movie.setOverrideTitle(true);
                             }
                         } else if (tag.equalsIgnoreCase("originaltitle")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setOriginalTitle(val);
                             }
                         } else if (tag.equalsIgnoreCase("sorttitle")) {
@@ -299,7 +299,7 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("year")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setYear(val);
                             }
                         } else if (tag.equalsIgnoreCase("top250")) {
@@ -311,35 +311,35 @@ public class MovieNFOScanner {
                             // ignored
                         } else if (tag.equalsIgnoreCase("outline")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setOutline(val);
                             }
                         } else if (tag.equalsIgnoreCase("plot")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setPlot(val);
                             }
                         } else if (tag.equalsIgnoreCase("tagline")) {
                             // ignored
                         } else if (tag.equalsIgnoreCase("runtime")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setRuntime(val);
                             }
                         } else if (tag.equalsIgnoreCase("thumb")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setPosterURL(val);
                             }
                         } else if (tag.equalsIgnoreCase("fanart")) { // This is a custom YAMJ tag
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setFanartURL(val);
                                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                             }
                         } else if (tag.equalsIgnoreCase("mpaa") && getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 // Issue 333
                                 if (val.startsWith("Rated ")) {
                                     int start = 6; // "Rated ".length()
@@ -357,7 +357,7 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("certification") && !getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 int pos = val.lastIndexOf(":");
                                 if (pos > 0) {
                                     // Strip the country code from the rating for certification like "UK:PG-12"
@@ -372,7 +372,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("id")) {
                             Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 if (movieDbIdAttribute != null) { // if we have a moviedb attribute
                                     movie.setId(movieDbIdAttribute.getValue(), val); // we store the Id for this movieDb
                                     logger.finest("In parseMovieNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
@@ -407,7 +407,7 @@ public class MovieNFOScanner {
                             // ignored
                         } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setDirector(val);
                             }
                         } else if (tag.equalsIgnoreCase("actor")) {
@@ -415,7 +415,7 @@ public class MovieNFOScanner {
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
                                     String val = XMLHelper.getCData(r);
-                                    if (!val.isEmpty()) {
+                                    if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                         movie.addActor(val);
                                     }
                                 } else if (event.equalsIgnoreCase("<role>")) {
@@ -440,28 +440,28 @@ public class MovieNFOScanner {
                                     while (!fiEvent.equalsIgnoreCase("</video>")) {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 movie.setVideoCodec(val);
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 movie.setAspectRatio(val);
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<width>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 nfoWidth = val;
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<height>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 nfoHeight = val;
                                             }
                                         }
@@ -487,7 +487,7 @@ public class MovieNFOScanner {
                                     while (!fiEvent.equalsIgnoreCase("</audio>")) {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 // codec come first
                                                 if (tmpCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                     tmpCodec = val.toUpperCase();
@@ -501,7 +501,7 @@ public class MovieNFOScanner {
 
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 tmpLanguage = MovieFilenameScanner.determineLanguage(val);
                                                 if (tmpCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                     tmpCodec = "(" + val + ")";
@@ -514,7 +514,7 @@ public class MovieNFOScanner {
 
                                         if (fiEvent.equalsIgnoreCase("<channels>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 tmpChannels = val;
                                                 // movie.setAudioChannels(val);
                                             }
@@ -557,7 +557,7 @@ public class MovieNFOScanner {
                                     while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 if (tmpSubtitleLanguage.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                     tmpSubtitleLanguage = val;
                                                 } else {
@@ -596,24 +596,24 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("VideoSource")) {
                             // Issue 506 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setVideoSource(val);
                             }
                         } else if (tag.equalsIgnoreCase("VideoOutput")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setVideoOutput(val);
                             }
                         } else if (tag.equalsIgnoreCase("Company")) {
                             // Issue 1173 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setCompany(val);
                             }
                         } else if (tag.equalsIgnoreCase("Studio")) {
                             // Issue 1173 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setCompany(val);
                             }
                         }
@@ -661,14 +661,14 @@ public class MovieNFOScanner {
                     if (isTVTag) {
                         if (tag.equalsIgnoreCase("title")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setTitle(val);
                                 movie.setOverrideTitle(true);
                             }
                         } else if (tag.equalsIgnoreCase("id")) {
                             Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 if (movieDbIdAttribute != null) { // if we have a moviedb attribute
                                     movie.setId(movieDbIdAttribute.getValue(), val); // we store the Id for this movieDb
                                     logger.finest("In parseTVNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
@@ -684,7 +684,7 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("mpaa") && getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 // Issue 333
                                 if (val.startsWith("Rated ")) {
                                     int start = 6; // "Rated ".length()
@@ -702,7 +702,7 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("certification") && !getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setCertification(val);
                             }
                         } else if (tag.equalsIgnoreCase("season")) {
@@ -717,7 +717,7 @@ public class MovieNFOScanner {
                             // ignored
                         } else if (tag.equalsIgnoreCase("plot")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setPlot(val);
                             }
                         } else if (tag.equalsIgnoreCase("genre")) {
@@ -727,7 +727,7 @@ public class MovieNFOScanner {
                             movie.setGenres(genres);
                         } else if (tag.equalsIgnoreCase("premiered")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 try {
                                     movie.setReleaseDate(val);
                                     Date date = dateFormat.parse(val);
@@ -739,18 +739,18 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("studio")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setCompany(val);
                             }
                         } else if (tag.equalsIgnoreCase("thumb")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setPosterURL(val);
                             }
                         } else if (tag.equalsIgnoreCase("fanart")) {
                             // TODO Validate the URL and see if it's a local file
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setFanartURL(val);
                                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                             }
@@ -767,7 +767,7 @@ public class MovieNFOScanner {
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
                                     String val = XMLHelper.getCData(r);
-                                    if (!val.isEmpty()) {
+                                    if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                         movie.addActor(val);
                                     }
                                 } else if (event.equalsIgnoreCase("<role>")) {
@@ -790,28 +790,28 @@ public class MovieNFOScanner {
                                     while (!fiEvent.equalsIgnoreCase("</video>")) {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 movie.setVideoCodec(val);
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 movie.setAspectRatio(val);
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<width>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 nfoWidth = val;
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<height>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 nfoHeight = val;
                                             }
                                         }
@@ -831,21 +831,21 @@ public class MovieNFOScanner {
                                     while (!fiEvent.equalsIgnoreCase("</audio>")) {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 movie.setAudioCodec(val);
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<channels>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (!val.isEmpty()) {
+                                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 movie.setAudioChannels(val);
                                             }
                                         }
@@ -875,12 +875,12 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("VideoSource")) {
                             // Issue 506 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setVideoSource(val);
                             }
                         } else if (tag.equalsIgnoreCase("VideoOutput")) {
                             String val = XMLHelper.getCData(r);
-                            if (!val.isEmpty()) {
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setVideoOutput(val);
                             }
                         }
