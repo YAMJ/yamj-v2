@@ -311,7 +311,7 @@ public class MovieJukebox {
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         if (dumpLibraryStructure) {
-            logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't  build");
+            logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't build");
             ml.makeDumpStructure();
         } else {
             ml.generateLibrary(jukeboxClean, jukeboxPreserve);
@@ -333,6 +333,7 @@ public class MovieJukebox {
                 logger.severe("Error renaming log file.");
             }
         }
+        return;
     }
 
     private void makeDumpStructure() {
@@ -628,17 +629,11 @@ public class MovieJukebox {
 
         logger.fine("Initializing...");
         final String tempJukeboxRoot = "./temp";
+        deleteDir(tempJukeboxRoot);
+        new File(tempJukeboxRoot).mkdirs();
         final String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
 
         File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
-        if (tempJukeboxDetailsRootFile.exists()) {
-            // Clean up
-            File[] isoList = tempJukeboxDetailsRootFile.listFiles();
-            for (nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
-                isoList[nbFiles].delete();
-            }
-            tempJukeboxDetailsRootFile.delete();
-        }
         tempJukeboxDetailsRootFile.mkdirs();
 
         /********************************************************************************
@@ -933,15 +928,6 @@ public class MovieJukebox {
             logger.fine("Copying resources to Jukebox directory...");
             FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
 
-            logger.fine("Clean up temporary files");
-            File[] isoList = tempJukeboxDetailsRootFile.listFiles();
-            for (nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
-                isoList[nbFiles].delete();
-            }
-            tempJukeboxDetailsRootFile.delete();
-            File rootIndex = new File(tempJukeboxRoot + File.separator + index);
-            rootIndex.delete();
-
             /********************************************************************************
              * 
              * PART 5: Clean-up the jukebox directory
@@ -1035,6 +1021,14 @@ public class MovieJukebox {
                 logger.fine("Generating listing output...");
                 listingPlugin.generate(tempJukeboxRoot, jukeboxRoot, library);
             }
+
+            logger.fine("Clean up temporary files");
+            File rootIndex = new File(tempJukeboxRoot + File.separator + index);
+            rootIndex.delete();
+
+            tasks.waitFor();
+            deleteDir("./isoTEMP/");
+            deleteDir("./temp/");
         }
 
         timeEnd = System.currentTimeMillis();
@@ -1045,6 +1039,8 @@ public class MovieJukebox {
         logger.fine("");
         logger.fine("MovieJukebox process completed at " + new Date());
         logger.fine("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
+        
+        return;
     }
 
     /**
@@ -1118,7 +1114,8 @@ public class MovieJukebox {
             // parse the XML file
             logger.finer("XML file found for " + movie.getBaseName());
             xmlWriter.parseMovieXML(xmlFile, movie);
-
+            // TODO: Check the UNKNOWN values in the movie object to see if we should do a re-scrape
+            
             // Copy the xml movie files to a new collection
             for (MovieFile part : movie.getMovieFiles())
                 xmlFiles.add(part);
@@ -1128,6 +1125,8 @@ public class MovieJukebox {
             String scannedFilename;
 
             for (MovieFile xmlLoop : xmlFiles) {
+                //TODO: Detect the change of library location and update the path accordingly
+                
                 if (scanLoop.hasNext())
                     scannedFilename = scanLoop.next().getFilename();
                 else
@@ -1485,6 +1484,7 @@ public class MovieJukebox {
                     GraphicTools.saveImageToDisk(bi, dst);
                     logger.finest("Generating left thumbnail from " + src + " to " + dst);
                 }
+                fis.close();
             }
         } catch (Exception error) {
             logger.severe("Failed creating thumbnail for " + movie.getOriginalTitle());
@@ -1575,6 +1575,7 @@ public class MovieJukebox {
                     GraphicTools.saveImageToDisk(bi, dst);
                     logger.finest("Generating left poster from " + src + " to " + dst);
                 }
+                fis.close();
             }
         } catch (Exception error) {
             logger.severe("Failed creating poster for " + movie.getOriginalTitle());
@@ -1583,5 +1584,25 @@ public class MovieJukebox {
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
         }
+    }
+
+    private static boolean deleteDir(String dir) {
+        return deleteDir(new File(dir));
+    }
+    
+    private static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    //System.out.println("Failed");
+                    return false;
+                }
+            }
+        }
+        // The directory is now empty so delete it
+        // System.out.println("Deleting: " + dir.getAbsolutePath());
+        return dir.delete();
     }
 }

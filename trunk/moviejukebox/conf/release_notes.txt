@@ -8,6 +8,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1283 IMDB update for non-mpaa Certification
   - Fixed defect #1284 Comma divider missing when not all fields present in default skins
   - Fixed defect #1287 Bad extraction of TVDb id from NFO
+  - Fixed defect #1289 Release Date or Premiered date is not being loaded from NFO file
   
 MovieJukebox 1.8
 ----------------

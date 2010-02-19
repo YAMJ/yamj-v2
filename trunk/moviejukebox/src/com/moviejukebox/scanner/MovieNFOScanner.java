@@ -302,6 +302,18 @@ public class MovieNFOScanner {
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setYear(val);
                             }
+                        } else if (tag.equalsIgnoreCase("premiered")  || tag.equalsIgnoreCase("releasedate")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                try {
+                                    movie.setReleaseDate(val);
+                                    Date date = dateFormat.parse(val);
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.setTime(date);
+                                    movie.setYear("" + cal.get(Calendar.YEAR));
+                                } catch (Exception ignore) {
+                                }
+                            }
                         } else if (tag.equalsIgnoreCase("top250")) {
                             int val = XMLHelper.parseInt(r);
                             if (val > 0) {
@@ -725,7 +737,7 @@ public class MovieNFOScanner {
                             List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
-                        } else if (tag.equalsIgnoreCase("premiered")) {
+                        } else if (tag.equalsIgnoreCase("premiered")  || tag.equalsIgnoreCase("releasedate")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 try {
