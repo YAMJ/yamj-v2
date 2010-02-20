@@ -369,14 +369,14 @@ public class MovieFile implements Comparable<MovieFile> {
 
         try {
             if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
-                logger.finest(filename + " matched to BLURAY");
+                //logger.finest(filename + " matched to BLURAY");
                 playLinkMap.put("zcd", playLinkZCD);
                 // We can return at this point because there won't be additional playlinks
                 return playLinkMap;
             }
 
             if (file.isDirectory() && (new File(file.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
-                logger.finest(filename + " matched to VIDEO_TS");
+                //logger.finest(filename + " matched to VIDEO_TS");
                 playLinkMap.put("zcd", playLinkZCD);
                 // We can return at this point because there won't be additional playlinks
                 return playLinkMap;
@@ -385,7 +385,7 @@ public class MovieFile implements Comparable<MovieFile> {
             for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
                 Matcher matcher = e.getValue().matcher(getExtension(file));
                 if (matcher.find()) {
-                    logger.finest(filename + " matched to " + e.getKey());
+                    //logger.finest(filename + " matched to " + e.getKey());
                     playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey().toUpperCase(), ""));
                 }
             }
@@ -398,7 +398,7 @@ public class MovieFile implements Comparable<MovieFile> {
         } finally {
             // Default to VOD if there's no other type found
             if (playLinkMap.size() == 0) {
-                logger.finest(filename + " not matched, defaulted to VOD");
+                //logger.finest(filename + " not matched, defaulted to VOD");
                 playLinkMap.put("vod", playLinkVOD);
             }
         }

@@ -630,11 +630,17 @@ public class MovieJukebox {
         logger.fine("Initializing...");
         final String tempJukeboxRoot = "./temp";
         deleteDir(tempJukeboxRoot);
-        new File(tempJukeboxRoot).mkdirs();
+        
         final String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
-
         File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
-        tempJukeboxDetailsRootFile.mkdirs();
+
+        // Try and create the temp directory
+        boolean status = tempJukeboxDetailsRootFile.mkdirs();
+        int i=1;
+        while (!status && i++ <= 10) {
+            Thread.sleep(1000);
+            status = tempJukeboxDetailsRootFile.mkdirs();
+        }
 
         /********************************************************************************
          * 

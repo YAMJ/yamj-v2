@@ -456,6 +456,26 @@ public class HTMLTools {
 
         return value;
     }
+    
+    public static String extractTag(String src, String startStr, String endStr) {
+        int beginIndex = src.indexOf(startStr);
+        
+        if (beginIndex < 0) {
+            return Movie.UNKNOWN;
+        }
+        
+        try {
+            String subString = src.substring(beginIndex + startStr.length());
+            int endIndex = subString.indexOf(endStr);
+            if (endIndex < 0) {
+                return Movie.UNKNOWN;
+            }
+            subString = subString.substring(0, endIndex);
+            return HTMLTools.decodeHtml(subString.trim());
+        } catch (Exception error) {
+            return Movie.UNKNOWN;
+        }
+    }
 
     public static ArrayList<String> extractTags(String src, String sectionStart) {
         return extractTags(src, sectionStart, "</div>");

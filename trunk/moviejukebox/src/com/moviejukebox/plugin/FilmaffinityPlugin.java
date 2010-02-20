@@ -83,6 +83,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             //if ( imdbId.startsWith( "film" ) )
             if (filmAffinityId != "") {
+                logger.finest("FilmAffinity: Found id: " + filmAffinityId);
                 return filmAffinityId;
             } else {
                 return Movie.UNKNOWN;
@@ -114,12 +115,18 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
             
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
-                String plot = HTMLTools.extractTag(xml, "SINOPSIS:", 0, "><|");
+                String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|");
                 if (plot.length() > preferredPlotLength) {
                     plot = plot.substring(0, preferredPlotLength - 3) + "...";
                 }
 
                 movie.setPlot(plot);
+            }
+            
+            if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                String posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
+                System.out.println("FilmAffinity Poster: " + posterURL);
+                movie.setPosterURL(posterURL);
             }
 
         } catch (Exception error) {
