@@ -125,7 +125,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             
             if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 String posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
-                System.out.println("FilmAffinity Poster: " + posterURL);
+                logger.finest("FilmAffinity Poster: " + posterURL);
                 movie.setPosterURL(posterURL);
             }
 
