@@ -40,7 +40,6 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
@@ -130,6 +129,15 @@ public class MovieJukeboxXMLWriter {
                         }
                     }
                     movie.setId(movieDatabase, parseCData(r));
+                }
+                if (tag.equalsIgnoreCase("<mjbVersion>")) {
+                    movie.setMjbVersion(parseCData(r));
+                }
+                if (tag.equalsIgnoreCase("<mjbRevision>")) {
+                    movie.setMjbRevision(parseCData(r));
+                }
+                if (tag.equalsIgnoreCase("<xmlGenerationDate>")) {
+                    movie.setMjbGenerationDate(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
                     movie.setBaseName(parseCData(r));
@@ -763,11 +771,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
-
-        // These are pulled from the Manifest.MF file that is created by the Ant build script
-        String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
-        String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
-        Date xmlGenerationDate = new Date();
+        // Date format used later
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         writer.writeStartElement("movie");
@@ -782,18 +786,13 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
         }
         writer.writeStartElement("mjbVersion");
-        writer.writeCharacters(mjbVersion);
+        writer.writeCharacters(movie.getCurrentMjbVersion());
         writer.writeEndElement();
         writer.writeStartElement("mjbRevision");
-        // Print the revision information if it was populated by Hudson CI
-        if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
-            writer.writeCharacters(mjbRevision);
-        } else {
-            writer.writeCharacters(Movie.UNKNOWN);
-        }
+        writer.writeCharacters(movie.getCurrentMjbRevision());
         writer.writeEndElement();
         writer.writeStartElement("xmlGenerationDate");
-        writer.writeCharacters(dateFormat.format(xmlGenerationDate));
+        writer.writeCharacters(dateFormat.format(new Date()));
         writer.writeEndElement();
         writer.writeStartElement("baseFilename");
         writer.writeCharacters(movie.getBaseName());

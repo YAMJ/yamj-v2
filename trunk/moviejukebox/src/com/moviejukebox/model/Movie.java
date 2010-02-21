@@ -63,8 +63,9 @@ import com.moviejukebox.tools.PropertiesUtil;
     public static final String TYPE_FILE = "FILE";        // Used to indicate what physical format the video is
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
-    private final String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
-    private final String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
+    private String mjbVersion = UNKNOWN;
+    private String mjbRevision = UNKNOWN;
+    private Date mjbGenerationDate = null;
 
     private String baseName;
     private boolean scrapeLibrary;
@@ -178,25 +179,77 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
-    
-    
+    public void setMjbVersion(String mjbVersion) {
+        if ((mjbVersion == null) || (mjbVersion.equalsIgnoreCase(UNKNOWN))) {
+            this.mjbVersion = getCurrentMjbVersion();
+        } else {
+            this.mjbVersion = mjbVersion;
+        }
+    }
+
     @XmlElement public String getMjbVersion() {
         return mjbVersion;
     }
+    
+    public String getCurrentMjbVersion() {
+        return MovieJukebox.class.getPackage().getSpecificationVersion();
+    }
+    
+    public void setMjbRevision(String mjbRevision) {
+        if (mjbRevision == null || mjbRevision.equalsIgnoreCase(UNKNOWN)) {
+            this.mjbRevision = "0";
+        } else {
+            this.mjbRevision = mjbRevision;
+        }
+    }
 
     @XmlElement public String getMjbRevision() {
+        // If YAMJ is self compiled then the revision information may not exist.
         if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             return mjbRevision;
         } else {
             return Movie.UNKNOWN;
-        }
-        
+        }   
     }
     
-    @XmlElement public String getXmlGenerationDate() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    public String getCurrentMjbRevision() {
+        String currentRevision = MovieJukebox.class.getPackage().getImplementationVersion();
+        
+        // If YAMJ is self compiled then the revision information may not exist.
+        if (!((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
+            return currentRevision;
+        } else {
+            return Movie.UNKNOWN;
+        }   
     }
-
+    
+    public void setMjbGenerationDate(String mjbGenerationDate) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            this.mjbGenerationDate = dateFormat.parse(mjbGenerationDate);
+        } catch (Exception error) {
+            this.mjbGenerationDate = new Date();
+        }
+    }
+    
+    public void setMjbGenerationDate(Date mjbGenerationDate) {
+        if (mjbGenerationDate == null) {
+            this.mjbGenerationDate = new Date();
+        } else {
+            this.mjbGenerationDate = mjbGenerationDate;
+        }
+    }
+    
+    @XmlElement public String getMjbGenerationDateString() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getMjbGenerationDate());
+    }
+    
+    public Date getMjbGenerationDate() {
+        if (this.mjbGenerationDate == null) {
+            this.mjbGenerationDate = new Date();
+        }
+        return this.mjbGenerationDate;
+    }
 
     public void addGenre(String genre) {
         if (genre != null && !extra) {
