@@ -120,6 +120,7 @@ public class MovieJukebox {
     private boolean bannerDownload;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
+    private boolean recheckXML;
     private static boolean skipIndexGeneration = false;
     private static boolean dumpLibraryStructure = false;
 
@@ -477,6 +478,9 @@ public class MovieJukebox {
         this.fanartTvDownload = parseBoolean(getProperty("fanart.tv.download", "false"));
 
         this.setIndexFanart = parseBoolean(getProperty("mjb.sets.indexFanart", "false"));
+        
+        this.recheckXML = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.XML", "true"));
+
 
         fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
@@ -776,9 +780,6 @@ public class MovieJukebox {
 
             JAXBContext context = JAXBContext.newInstance(JukeboxXml.class);
             final JukeboxXml jukeboxXml = new JukeboxXml();
-            // for (Movie movie : library.values()) {
-            // jukeboxXml.movies.add(movie.getFileName());
-            // }
             jukeboxXml.movies = library.values();
 
             // Multi-thread: Parallel Executor
@@ -1036,7 +1037,6 @@ public class MovieJukebox {
             deleteDir("./isoTEMP/");
             deleteDir("./temp/");
         }
-
         timeEnd = System.currentTimeMillis();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -1104,10 +1104,20 @@ public class MovieJukebox {
                 break; // one is enough
             }
         }
+        
+        if (xmlFile.exists()) {
+            // parse the XML file
+            logger.finer("XML file found for " + movie.getBaseName());
+            xmlWriter.parseMovieXML(xmlFile, movie);
+            if (recheckXML && mjbRecheck(movie)) {
+                logger.fine("Recheck of " + movie.getBaseName() + " required");
+                forceXMLOverwrite = true;
+                movie.setDirty(true);
+            }
+        }
 
         // ForceBannerOverwrite is set here to force the re-load of TV Show data including the banners
         if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
-
             // *** START of routine to check if the file has changed location
             // Set up some arrays to store the directory scanner files and the xml files
             Collection<MovieFile> scannedFiles = new ArrayList<MovieFile>();
@@ -1117,12 +1127,7 @@ public class MovieJukebox {
             for (MovieFile part : movie.getMovieFiles())
                 scannedFiles.add(part);
 
-            // parse the XML file
-            logger.finer("XML file found for " + movie.getBaseName());
-            xmlWriter.parseMovieXML(xmlFile, movie);
-            // TODO: Check the UNKNOWN values in the movie object to see if we should do a re-scrape
-            
-            // Copy the xml movie files to a new collection
+            // Copy the XML movie files to a new collection
             for (MovieFile part : movie.getMovieFiles())
                 xmlFiles.add(part);
 
@@ -1160,9 +1165,8 @@ public class MovieJukebox {
             PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
         } else {
-            /*
-             * No XML file for this movie. We've got to find movie information where we can (filename, IMDb, NFO, etc...) Add here extra scanners if needed.
-             */
+            // No XML file for this movie. 
+            // We've got to find movie information where we can (filename, IMDb, NFO, etc...) Add here extra scanners if needed.
             if (forceXMLOverwrite) {
                 logger.finer("Rescanning internet for information on " + movie.getBaseName());
             } else {
@@ -1610,5 +1614,85 @@ public class MovieJukebox {
         // The directory is now empty so delete it
         // System.out.println("Deleting: " + dir.getAbsolutePath());
         return dir.delete();
+    }
+    
+    /**
+     * This function will validate the current movie object and return true if the movie needs to be re-scanned.
+     * @param movie
+     * @return
+     */
+    private static boolean mjbRecheck(Movie movie) {
+        // Property variables
+        int recheckDays     = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Days", "30"));
+        int recheckRevision = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Revision", "10"));
+        boolean recheckVersion = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Version", "true"));
+        boolean recheckUnknown = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Unknown", "true"));
+        
+        // Check for the version of YAMJ that wrote the XML file vs the current version
+        //System.out.println("- mjbVersion : " + movie.getMjbVersion() + " (" + movie.getCurrentMjbVersion() + ")");
+        if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(movie.getCurrentMjbVersion())) {
+            logger.finest("Recheck: " + movie.getBaseName() + " XML is from a previous version, will rescan");
+            return true;
+        }
+        
+        // Check the revision of YAMJ that wrote the XML file vs the current revisions
+        //System.out.println("- mjbRevision: " + movie.getMjbRevision() + " (" + movie.getCurrentMjbRevision() + ")");
+        //System.out.println("- Difference : " + (Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision())) );
+        int revDiff = Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision()); 
+        if (revDiff > recheckRevision) {
+            logger.finest("Recheck: " + movie.getBaseName() + " XML is " + revDiff + " revisions old, will rescan");
+            return true;
+        }
+        
+        // Check the date the xml file was written vs the current date
+        if (recheckDays > 0) {
+            //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date currentDate = new Date();
+            long dateDiff = (currentDate.getTime() - movie.getMjbGenerationDate().getTime()) / (1000 * 60 * 60 * 24);
+            //System.out.println("- mjbGenDate : " + dateFormat.format(movie.getMjbGenerationDate()));
+            //System.out.println("- CurrentDate: " + dateFormat.format(currentDate));
+            //System.out.println("- Difference : " + dateDiff);
+            if (dateDiff > recheckDays) {
+                logger.finest("Recheck: " + movie.getBaseName() + " XML is " + dateDiff + " days old, will rescan");
+                return true;
+            }
+        }
+        
+        // Check for "UNKNOWN" values in the XML
+        if (recheckUnknown) {
+            if (movie.getTitle().equalsIgnoreCase(Movie.UNKNOWN)) {
+                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing the title, will rescan");
+                return true;
+            }
+            
+            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing plot, will rescan");
+                return true;
+            }
+            
+            if (movie.isTVShow()) {
+                boolean recheckEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+                boolean recheckVideoImages  = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+                
+                if (recheckEpisodePlots || recheckVideoImages) {
+                    // scan the TV episodes
+                    for (MovieFile mf : movie.getMovieFiles()) {
+                        for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
+                            if (recheckEpisodePlots && mf.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing TV plot, will rescan");
+                                return true;
+                            }
+                            
+                            if (recheckVideoImages && mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing TV video image, will rescan");
+                                return true;
+                            }
+                        }
+                    }
+                    //System.out.println(" TV Show checks out ok");
+                }
+            }
+        }
+        return false;
     }
 }
