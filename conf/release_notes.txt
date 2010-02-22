@@ -11,6 +11,7 @@ MovieJukebox 1.9 BETA
   - Enhancement  #1282 Add movie poster FilmAffinity
   - Fixed defect #1289 Release Date or Premiered date is not being loaded from NFO file
   - Fixed defect #1290 FilmAffinity plot no longer retrieved from website
+  - Fixed defect #1293 filmaffinity title is wrong for spanish users
   - Enhancement  #1296 Force rescan of XML data if UNKNOWN exists, or XML is stale
   
 MovieJukebox 1.8

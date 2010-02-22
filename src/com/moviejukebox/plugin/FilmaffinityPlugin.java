@@ -19,7 +19,6 @@ import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
 
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -27,11 +26,13 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class FilmaffinityPlugin extends ImdbPlugin {
 
     public static String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
-    //Define plot length
+    private CaratulasdecinePosterPlugin caraPosterPlugin;
+    // Define plot length
     int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 
     public FilmaffinityPlugin() {
         super();
+        caraPosterPlugin = new CaratulasdecinePosterPlugin();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Spain");
     }
 
@@ -44,28 +45,27 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         } else {
             filmAffinityId += ".html";
         }
-        
+
         if (filmAffinityId.indexOf(".html") != -1) { // Update original title and plot (in Spanish)
             retval = updateFilmAffinityMediaInfo(mediaFile, filmAffinityId);
         }
-        
+
         // Fill in the rest of the fields from IMDB, taking care not to allow the title to get overwritten
         boolean overrideTitle = mediaFile.isOverrideTitle();
         mediaFile.setOverrideTitle(true);
         super.scan(mediaFile);
         mediaFile.setOverrideTitle(overrideTitle);
-        
+
         return retval;
     }
 
     /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a google
-     * request.
+     * retrieve the imdb matching the specified movie name and year. This routine is base on a google request.
      */
     private String getFilmAffinityId(String movieName, String year, int season) {
         try {
             StringBuffer sb = new StringBuffer("http://www.google.es/search?hl=es&q=");
-            
+
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
             if (season != -1) {
                 sb.append("+TV");
@@ -81,7 +81,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 8), "/\"");
             String filmAffinityId = st.nextToken();
 
-            //if ( imdbId.startsWith( "film" ) )
+            // if ( imdbId.startsWith( "film" ) )
             if (filmAffinityId != "") {
                 logger.finest("FilmAffinity: Found id: " + filmAffinityId);
                 return filmAffinityId;
@@ -111,9 +111,9 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideTitle()) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<td ><b>", 0, "()><-"));
+                movie.setTitle(HTMLTools.extractTag(xml, "<img src=\"http://www.filmaffinity.com/images/movie.gif\" border=\"0\">", "</span></div></div>"));
             }
-            
+
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
                 String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|");
                 if (plot.length() > preferredPlotLength) {
@@ -122,9 +122,14 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
                 movie.setPlot(plot);
             }
-            
+
+            // Get Poster from http://www.caratulasdecine.com/
             if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                String posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
+                String posterURL = caraPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.isTVShow());
+                // FallBack on FilmAffinity.
+                if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+                    posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
+                }
                 logger.finest("FilmAffinity Poster: " + posterURL);
                 movie.setPosterURL(posterURL);
             }
@@ -139,5 +144,3 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         return true;
     }
 }
-
-
