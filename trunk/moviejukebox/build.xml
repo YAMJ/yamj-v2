@@ -6,7 +6,7 @@
     <property name="version" value="v1.9 BETA"/>
   	<!-- This only works if the build is done through Hudson, otherwise it stays the same -->
   	<property environment="env" />
-  	<property name="revision" value="1421"/>
+  	<property name="revision" value="${env.SVN_REVISION}"/>
   </target>
 
   <target name="clean">
