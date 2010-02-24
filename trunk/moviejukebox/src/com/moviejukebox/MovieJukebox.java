@@ -633,7 +633,7 @@ public class MovieJukebox {
 
         logger.fine("Initializing...");
         final String tempJukeboxRoot = "./temp";
-        deleteDir(tempJukeboxRoot);
+        FileTools.deleteDir(tempJukeboxRoot);
         
         final String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
         File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
@@ -1034,8 +1034,8 @@ public class MovieJukebox {
             rootIndex.delete();
 
             tasks.waitFor();
-            deleteDir("./isoTEMP/");
-            deleteDir("./temp/");
+            FileTools.deleteDir("./isoTEMP/");
+            FileTools.deleteDir("./temp/");
         }
         timeEnd = System.currentTimeMillis();
 
@@ -1596,26 +1596,6 @@ public class MovieJukebox {
         }
     }
 
-    private static boolean deleteDir(String dir) {
-        return deleteDir(new File(dir));
-    }
-    
-    private static boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i=0; i<children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    //System.out.println("Failed");
-                    return false;
-                }
-            }
-        }
-        // The directory is now empty so delete it
-        // System.out.println("Deleting: " + dir.getAbsolutePath());
-        return dir.delete();
-    }
-    
     /**
      * This function will validate the current movie object and return true if the movie needs to be re-scanned.
      * @param movie
