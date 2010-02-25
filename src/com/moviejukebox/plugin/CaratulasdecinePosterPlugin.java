@@ -13,10 +13,13 @@
 
 package com.moviejukebox.plugin;
 
+import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class CaratulasdecinePosterPlugin implements IPosterPlugin {
@@ -29,20 +32,49 @@ public class CaratulasdecinePosterPlugin implements IPosterPlugin {
         webBrowser = new WebBrowser();
     }
 
+    private String getMovieUrl(String xml) throws IOException {
+        String response = Movie.UNKNOWN;
+
+        String searchString = "caratula.php?pel=";
+        int beginIndex = xml.indexOf(searchString);
+        if (beginIndex > -1) {
+            response = xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length()));
+        }
+        return response;
+    }
+
     @Override
     public String getIdFromMovieInfo(String title, String year, boolean isTvShow) {
         String response = Movie.UNKNOWN;
         try {
             StringBuffer sb = new StringBuffer("http://www.google.es/custom?hl=es&domains=caratulasdecine.com&ie=ISO-8859-1&oe=ISO-8859-1&q=");
 
-            sb.append(URLEncoder.encode(title, "UTF-8"));
+            sb.append(URLEncoder.encode(title, "ISO-8859-1"));
             sb.append("&btnG=Buscar&sitesearch=caratulasdecine.com&meta=");
-
             String xml = webBrowser.request(sb.toString());
-            String searchString = "http://www.caratulasdecine.com/caratula.php?pel=";
-            int beginIndex = xml.indexOf(searchString);
-            if (beginIndex > -1) {
-                response = xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length()));
+
+            response = getMovieUrl(xml);
+
+            if (Movie.UNKNOWN.equals(response)) {
+
+                // Did we've a link to the movie list
+                String searchString = "http://www.caratulasdecine.com/listado.php";
+                int beginIndex = xml.indexOf(searchString);
+                String url = xml.substring(beginIndex, xml.indexOf("\"", beginIndex + searchString.length()));
+                // Need to find a better way to do this
+                url = url.replaceAll("&amp;", "&");
+                xml = webBrowser.request(url, Charset.forName("ISO-8859-1"));
+                String sectionStart = " <a class='pag' href='listado.php?";
+                String sectionEnd = "</p>";
+                String extractTag = HTMLTools.extractTag(xml, sectionStart, sectionEnd);// , startTag, endTag);
+                String[] extractTags = extractTag.split("<a class=\"A\"");
+                for (String string : extractTags) {
+                    if (string.contains(title)) {
+                        response = getMovieUrl(string);
+                        break;
+                    }
+                }
+
             }
 
         } catch (Exception e) {

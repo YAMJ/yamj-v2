@@ -349,7 +349,7 @@ public class HTMLTools {
                             radix = 16;
                         }
                         try {
-                            Character c = new Character((char) Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
+                            Character c = new Character((char)Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
                             result.append(c);
                         } // when the number of the entity can't be parsed, add the entity as-is
                         catch (NumberFormatException error) {
@@ -391,7 +391,8 @@ public class HTMLTools {
     }
 
     /**
-     * Example: src = "<a id="specialID"><br/><img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
+     * Example: src = "<a id="specialID"><br/>
+     * <img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
      * 
      * @param src
      *            html text
@@ -427,7 +428,7 @@ public class HTMLTools {
     public static String removeHtmlTags(String src) {
         return src.replaceAll("\\<.*?>", "");
     }
-    
+
     public static String extractTag(String src, String findStr) {
         return extractTag(src, findStr, 0);
     }
@@ -437,6 +438,10 @@ public class HTMLTools {
     }
 
     public static String extractTag(String src, String findStr, int skip, String separator) {
+        return extractTag(src, findStr, skip, separator, true);
+    }
+
+    public static String extractTag(String src, String findStr, int skip, String separator, boolean checkDirty) {
         int beginIndex = src.indexOf(findStr);
 
         String value = Movie.UNKNOWN;
@@ -449,21 +454,24 @@ public class HTMLTools {
 
             value = HTMLTools.decodeHtml(st.nextToken().trim());
 
-            if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf("<") != -1) {
-                value = Movie.UNKNOWN;
+            if (checkDirty) {
+                // Why those check ?
+                if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf("<") != -1) {
+                    value = Movie.UNKNOWN;
+                }
             }
         }
 
         return value;
     }
-    
+
     public static String extractTag(String src, String startStr, String endStr) {
         int beginIndex = src.indexOf(startStr);
-        
+
         if (beginIndex < 0) {
             return Movie.UNKNOWN;
         }
-        
+
         try {
             String subString = src.substring(beginIndex + startStr.length());
             int endIndex = subString.indexOf(endStr);
@@ -539,13 +547,13 @@ public class HTMLTools {
             try {
                 s = URLEncoder.encode(s, "UTF-8");
                 s = s.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
-            } catch(UnsupportedEncodingException ignored) {
+            } catch (UnsupportedEncodingException ignored) {
                 logger.fine("Could not decode URL string: " + s + ", will proceed with undecoded string.");
             }
         }
         return s;
     }
-    
+
     public static String encodeUrlPath(String s) {
         if (s != null && s.length() != 0) {
             int slash = s.lastIndexOf('/');
@@ -553,7 +561,7 @@ public class HTMLTools {
             if (slash != -1) {
                 parentPart = encodeUrlPath(s.substring(0, slash)) + '/';
             }
-            s = parentPart + encodeUrl(s.substring(slash+1));
+            s = parentPart + encodeUrl(s.substring(slash + 1));
         }
         return s;
     }
@@ -562,17 +570,17 @@ public class HTMLTools {
         if (s != null && s.length() != 0) {
             try {
                 s = URLDecoder.decode(s, "UTF-8");
-            } catch(UnsupportedEncodingException ignored) {
+            } catch (UnsupportedEncodingException ignored) {
                 logger.fine("Could not decode URL string: " + s + ", will proceed with undecoded string.");
             }
         }
         return s;
     }
-    
+
     public static String stripTags(String s) {
         Pattern strip_tags_regex = Pattern.compile("([^\\<]*)(?:\\<[^\\>]*\\>)?");
         Matcher m = strip_tags_regex.matcher(s);
-        
+
         String res = "";
         while (m.find()) {
             res += m.group(1);

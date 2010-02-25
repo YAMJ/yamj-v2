@@ -25,4 +25,13 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
         assertEquals("http://www.caratulasdecine.com/Caratulas5/millennium1_loshombresquenoamabanalasmujeres.jpg", posterUrl);
     }
+    
+    public void testGetList() {
+        CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("El ultimátum de Bourne", null, false);
+        assertEquals("3654", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        assertEquals("http://www.caratulasdecine.com/Caratulas4/elultimatumdebourne.jpg", posterUrl);
+    }
 }
