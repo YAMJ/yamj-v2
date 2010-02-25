@@ -46,7 +46,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     com.moviejukebox.plugin.ImdbPlugin imdbp;
 
     public OfdbPlugin() {
-        // TODO Auto-generated method stub
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
 
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
@@ -58,14 +57,13 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     @Override
     public boolean scan(Movie mediaFile) {
         boolean plotBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getPlot()); // Issue 797 - we don't want to override plot from NFO
-        boolean titleBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getTitle()); // Issue 1022 - we don't want to override title from NFO
         imdbp.scan(mediaFile); // Grab data from imdb
 
         if (mediaFile.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
             getOfdbId(mediaFile);
         }
 
-        this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb, titleBeforeImdb);
+        this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb);
         return true;
     }
 
@@ -161,9 +159,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
      * Scan OFDB html page for the specified movie
      * 
      * @param plotBeforeImdb
-     * @param titleBeforeImdb
      */
-    private void updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb, boolean titleBeforeImdb) {
+    private void updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
         try {
             if (movie.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
                 return;
@@ -172,7 +169,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             if (gettitle) {
                 String titleShort = extractTag(xml, "<title>OFDb - ", 0, "(");
-                if (!Movie.UNKNOWN.equalsIgnoreCase(titleShort) && !titleBeforeImdb) {
+                if (!Movie.UNKNOWN.equalsIgnoreCase(titleShort) && !movie.isOverrideTitle()) {
                     movie.setTitleSort(titleShort);
                     movie.setTitle(movie.getTitleSort());
                 }

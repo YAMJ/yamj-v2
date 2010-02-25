@@ -13,6 +13,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1290 FilmAffinity plot no longer retrieved from website
   - Fixed defect #1293 filmaffinity title is wrong for spanish users
   - Enhancement  #1296 Force rescan of XML data if UNKNOWN exists, or XML is stale
+  - Fixed defect #1301 ofdb title isn't set anymore
   
 MovieJukebox 1.8
 ----------------
