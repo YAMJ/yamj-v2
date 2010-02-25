@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 
 import com.moviejukebox.model.Movie;
@@ -101,7 +102,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
      */
     private boolean updateFilmAffinityMediaInfo(Movie movie, String filmAffinityId) {
         try {
-            String xml = webBrowser.request("http://www.filmaffinity.com/es/film" + filmAffinityId);
+            String xml = webBrowser.request("http://www.filmaffinity.com/es/film" + filmAffinityId,Charset.forName("ISO-8859-1"));
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
@@ -115,7 +116,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
 
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
-                String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|");
+                String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|",false);
                 if (plot.length() > preferredPlotLength) {
                     plot = plot.substring(0, preferredPlotLength - 3) + "...";
                 }
