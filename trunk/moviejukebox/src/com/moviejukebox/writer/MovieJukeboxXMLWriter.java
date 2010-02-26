@@ -976,10 +976,12 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("indexes");
         for (String index : movie.getIndexes()) {
             String[] tempIndex = index.split("-");
-            writer.writeStartElement("index");
-            writer.writeAttribute("type", tempIndex[0]);
-            writer.writeCharacters(tempIndex[1]);
-            writer.writeEndElement();
+            if (tempIndex.length == 2) {
+                writer.writeStartElement("index");
+                writer.writeAttribute("type", tempIndex[0]);
+                writer.writeCharacters(tempIndex[1]);
+                writer.writeEndElement();
+            }
         }
         writer.writeEndElement();
 
