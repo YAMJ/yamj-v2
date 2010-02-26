@@ -29,7 +29,6 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
   var pgdnHref;
   function bind() {
     if ( title == 1 ) title = document.getElementById('title');
-    if ( play == 1 ) play = document.getElementById('play');
     if ( pgup == 1 ) {
     	pgup = document.getElementById('pgup');
     	pgupload = document.getElementById('pgupload');
@@ -42,10 +41,9 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
     	}
   }
   
-  function show(x, jsp) {
+  function show(x) {
     title.firstChild.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
-    play.setAttribute('href', jsp);
-    play.setAttribute('tvid', 'PLAY');
+    document.getElementById('playid'+x).setAttribute('tvid','play');
     if (pgup != null) pgup.setAttribute('href', pgupHref + '?t=u1&s=' + x);
     if (pgdn != null) pgdn.setAttribute('href', pgdnHref + '?t=d1&s=' + x);
     if (pgupload != null) pgupload.setAttribute('href', pgupHref + '?t=u2&s=' + x);
@@ -54,7 +52,7 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
   
   function hide(x) {
     title.firstChild.nodeValue = "";
-    play.setAttribute('tvid', '#');
+   document.getElementById('playid'+x).setAttribute('tvid', '#');
   }
   
   function init() {
@@ -131,82 +129,82 @@ var ratingnow=0;
 
 function prompter(y) 
 {
-ratingnow=ratingsys[y];
+	ratingnow=ratingsys[y];
 
-<xsl:choose>
-<xsl:when test="$number-of-children > 1">
+	<xsl:choose>
+		<xsl:when test="$number-of-children > 1">
 
-if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
-{
-	if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-oldest"/>)
-		{		
-			var reply = prompt("Password?", "")
+			if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
+				{
+					if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-oldest"/>)
+						{		
+							var reply = prompt("Password?", "")
 
-				if (reply=="<xsl:value-of select="$parental-password-master"/>")
-					{
-						return
-					}
-				else 
-					{
-						alert ( "Sorry,You have entered the wrong password")
-						return false
-					}
-		}
-	<xsl:if test="$number-of-children=3">
-	else if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-middle"/>)
-		{		
-			var reply = prompt("Password?", "")
+								if (reply=="<xsl:value-of select="$parental-password-master"/>")
+									{
+										return
+									}
+								else 
+									{
+										alert ( "Sorry,You have entered the wrong password")
+										return false
+									}
+						}
+					<xsl:if test="$number-of-children=3">
+					else if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-middle"/>)
+						{		
+							var reply = prompt("Password?", "")
 
-				if (reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
-					{
-						return
-					}
-				else 
-					{
-						alert ( "Sorry,You have entered the wrong password")
-						return false
-					}
-		}
-	</xsl:if>
+								if (reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
+									{
+										return
+									}
+								else 
+									{
+										alert ( "Sorry,You have entered the wrong password")
+										return false
+									}
+						}
+					</xsl:if>
 
-	else
-		{		
-			var reply = prompt("Password?", "")
+					else
+						{		
+							var reply = prompt("Password?", "")
 
-				if (reply=="<xsl:value-of select="$parental-password-middle"/>" || reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
-					{
-						return
-					}
-				else 
-					{
-						alert ( "Sorry,You have entered the wrong password")
-						return false
-					}
-		}
-}
-</xsl:when>
-<xsl:otherwise>
-if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
-{
-	var reply = prompt("What's the Password?", "")
+								if (reply=="<xsl:value-of select="$parental-password-middle"/>" || reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
+									{
+										return
+									}
+								else 
+									{
+										alert ( "Sorry,You have entered the wrong password")
+										return false
+									}
+						}
+				}
+		</xsl:when>
+		<xsl:otherwise>
+			if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
+				{
+					var reply = prompt("Password?", "")
 
-				if (reply=="<xsl:value-of select="$parental-password-master"/>")
-					{
-						return
-					}
-				else 
-					{
-						alert ( "Sorry,You have entered the wrong password")
-						return false
-					}
-		}
-}
-</xsl:otherwise>
-</xsl:choose>
-else
-{
-return
-}
+					if (reply=="<xsl:value-of select="$parental-password-master"/>")
+						{
+							return
+						}
+					else 
+						{
+							alert ( "Sorry,You have entered the wrong password")
+							return false
+						}
+						
+				}
+		</xsl:otherwise>
+	</xsl:choose>
+			else
+				{
+					return
+				}
 
 
 }
@@ -216,12 +214,6 @@ return
 </head>
 <body bgproperties="fixed" background="pictures/background.jpg" onloadset="1">
 
-<a>
-    <xsl:attribute name="href"></xsl:attribute>
-    <xsl:attribute name="tvid">#</xsl:attribute>
-    <xsl:attribute name="id">play</xsl:attribute> 
-    <xsl:attribute name="vod">playlist</xsl:attribute>
-</a>
         
 <table class="main" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
@@ -344,15 +336,7 @@ return
           <xsl:attribute name="href"><xsl:value-of select="details"/></xsl:attribute>
           <xsl:attribute name="name"><xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="id">movie<xsl:value-of select="position()+$gap"/></xsl:attribute>
-          <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>
-            <xsl:text>, '</xsl:text>
-            <xsl:value-of>
-              <xsl:call-template name="jsEscapeSingleQuotes">
-                <xsl:with-param name="string" select="baseFilename"/>
-              </xsl:call-template>
-            </xsl:value-of>
-            <xsl:text>.playlist.jsp')</xsl:text>
-          </xsl:attribute>
+          <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
           <xsl:attribute name="onblur">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
 	  <xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute>
           <xsl:if test="$lastIndex != 1">
@@ -365,19 +349,37 @@ return
           </xsl:if>
           <img>
             <xsl:attribute name="src"><xsl:value-of select="thumbnail"/></xsl:attribute>
-            <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>
-              <xsl:text>, '</xsl:text>
-              <xsl:value-of>
-                <xsl:call-template name="jsEscapeSingleQuotes">
-                  <xsl:with-param name="string" select="baseFilename"/>
-                </xsl:call-template>
-              </xsl:value-of>
-              <xsl:text>.playlist.jsp')</xsl:text>
-            </xsl:attribute>
+            <xsl:attribute name="onmouseover">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
             <xsl:attribute name="onmouseout">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
           </img>
         </a>
-     </td>
+     <xsl:choose>
+	     <xsl:when test="count(files/file) > 1">
+			    <a>
+					<xsl:attribute name="href"><xsl:value-of select="baseFilename"/>.playlist.jsp</xsl:attribute>
+				       <xsl:attribute name="tvid">#</xsl:attribute>
+					<xsl:attribute name="id">playid<xsl:value-of select="position()+$gap"/></xsl:attribute>
+					<xsl:attribute name="vod">playlist</xsl:attribute>
+					 <xsl:if test="$parental-control-on='true'"> <xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute></xsl:if>
+       
+			    </a>
+		</xsl:when>
+		<xsl:otherwise>
+				<a>
+					<xsl:attribute name="href"><xsl:value-of select="files/file/fileURL"/></xsl:attribute>
+				       <xsl:attribute name="tvid">#</xsl:attribute>
+					<xsl:attribute name="id">playid<xsl:value-of select="position()+$gap"/></xsl:attribute>
+					<xsl:if test="files/file/@vod"><xsl:attribute name="vod"></xsl:attribute></xsl:if>
+					<xsl:if test="files/file/@zcd"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
+					<xsl:if test="files/file/@rar"><xsl:attribute name="rar"><xsl:value-of select="files/file/@rar" /></xsl:attribute></xsl:if>
+					<xsl:if test="$parental-control-on='true'"><xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute></xsl:if>
+          
+
+				</a>
+				 
+	      </xsl:otherwise>
+      </xsl:choose>
+	</td>
 </xsl:template>
 
 <xsl:template mode="t9TitleNavigation" match="category[@name='Title']">
