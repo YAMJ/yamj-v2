@@ -130,6 +130,7 @@ import com.moviejukebox.tools.PropertiesUtil;
     private String previous = UNKNOWN;
     private String next = UNKNOWN;
     private String last = UNKNOWN;
+    private List<String> indexes = new ArrayList<String>();
     // Media file properties
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
     Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
@@ -1538,4 +1539,21 @@ import com.moviejukebox.tools.PropertiesUtil;
         this.bannerFilename = bannerFilename;
     }
     // ***** END of graphics *****
+
+
+    public Collection<String> getIndexes() {
+        return indexes;
+    }
+
+    public void addIndex(String index) {
+        if (index != null) {
+            this.isDirty = true;
+            indexes.add(index);
+        }
+    }
+
+    public void setIndexes(Collection<String> indexes) {
+        this.isDirty = true;
+        this.indexes = new ArrayList<String>(indexes);
+    }
 }
