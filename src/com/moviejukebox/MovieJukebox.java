@@ -1618,7 +1618,9 @@ public class MovieJukebox {
         // Check the revision of YAMJ that wrote the XML file vs the current revisions
         //System.out.println("- mjbRevision: " + movie.getMjbRevision() + " (" + movie.getCurrentMjbRevision() + ")");
         //System.out.println("- Difference : " + (Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision())) );
-        int revDiff = Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision()); 
+        String currentRevision = movie.getCurrentMjbRevision();
+        String mjbRevision = movie.getMjbRevision();
+        int revDiff = Integer.parseInt(currentRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : currentRevision) - Integer.parseInt(mjbRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : mjbRevision); 
         if (revDiff > recheckRevision) {
             logger.finest("Recheck: " + movie.getBaseName() + " XML is " + revDiff + " revisions old, will rescan");
             return true;
@@ -1647,6 +1649,11 @@ public class MovieJukebox {
             
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
                 logger.finest("Recheck: " + movie.getBaseName() + " XML is missing plot, will rescan");
+                return true;
+            }
+            
+            if (movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing year, will rescan");
                 return true;
             }
             
