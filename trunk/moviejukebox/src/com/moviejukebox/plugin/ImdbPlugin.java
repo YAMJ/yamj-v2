@@ -494,6 +494,20 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setCertification(certification);
             }
 
+            // get year of imdb site
+            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+                Pattern getYear = Pattern.compile("(?:\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)|<a href=\"/year/(\\d{4}))");
+                Matcher m = getYear.matcher(xml);
+                if (m.find()) {
+                    String Year = m.group(1);
+                    if (Year == null || Year.isEmpty())
+                        Year = m.group(2);
+
+                    if (Year != null && !Year.isEmpty())
+                        movie.setYear(Year);
+                }
+            }
+
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
                 if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {

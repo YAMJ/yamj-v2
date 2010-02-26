@@ -16,6 +16,7 @@ MovieJukebox 1.9 BETA
   - Ehnancement  #1298 List all indexes a movie appears in, in the xml
   - Fixed defect #1301 ofdb title isn't set anymore
   - Fixed defect #1302 Some plots are not retrieved from filmaffinity even if the movie exist + Poster from www.caratulasdecine.com is not retrieved even if it exist
+  - Fixed defect #1304 Year isn't fetched by the imdb plugin
   
 MovieJukebox 1.8
 ----------------
