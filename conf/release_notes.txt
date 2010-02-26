@@ -13,6 +13,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1290 FilmAffinity plot no longer retrieved from website
   - Fixed defect #1293 filmaffinity title is wrong for spanish users
   - Enhancement  #1296 Force rescan of XML data if UNKNOWN exists, or XML is stale
+  - Ehnancement  #1298 List all indexes a movie appears in, in the xml
   - Fixed defect #1301 ofdb title isn't set anymore
   - Fixed defect #1302 Some plots are not retrieved from filmaffinity even if the movie exist + Poster from www.caratulasdecine.com is not retrieved even if it exist
   

@@ -972,6 +972,17 @@ public class MovieJukeboxXMLWriter {
 
         writeElementSet(writer, "writers", "writer", movie.getWriters(), library, "Writers");
 
+        // Write the indexes that the movie belongs to
+        writer.writeStartElement("indexes");
+        for (String index : movie.getIndexes()) {
+            String[] tempIndex = index.split("-");
+            writer.writeStartElement("index");
+            writer.writeAttribute("type", tempIndex[0]);
+            writer.writeCharacters(tempIndex[1]);
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
+
         writer.writeStartElement("files");
         for (MovieFile mf : movie.getFiles()) {
             writer.writeStartElement("file");

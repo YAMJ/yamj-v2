@@ -432,7 +432,7 @@ public class Library implements Map<String, Movie> {
             }
 
             // Now add the masters to the titles index
-            // Issue 1018 - Check that this indexe was selected
+            // Issue 1018 - Check that this index was selected
             if (indexList.contains("Title")) {
                 for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
                     Index mastersTitlesIndex = indexByTitle(dyn_index_masters_entry.getValue().values());
@@ -585,14 +585,17 @@ public class Library implements Map<String, Movie> {
 
                     if (!Character.isLetter(c)) {
                         index.addMovie("09", movie);
-                    } else if (charGroupEnglish && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')))
+                        movie.addIndex("Title-09");
+                    } else if (charGroupEnglish && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
                         index.addMovie("AZ", movie);
-                    else {
+                        movie.addIndex("Title-AZ");
+                    } else {
                         Character tempC = charReplacementMap.get(c);
                         if (tempC != null) {
                             c = tempC;
                         }
                         index.addMovie(c.toString(), movie);
+                        movie.addIndex("Title-" + c.toString());
                     }
                 }
             }
@@ -607,6 +610,7 @@ public class Library implements Map<String, Movie> {
                 String year = getYearCategory(movie.getYear());
                 if (null != year) {
                     index.addMovie(year, movie);
+                    movie.addIndex("Year-" + year);
                 }
             }
         }
@@ -618,6 +622,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : moviesList) {
             if (!movie.isExtra() && movie.getLibraryDescription().length() > 0) {
                 index.addMovie(movie.getLibraryDescription(), movie);
+                movie.addIndex("Library-" + movie.getLibraryDescription());
             }
         }
         return index;
@@ -631,6 +636,7 @@ public class Library implements Map<String, Movie> {
                 for (String genre : movie.getGenres()) {
                     if (cntGenres < maxGenresPerMovie) {
                         index.addMovie(getIndexingGenre(genre), movie);
+                        movie.addIndex("Genre-" + getIndexingGenre(genre));
                         ++cntGenres;
                     }
                 }
@@ -650,6 +656,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : moviesList) {
             if (!movie.isExtra()) {
                 index.addMovie(movie.getCertification(), movie);
+                movie.addIndex("Certification-" + movie.getCertification());
             }
         }
         return index;
@@ -662,6 +669,7 @@ public class Library implements Map<String, Movie> {
             if (movie.isExtra()) {
                 if (categoriesMap.get("Extras") != null) {
                     index.addMovie(categoriesMap.get("Extras"), movie);
+                    movie.addIndex("Property-" + categoriesMap.get("Extras"));
                 }
             } else {
                 if (movie.isHD()) {
@@ -670,15 +678,18 @@ public class Library implements Map<String, Movie> {
                         if (movie.isHD1080()) {
                             if (categoriesMap.get("HD-1080") != null) {
                                 index.addMovie(categoriesMap.get("HD-1080"), movie);
+                                movie.addIndex("Property-" + categoriesMap.get("HD-1080"));
                             }
                         } else {
                             if (categoriesMap.get("HD-720") != null) {
                                 index.addMovie(categoriesMap.get("HD-720"), movie);
+                                movie.addIndex("Property-" + categoriesMap.get("HD-720"));
                             }
                         }
                     } else {
                         if (categoriesMap.get("HD") != null) {
                             index.addMovie(categoriesMap.get("HD"), movie);
+                            movie.addIndex("Property-" + categoriesMap.get("HD"));
                         }
                     }
                 }
@@ -686,24 +697,29 @@ public class Library implements Map<String, Movie> {
                 if (movie.getTop250() > 0) {
                     if (categoriesMap.get("Top250") != null) {
                         index.addMovie(categoriesMap.get("Top250"), movie);
+                        movie.addIndex("Property-" + categoriesMap.get("Top250"));
                     }
                 }
 
                 if ((now - movie.getLastModifiedTimestamp() < newDays) && categoriesMap.get("New") != null) {
                     index.addMovie(categoriesMap.get("New"), movie);
+                    movie.addIndex("Property-" + categoriesMap.get("New"));
                 }
 
                 if (categoriesMap.get("All") != null) {
                     index.addMovie(categoriesMap.get("All"), movie);
+                    movie.addIndex("Property-" + categoriesMap.get("All"));
                 }
 
                 if (movie.isTVShow()) {
                     if (categoriesMap.get("TV Shows") != null) {
                         index.addMovie(categoriesMap.get("TV Shows"), movie);
+                        movie.addIndex("Property-" + categoriesMap.get("TV Shows"));
                     }
                 } else {
                     if (categoriesMap.get("Movies") != null) {
                         index.addMovie(categoriesMap.get("Movies"), movie);
+                        movie.addIndex("Property-" + categoriesMap.get("Movies"));
                     }
                 }
             }
@@ -718,10 +734,12 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra()) {
                 if (singleSeriesPage && movie.isTVShow()) {
                     index.addMovie(movie.getOriginalTitle(), movie);
+                    movie.addIndex("Set-" + movie.getOriginalTitle());
                 }
 
                 for (String set_key : movie.getSetsKeys()) {
                     index.addMovie(set_key, movie);
+                    movie.addIndex("Set-" + set_key);
                 }
             }
         }
@@ -736,6 +754,7 @@ public class Library implements Map<String, Movie> {
                 for (String actor : movie.getCast()) {
                     logger.finest("Adding " + movie.getTitle() + " to cast list for " + actor);
                     index.addMovie(actor, movie);
+                    movie.addIndex("Actor-" + actor);
                 }
             }
         }
@@ -748,6 +767,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 index.addMovie(movie.getCountry(), movie);
+                movie.addIndex("Country-" + movie.getCountry());
             }
         }
 
@@ -759,6 +779,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 index.addMovie(movie.getDirector(), movie);
+                movie.addIndex("Director-" + movie.getDirector());
             }
         }
 
@@ -772,6 +793,7 @@ public class Library implements Map<String, Movie> {
                 for (String writer : movie.getWriters()) {
                     logger.finest("Adding " + movie.getTitle() + " to writer list for " + writer);
                     index.addMovie(writer, movie);
+                    movie.addIndex("Writer-" + writer);
                 }
             }
         }
