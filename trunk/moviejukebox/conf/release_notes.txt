@@ -5,18 +5,20 @@
 MovieJukebox 1.9 BETA
 ---------------------
   - Enhancement  #1239 Plugin for www.comingsoon.it
-  - Fixed defect #1283 IMDB update for non-mpaa Certification
+  - Fixed defect #1283 IMDB update for non-MPAA Certification
   - Fixed defect #1284 Comma divider missing when not all fields present in default skins
   - Fixed defect #1287 Bad extraction of TVDb id from NFO
   - Enhancement  #1282 Add movie poster FilmAffinity
   - Fixed defect #1289 Release Date or Premiered date is not being loaded from NFO file
   - Fixed defect #1290 FilmAffinity plot no longer retrieved from website
-  - Fixed defect #1293 filmaffinity title is wrong for spanish users
+  - Fixed defect #1293 FilmAffinity title is wrong for Spanish users
   - Enhancement  #1296 Force rescan of XML data if UNKNOWN exists, or XML is stale
-  - Ehnancement  #1298 List all indexes a movie appears in, in the xml
-  - Fixed defect #1301 ofdb title isn't set anymore
-  - Fixed defect #1302 Some plots are not retrieved from filmaffinity even if the movie exist + Poster from www.caratulasdecine.com is not retrieved even if it exist
-  - Fixed defect #1304 Year isn't fetched by the imdb plugin
+  - Enhancement  #1298 List all indexes a movie appears in, in the XML
+  - Fixed defect #1299 Parental controls broken
+  - Enhancement  #1300 Modify play from index code to also play Disk Images
+  - Fixed defect #1301 OFDB title isn't set anymore
+  - Fixed defect #1302 Some plots are not retrieved from FilmAffinity even if the movie exist + Poster from www.caratulasdecine.com is not retrieved even if it exist
+  - Fixed defect #1304 Year isn't fetched by the IMDB plugin
   
 MovieJukebox 1.8
 ----------------
@@ -26,7 +28,7 @@ MovieJukebox 1.8
   - Enhancement   #503 Simplify skins by figuring out the vod/vcd/playlist attributes in YAMJ itself (updated)
   - Fixed defect  #535 Appears the order of libraries in the xml makes a difference on output.
   - Fixed defect  #779 1x00 files lastPart is incorrect    
-  - Fixed defect  #794 NFO partsing problem for IMDb link
+  - Fixed defect  #794 NFO parsing problem for IMDb link
   - Fixed defect  #797 r965: OfdbPlugin ignores Plot from NFO
   - Fixed defect  #832 Indexing of Cast, Director, etc is not performed when the movie is in a set  
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if mpaa tag is present in the NFO
