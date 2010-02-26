@@ -102,7 +102,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
      */
     private boolean updateFilmAffinityMediaInfo(Movie movie, String filmAffinityId) {
         try {
-            String xml = webBrowser.request("http://www.filmaffinity.com/es/film" + filmAffinityId,Charset.forName("ISO-8859-1"));
+            String xml = webBrowser.request("http://www.filmaffinity.com/es/film" + filmAffinityId, Charset.forName("ISO-8859-1"));
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
@@ -110,13 +110,13 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                     return false;
                 }
             }
-
+            String previousTitle = movie.getTitle();
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<img src=\"http://www.filmaffinity.com/images/movie.gif\" border=\"0\">", "</span></div></div>"));
             }
 
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
-                String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|",false);
+                String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|", false);
                 if (plot.length() > preferredPlotLength) {
                     plot = plot.substring(0, preferredPlotLength - 3) + "...";
                 }
@@ -124,12 +124,19 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 movie.setPlot(plot);
             }
 
+            // FIXME - Yaltar - Remove this from here - use PosterScanner routine
             // Get Poster from http://www.caratulasdecine.com/
             if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 String posterURL = caraPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.isTVShow());
                 // FallBack on FilmAffinity.
                 if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-                    posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
+                    // If title has changed check with previous title
+                    if (!Movie.UNKNOWN.equalsIgnoreCase(previousTitle) && !movie.getTitle().equalsIgnoreCase(previousTitle)) {
+                        posterURL = caraPosterPlugin.getPosterUrl(previousTitle, movie.getYear(), movie.isTVShow());
+                    }
+                    if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+                        posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
+                    }
                 }
                 logger.finest("FilmAffinity Poster: " + posterURL);
                 movie.setPosterURL(posterURL);

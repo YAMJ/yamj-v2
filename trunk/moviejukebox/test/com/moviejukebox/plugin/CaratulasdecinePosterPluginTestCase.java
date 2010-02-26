@@ -34,4 +34,33 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
         assertEquals("http://www.caratulasdecine.com/Caratulas4/elultimatumdebourne.jpg", posterUrl);
     }
+    
+    public void testGetTroya() {
+        CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", null, false);
+        assertEquals("2141", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        assertEquals("http://www.caratulasdecine.com/Caratulas1/Troya.jpg", posterUrl);
+    }    
+ 
+    public void testGetEnTierraHostil() {
+        CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil", null, false);
+        assertEquals("4783", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
+    }  
+  
+    public void testGetUp() {
+        CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Up", null, false);
+        assertEquals("3754", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
+    }  
+    
+    
 }

@@ -60,21 +60,25 @@ public class CaratulasdecinePosterPlugin implements IPosterPlugin {
                 // Did we've a link to the movie list
                 String searchString = "http://www.caratulasdecine.com/listado.php";
                 int beginIndex = xml.indexOf(searchString);
-                String url = xml.substring(beginIndex, xml.indexOf("\"", beginIndex + searchString.length()));
-                // Need to find a better way to do this
-                url = url.replaceAll("&amp;", "&");
-                xml = webBrowser.request(url, Charset.forName("ISO-8859-1"));
-                String sectionStart = " <a class='pag' href='listado.php?";
-                String sectionEnd = "</p>";
-                String extractTag = HTMLTools.extractTag(xml, sectionStart, sectionEnd);// , startTag, endTag);
-                String[] extractTags = extractTag.split("<a class=\"A\"");
-                for (String string : extractTags) {
-                    if (string.contains(title)) {
-                        response = getMovieUrl(string);
-                        break;
+                if (beginIndex > -1) {
+                    String url = xml.substring(beginIndex, xml.indexOf("\"", beginIndex + searchString.length()));
+                    // Need to find a better way to do this
+                    url = url.replaceAll("&amp;", "&");
+                    xml = webBrowser.request(url, Charset.forName("ISO-8859-1"));
+                    String sectionStart = " <a class='pag' href='listado.php?";
+                    String sectionEnd = "</p>";
+                    String extractTag = HTMLTools.extractTag(xml, sectionStart, sectionEnd);// , startTag, endTag);
+                    String[] extractTags = extractTag.split("<a class=\"A\"");
+                    for (String string : extractTags) {
+                        if (string.contains(title)) {
+                            response = getMovieUrl(string);
+                            break;
+                        }
                     }
+                }else{
+                    logger.info("Movie " + title + " not found on www.caratulasdecine.com");
                 }
-
+                
             }
 
         } catch (Exception e) {
