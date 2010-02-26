@@ -18,6 +18,7 @@ MovieJukebox 1.9 BETA
   - Enhancement  #1300 Modify play from index code to also play Disk Images
   - Fixed defect #1301 OFDB title isn't set anymore
   - Fixed defect #1302 Some plots are not retrieved from FilmAffinity even if the movie exist + Poster from www.caratulasdecine.com is not retrieved even if it exist
+  - Fixed defect #1303 "String index out of range: -1" error when trying to retrieve a poster from www.caratulasdecine.com in some films
   - Fixed defect #1304 Year isn't fetched by the IMDB plugin
   
 MovieJukebox 1.8
