@@ -20,6 +20,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1302 Some plots are not retrieved from FilmAffinity even if the movie exist + Poster from www.caratulasdecine.com is not retrieved even if it exist
   - Fixed defect #1303 "String index out of range: -1" error when trying to retrieve a poster from www.caratulasdecine.com in some films
   - Fixed defect #1304 Year isn't fetched by the IMDB plugin
+  - Fixed defect #1306 Movie poster found on www.caratulasdecine.com (and retrieved),but generation sends "not found on www.caratulasdecine.com"
   
 MovieJukebox 1.8
 ----------------

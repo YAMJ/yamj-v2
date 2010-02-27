@@ -75,10 +75,11 @@ public class CaratulasdecinePosterPlugin implements IPosterPlugin {
                             break;
                         }
                     }
-                }else{
-                    logger.info("Movie " + title + " not found on www.caratulasdecine.com");
                 }
-                
+                // }else{
+                // logger.info("Movie " + title + " not found on www.caratulasdecine.com");
+                // }
+
             }
 
         } catch (Exception e) {
