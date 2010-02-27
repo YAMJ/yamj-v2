@@ -52,6 +52,15 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
         assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
     }  
+    
+    public void testGetEnTierraHostilLong() {
+        CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil (The Hurt Locker)", null, false);
+        assertEquals("4783", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
+    }
   
     public void testGetUp() {
         CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
@@ -59,8 +68,9 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         assertEquals("3754", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
-        assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
+        assertEquals("http://www.caratulasdecine.com/Caratulas4/shootemup.jpg", posterUrl);
     }  
     
-    
+//    
+
 }

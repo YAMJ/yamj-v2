@@ -132,9 +132,12 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
                     // If title has changed check with previous title
                     if (!Movie.UNKNOWN.equalsIgnoreCase(previousTitle) && !movie.getTitle().equalsIgnoreCase(previousTitle)) {
+                        logger.info("Poster not found with filmaffinity title :'" + movie.getTitle() + "', searching with previous title '" + previousTitle
+                                        + "'");
                         posterURL = caraPosterPlugin.getPosterUrl(previousTitle, movie.getYear(), movie.isTVShow());
                     }
                     if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+                        logger.info("Poster not found on http://www.caratulasdecine.com/ falling back to filmaffinity");
                         posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
                     }
                 }
