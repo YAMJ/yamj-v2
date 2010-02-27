@@ -974,14 +974,11 @@ public class MovieJukeboxXMLWriter {
 
         // Write the indexes that the movie belongs to
         writer.writeStartElement("indexes");
-        for (String index : movie.getIndexes()) {
-            String[] tempIndex = index.split("-");
-            if (tempIndex.length == 2) {
-                writer.writeStartElement("index");
-                writer.writeAttribute("type", tempIndex[0]);
-                writer.writeCharacters(tempIndex[1]);
-                writer.writeEndElement();
-            }
+        for (Entry<String, String> index : movie.getIndexes().entrySet()) {
+            writer.writeStartElement("index");
+            writer.writeAttribute("type", index.getKey());
+            writer.writeCharacters(index.getValue());
+            writer.writeEndElement();
         }
         writer.writeEndElement();
 

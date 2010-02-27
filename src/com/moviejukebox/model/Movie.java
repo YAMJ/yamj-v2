@@ -130,7 +130,8 @@ import com.moviejukebox.tools.PropertiesUtil;
     private String previous = UNKNOWN;
     private String next = UNKNOWN;
     private String last = UNKNOWN;
-    private List<String> indexes = new ArrayList<String>();
+    private Map<String, String> indexes = new HashMap<String, String>();
+
     // Media file properties
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
     Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
@@ -1541,19 +1542,19 @@ import com.moviejukebox.tools.PropertiesUtil;
     // ***** END of graphics *****
 
 
-    public Collection<String> getIndexes() {
+    public Map<String, String> getIndexes() {
         return indexes;
     }
 
-    public void addIndex(String index) {
-        if (index != null) {
+    public void addIndex(String key, String index) {
+        if (key != null && index != null) {
             this.isDirty = true;
-            indexes.add(index);
+            indexes.put(key, index);
         }
     }
 
-    public void setIndexes(Collection<String> indexes) {
+    public void setIndexes(Map<String, String> indexes) {
         this.isDirty = true;
-        this.indexes = new ArrayList<String>(indexes);
+        this.indexes = new HashMap<String, String>(indexes);
     }
 }
