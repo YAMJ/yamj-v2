@@ -62,6 +62,7 @@ public class AppleTrailersPlugin {
         webBrowser = new WebBrowser();
     }
 
+    // TODO Check to see any previously downloaded trailers physically exist and then recheck them
     public void generate(Movie movie) {
 
         // Check if trailer resolution was selected
@@ -69,8 +70,10 @@ public class AppleTrailersPlugin {
             return;
 
         // Check if this movie was already checked for trailers
-        if (movie.isTrailerExchange())
+        if (movie.isTrailerExchange()) {
+            logger.finest("AppleTrailers Plugin: Movie has previously been checked for trailers, skipping.");
             return;
+        }
 
         if (movie.isExtra())
             return;
@@ -84,7 +87,6 @@ public class AppleTrailersPlugin {
         
         if (trailerPageUrl == Movie.UNKNOWN) {
             logger.finer("AppleTrailers Plugin: Trailer not found for " + movie.getBaseName());
-            
             movie.setTrailerExchange(true);
             return;
         }
@@ -98,10 +100,16 @@ public class AppleTrailersPlugin {
 
         int trailerCnt = bestTrailersUrl.size();
         int trailerDownloadCnt = 0;
+        
+        if (trailerCnt == 0) {
+            logger.finest("AppleTrailers Plugin: No trailers found for " + movie.getBaseName());
+            return;
+        }
 
         for (int i=0; i < trailerCnt; i++) {            
         
-            if ( trailerDownloadCnt >= configMax) {
+            if (trailerDownloadCnt >= configMax) {
+                logger.finest("AppleTrailers Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? "trailer" : "trailers"));
                 break;
             }
         
@@ -193,7 +201,6 @@ public class AppleTrailersPlugin {
     
     private String GetTrailerPageUrl(String movieName) {
         try {
-        
             String searchURL = "http://www.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q=" + URLEncoder.encode(movieName, "UTF-8");
 
             String xml = webBrowser.request(searchURL);
@@ -230,8 +237,7 @@ public class AppleTrailersPlugin {
                 index = endIndex + 2;
                 
                 
-                if (trailerTitle.equalsIgnoreCase(movieName))
-                {
+                if (trailerTitle.equalsIgnoreCase(movieName)) {
                     String trailerUrl;
                     
                     int itmsIndex = trailerLocation.indexOf("itms://");
@@ -246,9 +252,6 @@ public class AppleTrailersPlugin {
                     return trailerUrl;
                 }
             }
-
-
-
 
         } catch (Exception error) {
             logger.severe("Failed retreiving trailer for movie : " + movieName);
