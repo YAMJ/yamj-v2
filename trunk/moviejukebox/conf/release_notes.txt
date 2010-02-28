@@ -5,6 +5,7 @@
 MovieJukebox 1.9 BETA
 ---------------------
   - Fixed defect  #981 Use poster.scanner.SearchPriority regardless of mjb.internet.plugin (other than IMDb)
+  - Fixed defect #1013 
   - Enhancement  #1239 Plugin for www.comingsoon.it
   - Fixed defect #1283 IMDB update for non-MPAA Certification
   - Fixed defect #1284 Comma divider missing when not all fields present in default skins
@@ -23,6 +24,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1304 Year isn't fetched by the IMDB plugin
   - Fixed defect #1306 Movie poster found on www.caratulasdecine.com (and retrieved),but generation sends "not found on www.caratulasdecine.com"
   - Fixed defect #1309 XML file overwrites the lastPart of a multipart TV Show or Movie
+  - Fixed defect #1310 imdb.es not picking up genres
   
 MovieJukebox 1.8
 ----------------
