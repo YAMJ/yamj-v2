@@ -37,8 +37,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static String IMDB_PLUGIN_ID = "imdb";
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    private String preferredSearchEngine;
-    private boolean perfectMatch;
     protected String preferredCountry;
     private String imdbPlot;
     // protected String imdbSite;
@@ -56,8 +54,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         webBrowser = new WebBrowser();
 
-        preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        perfectMatch = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
+        PropertiesUtil.getProperty("imdb.id.search", "imdb");
+        Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
