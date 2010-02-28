@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry excluding="*.bat|*.ch" kind="src" path="conf"/>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry excluding="*.bat|*.ch" kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.5.jar"/>

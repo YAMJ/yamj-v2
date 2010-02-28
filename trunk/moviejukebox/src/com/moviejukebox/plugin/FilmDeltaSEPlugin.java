@@ -33,23 +33,20 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
-
 /**
- * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se
- * Modified from imdb plugin and Kinopoisk plugin written by Yury Sidorov.
+ * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se Modified from imdb plugin and Kinopoisk plugin written by Yury Sidorov.
  * 
- * @author  johan.klinge
+ * @author johan.klinge
  * @version 0.5, 30th April 2009
  */
 public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     public static String FILMDELTA_PLUGIN_ID = "filmdelta";
     protected TheTvDBPlugin tvdb;
-    
-    //Get properties for plotlength and rating
+
+    // Get properties for plotlength and rating
     private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     private String preferredRating = PropertiesUtil.getProperty("filmdelta.rating", "filmdelta");
-    private String getcdonposter = PropertiesUtil.getProperty("filmdelta.getcdonposter", "true");
 
     public FilmDeltaSEPlugin() {
         super();
@@ -62,59 +59,49 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         boolean imdbScanned = false;
         String filmdeltaId = mediaFile.getId(FILMDELTA_PLUGIN_ID);
         String imdbId = mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID);
-        
+
         // if IMDB id is specified in the NFO scan imdb first
-        // (to get a valid movie title and improve detection rate 
+        // (to get a valid movie title and improve detection rate
         // for getFilmdeltaId-function)
         if (!imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
             super.scan(mediaFile);
             imdbScanned = true;
         }
         // get filmdeltaId (if not already set in nfo)
-        if (filmdeltaId == null || filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN)) { 
-            //find a filmdeltaId (url) from google
+        if (filmdeltaId == null || filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            // find a filmdeltaId (url) from google
             filmdeltaId = getFilmdeltaId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
             if (!filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 mediaFile.setId(FILMDELTA_PLUGIN_ID, filmdeltaId);
             }
-        } 
-        //always scrape info from imdb or tvdb
+        }
+        // always scrape info from imdb or tvdb
         if (mediaFile.isTVShow()) {
             tvdb = new TheTvDBPlugin();
             retval = tvdb.scan(mediaFile);
-        } else if (!imdbScanned)  {
+        } else if (!imdbScanned) {
             retval = super.scan(mediaFile);
         }
-        
-        //only scrape filmdelta if a valid filmdeltaId was found
-        //and the movie is not a tvshow
-        if (filmdeltaId != null 
-                        && !filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN) 
-                        && !mediaFile.isTVShow()) {
+
+        // only scrape filmdelta if a valid filmdeltaId was found
+        // and the movie is not a tvshow
+        if (filmdeltaId != null && !filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN) && !mediaFile.isTVShow()) {
             retval = updateFilmdeltaMediaInfo(mediaFile, filmdeltaId);
         }
-        
-        // Get poster from CDON.se
-        // if property getcdonposter is set to true
-        if (getcdonposter.equalsIgnoreCase("true")) {
-            String posterURL = getCDONPosterURL(mediaFile.getTitle(), mediaFile.getSeason());
-            if (!posterURL.equals(Movie.UNKNOWN)) {
-                mediaFile.setPosterURL(posterURL);
-            }
-        }
+
         return retval;
     }
 
-    /* Find id from url in nfo. Format:
-     *  - http://www.filmdelta.se/filmer/<digits>/<movie_name>/ OR
-     *  - http://www.filmdelta.se/prevsearch/<text>/filmer/<digits>/<movie_name>
+    /*
+     * Find id from url in nfo. Format: - http://www.filmdelta.se/filmer/<digits>/<movie_name>/ OR -
+     * http://www.filmdelta.se/prevsearch/<text>/filmer/<digits>/<movie_name>
      */
     @Override
     public void scanNFO(String nfo, Movie movie) {
         // Always look for imdb id look for ttXXXXXX
         super.scanNFO(nfo, movie);
         logger.finest("Scanning NFO for Filmdelta Id");
-        
+
         int beginIndex = nfo.indexOf("www.filmdelta.se/prevsearch");
         if (beginIndex != -1) {
             beginIndex = beginIndex + 27;
@@ -126,14 +113,13 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 0);
             movie.setId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID, filmdeltaId);
             logger.finest("FilmdeltaSE: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
-        } else {  
+        } else {
             logger.finer("FilmdeltaSE: no id found in nfo for movie: " + movie.getTitle());
         }
     }
 
-     /**
-     * retrieve FilmDeltaID matching the specified movie name and year. 
-     * This routine is based on a  google request.
+    /**
+     * retrieve FilmDeltaID matching the specified movie name and year. This routine is based on a google request.
      */
     protected String getFilmdeltaId(String movieName, String year, int season) {
         try {
@@ -144,15 +130,15 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             }
             sb.append(URLEncoder.encode("+site:filmdelta.se/filmer", "UTF-8"));
             String googleHtml = webBrowser.request(sb.toString());
-            
-            //String <ul><li> is only present in the google page for
-            //no matches so check if we got a page with results
-            if (googleHtml.indexOf("<ul><li>") ==  -1) {
-                //we have a a google page with valid filmdelta links
+
+            // String <ul><li> is only present in the google page for
+            // no matches so check if we got a page with results
+            if (googleHtml.indexOf("<ul><li>") == -1) {
+                // we have a a google page with valid filmdelta links
                 int beginIndex = googleHtml.indexOf("www.filmdelta.se/filmer/") + 24;
                 String filmdeltaId = makeFilmDeltaId(googleHtml, beginIndex, 0);
-                //regex to match that a valid filmdeltaId contains at least 3 numbers, 
-                //a dash, and one or more letters (may contain [-&;])
+                // regex to match that a valid filmdeltaId contains at least 3 numbers,
+                // a dash, and one or more letters (may contain [-&;])
                 if (filmdeltaId.matches("\\d{3,}/[\\w-&;]+")) {
                     logger.finest("FilmdeltaSE: filmdelta id found = " + filmdeltaId);
                     return filmdeltaId;
@@ -161,12 +147,11 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                     return Movie.UNKNOWN;
                 }
             } else {
-                //no valid results for the search
+                // no valid results for the search
                 logger.info("(FilmdeltaSE) No filmdelta.se matches found for movie: \'" + movieName + "\'");
                 return Movie.UNKNOWN;
             }
 
-            
         } catch (Exception error) {
             logger.severe("FilmdeltaSE: failed retreiving Filmdelta Id for movie : " + movieName);
             logger.severe(" -Error : " + error.getMessage());
@@ -174,9 +159,8 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         }
     }
 
-    /* 
-     * Utility method to make a filmdelta id from a string containing a 
-     * filmdelta url
+    /*
+     * Utility method to make a filmdelta id from a string containing a filmdelta url
      */
     private String makeFilmDeltaId(String nfo, int beginIndex, int skip) {
         StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex), "/");
@@ -232,9 +216,9 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         return result;
     }
 
-    /* utility method to remove illegal html characters from the page
-     * that is scraped by the webbrower.request(), 
-     * ugly as hell, gotta be a better way to do this.. 
+    /*
+     * utility method to remove illegal html characters from the page that is scraped by the webbrower.request(), ugly as hell, gotta be a better way to do
+     * this..
      */
     protected String removeIllegalHtmlChars(String result) {
         result = result.replaceAll("\u0093", "&quot;");
@@ -384,123 +368,6 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 movie.setRuntime(newRunTime[1]);
                 logger.finest("FilmdeltaSE: scraped runtime: " + movie.getRuntime());
             }
-        }
-    }
-
-    protected String getCDONPosterURL(String movieName, int season) {
-        String movieURL = Movie.UNKNOWN;
-        String cdonMoviePage = Movie.UNKNOWN;
-        String cdonPosterURL = Movie.UNKNOWN;
-
-        // search CDON to find the url for the movie details page
-        movieURL = getCdonMovieUrl(movieName, season);
-        // then fetch the movie detail page
-        cdonMoviePage = getCdonMovieDetailsPage(movieName, movieURL);
-        // extract poster url and return it
-        cdonPosterURL = extractCdonPosterUrl(movieName, cdonMoviePage);
-        return cdonPosterURL;
-    }
-
-    protected String getCdonMovieUrl(String movieName, int season) {
-        String html = Movie.UNKNOWN;
-        String movieURL = Movie.UNKNOWN;
-
-        // Search CDON to get an URL to the movie page
-        try {
-            StringBuffer sb = new StringBuffer("http://cdon.se/search?q=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            if (season >= 0) {
-                sb.append("+").append(URLEncoder.encode("säsong", "UTF-8"));
-                sb.append("+" + season);
-            }
-            html = webBrowser.request(sb.toString());
-            // find the movie url in the search result page
-            if (html.contains("/section-movie.gif\" alt=\"\" />")) {
-                int beginIndex = html.indexOf("/section-movie.gif\" alt=\"\" />") + 28;
-                movieURL = HTMLTools.extractTag(html.substring(beginIndex), "<td class=\"title\">", 0);
-                // Split string to extract the url
-                if (movieURL.contains("http")) {
-                    String[] splitMovieURL = movieURL.split("\\s");
-                    movieURL = splitMovieURL[1].replaceAll("href|=|\"", "");
-                    logger.finest("FilmdeltaSE: found cdon movie url = " + movieURL);
-                } else {
-                    movieURL = Movie.UNKNOWN;
-                    logger.finer("FilmdeltaSE: error extracting movie url for: " + movieName);
-                }
-
-            } else {
-                movieURL = Movie.UNKNOWN;
-                logger.finer("FilmdeltaSE: error finding movieURL..");
-            }
-            return movieURL;
-        } catch (Exception error) {
-            logger.severe("Error while retreiving CDON image for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    protected String getCdonMovieDetailsPage(String movieName, String movieURL) {
-        String cdonMoviePage;
-        try {
-            // sanity check on result before trying to load details page from url
-            if (!movieURL.isEmpty() && movieURL.contains("http")) {
-                // fetch movie page from cdon
-                StringBuffer buf = new StringBuffer(movieURL);
-                cdonMoviePage = webBrowser.request(buf.toString());
-                return cdonMoviePage;
-            } else {
-                // search didn't even find an url to the movie
-                logger.finer("Error in fetching movie detail page from CDON for movie: " + movieName);
-                return Movie.UNKNOWN;
-            }
-        } catch (Exception error) {
-            logger.severe("Error while retreiving CDON image for movie : " + movieName);
-            // logger.severe("Error : " + e.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    protected String extractCdonPosterUrl(String movieName, String cdonMoviePage) {
-
-        String cdonPosterURL = Movie.UNKNOWN;
-        String[] htmlArray = cdonMoviePage.split("<");
-
-        // check if there is an large front cover image for this movie
-        if (cdonMoviePage.contains("St&#246;rre framsida")) {
-            // first look for a large cover
-            cdonPosterURL = findUrlString("St&#246;rre framsida", htmlArray);
-        } else if (cdonMoviePage.contains("/media-dynamic/images/product/")) {
-            // if not found look for a small cover
-            cdonPosterURL = findUrlString("/media-dynamic/images/product/", htmlArray);
-        } else {
-            logger.info("(FilmdeltaSE) No CDON cover was found for movie: " + movieName);
-        }
-        return cdonPosterURL;
-    }
-
-    private String findUrlString(String searchString, String[] htmlArray) {
-        String result;
-        String[] posterURL = null;
-        // all cdon pages don't look the same so
-        // loop over the array to find the string with a link to an image
-        int i = 0;
-        for (String s : htmlArray) {
-            if (s.contains(searchString)) {
-                // found a matching string
-                posterURL = htmlArray[i].split("\"|\\s");
-                break;
-            }
-            i++;
-        }
-        // sanity check again (the found url should point to a jpg)
-        if (posterURL.length > 2 && posterURL[2].contains(".jpg")) {
-            result = "http://cdon.se" + posterURL[2];
-            logger.finest("FilmdeltaSE: found cdon cover: " + result);
-            return result;
-        } else {
-            logger.info("(FilmdeltaSE) Error in finding poster url");
-            return Movie.UNKNOWN;
         }
     }
 

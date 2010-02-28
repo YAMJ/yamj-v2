@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.FanartScanner;
-import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
@@ -44,10 +43,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private int preferredPlotLength;
 
     public TheMovieDbPlugin() {
-        TMDb                = new TheMovieDb(API_KEY);
-        language            = PropertiesUtil.getProperty("themoviedb.language", "en");
-        downloadFanart      = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
-        fanartToken         = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        TMDb = new TheMovieDb(API_KEY);
+        language = PropertiesUtil.getProperty("themoviedb.language", "en");
+        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     }
 
@@ -58,7 +57,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         boolean retval = false;
 
         Semaphore s = WebBrowser.getSemaphore(webhost);
-        s.acquireUninterruptibly();      
+        s.acquireUninterruptibly();
         // First look to see if we have a TMDb ID as this will make looking the film up easier
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Search based on TMdb ID
@@ -78,16 +77,16 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             tmdbID = moviedb.getId();
             moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
         }
-        //the rest is not web search anymore
+        // the rest is not web search anymore
         s.release();
 
         if (moviedb.getId() != null && !moviedb.getId().equalsIgnoreCase(MovieDB.UNKNOWN)) {
             movie.setMovieType(Movie.TYPE_MOVIE);
         }
-
-        if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-            movie.setPosterURL(locatePosterURL(movie));
-        }
+        // Removing Poster info from plugins. Use of PosterScanner routine instead.
+        // if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+        // movie.setPosterURL(locatePosterURL(movie));
+        // }
 
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
@@ -231,17 +230,17 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         return FanartScanner.getFanartURL(movie);
     }
 
-    /**
-     * Locate the poster URL from online sources
-     * 
-     * @param movie
-     *            Movie bean for the video to locate
-     * @param imdbXML
-     *            XML page from IMDB to search for a URL
-     * @return The URL of the poster if found.
-     */
-    protected String locatePosterURL(Movie movie) {
-        // Note: Second parameter is null, because there is no IMDb XML
-        return PosterScanner.getPosterURL(movie, null, IMDB_PLUGIN_ID);
-    }
+    // /**
+    // * Locate the poster URL from online sources
+    // *
+    // * @param movie
+    // * Movie bean for the video to locate
+    // * @param imdbXML
+    // * XML page from IMDB to search for a URL
+    // * @return The URL of the poster if found.
+    // */
+    // protected String locatePosterURL(Movie movie) {
+    // // Note: Second parameter is null, because there is no IMDb XML
+    // return PosterScanner.getPosterURL(movie, null, IMDB_PLUGIN_ID);
+    // }
 }

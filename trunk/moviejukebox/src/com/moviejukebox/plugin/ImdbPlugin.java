@@ -18,10 +18,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -32,57 +29,33 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.FanartScanner;
-import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
-    private static final String DEFAULT_SITE = "us";
-
-    private static final Map<String, ImdbSiteDataDefinition> matchsDataPerSite = new HashMap<String, ImdbSiteDataDefinition>();
-
-    static {
-        // 
-        matchsDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Release Date", "Runtime", "Country",
-                        "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer"));
-
-        matchsDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Date de sortie", "Dur&#xE9;e", "Pays",
-                        "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes"));
-
-        matchsDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Fecha de Estreno", "Duración", "País",
-                        "Compañía", "Género", "Quotes", "Trama", "Rated", "Clasificación", "Fecha de Estreno", "Escritores"));
-
-        matchsDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Premierendatum", "L&#xE4;nge", "Land",
-                        "Firma", "Genre", "Quotes", "Handlung", "Rated", "Clasificación", "Premierendatum", "Guionista"));
-
-        matchsDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Data di uscita", "Durata",
-                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore"));
-
-        matchsDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
-                        "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
-                        "Roteirista"));
-
-    }
     public static String IMDB_PLUGIN_ID = "imdb";
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected String preferredSearchEngine;
-    protected boolean perfectMatch;
+    private String preferredSearchEngine;
+    private boolean perfectMatch;
     protected String preferredCountry;
-    protected String imdbPlot;
+    private String imdbPlot;
     // protected String imdbSite;
     protected WebBrowser webBrowser;
     protected boolean downloadFanart;
-    protected boolean extractCertificationFromMPAA;
+    private boolean extractCertificationFromMPAA;
     protected String fanartToken;
     private int preferredPlotLength;
     private ImdbSiteDataDefinition siteDef;
+    protected ImdbInfo imdbInfo;
 
     public ImdbPlugin() {
+        imdbInfo = new ImdbInfo();
+        siteDef = imdbInfo.getSiteDef();
+
         webBrowser = new WebBrowser();
 
-        String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
         preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
         perfectMatch = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
@@ -92,18 +65,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
 
-        siteDef = matchsDataPerSite.get(imdbSite);
-        if (siteDef == null) {
-            logger.warning("ImdbPlugin : no site definition for " + imdbSite + " using the default instead " + DEFAULT_SITE);
-            siteDef = matchsDataPerSite.get(DEFAULT_SITE);
-        }
     }
 
     @Override
     public boolean scan(Movie mediaFile) {
         String imdbId = mediaFile.getId(IMDB_PLUGIN_ID);
         if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            imdbId = getImdbId(mediaFile.getTitle(), mediaFile.getYear());
+            imdbId = imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear());
             mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
         }
 
@@ -112,176 +80,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             retval = updateImdbMediaInfo(mediaFile);
         }
         return retval;
-    }
-
-    /**
-     * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
-     */
-    protected String getImdbId(String movieName, String year) {
-        if ("google".equalsIgnoreCase(preferredSearchEngine)) {
-            return getImdbIdFromGoogle(movieName, year);
-        } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
-            return getImdbIdFromYahoo(movieName, year);
-        } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
-            return Movie.UNKNOWN;
-        } else {
-            return getImdbIdFromImdb(movieName, year);
-        }
-    }
-
-    /**
-     * Retrieve the IMDb Id matching the specified movie name and year. This routine is base on a yahoo request.
-     * 
-     * @param movieName
-     *            The name of the Movie to search for
-     * @param year
-     *            The year of the movie
-     * @return The IMDb Id if it was found
-     */
-    private String getImdbIdFromYahoo(String movieName, String year) {
-        try {
-            StringBuffer sb = new StringBuffer("http://fr.search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append("+%28").append(year).append("%29");
-            }
-
-            sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("/title/tt");
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
-            String imdbId = st.nextToken();
-
-            if (imdbId.startsWith("tt")) {
-                return imdbId;
-            } else {
-                return Movie.UNKNOWN;
-            }
-
-        } catch (Exception error) {
-            logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    /**
-     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a Google request.
-     * 
-     * @param movieName
-     *            The name of the Movie to search for
-     * @param year
-     *            The year of the movie
-     * @return The IMDb Id if it was found
-     */
-    private String getImdbIdFromGoogle(String movieName, String year) {
-        try {
-            StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append("+%28").append(year).append("%29");
-            }
-
-            sb.append("+site%3Awww.imdb.com&meta=");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("/title/tt");
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
-            String imdbId = st.nextToken();
-
-            if (imdbId.startsWith("tt")) {
-                return imdbId;
-            } else {
-                return Movie.UNKNOWN;
-            }
-
-        } catch (Exception error) {
-            logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    /**
-     * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
-     */
-    private String getImdbIdFromImdb(String movieName, String year) {
-        /*
-         * IMDb matches seem to come in several "flavours". Firstly, if there is one exact match it returns the matching IMDb page. If that fails to produce an
-         * unique hit then a list of possible matches are returned categorised as: Popular Titles (Displaying ? Results) Titles (Exact Matches) (Displaying ?
-         * Results) Titles (Partial Matches) (Displaying ? Results)
-         * 
-         * We should check the Exact match section first, then the poplar titles and finally the partial matches. Note: That even with exact matches there can
-         * be more than 1 hit, for example "Star Trek"
-         */
-
-        try {
-            StringBuffer sb = new StringBuffer(siteDef.getSite() + "find?q=");
-            sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
-
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append("+%28").append(year).append("%29");
-            }
-            sb.append(";s=tt;site=aka");
-
-            logger.finest("Querying IMDB for " + sb.toString());
-            String xml = webBrowser.request(sb.toString());
-
-            // Check if this is an exact match (we got a movie page instead of a results list)
-            Pattern titleregex = Pattern.compile("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "title/(tt\\d+)/\"");
-            Matcher titlematch = titleregex.matcher(xml);
-            if (titlematch.find()) {
-                logger.finest("Found exact IMDB match for " + movieName + " (" + year + ")");
-                return titlematch.group(1);
-            }
-
-            /*
-             * This is what the wiki says imdb.perfect.match is supposed to do, but the result doesn't make a lot of sense to me. See the discussion for issue
-             * 567. if (perfectMatch) { // Reorder the titles so that the "Exact Matches" section gets scanned first int exactStart =
-             * xml.indexOf("Titles (Exact Matches)"); if (-1 != exactStart) { int exactEnd = xml.indexOf("Titles (Partial Matches)"); if (-1 == exactEnd) {
-             * exactEnd = xml.indexOf("Titles (Approx Matches)"); } if (-1 != exactEnd) { xml = xml.substring(exactStart, exactEnd) + xml.substring(0,
-             * exactStart) + xml.substring(exactEnd); } else { xml = xml.substring(exactStart) + xml.substring(0, exactStart); } } }
-             */
-
-            return searchForTitle(xml, movieName);
-        } catch (Exception error) {
-            logger.severe("Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
-        }
-
-        return Movie.UNKNOWN;
-    }
-
-    private String searchForTitle(String imdbXML, String movieName) {
-        Pattern imdbregex = Pattern.compile("\\<a(?:\\s*[^\\>])\\s*" // start of a-tag, and cruft before the href
-                        + "href=\"/title/(tt\\d+)" // the href, grab the id
-                        + "(?:\\s*[^\\>])*\\>" // cruft after the href, to the end of the a-tag
-                        + "([^\\<]+)\\</a\\>" // grab link text (ie, title), match to the close a-tag
-                        + "\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)" // year, eg (1999) or (1999/II), grab the 4-digit year only
-                        + "\\s*" + "((?:\\(VG\\))?)" // video game flag (if present)
-        );
-        // Groups: 1=id, 2=title, 3=year, 4=(VG)
-
-        Matcher match = imdbregex.matcher(imdbXML);
-        while (match.find()) {
-            // Find the first title where the year matches (if present) and that isn't a video game
-            if (!"(VG)".equals(match.group(4))
-            // Don't worry about matching title/year info -- IMDB took care of that already.
-            // && (null == year || Movie.UNKNOWN == year || year.equals(match.group(3)))
-            // && (!perfectMatch || movieName.equalsIgnoreCase(match.group(2)))
-            ) {
-                logger.finest(movieName + ": found IMDB match, " + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
-                return match.group(1);
-            } else {
-                logger.finest(movieName + ": rejected IMDB match " + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
-            }
-        }
-
-        // Return UNKNOWN if the match isn't found
-        return Movie.UNKNOWN;
     }
 
     protected String getPreferredValue(ArrayList<String> values) {
@@ -468,7 +266,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String certification = movie.getCertification();
             if (certification.equals(Movie.UNKNOWN)) {
                 if (extractCertificationFromMPAA) {
-                    String mpaa = HTMLTools.extractTag(xml, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>",1);
+                    String mpaa = HTMLTools.extractTag(xml, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>", 1);
                     if (!mpaa.equals(Movie.UNKNOWN)) {
                         String key = siteDef.getRated() + " ";
                         int pos = mpaa.indexOf(key);
@@ -527,10 +325,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (movie.getWriters().isEmpty()) {
                 movie.setWriters(HTMLTools.extractTags(xml, "<h5>" + siteDef.getWriter(), "</div>", "<a href=\"/name/", "</a>"));
             }
+            // Removing Poster info from plugins. Use of PosterScanner routine instead.
 
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setPosterURL(locatePosterURL(movie, xml));
-            }
+            // if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            // movie.setPosterURL(locatePosterURL(movie, xml));
+            // }
 
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie);
@@ -574,18 +373,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return FanartScanner.getFanartURL(movie);
     }
 
-    /**
-     * Locate the poster URL from online sources
-     * 
-     * @param movie
-     *            Movie bean for the video to locate
-     * @param imdbXML
-     *            XML page from IMDB to search for a URL
-     * @return The URL of the poster if found.
-     */
-    protected String locatePosterURL(Movie movie, String imdbXML) {
-        return PosterScanner.getPosterURL(movie, imdbXML, IMDB_PLUGIN_ID);
-    }
+    // /**
+    // * Locate the poster URL from online sources
+    // *
+    // * @param movie
+    // * Movie bean for the video to locate
+    // * @param imdbXML
+    // * XML page from IMDB to search for a URL
+    // * @return The URL of the poster if found.
+    // */
+    // protected String locatePosterURL(Movie movie, String imdbXML) {
+    // return PosterScanner.getPosterURL(movie, imdbXML, IMDB_PLUGIN_ID);
+    // }
 
     @Override
     public void scanTVShowTitles(Movie movie) {

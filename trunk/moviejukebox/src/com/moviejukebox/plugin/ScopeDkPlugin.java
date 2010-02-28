@@ -73,12 +73,14 @@ public class ScopeDkPlugin extends FilmUpITPlugin {
                 }
             }
 
-            String posterPageUrl = extractTag(xml, "<div id=\"film-top-left\">", "</div>");
-            posterPageUrl = extractTag(posterPageUrl, "<a href=\"#\"", "</a>");
-            posterPageUrl = posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2);
-            if (!posterPageUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setPosterURL(posterPageUrl);
-            }
+            // Removing Poster info from plugins. Use of PosterScanner routine instead.
+            
+            // String posterPageUrl = extractTag(xml, "<div id=\"film-top-left\">", "</div>");
+            // posterPageUrl = extractTag(posterPageUrl, "<a href=\"#\"", "</a>");
+            // posterPageUrl = posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2);
+            // if (!posterPageUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+            // movie.setPosterURL(posterPageUrl);
+            // }
         } catch (IOException error) {
             logger.severe("Failed retreiving ScopeDk infos for movie : " + movie.getId(SCOPEDK_PLUGIN_ID));
             final Writer eResult = new StringWriter();
@@ -99,7 +101,7 @@ public class ScopeDkPlugin extends FilmUpITPlugin {
             }
             // we also get imdb Id for extra infos
             if (mediaFile.getId(IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setId(IMDB_PLUGIN_ID, getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
+                mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
                 logger.finest("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
             if (!scopeDkId.equalsIgnoreCase(Movie.UNKNOWN)) {

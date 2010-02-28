@@ -11,7 +11,7 @@
  *      license terms of this work.  
  */
 
-package com.moviejukebox.plugin;
+package com.moviejukebox.plugin.poster;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -44,7 +44,7 @@ public class CaratulasdecinePosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, boolean isTvShow) {
+    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
         try {
             StringBuffer sb = new StringBuffer("http://www.google.es/custom?hl=es&domains=caratulasdecine.com&ie=ISO-8859-1&oe=ISO-8859-1&q=");
@@ -115,8 +115,17 @@ public class CaratulasdecinePosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, boolean isTvShow) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, isTvShow));
+    public String getPosterUrl(String title, String year, int tvSeason) {
+        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
     }
 
+    @Override
+    public String getName() {
+        return "Caratulasdecine";
+    }
+
+    @Override
+    public String getPosterUrl(String id, int season) {
+        return getPosterUrl(id);
+    }
 }

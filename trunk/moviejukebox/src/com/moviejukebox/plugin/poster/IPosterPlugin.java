@@ -11,13 +11,18 @@
  *      license terms of this work.  
  */
 
-package com.moviejukebox.plugin;
+package com.moviejukebox.plugin.poster;
 
 public interface IPosterPlugin {
 
-    public String getIdFromMovieInfo(String title, String year, boolean isTvShow);
+    public String getName();
+
+    public String getIdFromMovieInfo(String title, String year, int tvSeason);
+
+    public String getPosterUrl(String title, String year, int tvSeason);
 
     public String getPosterUrl(String id);
 
-    public String getPosterUrl(String title, String year, boolean isTvShow);
+    public String getPosterUrl(String id, int season);
+
 }

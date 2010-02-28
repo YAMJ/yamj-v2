@@ -172,32 +172,32 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     movie.setCast(series.getActors());
                 }
 
-                if (movie.getPosterURL().equals(Movie.UNKNOWN)) {
-                    String urlNormal = null;
-
-                    if (!banners.getSeasonList().isEmpty()) {
-                        for (Banner banner : banners.getSeasonList()) {
-                            if (banner.getSeason() == movie.getSeason()) { // only check for the correct season
-                                if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
-                                    urlNormal = banner.getUrl();
-                                }
-
-                                if (urlNormal != null) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (urlNormal == null && !banners.getPosterList().isEmpty()) {
-                        urlNormal = banners.getPosterList().get(0).getUrl();
-                    }
-                    if (urlNormal == null && series.getPoster() != null && !series.getPoster().isEmpty()) {
-                        urlNormal = series.getPoster();
-                    }
-                    if (urlNormal != null) {
-                        movie.setPosterURL(urlNormal);
-                    }
-                }
+//                if (movie.getPosterURL().equals(Movie.UNKNOWN)) {
+//                    String urlNormal = null;
+//
+//                    if (!banners.getSeasonList().isEmpty()) {
+//                        for (Banner banner : banners.getSeasonList()) {
+//                            if (banner.getSeason() == movie.getSeason()) { // only check for the correct season
+//                                if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
+//                                    urlNormal = banner.getUrl();
+//                                }
+//
+//                                if (urlNormal != null) {
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (urlNormal == null && !banners.getPosterList().isEmpty()) {
+//                        urlNormal = banners.getPosterList().get(0).getUrl();
+//                    }
+//                    if (urlNormal == null && series.getPoster() != null && !series.getPoster().isEmpty()) {
+//                        urlNormal = series.getPoster();
+//                    }
+//                    if (urlNormal != null) {
+//                        movie.setPosterURL(urlNormal);
+//                    }
+//                }
 
                 if (includeWideBanners && (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceBannerOverwrite) || movie.isDirtyBanner()) {
                     String urlBanner = null;

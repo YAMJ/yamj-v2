@@ -25,7 +25,11 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
@@ -34,6 +38,9 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.ImdbInfo;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.poster.IPosterPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
@@ -51,7 +58,7 @@ import com.moviejukebox.tools.WebBrowser;
  * @version 2.0 6 July 2009
  */
 public class PosterScanner {
-
+    private static Map<String, IPosterPlugin> posterPlugins;
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected static String[] coverArtExtensions;
     protected static String searchForExistingCoverArt;
@@ -94,6 +101,14 @@ public class PosterScanner {
         posterValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
         posterValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
         posterValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
+
+        // Load plugins
+        posterPlugins = new HashMap<String, IPosterPlugin>();
+        ServiceLoader<IPosterPlugin> posterPluginsSet = ServiceLoader.load(IPosterPlugin.class);
+        for (IPosterPlugin iPosterPlugin : posterPluginsSet) {
+            register(iPosterPlugin.getName().toLowerCase().trim(), iPosterPlugin);
+        }
+
     }
 
     public static boolean scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
@@ -126,7 +141,7 @@ public class PosterScanner {
                 fullPosterFilename += File.separator + coverArtDirectory;
             }
             fullPosterFilename += File.separator + localPosterBaseFilename + "." + extension;
-            //logger.finest("PosterScanner: Checking for "+ fullPosterFilename);
+            // logger.finest("PosterScanner: Checking for "+ fullPosterFilename);
             localPosterFile = new File(fullPosterFilename);
             if (localPosterFile.exists()) {
                 logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
@@ -227,6 +242,16 @@ public class PosterScanner {
         }
     }
 
+    private static String getPluginsCode() {
+        String response = "google / yahoo / motechnet / impawards / moviedb / imdb / ";
+
+        Set<String> keySet = posterPlugins.keySet();
+        for (String string : keySet) {
+            response += string + " / ";
+        }
+        return response;
+    }
+
     /**
      * Locate the PosterURL from the Internet. This is the main method and should be called instead of the individual getPosterFrom* methods.
      * 
@@ -236,7 +261,7 @@ public class PosterScanner {
      *            The IMDb XML page (for the IMDb poster search)
      * @return The posterURL that was found (Maybe Movie.UNKNOWN)
      */
-    public static String getPosterURL(Movie movie, String imdbXML, String pluginID) {
+    public static String getPosterURL(Movie movie) {
         String posterSearchToken;
         String posterURL = Movie.UNKNOWN;
         StringTokenizer st;
@@ -251,15 +276,23 @@ public class PosterScanner {
             } else if (posterSearchToken.equalsIgnoreCase("yahoo")) {
                 posterURL = getPosterURLFromYahoo(movie.getTitle());
             } else if (posterSearchToken.equalsIgnoreCase("motechnet")) {
-                posterURL = getPosterURLFromMotechnet(movie.getId(pluginID));
+                posterURL = getPosterURLFromMotechnet(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             } else if (posterSearchToken.equalsIgnoreCase("impawards")) {
                 posterURL = getPosterURLFromImpAwards(movie.getTitle(), movie.getYear());
             } else if (posterSearchToken.equalsIgnoreCase("moviecovers")) {
                 posterURL = getPosterURLFromMovieCovers(movie);
             } else if (posterSearchToken.equalsIgnoreCase("moviedb")) {
                 posterURL = getPosterURLFromMovieDbAPI(movie);
-            } else if (posterSearchToken.equalsIgnoreCase("imdb") && imdbXML != null) {
-                posterURL = getPosterURLFromImdb(imdbXML);
+            } else if (posterSearchToken.equalsIgnoreCase("imdb")) {
+                posterURL = getPosterURLFromImdb(movie.getTitle(), movie.getYear());
+            } else {
+                IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
+                if (iPosterPlugin == null) {
+                    logger.severe("Poster scanner : '" + posterSearchToken
+                                    + "' plugin don't exist, please check you moviejukebox properties. Valid code are : " + getPluginsCode());
+                } else {
+                    posterURL = iPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.getSeason());
+                }
             }
 
             // Validate the poster
@@ -271,6 +304,49 @@ public class PosterScanner {
 
         return posterURL;
     }
+
+    // private static String getPosterURLFromAllocine(Movie movie, String posterMediaId) {
+    // String posterURL = Movie.UNKNOWN;
+    // String xml = "";
+    //
+    // try {
+    // // Check alloCine first only for movies because TV Show posters are wrong.
+    // if (!movie.isTVShow()) {
+    // try { // sometimes the mediaFileURL is wrong and give IO error
+    // if (posterMediaId.compareToIgnoreCase(Movie.UNKNOWN) != 0) {
+    // String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID) + "/affiches/detail/?cmediafile="
+    // + posterMediaId;
+    // logger.finest("AllocinePlugin: mediaFileURL : " + mediaFileURL);
+    // xml = webBrowser.request(mediaFileURL);
+    //
+    // String posterURLTag = extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
+    // // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
+    // posterURL = extractTag(posterURLTag, "<img src=\"", "\"");
+    //
+    // if (!posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+    // logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
+    // movie.setPosterURL(posterURL);
+    // return;
+    // }
+    // }
+    // } catch (IOException ioerror) {
+    // // just do nothing and pass the search of poster to PosterScanner
+    // }
+    //
+    // posterURL = PosterScanner.getPosterURL(movie, xml, IMDB_PLUGIN_ID);
+    // logger.finest("AllocinePlugin: Movie PosterURL from other source : " + posterURL);
+    // movie.setPosterURL(posterURL);
+    // return;
+    // }
+    // } catch (Exception error) {
+    // logger.severe("AllocinePlugin: Failed retreiving poster for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
+    // final Writer eResult = new StringWriter();
+    // final PrintWriter printWriter = new PrintWriter(eResult);
+    // error.printStackTrace(printWriter);
+    // logger.severe(eResult.toString());
+    // }
+    // }
+    // }
 
     /**
      * Get the size of the file at the end of the URL Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
@@ -526,14 +602,14 @@ public class PosterScanner {
 
         TMDb = new TheMovieDb(API_KEY);
 
-        //TODO move these Ids to a preferences file.
+        // TODO move these Ids to a preferences file.
         imdbID = movie.getId("imdb");
         tmdbID = movie.getId("themoviedb");
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            //moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+            // moviedb = TMDb.moviedbGetInfo(tmdbID, language);
             moviedb = TMDb.moviedbGetImages(tmdbID, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            //moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+            // moviedb = TMDb.moviedbImdbLookup(imdbID, language);
             moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
             // We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
@@ -566,25 +642,50 @@ public class PosterScanner {
      *            The XML page for the movie that contains the posters
      * @return A poster URL to use for the movie.
      */
-    public static String getPosterURLFromImdb(String imdbXML) {
+    public static String getPosterURLFromImdb(String title, String year) {
         String posterURL = Movie.UNKNOWN;
-        StringTokenizer st;
+        String imdbXML;
 
-        int castIndex = imdbXML.indexOf("<h3>Cast</h3>");
-        int beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
+        try {
+            ImdbInfo imdbInfo = new ImdbInfo();
+            String imdbId = imdbInfo.getImdbId(title, year);
+            if (!Movie.UNKNOWN.equals(imdbId)) {
+                imdbXML = webBrowser.request(imdbInfo.getSiteDef().getSite() + "title/" + imdbId + "/", imdbInfo.getSiteDef().getCharset());
 
-        // Search the XML from IMDB for a poster
-        if ((beginIndex < castIndex) && (beginIndex != -1)) {
-            st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
-            posterURL = st.nextToken();
-            int index = posterURL.indexOf("_SX");
-            if (index != -1) {
-                posterURL = posterURL.substring(0, index) + "_SX600_SY800_.jpg";
-            } else {
-                posterURL = Movie.UNKNOWN;
+                StringTokenizer st;
+
+                int castIndex = imdbXML.indexOf("<h3>Cast</h3>");
+                int beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
+
+                // Search the XML from IMDB for a poster
+                if ((beginIndex < castIndex) && (beginIndex != -1)) {
+                    st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
+                    posterURL = st.nextToken();
+                    int index = posterURL.indexOf("_SX");
+                    if (index != -1) {
+                        posterURL = posterURL.substring(0, index) + "_SX600_SY800_.jpg";
+                    } else {
+                        posterURL = Movie.UNKNOWN;
+                    }
+                }
             }
+        } catch (Exception error) {
+            logger.severe("PosterScanner: Imdb Error: " + error.getMessage());
+            return Movie.UNKNOWN;
         }
-
         return posterURL;
+    }
+
+    public static void register(String key, IPosterPlugin posterPlugin) {
+        logger.finest("Poster scanner " + posterPlugin.getClass().getName() + " register with key " + key);
+        posterPlugins.put(key, posterPlugin);
+    }
+
+    public static void scan(Movie movie) {
+        logger.finer("Poster Scanner : Search for poster" );
+        String posterURL = getPosterURL(movie);
+        if (!Movie.UNKNOWN.equals(posterURL)) {
+            movie.setPosterURL(posterURL);
+        }
     }
 }

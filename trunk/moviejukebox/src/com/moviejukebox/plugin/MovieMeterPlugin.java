@@ -30,24 +30,21 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * The MovieMeterPlugin uses the XML-RPC API of www.moviemeter.nl (http://wiki.moviemeter.nl/index.php/API).
- *
- * Version 0.1 : Initial release
- * Version 0.2 : Fixed google search
- * Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration (Issue 676)
- * Version 0.4 : Fixed a problem when the moviemeter webservice returned no actors (Issue 677)
- *               Added extra checks if values returned from the webservice doesn't exist
- * Version 0.5 : Added Fanart download based on imdb id returned from moviemeter
- *
+ * 
+ * Version 0.1 : Initial release Version 0.2 : Fixed google search Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration
+ * (Issue 676) Version 0.4 : Fixed a problem when the moviemeter webservice returned no actors (Issue 677) Added extra checks if values returned from the
+ * webservice doesn't exist Version 0.5 : Added Fanart download based on imdb id returned from moviemeter
+ * 
  * @author RdeTuinman
- *
+ * 
  */
 public class MovieMeterPlugin extends ImdbPlugin {
 
     public static String MOVIEMETER_PLUGIN_ID = "moviemeter";
     private MovieMeterPluginSession session;
     protected String preferredSearchEngine;
-    private int preferredPlotLength; 
-    
+    private int preferredPlotLength;
+
     public MovieMeterPlugin() {
         super();
 
@@ -68,7 +65,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
     @SuppressWarnings("unchecked")
     @Override
     public boolean scan(Movie mediaFile) {
-        logger.finest("Start fetching info from moviemeter.nl for : year=" +mediaFile.getYear()+ ", title=" +mediaFile.getTitle());
+        logger.finest("Start fetching info from moviemeter.nl for : year=" + mediaFile.getYear() + ", title=" + mediaFile.getTitle());
         String moviemeterId = mediaFile.getId(MOVIEMETER_PLUGIN_ID);
 
         HashMap filmInfo = null;
@@ -96,7 +93,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
         if (filmInfo != null) {
             mediaFile.setId(MOVIEMETER_PLUGIN_ID, filmInfo.get("filmId").toString());
-            
+
             if (filmInfo.get("imdb") != null) {
                 // if moviemeter returns the imdb id, add it to the mediaFile
                 mediaFile.setId(IMDB_PLUGIN_ID, "tt" + filmInfo.get("imdb").toString());
@@ -110,10 +107,10 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 }
                 logger.finest("Fetched title: " + mediaFile.getTitle());
             }
-            
+
             if (mediaFile.getRating() == -1) {
                 if (filmInfo.get("average") != null) {
-                    mediaFile.setRating(Math.round(Float.parseFloat(filmInfo.get("average").toString())*20));
+                    mediaFile.setRating(Math.round(Float.parseFloat(filmInfo.get("average").toString()) * 20));
                 }
                 logger.finest("Fetched rating: " + mediaFile.getRating());
             }
@@ -148,7 +145,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (mediaFile.getGenres().isEmpty()) {
                 if (filmInfo.get("genres") != null) {
                     Object[] genres = (Object[])filmInfo.get("genres");
-                    for (int i=0; i<genres.length; i++) {
+                    for (int i = 0; i < genres.length; i++) {
                         mediaFile.addGenre(Library.getIndexingGenre(genres[i].toString()));
                     }
                 }
@@ -181,8 +178,8 @@ public class MovieMeterPlugin extends ImdbPlugin {
                     // So first check the Class, before casting it to an Object array
                     if (filmInfo.get("actors").getClass().equals(Object[].class)) {
                         Object[] actors = (Object[])filmInfo.get("actors");
-                        for (int i=0; i<actors.length; i++) {
-                            newCast.add((String)( ((HashMap)actors[i]).get("name")));
+                        for (int i = 0; i < actors.length; i++) {
+                            newCast.add((String)(((HashMap)actors[i]).get("name")));
                         }
                         if (newCast.size() > 0) {
                             mediaFile.setCast(newCast);
@@ -200,12 +197,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                     logger.finest("Fetched director: " + mediaFile.getDirector());
                 }
             }
-            if (mediaFile.getPosterURL() == null || mediaFile.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                if (filmInfo.get("thumbnail") != null) {
-                    mediaFile.setPosterURL(filmInfo.get("thumbnail").toString().replaceAll("thumbs/", ""));
-                }
-            }
-            
+
             if (downloadFanart && (mediaFile.getFanartURL() == null || mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
                 mediaFile.setFanartURL(getFanartURL(mediaFile));
                 if (mediaFile.getFanartURL() != null && !mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -213,23 +205,18 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 }
             }
 
-            
-
         } else {
             logger.finest("No info found");
         }
-
-
-
 
         return true;
     }
 
     /**
      * Searches www.google.nl for the moviename and retreives the movie id for www.moviemeter.nl.
-     *
+     * 
      * Only used when moviemeter.id.search=google
-     *
+     * 
      * @param movieName
      * @param year
      * @return
@@ -263,12 +250,11 @@ public class MovieMeterPlugin extends ImdbPlugin {
         }
     }
 
-    private boolean isInteger( String input )
-    {
+    private boolean isInteger(String input) {
         try {
-            Integer.parseInt( input );
+            Integer.parseInt(input);
             return true;
-        } catch( Exception error) {
+        } catch (Exception error) {
             return false;
         }
     }

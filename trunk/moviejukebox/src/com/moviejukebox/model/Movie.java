@@ -1421,6 +1421,11 @@ import com.moviejukebox.tools.PropertiesUtil;
         return posterURL;
     }
 
+    /**
+     * Should be call only from PosterScanner.
+     * Avoid calling this inside MoviePlugin
+     * @param url
+     */
     public void setPosterURL(String url) {
         if (url == null) {
             url = UNKNOWN;
