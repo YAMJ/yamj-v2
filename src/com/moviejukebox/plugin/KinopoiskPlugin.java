@@ -14,14 +14,14 @@
 /*
  Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
  Written by Yury Sidorov.
-  
+
  First the movie data is searched in IMDB and TheTvDB.
  After that the movie is searched in kinopoisk and movie data 
  is updated.
- 
+
  It is possible to specify URL of the movie page on kinopoisk in 
  the .nfo file. In this case movie data will be retrieved from this page only.  
-*/
+ */
 
 package com.moviejukebox.plugin;
 
@@ -41,7 +41,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class KinopoiskPlugin extends ImdbPlugin {
 
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
-    //Define plot length
+    // Define plot length
     int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
     String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
     protected TheTvDBPlugin tvdb;
@@ -49,30 +49,28 @@ public class KinopoiskPlugin extends ImdbPlugin {
     public KinopoiskPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Russia");
-        tvdb = new TheTvDBPlugin(); 
+        tvdb = new TheTvDBPlugin();
     }
 
     @Override
     public boolean scan(Movie mediaFile) {
         boolean retval = true;
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
-        if (kinopoiskId == null || kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) { 
+        if (kinopoiskId == null || kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Get base info from imdb or tvdb
-            if (!mediaFile.isTVShow())  
+            if (!mediaFile.isTVShow())
                 super.scan(mediaFile);
             else
                 tvdb.scan(mediaFile);
-                
+
             kinopoiskId = getKinopoiskId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
             mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
-        }
-        else {
+        } else {
             // If ID is specified in NFO, set original title to unknown
             mediaFile.setTitle(Movie.UNKNOWN);
         }
-        if (kinopoiskId != null && !kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) 
-        {
-            // Replace some movie data by data from Kinopoisk 
+        if (kinopoiskId != null && !kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            // Replace some movie data by data from Kinopoisk
             retval = updateKinopoiskMediaInfo(mediaFile, kinopoiskId);
         }
         return retval;
@@ -91,10 +89,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
         }
         super.scanNFO(nfo, movie);
     }
-    
+
     /**
-     * Retrieve Kinopoisk matching the specified movie name and year. 
-     * This routine is base on a Google request.
+     * Retrieve Kinopoisk matching the specified movie name and year. This routine is base on a Google request.
      */
     private String getKinopoiskId(String movieName, String year, int season) {
         try {
@@ -103,10 +100,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (season != -1) {
                 sb = sb + " +сериал";
             } else {
-                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) 
+                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN))
                     sb = sb + " +год +" + year;
             }
-            
+
             sb = "http://www.google.ru/search?hl=ru&q=" + URLEncoder.encode(sb, "UTF-8");
 
             String xml = webBrowser.request(sb);
@@ -149,11 +146,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String originalTitle = movie.getTitle();
             String newTitle = originalTitle;
             String xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId);
-            
+
             // Work-around for issue #649
             xml = xml.replace((CharSequence)"&#133;", (CharSequence)"&hellip;");
             xml = xml.replace((CharSequence)"&#151;", (CharSequence)"&mdash;");
-            
+
             // Title
             if (!movie.isOverrideTitle()) {
                 newTitle = HTMLTools.extractTag(xml, "class=\"moviename-big\">", 0, "<>");
@@ -170,7 +167,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     // Original title
                     originalTitle = newTitle;
                     for (String s : HTMLTools.extractTags(xml, "class=\"moviename-big\">", "</span>", "<span", "</span>")) {
-                        if (!s.isEmpty()) { 
+                        if (!s.isEmpty()) {
                             originalTitle = s;
                             newTitle = newTitle + " / " + originalTitle;
                         }
@@ -178,7 +175,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
             }
-            
+
             // Plot
             String plot = "";
             for (String p : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
@@ -188,14 +185,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     plot += p;
                 }
             }
-            
+
             if (plot.isEmpty())
                 plot = movie.getPlot();
-            
-            if (plot.length() > preferredPlotLength) 
+
+            if (plot.length() > preferredPlotLength)
                 plot = plot.substring(0, preferredPlotLength - 3) + "...";
             movie.setPlot(plot);
-            
+
             // Cast
             Collection<String> newCast = new ArrayList<String>();
             for (String actor : HTMLTools.extractTags(xml, ">В главных ролях:", "</table>", "<a href=\"/level/4", "</a>")) {
@@ -226,18 +223,18 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     } catch (Exception ignore) {
                         //
                     }
-                    while (newGenres.size() > maxGenres)  
-                        newGenres.removeLast(); 
-    
+                    while (newGenres.size() > maxGenres)
+                        newGenres.removeLast();
+
                     movie.setGenres(newGenres);
                 }
-                
+
                 // Director
                 for (String director : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
                     movie.setDirector(director);
                     break;
                 }
-                
+
                 // Writers
                 Collection<String> newWriters = new ArrayList<String>();
                 for (String writer : HTMLTools.extractTags(item, ">сценарий<", "</tr>", "<a href=\"/level/4", "</a>")) {
@@ -252,7 +249,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     mpaa = mpaaTag;
                     break;
                 }
-                
+
                 if (mpaa != null) {
                     // Now need scan for 'alt' attribute of 'img'
                     String key = "alt='рейтинг ";
@@ -274,7 +271,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     movie.setCountry(country);
                     break;
                 }
-                
+
                 // Year
                 if (movie.getYear().equals(Movie.UNKNOWN)) {
                     for (String year : HTMLTools.extractTags(item, ">год<", "</tr>", "<a href=\"/level/10", "</a>")) {
@@ -282,7 +279,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         break;
                     }
                 }
-                
+
                 // Run time
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                     for (String runtime : HTMLTools.extractTags(item, ">время<", "</tr>", "<td", "</td>")) {
@@ -291,12 +288,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
             }
-            
+
             // Rating
             int kinopoiskRating = -1;
-            for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/"+kinopoiskId+"/\"", "</a>", "", "<")) {
+            for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/" + kinopoiskId + "/\"", "</a>", "", "<")) {
                 try {
-                    kinopoiskRating = (int)(Float.parseFloat(rating)*10);
+                    kinopoiskRating = (int)(Float.parseFloat(rating) * 10);
                 } catch (Exception ignore) {
                     // Ignore
                 }
@@ -305,11 +302,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             int imdbRating = movie.getRating();
             if (imdbRating == -1) {
-                // Get IMDB rating from kinopoisk page 
+                // Get IMDB rating from kinopoisk page
                 String rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
                 if (!rating.equals(Movie.UNKNOWN)) {
                     try {
-                        imdbRating = (int)(Float.parseFloat(rating)*10);
+                        imdbRating = (int)(Float.parseFloat(rating) * 10);
                     } catch (Exception ignore) {
                         // Ignore
                     }
@@ -317,21 +314,21 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             int r = kinopoiskRating;
-            if (imdbRating != -1) { 
+            if (imdbRating != -1) {
                 if (preferredRating.equals("imdb") || kinopoiskRating == -1)
                     r = imdbRating;
-                else
-                    if (preferredRating.equals("average"))
-                        r = (kinopoiskRating + imdbRating)/2;
+                else if (preferredRating.equals("average"))
+                    r = (kinopoiskRating + imdbRating) / 2;
             }
             movie.setRating(r);
 
             // Poster
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setTitle(originalTitle);
-                movie.setPosterURL(locatePosterURL(movie, ""));
+                // Removing Poster info from plugins. Use of PosterScanner routine instead.
+                // movie.setPosterURL(locatePosterURL(movie, ""));
             }
-            
+
             // Finally set title
             movie.setTitle(newTitle);
 

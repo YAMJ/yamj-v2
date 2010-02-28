@@ -63,6 +63,7 @@
       <batchtest todir="build/report">
         <fileset dir="build/test">
           <include name="**/*Test.class"/>
+        	<include name="**/*TestCase.class"/>
         </fileset>
       </batchtest>
     </junit>

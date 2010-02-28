@@ -13,17 +13,17 @@
 
 package com.moviejukebox.tools;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.net.URLEncoder;
-import java.net.URLDecoder;
-import java.io.UnsupportedEncodingException;
-import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 
@@ -425,6 +425,52 @@ public class HTMLTools {
         return Movie.UNKNOWN;
     }
 
+    public static ArrayList<String> extractHtmlTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
+        ArrayList<String> tags = new ArrayList<String>();
+        int index = src.indexOf(sectionStart);
+        if (index == -1) {
+            // logger.finest("AllocinePlugin: HTMLTools.extractTags no sectionStart Tags found");
+            return tags;
+        }
+        index += sectionStart.length();
+        int endIndex = src.indexOf(sectionEnd, index);
+        if (endIndex == -1) {
+            // logger.finest("AllocinePlugin: HTMLTools.extractTags no sectionEnd Tags found");
+            return tags;
+        }
+
+        String sectionText = src.substring(index, endIndex);
+        int lastIndex = sectionText.length();
+        index = 0;
+        int endLen = endTag.length();
+
+        if (startTag != null) {
+            index = sectionText.indexOf(startTag);
+        }
+        // logger.finest("AllocinePlugin: HTMLTools.extractTags sectionText = " + sectionText);
+        // logger.finest("AllocinePlugin: HTMLTools.extractTags startTag = " + startTag);
+        // logger.finest("AllocinePlugin: HTMLTools.extractTags startTag index = " + index);
+        while (index != -1) {
+            endIndex = sectionText.indexOf(endTag, index);
+            if (endIndex == -1) {
+                endIndex = lastIndex;
+            }
+            endIndex += endLen;
+            String text = sectionText.substring(index, endIndex);
+            // logger.finest("AllocinePlugin: HTMLTools.extractTags Tag found text = " + text);
+            tags.add(text);
+            if (endIndex > lastIndex) {
+                break;
+            }
+            if (startTag != null) {
+                index = sectionText.indexOf(startTag, endIndex);
+            } else {
+                index = endIndex;
+            }
+        }
+        return tags;
+    }
+
     public static String removeHtmlTags(String src) {
         return src.replaceAll("\\<.*?>", "");
     }
@@ -494,6 +540,10 @@ public class HTMLTools {
     }
 
     public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
+        return extractTags(src, sectionStart, sectionEnd, startTag, endTag, true);
+    }
+
+    public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag, boolean forceCloseTag) {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
@@ -518,9 +568,11 @@ public class HTMLTools {
 
         while (index != -1) {
             index += startLen;
-            int close = sectionText.indexOf('>', index);
-            if (close != -1) {
-                index = close + 1;
+            if (forceCloseTag) {
+                int close = sectionText.indexOf('>', index);
+                if (close != -1) {
+                    index = close + 1;
+                }
             }
             endIndex = sectionText.indexOf(endTag, index);
             if (endIndex == -1) {

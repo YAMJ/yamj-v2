@@ -4,6 +4,7 @@
 
 MovieJukebox 1.9 BETA
 ---------------------
+  - Fixed defect  #981 Use poster.scanner.SearchPriority regardless of mjb.internet.plugin (other than IMDb)
   - Enhancement  #1239 Plugin for www.comingsoon.it
   - Fixed defect #1283 IMDB update for non-MPAA Certification
   - Fixed defect #1284 Comma divider missing when not all fields present in default skins

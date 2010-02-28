@@ -40,7 +40,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle[^>]+\"(http://[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
     private static Pattern longPlotUrlPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\"]*/opisy");
-    private static Pattern posterUrlPattern = Pattern.compile("artshow[^>]+(http://gfx.filmweb.pl[^\"]+)\"");
+
     private static Pattern episodesUrlPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\"]*/odcinki");
     protected String filmwebPreferredSearchEngine;
     protected String filmwebPlot;
@@ -82,12 +82,12 @@ public class FilmwebPlugin extends ImdbPlugin {
     /**
      * retrieve the filmweb url matching the specified movie name and year.
      */
-    protected String getFilmwebUrl(String movieName, String year) {
-        if ("google".equalsIgnoreCase(preferredSearchEngine)) {
+    public String getFilmwebUrl(String movieName, String year) {
+        if ("google".equalsIgnoreCase(imdbInfo.getPreferredSearchEngine())) {
             return getFilmwebUrlFromGoogle(movieName, year);
-        } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
+        } else if ("yahoo".equalsIgnoreCase(imdbInfo.getPreferredSearchEngine())) {
             return getFilmwebUrlFromYahoo(movieName, year);
-        } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
+        } else if ("none".equalsIgnoreCase(imdbInfo.getPreferredSearchEngine())) {
             return Movie.UNKNOWN;
         } else {
             return getFilmwebUrlFromFilmweb(movieName, year);
@@ -267,9 +267,12 @@ public class FilmwebPlugin extends ImdbPlugin {
                 movie.setCast(HTMLTools.extractTags(xml, "film-starring", "</table>", "<img ", "</a>"));
             }
 
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setPosterURL(getFilmwebPosterURL(movie, xml));
-            }
+            // Removing Poster info from plugins. Use of PosterScanner routine instead.
+            
+
+            // if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            // movie.setPosterURL(getFilmwebPosterURL(movie, xml));
+            // }
 
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
@@ -331,30 +334,13 @@ public class FilmwebPlugin extends ImdbPlugin {
     private String updateImdbId(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            imdbId = getImdbId(movie.getTitle(), movie.getYear());
+            imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear());
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
         return imdbId;
     }
 
-    protected String getFilmwebPosterURL(Movie movie, String xml) {
-        String posterURL = Movie.UNKNOWN;
-        Matcher m = posterUrlPattern.matcher(xml);
-        if (m.find()) {
-            posterURL = m.group(1);
-        } else {
-            String imdbId = updateImdbId(movie);
-            if (imdbId != null && !imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-                try {
-                    String imdbXml = webBrowser.request("http://www.imdb.com/title/" + imdbId);
-                    posterURL = super.locatePosterURL(movie, imdbXml);
-                } catch (IOException error) {
-                    return posterURL;
-                }
-            }
-        }
-        return posterURL;
-    }
+
 
     public void scanTVShowTitles(Movie movie) {
         scanTVShowTitles(movie, null);

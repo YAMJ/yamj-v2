@@ -1186,8 +1186,9 @@ public class MovieJukebox {
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
                 PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
-
+            
             DatabasePluginController.scan(movie);
+            PosterScanner.scan(movie);
         }
     }
 
