@@ -134,6 +134,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setOriginalTitle(series.getSeriesName());
                     }
                 }
+                
                 if (movie.getYear().equals(Movie.UNKNOWN)) {
                     sem.acquireUninterruptibly();
                     String year = tvDB.getSeasonYear(id, movie.getSeason(), language);
@@ -142,24 +143,31 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setYear(year);
                     }
                 }
+                
                 if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
                     movie.setRating((int)(Float.parseFloat(series.getRating()) * 10));
                 }
+                
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                     movie.setRuntime(series.getRuntime());
                 }
+                
                 if (movie.getCompany().equals(Movie.UNKNOWN)) {
                     movie.setCompany(series.getNetwork());
                 }
+                
                 if (movie.getGenres().isEmpty()) {
                     movie.setGenres(series.getGenres());
                 }
+                
                 if (movie.getPlot().equals(Movie.UNKNOWN)) {
                     movie.setPlot(series.getOverview());
                 }
+                
                 if (movie.getCertification().equals(Movie.UNKNOWN)) {
                     movie.setCertification(series.getContentRating());
                 }
+                
                 if (movie.getCast().isEmpty()) {
                     movie.setCast(series.getActors());
                 }
@@ -262,6 +270,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                     }
                 }
+                
                 // we may not have here the semaphore acquired, could lead to deadlock if limit is 1 and this function also needs a slot
                 scanTVShowTitles(movie);
             }
@@ -294,7 +303,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (episode != null) {
-                        // FIXME SB: I think this causes an issue when re-scanning multi-episode files/disks
                         if (first) {
                             first = false;
                         } else {
@@ -322,7 +330,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                 episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
                             }
                             file.setPlot(part, episodePlot);
-
                         }
 
                         if (includeVideoImages) {
