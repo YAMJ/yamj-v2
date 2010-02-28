@@ -25,6 +25,6 @@ public class SubBabaPosterPluginTestCase extends TestCase {
         assertEquals("488", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(ID_MOVIE);
-        assertEquals("http://images.allocine.fr/r_760_x/medias/nmedia/18/64/43/65/19211318.jpg", posterUrl);
+        assertEquals("http://www.sub-baba.com/site/download.php?type=1&id=488", posterUrl);
     }
 }
