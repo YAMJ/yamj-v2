@@ -305,48 +305,6 @@ public class PosterScanner {
         return posterURL;
     }
 
-    // private static String getPosterURLFromAllocine(Movie movie, String posterMediaId) {
-    // String posterURL = Movie.UNKNOWN;
-    // String xml = "";
-    //
-    // try {
-    // // Check alloCine first only for movies because TV Show posters are wrong.
-    // if (!movie.isTVShow()) {
-    // try { // sometimes the mediaFileURL is wrong and give IO error
-    // if (posterMediaId.compareToIgnoreCase(Movie.UNKNOWN) != 0) {
-    // String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID) + "/affiches/detail/?cmediafile="
-    // + posterMediaId;
-    // logger.finest("AllocinePlugin: mediaFileURL : " + mediaFileURL);
-    // xml = webBrowser.request(mediaFileURL);
-    //
-    // String posterURLTag = extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
-    // // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
-    // posterURL = extractTag(posterURLTag, "<img src=\"", "\"");
-    //
-    // if (!posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-    // logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
-    // movie.setPosterURL(posterURL);
-    // return;
-    // }
-    // }
-    // } catch (IOException ioerror) {
-    // // just do nothing and pass the search of poster to PosterScanner
-    // }
-    //
-    // posterURL = PosterScanner.getPosterURL(movie, xml, IMDB_PLUGIN_ID);
-    // logger.finest("AllocinePlugin: Movie PosterURL from other source : " + posterURL);
-    // movie.setPosterURL(posterURL);
-    // return;
-    // }
-    // } catch (Exception error) {
-    // logger.severe("AllocinePlugin: Failed retreiving poster for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
-    // final Writer eResult = new StringWriter();
-    // final PrintWriter printWriter = new PrintWriter(eResult);
-    // error.printStackTrace(printWriter);
-    // logger.severe(eResult.toString());
-    // }
-    // }
-    // }
 
     /**
      * Get the size of the file at the end of the URL Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
