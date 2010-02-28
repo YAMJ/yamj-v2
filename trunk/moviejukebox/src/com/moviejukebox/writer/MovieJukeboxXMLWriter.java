@@ -320,7 +320,7 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (ns.equalsIgnoreCase("firstPart")) {
-                            mf.setPart(Integer.parseInt(attr.getValue()));
+                            mf.setFirstPart(Integer.parseInt(attr.getValue()));
                             continue;
                         }
 
