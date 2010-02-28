@@ -563,7 +563,11 @@ public class MovieJukebox {
         int MaxThreadsScan = Integer.parseInt(getProperty("mjb.MaxThreadsScan", "4"));
         int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", Integer.toString(Runtime.getRuntime().availableProcessors())));
         logger.fine("Using " + MaxThreadsScan + " scanning threads and " + MaxThreadsProcess + " processing threads...");
-        logger.fine("See README.TXT for increasing performance using these settings.");
+        if (MaxThreadsScan + MaxThreadsProcess == 2) {
+            // Display the note about the performance, otherwise assume that the user knows how to change
+            // these parameters as they aren't set to the minimum
+            logger.fine("See README.TXT for increasing performance using these settings.");
+        }
         int nbFiles = 0;
         String cleanCurrent = "";
         String cleanCurrentExt = "";
@@ -1682,12 +1686,14 @@ public class MovieJukebox {
                         for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                             if (recheckEpisodePlots && mf.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " XML is missing TV plot, will rescan");
+                                mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
                             }
                             
                             if (recheckVideoImages && mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " XML is missing TV video image, will rescan");
+                                mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
                             }
