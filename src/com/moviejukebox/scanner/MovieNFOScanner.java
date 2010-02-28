@@ -203,13 +203,18 @@ public class MovieNFOScanner {
     private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
         // logger.finest("checkNFO = " + checkNFOfilename);
         File nfoFile = new File(checkNFOfilename + ".nfo");
-        logger.finest("Checking for NFO: " + checkNFOfilename + ".nfo");
         if (nfoFile.exists()) {
+            logger.finest("Found NFO: " + checkNFOfilename + ".nfo");
             nfoFiles.add(nfoFile);
         } else {
             nfoFile = new File(checkNFOfilename + ".NFO");
             if (nfoFile.exists()) {
+                logger.finest("Found NFO: " + checkNFOfilename + ".nfo");
                 nfoFiles.add(nfoFile);
+            } else {
+                // We put this here, even though, technically, we've already searched for the file
+                // so the user will see where they COULD place the file.
+                logger.finest("Checking for NFO: " + checkNFOfilename + ".nfo");
             }
         }
     }
