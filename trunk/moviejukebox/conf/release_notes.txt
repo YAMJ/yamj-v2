@@ -26,6 +26,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1306 Movie poster found on www.caratulasdecine.com (and retrieved),but generation sends "not found on www.caratulasdecine.com"
   - Fixed defect #1309 XML file overwrites the lastPart of a multipart TV Show or Movie
   - Fixed defect #1310 imdb.es not picking up genres
+  - Fixed defect #1311 YAMJ doesn't use MediaInfo's information in vob and mp4 files and some mkv
   
 MovieJukebox 1.8
 ----------------
