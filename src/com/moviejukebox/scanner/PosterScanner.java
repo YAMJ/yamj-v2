@@ -123,7 +123,10 @@ public class PosterScanner {
 
         if (searchForExistingCoverArt.equalsIgnoreCase("moviename")) {
             // Encode the basename to ensure that non-usable file system characters are replaced
-            localPosterBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
+            // Issue 1155 : YAMJ refuses to pickup fanart and poster for a movie -
+            // Do not make safe file name before searching.
+            //localPosterBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
+            localPosterBaseFilename = movie.getBaseName();
         } else if (searchForExistingCoverArt.equalsIgnoreCase("fixedcoverartname")) {
             localPosterBaseFilename = fixedCoverArtName;
         } else {
