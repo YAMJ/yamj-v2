@@ -1174,7 +1174,7 @@ public class MovieJukebox {
             if (forceXMLOverwrite) {
                 logger.finer("Rescanning internet for information on " + movie.getBaseName());
             } else {
-                logger.finer("XML file not found. Scanning internet for information on " + movie.getBaseName());
+                logger.finer("Jukebox XML file not found. Scanning for information on " + movie.getBaseName());
             }
 
             // Changing call order, first MediaInfo then NFO. NFO will overwrite every info it will contains.

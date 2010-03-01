@@ -237,7 +237,6 @@ public class MediaInfoScanner {
 
             // Get cat ArrayList from cat name.
             ArrayList<HashMap<String, String>> currentCat = matches.get(line);
-            System.out.println("Line " + line + " . " + currentCat);
             if (currentCat != null) {
                 // logger.finer("Current category : " + line);
                 HashMap<String, String> currentData = new HashMap<String, String>();
