@@ -1,0 +1,58 @@
+* Général
+Complete name                    : Z:\moviename.mkv
+Format                           : Matroska
+File size                        : 683 Mio
+Duration                         : 1h 40mn
+Overall bit rate                 : 948 Kbps
+Movie name                       : Movie
+Writing application              : AVI-Mux GUI 1.17.7, Aug  8 2006  20:59:17
+Writing library                  : matroska muxer by Alexander Noe, build
+date Aug  8 2006
+
+Vidéo
+ID                               : 1
+Format                           : MPEG-4 Visual
+Format settings, BVOP            : Oui
+Format settings, QPel            : Non
+Format settings, GMC             : 2 warppoints
+Format settings, Matrix          : Default (H.263)
+Codec ID                         : DX50
+Codec ID/Hint                    : DivX 5
+Duration                         : 1h 40mn
+Bit rate                         : 801 Kbps
+Width                            : 608 pixels
+Height                           : 336 pixels
+Display aspect ratio             : 16/9
+Frame rate                       : 25,000 Im/s
+Resolution                       : 8 bits
+Scan type                        : Progressif
+Bits/(Pixel*Frame)               : 0.157
+Stream size                      : 577 Mio (84%)
+Writing library                  : DivX 5.0.2 (UTC 2002-05-16)
+
+Audio #1
+ID                               : 2
+Format                           : WMA
+Format version                   : Version 2
+Codec ID                         : 161
+Codec ID/Info                    : Windows Media Audio
+Duration                         : 1h 40mn
+Bit rate                         : 64,1 Kbps
+Channel(s)                       : 2 canaux
+Sampling rate                    : 44,1 KHz
+Resolution                       : 16 bits / 16 bits
+Stream size                      : 46,1 Mio (7%)
+
+Audio #2
+ID                               : 3
+Format                           : WMA
+Format version                   : Version 2
+Codec ID                         : 161
+Codec ID/Info                    : Windows Media Audio
+Duration                         : 1h 40mn
+Bit rate                         : 64,1 Kbps
+Channel(s)                       : 2 canaux
+Sampling rate                    : 44,1 KHz
+Resolution                       : 16 bits / 16 bits
+Stream size                      : 46,1 Mio (7%)
+

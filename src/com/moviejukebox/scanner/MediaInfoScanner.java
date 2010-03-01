@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -210,16 +211,17 @@ public class MediaInfoScanner {
         return line;
     }
 
-    private void parseMediaInfo(Process p, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
+    public void parseMediaInfo(InputStream in, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
                     ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
-
-        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
+        BufferedReader input = new BufferedReader(new InputStreamReader(in));
         // Improvement, less code line, each cat have same code, so use the same for all.
         Map<String, ArrayList<HashMap<String, String>>> matches = new HashMap<String, ArrayList<HashMap<String, String>>>();
         // Create a fake one for General, we got only one, but to use the same algo we must create this one.
         matches.put("General", new ArrayList<HashMap<String, String>>());
+        matches.put("Géneral",matches.get("General")); // Issue 1311 - Create a "link" between General and Général
+        matches.put("* Général",matches.get("General")); // Issue 1311 - Create a "link" between General and * Général
         matches.put("Video", infosVideo);
+        matches.put("Vidéo", matches.get("Video")); // Issue 1311 - Create a "link" between Vidéo and Video 
         matches.put("Audio", infosAudio);
         matches.put("Text", infosText);
 
@@ -235,7 +237,7 @@ public class MediaInfoScanner {
             // Get cat ArrayList from cat name.
             ArrayList<HashMap<String, String>> currentCat = matches.get(line);
             if (currentCat != null) {
-                //logger.finer("Current category : " + line);
+                // logger.finer("Current category : " + line);
                 HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
@@ -252,13 +254,18 @@ public class MediaInfoScanner {
 
         // Setting General Info - Beware of lose data if infosGeneral already have some ...
         try {
-            infosGeneral = matches.get("General").get(0);
+            infosGeneral.putAll( matches.get("General").get(0));
         } catch (Exception ignore) {
             // We don't care about this exception
         }
 
         input.close();
+    }
 
+    private void parseMediaInfo(Process p, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
+                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
+
+        this.parseMediaInfo(p.getInputStream(), infosGeneral, infosVideo, infosAudio, infosText);
     }
 
     private void updateMovieInfo(Movie movie, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
@@ -554,7 +561,7 @@ public class MediaInfoScanner {
             for (String language : foundLanguages) {
                 if (index++ > 0) {
                     movie.setLanguage(movie.getLanguage() + " / " + language);
-                }else{
+                } else {
                     movie.setLanguage(language);
                 }
             }
