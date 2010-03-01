@@ -1553,13 +1553,11 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     public void addIndex(String key, String index) {
         if (key != null && index != null) {
-            this.isDirty = true;
             indexes.put(key, index);
         }
     }
 
     public void setIndexes(Map<String, String> indexes) {
-        this.isDirty = true;
         this.indexes = new HashMap<String, String>(indexes);
     }
 }
