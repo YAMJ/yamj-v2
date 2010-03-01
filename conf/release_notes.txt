@@ -8,6 +8,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)
   - Fixed defect #1155 YAMJ refuses to pickup fanart and poster for a movie
   - Enhancement  #1239 Plugin for www.comingsoon.it
+  - Enhancement  #1277 Get all available IMDb information (actors, directors, genres, etc)
   - Fixed defect #1283 IMDB update for non-MPAA Certification
   - Fixed defect #1284 Comma divider missing when not all fields present in default skins
   - Fixed defect #1287 Bad extraction of TVDb id from NFO
