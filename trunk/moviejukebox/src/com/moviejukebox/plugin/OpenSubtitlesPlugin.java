@@ -45,7 +45,7 @@ public class OpenSubtitlesPlugin {
     private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
     private static String useragent = "moviejukebox 1.0.15";
-    private static String OSdbServer = "http://www.opensubtitles.org/xml-rpc";
+    private static String OSdbServer = "http://api.opensubtitles.org";
     private static String token = "";
     private static String sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
 
