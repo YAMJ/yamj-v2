@@ -49,7 +49,7 @@
 
 	<target name="test" depends="compile-test">
 		<junit forkmode="once" fork="yes" printsummary="yes" haltonfailure="no" failureproperty="tests.failed" showoutput="true">
-			<jvmarg value="-Dfile.encoding=UTF-8"/>
+			<jvmarg value="-Dfile.encoding=UTF-8" />
 			<classpath>
 				<fileset dir="lib">
 					<include name="**/*.jar" />
@@ -63,8 +63,8 @@
 			<batchtest todir="build/report">
 				<fileset dir="build/test">
 					<include name="**/*Test.class" />
-					<include name="**/*TestCase.class"/>
-					<exclude name="**/*PosterPluginTestCase.class"/>
+					<include name="**/*TestCase.class" />
+					<exclude name="**/*PosterPluginTestCase.class" />
 				</fileset>
 			</batchtest>
 		</junit>
@@ -96,7 +96,7 @@
 			<formatter type="plain" />
 			<batchtest todir="build/report">
 				<fileset dir="build/test">
-					<include name="**/*PosterPluginTestCase.class"/>
+					<include name="**/*PosterPluginTestCase.class" />
 				</fileset>
 			</batchtest>
 		</junit>
@@ -113,7 +113,7 @@
 	      ****************************************************************
 	    </fail>
 	</target>
-	
+
 	<target name="delivery" depends="clean, compile">
 		<mkdir dir="dist/lib" />
 
@@ -129,7 +129,14 @@
 			<attribute name="Implementation-Title" value="${TODAY}" />
 		</manifest>
 
-		<jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class" manifest="MANIFEST.MF" />
+		<copy todir="build/classes/" overwrite="true">
+			<fileset dir="resources">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+
+
+		<jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class,META-INF/**" manifest="MANIFEST.MF" />
 
 		<copy todir="dist/lib">
 			<fileset dir="lib">
