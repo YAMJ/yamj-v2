@@ -217,11 +217,12 @@ public class MediaInfoScanner {
         // Improvement, less code line, each cat have same code, so use the same for all.
         Map<String, ArrayList<HashMap<String, String>>> matches = new HashMap<String, ArrayList<HashMap<String, String>>>();
         // Create a fake one for General, we got only one, but to use the same algo we must create this one.
-        matches.put("General", new ArrayList<HashMap<String, String>>());
-        matches.put("Géneral",matches.get("General")); // Issue 1311 - Create a "link" between General and Général
-        matches.put("* Général",matches.get("General")); // Issue 1311 - Create a "link" between General and * Général
+        String generalKey[] = { "General", "Géneral", "* Général" };
+        matches.put(generalKey[0], new ArrayList<HashMap<String, String>>());
+        matches.put(generalKey[1], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and Général
+        matches.put(generalKey[2], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and * Général
         matches.put("Video", infosVideo);
-        matches.put("Vidéo", matches.get("Video")); // Issue 1311 - Create a "link" between Vidéo and Video 
+        matches.put("Vidéo", matches.get("Video")); // Issue 1311 - Create a "link" between Vidéo and Video
         matches.put("Audio", infosAudio);
         matches.put("Text", infosText);
 
@@ -236,6 +237,7 @@ public class MediaInfoScanner {
 
             // Get cat ArrayList from cat name.
             ArrayList<HashMap<String, String>> currentCat = matches.get(line);
+            System.out.println("Line " + line + " . " + currentCat);
             if (currentCat != null) {
                 // logger.finer("Current category : " + line);
                 HashMap<String, String> currentData = new HashMap<String, String>();
@@ -254,7 +256,16 @@ public class MediaInfoScanner {
 
         // Setting General Info - Beware of lose data if infosGeneral already have some ...
         try {
-            infosGeneral.putAll( matches.get("General").get(0));
+            for (int i = 0; i < generalKey.length; i++) {
+                ArrayList<HashMap<String, String>> arrayList = matches.get(generalKey[i]);
+                if (arrayList.size() > 0) {
+                    HashMap<String, String> datas = arrayList.get(0);
+                    if (datas.size() > 0) {
+                        infosGeneral.putAll(datas);
+                        break;
+                    }
+                }
+            }
         } catch (Exception ignore) {
             // We don't care about this exception
         }
