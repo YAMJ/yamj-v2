@@ -39,10 +39,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected String preferredCountry;
     private String imdbPlot;
-    // protected String imdbSite;
     protected WebBrowser webBrowser;
     protected boolean downloadFanart;
     private boolean extractCertificationFromMPAA;
+    private boolean getFullInfo;
     protected String fanartToken;
     private int preferredPlotLength;
     private ImdbSiteDataDefinition siteDef;
@@ -62,7 +62,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
         extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
-
+        getFullInfo = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.full.info", "false"));
     }
 
     @Override
@@ -113,8 +113,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private boolean updateImdbMediaInfo(Movie movie) {
         try {
-            String xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/", siteDef.getCharset());
-
+            String xml = null;
+            if (getFullInfo) {
+                xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/combined", siteDef.getCharset());
+            } else {
+                xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/", siteDef.getCharset());
+            }
+            
             if (xml.contains("\"tv-extra\"")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
