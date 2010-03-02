@@ -331,7 +331,7 @@ public class AppleTrailersPlugin {
 
     private void getTrailerMovieUrl(String xml, ArrayList<String> trailersUrl) {
 
-        Matcher m = Pattern.compile("http://(movies|images).apple.com/movies/.+?\\.(mov|m4v)").matcher(xml);
+        Matcher m = Pattern.compile("http://(movies|images|trailers).apple.com/movies/[^\"]+?-(tlr|trailer)[^\"]+?\\.(mov|m4v)(\")").matcher(xml);
         while (m.find()) {
             String movieUrl = m.group();
             boolean duplicate = false;
@@ -344,7 +344,7 @@ public class AppleTrailersPlugin {
             }
         
             if (!duplicate)
-                trailersUrl.add(movieUrl);
+                trailersUrl.add(movieUrl.substring(0, movieUrl.lastIndexOf("\"")));
         }
     }
 
