@@ -566,15 +566,19 @@ public class PosterScanner {
         // TODO move these Ids to a preferences file.
         imdbID = movie.getId("imdb");
         tmdbID = movie.getId("themoviedb");
+        String id=null;
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            id=tmdbID;
             // moviedb = TMDb.moviedbGetInfo(tmdbID, language);
             moviedb = TMDb.moviedbGetImages(tmdbID, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            id=imdbID;
             // moviedb = TMDb.moviedbImdbLookup(imdbID, language);
             moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
             // We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
             moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
+           id=moviedb.getId();
         }
 
         try {
@@ -583,7 +587,7 @@ public class PosterScanner {
             if (artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN)) {
                 return Movie.UNKNOWN;
             } else {
-                logger.finest("PosterScanner: Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + moviedb.getId());
+                logger.finest("PosterScanner: Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
                 movie.setDirtyPoster(true);
                 return artwork.getUrl();
             }
