@@ -31,6 +31,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1311 YAMJ doesn't use MediaInfo's information in vob and mp4 files and some mkv
   - Fixed defect #1312 Caratulasdecine Poster is no longer retrieved from site
   - Fixed defect #1313 OpenSubtitles move API clients to another servers
+  - Fixed defect #1316 Set posters are not picked up
   
 MovieJukebox 1.8
 ----------------
