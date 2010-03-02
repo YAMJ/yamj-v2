@@ -139,7 +139,7 @@ public class MovieMeterPosterPlugin implements IPosterPlugin {
 
     @Override
     public String getName() {
-        return "Caratulasdecine";
+        return "movieposter";
     }
 
     @Override
