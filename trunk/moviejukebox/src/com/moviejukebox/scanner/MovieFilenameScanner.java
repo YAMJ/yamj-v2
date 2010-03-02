@@ -117,7 +117,7 @@ public class MovieFilenameScanner {
 
         {
             // http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-            // TODO : Extract this to an extrenal config file, it let people customize without rebuild.
+            // TODO : Extract this to an external config file, it let people customize without rebuild.
             put("Chinese", "ZH Zh zh CHI Chi chi CHINESE Chinese chinese");
             put("Dual Language", "DL dl");
             put("English", "ENG EN ENGLISH eng en english Eng");
