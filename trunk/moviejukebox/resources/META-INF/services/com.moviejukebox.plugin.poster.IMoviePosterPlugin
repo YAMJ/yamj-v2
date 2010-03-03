@@ -4,7 +4,14 @@ com.moviejukebox.plugin.poster.CdonPosterPlugin
 com.moviejukebox.plugin.poster.FilmAffinityPosterPlugin
 com.moviejukebox.plugin.poster.FilmUpItPosterPlugin
 com.moviejukebox.plugin.poster.FilmwebPosterPlugin
+com.moviejukebox.plugin.poster.GooglePosterPlugin
+com.moviejukebox.plugin.poster.ImdbPosterPlugin
+com.moviejukebox.plugin.poster.ImpAwardsPosterPlugin
+com.moviejukebox.plugin.poster.MotechnetPosterPlugin
+com.moviejukebox.plugin.poster.MovieCoversPosterPlugin
+com.moviejukebox.plugin.poster.MovieDbPosterPlugin
 com.moviejukebox.plugin.poster.MovieMeterPosterPlugin
 com.moviejukebox.plugin.poster.ScopeDkPosterPlugin
 com.moviejukebox.plugin.poster.SratimPosterPlugin
 com.moviejukebox.plugin.poster.SubBabaPosterPlugin
+com.moviejukebox.plugin.poster.YahooPosterPlugin

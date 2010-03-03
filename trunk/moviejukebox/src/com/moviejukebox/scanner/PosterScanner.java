@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,14 +36,9 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.plugin.ImdbInfo;
-import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
 import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
-import com.moviejukebox.themoviedb.TheMovieDb;
-import com.moviejukebox.themoviedb.model.Artwork;
-import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -260,7 +253,7 @@ public class PosterScanner {
     }
 
     private static String getPluginsCode() {
-        String response = "google / yahoo / motechnet / impawards / moviedb / imdb / ";
+        String response = "";
 
         Set<String> keySet = posterPlugins.keySet();
         for (String string : keySet) {
@@ -292,44 +285,27 @@ public class PosterScanner {
         while (st.hasMoreTokens() && posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
             posterSearchToken = st.nextToken();
 
-            if (posterSearchToken.equalsIgnoreCase("google")) {
-                posterURL = getPosterURLFromGoogle(movie.getTitle());
-            } else if (posterSearchToken.equalsIgnoreCase("yahoo")) {
-                posterURL = getPosterURLFromYahoo(movie.getTitle());
-            } else if (posterSearchToken.equalsIgnoreCase("motechnet")) {
-                posterURL = getPosterURLFromMotechnet(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
-            } else if (posterSearchToken.equalsIgnoreCase("impawards")) {
-                posterURL = getPosterURLFromImpAwards(movie.getTitle(), movie.getYear());
-            } else if (posterSearchToken.equalsIgnoreCase("moviecovers")) {
-                posterURL = getPosterURLFromMovieCovers(movie);
-            } else if (posterSearchToken.equalsIgnoreCase("moviedb")) {
-                posterURL = getPosterURLFromMovieDbAPI(movie);
-            } else if (posterSearchToken.equalsIgnoreCase("imdb")) {
-                posterURL = getPosterURLFromImdb(movie.getTitle(), movie.getYear());
-            } else {
-                IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
-                // Check that plugin is register even on movie or tv
-                if (iPosterPlugin == null) {
-                    logger.severe("PosterScanner: '" + posterSearchToken
-                                    + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : " + getPluginsCode());
-                }
+            IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
+            // Check that plugin is register even on movie or tv
+            if (iPosterPlugin == null) {
+                logger.severe("Posterscanner: '" + posterSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : "
+                                + getPluginsCode());
+            }
 
-                if (movie.isTVShow()) {
-                    ITvShowPosterPlugin iTvShowPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
-                    if (iTvShowPosterPlugin == null) {
-                        logger.info("PosterScanner: " + posterSearchToken + " is not a TvShow Poster plugin - skipping");
-                    } else {
-                        posterURL = iTvShowPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.getSeason());
-                    }
+            if (movie.isTVShow()) {
+                ITvShowPosterPlugin iTvShowPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
+                if (iTvShowPosterPlugin == null) {
+                    logger.info("Posterscanner: " + posterSearchToken + " is not a TvShow Poster plugin - skipping");
                 } else {
-                    IMoviePosterPlugin iMoviePosterPlugin = moviePosterPlugins.get(posterSearchToken);
-                    if (iMoviePosterPlugin == null) {
-                        logger.info("PosterScanner: " + posterSearchToken + " is not a Movie Poster plugin - skipping");
-                    } else {
-                        posterURL = iMoviePosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear());
-                    }
+                    posterURL = iTvShowPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.getSeason());
                 }
-
+            } else {
+                IMoviePosterPlugin iMoviePosterPlugin = moviePosterPlugins.get(posterSearchToken);
+                if (iMoviePosterPlugin == null) {
+                    logger.info("Posterscanner: " + posterSearchToken + " is not a Movie Poster plugin - skipping");
+                } else {
+                    posterURL = iMoviePosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear());
+                }
             }
 
             // Validate the poster
@@ -405,289 +381,18 @@ public class PosterScanner {
         return true;
     }
 
-    /**
-     * Search Google images for a poster to use for the movie
-     * 
-     * @param movieName
-     *            The name of the movie to search for
-     * @return A URL of the poster to use.
-     * 
-     *         TODO Change out the French Google for English
-     */
-    public static String getPosterURLFromGoogle(String movieName) {
-        try {
-            StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            sb.append("&gbv=2");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("imgurl=") + 7;
-
-            if (beginIndex != -1) {
-                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
-                return st.nextToken();
-            } else {
-                return Movie.UNKNOWN;
-            }
-        } catch (Exception error) {
-            logger.severe("PosterScanner: Failed retreiving poster URL from google images : " + movieName);
-            logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    /**
-     * Search Yahoo images for a poster to use for the movie
-     * 
-     * @param movieName
-     *            The name of the movie to search for
-     * @return A URL of the poster to use.
-     * 
-     *         TODO Change out the French Yahoo for English
-     */
-    public static String getPosterURLFromYahoo(String movieName) {
-        try {
-            StringBuffer sb = new StringBuffer("http://fr.images.search.yahoo.com/search/images?p=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("imgurl=");
-            int endIndex = xml.indexOf("%26", beginIndex);
-
-            if (beginIndex != -1 && endIndex > beginIndex) {
-                return URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
-            } else {
-                return Movie.UNKNOWN;
-            }
-        } catch (Exception error) {
-            logger.severe("PosterScanner: Failed retreiving poster URL from yahoo images : " + movieName);
-            logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    /**
-     * Search Motechnet for a poster to use for the movie
-     * 
-     * @param movieID
-     *            The IMDb ID for the movie
-     * @return A poster URL to use for the movie.
-     */
-    public static String getPosterURLFromMotechnet(String movieID) {
-        try {
-            webBrowser.request("http://posters.motechnet.com/title/" + movieID + "/");
-        } catch (Exception error) {
-            // The URL wasn't found, so the poster doesn't exist
-            return Movie.UNKNOWN;
-        }
-
-        return "http://posters.motechnet.com/covers/" + movieID + "_largeCover.jpg";
-    }
-
-    /**
-     * Search IMP Awards site for a poster to use for the movie
-     * 
-     * @param movieName
-     *            The name of the movie to look for
-     * @param movieYear
-     *            The year of the movie
-     * @return A poster URL to use for the movie.
-     */
-    public static String getPosterURLFromImpAwards(String movieName, String movieYear) {
-        String returnString = Movie.UNKNOWN;
-        String content = null;
-
-        try {
-            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q="
-                            + URLEncoder.encode(movieName + " " + movieYear, "UTF-8"));
-        } catch (Exception error) {
-            // The movie doesn't exists, so return unknown
-            return Movie.UNKNOWN;
-        }
-
-        if (content != null) {
-            int indexMovieLink = content.indexOf("<a href=\"http://www.impawards.com/" + movieYear + "/");
-            if (indexMovieLink != -1) {
-                String imageUrl = content.substring(indexMovieLink + 9, indexMovieLink + 39) + "posters/";
-                int endIndex = content.indexOf("\"", indexMovieLink + 39);
-                if (endIndex != -1) {
-                    imageUrl += content.substring(indexMovieLink + 39, endIndex);
-                    if (imageUrl.endsWith("standard.html")) {
-                        imageUrl = null;
-                    } else if (imageUrl.endsWith(".html")) {
-                        imageUrl = imageUrl.substring(0, imageUrl.length() - 4) + "jpg";
-                    } else {
-                        imageUrl = null;
-                    }
-                } else {
-                    imageUrl = null;
-                }
-
-                if (imageUrl != null) {
-                    returnString = imageUrl;
-                }
-            }
-        }
-
-        return returnString;
-    }
-
-    /**
-     * Search MovieCovers.com for a poster to use for the movie
-     * 
-     * @param movieName
-     *            The name of the movie to search for
-     * @return A poster URL to use for the movie.
-     */
-    public static String getPosterURLFromMovieCovers(Movie movie) {
-        String returnString = Movie.UNKNOWN;
-        String movieName = movie.getTitle();
-
-        try {
-            StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
-            // tryout another google layout Issue #1250
-            sb.append('\"');
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            sb.append('\"');
-            // adding movie year in search could reduce ambiguities
-            if (movie.getYear() != null && !movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append(URLEncoder.encode(" ", "UTF-8"));
-                sb.append(URLEncoder.encode(movie.getYear(), "UTF-8"));
-            }
-            String content = webBrowser.request(sb.toString());
-            if (content != null) {
-
-                int indexEndLink = content.indexOf("html\"><b>");
-                if (indexEndLink >= 0) {
-                    String subContent = content.substring(0, indexEndLink);
-                    int indexStartLink = subContent.lastIndexOf("<a href=\"http://www.moviecovers.com/film/titre_");
-                    if (indexStartLink >= 0) {
-                        String findMovieUrl = content.substring(indexStartLink + 47, indexEndLink);
-                        returnString = "http://www.moviecovers.com/getjpg.html/" + findMovieUrl.substring(0, findMovieUrl.lastIndexOf('.')).replace("+", "%20")
-                                        + ".jpg";
-                    }
-                }
-            }
-        } catch (Exception error) {
-            logger.severe("PosterScanner: Failed retreiving Moviecovers poster URL: " + movieName);
-            logger.severe("PosterScanner: Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-
-        return returnString;
-    }
-
-    /**
-     * Utilise the MovieDB.org API to get a poster URL
-     * 
-     * @param movie
-     *            The movie object to get the poster for
-     * @return A string containing the URL of the poster
-     */
-    public static String getPosterURLFromMovieDbAPI(Movie movie) {
-        String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-        String language = PropertiesUtil.getProperty("themoviedb.language", "en");
-        int posterPosition = Integer.parseInt(PropertiesUtil.getProperty("themoviedb.posterPosition", "1"));
-        String imdbID = null;
-        String tmdbID = null;
-        TheMovieDb TMDb;
-        MovieDB moviedb = null;
-
-        TMDb = new TheMovieDb(API_KEY);
-
-        // TODO move these Ids to a preferences file.
-        imdbID = movie.getId("imdb");
-        tmdbID = movie.getId("themoviedb");
-        String id = null;
-        if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            id = tmdbID;
-            // moviedb = TMDb.moviedbGetInfo(tmdbID, language);
-            moviedb = TMDb.moviedbGetImages(tmdbID, language);
-        } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            id = imdbID;
-            // moviedb = TMDb.moviedbImdbLookup(imdbID, language);
-            moviedb = TMDb.moviedbGetImages(imdbID, language);
-        } else {
-            // We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
-            moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
-            if (moviedb != null) {
-                id = moviedb.getId();
-            }
-        }
-
-        try {
-            Artwork artwork;
-            artwork = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL, posterPosition);
-            if (artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN)) {
-                return Movie.UNKNOWN;
-            } else {
-                logger.finest("PosterScanner: Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
-                movie.setDirtyPoster(true);
-                return artwork.getUrl();
-            }
-        } catch (NullPointerException error) {
-            logger.finer("PosterScanner: Unable to find posters for " + movie.getBaseName() + " IMDb ID: " + imdbID);
-            return Movie.UNKNOWN;
-        } catch (Exception error) {
-            logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
-
-    /**
-     * Search the IMDb XML page for a poster
-     * 
-     * @param imdbXML
-     *            The XML page for the movie that contains the posters
-     * @return A poster URL to use for the movie.
-     */
-    public static String getPosterURLFromImdb(String title, String year) {
-        String posterURL = Movie.UNKNOWN;
-        String imdbXML;
-
-        try {
-            ImdbInfo imdbInfo = new ImdbInfo();
-            String imdbId = imdbInfo.getImdbId(title, year);
-            if (!Movie.UNKNOWN.equals(imdbId)) {
-                imdbXML = webBrowser.request(imdbInfo.getSiteDef().getSite() + "title/" + imdbId + "/", imdbInfo.getSiteDef().getCharset());
-
-                StringTokenizer st;
-
-                int castIndex = imdbXML.indexOf("<h3>Cast</h3>");
-                int beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
-
-                // Search the XML from IMDB for a poster
-                if ((beginIndex < castIndex) && (beginIndex != -1)) {
-                    st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
-                    posterURL = st.nextToken();
-                    int index = posterURL.indexOf("_SX");
-                    if (index != -1) {
-                        posterURL = posterURL.substring(0, index) + "_SX600_SY800_.jpg";
-                    } else {
-                        posterURL = Movie.UNKNOWN;
-                    }
-                }
-            }
-        } catch (Exception error) {
-            logger.severe("PosterScanner: Imdb Error: " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-        return posterURL;
-    }
-
     public static void register(String key, IPosterPlugin posterPlugin) {
         posterPlugins.put(key, posterPlugin);
     }
 
-    public static void register(String key, IMoviePosterPlugin posterPlugin) {
-        logger.finest("PosterScanner " + posterPlugin.getClass().getName() + " register as Movie Poster Plugin with key " + key);
+    private static void register(String key, IMoviePosterPlugin posterPlugin) {
+        logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " register as Movie Poster Plugin with key " + key);
         moviePosterPlugins.put(key, posterPlugin);
         register(key, (IPosterPlugin)posterPlugin);
     }
 
     public static void register(String key, ITvShowPosterPlugin posterPlugin) {
-        logger.finest("PosterScanner " + posterPlugin.getClass().getName() + " register as TvShow Poster Plugin with key " + key);
+        logger.finest("PosterScanner: " + posterPlugin.getClass().getName() + " register as TvShow Poster Plugin with key " + key);
         tvShowPosterPlugins.put(key, posterPlugin);
         register(key, (IPosterPlugin)posterPlugin);
     }
