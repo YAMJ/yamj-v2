@@ -611,7 +611,9 @@ public class PosterScanner {
         } else {
             // We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
             moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
-            id = moviedb.getId();
+            if (moviedb != null) {
+                id = moviedb.getId();
+            }
         }
 
         try {
