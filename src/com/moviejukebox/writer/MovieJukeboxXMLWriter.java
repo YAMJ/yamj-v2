@@ -509,16 +509,19 @@ public class MovieJukeboxXMLWriter {
      * @throws Throwable
      */
     public void writeIndexXML(final String rootPath, String detailsDirName, final Library library, int threadcount) throws Throwable {
+        int indexCount = 0;
+        int indexSize = library.getIndexes().size();
+        
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
 
-        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
+        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {            
             final String categoryName = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
 
+            logger.fine("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes");
             for (final Map.Entry<String, List<Movie>> group : index.entrySet()) {
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws XMLStreamException, FileNotFoundException {
-
                         List<Movie> movies = group.getValue();
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
@@ -602,8 +605,7 @@ public class MovieJukeboxXMLWriter {
                     }
                 });
             }
-        }
-        ;
+        };
         tasks.waitFor();
     }
 

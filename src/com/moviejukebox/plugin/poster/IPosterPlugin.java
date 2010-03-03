@@ -17,5 +17,4 @@ public interface IPosterPlugin {
 
     public String getName();
 
-
 }

@@ -245,16 +245,16 @@ public class PosterScanner {
 
             if (!finalDestinationFile.exists() || checkAgain) {
                 FileTools.copyFile(localPosterFile, destFile);
-                logger.finer("PosterScanner : " + fullPosterFilename + " has been copied to " + destFileName);
+                logger.finer("PosterScanner: " + fullPosterFilename + " has been copied to " + destFileName);
             } else {
-                logger.finer("PosterScanner : " + finalDestinationFileName + " is different to " + fullPosterFilename);
+                logger.finer("PosterScanner: " + finalDestinationFileName + " is different to " + fullPosterFilename);
             }
 
             // Update poster url with local poster
             movie.setPosterURL(localPosterFile.toURI().toString());
             return true;
         } else {
-            logger.finer("PosterScanner : No local covertArt found for " + movie.getBaseName());
+            logger.finer("PosterScanner: No local covertArt found for " + movie.getBaseName());
             return false;
         }
     }
@@ -310,21 +310,21 @@ public class PosterScanner {
                 IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
                 // Check that plugin is register even on movie or tv
                 if (iPosterPlugin == null) {
-                    logger.severe("Poster scanner : '" + posterSearchToken
-                                    + "' plugin don't exist, please check you moviejukebox properties. Valid code are : " + getPluginsCode());
+                    logger.severe("PosterScanner: '" + posterSearchToken
+                                    + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : " + getPluginsCode());
                 }
 
                 if (movie.isTVShow()) {
                     ITvShowPosterPlugin iTvShowPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
                     if (iTvShowPosterPlugin == null) {
-                        logger.info("Poster scanner : " + posterSearchToken + " is not a TvShow Poster plugin - skipping");
+                        logger.info("PosterScanner: " + posterSearchToken + " is not a TvShow Poster plugin - skipping");
                     } else {
                         posterURL = iTvShowPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.getSeason());
                     }
                 } else {
                     IMoviePosterPlugin iMoviePosterPlugin = moviePosterPlugins.get(posterSearchToken);
                     if (iMoviePosterPlugin == null) {
-                        logger.info("Poster scanner : " + posterSearchToken + " is not a Movie Poster plugin - skipping");
+                        logger.info("PosterScanner: " + posterSearchToken + " is not a Movie Poster plugin - skipping");
                     } else {
                         posterURL = iMoviePosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear());
                     }
@@ -681,19 +681,19 @@ public class PosterScanner {
     }
 
     public static void register(String key, IMoviePosterPlugin posterPlugin) {
-        logger.finest("Poster scanner " + posterPlugin.getClass().getName() + " register as Movie Poster Plugin with key " + key);
+        logger.finest("PosterScanner " + posterPlugin.getClass().getName() + " register as Movie Poster Plugin with key " + key);
         moviePosterPlugins.put(key, posterPlugin);
         register(key, (IPosterPlugin)posterPlugin);
     }
 
     public static void register(String key, ITvShowPosterPlugin posterPlugin) {
-        logger.finest("Poster scanner " + posterPlugin.getClass().getName() + " register as TvShow Poster Plugin with key " + key);
+        logger.finest("PosterScanner " + posterPlugin.getClass().getName() + " register as TvShow Poster Plugin with key " + key);
         tvShowPosterPlugins.put(key, posterPlugin);
         register(key, (IPosterPlugin)posterPlugin);
     }
 
     public static void scan(Movie movie) {
-        logger.finer("Poster Scanner : Search for poster");
+        logger.finer("PosterScanner: Searching for " + movie.getBaseName());
         String posterURL = getPosterURL(movie);
         if (!Movie.UNKNOWN.equals(posterURL)) {
             movie.setPosterURL(posterURL);

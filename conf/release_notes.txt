@@ -32,6 +32,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1312 Caratulasdecine Poster is no longer retrieved from site
   - Fixed defect #1313 OpenSubtitles move API clients to another servers
   - Fixed defect #1316 Set posters are not picked up
+  - Enhancement  #1320 Feedback on progress when Writing movie data
   
 MovieJukebox 1.8
 ----------------

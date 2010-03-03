@@ -147,7 +147,7 @@ public class FileTools {
         }
     }
 
-    public static void copyDir(String srcDir, String dstDir) {
+    public static void copyDir(String srcDir, String dstDir, boolean updateDisplay) {
         try {
             File src = new File(srcDir);
             if (!src.exists()) {
@@ -171,14 +171,23 @@ public class FileTools {
                     List<File> files = Arrays.asList(contentList);
                     Collections.sort(files);
 
+                    int totalSize = files.size();
+                    int currentFile = 0;
                     for (File file : files) {
+                        currentFile++;
                         if (!file.getName().equals(".svn")) {
                             if (file.isDirectory()) {
-                                copyDir(file.getAbsolutePath(), dstDir + File.separator + file.getName());
+                                copyDir(file.getAbsolutePath(), dstDir + File.separator + file.getName(), updateDisplay);
                             } else {
+                                if (updateDisplay) {
+                                    System.out.print("\r    Copying directory " + srcDir + " (" + currentFile + "/" + totalSize + ")");
+                                }
                                 copyFile(file, dst);
                             }
                         }
+                    }
+                    if (updateDisplay) {
+                        System.out.print("\n");
                     }
                 }
             }

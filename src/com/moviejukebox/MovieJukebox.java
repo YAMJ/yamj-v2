@@ -933,11 +933,11 @@ public class MovieJukebox {
              */
             logger.fine("Copying new files to Jukebox directory...");
             String index = getProperty("mjb.indexFile", "index.htm");
-            FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot);
+            FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot, true);
             FileTools.copyFile(new File(tempJukeboxRoot + File.separator + index), new File(jukeboxRoot + File.separator + index));
 
             logger.fine("Copying resources to Jukebox directory...");
-            FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot);
+            FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot, true);
 
             /********************************************************************************
              * 

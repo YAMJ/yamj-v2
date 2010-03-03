@@ -366,7 +366,9 @@ public class MovieJukeboxHTMLWriter {
 
             writer.writeEndElement();
             writer.writeEndElement();
+            writer.flush();
             writer.close();
+            fos.flush();
             fos.close();
         } catch (Exception error) {
             logger.severe("Failed generating HTML library index.");
