@@ -19,7 +19,7 @@ public class ScopeDkPosterPluginTestCase extends TestCase {
 
     public void testGetId() {
         ScopeDkPosterPlugin toTest = new ScopeDkPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null);
         assertEquals("1", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);

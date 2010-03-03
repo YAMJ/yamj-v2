@@ -22,7 +22,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class CaratulasdecinePosterPlugin implements IPosterPlugin {
+public class CaratulasdecinePosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
@@ -44,7 +44,7 @@ public class CaratulasdecinePosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
             StringBuffer sb = new StringBuffer("http://www.google.es/custom?hl=es&domains=caratulasdecine.com&ie=ISO-8859-1&oe=ISO-8859-1&q=");
@@ -115,17 +115,12 @@ public class CaratulasdecinePosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    public String getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
     public String getName() {
         return "Caratulasdecine";
-    }
-
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
     }
 }

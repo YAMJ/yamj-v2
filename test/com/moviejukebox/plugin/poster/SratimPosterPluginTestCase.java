@@ -21,7 +21,7 @@ public class SratimPosterPluginTestCase extends TestCase {
 
     public void testGetId() {
         SratimPosterPlugin toTest = new SratimPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null);
         assertEquals(ID_MOVIE, idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(ID_MOVIE);

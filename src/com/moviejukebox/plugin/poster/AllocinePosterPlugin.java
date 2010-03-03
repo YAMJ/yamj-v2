@@ -11,7 +11,7 @@ import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class AllocinePosterPlugin implements IPosterPlugin {
+public class AllocinePosterPlugin implements IMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
@@ -23,19 +23,16 @@ public class AllocinePosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
-        // Check alloCine first only for movies because TV Show posters are wrong.
-        if (tvSeason == -1) {
-            try {
-                response = allocinePlugin.getAllocineId(title, year, tvSeason);
-            } catch (ParseException error) {
-                logger.severe("AllocinePosterPlugin: Failed retreiving poster id movie : " + title);
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
-            }
+        try {
+            response = allocinePlugin.getAllocineId(title, year, -1);
+        } catch (ParseException error) {
+            logger.severe("AllocinePosterPlugin: Failed retreiving poster id movie : " + title);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return response;
     }
@@ -73,12 +70,9 @@ public class AllocinePosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
+    public String getPosterUrl(String title, String year) {
         String response = Movie.UNKNOWN;
-        // Check alloCine first only for movies because TV Show posters are wrong.
-        if (tvSeason == -1) {
-            response = getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
-        }
+        response = getPosterUrl(getIdFromMovieInfo(title, year));
         return response;
     }
 
@@ -87,8 +81,4 @@ public class AllocinePosterPlugin implements IPosterPlugin {
         return "allocine";
     }
 
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
-    }
 }

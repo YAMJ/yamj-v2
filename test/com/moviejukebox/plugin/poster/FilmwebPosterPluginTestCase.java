@@ -19,7 +19,7 @@ public class FilmwebPosterPluginTestCase extends TestCase {
 
     public void testGetId() {
         FilmwebPosterPlugin toTest = new FilmwebPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
         assertEquals("http://avatar.filmweb.pl/", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);

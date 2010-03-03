@@ -19,7 +19,7 @@ public class FilmUpItPosterPluginTestCase extends TestCase {
 
     public void testGetId() {
         FilmUpItPosterPlugin toTest = new FilmUpItPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
         assertEquals("avatar", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);

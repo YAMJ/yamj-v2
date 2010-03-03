@@ -21,7 +21,7 @@ public class SubBabaPosterPluginTestCase extends TestCase {
 
     public void testGetId() {
         SubBabaPosterPlugin toTest = new SubBabaPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null);
         assertEquals("488", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(ID_MOVIE);

@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.WebBrowser;
 
-public class MotechnetPosterPlugin implements IPosterPlugin {
+public class MotechnetPosterPlugin implements IMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
 
@@ -44,7 +44,7 @@ public class MotechnetPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
 
         try {
@@ -109,19 +109,14 @@ public class MotechnetPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
+    public String getPosterUrl(String title, String year) {
         String response = Movie.UNKNOWN;
-        response = getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+        response = getPosterUrl(getIdFromMovieInfo(title, year));
         return response;
     }
 
     @Override
     public String getName() {
         return "motechnet";
-    }
-
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
     }
 }

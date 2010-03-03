@@ -19,7 +19,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
 
     public void testGetId() {
         CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Millennium I", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Millennium I", null);
         assertEquals("4504", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
@@ -28,7 +28,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
 
     public void testGetList() {
         CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("El ultimátum de Bourne", null, 0);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("El ultimátum de Bourne", null);
         assertEquals("3654", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
@@ -37,7 +37,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
 
     public void testGetTroya() {
         CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", null, 0);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", null);
         assertEquals("2141", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
@@ -46,7 +46,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
 
     public void testGetEnTierraHostil() {
         CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil", null, 0);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil", null);
         assertEquals("4783", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
@@ -55,16 +55,16 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
 
     public void testGetEnTierraHostilLong() {
         CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil (The Hurt Locker)", null, 0);
-//        assertEquals("4783", idFromMovieInfo);
-//
-//        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
-//        assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil (The Hurt Locker)", null);
+        // assertEquals("4783", idFromMovieInfo);
+        //
+        // String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        // assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
     }
 
     public void testGetUp() {
         CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Up", null, 0);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Up", null);
         assertEquals("3754", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
