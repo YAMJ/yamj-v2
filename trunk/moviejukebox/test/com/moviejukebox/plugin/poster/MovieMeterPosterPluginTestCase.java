@@ -22,7 +22,7 @@ public class MovieMeterPosterPluginTestCase extends TestCase {
     public void testGetId() {
         PropertiesUtil.setProperty("API_KEY_MovieMeter","tyk0awf19uqm65mjfsqw9z9rx6t706pe");
         MovieMeterPosterPlugin toTest = new MovieMeterPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
         assertEquals("17552", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);

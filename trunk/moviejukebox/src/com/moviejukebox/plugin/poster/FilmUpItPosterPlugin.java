@@ -23,7 +23,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class FilmUpItPosterPlugin implements IPosterPlugin {
+public class FilmUpItPosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
@@ -34,7 +34,7 @@ public class FilmUpItPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
             StringBuffer sb = new StringBuffer("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
@@ -88,8 +88,8 @@ public class FilmUpItPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    public String getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
@@ -97,8 +97,4 @@ public class FilmUpItPosterPlugin implements IPosterPlugin {
         return "filmupit";
     }
 
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
-    }
 }

@@ -14,6 +14,8 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.ImdbInfo;
+import com.moviejukebox.plugin.ImdbPlugin;
 
 import junit.framework.TestCase;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +28,21 @@ public class PosterScannerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         movieTest = new Movie();
+    }
+    
+    @SuppressWarnings("unused")
+    public void testGetPosterURLFromMovieDbAPI() throws UnsupportedEncodingException {
+        String baseURL = "http://www.moviecovers.com/getjpg.html/";
+        String expectedURL = Movie.UNKNOWN;
+        String returnURL = Movie.UNKNOWN;
+        movieTest.setTitle("Dracula Un Muerto Muy Contento Y Feliz");
+        ImdbInfo imdbInfo = new ImdbInfo();
+        
+        String imdbId = imdbInfo.getImdbId(movieTest.getTitle(), movieTest.getYear());
+        System.out.println(imdbId);
+        movieTest.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
+        String posterURLFromMovieDbAPI = PosterScanner.getPosterURLFromMovieDbAPI(movieTest);
+        System.out.println(posterURLFromMovieDbAPI);
     }
 
     @SuppressWarnings("unused")

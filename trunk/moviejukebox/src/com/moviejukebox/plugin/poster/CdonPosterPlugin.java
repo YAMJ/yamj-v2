@@ -23,7 +23,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class CdonPosterPlugin implements IPosterPlugin {
+public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
@@ -167,5 +167,16 @@ public class CdonPosterPlugin implements IPosterPlugin {
     @Override
     public String getPosterUrl(String id, int season) {
         return getPosterUrl(id);
+    }
+
+    @Override
+    public String getIdFromMovieInfo(String title, String year) {
+        return getPosterUrl(title, year, -1);
+    }
+
+    @Override
+    public String getPosterUrl(String title, String year) {
+        // TODO Auto-generated method stub
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 }

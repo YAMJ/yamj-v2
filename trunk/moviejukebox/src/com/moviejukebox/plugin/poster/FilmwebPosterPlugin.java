@@ -24,7 +24,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FilmwebPlugin;
 import com.moviejukebox.tools.WebBrowser;
 
-public class FilmwebPosterPlugin implements IPosterPlugin {
+public class FilmwebPosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern posterUrlPattern = Pattern.compile("artshow[^>]+(http://gfx.filmweb.pl[^\"]+)\"");
 
@@ -36,7 +36,7 @@ public class FilmwebPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         FilmwebPlugin filmWebPlugin = new FilmwebPlugin();
         response = filmWebPlugin.getFilmwebUrl(title, year);
@@ -64,8 +64,8 @@ public class FilmwebPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    public String getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
@@ -73,8 +73,4 @@ public class FilmwebPosterPlugin implements IPosterPlugin {
         return "filmweb";
     }
 
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
-    }
 }

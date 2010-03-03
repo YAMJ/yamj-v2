@@ -28,7 +28,7 @@ import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
-public class TheTvDBPosterPlugin implements IPosterPlugin {
+public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
 
@@ -129,13 +129,8 @@ public class TheTvDBPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id) {
-        return getPosterUrl(id, 0);
-    }
-
-    @Override
     public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason), tvSeason);
     }
 
     @Override

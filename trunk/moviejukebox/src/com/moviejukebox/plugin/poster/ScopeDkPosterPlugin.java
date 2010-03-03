@@ -22,7 +22,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class ScopeDkPosterPlugin implements IPosterPlugin {
+public class ScopeDkPosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
@@ -33,13 +33,13 @@ public class ScopeDkPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
             StringBuffer sb = new StringBuffer("http://www.scope.dk/sogning.php?sog=");// 9&type=film");
             sb.append(URLEncoder.encode(title.replace(' ', '+'), "iso-8859-1"));
             sb.append("&type=film");
-            String xml = webBrowser.request(sb.toString(),Charset.forName("ISO-8859-1"));
+            String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));
 
             List<String> tmp = HTMLTools.extractTags(xml, "<table class=\"table-list\">", "</table>", "<td>", "</td>", false);
 
@@ -98,18 +98,13 @@ public class ScopeDkPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    public String getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
     public String getName() {
         return "scopeDk";
-    }
-
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
     }
 
 }

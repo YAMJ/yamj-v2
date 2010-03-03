@@ -10,7 +10,7 @@ import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class SratimPosterPlugin implements IPosterPlugin {
+public class SratimPosterPlugin implements IMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
     private ImdbInfo imdbInfo;
@@ -21,7 +21,7 @@ public class SratimPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
             imdbInfo = new ImdbInfo();
@@ -61,8 +61,8 @@ public class SratimPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    public String getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
@@ -70,8 +70,4 @@ public class SratimPosterPlugin implements IPosterPlugin {
         return "sratim";
     }
 
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
-    }
 }

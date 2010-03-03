@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.WebBrowser;
 
-public class SubBabaPosterPlugin implements IPosterPlugin {
+public class SubBabaPosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
@@ -33,7 +33,7 @@ public class SubBabaPosterPlugin implements IPosterPlugin {
      * retrieve the sub-baba.com poster url matching the specified movie name.
      */
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
             String searchURL = "http://www.sub-baba.com/search?page=search&type=all&submit=%E7%F4%F9&search=" + URLEncoder.encode(title, "iso-8859-8");
@@ -143,8 +143,8 @@ public class SubBabaPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    public String getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
@@ -152,8 +152,4 @@ public class SubBabaPosterPlugin implements IPosterPlugin {
         return "subbaba";
     }
 
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
-    }
 }

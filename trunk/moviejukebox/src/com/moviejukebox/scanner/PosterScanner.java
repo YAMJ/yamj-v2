@@ -40,7 +40,9 @@ import javax.imageio.stream.ImageInputStream;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
+import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
@@ -59,6 +61,9 @@ import com.moviejukebox.tools.WebBrowser;
  */
 public class PosterScanner {
     private static Map<String, IPosterPlugin> posterPlugins;
+    private static Map<String, IMoviePosterPlugin> moviePosterPlugins = new HashMap<String, IMoviePosterPlugin>();
+    private static Map<String, ITvShowPosterPlugin> tvShowPosterPlugins = new HashMap<String, ITvShowPosterPlugin>();
+
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected static String[] coverArtExtensions;
     protected static String searchForExistingCoverArt;
@@ -73,6 +78,8 @@ public class PosterScanner {
     protected static boolean posterValidateAspect;
     protected static int posterWidth;
     protected static int posterHeight;
+    private static String tvShowPosterSearchPriority;
+    private static String moviePosterSearchPriority;
 
     static {
         // We get covert art scanner behaviour
@@ -97,15 +104,23 @@ public class PosterScanner {
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
         posterWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
         posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
-        posterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority", "imdb,motechnet,impawards,moviedb,moviecovers,google,yahoo");
+        tvShowPosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "thetvdb");
+        moviePosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie",
+                        "imdb,motechnet,impawards,moviedb,moviecovers,google,yahoo");
         posterValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
         posterValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
         posterValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
 
         // Load plugins
         posterPlugins = new HashMap<String, IPosterPlugin>();
-        ServiceLoader<IPosterPlugin> posterPluginsSet = ServiceLoader.load(IPosterPlugin.class);
-        for (IPosterPlugin iPosterPlugin : posterPluginsSet) {
+
+        ServiceLoader<IMoviePosterPlugin> moviePosterPluginsSet = ServiceLoader.load(IMoviePosterPlugin.class);
+        for (IMoviePosterPlugin iPosterPlugin : moviePosterPluginsSet) {
+            register(iPosterPlugin.getName().toLowerCase().trim(), iPosterPlugin);
+        }
+
+        ServiceLoader<ITvShowPosterPlugin> tvShowPosterPluginsSet = ServiceLoader.load(ITvShowPosterPlugin.class);
+        for (ITvShowPosterPlugin iPosterPlugin : tvShowPosterPluginsSet) {
             register(iPosterPlugin.getName().toLowerCase().trim(), iPosterPlugin);
         }
 
@@ -123,6 +138,8 @@ public class PosterScanner {
 
         if (searchForExistingCoverArt.equalsIgnoreCase("moviename")) {
             // Encode the basename to ensure that non-usable file system characters are replaced
+            // Issue 1155 : YAMJ refuses to pickup fanart and poster for a movie -
+            // Do not make safe file name before searching.
             localPosterBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
         } else if (searchForExistingCoverArt.equalsIgnoreCase("fixedcoverartname")) {
             localPosterBaseFilename = fixedCoverArtName;
@@ -266,7 +283,11 @@ public class PosterScanner {
         String posterURL = Movie.UNKNOWN;
         StringTokenizer st;
 
-        st = new StringTokenizer(posterSearchPriority, ",");
+        if (movie.isTVShow()) {
+            st = new StringTokenizer(tvShowPosterSearchPriority, ",");
+        } else {
+            st = new StringTokenizer(moviePosterSearchPriority, ",");
+        }
 
         while (st.hasMoreTokens() && posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
             posterSearchToken = st.nextToken();
@@ -287,12 +308,28 @@ public class PosterScanner {
                 posterURL = getPosterURLFromImdb(movie.getTitle(), movie.getYear());
             } else {
                 IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
+                // Check that plugin is register even on movie or tv
                 if (iPosterPlugin == null) {
                     logger.severe("Poster scanner : '" + posterSearchToken
                                     + "' plugin don't exist, please check you moviejukebox properties. Valid code are : " + getPluginsCode());
-                } else {
-                    posterURL = iPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.getSeason());
                 }
+
+                if (movie.isTVShow()) {
+                    ITvShowPosterPlugin iTvShowPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
+                    if (iTvShowPosterPlugin == null) {
+                        logger.info("Poster scanner : " + posterSearchToken + " is not a TvShow Poster plugin - skipping");
+                    } else {
+                        posterURL = iTvShowPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.getSeason());
+                    }
+                } else {
+                    IMoviePosterPlugin iMoviePosterPlugin = moviePosterPlugins.get(posterSearchToken);
+                    if (iMoviePosterPlugin == null) {
+                        logger.info("Poster scanner : " + posterSearchToken + " is not a Movie Poster plugin - skipping");
+                    } else {
+                        posterURL = iMoviePosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear());
+                    }
+                }
+
             }
 
             // Validate the poster
@@ -304,7 +341,6 @@ public class PosterScanner {
 
         return posterURL;
     }
-
 
     /**
      * Get the size of the file at the end of the URL Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
@@ -563,19 +599,19 @@ public class PosterScanner {
         // TODO move these Ids to a preferences file.
         imdbID = movie.getId("imdb");
         tmdbID = movie.getId("themoviedb");
-        String id=null;
+        String id = null;
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            id=tmdbID;
+            id = tmdbID;
             // moviedb = TMDb.moviedbGetInfo(tmdbID, language);
             moviedb = TMDb.moviedbGetImages(tmdbID, language);
         } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            id=imdbID;
+            id = imdbID;
             // moviedb = TMDb.moviedbImdbLookup(imdbID, language);
             moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
             // We don't have an IMDb ID or a TMDb ID, so we need to search for the movie
             moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
-           id=moviedb.getId();
+            id = moviedb.getId();
         }
 
         try {
@@ -639,12 +675,23 @@ public class PosterScanner {
     }
 
     public static void register(String key, IPosterPlugin posterPlugin) {
-        logger.finest("Poster scanner " + posterPlugin.getClass().getName() + " register with key " + key);
         posterPlugins.put(key, posterPlugin);
     }
 
+    public static void register(String key, IMoviePosterPlugin posterPlugin) {
+        logger.finest("Poster scanner " + posterPlugin.getClass().getName() + " register as Movie Poster Plugin with key " + key);
+        moviePosterPlugins.put(key, posterPlugin);
+        register(key, (IPosterPlugin)posterPlugin);
+    }
+
+    public static void register(String key, ITvShowPosterPlugin posterPlugin) {
+        logger.finest("Poster scanner " + posterPlugin.getClass().getName() + " register as TvShow Poster Plugin with key " + key);
+        tvShowPosterPlugins.put(key, posterPlugin);
+        register(key, (IPosterPlugin)posterPlugin);
+    }
+
     public static void scan(Movie movie) {
-        logger.finer("Poster Scanner : Search for poster" );
+        logger.finer("Poster Scanner : Search for poster");
         String posterURL = getPosterURL(movie);
         if (!Movie.UNKNOWN.equals(posterURL)) {
             movie.setPosterURL(posterURL);

@@ -28,7 +28,7 @@ import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
-public class MovieMeterPosterPlugin implements IPosterPlugin {
+public class MovieMeterPosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
@@ -90,7 +90,7 @@ public class MovieMeterPosterPlugin implements IPosterPlugin {
 
     @SuppressWarnings("unchecked")
     @Override
-    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+    public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
             logger.finest("Preferred search engine for moviemeter id: " + preferredSearchEngine);
@@ -133,17 +133,12 @@ public class MovieMeterPosterPlugin implements IPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    public String getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
     public String getName() {
         return "movieposter";
-    }
-
-    @Override
-    public String getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
     }
 }

@@ -21,7 +21,7 @@ public class AllocinePosterPluginTestCase extends TestCase {
 
     public void testGetId() {
         AllocinePosterPlugin toTest = new AllocinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null, -1);
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
         assertEquals("61282", idFromMovieInfo);
 
         String posterUrl = toTest.getPosterUrl(ID_MOVIE);
