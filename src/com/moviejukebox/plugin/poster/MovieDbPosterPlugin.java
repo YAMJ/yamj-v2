@@ -40,8 +40,12 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     public String getIdFromMovieInfo(String title, String year) {
         theMovieDb = new TheMovieDb(API_KEY);
         MovieDB moviedb = theMovieDb.moviedbSearch(title, language);
-        String response = moviedb.getId();
-        return response;
+        if (moviedb != null) {
+            String response = moviedb.getId();
+            return response;
+        } else {
+            return Movie.UNKNOWN;
+        }
     }
 
     @Override
