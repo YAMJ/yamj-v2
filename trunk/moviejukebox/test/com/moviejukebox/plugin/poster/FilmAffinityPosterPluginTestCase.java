@@ -24,5 +24,14 @@ public class FilmAffinityPosterPluginTestCase extends TestCase {
 
         String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
         assertEquals("http://pics.filmaffinity.com/Avatar-208925608-large.jpg", posterUrl);
+        
+        idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", null, -1);
+        assertEquals("564615.html", idFromMovieInfo);
+
+        posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        assertEquals("http://pics.filmaffinity.com/Troya_Troy-963506535-large.jpg", posterUrl);
+        
+        toTest.getPosterUrl("Troya", null);
+        assertEquals("http://pics.filmaffinity.com/Troya_Troy-963506535-large.jpg", posterUrl);
     }
 }
