@@ -101,12 +101,11 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        return getPosterUrl(title, year, -1);
+        return getIdFromMovieInfo(title, year, -1);
     }
 
     @Override
     public String getPosterUrl(String title, String year) {
-        // TODO Auto-generated method stub
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 }
