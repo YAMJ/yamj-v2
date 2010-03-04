@@ -33,6 +33,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1313 OpenSubtitles move API clients to another servers
   - Fixed defect #1316 Set posters are not picked up
   - Enhancement  #1320 Feedback on progress when Writing movie data
+  - Fixed defect #1323 Posters not picked up from NFO file
   
 MovieJukebox 1.8
 ----------------

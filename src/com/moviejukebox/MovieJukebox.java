@@ -1188,7 +1188,11 @@ public class MovieJukebox {
             }
             
             DatabasePluginController.scan(movie);
-            PosterScanner.scan(movie);
+            // Issue 1323:      Posters not picked up from NFO file
+            // Only search for poster if we didn't have already
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
+                PosterScanner.scan(movie);
+            }
         }
     }
 
