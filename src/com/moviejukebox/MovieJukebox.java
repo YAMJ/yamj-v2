@@ -1182,16 +1182,16 @@ public class MovieJukebox {
             
             MovieNFOScanner.scan(movie, nfoFiles);
 
-            // Added forceXMLOverwrite for issue 366
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
-                PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-            }
-            
             DatabasePluginController.scan(movie);
             // Issue 1323:      Posters not picked up from NFO file
             // Only search for poster if we didn't have already
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 PosterScanner.scan(movie);
+            }
+
+            // Added forceXMLOverwrite for issue 366
+            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
+                PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
             }
         }
     }
