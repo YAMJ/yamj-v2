@@ -110,6 +110,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String movieType = TYPE_MOVIE;
     private String formatType = TYPE_FILE;
     private boolean overrideTitle = false;
+    private boolean overrideYear = false;
+
+
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
@@ -346,7 +349,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return audioCodec;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getBaseName()
      */
     public String getBaseName() {
@@ -488,7 +493,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getLanguage()
      */
     public String getLanguage() {
@@ -548,21 +555,27 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return runtime;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getSeason()
      */
     public int getSeason() {
         return season;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getTitle()
      */
     public String getTitle() {
         return title;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getTitleSort()
      */
     public String getTitleSort() {
@@ -585,7 +598,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return videoSource;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getYear()
      */
     public String getYear() {
@@ -621,7 +636,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return isDirtyBanner;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#isTVShow()
      */
     @XmlAttribute(name = "isTV")
@@ -1160,7 +1177,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return extra;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#isTrailerExchange()
      */
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
@@ -1380,7 +1399,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.moviejukebox.model.IMovieBasicInformation#isSetMaster()
      */
     @XmlAttribute(name = "isSet")
@@ -1605,5 +1626,13 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setIndexes(Map<String, String> indexes) {
         this.indexes = new HashMap<String, String>(indexes);
+    }
+    
+    public boolean isOverrideYear() {
+        return overrideYear;
+    }
+
+    public void setOverrideYear(boolean overrideYear) {
+        this.overrideYear = overrideYear;
     }
 }

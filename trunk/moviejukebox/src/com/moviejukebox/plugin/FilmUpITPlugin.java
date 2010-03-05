@@ -90,7 +90,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 }
             }
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!movie.isOverrideYear()) {
                 movie.setYear(removeHtmlTags(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                                 "</font></td></tr>")));
             }

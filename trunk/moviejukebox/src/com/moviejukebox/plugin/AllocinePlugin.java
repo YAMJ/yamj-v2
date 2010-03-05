@@ -72,7 +72,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // "<h5>Certification:</h5>", "</div>",
             // "<a href=\"/List?certificates=", "</a>")));
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (movie.isOverrideYear()) {
                 movie.setYear(removeOpenedHtmlTags(HTMLTools.extractTag(xml, "en <a href=\"/series/toutes/", "</a>")));
                 // logger.finest("AllocinePlugin: TV Show year = " + movie.getYear());
             }
@@ -252,7 +252,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // "<h5>Certification:</h5>", "</div>",
             // "<a href=\"/List?certificates=", "</a>")));
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!movie.isOverrideYear()) {
                 movie.setYear(removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>")));
             }
 

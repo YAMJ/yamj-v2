@@ -310,7 +310,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!movie.isOverrideYear()) {
                 movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
                 if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                     String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 0);

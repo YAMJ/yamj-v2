@@ -305,9 +305,10 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("year")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setOverrideYear(true);
                                 movie.setYear(val);
                             }
-                        } else if (tag.equalsIgnoreCase("premiered")  || tag.equalsIgnoreCase("releasedate")) {
+                        } else if (tag.equalsIgnoreCase("premiered") || tag.equalsIgnoreCase("releasedate")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 try {
@@ -315,6 +316,7 @@ public class MovieNFOScanner {
                                     Date date = dateFormat.parse(val);
                                     Calendar cal = Calendar.getInstance();
                                     cal.setTime(date);
+                                    movie.setOverrideYear(true);
                                     movie.setYear("" + cal.get(Calendar.YEAR));
                                 } catch (Exception ignore) {
                                 }
@@ -742,7 +744,7 @@ public class MovieNFOScanner {
                             List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
-                        } else if (tag.equalsIgnoreCase("premiered")  || tag.equalsIgnoreCase("releasedate")) {
+                        } else if (tag.equalsIgnoreCase("premiered") || tag.equalsIgnoreCase("releasedate")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 try {
@@ -750,6 +752,7 @@ public class MovieNFOScanner {
                                     Date date = dateFormat.parse(val);
                                     Calendar cal = Calendar.getInstance();
                                     cal.setTime(date);
+                                    movie.setOverrideYear(true);
                                     movie.setYear("" + cal.get(Calendar.YEAR));
                                 } catch (Exception ignore) {
                                 }

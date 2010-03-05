@@ -4,6 +4,7 @@
 
 MovieJukebox 1.9 BETA
 ---------------------
+  - Fixed defect  #855 Year in tv series files names over rides season based year
   - Fixed defect  #981 Use poster.scanner.SearchPriority regardless of mjb.internet.plugin (other than IMDb)
   - Fixed defect #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)
   - Fixed defect #1155 YAMJ refuses to pickup fanart and poster for a movie
