@@ -41,6 +41,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -479,7 +480,7 @@ public class MovieJukeboxXMLWriter {
                         if (includeMoviesInCategories) {
                             writer.writeAttribute("filename", indexFilename);
 
-                            for (Movie movie : value) {
+                            for (Identifiable movie : value) {
                                 writer.writeStartElement("movie");
                                 writer.writeCharacters(Integer.toString(allMovies.indexOf(movie)));
                                 writer.writeEndElement();

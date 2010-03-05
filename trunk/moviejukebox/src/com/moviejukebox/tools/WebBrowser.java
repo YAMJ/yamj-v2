@@ -26,10 +26,10 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Web browser with simple cookies support
@@ -49,25 +49,19 @@ public class WebBrowser {
 
     private static Map<String, String> hostgrp = new HashMap<String, String>();
     private static Map<String, Semaphore> grouplimits = null;
-    
+
     /**
-     * Handle download slots allocation to avoid throttling / ban on source sites
-     * Find the proper semaphore for each host:
-     * - Map each unique host to a group (hostgrp)
-     * - Max each group (rule) to a semaphore
+     * Handle download slots allocation to avoid throttling / ban on source sites Find the proper semaphore for each host: - Map each unique host to a group
+     * (hostgrp) - Max each group (rule) to a semaphore
      * 
-     * The usage pattern is:
-     * s = getSemaphore(host)
-     * s.acquire (or acquireUninterruptibly)
-     * <download...>
-     * s.release
+     * The usage pattern is: s = getSemaphore(host) s.acquire (or acquireUninterruptibly) <download...> s.release
      * 
      * @author Gabriel Corneanu
      */
-    public static synchronized Semaphore getSemaphore(String host){
-    
+    public static synchronized Semaphore getSemaphore(String host) {
+
         String semaphoreGroup;
-        // First we have to read/create the rules  
+        // First we have to read/create the rules
         if (grouplimits == null) {
             grouplimits = new HashMap<String, Semaphore>();
             // Default, can be overridden
@@ -79,10 +73,10 @@ public class WebBrowser {
             Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
             while (semaphoreMatcher.find()) {
                 semaphoreGroup = semaphoreMatcher.group(1);
-                try{
+                try {
                     Pattern.compile(semaphoreGroup);
                     logger.finer("WebBrowser: " + semaphoreGroup + "=" + semaphoreMatcher.group(2));
-                    grouplimits.put(semaphoreGroup, new Semaphore( Integer.parseInt(semaphoreMatcher.group(2))));
+                    grouplimits.put(semaphoreGroup, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
                 } catch (Exception error) {
                     logger.finer("WebBrowser: Limit rule \"" + semaphoreGroup + "\" is not valid regexp, ignored");
                 }
@@ -90,23 +84,22 @@ public class WebBrowser {
         }
 
         semaphoreGroup = hostgrp.get(host);
-        //first time not found, search for matching group
-        if (semaphoreGroup == null ) {
+        // first time not found, search for matching group
+        if (semaphoreGroup == null) {
             semaphoreGroup = ".*";
-            for(String searchGroup : grouplimits.keySet()){
+            for (String searchGroup : grouplimits.keySet()) {
                 if (host.matches(searchGroup))
-                    if(searchGroup.length() > semaphoreGroup.length() )
+                    if (searchGroup.length() > semaphoreGroup.length())
                         semaphoreGroup = searchGroup;
             }
             logger.finer(String.format("WebBrowser: Download host: %s; rule: %s", host, semaphoreGroup));
             hostgrp.put(host, semaphoreGroup);
         }
 
-        //there should be NO way to fail
+        // there should be NO way to fail
         return grouplimits.get(semaphoreGroup);
     }
-    
-    
+
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -116,7 +109,7 @@ public class WebBrowser {
         mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort", null);
         mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
         mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
-        
+
         imageRetryCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.imageRetryCount", "3"));
         if (imageRetryCount < 1) {
             imageRetryCount = 1;
@@ -132,35 +125,35 @@ public class WebBrowser {
     public String request(String url) throws IOException {
         return request(new URL(url));
     }
-    
+
     public String request(String url, Charset charset) throws IOException {
-        return request(new URL(url),charset);
+        return request(new URL(url), charset);
     }
-    
+
     public URLConnection openProxiedConnection(URL url) throws IOException {
         if (mjbProxyHost != null) {
             System.getProperties().put("proxySet", "true");
             System.getProperties().put("proxyHost", mjbProxyHost);
             System.getProperties().put("proxyPort", mjbProxyPort);
         }
-        
+
         URLConnection cnx = url.openConnection();
-        
+
         if (mjbProxyUsername != null) {
             cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
         }
-        
+
         return cnx;
     }
 
     public String request(URL url) throws IOException {
         return request(url, null);
     }
-    
+
     public String request(URL url, Charset charset) throws IOException {
         StringWriter content = null;
 
-        // get the download limit for the host 
+        // get the download limit for the host
         Semaphore s = getSemaphore(url.getHost().toLowerCase());
         s.acquireUninterruptibly();
         try {
@@ -172,10 +165,11 @@ public class WebBrowser {
 
                 sendHeader(cnx);
                 readHeader(cnx);
-                if(charset==null){
-                    charset=getCharset(cnx);
+
+                if (charset == null) {
+                    charset = getCharset(cnx);
                 }
-                in = new BufferedReader(new InputStreamReader(cnx.getInputStream(),charset));
+                in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
                 String line;
                 while ((line = in.readLine()) != null) {
                     content.write(line);
@@ -196,7 +190,7 @@ public class WebBrowser {
 
     /**
      * Download the image for the specified URL into the specified file.
-     *
+     * 
      * @throws IOException
      */
     public void downloadImage(File imageFile, String imageURL) throws IOException {
@@ -205,36 +199,36 @@ public class WebBrowser {
             System.getProperties().put("proxyHost", mjbProxyHost);
             System.getProperties().put("proxyPort", mjbProxyPort);
         }
-        
+
         URL url = new URL(imageURL);
         Semaphore s = getSemaphore(url.getHost().toLowerCase());
         s.acquireUninterruptibly();
         boolean success = false;
         int retryCount = imageRetryCount;
         while (!success && retryCount > 0) {
-            try{
+            try {
                 URLConnection cnx = url.openConnection();
 
                 // A workaround for the need to use a referrer for thetvdb.com
                 if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
                     cnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
-           
+
                 if (mjbProxyUsername != null) {
                     cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
                 }
-           
+
                 sendHeader(cnx);
                 readHeader(cnx);
-           
+
                 int reportedLength = cnx.getContentLength();
-                java.io.InputStream inputStream = cnx.getInputStream(); 
+                java.io.InputStream inputStream = cnx.getInputStream();
                 int inputStreamLength = FileTools.copy(inputStream, new FileOutputStream(imageFile));
-            
+
                 if (reportedLength < 0 || reportedLength == inputStreamLength) {
                     success = true;
                 } else {
                     retryCount--;
-                    logger.finest("WebBrowser: Image download attempt failed, bytes expected: " +  reportedLength + ", bytes received: " + inputStreamLength);
+                    logger.finest("WebBrowser: Image download attempt failed, bytes expected: " + reportedLength + ", bytes received: " + inputStreamLength);
                 }
             } finally {
                 s.release();
@@ -332,8 +326,34 @@ public class WebBrowser {
         if (charset == null) {
             charset = Charset.defaultCharset();
         }
-        
+
         // logger.finest("Detected charset " + charset);
         return charset;
+    }
+
+    /**
+     * Get url - allow to know if there is some redirect
+     * 
+     * @param urlStr
+     * @return
+     */
+    public String getUrl(String urlStr) throws Exception {
+        String response = urlStr;
+        Semaphore s = null;
+        try {
+            URL url = new URL(urlStr);
+            s = getSemaphore(url.getHost().toLowerCase());
+            s.acquireUninterruptibly();
+            URLConnection cnx = openProxiedConnection(url);
+            sendHeader(cnx);
+            readHeader(cnx);
+            response = cnx.getURL().toString();
+
+        } finally {
+            if (s != null) {
+                s.release();
+            }
+        }
+        return response;
     }
 }

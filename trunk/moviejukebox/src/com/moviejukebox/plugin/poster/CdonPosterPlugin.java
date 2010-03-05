@@ -19,6 +19,8 @@ import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
@@ -177,5 +179,42 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
     @Override
     public String getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
+    }
+
+    @Override
+    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+        String id = getId(ident);
+        if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (movieInformation.isTVShow()) {
+                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear(), movieInformation.getSeason());
+            } else {
+                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
+            }
+            // Id found
+            if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+                ident.setId(getName(), id);
+            }
+        }
+
+        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (movieInformation.isTVShow()) {
+                return getPosterUrl(id, movieInformation.getSeason());
+            } else {
+                return getPosterUrl(id);
+            }
+
+        }
+        return Movie.UNKNOWN;
+    }
+
+    private String getId(Identifiable ident) {
+        String response = Movie.UNKNOWN;
+        if (ident != null) {
+            String id = ident.getId(this.getName());
+            if (id != null) {
+                response = id;
+            }
+        }
+        return response;
     }
 }

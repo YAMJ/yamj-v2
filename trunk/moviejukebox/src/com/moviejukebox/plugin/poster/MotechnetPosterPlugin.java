@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.WebBrowser;
 
-public class MotechnetPosterPlugin implements IMoviePosterPlugin {
+public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
 

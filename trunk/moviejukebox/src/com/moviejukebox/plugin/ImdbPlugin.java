@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
@@ -445,7 +446,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param movie
      * @return long plot
      */
-    private String getLongPlot(Movie movie) {
+    private String getLongPlot(Identifiable movie) {
         String plot = Movie.UNKNOWN;
 
         try {

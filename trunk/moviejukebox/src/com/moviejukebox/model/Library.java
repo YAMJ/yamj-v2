@@ -222,7 +222,7 @@ public class Library implements Map<String, Movie> {
     public Library() {
     }
 
-    public static String getMovieKey(Movie movie) {
+    public static String getMovieKey(IMovieBasicInformation movie) {
         // Issue 190
         String key = movie.getTitle() + " (" + movie.getYear() + ")";
 
@@ -518,8 +518,8 @@ public class Library implements Map<String, Movie> {
     private static void setMovieListNavigation(List<Movie> moviesList) {
         List<Movie> extraList = new ArrayList<Movie>();
 
-        Movie first = null;
-        Movie last = null;
+        IMovieBasicInformation first = null;
+        IMovieBasicInformation last = null;
 
         // sort the extras out of the movies
         for (Movie m : moviesList) {
@@ -563,8 +563,8 @@ public class Library implements Map<String, Movie> {
 
         // sort the extras separately
         if (!extraList.isEmpty()) {
-            Movie firstExtra = extraList.get(0);
-            Movie lastExtra = extraList.get(extraList.size() - 1);
+            IMovieBasicInformation firstExtra = extraList.get(0);
+            IMovieBasicInformation lastExtra = extraList.get(extraList.size() - 1);
             for (int i = 0; i < extraList.size(); i++) {
                 Movie movie = extraList.get(i);
                 movie.setFirst(firstExtra.getBaseName());

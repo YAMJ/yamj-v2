@@ -13,20 +13,32 @@
 
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.WebBrowser;
 
-public class GooglePosterPlugin implements IMoviePosterPlugin {
+public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
+
+    // private int nbRetry;
 
     public GooglePosterPlugin() {
         super();
         webBrowser = new WebBrowser();
+        // String retry = PropertiesUtil.getProperty("poster.scanner.google.retry", "3");
+        // try {
+        // nbRetry = Integer.parseInt(retry);
+        // } catch (Exception ex) {
+        // nbRetry = 3;
+        // }
     }
 
     @Override
@@ -37,25 +49,38 @@ public class GooglePosterPlugin implements IMoviePosterPlugin {
 
     @Override
     public String getPosterUrl(String title, String year) {
+        String response = Movie.UNKNOWN;
         try {
             StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
             sb.append("&gbv=2");
 
             String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("imgurl=") + 7;
+            // int tryLeft = nbRetry;
+            int startSearch = 0;
+            // while (tryLeft-- > 0 && Movie.UNKNOWN.equalsIgnoreCase(response)) {
+            // logger.finest("GooglePosterPlugin: Try " + (nbRetry - tryLeft) + "/" + nbRetry);
+            String searchString = "imgurl=";
+            int beginIndex = xml.indexOf(searchString, startSearch) + 7;
 
             if (beginIndex != -1) {
+                startSearch = beginIndex + searchString.length();
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
-                return st.nextToken();
-            } else {
-                return Movie.UNKNOWN;
+                response = st.nextToken();
+                if (!PosterScanner.validatePoster(response)) {
+                    response = Movie.UNKNOWN;
+                }
             }
+            // } else {
+            // // Stop try no more result.
+            // tryLeft = 0;
+            // }
+            // }
         } catch (Exception error) {
             logger.severe("GooglePosterPlugin: Failed retreiving poster URL from google images : " + title);
             logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
         }
+        return response;
     }
 
     @Override
@@ -66,6 +91,18 @@ public class GooglePosterPlugin implements IMoviePosterPlugin {
     @Override
     public String getName() {
         return "google";
+    }
+
+    private boolean checkPosterUrl(String posterURL) {
+        try {
+            URL url = new URL(posterURL);
+            InputStream in = url.openStream();
+            in.close();
+            return true;
+        } catch (IOException ignore) {
+            logger.finest("GooglePosterPlugin: ValidatePoster error: " + ignore.getMessage() + ": can't open url");
+            return false; // Quit and return a false poster
+        }
     }
 
 }

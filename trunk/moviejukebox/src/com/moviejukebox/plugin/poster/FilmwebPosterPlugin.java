@@ -24,7 +24,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FilmwebPlugin;
 import com.moviejukebox.tools.WebBrowser;
 
-public class FilmwebPosterPlugin implements IMoviePosterPlugin {
+public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern posterUrlPattern = Pattern.compile("artshow[^>]+(http://gfx.filmweb.pl[^\"]+)\"");
 

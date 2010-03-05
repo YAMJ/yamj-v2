@@ -18,7 +18,7 @@ import java.net.URLEncoder;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.WebBrowser;
 
-public class ImpAwardsPosterPlugin implements IMoviePosterPlugin {
+public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
 

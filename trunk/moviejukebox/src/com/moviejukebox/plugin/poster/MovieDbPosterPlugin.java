@@ -15,7 +15,10 @@ package com.moviejukebox.plugin.poster;
 
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
@@ -80,4 +83,45 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         return "moviedb";
     }
 
+    @Override
+    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+        String id = getId(ident);
+        if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
+            // Id found
+            if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+                ident.setId(getName(), id);
+            }
+        }
+
+        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            return getPosterUrl(id);
+        }
+        return Movie.UNKNOWN;
+    }
+
+    private String getId(Identifiable ident) {
+        String response = Movie.UNKNOWN;
+        if (ident != null) {
+            String imdbID = ident.getId(TheMovieDbPlugin.IMDB_PLUGIN_ID);
+            String tmdbID = ident.getId(TheMovieDbPlugin.IMDB_PLUGIN_ID);
+            MovieDB moviedb;
+            // First look to see if we have a TMDb ID as this will make looking the film up easier
+            if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+                response = tmdbID;
+            } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+                // Search based on IMDb ID
+                moviedb = theMovieDb.moviedbImdbLookup(imdbID, language);
+                if (moviedb != null) {
+                    tmdbID = moviedb.getId();
+                    if (tmdbID != null && !tmdbID.equals("")) {
+                        response = tmdbID;
+                    } else {
+                        logger.fine("MovieDvPosterPlugin: No TMDb ID found for movie!");
+                    }
+                }
+            }
+        }
+        return response;
+    }
 }

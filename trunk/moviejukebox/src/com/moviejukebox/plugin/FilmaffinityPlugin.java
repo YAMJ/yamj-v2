@@ -16,17 +16,17 @@ package com.moviejukebox.plugin;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.StringTokenizer;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.poster.FilmAffinityPosterPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 public class FilmaffinityPlugin extends ImdbPlugin {
 
     public static String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
+    private FilmAffinityPosterPlugin posterPlugin; // FIXME - Yaltar don't use PosterPlugin, but extract common method to an utility class.
 
     // Define plot length
     int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
@@ -34,6 +34,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     public FilmaffinityPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Spain");
+        posterPlugin = new FilmAffinityPosterPlugin();
     }
 
     @Override
@@ -41,13 +42,20 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         boolean retval = true;
         String filmAffinityId = mediaFile.getId(FILMAFFINITY_PLUGIN_ID);
         if (filmAffinityId == null || filmAffinityId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            filmAffinityId = getFilmAffinityId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
+            filmAffinityId = posterPlugin.getId(mediaFile,mediaFile);
         } else {
-            filmAffinityId += ".html";
+            // Not already have the .html at the end ?
+            if (filmAffinityId.indexOf(".html") == -1) {
+                filmAffinityId += ".html";
+            }
         }
 
-        if (filmAffinityId.indexOf(".html") != -1) { // Update original title and plot (in Spanish)
-            retval = updateFilmAffinityMediaInfo(mediaFile, filmAffinityId);
+        try {
+            if (filmAffinityId.indexOf(".html") != -1) { // Update original title and plot (in Spanish)
+                retval = updateFilmAffinityMediaInfo(mediaFile, filmAffinityId);
+            }
+        } catch (Exception ex) {
+            System.out.println("bra");
         }
 
         // Fill in the rest of the fields from IMDB, taking care not to allow the title to get overwritten
@@ -59,42 +67,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         return retval;
     }
 
-    /**
-     * retrieve the imdb matching the specified movie name and year. This routine is base on a google request.
-     */
-    private String getFilmAffinityId(String movieName, String year, int season) {
-        try {
-            StringBuffer sb = new StringBuffer("http://www.google.es/search?hl=es&q=");
 
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            if (season != -1) {
-                sb.append("+TV");
-            }
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append("+").append(year);
-            }
-
-            sb.append("+site%3Awww.filmaffinity.com&btnG=Buscar+con+Google&meta=");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("/es/film");
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 8), "/\"");
-            String filmAffinityId = st.nextToken();
-
-            // if ( imdbId.startsWith( "film" ) )
-            if (filmAffinityId != "") {
-                logger.finest("FilmAffinity: Found id: " + filmAffinityId);
-                return filmAffinityId;
-            } else {
-                return Movie.UNKNOWN;
-            }
-
-        } catch (Exception error) {
-            logger.severe("Failed retreiving imdb Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-    }
 
     /**
      * Scan FilmAffinity html page for the specified movie
@@ -109,7 +82,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                     return false;
                 }
             }
-            
+
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<img src=\"http://www.filmaffinity.com/images/movie.gif\" border=\"0\">", "</span></div></div>"));
             }

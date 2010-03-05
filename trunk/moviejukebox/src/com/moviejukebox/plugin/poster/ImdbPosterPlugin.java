@@ -20,7 +20,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.tools.WebBrowser;
 
-public class ImdbPosterPlugin implements IMoviePosterPlugin {
+public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
     private ImdbInfo imdbInfo;
