@@ -317,7 +317,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private void getFilmdeltaYear(Movie movie, String fdeltaHtml) {
         String year = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 5);
         String[] newYear = year.split("\\s");
-        if (newYear.length > 1) {
+        if (newYear.length > 1 && !movie.isOverrideYear()) {
             movie.setYear(newYear[1]);
             logger.finest("FilmdeltaSE: scraped year: " + movie.getYear());
         } else {

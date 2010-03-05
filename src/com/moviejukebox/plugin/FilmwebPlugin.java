@@ -259,7 +259,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                 movie.setPlot(plot);
             }
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!movie.isOverrideYear()) {
                 movie.setYear(HTMLTools.extractTag(xml, "<title>", 1, "()><"));
             }
 

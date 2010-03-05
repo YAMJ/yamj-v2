@@ -273,7 +273,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Year
-                if (movie.getYear().equals(Movie.UNKNOWN)) {
+                if (!movie.isOverrideYear()) {
                     for (String year : HTMLTools.extractTags(item, ">год<", "</tr>", "<a href=\"/level/10", "</a>")) {
                         movie.setYear(year);
                         break;

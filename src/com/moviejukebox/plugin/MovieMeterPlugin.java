@@ -162,7 +162,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 }
             }
 
-            if (mediaFile.getYear() == null || mediaFile.getYear().isEmpty() || mediaFile.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!mediaFile.isOverrideYear()) {
                 if (filmInfo.get("year") != null) {
                     mediaFile.setYear(filmInfo.get("year").toString());
                 }

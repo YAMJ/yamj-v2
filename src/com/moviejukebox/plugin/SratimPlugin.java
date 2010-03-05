@@ -654,7 +654,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
 
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!movie.isOverrideYear()) {
 
                 if (sratimUrl.contains("series")) {
                     movie.setYear(HTMLTools.extractTag(xml, "<span style=\"font-weight:normal\">(", 0, ")"));
