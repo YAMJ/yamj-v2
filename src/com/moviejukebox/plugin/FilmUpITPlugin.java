@@ -21,6 +21,7 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -192,7 +193,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
      * 
      * @throws ParseException
      */
-    private String getFilmUpITId(String movieName, String year, Movie mediaFile) throws ParseException {
+    private String getFilmUpITId(String movieName, String year, Identifiable mediaFile) throws ParseException {
         String FilmUpITId = Movie.UNKNOWN;
 
         try {

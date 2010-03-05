@@ -291,31 +291,35 @@ public class PosterScanner {
                 logger.severe("Posterscanner: '" + posterSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : "
                                 + getPluginsCode());
             }
-
+            String msg = null;
             if (movie.isTVShow()) {
-                ITvShowPosterPlugin iTvShowPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
-                if (iTvShowPosterPlugin == null) {
-                    logger.info("Posterscanner: " + posterSearchToken + " is not a TvShow Poster plugin - skipping");
-                } else {
-                    posterURL = iTvShowPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.getSeason());
-                }
+                iPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
+                msg = "TvShow";
             } else {
-                IMoviePosterPlugin iMoviePosterPlugin = moviePosterPlugins.get(posterSearchToken);
-                if (iMoviePosterPlugin == null) {
-                    logger.info("Posterscanner: " + posterSearchToken + " is not a Movie Poster plugin - skipping");
-                } else {
-                    posterURL = iMoviePosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear());
-                }
+                iPosterPlugin = moviePosterPlugins.get(posterSearchToken);
+                msg = "Movie";
+            }
+            if (iPosterPlugin == null) {
+                logger.info("Posterscanner: " + posterSearchToken + " is not a " + msg + " Poster plugin - skipping");
+            } else {
+                posterURL = iPosterPlugin.getPosterUrl(movie, movie);
             }
 
-            // Validate the poster
-            if (posterValidate && !validatePoster(posterURL, posterWidth, posterHeight, posterValidateAspect))
+            // Validate the poster- No need to validate if we're UNKNOWN
+            if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL) && posterValidate && !validatePoster(posterURL, posterWidth, posterHeight, posterValidateAspect)) {
                 posterURL = Movie.UNKNOWN;
-            else
-                logger.finest("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterURL);
+            } else {
+                if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+                    logger.finest("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterURL);
+                }
+            }
         }
 
         return posterURL;
+    }
+
+    public static boolean validatePoster(String posterURL) {
+        return validatePoster(posterURL, posterWidth, posterHeight, posterValidateAspect);
     }
 
     /**

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -124,7 +125,7 @@ public class ScopeDkPlugin extends FilmUpITPlugin {
      * 
      * @throws ParseException
      */
-    private String getScopeDkId(String movieName, String year, Movie mediaFile) throws ParseException {
+    private String getScopeDkId(String movieName, String year, Identifiable mediaFile) throws ParseException {
         String FilmUpITId = Movie.UNKNOWN;
 
         try {

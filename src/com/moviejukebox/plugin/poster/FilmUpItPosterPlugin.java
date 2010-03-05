@@ -23,7 +23,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class FilmUpItPosterPlugin implements IMoviePosterPlugin {
+public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;

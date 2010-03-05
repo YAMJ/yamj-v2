@@ -14,16 +14,19 @@
 package com.moviejukebox.plugin.poster;
 
 import java.net.URLEncoder;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin  {
+public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
-
+    private static Pattern yearMatcher = Pattern.compile(".*\\((\\d{4})\\).*", Pattern.CASE_INSENSITIVE);
     private WebBrowser webBrowser;
 
     public FilmAffinityPosterPlugin() {
@@ -34,27 +37,71 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
     @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
+        String firstResponse = response;
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.es/search?hl=es&q=");
+            StringBuffer sb = new StringBuffer("http://www.filmaffinity.com/es/search.php?stext=");
 
             sb.append(URLEncoder.encode(title, "UTF-8"));
             if (tvSeason > -1) {
                 sb.append("+TV");
             }
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append("+").append(year);
+            // if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            // sb.append("+").append(year);
+            // }
+
+            sb.append("&stype=title");
+            String url = webBrowser.getUrl(sb.toString());
+            String startSearchString = "/es/film";
+            // we got a redirect due to unique result
+            if (url != null && url.contains(startSearchString)) {
+                response = url.substring(url.indexOf(startSearchString)+startSearchString.length(), url.indexOf(".html") + 5);
+            } else {
+
+                String xml = webBrowser.request(sb.toString());
+
+                int startSearch = 0;
+                int beginIndex;
+                // While we found movie link.
+
+                while ((beginIndex = xml.indexOf(startSearchString, startSearch)) > -1 && Movie.UNKNOWN.equals(response)) {
+                    startSearch = beginIndex + startSearchString.length();
+
+                    // Keep the first find.
+                    if (Movie.UNKNOWN.equalsIgnoreCase(firstResponse)) {
+                        firstResponse = xml.substring(startSearch, xml.indexOf(".html", startSearch) + 5);
+                    }
+                    // If we search with year.
+                    if (year != null) {
+                        String yearFound = null;
+                        String substring = xml.substring(startSearch);
+                        Matcher matcher = yearMatcher.matcher(substring.substring(0, substring.indexOf("</td></tr>")));
+                        if (matcher.find()) {
+                            yearFound = matcher.group(1);
+                        }
+                        // int endIndex = xml.indexOf(")", startSearch);
+                        // String yearFound = null;
+                        //
+                        // if (endIndex != -1) {
+                        // yearFound = xml.substring(endIndex - 4, endIndex);
+                        // }
+                        if (yearFound != null) {
+                            if (yearFound.equalsIgnoreCase(year)) {
+                                response = xml.substring(startSearch, xml.indexOf(".html", startSearch) + 5);
+                            }
+                        }
+                    } else {
+                        // No year, first result.
+                        response = firstResponse;
+                    }
+                }
             }
+            // int beginIndex = xml.indexOf(startSearchString, 0); // <a href="/es/film325907.html">Platoon of the Dead</a></b> (2009) <img
+            // StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 8), "/\"");
+            // String filmAffinityId = st.nextToken();
 
-            sb.append("+site%3Awww.filmaffinity.com&btnG=Buscar+con+Google&meta=");
-
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("/es/film");
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 8), "/\"");
-            String filmAffinityId = st.nextToken();
-
-            if (filmAffinityId != "") {
-                logger.finest("FilmAffinity: Found id: " + filmAffinityId);
-                response = filmAffinityId;
+            if (!Movie.UNKNOWN.equalsIgnoreCase(response)) {
+                logger.finest("FilmAffinity: Found id: " + response);
+                // response = response;
             }
 
         } catch (Exception error) {
@@ -107,5 +154,47 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
     @Override
     public String getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
+    }
+
+    @Override
+    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+        String id = getId(ident, movieInformation);
+
+        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (movieInformation.isTVShow()) {
+                return getPosterUrl(id, movieInformation.getSeason());
+            } else {
+                return getPosterUrl(id);
+            }
+        }
+        return Movie.UNKNOWN;
+    }
+    
+
+    public String getId(Identifiable ident, IMovieBasicInformation movieInformation) {
+        String id = getId(ident);
+        if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (movieInformation.isTVShow()) {
+                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear(), movieInformation.getSeason());
+            } else {
+                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
+            }
+            // Id found
+            if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+                ident.setId(getName(), id);
+            }
+        }
+        return id;
+    }
+    
+    private String getId(Identifiable ident) {
+        String response = Movie.UNKNOWN;
+        if (ident != null) {
+            String id = ident.getId(this.getName());
+            if (id != null) {
+                response = id;
+            }
+        }
+        return response;
     }
 }

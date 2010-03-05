@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.WebBrowser;
 
-public class MovieCoversPosterPlugin implements IMoviePosterPlugin {
+public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
 

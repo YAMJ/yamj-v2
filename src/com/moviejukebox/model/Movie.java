@@ -47,8 +47,9 @@ import com.moviejukebox.tools.PropertiesUtil;
  * @author jjulien
  * @author artem.gratchev
  */
-@XmlType public class Movie implements Comparable<Movie>, Cloneable {
-// Preparing to JAXB
+@XmlType
+public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovieBasicInformation {
+    // Preparing to JAXB
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     public static final String UNKNOWN = "UNKNOWN";
@@ -58,9 +59,9 @@ import com.moviejukebox.tools.PropertiesUtil;
     public static final String TYPE_UNKNOWN = UNKNOWN;
     public static final String TYPE_VIDEO_UNKNOWN = UNKNOWN;
     public static final String TYPE_VIDEO_HD = "HD";
-    public static final String TYPE_BLURAY = "BLURAY";    // Used to indicate what physical format the video is
-    public static final String TYPE_DVD = "DVD";          // Used to indicate what physical format the video is
-    public static final String TYPE_FILE = "FILE";        // Used to indicate what physical format the video is
+    public static final String TYPE_BLURAY = "BLURAY"; // Used to indicate what physical format the video is
+    public static final String TYPE_DVD = "DVD"; // Used to indicate what physical format the video is
+    public static final String TYPE_FILE = "FILE"; // Used to indicate what physical format the video is
     private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
     private String mjbVersion = UNKNOWN;
@@ -151,32 +152,26 @@ import com.moviejukebox.tools.PropertiesUtil;
     private boolean isSetMaster = false;
 
     // http://stackoverflow.com/questions/343669/how-to-let-jaxb-render-boolean-as-0-and-1-not-true-and-false
-    public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean>
-    {
+    public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean> {
         @Override
-        public Boolean unmarshal( String s )
-        {
+        public Boolean unmarshal(String s) {
             return s == null ? null : "YES".equalsIgnoreCase(s);
         }
 
         @Override
-        public String marshal( Boolean c )
-        {
+        public String marshal(Boolean c) {
             return c == null ? null : c ? "YES" : "NO";
         }
     }
 
-    public static class UrlCodecAdapter extends XmlAdapter<String, String>
-    {
+    public static class UrlCodecAdapter extends XmlAdapter<String, String> {
         @Override
-        public String unmarshal( String s )
-        {
+        public String unmarshal(String s) {
             return s == null ? null : HTMLTools.decodeUrl(s);
         }
 
         @Override
-        public String marshal( String c )
-        {
+        public String marshal(String c) {
             return c == null ? null : HTMLTools.encodeUrl(c);
         }
     }
@@ -189,14 +184,15 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
-    @XmlElement public String getMjbVersion() {
+    @XmlElement
+    public String getMjbVersion() {
         return mjbVersion;
     }
-    
+
     public String getCurrentMjbVersion() {
         return MovieJukebox.class.getPackage().getSpecificationVersion();
     }
-    
+
     public void setMjbRevision(String mjbRevision) {
         if (mjbRevision == null || mjbRevision.equalsIgnoreCase(UNKNOWN)) {
             this.mjbRevision = "0";
@@ -205,26 +201,27 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
-    @XmlElement public String getMjbRevision() {
+    @XmlElement
+    public String getMjbRevision() {
         // If YAMJ is self compiled then the revision information may not exist.
         if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             return mjbRevision;
         } else {
             return Movie.UNKNOWN;
-        }   
+        }
     }
-    
+
     public String getCurrentMjbRevision() {
         String currentRevision = MovieJukebox.class.getPackage().getImplementationVersion();
-        
+
         // If YAMJ is self compiled then the revision information may not exist.
         if (!((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             return currentRevision;
         } else {
             return Movie.UNKNOWN;
-        }   
+        }
     }
-    
+
     public void setMjbGenerationDate(String mjbGenerationDate) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -233,7 +230,7 @@ import com.moviejukebox.tools.PropertiesUtil;
             this.mjbGenerationDate = new Date();
         }
     }
-    
+
     public void setMjbGenerationDate(Date mjbGenerationDate) {
         if (mjbGenerationDate == null) {
             this.mjbGenerationDate = new Date();
@@ -241,11 +238,12 @@ import com.moviejukebox.tools.PropertiesUtil;
             this.mjbGenerationDate = mjbGenerationDate;
         }
     }
-    
-    @XmlElement public String getMjbGenerationDateString() {
+
+    @XmlElement
+    public String getMjbGenerationDateString() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getMjbGenerationDate());
     }
-    
+
     public Date getMjbGenerationDate() {
         if (this.mjbGenerationDate == null) {
             this.mjbGenerationDate = new Date();
@@ -348,6 +346,9 @@ import com.moviejukebox.tools.PropertiesUtil;
         return audioCodec;
     }
 
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#getBaseName()
+     */
     public String getBaseName() {
         return baseName;
     }
@@ -443,6 +444,11 @@ import com.moviejukebox.tools.PropertiesUtil;
         return idMap.get(ImdbPlugin.IMDB_PLUGIN_ID);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.moviejukebox.model.Identifiable#getId(java.lang.String)
+     */
     public String getId(String key) {
         String result = idMap.get(key);
         if (result != null) {
@@ -455,12 +461,14 @@ import com.moviejukebox.tools.PropertiesUtil;
     public Map<String, String> getIdMap() {
         return idMap;
     }
-    
+
     public static class MovieId {
-        @XmlAttribute public String movieDatabase;
-        @XmlValue public String value;
+        @XmlAttribute
+        public String movieDatabase;
+        @XmlValue
+        public String value;
     }
-    
+
     @XmlElement(name = "id")
     public List<MovieId> getMovieIds() {
         List<MovieId> list = new ArrayList<MovieId>();
@@ -472,15 +480,17 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
         return list;
     }
-    
+
     public void setMovieIds(List<MovieId> list) {
         idMap.clear();
         for (MovieId id : list) {
             idMap.put(id.movieDatabase, id.value);
         }
     }
-    
 
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#getLanguage()
+     */
     public String getLanguage() {
         return language;
     }
@@ -538,14 +548,23 @@ import com.moviejukebox.tools.PropertiesUtil;
         return runtime;
     }
 
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#getSeason()
+     */
     public int getSeason() {
         return season;
     }
 
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#getTitle()
+     */
     public String getTitle() {
         return title;
     }
 
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#getTitleSort()
+     */
     public String getTitleSort() {
         return titleSort;
     }
@@ -566,58 +585,75 @@ import com.moviejukebox.tools.PropertiesUtil;
         return videoSource;
     }
 
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#getYear()
+     */
     public String getYear() {
         return year;
     }
-    
+
     public String getSubtitles() {
         return subtitles;
     }
 
-    @XmlTransient public boolean isDirty() {
+    @XmlTransient
+    public boolean isDirty() {
         return isDirty;
     }
 
-    @XmlTransient public boolean isDirtyNFO() {
+    @XmlTransient
+    public boolean isDirtyNFO() {
         return isDirtyNFO;
     }
 
-    @XmlTransient public boolean isDirtyPoster() {
+    @XmlTransient
+    public boolean isDirtyPoster() {
         return isDirtyPoster;
     }
 
-    @XmlTransient public boolean isDirtyFanart() {
+    @XmlTransient
+    public boolean isDirtyFanart() {
         return isDirtyFanart;
     }
-    
-    @XmlTransient public boolean isDirtyBanner() {
+
+    @XmlTransient
+    public boolean isDirtyBanner() {
         return isDirtyBanner;
     }
 
-    @XmlAttribute(name = "isTV") public boolean isTVShow() {
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#isTVShow()
+     */
+    @XmlAttribute(name = "isTV")
+    public boolean isTVShow() {
         // return (season != -1);
         return (this.movieType.equals(TYPE_TVSHOW) || this.season != -1);
     }
 
-    @XmlTransient public boolean isBluray() {
+    @XmlTransient
+    public boolean isBluray() {
         return this.formatType.equals(TYPE_BLURAY);
     }
-    
-    @XmlTransient public boolean isDVD() {
+
+    @XmlTransient
+    public boolean isDVD() {
         return this.formatType.equals(TYPE_DVD);
     }
-    
-    @XmlTransient public boolean isFile() {
+
+    @XmlTransient
+    public boolean isFile() {
         return this.formatType.equals(TYPE_FILE);
     }
-    
-    @XmlTransient public boolean isHD() {
+
+    @XmlTransient
+    public boolean isHD() {
         // Depreciated this check in favour of the width check
         // return this.videoType.equals(TYPE_VIDEO_HD) || videoOutput.indexOf("720") != -1 || videoOutput.indexOf("1080") != -1;
         return (getWidth() >= highdef720);
     }
 
-    @XmlTransient public boolean isHD1080() {
+    @XmlTransient
+    public boolean isHD1080() {
         return (getWidth() >= highdef1080);
     }
 
@@ -703,7 +739,7 @@ import com.moviejukebox.tools.PropertiesUtil;
         if (!director.equalsIgnoreCase(this.director)) {
             this.isDirty = true;
             this.director = director;
-       }
+        }
         this.director = director;
     }
 
@@ -773,6 +809,11 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.moviejukebox.model.Identifiable#setId(java.lang.String, java.lang.String)
+     */
     public void setId(String key, String id) {
         if (key != null && id != null && !id.equalsIgnoreCase(this.getId(key))) {
             this.isDirty = true;
@@ -833,7 +874,7 @@ import com.moviejukebox.tools.PropertiesUtil;
             plot = UNKNOWN;
         }
         if (!plot.equalsIgnoreCase(this.plot)) {
-            this.isDirty = true;            
+            this.isDirty = true;
             plot = plot.replaceAll("\"", "'");
             this.plot = plot;
         }
@@ -1000,7 +1041,7 @@ import com.moviejukebox.tools.PropertiesUtil;
             this.year = year;
         }
     }
-    
+
     public String getQuote() {
         return quote;
     }
@@ -1118,7 +1159,10 @@ import com.moviejukebox.tools.PropertiesUtil;
     public boolean isExtra() {
         return extra;
     }
-    
+
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#isTrailerExchange()
+     */
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
     public Boolean isTrailerExchange() {
         return trailerExchange;
@@ -1151,7 +1195,6 @@ import com.moviejukebox.tools.PropertiesUtil;
     public String getFormatType() {
         return this.formatType;
     }
-
 
     public void setVideoType(String videoType) {
         if (videoType == null) {
@@ -1267,7 +1310,7 @@ import com.moviejukebox.tools.PropertiesUtil;
             if (videoOutput.equals(Movie.UNKNOWN)) {
                 videoOutput = "";
             }
-            
+
             switch (dto.getFps()) {
             case 23:
                 videoOutput = "1080p 23.976Hz";
@@ -1337,6 +1380,9 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.moviejukebox.model.IMovieBasicInformation#isSetMaster()
+     */
     @XmlAttribute(name = "isSet")
     public boolean isSetMaster() {
         return isSetMaster;
@@ -1348,12 +1394,12 @@ import com.moviejukebox.tools.PropertiesUtil;
 
     public void setFileDate(Date fileDate) {
         this.fileDate = fileDate;
-        
+
         if (fileDate.after(this.fileDate)) {
             this.fileDate = fileDate;
         }
     }
-    
+
     public Date getFileDate() {
         return fileDate;
     }
@@ -1361,15 +1407,15 @@ import com.moviejukebox.tools.PropertiesUtil;
     public void setFileSize(long fileSize) {
         this.fileSize = this.fileSize + fileSize;
     }
-    
+
     public long getFileSize() {
         return fileSize;
     }
-    
+
     public String getFileSizeString() {
         String returnSize = UNKNOWN;
         long calcFileSize = this.fileSize;
-        
+
         if (calcFileSize > 1024) {
             calcFileSize = calcFileSize / 1024;
             if (calcFileSize > 1024) {
@@ -1398,21 +1444,21 @@ import com.moviejukebox.tools.PropertiesUtil;
 
         return returnSize;
     }
-    
+
     public void setAspectRatio(String aspect) {
         // Format the aspect slightly and change "16/9" to "16:9"
         aspect.replaceAll("/", ":");
         if (!aspect.contains(":")) {
             aspect += ":1";
         }
-        
+
         this.aspect = aspect;
     }
-    
+
     public String getAspectRatio() {
         return aspect;
     }
-    
+
     // ***** All the graphics methods go here *****
 
     // ***** Posters
@@ -1422,8 +1468,8 @@ import com.moviejukebox.tools.PropertiesUtil;
     }
 
     /**
-     * Should be call only from PosterScanner.
-     * Avoid calling this inside MoviePlugin
+     * Should be call only from PosterScanner. Avoid calling this inside MoviePlugin
+     * 
      * @param url
      */
     public void setPosterURL(String url) {
@@ -1544,8 +1590,8 @@ import com.moviejukebox.tools.PropertiesUtil;
         }
         this.bannerFilename = bannerFilename;
     }
-    // ***** END of graphics *****
 
+    // ***** END of graphics *****
 
     public Map<String, String> getIndexes() {
         return indexes;

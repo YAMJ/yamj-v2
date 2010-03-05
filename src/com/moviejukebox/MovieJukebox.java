@@ -59,6 +59,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 
+import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
@@ -1064,7 +1065,7 @@ public class MovieJukebox {
      */
     private Boolean searchLibrary(String slMovieName, Library library) {
         slMovieName = slMovieName.toUpperCase();
-        for (Movie movie : library.values()) {
+        for (IMovieBasicInformation movie : library.values()) {
             if (FileTools.makeSafeFilename(movie.getBaseName()).toUpperCase().equals(slMovieName)) {
                 return true;
             }

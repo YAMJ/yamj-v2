@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.ExtraFile;
@@ -543,7 +544,7 @@ public class AppleTrailersPlugin {
         return r;
     }
 
-    private boolean trailerDownload(final Movie movie, String trailerUrl, File trailerFile) {
+    private boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrl, File trailerFile) {
         Timer timer = new Timer();
 
         Semaphore s = null;

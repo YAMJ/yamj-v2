@@ -28,7 +28,7 @@ import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
-public class MovieMeterPosterPlugin implements IMoviePosterPlugin {
+public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;

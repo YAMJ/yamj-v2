@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
@@ -138,4 +140,36 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         return "thetvdb";
     }
 
+    @Override
+    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+        String id = getId(ident);
+        if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (movieInformation.isTVShow()) {
+                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear(), movieInformation.getSeason());
+            }
+            // Id found
+            if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+                ident.setId(getName(), id);
+            }
+        }
+
+        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (movieInformation.isTVShow()) {
+                return getPosterUrl(id, movieInformation.getSeason());
+            }
+
+        }
+        return Movie.UNKNOWN;
+    }
+
+    private String getId(Identifiable ident) {
+        String response = Movie.UNKNOWN;
+        if (ident != null) {
+            String id = ident.getId(this.getName());
+            if (id != null) {
+                response = id;
+            }
+        }
+        return response;
+    }
 }

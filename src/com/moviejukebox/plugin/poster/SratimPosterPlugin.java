@@ -10,7 +10,7 @@ import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class SratimPosterPlugin implements IMoviePosterPlugin {
+public class SratimPosterPlugin extends AbstractMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
     private ImdbInfo imdbInfo;

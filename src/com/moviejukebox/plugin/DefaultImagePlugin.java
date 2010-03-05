@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -270,7 +272,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      *            The image file to draw on
      * @return The new image file with the language flag on it
      */
-    private BufferedImage drawLanguage(Movie movie, BufferedImage bi) {
+    private BufferedImage drawLanguage(IMovieBasicInformation movie, BufferedImage bi) {
         String lang = movie.getLanguage();
 
         if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -354,7 +356,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      *            the image to draw on
      * @return the new buffered image
      */
-    private BufferedImage drawSet(Movie movie, BufferedImage bi) {
+    private BufferedImage drawSet(Identifiable movie, BufferedImage bi) {
         try {
             InputStream in = new FileInputStream(getResourcesPath() + "set.png");
             BufferedImage biSet = ImageIO.read(in);
@@ -378,7 +380,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return skinHome + File.separator + "resources" + File.separator;
     }
 
-    protected BufferedImage drawPerspective(Movie movie, BufferedImage bi) {
+    protected BufferedImage drawPerspective(Identifiable movie, BufferedImage bi) {
         return bi;
     }
 }

@@ -1,3 +1,16 @@
+/*
+ *      Copyright (c) 2004-2009 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list 
+ *  
+ *      Web: http://code.google.com/p/moviejukebox/
+ *  
+ *      This software is licensed under a Creative Commons License
+ *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *  
+ *      For any reuse or distribution, you must make clear to others the 
+ *      license terms of this work.  
+ */
+
 package com.moviejukebox.plugin.poster;
 
 import java.io.PrintWriter;
@@ -11,7 +24,7 @@ import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class AllocinePosterPlugin implements IMoviePosterPlugin {
+public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
@@ -80,5 +93,4 @@ public class AllocinePosterPlugin implements IMoviePosterPlugin {
     public String getName() {
         return "allocine";
     }
-
 }
