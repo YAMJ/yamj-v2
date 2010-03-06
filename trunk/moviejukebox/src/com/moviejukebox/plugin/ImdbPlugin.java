@@ -297,7 +297,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             // get year of imdb site
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!movie.isOverrideYear()) {
                 Pattern getYear = Pattern.compile("(?:\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)|<a href=\"/year/(\\d{4}))");
                 Matcher m = getYear.matcher(xml);
                 if (m.find()) {
@@ -310,7 +310,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
 
-            if (!movie.isOverrideYear()) {
+            if (!movie.isOverrideYear() && (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN))) {
                 movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/Sections/Years/", 1));
                 if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                     String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 0);
