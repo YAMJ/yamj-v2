@@ -164,7 +164,8 @@ public class GraphicTools {
 
         Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
         BufferedImage bi = new BufferedImage(nMaxWidth, nMaxHeight, BufferedImage.TYPE_INT_ARGB);
-        bi.getGraphics().drawImage(temp1, 0, y, null);
+        //bi.getGraphics().drawImage(temp1, 0, y, null);
+        bi.createGraphics().drawImage(temp1, 0, y, null);
         return bi;
     }
 
@@ -181,7 +182,7 @@ public class GraphicTools {
 
         Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
         BufferedImage bi = new BufferedImage(tempWidth, tempHeight, BufferedImage.TYPE_INT_ARGB);
-        bi.getGraphics().drawImage(temp1, 0, 0, null);
+        bi.createGraphics().drawImage(temp1, 0, 0, null);
         return bi;
     }
 
@@ -206,8 +207,7 @@ public class GraphicTools {
 
         Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
         BufferedImage bi = new BufferedImage(tempWidth, tempHeight, BufferedImage.TYPE_INT_ARGB);
-        bi.getGraphics().drawImage(temp1, 0, 0, null);
-
+        bi.createGraphics().drawImage(temp1, 0, 0, null);
         return cropToSize(nMaxWidth, nMaxHeight, bi);
     }
 
@@ -367,4 +367,5 @@ public class GraphicTools {
         }
         return perspectiveFilter.filter(bi, null);
     }
+
 }

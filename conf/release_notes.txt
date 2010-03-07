@@ -35,6 +35,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1316 Set posters are not picked up
   - Enhancement  #1320 Feedback on progress when Writing movie data
   - Fixed defect #1323 Posters not picked up from NFO file
+  - Enhancement  #1326 Support 'blank' banners with custom generated text
   
 MovieJukebox 1.8
 ----------------
