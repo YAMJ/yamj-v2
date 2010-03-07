@@ -130,8 +130,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (!movie.isOverrideTitle()) {
                 String title = HTMLTools.extractTag(xml, "<title>");
-                title = title.replaceAll(" \\(VG\\)$", "");
-                title = title.replaceAll(" \\(\\d+\\)$", "");
+                title = title.replaceAll(" \\([VG|V]\\)$", ""); // Remove the (VG) or (V) tags from the title
+                title = title.replaceAll(" \\((\\d{4})(?:/[^\\)]+)?\\)", ""); // Remove the Date identifier
                 movie.setTitle(title);
                 movie.setOriginalTitle(title);
             }
