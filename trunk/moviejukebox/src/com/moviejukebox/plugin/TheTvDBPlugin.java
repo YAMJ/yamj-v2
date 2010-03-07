@@ -49,9 +49,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean includeWideBanners;
     private boolean onlySeriesBanners;
     private boolean cycleSeriesBanners;
+    private boolean textBanners;
     private boolean dvdEpisodes = false;
-    private static final String bannerSeasonType = "seasonwide";
-    private static final String bannerSeriesType = "graphical";
+    private static String bannerSeasonType = "seasonwide";
+    private static String bannerSeriesType = "graphical";
+    private static String bannerBlankType = "blank";
     private int preferredPlotLength;
 
     public TheTvDBPlugin() {
@@ -69,6 +71,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         forceFanartOverwrite = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
         forceBannerOverwrite = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        textBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("banners.addText.season", "false"));
     }
 
     @Override
@@ -172,36 +175,34 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     movie.setCast(series.getActors());
                 }
 
-//                if (movie.getPosterURL().equals(Movie.UNKNOWN)) {
-//                    String urlNormal = null;
-//
-//                    if (!banners.getSeasonList().isEmpty()) {
-//                        for (Banner banner : banners.getSeasonList()) {
-//                            if (banner.getSeason() == movie.getSeason()) { // only check for the correct season
-//                                if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
-//                                    urlNormal = banner.getUrl();
-//                                }
-//
-//                                if (urlNormal != null) {
-//                                    break;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (urlNormal == null && !banners.getPosterList().isEmpty()) {
-//                        urlNormal = banners.getPosterList().get(0).getUrl();
-//                    }
-//                    if (urlNormal == null && series.getPoster() != null && !series.getPoster().isEmpty()) {
-//                        urlNormal = series.getPoster();
-//                    }
-//                    if (urlNormal != null) {
-//                        movie.setPosterURL(urlNormal);
-//                    }
-//                }
-
                 if (includeWideBanners && (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceBannerOverwrite) || movie.isDirtyBanner()) {
                     String urlBanner = null;
 
+                    // If we are adding the "Season ?" text to a banner, try searching for these first 
+                    if (textBanners && !banners.getSeriesList().isEmpty()) {
+                        String savedUrl = null;
+                        int counter = 0;
+
+                        for (Banner banner : banners.getSeriesList()) {
+                            if (banner.getBannerType2().equalsIgnoreCase(bannerBlankType)) {
+                                // Increment the counter (before the test) and see if this is the right season
+                                if ((++counter == movie.getSeason()) || !cycleSeriesBanners) {
+                                    urlBanner = banner.getUrl();
+                                    break;
+                                } else {
+                                    // Save the URL in case this is the last one we find
+                                    savedUrl = banner.getUrl();
+                                }
+                            }
+                        }
+                        // Check to see if we found a banner
+                        if (urlBanner == null) {
+                            // No banner found, so use the last banner
+                            urlBanner = savedUrl;
+                        }
+                    }
+                    
+                    // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
                     if (!banners.getSeasonList().isEmpty() && !onlySeriesBanners) {
                         for (Banner banner : banners.getSeasonList()) {
                             if (banner.getSeason() == movie.getSeason()) { // only check for the correct season
@@ -213,7 +214,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             }
                         }
                     }
-
+                    
                     // If we didn't find a season banner or only want series banners, check for a series banner
                     if (urlBanner == null && !banners.getSeriesList().isEmpty()) {
                         String savedUrl = null;
@@ -236,8 +237,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             // No banner found, so use the last banner
                             urlBanner = savedUrl;
                         }
-
                     }
+                    
                     if (urlBanner != null) {
                         movie.setBannerURL(urlBanner);
                     }

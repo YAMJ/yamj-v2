@@ -97,9 +97,9 @@ public class PosterScanner {
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
         posterWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
         posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
-        tvShowPosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "thetvdb");
+        tvShowPosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "thetvdb,cdon,filmaffinity");
         moviePosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie",
-                        "imdb,motechnet,impawards,moviedb,moviecovers,google,yahoo");
+                        "moviedb,impawards,imdb,moviecovers,google,yahoo,motechnet");
         posterValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
         posterValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
         posterValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));

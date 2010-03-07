@@ -59,6 +59,9 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     @Override
     public String getPosterUrl(String id) {
         String returnString = Movie.UNKNOWN;
+        if (id.equalsIgnoreCase(Movie.UNKNOWN)) {
+            return returnString;
+        }
 
         MovieDB moviedb = theMovieDb.moviedbGetImages(id, language);
 

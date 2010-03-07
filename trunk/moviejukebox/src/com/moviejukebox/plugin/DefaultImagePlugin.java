@@ -13,7 +13,11 @@
 
 package com.moviejukebox.plugin;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,6 +52,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private int imageHeight;
     private float ratio;
     private boolean highdefDiff;
+    private boolean addTextTitle;
+    private boolean addTextSeason;
+    private static String textAlignment;
+    private static String textFont;
+    private static int textFontSize;
+    private static String textFontColor;
+    private static String textFontShadow;
+    private static int textOffset;
 
     public DefaultImagePlugin() {
         // Generic properties
@@ -75,6 +87,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addTVLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoTV", "false"));
         addSetLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
         addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
+        
+        addTextTitle = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.title", "false"));
+        addTextSeason = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.season", "false"));
+        textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
+        textFont = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
+        textFontSize = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.fontSize", "36"));
+        textFontColor = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
+        textFontShadow = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
+        textOffset = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.offset", "10"));
+
         ratio = (float)imageWidth / (float)imageHeight;
 
         BufferedImage bi = imageGraphic;
@@ -111,6 +133,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             } else if (!skipResize) {
                 bi = GraphicTools.scaleToSize(imageWidth, imageHeight, bi);
+            }
+            
+            if (imageType.equalsIgnoreCase("banners")) {
+                if (addTextTitle) {
+                    bi = drawText(bi, movie.getTitle(), true);
+                }
+                
+                if (addTextSeason && movie.isTVShow()) {
+                    bi = drawText(bi, "Season " + movie.getSeason(), false);
+                }
             }
 
             bi = drawLogos(movie, bi);
@@ -239,7 +271,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             try {
                 InputStream in = new FileInputStream(getResourcesPath() + "tv.png");
                 BufferedImage biTV = ImageIO.read(in);
-                Graphics g = bi.getGraphics();
+                Graphics2D g = bi.createGraphics();
 
                 if (addOtherLogo && movie.isHD()) {
                     // Both logos are required, so put the TV logo on the RIGHT
@@ -382,5 +414,95 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     protected BufferedImage drawPerspective(Identifiable movie, BufferedImage bi) {
         return bi;
+    }
+
+    private static BufferedImage drawText(BufferedImage bi, String outputText, boolean verticalAlign) {
+        Graphics2D g2 = bi.createGraphics();
+        g2.setFont(new Font(textFont, Font.BOLD, textFontSize));
+        FontMetrics fm = g2.getFontMetrics();
+        int textWidth = fm.stringWidth(outputText);
+        int imageWidth = bi.getWidth();
+        int imageHeight = bi.getHeight();
+        int leftAlignment = 0;
+        int topAlignment = 0;
+        
+        if (textAlignment.equalsIgnoreCase("left")) {
+            leftAlignment = textOffset;
+        } else if (textAlignment.equalsIgnoreCase("right")) {
+            leftAlignment = imageWidth - textWidth - textOffset;
+        } else {
+            leftAlignment = (imageWidth/2) - (textWidth/2);
+        }
+        
+        if (verticalAlign) {
+            // Align the text to the top
+            topAlignment = fm.getHeight() - 10;
+        } else {
+            // Align the text to the bottom
+            topAlignment = imageHeight - 10;
+        }
+        
+        // Create the drop shadow
+        if (!textFontShadow.equalsIgnoreCase("")) {
+            g2.setColor(getColor(textFontShadow, Color.DARK_GRAY));
+            g2.drawString(outputText, leftAlignment + 2, topAlignment + 2);
+        }
+        
+        // Create the text itself
+        g2.setColor(getColor(textFontColor, Color.LIGHT_GRAY));
+        g2.drawString(outputText, leftAlignment, topAlignment);
+
+        return bi;
+    }
+    
+    private static Color getColor(String color, Color defaultColor) {
+        Color returnColor = myColor.get(color);
+        if (returnColor == null) {
+            return defaultColor;
+        }
+        return returnColor;
+    }
+    
+    enum myColor {
+        white (Color.white), 
+        WHITE (Color.WHITE),
+        lightGray (Color.lightGray),
+        LIGHT_GRAY (Color.LIGHT_GRAY),
+        gray (Color.gray),
+        GRAY (Color.GRAY),
+        darkGray (Color.darkGray),
+        DARK_GRAY (Color.DARK_GRAY),
+        black (Color.black),
+        BLACK (Color.BLACK),
+        red (Color.red),
+        RED (Color.RED),
+        pink (Color.pink),
+        PINK (Color.PINK),
+        orange (Color.orange),
+        ORANGE (Color.ORANGE),
+        yellow (Color.yellow),
+        YELLOW (Color.YELLOW),
+        green (Color.green),
+        GREEN (Color.GREEN),
+        magenta (Color.magenta),
+        MAGENTA (Color.MAGENTA),
+        cyan (Color.cyan),
+        CYAN (Color.CYAN),
+        blue (Color.blue),
+        BLUE (Color.BLUE);
+        
+        private final Color color;
+        //Constructor
+        myColor(Color color) {
+            this.color = color;
+        }
+    
+        public static Color get(String name){
+            for (myColor aColor : myColor.values()) {
+               if (aColor.toString().equalsIgnoreCase(name))
+                   return aColor.color;
+            }
+            return null;
+        }
     }
 }
