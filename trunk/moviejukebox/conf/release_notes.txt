@@ -38,6 +38,7 @@ MovieJukebox 1.9 BETA
   - Enhancement  #1326 Support 'blank' banners with custom generated text
   - Fixed defect #1329 Filmaffinity-Plugin not working properly
   - Enhancement  #1334 Remove unneeded country information and ratings from NFO Certification field 
+  - Fixed defect #1337 Problem with AllocinePlugin
   
 MovieJukebox 1.8
 ----------------
