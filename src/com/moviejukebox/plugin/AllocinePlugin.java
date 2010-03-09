@@ -224,12 +224,12 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
-                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma :", "</a>")).trim());
+                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma", "</a>")).trim());
                 // logger.finest("AllocinePlugin: Movie Theater release date = [" + movie.getReleaseDate()+"]");
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(HTMLTools.extractTag(xml, "Durée : ", "."));
+                movie.setRuntime(HTMLTools.extractTag(xml, "Durée", "."));
                 // logger.finest("AllocinePlugin: Durée = " + movie.getRuntime());
             }
 
@@ -244,7 +244,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // }
 
             if (movie.getGenres().isEmpty()) {
-                for (String genre : HTMLTools.extractTags(xml, "Genre : ", "</h3>", "/film/tous/genre-", "</a>", false)) {
+                for (String genre : HTMLTools.extractTags(xml, "Genre", "<br>", "/film/tous/genre-", "</a>", false)) {
                     movie.addGenre(removeOpenedHtmlTags(genre));
                 }
             }
