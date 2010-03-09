@@ -71,7 +71,7 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
                         firstResponse = xml.substring(startSearch, xml.indexOf(".html", startSearch) + 5);
                     }
                     // If we search with year.
-                    if (year != null) {
+                    if (year != null && !Movie.UNKNOWN.equalsIgnoreCase(year)) {
                         String yearFound = null;
                         String substring = xml.substring(startSearch);
                         Matcher matcher = yearMatcher.matcher(substring.substring(0, substring.indexOf("</td></tr>")));
