@@ -62,6 +62,7 @@ public class MovieNFOScanner {
     private static String forceNFOEncoding;
     private static String NFOdirectory;
     private static boolean getCertificationFromMPAA;
+    private static String imdbPreferredCountry;
 
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
@@ -73,6 +74,7 @@ public class MovieNFOScanner {
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
         getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
+        imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
     }
 
     /**
@@ -224,6 +226,8 @@ public class MovieNFOScanner {
         if (nfo.indexOf("<movie") > -1 && parseMovieNFO(nfoFile, movie, nfo)) {
             return true;
         } else if (nfo.indexOf("<tvshow") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
+            return true;
+        } else if (nfo.indexOf("<episodedetails") > -1 && parseEpisodeNFO(nfoFile, movie, nfo)) {
             return true;
         } else {
             retval = false;
@@ -377,10 +381,28 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("certification") && !getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
-                                int pos = val.lastIndexOf(":");
-                                if (pos > 0) {
-                                    // Strip the country code from the rating for certification like "UK:PG-12"
-                                    val = val.substring(pos + 1);
+                                int countryPos = val.lastIndexOf(imdbPreferredCountry);
+                                if (countryPos > 0) {
+                                    // We've found the country, so extract just that tag
+                                    val = val.substring(countryPos);
+                                    int pos = val.indexOf(":");
+                                    if (pos > 0) {
+                                        int endPos = val.indexOf(" /");
+                                        if (endPos > 0) {
+                                            // This is in the middle of the string
+                                            val = val.substring(pos + 1, endPos);
+                                        } else {
+                                            // This is at the end of the string
+                                            val = val.substring(pos + 1);
+                                        }
+                                    }
+                                } else {
+                                    // The country wasn't found in the value, so grab the last one
+                                    int pos = val.lastIndexOf(":");
+                                    if (pos > 0) {
+                                        // Strip the country code from the rating for certification like "UK:PG-12"
+                                        val = val.substring(pos + 1);
+                                    }
                                 }
                                 movie.setCertification(val);
                             }
@@ -922,4 +944,64 @@ public class MovieNFOScanner {
 
         return false;
     }
+
+    private static boolean parseEpisodeNFO(File nfoFile, Movie movie, String nfo) {
+        try {
+            XMLEventReader r = createXMLReader(nfoFile, nfo);
+
+            boolean isEpisode = false;
+            while (r.hasNext()) {
+                XMLEvent e = r.nextEvent();
+
+                if (e.isStartElement()) {
+                    String tag = e.asStartElement().getName().toString();
+                    if (tag.equalsIgnoreCase("episodedetails")) {
+                        isEpisode = true;
+                    }
+
+                    if (isEpisode) {
+                        System.out.println("ED: " + tag);
+                        if (tag.equalsIgnoreCase("title")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setTitle(val);
+                                movie.setOverrideTitle(true);
+                            }
+                        } else if (tag.equalsIgnoreCase("rating")) {
+                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("season")) {
+                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("episode")) {
+                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("plot")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setPlot(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("credits")) {
+                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("director")) {
+                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("actor")) {
+                            // Not currently used
+                        }
+                    } else if (e.isEndElement()) {
+                        if (e.asEndElement().getName().toString().equalsIgnoreCase("episodedetails")) {
+                            isEpisode = false;
+                        }
+                    }
+                }
+                return isEpisode;
+            }
+        } catch (Exception error) {
+            logger.severe("Failed parsing NFO file for episode: " + movie.getTitle() + ". Please fix or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+
+        return false;
+    }
+
 }
