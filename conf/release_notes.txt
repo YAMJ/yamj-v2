@@ -39,6 +39,7 @@ MovieJukebox 1.9 BETA
   - Fixed defect #1329 Filmaffinity-Plugin not working properly
   - Enhancement  #1334 Remove unneeded country information and ratings from NFO Certification field 
   - Fixed defect #1337 Problem with AllocinePlugin
+  - Fixed defect #1338 Genre is displaying 1 genre then then words "See More >>" 
   
 MovieJukebox 1.8
 ----------------
