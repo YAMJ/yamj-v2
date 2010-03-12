@@ -433,6 +433,7 @@ public class MovieJukeboxXMLWriter {
         folder.mkdirs();
 
         File xmlFile = new File(folder, "Categories.xml");
+        FileTools.addJukeboxFile("Categories.xml");
 
         XMLWriter writer = new XMLWriter(xmlFile);
 
@@ -633,6 +634,7 @@ public class MovieJukeboxXMLWriter {
 
         try {
             xmlFile = new File(rootPath, prefix + current + ".xml");
+            FileTools.addJukeboxFile(prefix + current + ".xml");
             xmlFile.getParentFile().mkdirs();
 
             writer = new XMLWriter(xmlFile);

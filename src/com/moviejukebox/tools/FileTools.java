@@ -13,6 +13,9 @@
 
 package com.moviejukebox.tools;
 
+import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static java.lang.Boolean.parseBoolean;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,12 +27,17 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 
 // import com.moviejukebox.tools.HTMLTools;
 
@@ -40,6 +48,8 @@ public class FileTools {
     final static byte[] buffer = new byte[BUFF_SIZE];
     static Map<CharSequence, CharSequence> unsafeChars = new HashMap<CharSequence, CharSequence>();
     static Character encodeEscapeChar = null;
+    private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
+    private static boolean videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
     
     static {
         // What to do if the user specifies a blank encodeEscapeChar? I guess disable encoding.
@@ -341,5 +351,45 @@ public class FileTools {
         // System.out.println("Deleting: " + dir.getAbsolutePath());
         return dir.delete();
     }
+
+    /**
+     * Add a list of files to the jukebox filenames
+     * @param filenames
+     */
+    public static void addJukeboxFiles(Collection<String> filenames) {
+        generatedFileNames.addAll(filenames);
+    }
     
+    /**
+     * Add an individual filename to the jukebox cleaning exclusion list
+     * @param filename
+     */
+    public static void addJukeboxFile(String filename) {
+        if (!filename.equalsIgnoreCase(Movie.UNKNOWN) && filename != null) {
+            generatedFileNames.add(filename);
+        }
+    }
+    
+    /**
+     * Process the movie and add all the files to the jukebox cleaning exclusion list
+     * @param movie
+     */
+    public static void addMovieToJukeboxFilenames(Movie movie) {
+        addJukeboxFile(movie.getPosterFilename());
+        addJukeboxFile(movie.getDetailPosterFilename());
+        addJukeboxFile(movie.getThumbnailFilename());
+        addJukeboxFile(movie.getBannerFilename());
+        addJukeboxFile(movie.getFanartFilename());
+        if (videoimageDownload) {
+            for (MovieFile mf : movie.getFiles()) {
+                for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
+                    addJukeboxFile(mf.getVideoImageFilename(part));
+                }
+            }
+        }
+    }
+
+    public static Collection<String> getJukeboxFiles() {
+        return generatedFileNames;
+    }
 }

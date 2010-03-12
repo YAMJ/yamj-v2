@@ -104,6 +104,9 @@ public class MovieJukeboxHTMLWriter {
             File finalHtmlFile = new File(rootPath, baseName + ".html");
             File tempHtmlFile = new File(tempFilename + ".html");
             Source xmlSource;
+            
+            FileTools.addJukeboxFile(baseName + ".xml");
+            FileTools.addJukeboxFile(baseName + ".html");
 
             if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempHtmlFile.getParentFile().mkdirs();
@@ -136,7 +139,7 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generates a playlist per part of the video. Used primarily with 
+     * Generates a playlist per part of the video. Used primarily with TV Series
      * @param   rootPath
      * @param   tempRootPath
      * @param   movie
@@ -160,6 +163,8 @@ public class MovieJukeboxHTMLWriter {
             File finalPlaylistFile = new File(rootPath + File.separator + baseName + filenameSuffix);
             File tempPlaylistFile = new File(tempFilename + filenameSuffix);
             Source xmlSource;
+            
+            fileNames.add(baseName + filenameSuffix);
 
             // Issue 884: Remove ISO and IMG files from playlists
             int partCount = 0;
@@ -194,6 +199,7 @@ public class MovieJukeboxHTMLWriter {
                 outStream.close();
                 
                 fileNames.add(baseName + filenameSuffix);
+                System.out.println("Adding: " + baseName + filenameSuffix);
             }
         } catch (Exception error) {
             logger.severe("Failed generating playlist for movie " + movie);
@@ -271,6 +277,9 @@ public class MovieJukeboxHTMLWriter {
 
             htmlFile.getParentFile().mkdirs();
 
+            FileTools.addJukeboxFile(filename + ".xml");
+            FileTools.addJukeboxFile(filename + ".html");
+            
             Transformer transformer = getTransformer(new File(skinHome, "categories.xsl"), rootPath);
 
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
@@ -389,6 +398,9 @@ public class MovieJukeboxHTMLWriter {
 
             File xmlFile = new File(detailsDir, filename + ".xml");
             File htmlFile = new File(detailsDir, filename + ".html");
+            
+            FileTools.addJukeboxFile(filename + ".xml");
+            FileTools.addJukeboxFile(filename + ".html");            
 
             Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
 
