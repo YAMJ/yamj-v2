@@ -1035,7 +1035,7 @@ public class Library implements Map<String, Movie> {
     }
 
     public static Collection<String> getPrefixes() {
-        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY" });
+        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES" });
     }
 
     /**

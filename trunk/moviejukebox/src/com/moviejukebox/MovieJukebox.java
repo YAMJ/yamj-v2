@@ -31,7 +31,6 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -59,7 +58,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 
-import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
@@ -112,12 +110,15 @@ public class MovieJukebox {
     private static String posterToken;
     private static String thumbnailToken;
     private static String bannerToken;
+    @SuppressWarnings("unused")
     private static String videoimageToken;
     private static String fanartToken;
 
+    private static boolean jukeboxClean = false;
+    
     private boolean fanartMovieDownload;
     private boolean fanartTvDownload;
-    private boolean videoimageDownload;
+    private static boolean videoimageDownload;
     private boolean bannerDownload;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
@@ -175,7 +176,6 @@ public class MovieJukebox {
 
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
-        boolean jukeboxClean = false;
         boolean jukeboxPreserve = false;
         String propertiesName = "./moviejukebox.properties";
         Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
@@ -317,7 +317,7 @@ public class MovieJukebox {
             logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't build");
             ml.makeDumpStructure();
         } else {
-            ml.generateLibrary(jukeboxClean, jukeboxPreserve);
+            ml.generateLibrary(jukeboxPreserve);
         }
 
         fh.close();
@@ -517,7 +517,7 @@ public class MovieJukebox {
         private Collection<Movie> movies;
     }
 
-    private void generateLibrary(boolean jukeboxClean, boolean jukeboxPreserve) throws Throwable {
+    private void generateLibrary(boolean jukeboxPreserve) throws Throwable {
 
         /********************************************************************************
          * @author Gabriel Corneanu: the tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all are added to a
@@ -570,8 +570,6 @@ public class MovieJukebox {
             logger.fine("See README.TXT for increasing performance using these settings.");
         }
         int nbFiles = 0;
-        String cleanCurrent = "";
-        String cleanCurrentExt = "";
 
         /********************************************************************************
          * 
@@ -580,61 +578,6 @@ public class MovieJukebox {
          */
         logger.fine("Preparing environment...");
         File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
-
-        if (jukeboxClean && tempJukeboxCleanFile.exists()) {
-            // Clear out the jukebox generated files to force them to be re-created.
-
-            File[] cleanList = tempJukeboxCleanFile.listFiles();
-            String skipPattStr = getProperty("mjb.clean.skip");
-            Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
-
-            // an exception when trying to read the Jukebox directory Issue 850
-            try {
-                // This does nothing, but will generate an exception if the variable is null
-                nbFiles = cleanList.length;
-            } catch (Exception error) {
-                logger.fine("Error writing to jukebox directory: " + jukeboxDetailsRoot);
-                logger.fine("Possibly read-only or you don't have permission to write to the directory.");
-                logger.fine("Process terminated with errors.");
-                return;
-            }
-
-            for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
-                // Scan each file in here
-                if (cleanList[nbFiles].isFile()) {
-                    cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
-                    if (cleanCurrent.indexOf(".") > 0) {
-                        cleanCurrentExt = cleanCurrent.substring(cleanCurrent.lastIndexOf("."));
-                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
-                    } else {
-                        cleanCurrentExt = "";
-                    }
-
-                    boolean skip = true;
-                    if (".XML".equals(cleanCurrentExt) || ".HTML".equals(cleanCurrentExt)) {
-                        for (String prefix : Library.getPrefixes()) {
-                            if (cleanCurrent.toUpperCase().startsWith(prefix + "_")) {
-                                skip = false;
-                                break;
-                            }
-                        }
-
-                        if (skip && "CATEGORIES".equals(cleanCurrent)) {
-                            skip = false;
-                        }
-                    }
-
-                    if (skip && null != skipPatt) {
-                        skip = !skipPatt.matcher(cleanList[nbFiles].getName()).matches();
-                    }
-
-                    if (!skip) {
-                        logger.finer("Pre-scan, deleting " + cleanList[nbFiles].getName());
-                        cleanList[nbFiles].delete();
-                    }
-                }
-            }
-        }
 
         logger.fine("Initializing...");
         final String tempJukeboxRoot = "./temp";
@@ -763,7 +706,6 @@ public class MovieJukebox {
              * PART 3 : Indexing the library
              * 
              */
-            final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
 
             // This is for programs like NMTServer where they don't need the indexes.
             if (skipIndexGeneration) {
@@ -850,13 +792,16 @@ public class MovieJukebox {
                         }
 
                         // Create a thumbnail for each movie
-                        logger
-                                        .finest("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: "
+                        logger.finest("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: "
                                                         + movie.isHD());
                         createThumbnail(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
                         // No playlist for index masters
                         // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                        
+                        // Add all the movie files to the exclusion list
+                        FileTools.addMovieToJukeboxFilenames(movie);
+
                         return null;
                     };
                 });
@@ -889,8 +834,11 @@ public class MovieJukebox {
                             htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
                             // write the playlist for the movie if needed
-                            generatedFileNames.addAll(htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie));
+                            FileTools.addJukeboxFiles(htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie));
                         }
+                        // Add all the movie files to the exclusion list
+                        FileTools.addMovieToJukeboxFilenames(movie);
+
                         return null;
                     };
                 });
@@ -910,13 +858,13 @@ public class MovieJukebox {
                 final String totalMoviesXmlFileName = "CompleteMovies.xml";
                 final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
                 context.createMarshaller().marshal(jukeboxXml, new FileOutputStream(totalMoviesXmlFile));
-                generatedFileNames.add(totalMoviesXmlFileName);
+                FileTools.addJukeboxFile(totalMoviesXmlFileName);
 
                 Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
 
                 final String rssXmlFileName = "RSS.xml";
                 FileOutputStream outStream = new FileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName));
-                generatedFileNames.add(rssXmlFileName);
+                FileTools.addJukeboxFile(rssXmlFileName);
 
                 Result xmlResult = new StreamResult(outStream);
 
@@ -947,17 +895,11 @@ public class MovieJukebox {
              */
             if (jukeboxClean) {
                 logger.fine("Cleaning up the jukebox directory...");
-
-                // Change all the tokens to uppercase here to speed up processing.
-                posterToken = posterToken.toUpperCase();
-                thumbnailToken = thumbnailToken.toUpperCase();
-                fanartToken = fanartToken.toUpperCase();
-                bannerToken = bannerToken.toUpperCase();
-                videoimageToken = videoimageToken.toUpperCase();
-
-                // File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+                Collection<String> generatedFileNames = FileTools.getJukeboxFiles();
+                
                 File[] cleanList = tempJukeboxCleanFile.listFiles();
                 int cleanDeletedTotal = 0;
+                boolean skip = false;
 
                 String skipPattStr = getProperty("mjb.clean.skip");
                 Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
@@ -965,58 +907,15 @@ public class MovieJukebox {
                 for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
                     // Scan each file in here
                     if (cleanList[nbFiles].isFile() && !generatedFileNames.contains(cleanList[nbFiles].getName())) {
-                        cleanCurrent = cleanList[nbFiles].getName().toUpperCase();
-                        if (cleanCurrent.indexOf(".") > 0) {
-                            cleanCurrentExt = cleanCurrent.substring(cleanCurrent.lastIndexOf("."));
-                            cleanCurrent = cleanCurrent.substring(0, cleanCurrent.lastIndexOf("."));
-                        } else {
-                            cleanCurrentExt = "";
-                        }
-
-                        boolean skip = false;
-
-                        // Skip files related to the index pages
-                        for (String prefix : Library.getPrefixes()) {
-                            if (cleanCurrent.startsWith(prefix + "_")) {
-                                skip = true;
-                                break;
-                            }
-                        }
-
-                        // If we're dealing with anything other than an HTML or XML file, its basename may need adjusting.
-                        if (!skip) {
-                            if (!".HTML".equals(cleanCurrentExt) && !".XML".equals(cleanCurrentExt)) {
-                                if (!searchLibrary(cleanCurrent, library)) {
-                                    if (cleanCurrent.endsWith(".PLAYLIST") && ".JSP".equals(cleanCurrentExt)) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - ".PLAYLIST".length());
-                                    } else if (cleanCurrent.endsWith(posterToken)) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - posterToken.length());
-                                    } else if (cleanCurrent.endsWith(thumbnailToken)) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - thumbnailToken.length());
-                                    } else if (cleanCurrent.endsWith(fanartToken) && (fanartTvDownload || fanartMovieDownload)) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - fanartToken.length());
-                                    } else if (cleanCurrent.endsWith(bannerToken) && bannerDownload) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - bannerToken.length());
-                                    } else if ((cleanCurrent.indexOf(videoimageToken) > 0) && videoimageDownload) {
-                                        cleanCurrent = cleanCurrent.substring(0, cleanCurrent.length() - videoimageToken.length());
-                                        // This will skip all videoimages. not really what we want
-                                        // Need to create an exclusion list that can be added to
-                                        // during the regular scans
-                                        skip = true; // TODO This is a hack
-                                    }
-                                }
-                            } else if ("CATEGORIES".equals(cleanCurrent)) { // don't clean the categories.[xh]t?ml files
-                                skip = true;
-                            }
-                        }
+                        skip = false;
 
                         // If the file is in the skin's exclusion regex, skip it
-                        if (!skip && null != skipPatt) {
+                        if (skipPatt != null) {
                             skip = skipPatt.matcher(cleanList[nbFiles].getName()).matches();
                         }
 
                         // If the file isn't skipped and it's not part of the library, delete it
-                        if (!skip && !searchLibrary(cleanCurrent, library)) {
+                        if (!skip) {
                             logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
                             cleanDeletedTotal++;
                             cleanList[nbFiles].delete();
@@ -1024,7 +923,8 @@ public class MovieJukebox {
                     }
                 }
                 logger.fine(Integer.toString(nbFiles) + " files in the jukebox directory");
-                logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " files");
+                if (cleanDeletedTotal > 0 )
+                    logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " unused " + (cleanDeletedTotal==1?"file":"files") + " from the jukebox directory");
             } else {
                 logger.fine("Jukebox cleaning skipped");
             }
@@ -1052,25 +952,6 @@ public class MovieJukebox {
         logger.fine("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
         
         return;
-    }
-
-    /**
-     * Search the movie library for the passed movie name
-     * 
-     * @param slMovieName
-     *            The name of the movie to match
-     * @param library
-     *            The library to search
-     * @return true if found, false if not.
-     */
-    private Boolean searchLibrary(String slMovieName, Library library) {
-        slMovieName = slMovieName.toUpperCase();
-        for (IMovieBasicInformation movie : library.values()) {
-            if (FileTools.makeSafeFilename(movie.getBaseName()).toUpperCase().equals(slMovieName)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
