@@ -244,7 +244,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // }
 
             if (movie.getGenres().isEmpty()) {
-                for (String genre : HTMLTools.extractTags(xml, "Genre", "<br>", "/film/tous/genre-", "</a>", false)) {
+                for (String genre : HTMLTools.extractTags(xml, "Genre", "<br/>", "/film/tous/genre-", "</a>", false)) {
                     movie.addGenre(removeOpenedHtmlTags(genre));
                 }
             }
