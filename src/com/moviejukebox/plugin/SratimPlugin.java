@@ -665,7 +665,6 @@ public class SratimPlugin extends ImdbPlugin {
 
             movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>"))));
 
-
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
             } else {
@@ -895,7 +894,6 @@ public class SratimPlugin extends ImdbPlugin {
         float matchThreshold = Float.parseFloat(PropertiesUtil.getProperty("sratim.textMatchSimilarity", "0.8"));
 
         while (index < endHebrewSubsIndex) {
-
             index = mainXML.indexOf("<a href=\"/movies/subtitles/download.aspx?", index);
             if (index == -1)
                 break;
@@ -955,6 +953,8 @@ public class SratimPlugin extends ImdbPlugin {
                 break;
 
             String scanFileName = mainXML.substring(index, endIndex).toUpperCase().replace('.', ' ');
+            // removing all characters causing metric to hang.
+            scanFileName=scanFileName.replaceAll("-|\u00A0"," ").replaceAll(" ++"," ");
 
             index = mainXML.indexOf("</b> ", index);
             if (index == -1)
