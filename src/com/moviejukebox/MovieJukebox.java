@@ -1624,7 +1624,7 @@ public class MovieJukebox {
             return false;
         }
         int recheckDays     = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Days", "30"));
-        int recheckRevision = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Revision", "10"));
+        int recheckRevision = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Revision", "25"));
         boolean recheckVersion = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Version", "true"));
         boolean recheckUnknown = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Unknown", "true"));
         
@@ -1679,6 +1679,12 @@ public class MovieJukebox {
             
             if (movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 logger.finest("Recheck: " + movie.getBaseName() + " XML is missing year, will rescan");
+                recheckCount++;
+                return true;
+            }
+            
+            if (movie.getGenres().isEmpty()) {
+                logger.finest("Recheck: " + movie.getBaseName() + "XML is missing genres, will rescan");
                 recheckCount++;
                 return true;
             }
