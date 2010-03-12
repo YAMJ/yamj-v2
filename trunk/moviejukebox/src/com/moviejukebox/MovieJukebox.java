@@ -736,10 +736,13 @@ public class MovieJukebox {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
-
                         ToolSet tools = threadTools.get();
+
+                        String safeSetMasterBaseName = FileTools.makeSafeFilename(movie.getBaseName());
+                        
                         // The master's movie XML is used for generating the
                         // playlist it will be overwritten by the index XML
+                        
                         logger.finest("Writing index data for master: " + movie.getBaseName());
                         xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
 
@@ -749,19 +752,19 @@ public class MovieJukebox {
                         String oldPosterFilename = movie.getPosterFilename();
 
                         // Set a default poster name in case it's not found during the scan
-                        movie.setPosterFilename(movie.getBaseName() + "." + getProperty("posters.format", "jpg"));
+                        movie.setPosterFilename(safeSetMasterBaseName + "." + getProperty("posters.format", "jpg"));
                         if (!PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
-                            logger.finest("Local set poster (" + FileTools.makeSafeFilename(movie.getBaseName()) + ") not found, using " + oldPosterFilename);
+                            logger.finest("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
                         }
 
                         // If this is a TV Show and we want to download banners, then also check for a banner Set file
                         if (movie.isTVShow() && bannerDownload) {
                             // Set a default banner filename in case it's not found during the scan
-                            movie.setBannerFilename(movie.getBaseName() + bannerToken + ".jpg");
+                            movie.setBannerFilename(safeSetMasterBaseName + bannerToken + ".jpg");
                             if (!BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
                                 updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-                                logger.finest("Local set banner (" + FileTools.makeSafeFilename(movie.getBaseName() + bannerToken) + ") not found, using "
+                                logger.finest("Local set banner (" + safeSetMasterBaseName + bannerToken + ") not found, using "
                                                 + oldPosterFilename);
                             } else {
                                 logger.finest("Local set banner found, using " + movie.getBannerFilename());
@@ -771,9 +774,9 @@ public class MovieJukebox {
                         // Check for Set Fanart
                         if (setIndexFanart) {
                             // Set a default fanart filename in case it's not found during the scan
-                            movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                            movie.setFanartFilename(safeSetMasterBaseName + fanartToken + ".jpg");
                             if (!FanartScanner.scan(tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
-                                logger.finest("Local set fanart (" + FileTools.makeSafeFilename(movie.getBaseName() + fanartToken) + ") not found, using "
+                                logger.finest("Local set fanart (" + safeSetMasterBaseName + fanartToken + ") not found, using "
                                                 + oldPosterFilename);
                             } else {
                                 logger.finest("Local set fanart found, using " + movie.getFanartFilename());
@@ -781,19 +784,18 @@ public class MovieJukebox {
                         }
 
                         String thumbnailExtension = getProperty("thumbnails.format", "png");
-                        movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailExtension);
+                        movie.setThumbnailFilename(safeSetMasterBaseName + thumbnailToken + "." + thumbnailExtension);
                         String posterExtension = getProperty("posters.format", "png");
-                        movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
+                        movie.setDetailPosterFilename(safeSetMasterBaseName + posterToken + "." + posterExtension);
 
-                        if (getProperty("mjb.sets.createPosters", "false").equalsIgnoreCase("true")) {
+                        if (Boolean.parseBoolean(getProperty("mjb.sets.createPosters", "false"))) {
                             // Create a detail poster for each movie
                             logger.finest("Creating detail poster for index master: " + movie.getBaseName());
                             createPoster(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
                         }
 
                         // Create a thumbnail for each movie
-                        logger.finest("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: "
-                                                        + movie.isHD());
+                        logger.finest("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
                         createThumbnail(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
 
                         // No playlist for index masters
