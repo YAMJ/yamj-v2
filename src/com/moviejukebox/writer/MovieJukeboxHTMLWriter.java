@@ -199,7 +199,6 @@ public class MovieJukeboxHTMLWriter {
                 outStream.close();
                 
                 fileNames.add(baseName + filenameSuffix);
-                System.out.println("Adding: " + baseName + filenameSuffix);
             }
         } catch (Exception error) {
             logger.severe("Failed generating playlist for movie " + movie);
