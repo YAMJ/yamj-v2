@@ -2,8 +2,8 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 1.9 BETA
----------------------
+MovieJukebox 1.9
+----------------
   - Fixed defect  #855 Year in tv series files names over rides season based year
   - Enhancement   #975 Reworking of jukebox clean up routine
   - Fixed defect  #981 Use poster.scanner.SearchPriority regardless of mjb.internet.plugin (other than IMDb)
