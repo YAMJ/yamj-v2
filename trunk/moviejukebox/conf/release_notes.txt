@@ -4,7 +4,7 @@
 
 MovieJukebox 2.0 BETA
 ---------------------
-
+  - Fixed defect  #357 Use XBMC episodedetails NFO to override TV episode information
 
 MovieJukebox 1.9 (r1500)
 ------------------------

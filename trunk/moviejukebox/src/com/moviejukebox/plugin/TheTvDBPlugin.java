@@ -291,9 +291,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         s.acquireUninterruptibly();
         for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
-                StringBuilder sb = new StringBuilder();
-                boolean first = true;
-
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
                     Episode episode = null;
                     if (dvdEpisodes) {
@@ -304,12 +301,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (episode != null) {
-                        if (first) {
-                            first = false;
-                        } else {
-                            sb.append(" / ");
-                        }
-
                         // We only get the writers for the first episode, otherwise we might overwhelm the skins with data
                         // TODO Assign the writers on a per-episode basis, rather than series.
                         if ((movie.getWriters().equals(Movie.UNKNOWN)) || (movie.getWriters().isEmpty())) {
@@ -322,15 +313,19 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             movie.setDirector(episode.getDirectors().get(0));
                         }
 
-                        if (file.getFirstPart() > 0)
-                            sb.append(episode.getEpisodeName());
+                        // Set the title of the episode
+                        if (file.getTitle(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            file.setTitle(part, episode.getEpisodeName());
+                        }
 
                         if (includeEpisodePlots) {
-                            String episodePlot = episode.getOverview();
-                            if (episodePlot.length() > preferredPlotLength) {
-                                episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
+                            if (file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                                String episodePlot = episode.getOverview();
+                                if (episodePlot.length() > preferredPlotLength) {
+                                    episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
+                                }
+                                file.setPlot(part, episodePlot);
                             }
-                            file.setPlot(part, episodePlot);
                         }
 
                         if (includeVideoImages) {
@@ -340,21 +335,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
                     } else {
                         // This occurs if the episode is not found
-                        if (movie.getSeason() > 0 && file.getFirstPart() == 0) {
+                        if (movie.getSeason() > 0 && file.getFirstPart() == 0 && file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                             // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
-                            if (file.hasTitle()) {
-                                sb.append(file.getTitle());
-                            } else {
-                                sb.append("Special");
-                            }
+                            file.setTitle(part, "Special");
                         }
-
                     }
-                }
-                String title = sb.toString();
-
-                if (!sb.equals("") && !file.hasTitle()) {
-                    file.setTitle(title);
                 }
             }
         }

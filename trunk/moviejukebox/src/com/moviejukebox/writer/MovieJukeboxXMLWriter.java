@@ -69,7 +69,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
-    private boolean isPlayonhd;
+    private boolean isPlayOnHD;
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
@@ -93,7 +93,7 @@ public class MovieJukeboxXMLWriter {
         includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        isPlayonhd = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.PlayOnHD", "false"));
+        isPlayOnHD = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.PlayOnHD", "false"));
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -341,6 +341,18 @@ public class MovieJukeboxXMLWriter {
                         tag = e.toString();
                         if (tag.equalsIgnoreCase("<fileURL>")) {
                             mf.setFilename(parseCData(r));
+                        } else if (tag.toLowerCase().startsWith("<filetitle")) {
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if (ns.equalsIgnoreCase("part")) {
+                                    part = Integer.parseInt(attr.getValue());
+                                }
+                            }
+                            mf.setTitle(part, parseCData(r));
                         } else if (tag.toLowerCase().startsWith("<fileplot")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
@@ -1013,7 +1025,7 @@ public class MovieJukeboxXMLWriter {
             String filename = mf.getFilename();
             String tempFilename = filename;
             // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD VIDEO_TS path names
-            if (isPlayonhd) {
+            if (isPlayOnHD) {
                 int maxLength = 83;
                 if (filename.toUpperCase().endsWith("VIDEO_TS")) {
                     filename = filename + "/VIDEO_TS.IFO";
@@ -1035,25 +1047,29 @@ public class MovieJukeboxXMLWriter {
             writer.writeCharacters(filename); // should already be a URL
             writer.writeEndElement();
 
-            if (includeEpisodePlots || includeVideoImages) {
-                for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
-                    if (includeEpisodePlots) {
-                        writer.writeStartElement("filePlot");
-                        writer.writeAttribute("part", Integer.toString(part));
-                        writer.writeCharacters(mf.getPlot(part));
-                        writer.writeEndElement();
-                    }
-                    if (includeVideoImages) {
-                        writer.writeStartElement("fileImageURL");
-                        writer.writeAttribute("part", Integer.toString(part));
-                        writer.writeCharacters(mf.getVideoImageURL(part));
-                        writer.writeEndElement();
+            for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
+                writer.writeStartElement("fileTitle");
+                writer.writeAttribute("part", Integer.toString(part));
+                writer.writeCharacters(mf.getTitle(part));
+                writer.writeEndElement();
+                
+                if (includeEpisodePlots) {
+                    writer.writeStartElement("filePlot");
+                    writer.writeAttribute("part", Integer.toString(part));
+                    writer.writeCharacters(mf.getPlot(part));
+                    writer.writeEndElement();
+                }
+                
+                if (includeVideoImages) {
+                    writer.writeStartElement("fileImageURL");
+                    writer.writeAttribute("part", Integer.toString(part));
+                    writer.writeCharacters(mf.getVideoImageURL(part));
+                    writer.writeEndElement();
 
-                        writer.writeStartElement("fileImageFile");
-                        writer.writeAttribute("part", Integer.toString(part));
-                        writer.writeCharacters(mf.getVideoImageFilename(part));
-                        writer.writeEndElement();
-                    }
+                    writer.writeStartElement("fileImageFile");
+                    writer.writeAttribute("part", Integer.toString(part));
+                    writer.writeCharacters(mf.getVideoImageFilename(part));
+                    writer.writeEndElement();
                 }
             }
             writer.writeEndElement();
