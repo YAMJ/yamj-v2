@@ -4,7 +4,8 @@
 
 MovieJukebox 2.0 BETA
 ---------------------
-  - Fixed defect  #357 Use XBMC episodedetails NFO to override TV episode information
+  - Enhancement   #357 Use XBMC episodedetails NFO to override TV episode information
+  - Fixed defect #1353 Duration isn't correctly read from Allocine
 
 MovieJukebox 1.9 (r1500)
 ------------------------
