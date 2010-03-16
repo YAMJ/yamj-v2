@@ -229,7 +229,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(HTMLTools.extractTag(xml, "Durée", "."));
+                movie.setRuntime(HTMLTools.extractTag(xml, "Durée", "Année"));
                 // logger.finest("AllocinePlugin: Durée = " + movie.getRuntime());
             }
 
