@@ -38,6 +38,8 @@ import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
@@ -159,6 +161,28 @@ public class MovieNFOScanner {
             checkNFO(nfos, fn + fn.substring(fn.lastIndexOf(File.separator)));
         }
 
+        if (movie.isTVShow()) {
+            String mfFilename;
+            int pos;
+            
+            for (MovieFile mf : movie.getMovieFiles()) {
+                mfFilename = mf.getFile().getParent().toUpperCase();
+                
+                if (mfFilename.contains("BDMV")) {
+                    mfFilename = FileTools.getParentFolder(mf.getFile());
+                    mfFilename = mfFilename.substring(mfFilename.lastIndexOf(File.separator) + 1);
+                } else {
+                    mfFilename = mf.getFile().getName();
+                    pos = mfFilename.lastIndexOf(".");
+                    if (pos > 0) {
+                        mfFilename = mfFilename.substring(0, pos);
+                    }
+                }
+
+                checkNFO(nfos, mf.getFile().getParent() + File.separator + mfFilename);
+            }
+        }
+        
         // *** Second step is to check for the filename.nfo file
         // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
@@ -227,7 +251,7 @@ public class MovieNFOScanner {
             return true;
         } else if (nfo.indexOf("<tvshow") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
             return true;
-        } else if (nfo.indexOf("<episodedetails") > -1 && parseEpisodeNFO(nfoFile, movie, nfo)) {
+        } else if (nfo.indexOf("<episodedetails") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
             return true;
         } else {
             retval = false;
@@ -432,9 +456,9 @@ public class MovieNFOScanner {
                                 ef.setFilename(trailer);
                                 // The title isn't contained in the NFO file so we'll need to default one
                                 if (trailer.contains("youtube")) {
-                                    ef.setTitle("TRAILER-YouTube");
+                                    ef.setTitle(ef.getFirstPart(), "TRAILER-YouTube");
                                 } else {
-                                    ef.setTitle("TRAILER-NFO");
+                                    ef.setTitle(ef.getFirstPart(), "TRAILER-NFO");
                                 }
 
                                 movie.addExtraFile(ef);
@@ -686,19 +710,31 @@ public class MovieNFOScanner {
      * @param movie
      */
     private static boolean parseTVNFO(File nfoFile, Movie movie, String nfo) {
+
         try {
             XMLEventReader r = createXMLReader(nfoFile, nfo);
 
             boolean isTVTag = false;
+            boolean isEpisode = false;
+            boolean isOK = false;
+            EpisodeDetail episodedetail = new EpisodeDetail();
+            
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
-
+                
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
                     if (tag.equalsIgnoreCase("tvshow")) {
                         isTVTag = true;
                     }
+                    if (tag.equalsIgnoreCase("episodedetails")) {
+                        isEpisode = true;
+                        episodedetail = new EpisodeDetail();
+                    }
 
+                    /************************************************************
+                     * Process the main TV show details section
+                     */
                     if (isTVTag) {
                         if (tag.equalsIgnoreCase("title")) {
                             String val = XMLHelper.getCData(r);
@@ -927,56 +963,35 @@ public class MovieNFOScanner {
                             }
                         }
                     }
-                } else if (e.isEndElement()) {
-                    if (e.asEndElement().getName().toString().equalsIgnoreCase("tvshow")) {
-                        isTVTag = false;
-                    }
-                }
-            }
-            return isTVTag;
-        } catch (Exception error) {
-            logger.severe("Failed parsing NFO file for tvshow: " + movie.getTitle() + ". Please fix or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
-        }
-
-        return false;
-    }
-
-    private static boolean parseEpisodeNFO(File nfoFile, Movie movie, String nfo) {
-        try {
-            XMLEventReader r = createXMLReader(nfoFile, nfo);
-
-            boolean isEpisode = false;
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
-
-                if (e.isStartElement()) {
-                    String tag = e.asStartElement().getName().toString();
-                    if (tag.equalsIgnoreCase("episodedetails")) {
-                        isEpisode = true;
-                    }
-
+                    
+                    /************************************************************
+                     * Process the episode details section
+                     * 
+                     * These details should be added to the movie file and 
+                     * not the movie itself
+                     */
                     if (isEpisode) {
-                        System.out.println("ED: " + tag);
                         if (tag.equalsIgnoreCase("title")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
-                                movie.setTitle(val);
-                                movie.setOverrideTitle(true);
+                                episodedetail.setTitle(val);
                             }
                         } else if (tag.equalsIgnoreCase("rating")) {
                             // Not currently used
                         } else if (tag.equalsIgnoreCase("season")) {
-                            // Not currently used
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                episodedetail.setSeason(Integer.parseInt(val));
+                            }
                         } else if (tag.equalsIgnoreCase("episode")) {
-                            // Not currently used
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                episodedetail.setEpisode(Integer.parseInt(val));
+                            }
                         } else if (tag.equalsIgnoreCase("plot")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
-                                movie.setPlot(val);
+                                episodedetail.setPlot(val);
                             }
                         } else if (tag.equalsIgnoreCase("credits")) {
                             // Not currently used
@@ -985,16 +1000,22 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("actor")) {
                             // Not currently used
                         }
-                    } else if (e.isEndElement()) {
-                        if (e.asEndElement().getName().toString().equalsIgnoreCase("episodedetails")) {
-                            isEpisode = false;
-                        }
+                    }                    
+                } else if (e.isEndElement()) {
+                    if (e.asEndElement().getName().toString().equalsIgnoreCase("tvshow")) {
+                        isTVTag = false;
+                        isOK = true;
+                    }
+                    if (e.asEndElement().getName().toString().equalsIgnoreCase("episodedetails")) {
+                        isEpisode = false;
+                        episodedetail.updateMovie(movie);
+                        isOK = true;
                     }
                 }
-                return isEpisode;
             }
+            return isOK;
         } catch (Exception error) {
-            logger.severe("Failed parsing NFO file for episode: " + movie.getTitle() + ". Please fix or remove it.");
+            logger.severe("Failed parsing NFO file for TV Show: " + movie.getTitle() + ". Please fix or remove it.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);

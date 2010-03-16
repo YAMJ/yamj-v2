@@ -43,12 +43,12 @@ public class MovieFile implements Comparable<MovieFile> {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String filename = Movie.UNKNOWN;
-    private String title = Movie.UNKNOWN;
     private int firstPart = 1; // #1, #2, CD1, CD2, etc.
     private int lastPart = 1;
     private boolean newFile = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
     private Map<String, String> playLink = new HashMap<String, String>();
+    private LinkedHashMap<Integer, String> titles = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
@@ -90,6 +90,7 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     };
 
+
     @XmlElement(name = "fileURL")
     public String getFilename() {
         return filename;
@@ -97,6 +98,24 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public String getTitle(int part) {
+        String title = titles.get(part);
+        return title != null ? title : Movie.UNKNOWN;
+    }
+
+    public void setTitle(int part, String title) {
+        if (title == null || title.isEmpty()) {
+            title = Movie.UNKNOWN;
+        }
+        titles.put(part, title);
+    }
+
+    public void setTitle(String title) {
+        if (title != null) {
+            setTitle(firstPart, title);
+        }
     }
 
     public String getPlot(int part) {
@@ -161,21 +180,36 @@ public class MovieFile implements Comparable<MovieFile> {
         lastPart = part;
     }
 
+    /**
+     * Return the composite title for all parts of the movie file
+     * @return
+     */
     @XmlAttribute
     public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        if (title == null) {
-            this.title = Movie.UNKNOWN;
-        } else {
-            this.title = title;
+        if (titles.size() == 0) {
+            return Movie.UNKNOWN;
         }
+        
+        if (firstPart == lastPart) {
+            return (titles.get(firstPart) == null ? Movie.UNKNOWN : titles.get(firstPart));
+        }
+        
+        boolean first = true;
+        StringBuilder title = new StringBuilder();
+        
+        for (int loop = firstPart; loop <= lastPart; loop++) {
+            if (first) {
+                title.append(getTitle(loop));
+                first = false;
+            } else {
+                title.append(" / " + getTitle(loop));
+            }
+        }
+        return title.toString();
     }
 
     public boolean hasTitle() {
-        return !title.equals(Movie.UNKNOWN);
+        return !(titles.size()==0);
     }
 
     @XmlAttribute
@@ -423,4 +457,5 @@ public class MovieFile implements Comparable<MovieFile> {
         }
         return "";
     }
+    
 }
