@@ -577,7 +577,12 @@ public class MovieJukebox {
          * 
          */
         logger.fine("Preparing environment...");
+        // Create the ".mjbignore" file in the jukebox folder
+        new File(jukeboxDetailsRoot + File.separator + ".mjbignore").createNewFile();
+        FileTools.addJukeboxFile(".mjbignore");
+        
         File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
+        
 
         logger.fine("Initializing...");
         final String tempJukeboxRoot = "./temp";
@@ -588,7 +593,7 @@ public class MovieJukebox {
 
         // Try and create the temp directory
         boolean status = tempJukeboxDetailsRootFile.mkdirs();
-        int i=1;
+        int i = 1;
         while (!status && i++ <= 10) {
             Thread.sleep(1000);
             status = tempJukeboxDetailsRootFile.mkdirs();
@@ -1211,7 +1216,7 @@ public class MovieJukebox {
                 }
 
                 List<String> excludes = sub.getList("exclude[@name]");
-
+                
                 if (new File(path).exists()) {
                     MediaLibraryPath medlib = new MediaLibraryPath();
                     medlib.setPath(path);
