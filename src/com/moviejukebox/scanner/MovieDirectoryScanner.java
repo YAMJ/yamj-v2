@@ -337,15 +337,18 @@ public class MovieDirectoryScanner {
      * @return
      */
     private long calculateFileSize(File file) {
-        long total=0;
+        long total = 0;
         if(file.isDirectory()){
             File[] listFiles = file.listFiles();
-            for (File fileTmp : listFiles) {
-                total+=calculateFileSize(fileTmp);
+            // Check for empty directories
+            if (listFiles != null && listFiles.length > 0) {
+                for (File fileTmp : listFiles) {
+                    total+=calculateFileSize(fileTmp);
+                }
             }
         }
         else{
-            total+=file.length();
+            total += file.length();
         }
         return total;
     }
