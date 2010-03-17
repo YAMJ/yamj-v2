@@ -1503,6 +1503,12 @@ public class MovieJukebox {
     private static boolean mjbRecheck(Movie movie) {
         // Property variables
         int recheckMax = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Max", "50"));
+        
+        // Skip Extras (Trailers, etc)
+        if (movie.isExtra()) {
+            return false;
+        }
+        
         if (recheckCount >= recheckMax) {
             // We are over the recheck maximum, so we won't recheck again this run
             return false;
