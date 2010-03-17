@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
@@ -172,14 +173,25 @@ public class MovieDirectoryScanner {
 
         String relativeFileNameLower = relativeFilename.toLowerCase();
         String jukeboxName = PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox");
+
         for (String excluded : srcPath.getExcludes()) {
             if (excluded.length() > 0) {
+                try {
+                    Pattern excludePatt = Pattern.compile(excluded, Pattern.CASE_INSENSITIVE);
+                    if (excludePatt.matcher(relativeFileNameLower).find()) {
+                        logger.finest((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
+                        return true;
+                    }
+                } catch (Exception error) {
+                    logger.fine("MovieDirectoryScanner: Error processing exclusion pattern: " + excluded);
+                }
+                
                 excluded = excluded.replace("/", File.separator);
                 excluded = excluded.replace("\\", File.separator);
                 if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
                     // Don't print a message for the exclusion of Jukebox files
                     if (!relativeFileNameLower.contains(jukeboxName)) {
-                        logger.fine((isDirectory ? "Directory >" : "File >") + relativeFilename + "< excluded.");
+                        logger.finest((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
                     }
                     return true;
                 }
