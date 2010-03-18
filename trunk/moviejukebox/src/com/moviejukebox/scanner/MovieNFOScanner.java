@@ -227,20 +227,23 @@ public class MovieNFOScanner {
      * @return blank string if not found, filename if found
      */
     private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
-        // logger.finest("checkNFO = " + checkNFOfilename);
-        File nfoFile = new File(checkNFOfilename + ".nfo");
-        if (nfoFile.exists()) {
-            logger.finest("Found NFO: " + checkNFOfilename + ".nfo");
-            nfoFiles.add(nfoFile);
-        } else {
-            nfoFile = new File(checkNFOfilename + ".NFO");
+        File nfoFile;
+        
+        for (String ext : PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",")) {
+            nfoFile = new File(checkNFOfilename + "." + ext.toLowerCase());
             if (nfoFile.exists()) {
-                logger.finest("Found NFO: " + checkNFOfilename + ".nfo");
+                logger.finest("Found NFO: " + checkNFOfilename + "." + ext.toLowerCase());
                 nfoFiles.add(nfoFile);
             } else {
-                // We put this here, even though, technically, we've already searched for the file
-                // so the user will see where they COULD place the file.
-                logger.finest("Checking for NFO: " + checkNFOfilename + ".nfo");
+                nfoFile = new File(checkNFOfilename + "." + ext.toUpperCase());
+                if (nfoFile.exists()) {
+                    logger.finest("Found NFO: " + checkNFOfilename + "." + ext.toUpperCase());
+                    nfoFiles.add(nfoFile);
+                } else {
+                    // We put this here, even though, technically, we've already searched for the file
+                    // so the user will see where they COULD place the file.
+                    logger.finest("Checking for NFO: " + checkNFOfilename + "." + ext.toLowerCase());
+                }
             }
         }
     }
