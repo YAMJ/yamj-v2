@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLHelper;
 import com.mucommander.file.AbstractFile;
@@ -98,7 +99,7 @@ public class MediaInfoScanner {
 
     @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
-        String randomDirName = "./isoTEMP/" + Thread.currentThread().getName() + "/VIDEO_TS";
+        String randomDirName = PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + "/isoTEMP/" + Thread.currentThread().getName();
 
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
@@ -124,7 +125,7 @@ public class MediaInfoScanner {
             }
 
             IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
-            File tempRep = new File(randomDirName);
+            File tempRep = new File(randomDirName  + "/VIDEO_TS");
             tempRep.mkdirs();
 
             try {
@@ -133,7 +134,7 @@ public class MediaInfoScanner {
                 while (parcoursEntries.hasNext()) {
                     ArchiveEntry currentArchiveEntry = (ArchiveEntry)parcoursEntries.next();
                     if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
-                        File currentIFO = new File(randomDirName + File.separator + currentArchiveEntry.getName());
+                        File currentIFO = new File(randomDirName + "/VIDEO_TS" + File.separator + currentArchiveEntry.getName());
                         FileOutputStream fosCurrentIFO = new FileOutputStream(currentIFO);
                         byte[] ifoFileContent = new byte[Integer.parseInt(Long.toString(currentArchiveEntry.getSize()))];
                         scannedIsoFile.getEntryInputStream(currentArchiveEntry).read(ifoFileContent);
@@ -156,12 +157,7 @@ public class MediaInfoScanner {
             }
 
             // Clean up
-            File[] isoList = tempRep.listFiles();
-            for (int nbFiles = 0; nbFiles < isoList.length; nbFiles++) {
-                isoList[nbFiles].delete();
-            }
-            tempRep.delete();
-            new File("./isoTEMP/" + Thread.currentThread().getName()).delete();
+            FileTools.deleteDir(randomDirName);
         } else {
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
         }

@@ -120,6 +120,7 @@ public class MovieJukebox {
     private boolean fanartTvDownload;
     private static boolean videoimageDownload;
     private boolean bannerDownload;
+    private String jukeboxTempDir;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
     private boolean recheckXML;
@@ -336,6 +337,7 @@ public class MovieJukebox {
                 logger.severe("Error renaming log file.");
             }
         }
+
         return;
     }
 
@@ -559,7 +561,8 @@ public class MovieJukebox {
 
         videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
         bannerDownload = parseBoolean(getProperty("mjb.includeWideBanners", "false"));
-
+        jukeboxTempDir = PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp");
+        
         // Multi-thread: Processing thread settings
         int MaxThreadsScan = Integer.parseInt(getProperty("mjb.MaxThreadsScan", "4"));
         int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", Integer.toString(Runtime.getRuntime().availableProcessors())));
@@ -584,7 +587,7 @@ public class MovieJukebox {
         FileTools.addJukeboxFile(".mjbignore");
 
         logger.fine("Initializing...");
-        final String tempJukeboxRoot = "./temp";
+        final String tempJukeboxRoot = jukeboxTempDir;
         FileTools.deleteDir(tempJukeboxRoot);
         
         final String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
@@ -863,9 +866,10 @@ public class MovieJukebox {
             try {
                 final String totalMoviesXmlFileName = "CompleteMovies.xml";
                 final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
-                context.createMarshaller().marshal(jukeboxXml, new FileOutputStream(totalMoviesXmlFile));
+                
+                FileOutputStream marStream = new FileOutputStream(totalMoviesXmlFile);
+                context.createMarshaller().marshal(jukeboxXml, marStream);
                 FileTools.addJukeboxFile(totalMoviesXmlFileName);
-
                 Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
 
                 final String rssXmlFileName = "RSS.xml";
@@ -877,6 +881,8 @@ public class MovieJukebox {
                 transformer.transform(new StreamSource(new FileInputStream(totalMoviesXmlFile)), xmlResult);
                 outStream.flush();
                 outStream.close();
+                marStream.flush();
+                marStream.close();
             } catch (Exception e) {
                 logger.finest("RSS is not generated." /* + e.getStackTrace().toString() */);
             }
@@ -945,8 +951,7 @@ public class MovieJukebox {
             rootIndex.delete();
 
             tasks.waitFor();
-            FileTools.deleteDir("./isoTEMP/");
-            FileTools.deleteDir("./temp/");
+            FileTools.deleteDir(jukeboxTempDir);
         }
         timeEnd = System.currentTimeMillis();
 
