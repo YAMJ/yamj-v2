@@ -349,7 +349,6 @@ public class MovieFilenameScanner {
 
         // SEASON + EPISODES
         {
-            System.out.println("Rest: " + rest);
             final Matcher matcher = TV_PATTERN.matcher(rest);
             if (matcher.find()) {
                 // logger.finest("It's a TV Show: " + group0);
@@ -359,12 +358,10 @@ public class MovieFilenameScanner {
                 smatcher.find();
                 int season = Integer.parseInt(smatcher.group(1));
                 dto.setSeason(season);
-                System.out.println("season: " + season);
 
                 final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(0));
                 while (ematcher.find()) {
                     dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
-                    System.out.println("Episode: " + ematcher.group(1));
                 }
             }
         }
