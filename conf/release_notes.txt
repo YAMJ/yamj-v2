@@ -6,6 +6,7 @@ MovieJukebox 2.0 BETA
 ---------------------
   - Enhancement   #118 Exclude strings for files/folders to support regex
   - Enhancement   #357 Use XBMC episodedetails NFO to override TV episode information
+  - Enhancement  #1279 Delete temp folders on YAMJ exit
   - Fixed defect #1344 OpenSubtitles plugin error
   - Fixed defect #1353 Duration isn't correctly read from Allocine
   - Enhancement  #1355 Support for multiple NFO file extensions

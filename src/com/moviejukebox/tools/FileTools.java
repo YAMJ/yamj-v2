@@ -342,7 +342,7 @@ public class FileTools {
             for (int i=0; i<children.length; i++) {
                 boolean success = deleteDir(new File(dir, children[i]));
                 if (!success) {
-                    //System.out.println("Failed");
+                    // System.out.println("Failed");
                     return false;
                 }
             }
