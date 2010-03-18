@@ -67,9 +67,12 @@ public class MovieFilenameScanner {
 
     private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
 
-    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
-    protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)[ex]");
-    protected static final Pattern EPISODE_PATTERN = ipatt("[ex]([0-9]+)");
+    //protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
+    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x|-)\\s??[0-9]+)+)");
+    //protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)[ex]");
+    protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
+    //protected static final Pattern EPISODE_PATTERN = ipatt("[ex]([0-9]+)");
+    protected static final Pattern EPISODE_PATTERN = ipatt("[ex-]\\s??([0-9]+)");
 
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
@@ -346,6 +349,7 @@ public class MovieFilenameScanner {
 
         // SEASON + EPISODES
         {
+            System.out.println("Rest: " + rest);
             final Matcher matcher = TV_PATTERN.matcher(rest);
             if (matcher.find()) {
                 // logger.finest("It's a TV Show: " + group0);
@@ -355,10 +359,12 @@ public class MovieFilenameScanner {
                 smatcher.find();
                 int season = Integer.parseInt(smatcher.group(1));
                 dto.setSeason(season);
+                System.out.println("season: " + season);
 
                 final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(0));
                 while (ematcher.find()) {
                     dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
+                    System.out.println("Episode: " + ematcher.group(1));
                 }
             }
         }
