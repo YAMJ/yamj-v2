@@ -314,7 +314,7 @@ public class MovieJukebox {
         }
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         if (dumpLibraryStructure) {
-            logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't build");
+            logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't be built or updated");
             ml.makeDumpStructure();
         } else {
             ml.generateLibrary(jukeboxPreserve);
@@ -577,12 +577,11 @@ public class MovieJukebox {
          * 
          */
         logger.fine("Preparing environment...");
+        
         // Create the ".mjbignore" file in the jukebox folder
+        new File(jukeboxDetailsRoot).mkdirs();
         new File(jukeboxDetailsRoot + File.separator + ".mjbignore").createNewFile();
         FileTools.addJukeboxFile(".mjbignore");
-        
-        File tempJukeboxCleanFile = new File(jukeboxDetailsRoot);
-        
 
         logger.fine("Initializing...");
         final String tempJukeboxRoot = "./temp";
@@ -904,7 +903,7 @@ public class MovieJukebox {
                 logger.fine("Cleaning up the jukebox directory...");
                 Collection<String> generatedFileNames = FileTools.getJukeboxFiles();
                 
-                File[] cleanList = tempJukeboxCleanFile.listFiles();
+                File[] cleanList = new File(jukeboxDetailsRoot).listFiles();
                 int cleanDeletedTotal = 0;
                 boolean skip = false;
 
@@ -990,6 +989,7 @@ public class MovieJukebox {
             if (FileTools.isNewer(nfoFile, xmlFile) && checkNewer && xmlFile.exists()) {
                 logger.fine("NFO for " + movie.getOriginalTitle() + " (" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
                 movie.setDirtyNFO(true);
+                movie.setDirty(true);
                 movie.setDirtyPoster(true);
                 movie.setDirtyFanart(true);
                 movie.setDirtyBanner(true);
@@ -1010,7 +1010,7 @@ public class MovieJukebox {
         }
 
         // ForceBannerOverwrite is set here to force the re-load of TV Show data including the banners
-        if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
+        if (xmlFile.exists() && !movie.isDirty() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
             // *** START of routine to check if the file has changed location
             // Set up some arrays to store the directory scanner files and the xml files
             Collection<MovieFile> scannedFiles = new ArrayList<MovieFile>();
@@ -1328,6 +1328,7 @@ public class MovieJukebox {
     public static void createThumbnail(MovieImagePlugin imagePlugin, String rootPath, String tempRootPath, String skinHome, Movie movie,
                     boolean forceThumbnailOverwrite) {
         try {
+            // TODO Move all temp directory code to FileTools for a cleaner method
             // Issue 201 : we now download to local temp directory
             String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
             String safeThumbnailFilename = FileTools.makeSafeFilename(movie.getThumbnailFilename());
