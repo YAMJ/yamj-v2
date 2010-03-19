@@ -347,6 +347,12 @@ public class MovieFilenameScanner {
             }
         }
 
+        dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
+        dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
+        dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
+        dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
+        dto.setVideoSource(seekPatternAndUpdateRest(VIDEO_SOURCE_MAP, dto.getVideoSource()));
+
         // SEASON + EPISODES
         {
             final Matcher matcher = TV_PATTERN.matcher(rest);
@@ -358,10 +364,12 @@ public class MovieFilenameScanner {
                 smatcher.find();
                 int season = Integer.parseInt(smatcher.group(1));
                 dto.setSeason(season);
+                System.out.println("Season: " + season);
 
                 final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(0));
                 while (ematcher.find()) {
                     dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
+                    System.out.println("Episode: " + ematcher.group(1));
                 }
             }
         }
@@ -399,12 +407,6 @@ public class MovieFilenameScanner {
                 set.setTitle(n.trim());
             }
         }
-
-        dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
-        dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
-        dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
-        dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
-        dto.setVideoSource(seekPatternAndUpdateRest(VIDEO_SOURCE_MAP, dto.getVideoSource()));
 
         // LANGUAGES
         if (languageDetection) {

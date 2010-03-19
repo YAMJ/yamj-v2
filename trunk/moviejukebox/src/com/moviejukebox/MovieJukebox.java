@@ -989,21 +989,25 @@ public class MovieJukebox {
         // See if we can find the NFO associated with this video file.
         List<File> nfoFiles = MovieNFOScanner.locateNFOs(movie);
 
-        for (File nfoFile : nfoFiles) {
-            // Only re-scan the nfo files if one of them is newer and the xml file exists (2nd run or greater)
-            if (FileTools.isNewer(nfoFile, xmlFile) && checkNewer && xmlFile.exists()) {
-                logger.fine("NFO for " + movie.getOriginalTitle() + " (" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
-                movie.setDirtyNFO(true);
-                movie.setDirty(true);
-                movie.setDirtyPoster(true);
-                movie.setDirtyFanart(true);
-                movie.setDirtyBanner(true);
-                forceXMLOverwrite = true;
-                break; // one is enough
+        // Only check the NFO files if the XML exists and the CheckNewer parameter is set
+        if (xmlFile.exists() && checkNewer) {
+            for (File nfoFile : nfoFiles) {
+                // Only re-scan the nfo files if one of them is newer
+                if (FileTools.isNewer(nfoFile, xmlFile)) {
+                    logger.fine("NFO for " + movie.getOriginalTitle() + " (" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
+                    movie.setDirty(true);
+                    movie.setDirtyNFO(true);
+                    movie.setDirtyPoster(true);
+                    movie.setDirtyFanart(true);
+                    movie.setDirtyBanner(true);
+                    forceXMLOverwrite = true;
+                    break; // one is enough
+                }
             }
         }
         
-        if (xmlFile.exists()) {
+        // Only parse the XML file if we mean to update the XML file.
+        if (xmlFile.exists() && !forceXMLOverwrite) {
             // parse the XML file
             logger.finer("XML file found for " + movie.getBaseName());
             xmlWriter.parseMovieXML(xmlFile, movie);
@@ -1015,7 +1019,7 @@ public class MovieJukebox {
         }
 
         // ForceBannerOverwrite is set here to force the re-load of TV Show data including the banners
-        if (xmlFile.exists() && !movie.isDirty() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
+        if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
             // *** START of routine to check if the file has changed location
             // Set up some arrays to store the directory scanner files and the xml files
             Collection<MovieFile> scannedFiles = new ArrayList<MovieFile>();
