@@ -36,14 +36,15 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 
+import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.XMLHelper;
 
@@ -65,7 +66,9 @@ public class MovieNFOScanner {
     private static String NFOdirectory;
     private static boolean getCertificationFromMPAA;
     private static String imdbPreferredCountry;
-
+    private static boolean acceptAllNFO;
+    private static String nfoExtRegex;
+    
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 
@@ -77,7 +80,16 @@ public class MovieNFOScanner {
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
         getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
-    }
+        acceptAllNFO = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.acceptAllNfo", "false"));
+        // Construct regex for filtering NFO files
+        // Target format is: ".*\\(ext1|ext2|ext3|..|extN)"
+        nfoExtRegex = "";
+        for (String ext : PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",")) {
+            nfoExtRegex += "|" + ext;
+        }
+        // Skip beginning "|" and sandwich extensions between rest of regex
+        nfoExtRegex = "(?i).*\\.(" + nfoExtRegex.substring(1) + ")";
+       }
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -145,7 +157,11 @@ public class MovieNFOScanner {
      */
     public static List<File> locateNFOs(Movie movie) {
         List<File> nfos = new ArrayList<File>();
-        if (null == movie.getContainerFile()) {
+        GenericFileFilter fFilter = null;
+        
+        File currentDir = movie.getContainerFile();
+
+        if (movie.getContainerFile() == null) {
             return nfos;
         }
 
@@ -182,7 +198,7 @@ public class MovieNFOScanner {
                 checkNFO(nfos, mf.getFile().getParent() + File.separator + mfFilename);
             }
         }
-        
+
         // *** Second step is to check for the filename.nfo file
         // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
@@ -199,26 +215,66 @@ public class MovieNFOScanner {
             }
         }
 
-        // *** Last step is to check for a directory wide NFO file.
-        // This file should be named the same as the directory that it is in
-        // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
-        // We search up through all containing directories up to the library root
-        File currentDir = movie.getContainerFile();
-        if (null != currentDir) {
-            String libraryRootPath = new File(movie.getLibraryPath()).getAbsolutePath();
-            while (!currentDir.getAbsolutePath().equals(libraryRootPath)) {
-                currentDir = currentDir.getParentFile();
-                checkNFO(nfos, currentDir.getPath() + File.separator + currentDir.getName());
-            }
-        }
+        // *** Next step is to check for a directory wide NFO file.
+        if (acceptAllNFO) {
+            /* if any NFO file in this directory will do, then we search for all we can find
+             * NOTE: for scanning efficiency, it is better to first search for specific
+             * filenames before we start doing filtered "listfiles" which scans all the files;
+             * A movie collection with all moviefiles in one directory could take tremendously
+             * longer if for each moviefile found, the entire directory must be listed!!
+             * Therefore, we first check for specific filenames (cfr. old behaviour) before
+             * doing an entire scan of the directory -- and only if the user has decided to
+             * accept any NFO file!
+            */
+
+            fFilter = new GenericFileFilter(nfoExtRegex);
+            checkRNFO(nfos, currentDir.getParentFile(), fFilter);
+
+         } else {
+            // This file should be named the same as the directory that it is in
+            // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
+            // We search up through all containing directories up to the library root
+
+             if (null != currentDir) {
+                 // Check the current directory for the video filename
+                 fFilter = new GenericFileFilter("(?i)" + movie.getBaseName() + nfoExtRegex);
+                 checkRNFO(nfos, currentDir, fFilter);
+             }
+         }
+        
+        // Recurse through the directories to the library root looking for NFO files
+         String libraryRootPath = new File(movie.getLibraryPath()).getAbsolutePath();
+         while (!currentDir.getAbsolutePath().equals(libraryRootPath)) {
+             fFilter.setPattern("(?i)" + currentDir.getName() + nfoExtRegex);
+             checkRNFO(nfos, currentDir, fFilter);
+             currentDir = currentDir.getParentFile();
+             //checkNFO(nfos, currentDir.getPath() + File.separator + currentDir.getName());
+         }
 
         // we added the most specific ones first, and we want to parse those the last,
-        // so nfo files in subdirectories can override values in directories above.
+        // so nfo files in sub-directories can override values in directories above.
         Collections.reverse(nfos);
-
+        
         return nfos;
     }
 
+    /**
+     * Search the current directory for all NFO files using a file filter
+     * @param nfoFiles
+     * @param currentDir
+     * @param fFilter
+     */
+    private static void checkRNFO(List<File> nfoFiles, File currentDir, GenericFileFilter fFilter) {
+        File[] fFiles = currentDir.listFiles(fFilter);
+        if (fFiles != null && fFiles.length > 0) {
+            for (File foundFile : fFiles ) {
+                logger.finest("Found NFO: " + foundFile.getName());
+                nfoFiles.add(foundFile);
+            }
+        }
+        return;
+    }
+    
     /**
      * Check to see if the passed filename exists with nfo extensions
      * 
