@@ -263,7 +263,6 @@ public class AllocinePlugin extends ImdbPlugin {
                     }
                 }
                 movie.setYear(aYear);
-                System.out.println("*** YEAR: " + aYear);
             }
 
             // Get Fanart
