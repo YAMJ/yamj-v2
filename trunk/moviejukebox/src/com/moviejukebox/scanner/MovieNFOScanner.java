@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
@@ -68,6 +70,7 @@ public class MovieNFOScanner {
     private static String imdbPreferredCountry;
     private static boolean acceptAllNFO;
     private static String nfoExtRegex;
+    private static Pattern partPattern;
     
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
@@ -85,11 +88,13 @@ public class MovieNFOScanner {
         // Target format is: ".*\\(ext1|ext2|ext3|..|extN)"
         nfoExtRegex = "";
         for (String ext : PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",")) {
-            nfoExtRegex += "|" + ext;
+            nfoExtRegex += "|" + ext + "$";
         }
         // Skip beginning "|" and sandwich extensions between rest of regex
         nfoExtRegex = "(?i).*\\.(" + nfoExtRegex.substring(1) + ")";
-       }
+        
+        partPattern = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
+    }
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
@@ -217,7 +222,7 @@ public class MovieNFOScanner {
 
         // *** Next step is to check for a directory wide NFO file.
         if (acceptAllNFO) {
-            /* if any NFO file in this directory will do, then we search for all we can find
+            /* If any NFO file in this directory will do, then we search for all we can find
              * NOTE: for scanning efficiency, it is better to first search for specific
              * filenames before we start doing filtered "listfiles" which scans all the files;
              * A movie collection with all moviefiles in one directory could take tremendously
@@ -227,15 +232,23 @@ public class MovieNFOScanner {
              * accept any NFO file!
             */
 
+            // Check the current directory
             fFilter = new GenericFileFilter(nfoExtRegex);
             checkRNFO(nfos, currentDir.getParentFile(), fFilter);
+            
+            // Also check the directory above, for the case where movies are in a multi-part named directory (CD/PART/DISK/Etc.)
+            Matcher allNfoMatch = partPattern.matcher(currentDir.getAbsolutePath());
+            if (allNfoMatch.find()) {
+                logger.finest("MovieNFOScanner: Found multi-part directory, checking parent directory for NFOs");
+                checkRNFO(nfos, currentDir.getParentFile().getParentFile(), fFilter);
+            }
 
          } else {
             // This file should be named the same as the directory that it is in
             // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
             // We search up through all containing directories up to the library root
 
-             if (null != currentDir) {
+             if (currentDir != null) {
                  // Check the current directory for the video filename
                  fFilter = new GenericFileFilter("(?i)" + movie.getBaseName() + nfoExtRegex);
                  checkRNFO(nfos, currentDir, fFilter);
@@ -813,6 +826,10 @@ public class MovieNFOScanner {
                                     logger.finest("In parseTVNFO Id=" + val + " found for default TheTVDB");
                                 }
                             }
+                        } else if (tag.equalsIgnoreCase("set")) {
+                            String set = XMLHelper.getCData(r);
+                            Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
+                            movie.addSet(set, orderAttribute == null ? null : Integer.parseInt(orderAttribute.getValue()));
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
                             if (val != 0.0f) {

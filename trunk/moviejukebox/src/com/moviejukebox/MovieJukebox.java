@@ -659,7 +659,7 @@ public class MovieJukebox {
 
                         ToolSet tools = threadTools.get();
                         // First get movie data (title, year, director, genre, etc...)
-                        logger.fine("Updating data for: " + movieTitleExt);
+                        logger.fine("Updating: " + movieTitleExt);
 
                         updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
