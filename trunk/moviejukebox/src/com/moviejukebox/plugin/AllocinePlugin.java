@@ -253,7 +253,17 @@ public class AllocinePlugin extends ImdbPlugin {
             // "<a href=\"/List?certificates=", "</a>")));
 
             if (!movie.isOverrideYear()) {
-                movie.setYear(removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>")));
+                String aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année d e production : ", "</a>"));
+                
+                // If the year is unknown, fall back to the release date
+                if (aYear.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    aYear = HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "</a>");
+                    if (!aYear.equalsIgnoreCase(Movie.UNKNOWN)) {
+                        aYear = aYear.substring(aYear.length() - 4);
+                    }
+                }
+                movie.setYear(aYear);
+                System.out.println("*** YEAR: " + aYear);
             }
 
             // Get Fanart
