@@ -11,6 +11,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1353 Duration isn't correctly read from Allocine
   - Enhancement  #1355 Support for multiple NFO file extensions
   - Enhancement  #1356 Option to accept all found NFO files in a directory
+  - Enhancement  #1365 Allocine Plugin: Fallback to release date if production date isn't available
 
 MovieJukebox 1.9 (r1500)
 ------------------------
