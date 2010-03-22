@@ -140,6 +140,7 @@ public class MovieFilenameScanner {
             put("Thai", "TH Th th THA Tha tha THAI Thai thai");
             put("VO", "VO VOSTFR vo vostfr");
             put("Danish", "DA DAN DANISH da dan danish");
+            put("Dutch", "NL Nl nl NLD Nld nld DUTCH Dutch dutch");
         }
     };
 
@@ -178,6 +179,7 @@ public class MovieFilenameScanner {
             put("Thai", "TH THA THAI");
             put("VO", "VO VOSTFR");
             put("Danish", "DA DAN DANISH");
+            put("Dutch", "NL NLD DUTCH");
         }
     };
 
