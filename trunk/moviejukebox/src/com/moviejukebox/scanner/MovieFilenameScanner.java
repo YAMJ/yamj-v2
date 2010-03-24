@@ -72,7 +72,7 @@ public class MovieFilenameScanner {
     //protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)[ex]");
     protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
     //protected static final Pattern EPISODE_PATTERN = ipatt("[ex]([0-9]+)");
-    protected static final Pattern EPISODE_PATTERN = ipatt("[ex-]\\s??([0-9]+)");
+    protected static final Pattern EPISODE_PATTERN = ipatt("[ex]\\s??([0-9]+)");
 
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
