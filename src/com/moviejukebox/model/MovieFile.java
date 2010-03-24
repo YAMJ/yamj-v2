@@ -300,9 +300,11 @@ public class MovieFile implements Comparable<MovieFile> {
 
         } else if (dto.getPart() > 0) {
             firstPart = lastPart = dto.getPart();
+            setTitle(dto.getPartTitle());
         } else {
             firstPart = 1;
             lastPart = 1;
+            setTitle(dto.getPartTitle());
         }
     }
 
