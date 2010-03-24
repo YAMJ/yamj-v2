@@ -119,67 +119,59 @@ public class MovieFilenameScanner {
         }
 
         {
-            // http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
             // TODO : Extract this to an external config file, it let people customize without rebuild.
-            put("Chinese", "ZH Zh zh CHI Chi chi CHINESE Chinese chinese");
-            put("Dual Language", "DL dl");
-            put("English", "ENG EN ENGLISH eng en english Eng");
-            put("French", "FRA FR FRENCH VF fra fr french vf Fra");
-            put("German", "GER DE GERMAN ger de german Ger");
-            put("Hebrew", "HEB HE HEBREW HEBDUB heb he hebrew hebdub Heb");
-            put("Hindi", "HI HIN HINDI hi hin hindi Hin Hindi");
-            put("Hungarian", "HUN HU HUNGARIAN hun hu hungarian");
-            put("Italian", "ITA IT ITALIAN ita it italian Ita");
-            put("Japanese", "JPN JP JAPANESE jpn jp japanese Jpn");
-            put("Norwegian", "NOR NORWEGIAN nor norwegian Norwegian");
-            put("Polish", "POL PL POLISH PLDUB pol pl polish pldub Pol");
-            put("Portuguese", "POR PT PORTUGUESE por pt portuguese Por");
-            put("Russian", "RUS RU RUSSIAN rus ru russian Rus");
-            put("Spanish", "SPA ES SPANISH spa es spanish Spa");
-            put("Swedish", "SV Sv sv SWE Swe swe SWEDISH Swedish swedish");
-            put("Thai", "TH Th th THA Tha tha THAI Thai thai");
-            put("VO", "VO VOSTFR vo vostfr");
-            put("Danish", "DA DAN DANISH da dan danish");
-            put("Dutch", "NL Nl nl NLD Nld nld DUTCH Dutch dutch");
+            String languages = PropertiesUtil.getProperty("filename.scanner.language.keywords");
+            if (languages != null) {
+                for (String lang : languages.split(",")) {
+                    String values = PropertiesUtil.getProperty("filename.scanner.language." + lang);
+                    if (values != null) {
+                        values = values.replace(",", " ");
+                        put(lang, values);
+                        //logger.fine("MovieFilenameScanner: Language '" + lang + "' will be found with: " + values);
+                    } else {
+                        logger.fine("MovieFilenameScanner: No values found for language code " + lang);
+                    }
+                }
+            } else {
+                // If we don't have any settings, default to English :)
+                put("English", "ENG EN ENGLISH eng en english Eng");
+            }
         }
     };
 
     private static final Map<String, Pattern> LOOSE_LANGUAGES_MAP = new HashMap<String, Pattern>() {
-        private void put(String key, String tokens) {
-            String[] ts = tokens.split(" ");
+        private void put(String key, String tokenString) {
+            String[] tokens = tokenString.split(" ");
             StringBuilder sb = new StringBuilder();
             boolean first = true;
-            for (String s : ts) {
+            for (String token : tokens) {
                 if (!first) {
                     sb.append('|');
+                } else {
+                    first = false;
                 }
-                sb.append(Pattern.quote(s));
-                first = false;
+                // Only add the token if it's not there already
+                if (sb.indexOf(token) < 0) {
+                    sb.append(Pattern.quote(token));
+                }
             }
             put(key, iwpatt(sb.toString()));
         }
 
         {
-            put("Chinese", "ZH CHI CHINESE");
-            put("Dual Language", "DL");
-            put("English", "ENG EN ENGLISH");
-            put("French", "FRA FR FRENCH");
-            put("German", "GER DE GERMAN");
-            put("Hebrew", "HEB HE HEBREW HEBDUB");
-            put("Hindi", "HI HIN HINDI");
-            put("Hungarian", "HUN HU HUNGARIAN");
-            put("Italian", "ITA IT ITALIAN");
-            put("Japanese", "JPN JP JAPANESE");
-            put("Norwegian", "NOR NORWEGIAN");
-            put("Polish", "POL PL POLISH PLDUB");
-            put("Portuguese", "POR PT PORTUGUESE");
-            put("Russian", "RUS RU RUSSIAN");
-            put("Spanish", "SPA ES SPANISH");
-            put("Swedish", "SV SWE SWEDISH");
-            put("Thai", "TH THA THAI");
-            put("VO", "VO VOSTFR");
-            put("Danish", "DA DAN DANISH");
-            put("Dutch", "NL NLD DUTCH");
+            String languages = PropertiesUtil.getProperty("filename.scanner.language.keywords");
+            if (languages != null) {
+                for (String lang : languages.split(",")) {
+                    String values = PropertiesUtil.getProperty("filename.scanner.language." + lang);
+                    if (values != null) {
+                        values = values.toUpperCase().replace(",", " ");
+                        put(lang, values);
+                    }
+                }
+            } else {
+                // If we don't have any settings, default to English :)
+                put("English", "EN ENG ENGLISH");
+            }
         }
     };
 
