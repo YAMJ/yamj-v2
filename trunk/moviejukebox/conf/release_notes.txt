@@ -11,6 +11,7 @@ MovieJukebox 2.0 BETA
   - Enhancement  #1279 Delete temp folders on YAMJ exit
   - Enhancement  #1294 Flag support for Filipino (Tagalog) language
   - Fixed defect #1344 OpenSubtitles plugin error
+  - Enhancement  #1352 More information during startup scanning
   - Fixed defect #1353 Duration isn't correctly read from Allocine
   - Enhancement  #1355 Support for multiple NFO file extensions
   - Enhancement  #1356 Option to accept all found NFO files in a directory

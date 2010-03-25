@@ -623,6 +623,7 @@ public class MovieJukebox {
                     MovieDirectoryScanner mds = new MovieDirectoryScanner();
                     // scan uses synchronized method Library.addMovie
                     mds.scan(mediaLibraryPath, library);
+                    System.out.print("\r");
                     return null;
                 };
             });
