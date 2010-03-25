@@ -84,6 +84,10 @@ public class MovieNFOScanner {
         getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         acceptAllNFO = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.acceptAllNfo", "false"));
+        if (acceptAllNFO) {
+            logger.fine("MovieNFOScanner: Accepting all NFO files in the directory");
+        }
+        
         // Construct regex for filtering NFO files
         // Target format is: ".*\\(ext1|ext2|ext3|..|extN)"
         nfoExtRegex = "";
@@ -258,10 +262,10 @@ public class MovieNFOScanner {
         // Recurse through the directories to the library root looking for NFO files
          String libraryRootPath = new File(movie.getLibraryPath()).getAbsolutePath();
          while (!currentDir.getAbsolutePath().equals(libraryRootPath)) {
-             fFilter.setPattern("(?i)" + currentDir.getName() + nfoExtRegex);
-             checkRNFO(nfos, currentDir, fFilter);
+             //fFilter.setPattern("(?i)" + currentDir.getName() + nfoExtRegex);
+             //checkRNFO(nfos, currentDir, fFilter);
              currentDir = currentDir.getParentFile();
-             //checkNFO(nfos, currentDir.getPath() + File.separator + currentDir.getName());
+             checkNFO(nfos, currentDir.getPath() + File.separator + currentDir.getName());
          }
 
         // we added the most specific ones first, and we want to parse those the last,
