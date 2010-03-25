@@ -151,8 +151,9 @@ public class MovieFilenameScanner {
                     first = false;
                 }
                 // Only add the token if it's not there already
-                if (sb.indexOf(token) < 0) {
-                    sb.append(Pattern.quote(token));
+                String quotedToken = Pattern.quote(token);
+                if (sb.indexOf(quotedToken) < 0) {
+					sb.append(quotedToken);
                 }
             }
             put(key, iwpatt(sb.toString()));
