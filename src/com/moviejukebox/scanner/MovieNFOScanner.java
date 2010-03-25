@@ -1095,7 +1095,7 @@ public class MovieNFOScanner {
             }
             return isOK;
         } catch (Exception error) {
-            logger.severe("Failed parsing NFO file for TV Show: " + movie.getTitle() + ". Please fix or remove it.");
+            logger.severe("Failed parsing NFO file: " + nfoFile.getAbsolutePath() + ". Please fix or remove it.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
