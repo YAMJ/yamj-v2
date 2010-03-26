@@ -611,7 +611,6 @@ public class MovieJukeboxXMLWriter {
                                 }
                             }
                         }
-                        System.out.print("\n");
 
                         if (moviesInASinglePage.size() > 0) {
                             writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage,
