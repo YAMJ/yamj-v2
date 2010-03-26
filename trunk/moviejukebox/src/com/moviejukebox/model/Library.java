@@ -385,9 +385,11 @@ public class Library implements Map<String, Movie> {
             dynamic_indexes.put(SET, indexBySets(indexMovies));
 
             final Map<String, Index> syncindexes = Collections.synchronizedMap(indexes);
+            
             for (final String indexStr : indexList.split(",")) {
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
+                        logger.fine("  Indexing " + indexStr + "...");
                         if (indexStr.equals("Other"))
                             syncindexes.put("Other", indexByProperties(indexMovies));
                         else if (indexStr.equals("Genres"))
@@ -422,7 +424,7 @@ public class Library implements Map<String, Movie> {
                 dyn_index_masters.put(dyn_entry.getKey(), indexMasters);
 
                 for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
-                    // For each categorie in index, compress this one.
+                    // For each category in index, compress this one.
                     for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
                         compressSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
                     }
@@ -448,6 +450,7 @@ public class Library implements Map<String, Movie> {
             }
             tasks.restart();
             // OK, now that all the index masters are in-place, sort everything.
+            logger.fine("  Sorting Indexes ...");
             for (final Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
                 for (final Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
                     tasks.submit(new Callable<Void>() {
