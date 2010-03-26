@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2009 YAMJ Members
+ *      Copyright (c) 2004-2010 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list 
  *  
  *      Web: http://code.google.com/p/moviejukebox/
@@ -68,7 +68,7 @@ public class MovieFilenameScanner {
     private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
 
     //protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
-    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x|-)\\s??[0-9]+)+)");
+    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)");
     //protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)[ex]");
     protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
     //protected static final Pattern EPISODE_PATTERN = ipatt("[ex]([0-9]+)");
