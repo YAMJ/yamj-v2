@@ -56,6 +56,7 @@ public class MovieDirectoryScanner {
     private Boolean playFullBluRayDisk;
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static int dirCount = 1;
+    private static int fileCount = 0;
 
     // BD rip infos Scanner
     private BDRipScanner localBDRipScanner;
@@ -104,7 +105,9 @@ public class MovieDirectoryScanner {
             scanFile(srcPath, directory, collection);
         } else {
             File[] files = directory.listFiles();
-            System.out.print("\r    Scanning directory #" + dirCount++ + " (" + files.length + " files)");
+
+            fileCount += files.length;
+            System.out.print("\r    Scanning directory #" + dirCount++ + ", " + fileCount + " files scanned");
 
             if (files != null && files.length > 0) {
                 List<File> fileList = Arrays.asList(files);

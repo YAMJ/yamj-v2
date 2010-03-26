@@ -464,7 +464,8 @@ public class MovieJukeboxXMLWriter {
             }
         }
 
-        // Issue 1148, generate categorie in the order specified in properties
+        // Issue 1148, generate category in the order specified in properties
+        logger.fine("  Indexing Categories");
         for (String categorie : categoriesDisplayList) {
             boolean openedCategory = false;
             for (Entry<String, Index> category : library.getIndexes().entrySet()) {
@@ -610,6 +611,7 @@ public class MovieJukeboxXMLWriter {
                                 }
                             }
                         }
+                        System.out.print("\n");
 
                         if (moviesInASinglePage.size() > 0) {
                             writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage,
