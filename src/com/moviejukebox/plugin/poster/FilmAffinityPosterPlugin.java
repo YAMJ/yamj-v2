@@ -22,12 +22,14 @@ import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
 public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern yearMatcher = Pattern.compile(".*\\((\\d{4})\\).*", Pattern.CASE_INSENSITIVE);
     private WebBrowser webBrowser;
+    private static String idSearch = PropertiesUtil.getProperty("filmaffinity.id.search", "filmaffinity");
 
     public FilmAffinityPosterPlugin() {
         super();
@@ -39,17 +41,37 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
         String response = Movie.UNKNOWN;
         String firstResponse = response;
         try {
-            StringBuffer sb = new StringBuffer("http://www.filmaffinity.com/es/search.php?stext=");
+            StringBuffer sb = new StringBuffer();
+            
+            if (idSearch.equalsIgnoreCase("filmaffinity")) {
+                sb.append("http://www.filmaffinity.com/es/search.php?stext=");
 
-            sb.append(URLEncoder.encode(title, "UTF-8"));
-            if (tvSeason > -1) {
-                sb.append("+TV");
+                sb.append(URLEncoder.encode(title, "UTF-8"));
+                if (tvSeason > -1) {
+                    sb.append("+TV");
+                }
+                // if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                // sb.append("+").append(year);
+                // }
+
+                sb.append("&stype=title");
+            } else {
+                sb.append("http://www.google.com/search?q=");
+
+                sb.append(URLEncoder.encode(title, "UTF-8"));
+
+                sb.append("+site%3Awww.filmaffinity.com");
+
+                if (tvSeason > -1) {
+                    sb.append("+TV");
+                } else {
+                    if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                        sb.append("+(").append(year).append(")");
+                    }
+                }
             }
-            // if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-            // sb.append("+").append(year);
-            // }
-
-            sb.append("&stype=title");
+            logger.fine("FilmAffinity Search URL: " + sb.toString());
+            
             String url = webBrowser.getUrl(sb.toString());
             String startSearchString = "/es/film";
             // we got a redirect due to unique result
