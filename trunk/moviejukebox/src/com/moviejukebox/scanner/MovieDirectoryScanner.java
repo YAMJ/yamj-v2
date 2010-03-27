@@ -106,7 +106,9 @@ public class MovieDirectoryScanner {
         } else {
             File[] files = directory.listFiles();
 
-            fileCount += files.length;
+            if (files != null)
+                fileCount += files.length;
+            
             System.out.print("\r    Scanning directory #" + dirCount++ + ", " + fileCount + " files scanned");
 
             if (files != null && files.length > 0) {
