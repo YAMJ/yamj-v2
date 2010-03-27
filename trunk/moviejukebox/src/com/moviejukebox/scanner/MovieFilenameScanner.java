@@ -145,14 +145,14 @@ public class MovieFilenameScanner {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
             for (String token : tokens) {
-                if (!first) {
-                    sb.append('|');
-                } else {
-                    first = false;
-                }
                 // Only add the token if it's not there already
                 String quotedToken = Pattern.quote(token);
                 if (sb.indexOf(quotedToken) < 0) {
+                    if (!first) {
+                        sb.append('|');
+                    } else {
+                        first = false;
+                    }
 					sb.append(quotedToken);
                 }
             }

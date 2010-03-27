@@ -27,7 +27,6 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
     public static String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
     private FilmAffinityPosterPlugin posterPlugin; // FIXME - Yaltar don't use PosterPlugin, but extract common method to an utility class.
-    private static String searchMethod = null;
 
     // Define plot length
     int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
@@ -36,15 +35,6 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Spain");
         posterPlugin = new FilmAffinityPosterPlugin();
-
-        // Determine the search method to use. Check for a specific plugin first, then the generic plugin setting
-        searchMethod = PropertiesUtil.getProperty(FILMAFFINITY_PLUGIN_ID + ".id.search", null);
-        if (searchMethod == null) {
-            searchMethod = PropertiesUtil.getProperty("plugin.id.search", FILMAFFINITY_PLUGIN_ID);
-            if (searchMethod == null || searchMethod.equalsIgnoreCase("local")) {
-                searchMethod = FILMAFFINITY_PLUGIN_ID;
-            }
-        }
 }
 
     @Override
