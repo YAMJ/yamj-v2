@@ -60,7 +60,8 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
 
                 sb.append(URLEncoder.encode(title, "UTF-8"));
 
-                sb.append("+site%3Awww.filmaffinity.com");
+                // Do not append "site:" to the search as this yeilds better results
+                sb.append("+www.filmaffinity.com");
 
                 if (tvSeason > -1) {
                     sb.append("+TV");
