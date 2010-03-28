@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -63,7 +64,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
             else
                 tvdb.scan(mediaFile);
 
-            kinopoiskId = getKinopoiskId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
+            String year = mediaFile.getYear();
+            kinopoiskId = getKinopoiskId(mediaFile.getTitle(), year, mediaFile.getSeason());
+            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN) && kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
+                // Trying without specifying the year 
+                kinopoiskId = getKinopoiskId(mediaFile.getTitle(), Movie.UNKNOWN, mediaFile.getSeason());
+            }
             mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
         } else {
             // If ID is specified in NFO, set original title to unknown
@@ -95,29 +101,44 @@ public class KinopoiskPlugin extends ImdbPlugin {
      */
     private String getKinopoiskId(String movieName, String year, int season) {
         try {
-            String sb = "+site:www.kinopoisk.ru/level/1/film/";
-            sb = sb + " " + movieName;
+            String kinopoiskId = "";
+            String sb = movieName;
+            // Unaccenting letters 
+            sb = Normalizer.normalize(sb, Normalizer.Form.NFD);
+            sb = sb.replaceAll("[^\\p{ASCII}]","");
+
+            sb = "&m_act[find]=" + URLEncoder.encode(sb, "UTF-8").replace(" ", "+");
+
             if (season != -1) {
-                sb = sb + " +сериал";
+                sb = sb + "&m_act[content_find]=serial";
             } else {
                 if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN))
-                    sb = sb + " +год +" + year;
+                    sb = sb + "&m_act[year]=" + year;
             }
 
-            sb = "http://www.google.ru/search?hl=ru&q=" + URLEncoder.encode(sb, "UTF-8");
+            sb = "http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=content" + sb;
 
             String xml = webBrowser.request(sb);
-            int beginIndex = xml.indexOf("<a href=\"http://www.kinopoisk.ru/level/1/film/");
 
-            if (beginIndex == -1)
-                return Movie.UNKNOWN;
-            beginIndex = xml.indexOf("kinopoisk.ru/level/1/film/", beginIndex);
-
-            if (beginIndex == -1)
+            // Checking for zero results
+            if (xml.indexOf("найдено 0 результатов") >= 0)
                 return Movie.UNKNOWN;
 
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 26), "/\"");
-            String kinopoiskId = st.nextToken();
+            // Checking if we got the movie page directly 
+            int beginIndex = xml.indexOf("id_film = ");
+            if (beginIndex == -1) {
+                // It's search results page, searching a link to the movie page
+                beginIndex = xml.indexOf("href=\"/level/1/film/");
+                if (beginIndex == -1) 
+                    return Movie.UNKNOWN;
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
+                kinopoiskId = st.nextToken();
+            }
+            else {
+                // It's the movie page
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 10), ";");
+                kinopoiskId = st.nextToken();
+            }
 
             if (kinopoiskId != "") {
                 // Check if ID is integer
