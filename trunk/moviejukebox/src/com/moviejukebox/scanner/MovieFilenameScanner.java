@@ -124,7 +124,12 @@ public class MovieFilenameScanner {
         
         protected void putAll(List<String> keywords, Map<String, String> keywordMap) {
             for (String keyword : keywords) {
-                put(keyword, keywordMap.get(keyword));
+                // Just pass the keyword if the map is null
+                if (keywordMap.get(keyword) == null) {
+                    put (keyword, keyword);
+                } else {
+                    put(keyword, keywordMap.get(keyword));
+                }
             }
         }
         
@@ -152,9 +157,6 @@ public class MovieFilenameScanner {
      */
     private static final TokensPatternMap strictLanguageMap = new TokensPatternMap() {
         
-        /** 
-         * {@inheritDoc}
-         */
         protected void put(String key, Collection<String> tokens) {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
