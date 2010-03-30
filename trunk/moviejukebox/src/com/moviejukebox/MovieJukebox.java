@@ -85,6 +85,7 @@ import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -266,6 +267,21 @@ public class MovieJukebox {
         MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray(getProperty("filename.movie.versions.keywords",
                         "remastered,directors cut,extended cut,final cut"), ",;|"));
         MovieFilenameScanner.setLanguageDetection(parseBoolean(getProperty("filename.scanner.language.detection", "true")));
+        final KeywordMap languages = PropertiesUtil.getKeywordMap("filename.scanner.language.keywords", null);
+        if (languages.size() > 0) {
+            MovieFilenameScanner.clearLanguages();
+            for (String lang : languages.getKeywords()) {
+                String values = languages.get(lang);
+                if (values != null) {
+                    MovieFilenameScanner.addLanguage(lang, values, values);
+                } else {
+                    logger.fine("MovieFilenameScanner: No values found for language code " + lang);
+                }
+            }
+        }
+        final KeywordMap sourceKeywords = PropertiesUtil.getKeywordMap("filename.scanner.source.keywords",
+                            "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
+        MovieFilenameScanner.setSourceKeywords(sourceKeywords.getKeywords(), sourceKeywords);
 
         String temp = getProperty("sorting.strip.prefixes");
         if (temp != null) {
