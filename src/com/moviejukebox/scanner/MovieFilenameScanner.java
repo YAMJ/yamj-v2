@@ -15,6 +15,7 @@ package com.moviejukebox.scanner;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.moviejukebox.model.MovieFileNameDTO;
-import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -102,13 +104,61 @@ public class MovieFilenameScanner {
             add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
         }
     };
+    
+    private static abstract class TokensPatternMap extends HashMap<String, Pattern> {
+        /**
+         * Generate pattern using tokens from given string.
+         * @param key Language id.
+         * @param tokensStr Tokens list divided by comma or space.
+         */
+        protected void put(String key, String tokensStr) {
+            List<String> tokens = new ArrayList<String>(); 
+            for (String token : tokensStr.split("[ ,]+")) {
+                token = StringUtils.trimToNull(token);
+                if (token != null) {
+                    tokens.add(token);
+                }
+            }
+            put(key, tokens);
+        }
+        
+        protected void putAll(List<String> keywords, Map<String, String> keywordMap) {
+            for (String keyword : keywords) {
+                put(keyword, keywordMap.get(keyword));
+            }
+        }
+        
+        /**
+         * Generate pattern using tokens from given string.
+         * @param key Language id.
+         * @param tokens Tokens list.
+         */
+        protected abstract void put(String key, Collection<String> tokens);
+    }
 
-    private static final Map<String, Pattern> STRICT_LANGUAGES_MAP = new HashMap<String, Pattern>() {
-        private void put(String key, String tokens) {
-            String[] ts = tokens.split(" ");
+
+    /**
+     * Mapping exact tokens to language. Strict mapping is case sensitive and must be obvious. 
+     * E.q. it must avoid confusing movie name words and language markers. 
+     * For example the English word "it" and Italian language marker "it", or "French" as part
+     * of the title and "french" as language marker.<br>
+     * 
+     * However, described above is important only by file naming with token delimiters 
+     * (see tokens description constants TOKEN_DELIMITERS*). Language detection in non-token
+     * separated titles will be skipped automatically.<br>
+     * 
+     * Language markers, found with this pattern are counted as token delimiters (they will cut
+     * movie title)
+     */
+    private static final TokensPatternMap strictLanguageMap = new TokensPatternMap() {
+        
+        /** 
+         * {@inheritDoc}
+         */
+        protected void put(String key, Collection<String> tokens) {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
-            for (String s : ts) {
+            for (String s : tokens) {
                 if (!first) {
                     sb.append('|');
                 }
@@ -119,34 +169,27 @@ public class MovieFilenameScanner {
         }
 
         {
-            // TODO : Extract this to an external config file, it let people customize without rebuild.
-            String languages = PropertiesUtil.getProperty("filename.scanner.language.keywords");
-            if (languages != null) {
-                for (String lang : languages.split(",")) {
-                    String values = PropertiesUtil.getProperty("filename.scanner.language." + lang);
-                    if (values != null) {
-                        values = values.replace(",", " ");
-                        put(lang, values);
-                        //logger.fine("MovieFilenameScanner: Language '" + lang + "' will be found with: " + values);
-                    } else {
-                        logger.fine("MovieFilenameScanner: No values found for language code " + lang);
-                    }
-                }
-            } else {
-                // If we don't have any settings, default to English :)
-                put("English", "ENG EN ENGLISH eng en english Eng");
-            }
+            put("English", "ENG EN ENGLISH eng en english Eng");
         }
     };
 
-    private static final Map<String, Pattern> LOOSE_LANGUAGES_MAP = new HashMap<String, Pattern>() {
-        private void put(String key, String tokenString) {
-            String[] tokens = tokenString.split(" ");
+    /**
+     * Mapping loose language markers. The second pass of language detection is being started
+     * after movie title detection. Language markers will be scanned with loose pattern in order 
+     * to find out more languages without chance to confuse with movie title. Markers in this
+     * map are case insensitive.
+     */
+    private static final TokensPatternMap looseLanguageMap = new TokensPatternMap() {
+
+        /** 
+         * {@inheritDoc}
+         */
+        protected void put(String key, Collection<String> tokens) {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
             for (String token : tokens) {
                 // Only add the token if it's not there already
-                String quotedToken = Pattern.quote(token);
+                String quotedToken = Pattern.quote(token.toUpperCase());
                 if (sb.indexOf(quotedToken) < 0) {
                     if (!first) {
                         sb.append('|');
@@ -160,19 +203,8 @@ public class MovieFilenameScanner {
         }
 
         {
-            String languages = PropertiesUtil.getProperty("filename.scanner.language.keywords");
-            if (languages != null) {
-                for (String lang : languages.split(",")) {
-                    String values = PropertiesUtil.getProperty("filename.scanner.language." + lang);
-                    if (values != null) {
-                        values = values.toUpperCase().replace(",", " ");
-                        put(lang, values);
-                    }
-                }
-            } else {
-                // If we don't have any settings, default to English :)
-                put("English", "EN ENG ENGLISH");
-            }
+            // Set default values
+            put("English", "ENG EN ENGLISH");
         }
     };
 
@@ -208,36 +240,24 @@ public class MovieFilenameScanner {
         }
     };
 
-    private static final Map<String, Pattern> VIDEO_SOURCE_MAP = new HashMap<String, Pattern>() {
+    private static final TokensPatternMap videoSourceMap = new TokensPatternMap() {
         {
-            String sourceKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords",
-                            "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
+            put("SDTV", "TVRip,PAL,NTSC");
+            put("D-THEATER", "DTH,DTHEATER");
+            put("HDDVD", "HD-DVD,HDDVDRIP");
+            put("BluRay", "BDRIP,BLURAYRIP,BLU-RAY,BD-RIP");
+            put("DVDRip", "DVDR");
+            put("HDTV", "");
+            put("DVD", "DVD5 DVD9");
+        }
 
-            HashMap<String, String> mappedKeywordsDefaults = new HashMap<String, String>() {
-                {
-                    put("SDTV", "TVRip,PAL,NTSC");
-                    put("D-THEATER", "DTH,DTHEATER");
-                    put("HDDVD", "HD-DVD,HDDVDRIP");
-                    put("BluRay", "BDRIP,BLURAYRIP,BLU-RAY,BD-RIP");
-                    put("DVDRip", "DVDR");
-                }
-            };
-
-            for (String s : sourceKeywords.split(",")) {
-                // Set the default the long way to allow 'keyword.???=' to blank the value instead of using default
-                String mappedKeywords = PropertiesUtil.getProperty("filename.scanner.source.keywords." + s, null);
-                if (null == mappedKeywords) {
-                    mappedKeywords = mappedKeywordsDefaults.get(s);
-                }
-
-                String patt = s;
-                if (null != mappedKeywords && mappedKeywords.length() > 0) {
-                    for (String t : mappedKeywords.split(",")) {
-                        patt += "|" + t;
-                    }
-                }
-                put(s, iwpatt(patt));
+        @Override
+        public void put(String key, Collection<String> tokens) {
+            String patt = key;
+            for (String t : tokens) {
+                patt += "|" + t;
             }
+            put(key, iwpatt(patt));
         }
     };
 
@@ -279,9 +299,8 @@ public class MovieFilenameScanner {
 
     /**
      * @param regex
-     * @return Case insensitive pattern with word delimiters around
+     * @return Case sensitive pattern with word delimiters around
      */
-    @SuppressWarnings("unused")
     private static final Pattern wpatt(String regex) {
         return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN);
     }
@@ -346,7 +365,7 @@ public class MovieFilenameScanner {
         dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
         dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
         dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
-        dto.setVideoSource(seekPatternAndUpdateRest(VIDEO_SOURCE_MAP, dto.getVideoSource()));
+        dto.setVideoSource(seekPatternAndUpdateRest(videoSourceMap, dto.getVideoSource(), PART_PATTERNS));
 
         // SEASON + EPISODES
         {
@@ -404,7 +423,7 @@ public class MovieFilenameScanner {
         // LANGUAGES
         if (languageDetection) {
             for (;;) {
-                String language = seekPatternAndUpdateRest(STRICT_LANGUAGES_MAP, null);
+                String language = seekPatternAndUpdateRest(strictLanguageMap, null);
                 if (language == null) {
                     break;
                 }
@@ -459,7 +478,7 @@ public class MovieFilenameScanner {
 
                     // Loose language search
                     if (token.length() >= 2 && token.indexOf('-') < 0) {
-                        for (Map.Entry<String, Pattern> e : LOOSE_LANGUAGES_MAP.entrySet()) {
+                        for (Map.Entry<String, Pattern> e : looseLanguageMap.entrySet()) {
                             Matcher matcher = e.getValue().matcher(token);
                             if (matcher.find()) {
                                 dto.getLanguages().add(e.getKey());
@@ -522,7 +541,7 @@ public class MovieFilenameScanner {
      */
     //TODO : Extract this from here, it's not specific on MovieFileNameScanner
     public static String determineLanguage(String language) {
-        for (Map.Entry<String, Pattern> e : STRICT_LANGUAGES_MAP.entrySet()) {
+        for (Map.Entry<String, Pattern> e : strictLanguageMap.entrySet()) {
             Matcher matcher = e.getValue().matcher(language);
             if (matcher.find()) {
                 return e.getKey();
@@ -553,6 +572,32 @@ public class MovieFilenameScanner {
         return oldValue;
     }
 
+    /**
+     * Update rest only if no interference with protected patterns.
+     * @param <T> Return type.
+     * @param map Keyword/pattern map.
+     * @param oldValue To return if nothing found.
+     * @param protectPatterns Pattern to protect.
+     * @return
+     */
+    private <T> T seekPatternAndUpdateRest(Map<T, Pattern> map, T oldValue, Collection<Pattern> protectPatterns) {
+        for (Map.Entry<T, Pattern> e : map.entrySet()) {
+            Matcher matcher = e.getValue().matcher(rest);
+            if (matcher.find()) {
+                String restCut = cutMatch(rest, matcher, "./.");
+                for (Pattern protectPattern : protectPatterns) {
+                    if (protectPattern.matcher(rest).find() 
+                            && !protectPattern.matcher(restCut).find()) {
+                        return e.getKey();
+                    }
+                }
+                rest = restCut;
+                return e.getKey();
+            }
+        }
+        return oldValue;
+    }
+
     private static String cutMatch(String rest, Matcher matcher) {
         return rest.substring(0, matcher.start()) + rest.substring(matcher.end());
     }
@@ -573,9 +618,7 @@ public class MovieFilenameScanner {
         MovieFilenameScanner.skipKeywords = skipKeywords;
         skipPatterns.clear();
         for (String s : skipKeywords) {
-            // adding Boundary \b, to match only : word.
-            skipPatterns.add(ipatt("\\b"+Pattern.quote(s)+"\\b"));
-            //skipPatterns.add(ipatt(Pattern.quote(s)));
+            skipPatterns.add(wpatt(Pattern.quote(s)));
         }
     }
     
@@ -624,5 +667,29 @@ public class MovieFilenameScanner {
     public String getFilename() {
         return filename;
     }
+    
+    /**
+     * Clear language detection patterns.
+     */
+    public static void clearLanguages() {
+        strictLanguageMap.clear();
+        looseLanguageMap.clear();
+    }
+    
+    /**
+     * Add new language detection pattern.
+     * @param key Language code.
+     * @param strictPattern Exact pattern for the first-pass detection.
+     * @param loosePattern Loose pattern for second-pass detection.   
+     */
+    public static void addLanguage(String key, String strictPattern, String loosePattern) {
+        strictLanguageMap.put(key, strictPattern);
+        looseLanguageMap.put(key, loosePattern);
+    }
 
+    public static void setSourceKeywords(List<String> keywords, Map<String, String> keywordMap) {
+        videoSourceMap.clear();
+        videoSourceMap.putAll(keywords, keywordMap);
+    }
+    
 }

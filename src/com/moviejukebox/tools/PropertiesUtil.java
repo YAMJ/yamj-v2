@@ -13,16 +13,27 @@
 
 package com.moviejukebox.tools;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.moviejukebox.scanner.MovieFilenameScanner;
 
 /**
  * 
@@ -78,4 +89,47 @@ public class PropertiesUtil {
     public static void setProperty(String key, String value) {
         props.setProperty(key, value);
     }
+    
+    /**
+     * Store list (ordered) and keyword map.
+     */
+    public static class KeywordMap extends HashMap<String, String> {
+        private final List<String> keywords = new ArrayList<String>();
+        
+        public List<String> getKeywords() {
+            return keywords;
+        }
+    }
+    
+    /**
+     * Collect keywords list and appropriate keyword values.<br>
+     * Example:<br>
+     * my.languages = EN,FR<br>
+     * my.languages.EN = English<br>
+     * my.languages.FR = French<br>
+     * 
+     * @param prefix Key for keywords list and prefix for value searching.
+     * @return Ordered keyword list and map.
+     */
+    public static KeywordMap getKeywordMap(String prefix, String defaultValue) {
+        KeywordMap m = new KeywordMap();
+
+        String languages = getProperty(prefix, defaultValue);
+        if (!isBlank(languages)) {
+            for (String lang : languages.split("[ ,]+")) {
+                lang = StringUtils.trimToNull(lang);
+                if (lang == null) {
+                    continue;
+                }
+                m.keywords.add(lang);
+                String values = getProperty(prefix + lang);
+                if (values != null) {
+                    m.put(lang, values);
+                }
+            }
+        }
+        
+        return m;
+    }
+    
 }
