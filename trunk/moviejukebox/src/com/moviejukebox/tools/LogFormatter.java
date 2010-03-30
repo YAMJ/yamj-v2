@@ -21,8 +21,12 @@ public class LogFormatter extends java.util.logging.Formatter
     public synchronized String format(LogRecord logRecord) {
         String logMessage = logRecord.getMessage();
         
-        for (String ApiKey : API_KEYS) {
-            logMessage = logMessage.replace(ApiKey, "[APIKEY]");
+        try {
+            for (String ApiKey : API_KEYS) {
+                logMessage = logMessage.replace(ApiKey, "[APIKEY]");
+            }
+        } catch (Exception error) {
+            // We don't care about this error really.
         }
         
         logMessage = logPrefix() + logMessage + EOL;
