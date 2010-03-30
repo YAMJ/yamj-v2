@@ -8,6 +8,7 @@ MovieJukebox 2.0 BETA
   - Enhancement   #357 Use XBMC episodedetails NFO to override TV episode information
   - Enhancement   #409 Enhance language/flags functionality
   - Enhancement  #1034 Multiple Language detect
+  - Enhancement  #1042 TVRage.com scraper (Beta Release Only)
   - Enhancement  #1279 Delete temp folders on YAMJ exit
   - Enhancement  #1294 Flag support for Filipino (Tagalog) language
   - Fixed defect #1344 OpenSubtitles plugin error

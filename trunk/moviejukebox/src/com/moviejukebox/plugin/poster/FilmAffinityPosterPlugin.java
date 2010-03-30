@@ -71,7 +71,7 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
                     }
                 }
             }
-            logger.fine("FilmAffinity Search URL: " + sb.toString());
+            logger.finest("FilmAffinity Search URL: " + sb.toString());
             
             String url = webBrowser.getUrl(sb.toString());
             String startSearchString = "/es/film";
