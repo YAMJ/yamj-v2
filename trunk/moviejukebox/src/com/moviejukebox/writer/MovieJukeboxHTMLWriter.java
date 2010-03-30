@@ -400,8 +400,24 @@ public class MovieJukeboxHTMLWriter {
             
             FileTools.addJukeboxFile(filename + ".xml");
             FileTools.addJukeboxFile(filename + ".html");            
+            
+            File transformCatKey = new File(skinHome, FileTools.makeSafeFilename(categoryName + "_" + key) + ".xsl");
+            File transformCategory = new File(skinHome, FileTools.makeSafeFilename(categoryName) + ".xsl");
+            File transformBase = new File(skinHome, "index.xsl");
 
-            Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
+            Transformer transformer;
+            
+            if (transformCatKey.exists()) {
+                logger.finest("HTMLWriter: Using CategoryKey transformation " + transformCatKey.getName() + " for " + xmlFile.getName());
+                transformer = getTransformer(transformCatKey, rootPath);
+            } else if (transformCategory.exists()) {
+                logger.finest("HTMLWriter: Using Category transformation " + transformCategory.getName() + " for " + xmlFile.getName());
+                transformer = getTransformer(transformCategory, rootPath);
+            } else {
+                transformer = getTransformer(transformBase, rootPath);
+            }
+
+            //Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
 
             FileOutputStream outStream = new FileOutputStream(htmlFile);
             Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
