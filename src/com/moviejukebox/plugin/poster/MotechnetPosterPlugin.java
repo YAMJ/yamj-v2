@@ -50,8 +50,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
         try {
             StringBuffer sb = new StringBuffer("http://www.google.com/cse?cx=partner-pub-1232145664289710%3Aleabr0-srj4&cof=FORID%3A10&ie=ISO-8859-1&q=");
             sb.append(URLEncoder.encode(title, "ISO-8859-1"));
-            sb
-                            .append("&sa=Search&siteurl=www.motechposters.com%2F&ad=w9&num=10&rurl=http%3A%2F%2Fwww.motechposters.com%2Fsearch%2F%3Fcx%3Dpartner-pub-1232145664289710%253Aleabr0-srj4%26cof%3DFORID%253A10%26ie%3DISO-8859-1%26q%3Dgladiator%26sa%3DSearch%26siteurl%3Dwww.motechposters.com%252F");
+            sb.append("&sa=Search&siteurl=www.motechposters.com%2F&ad=w9&num=10&rurl=http%3A%2F%2Fwww.motechposters.com%2Fsearch%2F%3Fcx%3Dpartner-pub-1232145664289710%253Aleabr0-srj4%26cof%3DFORID%253A10%26ie%3DISO-8859-1%26q%3Dgladiator%26sa%3DSearch%26siteurl%3Dwww.motechposters.com%252F");
             String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));
             List<String> results = getResult(xml);
 
@@ -70,8 +69,12 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                         }
                     }
                 }
-                if (!Movie.UNKNOWN.equalsIgnoreCase(response)) {
-                    response = response.substring(0, response.indexOf("/\""));
+                
+                if (!response.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    int pos = response.indexOf("/");
+                    if (pos > -1) {
+                        response = response.substring(0, pos);
+                    }
                 }
             }
         } catch (Exception error) {
