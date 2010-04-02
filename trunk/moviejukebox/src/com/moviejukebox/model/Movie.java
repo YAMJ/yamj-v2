@@ -317,15 +317,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public String getStrippedTitleSort() {
-        String text = titleSort;
-        String lowerText = text.toLowerCase();
-
-        for (String prefix : sortIgnorePrefixes) {
-            if (lowerText.startsWith(prefix.toLowerCase())) {
-                text = text.substring(prefix.length());
-                break;
-            }
-        }
+        String text = getStrippedTitle(titleSort);
 
         // Added season to handle properly sorting the season numbers
         if (season >= 0) {
@@ -338,6 +330,24 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
 
         return text + " (" + this.getYear() + ") " + season;
+    }
+    
+    /**
+     * Remove the sorting strip prefix from the title
+     * @param title
+     * @return
+     */
+    private String getStrippedTitle(String title) {
+        String lowerTitle = title.toLowerCase();
+        
+        for (String prefix : sortIgnorePrefixes) {
+            if (lowerTitle.startsWith(prefix.toLowerCase())) {
+                title = title.substring(prefix.length());
+                break;
+            }
+        }
+        
+        return title;
     }
 
     @Override
@@ -1295,8 +1305,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.scrapeLibrary = scrapeLibrary;
     }
 
-    public static ArrayList<String> getSortIgnorePrefixes() {
-        return sortIgnorePrefixes;
+    public static void addSortIgnorePrefixes(String prefix) {
+        sortIgnorePrefixes.add(prefix);
     }
 
     public Object clone() {
