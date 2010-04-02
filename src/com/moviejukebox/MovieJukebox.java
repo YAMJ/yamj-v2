@@ -291,7 +291,7 @@ public class MovieJukebox {
                 if (token.startsWith("\"") && token.endsWith("\"")) {
                     token = token.substring(1, token.length() - 1);
                 }
-                Movie.getSortIgnorePrefixes().add(token.toLowerCase());
+                Movie.addSortIgnorePrefixes(token.toLowerCase());
             }
         }
 
