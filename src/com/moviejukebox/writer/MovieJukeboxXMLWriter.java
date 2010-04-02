@@ -1009,7 +1009,11 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
             // Fixes an issue with null file lengths
             try {
-                writer.writeAttribute("size", Long.toString(mf.getFile().length()));
+                if (mf.getFile() == null) {
+                    writer.writeAttribute("size", "0");
+                } else {
+                    writer.writeAttribute("size", Long.toString(mf.getFile().length()));
+                }
             } catch (Exception error) {
                 logger.finest("XML Writer: File length error for file " + mf.getFilename());
                 writer.writeAttribute("size", "0");
