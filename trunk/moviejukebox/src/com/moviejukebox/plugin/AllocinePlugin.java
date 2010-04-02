@@ -68,10 +68,20 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.addGenre(Library.getIndexingGenre(removeOpenedHtmlTags(genre)));
             }
 
-            // movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml,
-            // "<h5>Certification:</h5>", "</div>",
-            // "<a href=\"/List?certificates=", "</a>")));
-
+            /*
+             * Per user request Issue 1389
+             * If a film does not have a certification - The phrase "Interdit aux moins de" is not found the "All" will be used
+             * Otherwise the "??" value from "Interdit aux moins de ??" will be used 
+             */
+            int pos = xml.indexOf("Interdit aux moins de"); 
+            if (pos == -1) {
+                // Not found, so use "All"
+                movie.setCertification("All");
+            } else {
+                // extract the age and use that as the certification
+                movie.setCertification(HTMLTools.extractTag(xml, "Interdit aux moins de ", " ans"));
+            }
+            
             if (movie.isOverrideYear()) {
                 movie.setYear(removeOpenedHtmlTags(HTMLTools.extractTag(xml, "en <a href=\"/series/toutes/", "</a>")));
                 // logger.finest("AllocinePlugin: TV Show year = " + movie.getYear());
@@ -248,9 +258,20 @@ public class AllocinePlugin extends ImdbPlugin {
                     movie.addGenre(removeOpenedHtmlTags(genre));
                 }
             }
-            // movie.setCertification(getPreferredValue(HTMLTools.extractTags(xml,
-            // "<h5>Certification:</h5>", "</div>",
-            // "<a href=\"/List?certificates=", "</a>")));
+
+            /*
+             * Per user request Issue 1389
+             * If a film does not have a certification - The phrase "Interdit aux moins de" is not found the "All" will be used
+             * Otherwise the "??" value from "Interdit aux moins de ??" will be used 
+             */
+            int pos = xml.indexOf("Interdit aux moins de"); 
+            if (pos == -1) {
+                // Not found, so use "All"
+                movie.setCertification("All");
+            } else {
+                // extract the age and use that as the certification
+                movie.setCertification(HTMLTools.extractTag(xml, "Interdit aux moins de ", " ans"));
+            }
 
             if (!movie.isOverrideYear()) {
                 String aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année d e production : ", "</a>"));
