@@ -207,19 +207,23 @@ public class MovieFile implements Comparable<MovieFile> {
         }
         return title.toString();
     }
+    
 
     public boolean hasTitle() {
         return !(titles.size()==0);
     }
+    
 
     @XmlAttribute
     public boolean isNewFile() {
         return newFile;
     }
+    
 
     public void setNewFile(boolean newFile) {
         this.newFile = newFile;
     }
+    
 
     @XmlAttribute
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
@@ -230,6 +234,7 @@ public class MovieFile implements Comparable<MovieFile> {
     public void setSubtitlesExchange(boolean subtitlesExchange) {
         this.subtitlesExchange = subtitlesExchange;
     }
+    
 
     @XmlAttribute
     public long getSize() {
@@ -237,6 +242,7 @@ public class MovieFile implements Comparable<MovieFile> {
             return 0;
         return getFile().length();
     }
+    
 
     /*
      * Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to,
@@ -264,22 +270,34 @@ public class MovieFile implements Comparable<MovieFile> {
     public int compareTo(MovieFile anotherMovieFile) {
         return this.getFirstPart() - anotherMovieFile.getFirstPart();
     }
+    
 
     @XmlTransient
     public File getFile() {
         return file;
     }
+    
 
     public void setFile(File file) {
         this.file = file;
     }
+    
 
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
 
         info = dto;
-
-        // TODO do not skip titles (store all provided)
-        setTitle(dto.isExtra() ? dto.getPartTitle() : (dto.getSeason() >= 0 ? dto.getEpisodeTitle() : dto.getPartTitle()));
+        
+        // Set the part title, keeping each episode title
+        if (dto.isExtra()) {
+            setTitle(dto.getPartTitle());
+        } else if (dto.getSeason() >= 0) {
+            // Set the episode title for each of the episodes in the file
+            for (int episodeNumber : dto.getEpisodes()) {
+                setTitle(episodeNumber, dto.getEpisodeTitle());
+            }
+        } else {
+            setTitle(dto.getPartTitle());
+        }
 
         if (dto.getEpisodes().size() > 0) {
             lastPart = 0;
@@ -307,11 +325,13 @@ public class MovieFile implements Comparable<MovieFile> {
             setTitle(dto.getPartTitle());
         }
     }
+    
 
     @XmlElement
     public MovieFileNameDTO getInfo() {
         return info;
     }
+    
 
     public void setInfo(MovieFileNameDTO info) {
         this.info = info;
@@ -323,10 +343,12 @@ public class MovieFile implements Comparable<MovieFile> {
         // }
         return playLink;
     }
+    
 
     public void addPlayLink(String key, String value) {
         playLink.put(key, value);
     }
+    
 
     public void setPlayLink(Map<String, String> playLink) {
         if (playLink == null || playLink.equals("")) {
@@ -335,6 +357,7 @@ public class MovieFile implements Comparable<MovieFile> {
             this.playLink = playLink;
         }
     }
+    
 
     public static class PartDataDTO {
         @XmlAttribute
@@ -342,6 +365,7 @@ public class MovieFile implements Comparable<MovieFile> {
         @XmlValue
         public String value;
     }
+    
 
     @XmlElement(name = "filePlot")
     public List<PartDataDTO> getFilePlots() {
@@ -349,10 +373,12 @@ public class MovieFile implements Comparable<MovieFile> {
             return null;
         return toPartDataList(plots);
     }
+    
 
     public void setFilePlots(List<PartDataDTO> list) {
         fromPartDataList(plots, list);
     }
+    
 
     @XmlElement(name = "fileImageURL")
     public List<PartDataDTO> getFileImageUrls() {
@@ -360,10 +386,12 @@ public class MovieFile implements Comparable<MovieFile> {
             return null;
         return toPartDataList(videoImageURL);
     }
+    
 
     public void setFileImageUrls(List<PartDataDTO> list) {
         fromPartDataList(videoImageURL, list);
     }
+    
 
     @XmlElement(name = "fileImageFile")
     public List<PartDataDTO> getFileImageFiles() {
@@ -371,10 +399,12 @@ public class MovieFile implements Comparable<MovieFile> {
             return null;
         return toPartDataList(videoImageFilename);
     }
+    
 
     public void setFileImageFiles(List<PartDataDTO> list) {
         fromPartDataList(videoImageFilename, list);
     }
+    
 
     private static List<PartDataDTO> toPartDataList(LinkedHashMap<Integer, String> map) {
         List<PartDataDTO> list = new ArrayList<PartDataDTO>();
@@ -386,6 +416,7 @@ public class MovieFile implements Comparable<MovieFile> {
         }
         return list;
     }
+    
 
     private static void fromPartDataList(LinkedHashMap<Integer, String> map, List<PartDataDTO> list) {
         map.clear();
@@ -393,11 +424,10 @@ public class MovieFile implements Comparable<MovieFile> {
             map.put(p.part, p.value);
         }
     }
+    
 
     /**
      * Calculate the playlink additional information for the file
-     * 
-     * TODO: Check if the method is used anywhere (impossible to use in XSL). Remove.
      */
     private Map<String, String> calculatePlayLink() {
         Map<String, String> playLinkMap = new HashMap<String, String>();
@@ -441,6 +471,7 @@ public class MovieFile implements Comparable<MovieFile> {
 
         return playLinkMap;
     }
+    
 
     /**
      * Return the extension of the file, this will be blank for directories
