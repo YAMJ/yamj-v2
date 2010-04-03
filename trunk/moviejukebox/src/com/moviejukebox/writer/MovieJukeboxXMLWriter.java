@@ -45,7 +45,7 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Library.Index;
+import com.moviejukebox.model.Index;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -529,7 +529,7 @@ public class MovieJukeboxXMLWriter {
         
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
 
-        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {            
+        for (final Map.Entry<String, Index> category : library.getIndexes().entrySet()) {            
             final String categoryName = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
 
@@ -654,10 +654,11 @@ public class MovieJukeboxXMLWriter {
 
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("library");
-
-            for (Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
+            
+            for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
                 String categoryKey = category.getKey();
                 Map<String, List<Movie>> index = category.getValue();
+                
                 writer.writeStartElement("category");
                 writer.writeAttribute("name", categoryKey);
                 if (categoryKey.equalsIgnoreCase(categoryName)) {
@@ -686,8 +687,6 @@ public class MovieJukeboxXMLWriter {
                         writer.writeAttribute("last", prefix + last);
                         writer.writeAttribute("currentIndex", Integer.toString(current));
                         writer.writeAttribute("lastIndex", Integer.toString(last));
-                        // logger.fine("**********");
-                        // logger.fine("Index (" + akey + "): "+ index.get(akey).toString());
                     }
 
                     writer.writeCharacters(prefix + '1');
@@ -779,7 +778,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     private String createIndexAttribute(Library l, String cat, String val) throws XMLStreamException {
-        Library.Index i = l.getIndexes().get(cat);
+        Index i = l.getIndexes().get(cat);
         if (null != i) {
             if (l.getMovieCountForIndex(cat, val) >= categoriesMinCount) {
                 return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(cat, val)) + 1);

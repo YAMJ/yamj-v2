@@ -18,7 +18,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.moviejukebox.model.Library.Index;
+import com.moviejukebox.model.Index;
 import com.moviejukebox.tools.PropertiesUtil;
 
 

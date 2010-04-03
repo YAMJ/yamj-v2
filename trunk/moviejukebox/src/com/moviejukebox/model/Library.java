@@ -47,61 +47,6 @@ public class Library implements Map<String, Movie> {
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
 
-    public static class Index extends TreeMap<String, List<Movie>> {
-        private int maxCategories = -1;
-        private boolean display = true;
-
-        private static final long serialVersionUID = -6240040588085931654L;
-
-        public Index(Comparator<? super String> comp) {
-            super(comp);
-        }
-
-        public Index() {
-            super();
-        }
-
-        public Index(boolean display) {
-            this();
-            this.display = display;
-        }
-
-        public boolean display() {
-            return display;
-        }
-
-        protected void addMovie(String category, Movie movie) {
-            if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase(Movie.UNKNOWN)) {
-                return;
-            }
-
-            if (movie == null) {
-                return;
-            }
-
-            List<Movie> list = get(category);
-
-            if (list == null) {
-                if (maxCategories > 0 && size() >= maxCategories) {
-                    return;
-                }
-                list = new ArrayList<Movie>();
-                put(category, list);
-            }
-            if (!list.contains(movie)) {
-                list.add(movie);
-            }
-        }
-
-        public int getMaxCategories() {
-            return maxCategories;
-        }
-
-        public void setMaxCategories(int maxCategories) {
-            this.maxCategories = maxCategories;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     private static class MovieSetComparator implements Comparator {
         private String set;
@@ -241,7 +186,7 @@ public class Library implements Map<String, Movie> {
         // logger.finest("Adding video " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isExtra()) {
-            logger.finest("  It's an extra: " + movie.getBaseName());
+            //logger.finest("  It's an extra: " + movie.getBaseName());
             extras.put(movie.getBaseName(), movie);
         } else if (existingMovie == null) {
             library.put(key, movie);
