@@ -19,9 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Map.Entry;
@@ -91,8 +93,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String subtitles = UNKNOWN;
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private SortedSet<String> genres = new TreeSet<String>();
-    private List<String> cast = new ArrayList<String>();
-    private List<String> writers = new ArrayList<String>();
+    private Set<String> cast = new HashSet<String>();
+    private Set<String> writers = new HashSet<String>();
+    //private List<String> cast = new ArrayList<String>();
+    //private List<String> writers = new ArrayList<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
@@ -713,7 +717,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setCast(Collection<String> cast) {
         this.isDirty = true;
-        this.cast = new ArrayList<String>(cast);
+        this.cast = new HashSet<String>(cast);
     }
 
     public void addWriter(String writer) {
@@ -725,7 +729,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setWriters(Collection<String> writers) {
         this.isDirty = true;
-        this.writers = new ArrayList<String>(writers);
+        this.writers = new HashSet<String>(writers);
     }
 
     public void setCompany(String company) {

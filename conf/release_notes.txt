@@ -25,6 +25,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1386 Keep previously scanned movies parameter causes playLink error
   - Enhancement  #1389 Allocine now gets certifications
   - Fixed defect #1394 TV Series Episode names not picked up from filename
+  - Fixed defect #1399 Keep previously scanned movies parameter causes <cast> duplicate name
 
 MovieJukebox 1.9 (r1500)
 ------------------------
