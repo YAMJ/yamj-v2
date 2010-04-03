@@ -42,6 +42,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import com.moviejukebox.model.Index;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -299,7 +300,7 @@ public class MovieJukeboxHTMLWriter {
 
     public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, final Library library, int threadcount) throws Throwable {
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
-        for (final Map.Entry<String, Library.Index> category : library.getIndexes().entrySet()) {
+        for (final Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
             tasks.submit(new Callable<Void>() {
                 public Void call() {
                     int nbVideosPerPage;
