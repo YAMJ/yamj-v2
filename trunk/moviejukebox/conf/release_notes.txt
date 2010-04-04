@@ -18,6 +18,7 @@ MovieJukebox 2.0 BETA
   - Enhancement  #1355 Support for multiple NFO file extensions
   - Enhancement  #1356 Option to accept all found NFO files in a directory
   - Enhancement  #1362 Improve search accuracy for FilmAffinity plugin
+  - Fixed defect #1363 Subtitles not being downloaded for new TV Show episodes
   - Enhancement  #1365 Allocine Plugin: Fallback to release date if production date isn't available
   - Fixed defect #1367 PART title processing broke
   - Fixed defect #1376 Null Pointer Exception in MovieDirectoryScanner

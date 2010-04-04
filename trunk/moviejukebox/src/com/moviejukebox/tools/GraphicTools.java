@@ -91,7 +91,7 @@ public class GraphicTools {
     }
 
     public static void saveImageAsJpeg(BufferedImage bi, String filename) {
-        if (bi == null || filename == null) {
+        if (bi == null || filename == null || filename.equalsIgnoreCase("")) {
             return;
         }
 
@@ -100,7 +100,8 @@ public class GraphicTools {
             BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
             bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
 
-            ImageIO.write(bufImage, "jpg", new File(filename));
+            File outputFile = new File(filename);
+            ImageIO.write(bufImage, "jpg", outputFile);
 
         } catch (Exception error) {
             logger.severe("GraphicsTools: Failed Saving thumbnail file: " + filename);
@@ -118,7 +119,8 @@ public class GraphicTools {
 
         // save image as PNG
         try {
-            ImageIO.write(bi, "png", new File(filename));
+            File outputFile = new File(filename);
+            ImageIO.write(bi, "png", outputFile);
         } catch (Exception error) {
             logger.severe("GraphicsTools: Failed Saving thumbnail file: " + filename);
             final Writer eResult = new StringWriter();

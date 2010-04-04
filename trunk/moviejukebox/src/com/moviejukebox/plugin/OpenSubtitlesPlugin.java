@@ -44,7 +44,8 @@ public class OpenSubtitlesPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
-    private static String useragent = "Yet Another Movie Jukebox v2.0";
+    private static String useragent = "moviejukebox 1.0.15";
+    //private static String useragent = "Yet Another Movie Jukebox";
     private static String OSdbServer = "http://api.opensubtitles.org/xml-rpc";
     private static String token = "";
     private static String sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
@@ -110,7 +111,7 @@ public class OpenSubtitlesPlugin {
 
     public void generate(Movie movie) {
 
-        if (movie.getSubtitles().equalsIgnoreCase(Movie.UNKNOWN) || movie.getSubtitles().equalsIgnoreCase("NO")) {
+        if (movie.getSubtitles().equalsIgnoreCase(Movie.UNKNOWN) || movie.getSubtitles().equalsIgnoreCase("NO") || movie.isTVShow()) {
             // Check if subtitle language was selected
             if (sublanguageid.equals("")) {
                 return;
@@ -124,6 +125,7 @@ public class OpenSubtitlesPlugin {
 
             // Check that the login was successful
             if (token.equals("")) {
+                logger.finest("OpenSubtitles Plugin: Login failed");
                 return;
             }
 
@@ -153,6 +155,7 @@ public class OpenSubtitlesPlugin {
             }
 
             if (allSubtitleExchange) {
+                logger.finest("OpenSubtitles Plugin: All subtitles exist for " + movie.getTitle());
                 return;
             }
 
@@ -220,7 +223,7 @@ public class OpenSubtitlesPlugin {
                 }
             }
         } else {
-            logger.finest("Skipping subtitle download for " + movie.getTitle() +", subtitles already exist: " + movie.getSubtitles());
+            logger.finest("OpenSubtitles Plugin: Skipping subtitle download for " + movie.getTitle() +", subtitles already exist: " + movie.getSubtitles());
         }
     }
 
@@ -258,7 +261,7 @@ public class OpenSubtitlesPlugin {
             }
 
             if (subDownloadLink.equals("")) {
-                logger.finer("OpenSubtitles Plugin: Subtitle not found for " + movie.getBaseName());
+                logger.finer("OpenSubtitles Plugin: Subtitle not found for " + movieFile.getName());
                 return false;
             }
 
@@ -520,7 +523,7 @@ public class OpenSubtitlesPlugin {
         while (in.hasNextLine()) {
             str += in.nextLine();
         }
-        ;
+
         return str;
     }
 
