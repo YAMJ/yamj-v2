@@ -14,7 +14,6 @@
 // Based on some code from the opensubtitles.org subtitle upload java applet
 package com.moviejukebox.plugin;
 
-// import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,14 +76,14 @@ public class OpenSubtitlesPlugin {
                 token = getValue("token", ret);
                 if (token.equals("")) {
                     logger.severe("OpenSubtitles Plugin: Login error." + "\n" + ret);
+                } else {
+                    logger.severe("OpenSubtitles Plugin: Login successful.");
                 }
                 // String l1 = login.equals("") ? "Anonymous" : login;
             }
-            ;
         } catch (Exception error) {
             logger.severe("OpenSubtitles Plugin: Login Failed");
         }
-        ;
     }
 
     public static void logOut() {
@@ -156,7 +155,8 @@ public class OpenSubtitlesPlugin {
 
             if (allSubtitleExchange) {
                 logger.finest("OpenSubtitles Plugin: All subtitles exist for " + movie.getTitle());
-                return;
+                // Don't return yet, we might want to upload the files.
+                //return;
             }
 
             // Check if all files have subtitle , or this is a tv show, that each episode is by itself
@@ -229,7 +229,6 @@ public class OpenSubtitlesPlugin {
 
     private boolean subtitleDownload(Movie movie, File movieFile, File subtitleFile) {
         try {
-
             String ret;
             String xml;
 
@@ -375,7 +374,7 @@ public class OpenSubtitlesPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.severe("OpenSubtitles Plugin: Update Failed");
+            logger.severe("OpenSubtitles Plugin: Upload Failed");
             return false;
         }
     }
