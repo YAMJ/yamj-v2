@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -184,6 +185,8 @@ public class WebBrowser {
                     // we have http connections, so these are always valid
                     cnx.getInputStream().close();
                     //cnx.getOutputStream().close();
+                    if(cnx instanceof HttpURLConnection)
+                      ((HttpURLConnection)cnx).disconnect();
                 }
             }
             return content.toString();
