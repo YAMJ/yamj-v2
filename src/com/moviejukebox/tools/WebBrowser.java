@@ -160,9 +160,9 @@ public class WebBrowser {
             content = new StringWriter();
 
             BufferedReader in = null;
+            URLConnection cnx = null;
             try {
-                URLConnection cnx = openProxiedConnection(url);
-
+                cnx = openProxiedConnection(url);
                 sendHeader(cnx);
                 readHeader(cnx);
 
@@ -177,6 +177,12 @@ public class WebBrowser {
             } finally {
                 if (in != null) {
                     in.close();
+                }
+                if (cnx != null) {
+                    // attempt to force close connection
+                    // we have http connections, so these are always valid
+                    cnx.getInputStream().close();
+                    cnx.getOutputStream().close();
                 }
             }
             return content.toString();
