@@ -182,7 +182,7 @@ public class WebBrowser {
                     // attempt to force close connection
                     // we have http connections, so these are always valid
                     cnx.getInputStream().close();
-                    cnx.getOutputStream().close();
+                    //cnx.getOutputStream().close();
                 }
             }
             return content.toString();
