@@ -241,6 +241,9 @@ public class MovieJukebox {
             return;
         }
 
+        // Load the skin-user.properties file (ignore the error)
+        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin-user.properties");
+
         // Load the apikeys.properties file
         if (!setPropertiesStreamName("./properties/apikeys.properties")) {
             return;
