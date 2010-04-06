@@ -195,6 +195,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         break;
                     }
                 }
+                else 
+                    newTitle = originalTitle;
             }
 
             // Plot
