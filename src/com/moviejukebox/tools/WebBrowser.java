@@ -164,8 +164,6 @@ public class WebBrowser {
             try {
                 cnx = openProxiedConnection(url);
                 
-                checkRequest(url.getHost(), cnx);
-
                 sendHeader(cnx);
                 readHeader(cnx);
 
@@ -218,8 +216,6 @@ public class WebBrowser {
             try {
                 URLConnection cnx = url.openConnection();
 
-                checkRequest(imageURL, cnx);
-                
                 if (mjbProxyUsername != null) {
                     cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
                 }
@@ -251,8 +247,8 @@ public class WebBrowser {
      * @param URL   The URL to check
      * @param cnx   The connection that has been opened
      */
-    private void checkRequest(String checkUrl, URLConnection checkCnx) {
-        checkUrl = checkUrl.toLowerCase();
+    private void checkRequest(URLConnection checkCnx) {
+        String checkUrl = checkCnx.getURL().getHost().toLowerCase();
 
         // TODO: Move these workarounds into a property file so they can be overridden at runtime 
 
@@ -266,6 +262,8 @@ public class WebBrowser {
             checkCnx.setRequestProperty("Accept-Language", "ru");
             checkCnx.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6");
         }
+        
+        return;
     }
 
     private void sendHeader(URLConnection cnx) {
@@ -273,11 +271,14 @@ public class WebBrowser {
         for (Map.Entry<String, String> browserProperty : browserProperties.entrySet()) {
             cnx.setRequestProperty(browserProperty.getKey(), browserProperty.getValue());
         }
+        
         // send cookies
         String cookieHeader = createCookieHeader(cnx);
         if (!cookieHeader.isEmpty()) {
             cnx.setRequestProperty("Cookie", cookieHeader);
         }
+        
+        checkRequest(cnx);
     }
 
     private String createCookieHeader(URLConnection cnx) {
