@@ -163,6 +163,9 @@ public class WebBrowser {
             URLConnection cnx = null;
             try {
                 cnx = openProxiedConnection(url);
+                
+                checkRequest(url.getHost(), cnx);
+
                 sendHeader(cnx);
                 readHeader(cnx);
 
@@ -215,19 +218,8 @@ public class WebBrowser {
             try {
                 URLConnection cnx = url.openConnection();
 
-                // TODO: Move these workarounds into a property file so they can be overridden at runtime 
+                checkRequest(imageURL, cnx);
                 
-                // A workaround for the need to use a referrer for thetvdb.com
-                if (imageURL.toLowerCase().indexOf("thetvdb") > 0)
-                    cnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
-
-                // A workaround for the kinopoisk.ru site
-                if (url.getHost().toLowerCase().indexOf("kinopoisk") > 0) {
-                    cnx.setRequestProperty("Accept", "text/html, text/plain");
-                    cnx.setRequestProperty("Accept-Language", "ru");
-                    cnx.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6");
-                }
-
                 if (mjbProxyUsername != null) {
                     cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
                 }
@@ -251,6 +243,28 @@ public class WebBrowser {
         }
         if (!success) {
             logger.finest("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
+        }
+    }
+    
+    /**
+     * Check the URL to see if it's one of the special cases that needs to be worked around
+     * @param URL   The URL to check
+     * @param cnx   The connection that has been opened
+     */
+    private void checkRequest(String checkUrl, URLConnection checkCnx) {
+        checkUrl = checkUrl.toLowerCase();
+
+        // TODO: Move these workarounds into a property file so they can be overridden at runtime 
+
+        // A workaround for the need to use a referrer for thetvdb.com
+        if (checkUrl.indexOf("thetvdb") > 0)
+            checkCnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
+
+        // A workaround for the kinopoisk.ru site
+        if (checkUrl.indexOf("kinopoisk") > 0) {
+            checkCnx.setRequestProperty("Accept", "text/html, text/plain");
+            checkCnx.setRequestProperty("Accept-Language", "ru");
+            checkCnx.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6");
         }
     }
 
