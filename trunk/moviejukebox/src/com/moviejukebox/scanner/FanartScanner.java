@@ -50,6 +50,7 @@ public class FanartScanner {
     protected static String[] fanartExtensions;
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
+    protected static boolean useFolderBackground;
 
     static {
 
@@ -64,6 +65,10 @@ public class FanartScanner {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 
         fanartOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceFanartOverwrite", "false"));
+        
+        // See if we use background.* or fanart.*
+        useFolderBackground = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.useFolderImage", "false"));
+
     }
 
     public static boolean scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
@@ -104,6 +109,39 @@ public class FanartScanner {
                 if (localFanartFile.exists()) {
                     logger.finest("FanartScanner: File " + fullFanartFilename + " found");
                     foundLocalFanart = true;
+                }
+            }
+        }
+        
+        // Check for fanart.* and background.* fanart.
+        if (!foundLocalFanart && useFolderBackground) {
+            localFanartBaseFilename = "fanart";
+            
+            // Checking for the fanart.*
+            fullFanartFilename = movie.getFile().getParent() + File.separator + "fanart";
+            foundExtension = findFanartFile(fullFanartFilename, fanartExtensions);
+            if (!foundExtension.equals("")) {
+                // The filename and extension was found
+                fullFanartFilename += foundExtension;
+                localFanartFile = new File(fullFanartFilename);
+                if (localFanartFile.exists()) {
+                    logger.finest("FanartScanner: File " + fullFanartFilename + " found");
+                    foundLocalFanart = true;
+                }
+            }
+
+            if (!foundLocalFanart) {
+                // Checking for the background.*
+                fullFanartFilename = movie.getFile().getParent() + File.separator + "background";
+                foundExtension = findFanartFile(fullFanartFilename, fanartExtensions);
+                if (!foundExtension.equals("")) {
+                    // The filename and extension was found
+                    fullFanartFilename += foundExtension;
+                    localFanartFile = new File(fullFanartFilename);
+                    if (localFanartFile.exists()) {
+                        logger.finest("FanartScanner: File " + fullFanartFilename + " found");
+                        foundLocalFanart = true;
+                    }
                 }
             }
         }
