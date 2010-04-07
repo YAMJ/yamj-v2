@@ -105,7 +105,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String sb = movieName;
             // Unaccenting letters 
             sb = Normalizer.normalize(sb, Normalizer.Form.NFD);
-            sb = sb.replaceAll("[^\\p{ASCII}]","");
+            sb = sb.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
             sb = "&m_act[find]=" + URLEncoder.encode(sb, "UTF-8").replace(" ", "+");
 
