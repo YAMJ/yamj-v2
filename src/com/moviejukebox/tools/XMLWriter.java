@@ -13,8 +13,10 @@
 
 package com.moviejukebox.tools;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.logging.Logger;
 import javax.xml.stream.XMLOutputFactory;
@@ -33,17 +35,25 @@ public class XMLWriter {
 
     private boolean wasPrevElement = true;
 
+    private ByteArrayOutputStream outputStream; 
+    private FileOutputStream fileStream;
     private PrintWriter printWriter;
     private XMLStreamWriter writer;
 
     private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 
     public XMLWriter(File xmlFile) {
         try {
-            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            FileOutputStream outputStream = new FileOutputStream(xmlFile);
+            // output stream is a byte array, so flushing has no effect 
+            outputStream = new ByteArrayOutputStream(256*1024);
             printWriter = new PrintWriter(outputStream);
-            writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");
+            synchronized(outputFactory){
+                writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");                
+            }
+            // the content is saved only at the end, but created here for early exception detection
+            // no need for buffered write, because there is only 1 step
+            fileStream = new FileOutputStream(xmlFile);
         } catch (Exception ex) {
             logger.severe("Error creating XML file: " + xmlFile);
         }
@@ -51,15 +61,13 @@ public class XMLWriter {
 
     public void writeStartDocument(String encoding, String version) throws XMLStreamException {
         writer.writeStartDocument(encoding, version);
-        writer.flush();
     }
 
     public void writeEndDocument() throws XMLStreamException {
         writer.writeEndDocument();
-        writer.flush();
     }
 
-    public void flush() throws XMLStreamException {
+    private void flush() throws XMLStreamException {
         writer.flush();
     }
 
@@ -67,6 +75,10 @@ public class XMLWriter {
         try {
             writer.close();
             printWriter.close();
+            outputStream.close();
+            //ByteArrayOutputStream can save after closing 
+            outputStream.writeTo(fileStream);
+            fileStream.close();
         } catch (Exception ignore) {}
     }
 
@@ -78,7 +90,6 @@ public class XMLWriter {
 
         writer.writeStartElement(localName);
         indentCount++;
-        writer.flush();
         wasPrevElement = true;
     }
 
@@ -88,22 +99,20 @@ public class XMLWriter {
             printTab();
         }
         writer.writeEndElement();
-        writer.flush();
         wasPrevElement = true;
     }
 
     public void writeAttribute(String localName, String value) throws XMLStreamException {
         writer.writeAttribute(localName, value);
-        writer.flush();
     }
 
     public void writeCharacters(String text) throws XMLStreamException {
         writer.writeCharacters(text);
-        writer.flush();
         wasPrevElement = false;
     }
 
-    private void printTab() {
+    private void printTab() throws XMLStreamException {
+        writer.flush();
         printWriter.print("\n");
         for (int i = 0; i < indentCount; i++) {
             printWriter.print(indentString);

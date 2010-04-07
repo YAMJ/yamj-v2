@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -105,7 +106,7 @@ public class MovieJukeboxHTMLWriter {
             File finalHtmlFile = new File(rootPath, baseName + ".html");
             File tempHtmlFile = new File(tempFilename + ".html");
             Source xmlSource;
-            
+
             FileTools.addJukeboxFile(baseName + ".xml");
             FileTools.addJukeboxFile(baseName + ".html");
 
@@ -118,16 +119,15 @@ public class MovieJukeboxHTMLWriter {
                 // the original source directory
                 if (tempXmlFile.exists()) {
                     // Use the temp file
-                    xmlSource = new StreamSource(new FileInputStream(tempXmlFile));
+                    xmlSource = new StreamSource(FileTools.createFileInputStream(tempXmlFile));
                 } else {
                     // Use the file in the original directory
-                    xmlSource = new StreamSource(new FileInputStream(oldXmlFile));
+                    xmlSource = new StreamSource(FileTools.createFileInputStream(oldXmlFile));
                 }
-                FileOutputStream outStream = new FileOutputStream(tempHtmlFile);
+                OutputStream outStream = FileTools.createFileOutputStream(tempHtmlFile, 50*1024);
                 Result xmlResult = new StreamResult(outStream);
 
                 transformer.transform(xmlSource, xmlResult);
-                outStream.flush();
                 outStream.close();
             }
         } catch (Exception error) {
@@ -187,16 +187,15 @@ public class MovieJukeboxHTMLWriter {
 
                 if (tempXmlFile.exists()) {
                     // Use the temp file
-                    xmlSource = new StreamSource(new FileInputStream(tempXmlFile));
+                    xmlSource = new StreamSource(FileTools.createFileInputStream(tempXmlFile));
                 } else {
                     // Use the file in the original directory
-                    xmlSource = new StreamSource(new FileInputStream(oldXmlFile));
+                    xmlSource = new StreamSource(FileTools.createFileInputStream(oldXmlFile));
                 }
-                FileOutputStream outStream = new FileOutputStream(tempPlaylistFile);
+                OutputStream outStream = FileTools.createFileOutputStream(tempPlaylistFile, 50*1024);
                 Result xmlResult = new StreamResult(outStream);
 
                 transformer.transform(xmlSource, xmlResult);
-                outStream.flush();
                 outStream.close();
                 
                 fileNames.add(baseName + filenameSuffix);
@@ -282,12 +281,11 @@ public class MovieJukeboxHTMLWriter {
             
             Transformer transformer = getTransformer(new File(skinHome, "categories.xsl"), rootPath);
 
-            Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
-            FileOutputStream outStream = new FileOutputStream(htmlFile);
+            Source xmlSource = new StreamSource(FileTools.createFileInputStream(xmlFile));
+            OutputStream outStream = FileTools.createFileOutputStream(htmlFile, 50*1024);
             Result xmlResult = new StreamResult(outStream);
 
             transformer.transform(xmlSource, xmlResult);
-            outStream.flush();
             outStream.close();
         } catch (Exception error) {
             logger.severe("Failed generating HTML library category index.");
@@ -339,7 +337,7 @@ public class MovieJukeboxHTMLWriter {
             File htmlFile = new File(rootPath, PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             htmlFile.getParentFile().mkdirs();
 
-            FileOutputStream fos = new FileOutputStream(htmlFile);
+            OutputStream fos = FileTools.createFileOutputStream(htmlFile);
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
             XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
 
@@ -375,9 +373,7 @@ public class MovieJukeboxHTMLWriter {
 
             writer.writeEndElement();
             writer.writeEndElement();
-            writer.flush();
             writer.close();
-            fos.flush();
             fos.close();
         } catch (Exception error) {
             logger.severe("Failed generating HTML library index.");
@@ -420,12 +416,11 @@ public class MovieJukeboxHTMLWriter {
 
             //Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
 
-            FileOutputStream outStream = new FileOutputStream(htmlFile);
-            Source xmlSource = new StreamSource(new FileInputStream(xmlFile));
+            OutputStream outStream = FileTools.createFileOutputStream(htmlFile, 50*1024);
+            Source xmlSource = new StreamSource(FileTools.createFileInputStream(xmlFile));
             Result xmlResult = new StreamResult(outStream);
 
             transformer.transform(xmlSource, xmlResult);
-            outStream.flush();
             outStream.close();
         } catch (Exception error) {
             logger.severe("Failed generating HTML library index for Category: " + categoryName + ", Key: " + key + ", Page: " + page);
@@ -435,7 +430,7 @@ public class MovieJukeboxHTMLWriter {
             logger.severe(eResult.toString());
         }
     }
-    
+
     /**
      * Creates and caches Transformer, one for every xsl file.
      */

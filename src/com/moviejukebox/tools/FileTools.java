@@ -16,9 +16,12 @@ package com.moviejukebox.tools;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import static java.lang.Boolean.parseBoolean;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +49,15 @@ public class FileTools {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     final static int BUFF_SIZE = 100000;
-    final static byte[] buffer = new byte[BUFF_SIZE];
+
+    /**
+     * Gabriel Corneanu: One buffer for each thread to allow threaded copies
+     */
+    private final static ThreadLocal<byte[]> threadBuffer = new ThreadLocal<byte[]>() {
+        protected byte[] initialValue() {
+            return new byte[BUFF_SIZE];
+        };
+    };
     static Map<CharSequence, CharSequence> unsafeChars = new HashMap<CharSequence, CharSequence>();
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
@@ -73,20 +85,20 @@ public class FileTools {
         }
     }
 
-    public static int copy(InputStream is, OutputStream os) throws IOException {
-    	int bytesCopied = 0;
-    	try {
+    public static int copy(InputStream is, OutputStream os, WebStats stats) throws IOException {
+      int bytesCopied = 0;
+      byte[] buffer = threadBuffer.get(); 
+      try {
             while (true) {
-                synchronized (buffer) {
-                    int amountRead = is.read(buffer);
-                    if (amountRead == -1) {
-                        break;
-                    }
-                    else {
-                    	bytesCopied += amountRead;
-                    }
-                    os.write(buffer, 0, amountRead);
+                int amountRead = is.read(buffer);
+                if (amountRead == -1) {
+                    break;
                 }
+                else {
+                	bytesCopied += amountRead;
+                	if(stats != null) stats.bytes(amountRead);
+                }
+                os.write(buffer, 0, amountRead);
             }
         } finally {
             try {
@@ -107,6 +119,10 @@ public class FileTools {
         return bytesCopied;
     }
 
+    public static int copy(InputStream is, OutputStream os) throws IOException {
+        return copy(is, os, null);
+    }
+
     public static void copyFile(String src, String dst) {
         File srcFile, dstFile;
         
@@ -120,7 +136,7 @@ public class FileTools {
             logger.severe(eResult.toString());
             return;
         }
-        
+
         try {
             dstFile = new File(dst);
         } catch (Exception error) {
@@ -133,7 +149,7 @@ public class FileTools {
         }
         copyFile(srcFile, dstFile);
     }
-    
+
     public static void copyFile(File src, File dst) {
         try {
             if (!src.exists()) {
@@ -143,9 +159,20 @@ public class FileTools {
 
             if (dst.isDirectory()) {
                 dst.mkdirs();
-                copy(new FileInputStream(src), new FileOutputStream(dst + File.separator + src.getName()));
+                copyFile(src, new File(dst + File.separator + src.getName()));
             } else {
-                copy(new FileInputStream(src), new FileOutputStream(dst));
+                // gc: copy using file channels, potentially much faster
+                FileChannel inChannel = new FileInputStream(src).getChannel();
+                FileChannel outChannel = new FileOutputStream(dst).getChannel();
+                try {
+                    long p = 0, s = inChannel.size();
+                    while(p < s)
+                        p += inChannel.transferTo(p, 1024*1024, outChannel);
+                }
+                finally {
+                    if (inChannel != null) inChannel.close();
+                    if (outChannel != null) outChannel.close();
+                }
             }
 
         } catch (IOException error) {
@@ -174,7 +201,7 @@ public class FileTools {
             }
 
             if (src.isFile()) {
-                copy(new FileInputStream(src), new FileOutputStream(dstDir));
+                copyFile(src, dst);
             } else {
                 File[] contentList = src.listFiles();
                 if (contentList != null) {
@@ -201,13 +228,8 @@ public class FileTools {
                     }
                 }
             }
-        } catch (IOException error) {
-            logger.severe("Failed copying file " + srcDir + " to " + dstDir);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
-        }
+        //no exception to catch here
+        }finally{}
     }
 
     public static String readFileToString(File file) {
@@ -273,7 +295,33 @@ public class FileTools {
     public static String createPrefix(String category, String key) {
         return category + '_' + key + '_';
     }
-    
+
+    public static OutputStream createFileOutputStream(File f, int size) throws FileNotFoundException {
+//        return new FileOutputStream(f);
+        return new BufferedOutputStream(new FileOutputStream(f), size);
+    }
+
+    public static OutputStream createFileOutputStream(File f) throws FileNotFoundException {
+        return createFileOutputStream(f, 10*1024);
+    }
+
+    public static OutputStream createFileOutputStream(String f) throws FileNotFoundException {
+        return createFileOutputStream(new File(f));
+    }
+
+    public static OutputStream createFileOutputStream(String f, int size) throws FileNotFoundException {
+        return createFileOutputStream(new File(f), size);
+    }
+
+    public static InputStream createFileInputStream(File f) throws FileNotFoundException {
+//        return new FileInputStream(f);
+        return new BufferedInputStream(new FileInputStream(f), 10*1024);
+    }
+
+    public static InputStream createFileInputStream(String f) throws FileNotFoundException {
+        return createFileInputStream(new File(f));
+    }
+
     public static String makeSafeFilename(String filename) {
         String oldfilename = filename;
         for (Map.Entry<CharSequence, CharSequence> rep : unsafeChars.entrySet()) {
