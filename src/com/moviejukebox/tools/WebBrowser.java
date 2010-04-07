@@ -158,7 +158,7 @@ public class WebBrowser {
         Semaphore s = getSemaphore(url.getHost().toLowerCase());
         s.acquireUninterruptibly();
         try {
-            content = new StringWriter();
+            content = new StringWriter(10*1024);
 
             BufferedReader in = null;
             URLConnection cnx = null;
@@ -176,14 +176,15 @@ public class WebBrowser {
                 while ((line = in.readLine()) != null) {
                     content.write(line);
                 }
+                // attempt to force close connection
+                // we have http connections, so these are always valid
+                content.flush();
+                cnx.getInputStream().close();
             } finally {
                 if (in != null) {
                     in.close();
                 }
                 if (cnx != null) {
-                    // attempt to force close connection
-                    // we have http connections, so these are always valid
-                    cnx.getInputStream().close();
                     //cnx.getOutputStream().close();
                     if(cnx instanceof HttpURLConnection)
                       ((HttpURLConnection)cnx).disconnect();
