@@ -93,10 +93,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String subtitles = UNKNOWN;
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private SortedSet<String> genres = new TreeSet<String>();
-    private Set<String> cast = new HashSet<String>();
-    private Set<String> writers = new HashSet<String>();
-    //private List<String> cast = new ArrayList<String>();
-    //private List<String> writers = new ArrayList<String>();
+    private Set<String> cast = new TreeSet<String>();
+    private Set<String> writers = new TreeSet<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
@@ -115,7 +113,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String formatType = TYPE_FILE;
     private boolean overrideTitle = false;
     private boolean overrideYear = false;
-
 
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;

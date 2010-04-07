@@ -28,6 +28,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1394 TV Series Episode names not picked up from filename
   - Fixed defect #1399 Keep previously scanned movies parameter causes <cast> duplicate name
   - Fixed defect #1403 Kinopoisk plugin changes for referrer string
+  - Fixed defect #1412 Sort cast/writers in alphabetic order
 
 MovieJukebox 1.9 (r1500)
 ------------------------
