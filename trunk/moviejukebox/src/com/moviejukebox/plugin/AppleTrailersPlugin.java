@@ -16,7 +16,6 @@ package com.moviejukebox.plugin;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -579,14 +578,7 @@ public class AppleTrailersPlugin {
                 return false;
             }
 
-            OutputStream out = new FileOutputStream(trailerFile);
-            byte buf[] = new byte[1024*1024];
-            int len;
-            while ((len = inputStream.read(buf)) > 0) {
-                out.write(buf, 0, len);
-                stats.bytes(len);
-            }
-            out.close();
+            FileTools.copy(inputStream, new FileOutputStream(trailerFile), stats);
             System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
 
             return true;

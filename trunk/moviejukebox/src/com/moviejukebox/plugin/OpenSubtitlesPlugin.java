@@ -36,6 +36,7 @@ import java.util.zip.GZIPInputStream;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 public class OpenSubtitlesPlugin {
@@ -279,13 +280,7 @@ public class OpenSubtitlesPlugin {
 
             GZIPInputStream a = new GZIPInputStream(inputStream);
 
-            OutputStream out = new FileOutputStream(subtitleFile);
-            byte buf[] = new byte[1024];
-            int len;
-            while ((len = a.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            out.close();
+            FileTools.copy(inputStream, new FileOutputStream(subtitleFile));
 
             String subLanguageID = getValue("SubLanguageID", ret);
             if (subLanguageID != null) {

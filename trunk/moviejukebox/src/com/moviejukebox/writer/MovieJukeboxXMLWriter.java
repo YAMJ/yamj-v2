@@ -81,7 +81,7 @@ public class MovieJukeboxXMLWriter {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
-    }
+   }
 
     public MovieJukeboxXMLWriter() {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
@@ -514,7 +514,6 @@ public class MovieJukeboxXMLWriter {
         }
         writer.writeEndElement(); // library
         writer.writeEndDocument();
-        writer.flush();
         writer.close();
     }
 
@@ -572,9 +571,10 @@ public class MovieJukeboxXMLWriter {
                         int next = Math.min(2, last);
                         int nbMoviesLeft = nbVideosPerPage;
 
-                        List<Movie> moviesInASinglePage = new ArrayList<Movie>();
+                        List<Movie> moviesInASinglePage = new ArrayList<Movie>(nbVideosPerPage);
+                        List<Movie> tmpMovieList = new ArrayList<Movie>();
                         for (Movie movie : movies) {
-                            List<Movie> tmpMovieList = new ArrayList<Movie>();
+                            tmpMovieList.clear();
                             // Issue 1263 - Allow explode of Set in category .
                             if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
                                 logger.finest("Exploding set for " + categoryName + "[" + movie.getTitle() + "]");
@@ -603,7 +603,7 @@ public class MovieJukeboxXMLWriter {
                                         writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, next, last,
                                                         nbVideosPerPage, nbVideosPerLine);
                                     }
-                                    moviesInASinglePage = new ArrayList<Movie>();
+                                    moviesInASinglePage.clear();
                                     previous = current;
                                     current = Math.min(current + 1, last);
                                     next = Math.min(current + 1, last);
@@ -658,7 +658,7 @@ public class MovieJukeboxXMLWriter {
             for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
                 String categoryKey = category.getKey();
                 Map<String, List<Movie>> index = category.getValue();
-                
+
                 writer.writeStartElement("category");
                 writer.writeAttribute("name", categoryKey);
                 if (categoryKey.equalsIgnoreCase(categoryName)) {
@@ -715,7 +715,6 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndDocument();
         } catch (Exception error) {
         } finally {
-            writer.flush();
             writer.close();
         }
 
@@ -1105,7 +1104,6 @@ public class MovieJukeboxXMLWriter {
             writeMovie(writer, movie, library);
             writer.writeEndElement();
             writer.writeEndDocument();
-            writer.flush();
             writer.close();
         }
     }

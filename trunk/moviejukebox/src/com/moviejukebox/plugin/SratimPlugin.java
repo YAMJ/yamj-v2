@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -1131,14 +1132,14 @@ public class SratimPlugin extends ImdbPlugin {
                 if (entryName.toUpperCase().endsWith(".SRT") || entryName.toUpperCase().endsWith(".SUB")) {
 
                     int n;
-                    FileOutputStream fileoutputstream;
+                    OutputStream fileoutputstream;
 
                     String entryExt = entryName.substring(entryName.lastIndexOf('.'));
 
                     if (movie.isTVShow()) {
                         // for tv show, use the subtitleFile parameter because tv show is
                         // handled by downloading subtitle from the episode page (each episode for its own)
-                        fileoutputstream = new FileOutputStream(subtitleFile + entryExt);
+                        fileoutputstream = FileTools.createFileOutputStream(subtitleFile + entryExt);
                     } else {
                         // for movie, we need to save all subtitles entries
                         // from inside the zip file, and name them according to
@@ -1147,10 +1148,10 @@ public class SratimPlugin extends ImdbPlugin {
                             MovieFile moviePart = partsIter.next();
                             String partName = moviePart.getFile().getAbsolutePath();
                             partName = partName.substring(0, partName.lastIndexOf('.'));
-                            fileoutputstream = new FileOutputStream(partName + entryExt);
+                            fileoutputstream =FileTools.createFileOutputStream(partName + entryExt);
                         } else {
                             // in case of some mismatch, use the old code
-                            fileoutputstream = new FileOutputStream(subtitleFile + entryExt);
+                            fileoutputstream = FileTools.createFileOutputStream(subtitleFile + entryExt);
                         }
                     }
 

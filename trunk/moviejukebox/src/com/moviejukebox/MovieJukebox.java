@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -887,22 +888,20 @@ public class MovieJukebox {
                 final String totalMoviesXmlFileName = "CompleteMovies.xml";
                 final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
                 
-                FileOutputStream marStream = new FileOutputStream(totalMoviesXmlFile);
+                OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile, 1024*1024);
                 context.createMarshaller().marshal(jukeboxXml, marStream);
+                marStream.close();
                 FileTools.addJukeboxFile(totalMoviesXmlFileName);
                 Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
 
                 final String rssXmlFileName = "RSS.xml";
-                FileOutputStream outStream = new FileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName));
+                OutputStream outStream = FileTools.createFileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName),1024*1024);
                 FileTools.addJukeboxFile(rssXmlFileName);
 
                 Result xmlResult = new StreamResult(outStream);
 
                 transformer.transform(new StreamSource(new FileInputStream(totalMoviesXmlFile)), xmlResult);
-                outStream.flush();
                 outStream.close();
-                marStream.flush();
-                marStream.close();
             } catch (Exception e) {
                 logger.finest("RSS is not generated." /* + e.getStackTrace().toString() */);
             }
