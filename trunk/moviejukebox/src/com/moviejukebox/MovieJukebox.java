@@ -878,9 +878,11 @@ public class MovieJukebox {
             if (!skipIndexGeneration) {
                 logger.fine("Writing Indexes XML...");
                 xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library, MaxThreadsProcess);
+                logger.fine("Writing Category XML...");
                 xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
                 logger.fine("Writing Indexes HTML...");
                 htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library, MaxThreadsProcess);
+                logger.fine("Writing Category HTML...");
                 htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
             }
 

@@ -111,7 +111,7 @@ public class MovieJukeboxXMLWriter {
     public boolean parseMovieXML(File xmlFile, Movie movie) {
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(new FileInputStream(xmlFile), "UTF-8");
+            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
 
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
