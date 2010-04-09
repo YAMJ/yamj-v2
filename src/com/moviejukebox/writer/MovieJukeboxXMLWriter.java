@@ -647,14 +647,13 @@ public class MovieJukeboxXMLWriter {
 
         try {
             xmlFile = new File(rootPath, prefix + current + ".xml");
-            FileTools.addJukeboxFile(prefix + current + ".xml");
-            xmlFile.getParentFile().mkdirs();
+            FileTools.addJukeboxFile(xmlFile.getName());
 
             writer = new XMLWriter(xmlFile);
 
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("library");
-            
+
             for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
                 String categoryKey = category.getKey();
                 Map<String, List<Movie>> index = category.getValue();
@@ -1010,7 +1009,7 @@ public class MovieJukeboxXMLWriter {
                 if (mf.getFile() == null) {
                     writer.writeAttribute("size", "0");
                 } else {
-                    writer.writeAttribute("size", Long.toString(mf.getFile().length()));
+                    writer.writeAttribute("size", Long.toString(mf.getSize()));
                 }
             } catch (Exception error) {
                 logger.finest("XML Writer: File length error for file " + mf.getFilename());
@@ -1093,7 +1092,6 @@ public class MovieJukeboxXMLWriter {
         String baseName = FileTools.makeSafeFilename(movie.getBaseName());
         File finalXmlFile = new File(rootPath + File.separator + baseName + ".xml");
         File tempXmlFile = new File(tempRootPath + File.separator + baseName + ".xml");
-        tempXmlFile.getParentFile().mkdirs();
 
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
 

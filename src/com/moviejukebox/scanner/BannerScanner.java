@@ -136,7 +136,7 @@ public class BannerScanner {
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
             if (FileTools.isNewer(fullBannerFile, finalDestinationFile) || bannerOverwrite || movie.isDirtyPoster()) {
                 try {
-                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(new FileInputStream(fullBannerFile));
+                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(fullBannerFile);
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
@@ -187,7 +187,7 @@ public class BannerScanner {
 
                     // Download the banner using the proxy save downloadImage
                     FileTools.downloadImage(bannerFile, movie.getBannerURL());
-                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(new FileInputStream(bannerFilename));
+                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(bannerFile);
 
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);

@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -58,7 +60,20 @@ public class FileTools {
             return new byte[BUFF_SIZE];
         };
     };
-    static Map<CharSequence, CharSequence> unsafeChars = new HashMap<CharSequence, CharSequence>();
+    
+    private static class ReplaceEntry{
+        private Pattern patt; 
+        private String newtext;
+        public ReplaceEntry(CharSequence oldtext, String newtext){
+            this.patt = Pattern.compile(oldtext.toString(), Pattern.LITERAL);
+            this.newtext = Matcher.quoteReplacement(newtext);
+        }
+        public String check(String filename){
+            return patt.matcher(filename).replaceAll(newtext);
+        }
+    };
+
+    private static Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();  
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
@@ -78,7 +93,7 @@ public class FileTools {
                     // Also, don't encode the escape char -- it is safe by definition!
                     if (!Character.isDigit(ch) && -1 == "AaBbCcDdEeFf".indexOf(ch) && !encodeEscapeChar.equals(ch)) {
                         String hex = Integer.toHexString(ch).toUpperCase();
-                        unsafeChars.put(repChar, encodeEscapeChar + hex);
+                        unsafeChars.add(new ReplaceEntry(repChar, encodeEscapeChar + hex));
                     }
                 }
             }
@@ -324,8 +339,8 @@ public class FileTools {
 
     public static String makeSafeFilename(String filename) {
         String oldfilename = filename;
-        for (Map.Entry<CharSequence, CharSequence> rep : unsafeChars.entrySet()) {
-            filename = filename.replace(rep.getKey(), rep.getValue());
+        for (ReplaceEntry rep : unsafeChars) {
+            filename = rep.check(filename);
         }
         if (!filename.equals(oldfilename)) {
             logger.finest("Encoded filename string " + oldfilename + " to " + filename);

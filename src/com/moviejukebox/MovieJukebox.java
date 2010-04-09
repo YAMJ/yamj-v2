@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -749,8 +750,7 @@ public class MovieJukebox {
              * now. So the movies that are in getMoviesList but not in values are the index masters.
              */
             Collection<Movie> movies = library.values();
-            List<Movie> indexMasters = new ArrayList<Movie>();
-            indexMasters.addAll(library.getMoviesList());
+            List<Movie> indexMasters = new ArrayList<Movie>(library.getMoviesList());
             indexMasters.removeAll(movies);
 
             JAXBContext context = JAXBContext.newInstance(JukeboxXml.class);
@@ -767,7 +767,7 @@ public class MovieJukebox {
                         ToolSet tools = threadTools.get();
 
                         String safeSetMasterBaseName = FileTools.makeSafeFilename(movie.getBaseName());
-                        
+
                         // The master's movie XML is used for generating the
                         // playlist it will be overwritten by the index XML
                         
@@ -828,7 +828,7 @@ public class MovieJukebox {
 
                         // No playlist for index masters
                         // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-                        
+
                         // Add all the movie files to the exclusion list
                         FileTools.addMovieToJukeboxFilenames(movie);
 
@@ -897,13 +897,9 @@ public class MovieJukebox {
                 Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
 
                 final String rssXmlFileName = "RSS.xml";
-                OutputStream outStream = FileTools.createFileOutputStream(new File(tempJukeboxDetailsRoot, rssXmlFileName),1024*1024);
                 FileTools.addJukeboxFile(rssXmlFileName);
-
-                Result xmlResult = new StreamResult(outStream);
-
-                transformer.transform(new StreamSource(new FileInputStream(totalMoviesXmlFile)), xmlResult);
-                outStream.close();
+                Result xmlResult = new StreamResult(new File(tempJukeboxDetailsRoot, rssXmlFileName));
+                transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
             } catch (Exception e) {
                 logger.finest("RSS is not generated." /* + e.getStackTrace().toString() */);
             }
@@ -982,7 +978,7 @@ public class MovieJukebox {
         logger.fine("");
         logger.fine("MovieJukebox process completed at " + new Date());
         logger.fine("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
-        
+
         return;
     }
 
@@ -1362,29 +1358,28 @@ public class MovieJukebox {
             // Issue 201 : we now download to local temp directory
             String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
             String safeThumbnailFilename = FileTools.makeSafeFilename(movie.getThumbnailFilename());
-            String src = tempRootPath + File.separator + safePosterFilename;
-            String oldsrc = rootPath + File.separator + safePosterFilename;
+            File src = new File(tempRootPath + File.separator + safePosterFilename);
+            File oldsrc = new File(rootPath + File.separator + safePosterFilename);
             String dst = tempRootPath + File.separator + safeThumbnailFilename;
-            String olddst = rootPath + File.separator + safeThumbnailFilename;
-            FileInputStream fis;
+            File olddst = new File(rootPath + File.separator + safeThumbnailFilename);
+            File fin;
 
-            if (!(new File(olddst).exists()) || forceThumbnailOverwrite || (new File(src).exists())) {
+            if (!(olddst.exists()) || forceThumbnailOverwrite || (src.exists())) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
-                if (new File(src).exists()) {
+                if (src.exists()) {
                     logger.finest("New file exists");
-                    fis = new FileInputStream(src);
+                    fin = src;
                 } else {
                     logger.finest("Use old file");
-                    fis = new FileInputStream(oldsrc);
+                    fin = oldsrc;
                 }
 
-                BufferedImage bi = GraphicTools.loadJPEGImage(fis);
+                BufferedImage bi = GraphicTools.loadJPEGImage(fin);
                 if (bi == null) {
                     logger.info("Using dummy thumbnail image for " + movie.getOriginalTitle());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), new File(rootPath + File.separator
                                     + safePosterFilename));
-                    fis = new FileInputStream(src);
-                    bi = GraphicTools.loadJPEGImage(fis);
+                    bi = GraphicTools.loadJPEGImage(src);
                 }
 
                 // Perspective code.
@@ -1424,7 +1419,6 @@ public class MovieJukebox {
                     GraphicTools.saveImageToDisk(bi, dst);
                     logger.finest("Generating left thumbnail from " + src + " to " + dst);
                 }
-                fis.close();
             }
         } catch (Exception error) {
             logger.severe("Failed creating thumbnail for " + movie.getOriginalTitle());
@@ -1455,26 +1449,25 @@ public class MovieJukebox {
             String oldsrc = rootPath + File.separator + safePosterFilename;
             String dst = tempRootPath + File.separator + safeDetailPosterFilename;
             String olddst = rootPath + File.separator + safeDetailPosterFilename;
-            FileInputStream fis;
+            String fin;
 
             if (!(new File(olddst).exists()) || forcePosterOverwrite || (new File(src).exists())) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (new File(src).exists()) {
                     logger.finest("New file exists (" + src + ")");
-                    fis = new FileInputStream(src);
+                    fin = src;
                 } else {
                     logger.finest("Using old file (" + oldsrc + ")");
-                    fis = new FileInputStream(oldsrc);
+                    fin = oldsrc;
                 }
 
-                BufferedImage bi = GraphicTools.loadJPEGImage(fis);
+                BufferedImage bi = GraphicTools.loadJPEGImage(fin);
 
                 if (bi == null) {
                     logger.info("Using dummy poster image for " + movie.getOriginalTitle());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), new File(rootPath + File.separator
                                     + safePosterFilename));
-                    fis = new FileInputStream(src);
-                    bi = GraphicTools.loadJPEGImage(fis);
+                    bi = GraphicTools.loadJPEGImage(src);
                 }
                 logger.finest("Generating poster from " + src + " to " + dst);
 
@@ -1515,7 +1508,6 @@ public class MovieJukebox {
                     GraphicTools.saveImageToDisk(bi, dst);
                     logger.finest("Generating left poster from " + src + " to " + dst);
                 }
-                fis.close();
             }
         } catch (Exception error) {
             logger.severe("Failed creating poster for " + movie.getOriginalTitle());

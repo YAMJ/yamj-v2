@@ -357,8 +357,9 @@ public class MovieNFOScanner {
             fileContainsEncoding = (i > 0 && i < 100);
         }
 
-        XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding) ? factory.createXMLEventReader(new FileInputStream(nfoFile), forceNFOEncoding)
-                        : factory.createXMLEventReader(new FileInputStream(nfoFile));
+        XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding) 
+                        ? factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile), forceNFOEncoding)
+                        : factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile));
         return r;
     }
 
