@@ -47,7 +47,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private int lastPart = 1;
     private boolean newFile = true; // is new file or already exists in XML data
     private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
-    private Map<String, String> playLink = new HashMap<String, String>();
+    private Map<String, String> playLink = null;
     private LinkedHashMap<Integer, String> titles = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
@@ -237,12 +237,25 @@ public class MovieFile implements Comparable<MovieFile> {
     
 
     @XmlAttribute
+    /* 
+     * Gabriel Corneanu:
+     * Ouch!!!
+     * This is VERY expensive on network
+     */
+    private long filelength = -1;
     public long getSize() {
-        if (getFile() == null)
-            return 0;
-        return getFile().length();
+        if(filelength < 0)
+            filelength = getFile() == null ? 0 : getFile().length();
+        return filelength;
     }
     
+    //same here
+    public long fileLastModified = -1;
+    public long getLastModified() {
+        if(fileLastModified < 0)
+            fileLastModified = getFile() == null ? 0 : getFile().lastModified();
+        return fileLastModified;
+    }
 
     /*
      * Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to,
@@ -337,10 +350,11 @@ public class MovieFile implements Comparable<MovieFile> {
         this.info = info;
     }
 
+    //this is expensive too
     public Map<String, String> getPlayLink() {
-        // if (playLink.equals("") || playLink.equals(Movie.UNKNOWN)) {
-        this.playLink = calculatePlayLink();
-        // }
+        if (playLink == null) {
+          playLink = calculatePlayLink();
+        }
         return playLink;
     }
     

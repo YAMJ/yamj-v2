@@ -1016,11 +1016,9 @@ public class MovieJukeboxXMLWriter {
                 writer.writeAttribute("size", "0");
             }
 
-            // Playlink values
-            if (mf.getPlayLink() != null) {
-                for (Map.Entry<String, String> e : mf.getPlayLink().entrySet()) {
-                    writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
-                }
+            // Playlink values; can be empty, but not null
+            for (Map.Entry<String, String> e : mf.getPlayLink().entrySet()) {
+                writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
             }
 
             writer.writeStartElement("fileURL");
