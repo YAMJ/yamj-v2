@@ -278,8 +278,6 @@ public class OpenSubtitlesPlugin {
                 return false;
             }
 
-            GZIPInputStream a = new GZIPInputStream(inputStream);
-
             FileTools.copy(inputStream, new FileOutputStream(subtitleFile));
 
             String subLanguageID = getValue("SubLanguageID", ret);

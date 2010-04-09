@@ -120,11 +120,11 @@ public class XMLWriter {
         printWriter.flush();
     }
 
-    public int getIndent() {
+    private int getIndent() {
         return indent;
     }
 
-    public void setIndent(int indent) {
+    private void setIndent(int indent) {
         this.indent  = indent;
         indentString = "";
         for (int i = 0; i < indent; i++) {
