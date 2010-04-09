@@ -41,7 +41,7 @@ public class GraphicTools {
     ////////////////////////////////////////////////////////////////////////////////////////////
     /// Loading / Saving
     //
-    public static BufferedImage loadJPEGImage(InputStream fis) {
+    private static BufferedImage loadJPEGImage(InputStream fis) {
         // Create BufferedImage
         BufferedImage bi = null;
         try {
@@ -68,15 +68,15 @@ public class GraphicTools {
         return bi;
     }
 
-    public static BufferedImage loadJPEGImage(String urlString) {
-        BufferedImage bi = null;
-        try {
-            bi = loadJPEGImage(new URL(urlString));
-        } catch (IOException ignore) {
-            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
-            bi = null;
-        }
-        return bi;
+    public static BufferedImage loadJPEGImage(String filename) throws IOException {
+        return loadJPEGImage(new File(filename));
+    }
+
+    public static BufferedImage loadJPEGImage(File f) throws IOException{
+        InputStream in = FileTools.createFileInputStream(f);
+        BufferedImage b = loadJPEGImage(in);
+        in.close();
+        return b;
     }
 
     public static BufferedImage loadJPEGImage(URL url) {

@@ -166,7 +166,7 @@ public class FanartScanner {
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
             if (FileTools.isNewer(fullFanartFile, finalDestinationFile) || fanartOverwrite || movie.isDirtyFanart()) {
                 try {
-                    BufferedImage fanartImage = GraphicTools.loadJPEGImage(new FileInputStream(fullFanartFile));
+                    BufferedImage fanartImage = GraphicTools.loadJPEGImage(fullFanartFile);
                     if (fanartImage != null) {
                         fanartImage = backgroundPlugin.generate(movie, fanartImage, "fanart", null);
                         if (Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.perspective", "false"))) {
@@ -209,7 +209,7 @@ public class FanartScanner {
                     logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
 
                     FileTools.downloadImage(fanartFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
-                    BufferedImage fanartImage = GraphicTools.loadJPEGImage(new FileInputStream(fanartFilename));
+                    BufferedImage fanartImage = GraphicTools.loadJPEGImage(fanartFile);
 
                     if (fanartImage != null) {
                         fanartImage = backgroundPlugin.generate(movie, fanartImage, null, null);

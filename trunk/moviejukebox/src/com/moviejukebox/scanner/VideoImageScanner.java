@@ -21,7 +21,6 @@ package com.moviejukebox.scanner;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
@@ -271,7 +270,7 @@ public class VideoImageScanner {
         boolean imageOK = true;
         
         try {
-            BufferedImage videoimageImage = GraphicTools.loadJPEGImage(new FileInputStream(new File(imageFilename)));
+            BufferedImage videoimageImage = GraphicTools.loadJPEGImage(imageFilename);
 
             if (videoimageImage != null) {
                 videoimageImage = imagePlugin.generate(movie, videoimageImage, "videoimages", null);

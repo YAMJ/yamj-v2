@@ -34,6 +34,7 @@ import javax.imageio.ImageIO;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -233,8 +234,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         try {
-            InputStream in = new FileInputStream(getResourcesPath() + logoName);
-            BufferedImage biHd = ImageIO.read(in);
+            BufferedImage biHd = GraphicTools.loadJPEGImage(getResourcesPath() + logoName);
             Graphics g = bi.getGraphics();
 
             if (addOtherLogo && (movie.isTVShow())) {
@@ -245,9 +245,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 // Only the HD logo is required so set it in the centre
                 g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
                 logger.finest("Drew HD logo (" + logoName + ") in the middle");
-            }
-            in.close();
-            
+            }          
         } catch (IOException error) {
             logger.warning("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
@@ -269,8 +267,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private BufferedImage drawLogoTV(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
         if (movie.isTVShow()) {
             try {
-                InputStream in = new FileInputStream(getResourcesPath() + "tv.png");
-                BufferedImage biTV = ImageIO.read(in);
+                BufferedImage biTV = GraphicTools.loadJPEGImage(getResourcesPath() + "tv.png");
                 Graphics2D g = bi.createGraphics();
 
                 if (addOtherLogo && movie.isHD()) {
@@ -282,7 +279,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     g.drawImage(biTV, bi.getWidth() / 2 - biTV.getWidth() / 2, bi.getHeight() - biTV.getHeight() - 5, null);
                     logger.finest("Drew TV logo in the middle");
                 }
-                in.close();
             } catch (IOException error) {
                 logger.warning("Failed drawing TV logo to thumbnail file: Please check that tv.png is in the resources directory.");
                 final Writer eResult = new StringWriter();
@@ -322,10 +318,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 Graphics g = bi.getGraphics();
                 File imageFile = new File(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + fullLanguage + ".png");
                 if (imageFile.exists()) {
-                    InputStream in = new FileInputStream(imageFile);
-                    BufferedImage biLang = ImageIO.read(in);
+                    BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
                     g.drawImage(biLang, 1, 1, null);
-                    in.close();
                 } else {
                     if (languages.length == 1) {
                         logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + fullLanguage
@@ -345,8 +339,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             imageFile = new File(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + language + ".png");
                             if (imageFile.exists()) {
 
-                                InputStream in = new FileInputStream(imageFile);
-                                BufferedImage biLang = ImageIO.read(in);
+                                BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
                                 imageFiles[i] = biLang;
 
                                 // Determine image size.
@@ -355,7 +348,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     width = biLang.getWidth() / nbCols;
                                     height = biLang.getHeight() / nbRows;
                                 }
-                                in.close();
                             } else {
                                 logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + language
                                                 + ".png) is in the resources/languages directory.");
@@ -390,10 +382,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      */
     private BufferedImage drawSet(Identifiable movie, BufferedImage bi) {
         try {
-            InputStream in = new FileInputStream(getResourcesPath() + "set.png");
-            BufferedImage biSet = ImageIO.read(in);
-            in.close();
-            
+            BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + "set.png");
+
             Graphics g = bi.getGraphics();
             g.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
         } catch (IOException error) {
