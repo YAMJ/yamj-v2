@@ -131,6 +131,11 @@ public class MovieJukebox {
     private static boolean skipIndexGeneration = false;
     private static boolean dumpLibraryStructure = false;
 
+        // These are pulled from the Manifest.MF file that is created by the Ant build script
+    public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
+    public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
+    public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
+
     public static void main(String[] args) throws Throwable {
         String logFilename = "moviejukebox.log";
         LogFormatter mjbFormatter = new LogFormatter();
@@ -148,10 +153,6 @@ public class MovieJukebox {
         logger.addHandler(ch);
         logger.setLevel(Level.ALL);
 
-        // These are pulled from the Manifest.MF file that is created by the Ant build script
-        String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
-        String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
-        String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
         // Just create a pretty underline.
         String mjbTitle = "";
         if (mjbVersion == null)

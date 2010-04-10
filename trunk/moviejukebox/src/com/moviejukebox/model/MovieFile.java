@@ -243,15 +243,15 @@ public class MovieFile implements Comparable<MovieFile> {
      * This is VERY expensive on network
      */
     private long filelength = -1;
-    public long getSize() {
+    public synchronized long getSize() {
         if(filelength < 0)
             filelength = getFile() == null ? 0 : getFile().length();
         return filelength;
     }
     
     //same here
-    public long fileLastModified = -1;
-    public long getLastModified() {
+    private long fileLastModified = -1;
+    public synchronized long getLastModified() {
         if(fileLastModified < 0)
             fileLastModified = getFile() == null ? 0 : getFile().lastModified();
         return fileLastModified;
@@ -351,7 +351,7 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     //this is expensive too
-    public Map<String, String> getPlayLink() {
+    public synchronized Map<String, String> getPlayLink() {
         if (playLink == null) {
           playLink = calculatePlayLink();
         }
@@ -364,7 +364,7 @@ public class MovieFile implements Comparable<MovieFile> {
     }
     
 
-    public void setPlayLink(Map<String, String> playLink) {
+    private void setPlayLink(Map<String, String> playLink) {
         if (playLink == null || playLink.equals("")) {
             this.playLink = calculatePlayLink();
         } else {
