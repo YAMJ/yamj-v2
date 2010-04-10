@@ -547,6 +547,7 @@ public class AppleTrailersPlugin {
         Timer timer = new Timer();
 
         Semaphore s = null;
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(trailerUrl);
             s = WebBrowser.getSemaphore(url.getHost());
@@ -568,7 +569,7 @@ public class AppleTrailersPlugin {
                 }
             }, 1000, 1000);
 
-            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+            connection = (HttpURLConnection) (url.openConnection());
             connection.setRequestProperty("User-Agent", "QuickTime/7.6.2");
             InputStream inputStream = connection.getInputStream();
 
@@ -588,7 +589,12 @@ public class AppleTrailersPlugin {
             return false;
         } finally {
             timer.cancel();         // Close the timer
-            if(s!=null) s.release();
+            if(connection != null){
+                connection.disconnect();
+            }
+            if(s!=null) {
+                s.release();
+            }
         }
     }
  
