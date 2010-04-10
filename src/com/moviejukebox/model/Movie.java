@@ -216,14 +216,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public String getCurrentMjbRevision() {
-        String currentRevision = MovieJukebox.class.getPackage().getImplementationVersion();
-
+        String currentRevision = MovieJukebox.mjbRevision;
         // If YAMJ is self compiled then the revision information may not exist.
         if (!((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
-            return currentRevision;
-        } else {
-            return Movie.UNKNOWN;
+            currentRevision =  Movie.UNKNOWN;
         }
+        return currentRevision;
     }
 
     public void setMjbGenerationDate(String mjbGenerationDate) {
