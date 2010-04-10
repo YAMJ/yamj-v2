@@ -218,7 +218,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public String getCurrentMjbRevision() {
         String currentRevision = MovieJukebox.mjbRevision;
         // If YAMJ is self compiled then the revision information may not exist.
-        if (!((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
+        if ((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
             currentRevision =  Movie.UNKNOWN;
         }
         return currentRevision;
