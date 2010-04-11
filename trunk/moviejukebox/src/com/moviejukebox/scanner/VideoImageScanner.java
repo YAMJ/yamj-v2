@@ -297,7 +297,7 @@ public class VideoImageScanner {
         if (mf.getVideoImageURL(part) != null && !mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
             String safeVideoImageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
             String videoimageFilename = jukeboxDetailsRoot + File.separator + safeVideoImageFilename;
-            File videoimageFile = new File(videoimageFilename);
+            File videoimageFile = FileTools.fileCache.getFile(videoimageFilename);
             String tmpDestFilename = tempJukeboxDetailsRoot + File.separator + safeVideoImageFilename;
             File tmpDestFile = new File(tmpDestFilename);
             boolean fileOK = true;
