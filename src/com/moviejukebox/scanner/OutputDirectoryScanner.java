@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
 public class OutputDirectoryScanner {
@@ -39,7 +40,7 @@ public class OutputDirectoryScanner {
     protected void scanXMLFiles(Map<String, Movie> library) {
     */
         logger.finer("OutputDirectoryScanner: scanning " + scanDir);
-        File scanDirFile = new File(scanDir);
+        File scanDirFile = new FileTools.FileEx(scanDir);
         if (null != scanDirFile) {
         
             if (scanDirFile.isDirectory()) {
@@ -50,6 +51,7 @@ public class OutputDirectoryScanner {
                     String filename = file.getName();
                     
                     if (filename.length() > 4 && ".xml".equalsIgnoreCase(filename.substring(filename.length() - 4))) {
+                        FileTools.fileCache.fileAdd(file);
                         String filenameUpper = filename.toUpperCase();
                         boolean skip = filenameUpper.equals("CATEGORIES.XML");
                         if (!skip) {

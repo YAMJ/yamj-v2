@@ -102,7 +102,7 @@ public class MovieDirectoryScanner {
     }
 
     protected void scanDirectory(MediaLibraryPath srcPath, File directory, Library collection) {
-        FileTools.fileCache.filenAdd(directory);
+        FileTools.fileCache.fileAdd(directory);
         if (directory.isFile()) {
             scanFile(srcPath, directory, collection);
         } else {
@@ -117,11 +117,6 @@ public class MovieDirectoryScanner {
                 List<File> fileList = Arrays.asList(files);
                 Collections.sort(fileList);
 
-                // add all files to the global cache, before ignore check
-                for (File file : files) {
-                    FileTools.fileCache.filenAdd(file);
-                }
-
                 // Prescan files list. Ignore directory if file with predefined name is found.
                 // TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 for (File file : files) {
@@ -130,6 +125,9 @@ public class MovieDirectoryScanner {
                         return;
                     }
                 }
+
+                // add all files to the global cache, after ignore check but before the actual scan
+                FileTools.fileCache.addFiles(files);
 
                 for (File file : fileList) {
                     if (!isFiltered(srcPath, file)) {
