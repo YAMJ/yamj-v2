@@ -487,47 +487,57 @@ public class FileTools {
 
         private Boolean _isdir=null;
         @Override
-        public synchronized boolean isDirectory() {
+        public boolean isDirectory() {
             if(_isdir == null){
-                _isdir = super.isDirectory();
+                synchronized(this){
+                    if(_isdir == null) _isdir = super.isDirectory();
+                }
             }
-            return _isdir.booleanValue();
+            return _isdir;
         }
 
         private Boolean _exists=null;
         @Override
-        public synchronized boolean exists() {
+        public boolean exists() {
             if(_exists == null){
-                _exists = super.exists();
+                synchronized(this){
+                    if(_exists == null) _exists = super.exists();
+                }
             }
-            return _exists.booleanValue();
+            return _exists;
         }
 
         private Boolean _isfile=null;
         @Override
-        public synchronized boolean isFile() {
+        public boolean isFile() {
             if(_isfile == null){
-                _isfile = super.isFile();
+                synchronized(this){
+                    if(_isfile == null) _isfile = super.isFile();
+                }
             }
-            return _isfile.booleanValue();
+            return _isfile;
         }
 
         private Long _len=null;
         @Override
-        public synchronized long length() {
+        public long length() {
             if(_len == null){
-                _len = super.length();
+                synchronized(this){
+                    if(_len == null) _len = super.length();
+                }
             }
-            return _len.longValue();
+            return _len;
         }
 
         private Long _lastModified=null;
         @Override
-        public synchronized long lastModified() {
+        public long lastModified() {
             if(_lastModified == null){
-                _lastModified = super.lastModified();
+                synchronized(this){
+                    if(_lastModified == null) _lastModified = super.lastModified();
+                }
             }
-            return _lastModified.longValue();
+            return _lastModified;
         }
 
         @Override
@@ -542,9 +552,10 @@ public class FileTools {
             String[] ss = list();
             if (ss == null) return null;
             int n = ss.length;
-            File[] fs = new File[n];
+            FileEx[] fs = new FileEx[n];
             for (int i = 0; i < n; i++) {
                 fs[i] = new FileEx(this, ss[i]);
+                fs[i]._exists = true;
             }
             return fs;
         }
@@ -552,10 +563,13 @@ public class FileTools {
         public File[] listFiles(FilenameFilter filter) {
             String ss[] = list();
             if (ss == null) return null;
-            ArrayList<File> v = new ArrayList<File>();
+            ArrayList<FileEx> v = new ArrayList<FileEx>();
+            FileEx f;
             for (int i = 0 ; i < ss.length ; i++) {
                 if ((filter == null) || filter.accept(this, ss[i])) {
-                v.add(new FileEx(this, ss[i]));
+                    f = new FileEx(this, ss[i]);
+                    f._exists = true;
+                    v.add(f);
                 }
             }
             return (FileEx[])(v.toArray(new FileEx[v.size()]));

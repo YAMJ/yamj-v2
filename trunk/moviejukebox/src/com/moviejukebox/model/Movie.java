@@ -1102,11 +1102,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     private Long tmstmp = null; // cache value
-    public synchronized long getLastModifiedTimestamp() {
+    public long getLastModifiedTimestamp() {
         if(tmstmp == null) {
-            tmstmp = new Long(0);
-            for (MovieFile mf : getMovieFiles()) {
-                tmstmp = Math.max(tmstmp, mf.getLastModified());
+            synchronized(this){
+                if(tmstmp == null){
+                    tmstmp = new Long(0);
+                    for (MovieFile mf : getMovieFiles()) {
+                        tmstmp = Math.max(tmstmp, mf.getLastModified());
+                    }
+                }
             }
         }
         return tmstmp;
