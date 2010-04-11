@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,8 +37,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -455,4 +458,143 @@ public class FileTools {
     public static Collection<String> getJukeboxFiles() {
         return generatedFileNames;
     }
-}
+    
+    /*
+     * Gabriel Corneanu
+     * special file whith "cached" attributes
+     * used to minimize file system access which slows down everything
+     */
+    @SuppressWarnings("serial")
+    public static class FileEx extends File{
+        //Standard constructors
+        public FileEx(String parent, String child) {
+            super(parent, child);
+        }
+        public FileEx(String pathname) {
+            super(pathname);
+        }
+        public FileEx(File parent, String child) {
+            super(parent, child);
+        }
+        private FileEx(String pathname, boolean exists) {
+            this(pathname);
+            _exists = exists;
+        }
+
+        private Boolean _isdir=null;
+        @Override
+        public synchronized boolean isDirectory() {
+            if(_isdir == null){
+                _isdir = super.isDirectory();
+            }
+            return _isdir.booleanValue();
+        }
+
+        private Boolean _exists=null;
+        @Override
+        public synchronized boolean exists() {
+            if(_exists == null){
+                _exists = super.exists();
+            }
+            return _exists.booleanValue();
+        }
+
+        private Boolean _isfile=null;
+        @Override
+        public synchronized boolean isFile() {
+            if(_isfile == null){
+                _isfile = super.isFile();
+            }
+            return _isfile.booleanValue();
+        }
+
+        private Long _len=null;
+        @Override
+        public synchronized long length() {
+            if(_len == null){
+                _len = super.length();
+            }
+            return _len.longValue();
+        }
+
+        private Long _lastModified=null;
+        @Override
+        public synchronized long lastModified() {
+            if(_lastModified == null){
+                _lastModified = super.lastModified();
+            }
+            return _lastModified.longValue();
+        }
+
+        @Override
+        public File getParentFile() {
+            String p = this.getParent();
+            if (p == null) return null;
+            return new FileEx(p);
+        }
+
+        @Override
+        public File[] listFiles() {
+            String[] ss = list();
+            if (ss == null) return null;
+            int n = ss.length;
+            File[] fs = new File[n];
+            for (int i = 0; i < n; i++) {
+                fs[i] = new FileEx(this, ss[i]);
+            }
+            return fs;
+        }
+
+        public File[] listFiles(FilenameFilter filter) {
+            String ss[] = list();
+            if (ss == null) return null;
+            ArrayList<File> v = new ArrayList<File>();
+            for (int i = 0 ; i < ss.length ; i++) {
+                if ((filter == null) || filter.accept(this, ss[i])) {
+                v.add(new FileEx(this, ss[i]));
+                }
+            }
+            return (FileEx[])(v.toArray(new FileEx[v.size()]));
+            }
+
+    }
+
+    /*
+     * Gabriel Corneanu
+     * cached File instances
+     * the key is always absolute path in upper-case, so it will NOT work for case only differences
+     */
+    public static class ScannedFilesCache {       
+        //cache for ALL files found during initial scan
+        private Map<String, File> cachedFiles = Collections.synchronizedMap(new HashMap<String, File>(1000));
+        /**
+         * Check whether the file exists 
+         */
+        public boolean fileExists(String absPath){
+            return cachedFiles.containsKey(absPath.toUpperCase());
+        }
+        public boolean fileExists(File file){
+            return cachedFiles.containsKey(file.getAbsolutePath().toUpperCase());
+        }
+        /**
+         * Add a file instance to cache 
+         */
+        public void filenAdd(File file){
+            cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
+        }
+        /*
+         * Retrieve a file from cache
+         * If it is NOT found, construct one instance and mark it as non-existing
+         * The exist() test is used very often throughout the library to search for specific files
+         */
+        public File getFile(String path){
+            File f = cachedFiles.get(path.toUpperCase());
+            if(f == null) {
+                return new FileEx(path, false);
+            }
+            return f;
+        }
+    }
+    
+    public static ScannedFilesCache fileCache = new ScannedFilesCache();
+  }

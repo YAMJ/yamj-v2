@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -1100,13 +1101,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.containerFile = containerFile;
     }
 
-    private long tmstmp = 0; // cache value
-    public long getLastModifiedTimestamp() {
-        if(tmstmp != 0) return tmstmp;
-
-        if (getMovieFiles().size() == 1) {
-            tmstmp = this.file.lastModified();
-        } else {
+    private Long tmstmp = null; // cache value
+    public synchronized long getLastModifiedTimestamp() {
+        if(tmstmp == null) {
+            tmstmp = new Long(0);
             for (MovieFile mf : getMovieFiles()) {
                 tmstmp = Math.max(tmstmp, mf.getLastModified());
             }

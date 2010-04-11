@@ -70,8 +70,9 @@ public class MovieNFOScanner {
     private static String imdbPreferredCountry;
     private static boolean acceptAllNFO;
     private static String nfoExtRegex;
+    private static String[] NFOExtensions;
     private static Pattern partPattern;
-    
+
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 
@@ -81,6 +82,7 @@ public class MovieNFOScanner {
         }
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
+        NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
         getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         acceptAllNFO = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.acceptAllNfo", "false"));
@@ -91,7 +93,7 @@ public class MovieNFOScanner {
         // Construct regex for filtering NFO files
         // Target format is: ".*\\(ext1|ext2|ext3|..|extN)"
         nfoExtRegex = "";
-        for (String ext : PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",")) {
+        for (String ext : NFOExtensions) {
             nfoExtRegex += "|" + ext + "$";
         }
         // Skip beginning "|" and sandwich extensions between rest of regex
@@ -170,14 +172,14 @@ public class MovieNFOScanner {
         
         File currentDir = movie.getContainerFile();
 
-        if (movie.getContainerFile() == null) {
+        if (currentDir == null) {
             return nfos;
         }
 
-        String fn = movie.getContainerFile().getAbsolutePath();
+        String fn = currentDir.getAbsolutePath();
 
         // If "fn" is a file then strip the extension from the file.
-        if (movie.getContainerFile().isFile()) {
+        if (currentDir.isFile()) {
             fn = fn.substring(0, fn.lastIndexOf("."));
         } else {
             // *** First step is to check for VIDEO_TS
@@ -291,7 +293,7 @@ public class MovieNFOScanner {
         }
         return;
     }
-    
+
     /**
      * Check to see if the passed filename exists with nfo extensions
      * 
@@ -302,21 +304,15 @@ public class MovieNFOScanner {
     private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
         File nfoFile;
         
-        for (String ext : PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",")) {
-            nfoFile = new File(checkNFOfilename + "." + ext.toLowerCase());
+        for (String ext : NFOExtensions) {
+            nfoFile = FileTools.fileCache.getFile(checkNFOfilename + "." + ext);
             if (nfoFile.exists()) {
-                logger.finest("Found NFO: " + checkNFOfilename + "." + ext.toLowerCase());
+                logger.finest("Found NFO: " + nfoFile.getAbsolutePath());
                 nfoFiles.add(nfoFile);
             } else {
-                nfoFile = new File(checkNFOfilename + "." + ext.toUpperCase());
-                if (nfoFile.exists()) {
-                    logger.finest("Found NFO: " + checkNFOfilename + "." + ext.toUpperCase());
-                    nfoFiles.add(nfoFile);
-                } else {
-                    // We put this here, even though, technically, we've already searched for the file
-                    // so the user will see where they COULD place the file.
-                    logger.finest("Checking for NFO: " + checkNFOfilename + "." + ext.toLowerCase());
-                }
+                // We put this here, even though, technically, we've already searched for the file
+                // so the user will see where they COULD place the file.
+                logger.finest("Checking for NFO: " + checkNFOfilename + "." + ext);
             }
         }
     }

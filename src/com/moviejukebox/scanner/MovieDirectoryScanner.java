@@ -29,6 +29,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -86,7 +87,7 @@ public class MovieDirectoryScanner {
      */
     public Library scan(MediaLibraryPath srcPath, Library library) {
 
-        File directory = new File(srcPath.getPath());
+        File directory = new FileTools.FileEx(srcPath.getPath());
 
         if (directory.isFile()) {
             mediaLibraryRoot = directory.getParentFile().getAbsolutePath();
@@ -101,6 +102,7 @@ public class MovieDirectoryScanner {
     }
 
     protected void scanDirectory(MediaLibraryPath srcPath, File directory, Library collection) {
+        FileTools.fileCache.filenAdd(directory);
         if (directory.isFile()) {
             scanFile(srcPath, directory, collection);
         } else {
@@ -114,6 +116,11 @@ public class MovieDirectoryScanner {
             if (files != null && files.length > 0) {
                 List<File> fileList = Arrays.asList(files);
                 Collections.sort(fileList);
+
+                // add all files to the global cache, before ignore check
+                for (File file : files) {
+                    FileTools.fileCache.filenAdd(file);
+                }
 
                 // Prescan files list. Ignore directory if file with predefined name is found.
                 // TODO May be read the file and exclude files by mask (similar to .cvsignore)
@@ -210,24 +217,19 @@ public class MovieDirectoryScanner {
     }
 
     protected static boolean hasSubtitles(File fileToScan) {
-        String path = fileToScan.getAbsolutePath();
-        int index = path.lastIndexOf(".");
-        String basename = path.substring(0, index + 1);
 
-        if (index >= 0) {
-            return (new File(basename + "srt").exists() || new File(basename + "SRT").exists() || new File(basename + "sub").exists()
-                            || new File(basename + "SUB").exists() || new File(basename + "smi").exists() || new File(basename + "SMI").exists()
-                            || new File(basename + "ssa").exists() || new File(basename + "SSA").exists() || new File(basename + "pgs").exists() || new File(basename + "PGS").exists());
-        }
+        String path = fileToScan.getAbsolutePath().toUpperCase();
+        String basename = path.substring(0, path.lastIndexOf(".") + 1);
 
-        String fn = path.toUpperCase();
-        if (fn.indexOf("VOST") >= 0) {
-            return true;
-        }
-        return false;
+        return FileTools.fileCache.fileExists(basename + "SRT") ||
+               FileTools.fileCache.fileExists(basename + "SUB") ||
+               FileTools.fileCache.fileExists(basename + "SSA") ||
+               FileTools.fileCache.fileExists(basename + "SMI") ||
+               FileTools.fileCache.fileExists(basename + "PGS") ||
+               path.contains("VOST");
     }
 
-    public void scanFile(MediaLibraryPath srcPath, File file, Library library) {
+    private void scanFile(MediaLibraryPath srcPath, File file, Library library) {
         File contentFiles[];
         int bdDuration = 0;
         boolean isBluRay = false;

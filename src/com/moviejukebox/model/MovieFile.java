@@ -235,26 +235,14 @@ public class MovieFile implements Comparable<MovieFile> {
         this.subtitlesExchange = subtitlesExchange;
     }
     
-
+    //the trick here is, files are ALWAYS FileEx instances and values are cached!
     @XmlAttribute
-    /* 
-     * Gabriel Corneanu:
-     * Ouch!!!
-     * This is VERY expensive on network
-     */
-    private long filelength = -1;
-    public synchronized long getSize() {
-        if(filelength < 0)
-            filelength = getFile() == null ? 0 : getFile().length();
-        return filelength;
+    public long getSize() {
+        return getFile() == null ? 0 : getFile().length();
     }
-    
-    //same here
-    private long fileLastModified = -1;
-    public synchronized long getLastModified() {
-        if(fileLastModified < 0)
-            fileLastModified = getFile() == null ? 0 : getFile().lastModified();
-        return fileLastModified;
+
+    public long getLastModified() {
+        return getFile() == null ? 0 : getFile().lastModified();
     }
 
     /*
