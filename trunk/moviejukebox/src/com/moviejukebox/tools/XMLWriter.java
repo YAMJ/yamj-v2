@@ -46,7 +46,7 @@ public class XMLWriter {
     public XMLWriter(File xmlFile) {
         try {
             // output stream is a byte array, so flushing has no effect 
-            outputStream = new ByteArrayOutputStream(256*1024);
+            outputStream = new ByteArrayOutputStream(128*1024);
             printWriter = new PrintWriter(outputStream);
             synchronized(outputFactory){
                 writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");                

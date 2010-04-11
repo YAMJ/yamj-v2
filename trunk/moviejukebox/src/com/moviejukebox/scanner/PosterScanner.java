@@ -152,10 +152,9 @@ public class PosterScanner {
             }
             fullPosterFilename += File.separator + localPosterBaseFilename + "." + extension;
             // logger.finest("PosterScanner: Checking for "+ fullPosterFilename);
-            localPosterFile = new File(fullPosterFilename);
-            if (localPosterFile.exists()) {
-                logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
-                foundLocalCoverArt = true;
+            localPosterFile = FileTools.fileCache.getFile(fullPosterFilename);
+            foundLocalCoverArt = localPosterFile.exists();               
+            if (foundLocalCoverArt) {
                 break;
             }
         }
@@ -185,23 +184,17 @@ public class PosterScanner {
             for (String extension : coverArtExtensions) {
                 // Check for the directory name with extension for coverart
                 fullPosterFilename = movie.getFile().getParent() + File.separator + localPosterBaseFilename + "." + extension;
-                localPosterFile = new File(fullPosterFilename);
-                if (localPosterFile.exists()) {
-                    logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
-                    foundLocalCoverArt = true;
-                    break;
-                }
+                localPosterFile = FileTools.fileCache.getFile(fullPosterFilename);
+                foundLocalCoverArt = localPosterFile.exists();
+                if (foundLocalCoverArt) break;
 
                 if (useFolderImage) {
                     // logger.finest("Checking for 'folder.*' coverart");
                     // Check for folder.jpg if it exists
                     fullPosterFilename = movie.getFile().getParent() + File.separator + "folder." + extension;
-                    localPosterFile = new File(fullPosterFilename);
-                    if (localPosterFile.exists()) {
-                        logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
-                        foundLocalCoverArt = true;
-                        break;
-                    }
+                    localPosterFile = FileTools.fileCache.getFile(fullPosterFilename);
+                    foundLocalCoverArt = localPosterFile.exists();
+                    if (foundLocalCoverArt) break;
                 }
             }
         }
@@ -210,11 +203,14 @@ public class PosterScanner {
          */
 
         if (foundLocalCoverArt) {
+            fullPosterFilename = localPosterFile.getAbsolutePath();
+            logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
+
             String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + safePosterFilename;
             String destFileName = tempJukeboxDetailsRoot + File.separator + safePosterFilename;
 
-            File finalDestinationFile = new File(finalDestinationFileName);
+            File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File destFile = new File(destFileName);
             boolean checkAgain = false;
 

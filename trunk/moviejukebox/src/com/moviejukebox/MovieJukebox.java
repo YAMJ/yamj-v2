@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.instrument.Instrumentation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1002,13 +1003,13 @@ public class MovieJukebox {
          * parse the XML data.
          */
         String safeBaseName = FileTools.makeSafeFilename(movie.getBaseName());
-        File xmlFile = new File(jukeboxDetailsRoot + File.separator + safeBaseName + ".xml");
+        File xmlFile = FileTools.fileCache.getFile(jukeboxDetailsRoot + File.separator + safeBaseName + ".xml");
 
         // See if we can find the NFO associated with this video file.
         List<File> nfoFiles = MovieNFOScanner.locateNFOs(movie);
 
         // Only check the NFO files if the XML exists and the CheckNewer parameter is set
-        if (xmlFile.exists() && checkNewer) {
+        if (checkNewer && xmlFile.exists() ) {
             for (File nfoFile : nfoFiles) {
                 // Only re-scan the nfo files if one of them is newer
                 if (FileTools.isNewer(nfoFile, xmlFile)) {
@@ -1159,7 +1160,7 @@ public class MovieJukebox {
      */
     public void updateTvBanner(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String bannerFilename = FileTools.makeSafeFilename(movie.getBannerFilename());
-        File bannerFile = new File(jukeboxDetailsRoot + File.separator + bannerFilename);
+        File bannerFile = FileTools.fileCache.getFile(jukeboxDetailsRoot + File.separator + bannerFilename);
         File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + bannerFilename);
 
         // Check to see if there is a local banner.
@@ -1360,12 +1361,12 @@ public class MovieJukebox {
             String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
             String safeThumbnailFilename = FileTools.makeSafeFilename(movie.getThumbnailFilename());
             File src = new File(tempRootPath + File.separator + safePosterFilename);
-            File oldsrc = new File(rootPath + File.separator + safePosterFilename);
+            File oldsrc = FileTools.fileCache.getFile(rootPath + File.separator + safePosterFilename);
             String dst = tempRootPath + File.separator + safeThumbnailFilename;
-            File olddst = new File(rootPath + File.separator + safeThumbnailFilename);
+            String olddst = rootPath + File.separator + safeThumbnailFilename;
             File fin;
 
-            if (!(olddst.exists()) || forceThumbnailOverwrite || (src.exists())) {
+            if (forceThumbnailOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (src.exists()) {
                     logger.finest("New file exists");
@@ -1446,15 +1447,15 @@ public class MovieJukebox {
             // Issue 201 : we now download to local temporary directory
             String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
             String safeDetailPosterFilename = FileTools.makeSafeFilename(movie.getDetailPosterFilename());
-            String src = tempRootPath + File.separator + safePosterFilename;
-            String oldsrc = rootPath + File.separator + safePosterFilename;
+            File   src = new File(tempRootPath + File.separator + safePosterFilename);
+            File   oldsrc = FileTools.fileCache.getFile(rootPath + File.separator + safePosterFilename);
             String dst = tempRootPath + File.separator + safeDetailPosterFilename;
             String olddst = rootPath + File.separator + safeDetailPosterFilename;
-            String fin;
+            File fin;
 
-            if (!(new File(olddst).exists()) || forcePosterOverwrite || (new File(src).exists())) {
+            if (forcePosterOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()){
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
-                if (new File(src).exists()) {
+                if (src.exists()) {
                     logger.finest("New file exists (" + src + ")");
                     fin = src;
                 } else {
@@ -1466,8 +1467,7 @@ public class MovieJukebox {
 
                 if (bi == null) {
                     logger.info("Using dummy poster image for " + movie.getOriginalTitle());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), new File(rootPath + File.separator
-                                    + safePosterFilename));
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), oldsrc);
                     bi = GraphicTools.loadJPEGImage(src);
                 }
                 logger.finest("Generating poster from " + src + " to " + dst);

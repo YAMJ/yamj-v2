@@ -67,11 +67,12 @@ public class ThreadExecutor<T> {
         return sw.toString();
     }
 
-    public void waitFor() throws Throwable{
+    public ArrayList<T> waitForValues() throws Throwable{
         pool.shutdown();
+        ArrayList<T> v = new ArrayList<T>();
         for(Future<T> f: values){
             try{
-                f.get();
+                v.add(f.get());
             } catch (ExecutionException e) {
                 if(ignoreErrors)
                     logger.fine(getStackTrace(e.getCause()));
@@ -82,5 +83,10 @@ public class ThreadExecutor<T> {
             }
         }
         pool.shutdownNow();
+        return v;
+    }
+
+    public void waitFor() throws Throwable{
+        waitForValues();
     }
 }
