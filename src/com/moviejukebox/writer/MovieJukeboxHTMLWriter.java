@@ -102,8 +102,8 @@ public class MovieJukeboxHTMLWriter {
             String baseName = FileTools.makeSafeFilename(movie.getBaseName());
             String tempFilename = tempRootPath + File.separator + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
-            File oldXmlFile = new File(rootPath, baseName + ".xml");
-            File finalHtmlFile = new File(rootPath, baseName + ".html");
+            File oldXmlFile = FileTools.fileCache.getFile(rootPath + File.separator + baseName + ".xml");
+            File finalHtmlFile = FileTools.fileCache.getFile(rootPath + File.separator + baseName + ".html");
             File tempHtmlFile = new File(tempFilename + ".html");
             Source xmlSource;
 
@@ -111,8 +111,6 @@ public class MovieJukeboxHTMLWriter {
             FileTools.addJukeboxFile(baseName + ".html");
 
             if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
-                tempHtmlFile.getParentFile().mkdirs();
-
                 Transformer transformer = getTransformer(new File(skinHome,  "detail.xsl"), rootPath);
 
                 // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
@@ -292,19 +290,25 @@ public class MovieJukeboxHTMLWriter {
 
     public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, final Library library, int threadcount) throws Throwable {
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
-        for (final Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
-            tasks.submit(new Callable<Void>() {
-                public Void call() {
-                    int nbVideosPerPage;
-                    String categoryName = category.getKey();
-                    if (!categoriesIndexList.contains(categoryName)) return null;
+        for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
+            final String categoryName = category.getKey();
 
-                    Map<String, List<Movie>> index = category.getValue();
+            if (!categoriesIndexList.contains(categoryName)) continue;
 
-                    for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
-                        String key          = indexEntry.getKey();
+            Map<String, List<Movie>> index = category.getValue();
+
+            for (final Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
+                final String key = indexEntry.getKey();
+                if(library.isIndexSkipped(indexEntry)){
+                    logger.finer("Category " + categoryName + "/" + key + ", skipping HTML generation.");
+                    continue;
+                }
+
+                tasks.submit(new Callable<Void>() {
+                    public Void call() {
                         List<Movie> movies  = indexEntry.getValue();
 
+                        int nbVideosPerPage;
                         if (key.equalsIgnoreCase("TV Shows") || (categoryName.equalsIgnoreCase("Set") && movies.get(0).isTVShow())) {
                             nbVideosPerPage = nbTvShowsPerPage;
                         } else {
@@ -319,10 +323,10 @@ public class MovieJukeboxHTMLWriter {
                                 writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
                             }
                         }
-                    }
-                    return null;
-                };
-            });
+                        return null;
+                    };
+                });
+            };
         }
 
         tasks.waitFor();
