@@ -351,7 +351,11 @@ public class FileTools {
             
         return filename;
     }
-    
+
+    public static String getFileExtension(String filename) {
+        return filename.substring(filename.lastIndexOf('.')+1);
+    }
+
     /**
      * Download the image for the specified URL into the specified file. 
      * Utilises the WebBrowser downloadImage function to allow for proxy connections.
