@@ -933,8 +933,8 @@ public class MovieJukebox {
             if (jukeboxClean) {
                 logger.fine("Cleaning up the jukebox directory...");
                 Collection<String> generatedFileNames = FileTools.getJukeboxFiles();
-                
-                File[] cleanList = new File(jukeboxDetailsRoot).listFiles();
+
+                File[] cleanList = jukeboxDetailsRootFile.listFiles();
                 int cleanDeletedTotal = 0;
                 boolean skip = false;
 

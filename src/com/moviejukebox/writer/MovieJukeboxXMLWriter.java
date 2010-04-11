@@ -546,16 +546,17 @@ public class MovieJukeboxXMLWriter {
                                             + "), skipping XML generation.");
                             return null;
                         }
-                        int newmovies = 0;
+                        boolean skipindex = true;
                         for (Movie movie : movies) {
                             if(movie.isDirty()){
-                                newmovies ++;
+                                skipindex = false;
+                                break;
                             }
                         }
-                        if(newmovies == 0){
+                        if(skipindex){
                             logger.finer("Category " + category_path + " no change detected, skipping XML generation.");
                             library.skipIndex(group);
-                            return null;
+                            //no exit, we need to mark the files, see below
                         }
 
                         String key = FileTools.createCategoryKey(group.getKey());
@@ -602,7 +603,13 @@ public class MovieJukeboxXMLWriter {
                                 nbMoviesLeft--;
 
                                 if (nbMoviesLeft == 0) {
-                                    if (current == 1) {
+                                    if(skipindex){
+                                      //just mark the names
+                                        String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
+                                        FileTools.addJukeboxFile(prefix + current + ".xml");
+                                        //not nice, but no need to do this again in HTMLWriter
+                                        FileTools.addJukeboxFile(prefix + current + ".html");
+                                    } else if (current == 1) {
                                         // If this is the first page, link the previous page to the last page.
                                         writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last, nbVideosPerPage,
                                                         nbVideosPerLine);
