@@ -336,6 +336,9 @@ public class MovieJukebox {
             logger.severe("Directory not found : " + movieLibraryRoot);
             return;
         }
+        // make canonical names
+        jukeboxRoot = new File(jukeboxRoot).getCanonicalPath();
+        movieLibraryRoot = new File(movieLibraryRoot).getCanonicalPath(); 
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         if (dumpLibraryStructure) {
             logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't be built or updated");
@@ -1247,10 +1250,10 @@ public class MovieJukebox {
                 }
 
                 List<String> excludes = sub.getList("exclude[@name]");
-                
-                if (new File(path).exists()) {
+                File medialibfile = new File(path);
+                if (medialibfile.exists()) {
                     MediaLibraryPath medlib = new MediaLibraryPath();
-                    medlib.setPath(path);
+                    medlib.setPath(medialibfile.getCanonicalPath());
                     if (playerpath == null || playerpath.equals("")) {
                         medlib.setPlayerRootPath(nmtpath);
                     } else {
