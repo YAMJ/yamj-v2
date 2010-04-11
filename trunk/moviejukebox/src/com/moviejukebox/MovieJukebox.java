@@ -578,6 +578,7 @@ public class MovieJukebox {
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
         final String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
+        final File jukeboxDetailsRootFile = new FileTools.FileEx(jukeboxDetailsRoot);
 
         MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = parseBoolean(getProperty("mjb.listing.generate", "false"));
@@ -605,8 +606,8 @@ public class MovieJukebox {
         logger.fine("Preparing environment...");
         
         // Create the ".mjbignore" file in the jukebox folder
-        new File(jukeboxDetailsRoot).mkdirs();
-        new File(jukeboxDetailsRoot + File.separator + ".mjbignore").createNewFile();
+        jukeboxDetailsRootFile.mkdirs();
+        new File(jukeboxDetailsRootFile, ".mjbignore").createNewFile();
         FileTools.addJukeboxFile(".mjbignore");
 
         logger.fine("Initializing...");
@@ -631,6 +632,7 @@ public class MovieJukebox {
          */
         logger.fine("Scanning library directory " + mediaLibraryRoot);
         logger.fine("Jukebox output goes to " + jukeboxRoot);
+        FileTools.fileCache.addDir(jukeboxDetailsRootFile, false);
 
         int threadsMaxDirScan = movieLibraryPaths.size();
         if (threadsMaxDirScan < 1)
@@ -665,6 +667,7 @@ public class MovieJukebox {
         library.mergeExtras();
 
         logger.fine("Found " + library.size() + " movies in your media library");
+        logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
         tasks = new ThreadExecutor<Void>(MaxThreadsScan);
 

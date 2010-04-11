@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -584,7 +585,7 @@ public class FileTools {
      */
     public static class ScannedFilesCache {       
         //cache for ALL files found during initial scan
-        private Map<String, File> cachedFiles = Collections.synchronizedMap(new HashMap<String, File>(1000));
+        private Map<String, File> cachedFiles = new ConcurrentHashMap<String, File>(1000);
         /**
          * Check whether the file exists 
          */
@@ -597,7 +598,7 @@ public class FileTools {
         /**
          * Add a file instance to cache 
          */
-        public void filenAdd(File file){
+        public void fileAdd(File file){
             cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
         }
         /*
@@ -611,6 +612,32 @@ public class FileTools {
                 return new FileEx(path, false);
             }
             return f;
+        }
+        /*
+         * Add a full directory listing; used for existing jukebox
+         */
+        public void addDir(File dir, boolean recursive) {
+           File[] files=dir.listFiles();
+           if(files.length == 0) return;
+           addFiles(files);
+           for(File f : files){
+               if(recursive && f.isDirectory()){
+                   addDir(f, recursive);
+               }
+           }
+        }
+
+        public void addFiles(File[] files) {
+            if(files.length == 0) return;
+            Map<String, File> map = new HashMap<String, File>(files.length);
+            for(File f : files){
+                map.put(f.getAbsolutePath().toUpperCase(), f);
+            }            
+            cachedFiles.putAll(map);
+        }
+
+        public long size(){
+            return cachedFiles.size();
         }
     }
     
