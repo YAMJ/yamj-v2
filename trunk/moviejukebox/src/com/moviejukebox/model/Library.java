@@ -102,6 +102,7 @@ public class Library implements Map<String, Movie> {
     private static boolean setsRequireAll = false;
     private static String indexList;
     private static boolean splitHD = false;
+    private static Collection<Object> skipped_indexes = new ArrayList<Object>(); 
 
     static {
         minSetCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.sets.minSetCount", "2"));
@@ -1034,5 +1035,12 @@ public class Library implements Map<String, Movie> {
             }
         }
         return response;
+    }
+    
+    public void skipIndex(Object index){
+        skipped_indexes.add(index);
+    }
+    public boolean isIndexSkipped(Object index){
+        return skipped_indexes.contains(index);
     }
 }

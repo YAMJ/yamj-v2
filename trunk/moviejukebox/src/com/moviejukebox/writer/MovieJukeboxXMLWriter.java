@@ -537,12 +537,24 @@ public class MovieJukeboxXMLWriter {
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws XMLStreamException, FileNotFoundException {
                         List<Movie> movies = group.getValue();
+                        String category_path = categoryName + " " + group.getKey();
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categorieCount = library.getMovieCountForIndex(categoryName, group.getKey());
                         if (categorieCount < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                            logger.finer("Category " + categoryName + " " + group.getKey() + " does not contain enough movies(" + categorieCount
+                            logger.finer("Category " + category_path + " does not contain enough movies(" + categorieCount
                                             + "), skipping XML generation.");
+                            return null;
+                        }
+                        int newmovies = 0;
+                        for (Movie movie : movies) {
+                            if(movie.isDirty()){
+                                newmovies ++;
+                            }
+                        }
+                        if(newmovies == 0){
+                            logger.finer("Category " + category_path + " no change detected, skipping XML generation.");
+                            library.skipIndex(group);
                             return null;
                         }
 
@@ -1088,7 +1100,7 @@ public class MovieJukeboxXMLWriter {
      */
     public void writeMovieXML(String rootPath, String tempRootPath, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         String baseName = FileTools.makeSafeFilename(movie.getBaseName());
-        File finalXmlFile = new File(rootPath + File.separator + baseName + ".xml");
+        File finalXmlFile = FileTools.fileCache.getFile(rootPath + File.separator + baseName + ".xml");
         File tempXmlFile = new File(tempRootPath + File.separator + baseName + ".xml");
 
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
