@@ -170,8 +170,8 @@ public class BannerScanner {
                     logger.finest("Banner Scanner: Downloading banner for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the banner using the proxy save downloadImage
-                    FileTools.downloadImage(bannerFile, movie.getBannerURL());
-                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(bannerFile);
+                    FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
+                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(tmpDestFile);
 
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);

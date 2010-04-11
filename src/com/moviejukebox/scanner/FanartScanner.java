@@ -127,7 +127,7 @@ public class FanartScanner {
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + fanartFilename;
             String destFileName = tempJukeboxDetailsRoot + File.separator + fanartFilename;
 
-            File finalDestinationFile = new File(finalDestinationFileName);
+            File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullFanartFile = new File(fullFanartFilename);
 
             // Local Fanart is newer OR ForceFanartOverwrite OR DirtyFanart
@@ -177,8 +177,8 @@ public class FanartScanner {
                 try {
                     logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
 
-                    FileTools.downloadImage(fanartFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
-                    BufferedImage fanartImage = GraphicTools.loadJPEGImage(fanartFile);
+                    FileTools.downloadImage(tmpDestFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
+                    BufferedImage fanartImage = GraphicTools.loadJPEGImage(tmpDestFile);
 
                     if (fanartImage != null) {
                         fanartImage = backgroundPlugin.generate(movie, fanartImage, null, null);
