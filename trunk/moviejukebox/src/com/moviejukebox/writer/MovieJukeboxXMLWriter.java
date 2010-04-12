@@ -560,6 +560,7 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         String key = FileTools.createCategoryKey(group.getKey());
+                        String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
 
                         // Try and determine if the set contains TV shows and therefore use the TV show settings
                         // TODO have a custom property so that you can set this on a per-set basis.
@@ -604,8 +605,7 @@ public class MovieJukeboxXMLWriter {
 
                                 if (nbMoviesLeft == 0) {
                                     if(skipindex){
-                                      //just mark the names
-                                        String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
+                                        //just mark the names
                                         FileTools.addJukeboxFile(prefix + current + ".xml");
                                         //not nice, but no need to do this again in HTMLWriter
                                         FileTools.addJukeboxFile(prefix + current + ".html");
@@ -632,8 +632,16 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (moviesInASinglePage.size() > 0) {
-                            writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 1, last, nbVideosPerPage,
-                                            nbVideosPerLine);
+                            if(skipindex){
+                                //just mark the names
+                                FileTools.addJukeboxFile(prefix + current + ".xml");
+                                //not nice, but no need to do this again in HTMLWriter
+                                FileTools.addJukeboxFile(prefix + current + ".html");
+
+                            } else {
+                                writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 
+                                                1, last, nbVideosPerPage, nbVideosPerLine);
+                            }
                         }
                         return null;
                     }
