@@ -14,7 +14,6 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -82,6 +81,7 @@ public class MovieNFOScanner {
         }
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
+        NFOdirectory = FileTools.getCanonicalPath(NFOdirectory);
         NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
         getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");

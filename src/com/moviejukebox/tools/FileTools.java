@@ -352,6 +352,15 @@ public class FileTools {
             
         return filename;
     }
+    
+    public static String getCanonicalPath(String path) {
+        try {
+            return new File(path).getCanonicalPath();
+        } catch (IOException e) {
+            return path;
+        }
+        
+    }
 
     public static String getFileExtension(String filename) {
         return filename.substring(filename.lastIndexOf('.')+1);
@@ -593,25 +602,32 @@ public class FileTools {
             return cachedFiles.containsKey(absPath.toUpperCase());
         }
         public boolean fileExists(File file){
-            return cachedFiles.containsKey(file.getAbsolutePath().toUpperCase());
+            try {
+                return cachedFiles.containsKey(file.getCanonicalPath().toUpperCase());
+            } catch (IOException e) {
+                return false;
+            }
         }
         /**
          * Add a file instance to cache 
          */
         public void fileAdd(File file){
-            cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
+            try {
+                cachedFiles.put(file.getCanonicalPath().toUpperCase(), file);
+            } catch (IOException e) {
+                //nothing, just skip
+            }
         }
         /*
          * Retrieve a file from cache
          * If it is NOT found, construct one instance and mark it as non-existing
          * The exist() test is used very often throughout the library to search for specific files
+         * The path MUST be canonical (i.e. carefully constructed)
+         * We do NOT want here to make it canonical because it goes to the file system and it's slow
          */
         public File getFile(String path){
             File f = cachedFiles.get(path.toUpperCase());
-            if(f == null) {
-                return new FileEx(path, false);
-            }
-            return f;
+            return f == null ? new FileEx(path, false) : f;
         }
         /*
          * Add a full directory listing; used for existing jukebox
@@ -631,13 +647,28 @@ public class FileTools {
             if(files.length == 0) return;
             Map<String, File> map = new HashMap<String, File>(files.length);
             for(File f : files){
-                map.put(f.getAbsolutePath().toUpperCase(), f);
+                try {
+                    map.put(f.getCanonicalPath().toUpperCase(), f);
+                } catch (IOException e) {
+                    //skip errors
+                }
             }            
             cachedFiles.putAll(map);
         }
 
         public long size(){
             return cachedFiles.size();
+        }
+        
+        public void saveFileList(String filename) throws FileNotFoundException{
+            PrintWriter p = new PrintWriter(filename);
+            Set<String> names = cachedFiles.keySet();
+            String[] sortednames = names.toArray(new String[names.size()]);
+            Arrays.sort(sortednames);
+            for(String f : sortednames){
+                p.println(f);
+            }
+            p.close();
         }
     }
     
