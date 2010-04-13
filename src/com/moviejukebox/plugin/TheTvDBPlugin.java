@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -29,7 +28,7 @@ import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.ThreadExecutor;
 
 /**
  * @author styles
@@ -76,20 +75,26 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie movie) {
+        ThreadExecutor.EnterIO(webhost);
+        try{
+            return doscan(movie);
+        }finally{
+            ThreadExecutor.LeaveIO();
+        }
+    }
+
+    public boolean doscan(Movie movie) {
         List<Series> seriesList = null;
 
         String id = movie.getId(THETVDB_PLUGIN_ID);
-        Semaphore sem = WebBrowser.getSemaphore(webhost);
 
         if (id == null || id.equals(Movie.UNKNOWN)) {
-            sem.acquireUninterruptibly();
             if (!movie.getTitle().equals(Movie.UNKNOWN)) {
                 seriesList = tvDB.searchSeries(movie.getTitle(), language);
             }
             if (seriesList == null || seriesList.isEmpty()) {
                 seriesList = tvDB.searchSeries(movie.getBaseName(), language);
             }
-            sem.release();
             if (seriesList != null && !seriesList.isEmpty()) {
                 Series series = null;
                 for (Series s : seriesList) {
@@ -123,9 +128,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         if (id != null && !id.equals(Movie.UNKNOWN)) {
-            sem.acquireUninterruptibly();
             Series series = tvDB.getSeries(id, language);
-            sem.release();
+
             if (series != null) {
 
                 Banners banners = tvDB.getBanners(id);
@@ -139,9 +143,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
                 
                 if (!movie.isOverrideYear()) {
-                    sem.acquireUninterruptibly();
                     String year = tvDB.getSeasonYear(id, movie.getSeason(), language);
-                    sem.release();
                     if (year != null && !year.isEmpty()) {
                         movie.setYear(year);
                     }
@@ -287,8 +289,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             return;
         }
 
-        Semaphore s = WebBrowser.getSemaphore(webhost);
-        s.acquireUninterruptibly();
+        ThreadExecutor.EnterIO(webhost);
         for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
@@ -343,7 +344,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
             }
         }
-        s.release();
+        ThreadExecutor.LeaveIO();
     }
 
     @Override

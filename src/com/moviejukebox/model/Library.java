@@ -316,12 +316,11 @@ public class Library implements Map<String, Movie> {
         }
     }
 
-    public void buildIndex(int threadcount) throws Throwable {
+    public void buildIndex(ThreadExecutor<Void> tasks) throws Throwable {
         moviesList.clear();
         indexes.clear();
 
-        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
-
+        tasks.restart();
         final List<Movie> indexMovies = new ArrayList<Movie>(library.values());
         moviesList.addAll(library.values());
 

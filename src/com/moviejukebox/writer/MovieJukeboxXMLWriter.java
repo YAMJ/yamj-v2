@@ -522,11 +522,11 @@ public class MovieJukeboxXMLWriter {
      * 
      * @throws Throwable
      */
-    public void writeIndexXML(final String rootPath, String detailsDirName, final Library library, int threadcount) throws Throwable {
+    public void writeIndexXML(final String rootPath, String detailsDirName, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
         
-        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
+        tasks.restart();
 
         for (final Map.Entry<String, Index> category : library.getIndexes().entrySet()) {            
             final String categoryName = category.getKey();

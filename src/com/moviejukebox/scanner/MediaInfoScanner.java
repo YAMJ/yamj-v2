@@ -49,32 +49,26 @@ public class MediaInfoScanner {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     // mediaInfo repository
-    private File mediaInfoPath;
+    private static File mediaInfoPath;
 
     // mediaInfo command line, depend on OS
-    private String[] mediaInfoExe;
-    private String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null };
-    private String[] mediaInfoExeLinux = { "./mediainfo", "-f", null };
+    private static String[] mediaInfoExe;
+    private static String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null };
+    private static String[] mediaInfoExeLinux = { "./mediainfo", "-f", null };
     public final static String OS_NAME = System.getProperty("os.name");
     public final static String OS_VERSION = System.getProperty("os.version");
     public final static String OS_ARCH = System.getProperty("os.arch");
-    private boolean activated;
-    private boolean enableMetadata;
+    private static boolean activated;
+    private static boolean enableMetadata;
+    String randomDirName;
 
     static {
         logger.finer("OS name : " + OS_NAME);
         logger.finer("OS version : " + OS_VERSION);
         logger.finer("OS archi : " + OS_ARCH);
-    }
 
-    // Dvd rip infos Scanner
-    private DVDRipScanner localDVDRipScanner;
-
-    /**
-     * @param mediaInfoPath
-     */
-    public MediaInfoScanner() {
         mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
+        enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "false"));
 
         File checkMediainfo = null;
 
@@ -87,20 +81,23 @@ public class MediaInfoScanner {
         }
         // System.out.println(checkMediainfo.getAbsolutePath());
         if (!checkMediainfo.canExecute()) {
-            logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
+            //logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
             activated = false;
         } else {
             activated = true;
         }
-        localDVDRipScanner = new DVDRipScanner();
+    }
 
-        enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "false"));
+    // Dvd rip infos Scanner
+    private DVDRipScanner localDVDRipScanner;
+
+    public MediaInfoScanner() {
+        localDVDRipScanner = new DVDRipScanner();
+        randomDirName = PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + "/isoTEMP/" + Thread.currentThread().getName();
     }
 
     @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
-        String randomDirName = PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + "/isoTEMP/" + Thread.currentThread().getName();
-
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());

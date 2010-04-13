@@ -28,6 +28,7 @@ import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
@@ -38,6 +39,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
     private String language;
     private TheTVDB tvDB;
+    private static String webhost = "thetvdb.com";
 
     public TheTvDBPosterPlugin() {
         super();
@@ -49,16 +51,14 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
+        ThreadExecutor.EnterIO(webhost);
         try {
-            Semaphore sem = WebBrowser.getSemaphore("thetvdb.com");
-            sem.acquireUninterruptibly();
             List<Series> seriesList = null;
 
             if (!title.equals(Movie.UNKNOWN)) {
                 seriesList = tvDB.searchSeries(title, language);
             }
 
-            sem.release();
             if (seriesList != null && !seriesList.isEmpty()) {
                 Series series = null;
                 for (Series s : seriesList) {
@@ -90,12 +90,14 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             logger.severe("Failed retreiving TvDb Id for movie : " + title);
             logger.severe("Error : " + e.getMessage());
         }
+        ThreadExecutor.LeaveIO();
         return response;
     }
 
     @Override
     public String getPosterUrl(String id, int season) {
         String response = Movie.UNKNOWN;
+        ThreadExecutor.EnterIO(webhost);
         if (!Movie.UNKNOWN.equals(id)) {
             String urlNormal = null;
             Banners banners = tvDB.getBanners(id);
@@ -127,6 +129,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 response = urlNormal;
             }
         }
+        ThreadExecutor.LeaveIO();
         return response;
     }
 
