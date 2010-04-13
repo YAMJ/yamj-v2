@@ -157,9 +157,8 @@ public class WebBrowser {
         // get the download limit for the host
         Semaphore s = getSemaphore(url.getHost().toLowerCase());
         s.acquireUninterruptibly();
+        content = new StringWriter(10*1024);
         try {
-            content = new StringWriter(10*1024);
-
             BufferedReader in = null;
             URLConnection cnx = null;
             try {
@@ -179,22 +178,19 @@ public class WebBrowser {
                 // attempt to force close connection
                 // we have http connections, so these are always valid
                 content.flush();
-                cnx.getInputStream().close();
+                in.close();
             } finally {
                 if (in != null) {
                     in.close();
                 }
                 if (cnx != null) {
-                    //cnx.getOutputStream().close();
                     if(cnx instanceof HttpURLConnection)
                       ((HttpURLConnection)cnx).disconnect();
                 }
             }
             return content.toString();
         } finally {
-            if (content != null) {
-                content.close();
-            }
+            content.close();
             s.release();
         }
     }

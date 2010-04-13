@@ -337,8 +337,8 @@ public class MovieJukebox {
             return;
         }
         // make canonical names
-        jukeboxRoot = new File(jukeboxRoot).getCanonicalPath();
-        movieLibraryRoot = new File(movieLibraryRoot).getCanonicalPath(); 
+        jukeboxRoot = FileTools.getCanonicalPath(jukeboxRoot);
+        movieLibraryRoot = FileTools.getCanonicalPath(movieLibraryRoot); 
         MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
         if (dumpLibraryStructure) {
             logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't be built or updated");
@@ -589,7 +589,8 @@ public class MovieJukebox {
         videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
         bannerDownload = parseBoolean(getProperty("mjb.includeWideBanners", "false"));
         jukeboxTempDir = PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp");
-        
+        jukeboxTempDir = FileTools.getCanonicalPath(jukeboxTempDir);
+
         // Multi-thread: Processing thread settings
         int MaxThreadsScan = Integer.parseInt(getProperty("mjb.MaxThreadsScan", "4"));
         int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", Integer.toString(Runtime.getRuntime().availableProcessors())));
@@ -924,6 +925,7 @@ public class MovieJukebox {
 
             logger.fine("Copying resources to Jukebox directory...");
             FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot, true);
+            FileTools.fileCache.saveFileList("filecache.txt");
 
             /********************************************************************************
              * 
@@ -1097,7 +1099,8 @@ public class MovieJukebox {
             if (forceXMLOverwrite) {
                 logger.finer("Rescanning internet for information on " + movie.getBaseName());
             } else {
-                logger.finer("Jukebox XML file not found. Scanning for information on " + movie.getBaseName());
+                logger.finer("Jukebox XML file not found: " + xmlFile.getAbsolutePath());
+                logger.finer("Scanning for information on " + movie.getBaseName());
             }
 
             // Changing call order, first MediaInfo then NFO. NFO will overwrite every info it will contains.
