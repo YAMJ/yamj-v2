@@ -20,6 +20,7 @@ import java.util.concurrent.Semaphore;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tvrage.TVRage;
 import com.moviejukebox.tvrage.model.Episode;
@@ -55,10 +56,9 @@ public class TVRagePlugin extends ImdbPlugin {
         ShowInfo showInfo = new ShowInfo();
 
         String id = movie.getId(TVRAGE_PLUGIN_ID);
-        Semaphore sem = WebBrowser.getSemaphore(webhost);
 
         if (id == null || id.equals(TVRage.UNKNOWN)) {
-            sem.acquireUninterruptibly();
+            ThreadExecutor.EnterIO(webhost);
             if (!movie.getTitle().equals(TVRage.UNKNOWN)) {
                 showInfo = tvRage.searchShow(movie.getTitle());
             }
@@ -70,7 +70,7 @@ public class TVRagePlugin extends ImdbPlugin {
             if (showInfo != null) {
                 showInfo = tvRage.searchShowInfo(showInfo, showInfo.getShowID());
             }
-            sem.release();
+            ThreadExecutor.LeaveIO();
             
             if (showInfo != null) {
                 movie.setId(TVRAGE_PLUGIN_ID, id);
@@ -93,8 +93,7 @@ public class TVRagePlugin extends ImdbPlugin {
             return;
         }
 
-        Semaphore s = WebBrowser.getSemaphore(webhost);
-        s.acquireUninterruptibly();
+        ThreadExecutor.EnterIO(webhost);
 
         ShowInfo showInfo = tvRage.searchShowInfo(id);
         
@@ -141,7 +140,7 @@ public class TVRagePlugin extends ImdbPlugin {
                 }
             }
         }
-        s.release();
+        ThreadExecutor.LeaveIO();
     }
 
     @Override

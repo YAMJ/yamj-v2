@@ -48,59 +48,6 @@ public class WebBrowser {
     private String mjbEncodedPassword;
     private int imageRetryCount;
 
-    private static Map<String, String> hostgrp = new HashMap<String, String>();
-    private static Map<String, Semaphore> grouplimits = null;
-
-    /**
-     * Handle download slots allocation to avoid throttling / ban on source sites Find the proper semaphore for each host: - Map each unique host to a group
-     * (hostgrp) - Max each group (rule) to a semaphore
-     * 
-     * The usage pattern is: s = getSemaphore(host) s.acquire (or acquireUninterruptibly) <download...> s.release
-     * 
-     * @author Gabriel Corneanu
-     */
-    public static synchronized Semaphore getSemaphore(String host) {
-
-        String semaphoreGroup;
-        // First we have to read/create the rules
-        if (grouplimits == null) {
-            grouplimits = new HashMap<String, Semaphore>();
-            // Default, can be overridden
-            grouplimits.put(".*", new Semaphore(1));
-            String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
-            logger.finer("WebBrowser: Using download limits: " + limitsProperty);
-
-            Pattern semaphorePattern = Pattern.compile(",?\\s*([^=]+)=(\\d+)");
-            Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
-            while (semaphoreMatcher.find()) {
-                semaphoreGroup = semaphoreMatcher.group(1);
-                try {
-                    Pattern.compile(semaphoreGroup);
-                    logger.finer("WebBrowser: " + semaphoreGroup + "=" + semaphoreMatcher.group(2));
-                    grouplimits.put(semaphoreGroup, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
-                } catch (Exception error) {
-                    logger.finer("WebBrowser: Limit rule \"" + semaphoreGroup + "\" is not valid regexp, ignored");
-                }
-            }
-        }
-
-        semaphoreGroup = hostgrp.get(host);
-        // first time not found, search for matching group
-        if (semaphoreGroup == null) {
-            semaphoreGroup = ".*";
-            for (String searchGroup : grouplimits.keySet()) {
-                if (host.matches(searchGroup))
-                    if (searchGroup.length() > semaphoreGroup.length())
-                        semaphoreGroup = searchGroup;
-            }
-            logger.finer(String.format("WebBrowser: Download host: %s; rule: %s", host, semaphoreGroup));
-            hostgrp.put(host, semaphoreGroup);
-        }
-
-        // there should be NO way to fail
-        return grouplimits.get(semaphoreGroup);
-    }
-
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -155,8 +102,7 @@ public class WebBrowser {
         StringWriter content = null;
 
         // get the download limit for the host
-        Semaphore s = getSemaphore(url.getHost().toLowerCase());
-        s.acquireUninterruptibly();
+        ThreadExecutor.EnterIO(url);
         content = new StringWriter(10*1024);
         try {
             BufferedReader in = null;
@@ -191,7 +137,7 @@ public class WebBrowser {
             return content.toString();
         } finally {
             content.close();
-            s.release();
+            ThreadExecutor.LeaveIO();
         }
     }
 
@@ -208,12 +154,11 @@ public class WebBrowser {
         }
 
         URL url = new URL(imageURL);
-        Semaphore s = getSemaphore(url.getHost().toLowerCase());
-        s.acquireUninterruptibly();
+        ThreadExecutor.EnterIO(url);
         boolean success = false;
         int retryCount = imageRetryCount;
-        while (!success && retryCount > 0) {
-            try {
+        try {
+            while (!success && retryCount > 0) {
                 URLConnection cnx = url.openConnection();
 
                 if (mjbProxyUsername != null) {
@@ -233,9 +178,9 @@ public class WebBrowser {
                     retryCount--;
                     logger.finest("WebBrowser: Image download attempt failed, bytes expected: " + reportedLength + ", bytes received: " + inputStreamLength);
                 }
-            } finally {
-                s.release();
             }
+        }finally{
+            ThreadExecutor.LeaveIO();
         }
         if (!success) {
             logger.finest("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
@@ -369,20 +314,16 @@ public class WebBrowser {
      */
     public String getUrl(String urlStr) throws Exception {
         String response = urlStr;
-        Semaphore s = null;
+        URL url = new URL(urlStr);
+        ThreadExecutor.EnterIO(url);
         try {
-            URL url = new URL(urlStr);
-            s = getSemaphore(url.getHost().toLowerCase());
-            s.acquireUninterruptibly();
             URLConnection cnx = openProxiedConnection(url);
             sendHeader(cnx);
             readHeader(cnx);
             response = cnx.getURL().toString();
 
         } finally {
-            if (s != null) {
-                s.release();
-            }
+            ThreadExecutor.LeaveIO();
         }
         return response;
     }

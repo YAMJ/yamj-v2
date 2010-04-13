@@ -288,8 +288,8 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, final Library library, int threadcount) throws Throwable {
-        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadcount);
+    public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
+        tasks.restart();
         for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
             final String categoryName = category.getKey();
 

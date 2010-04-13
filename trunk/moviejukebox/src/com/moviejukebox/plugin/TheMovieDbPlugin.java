@@ -23,6 +23,7 @@ import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
 /**
@@ -56,8 +57,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         MovieDB moviedb = null;
         boolean retval = false;
 
-        Semaphore s = WebBrowser.getSemaphore(webhost);
-        s.acquireUninterruptibly();
+        ThreadExecutor.EnterIO(webhost);
         // First look to see if we have a TMDb ID as this will make looking the film up easier
         if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Search based on TMdb ID
@@ -78,7 +78,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
         }
         // the rest is not web search anymore
-        s.release();
+        ThreadExecutor.LeaveIO();
 
         if (moviedb.getId() != null && !moviedb.getId().equalsIgnoreCase(MovieDB.UNKNOWN)) {
             movie.setMovieType(Movie.TYPE_MOVIE);

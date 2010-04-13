@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.WebStats;
 import com.moviejukebox.tools.HTMLTools;
@@ -544,15 +546,17 @@ public class AppleTrailersPlugin {
     }
 
     private boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrl, File trailerFile) {
-        Timer timer = new Timer();
-
-        Semaphore s = null;
-        HttpURLConnection connection = null;
+        URL url;
         try {
-            URL url = new URL(trailerUrl);
-            s = WebBrowser.getSemaphore(url.getHost());
-            s.acquireUninterruptibly();
+            url = new URL(trailerUrl);
+        } catch (MalformedURLException e) {
+            return false;
+        }
 
+        ThreadExecutor.EnterIO(url);
+        HttpURLConnection connection = null;
+        Timer timer = new Timer();
+        try {
             logger.fine("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
             final WebStats stats = WebStats.make(url);
             // after make!
@@ -592,9 +596,7 @@ public class AppleTrailersPlugin {
             if(connection != null){
                 connection.disconnect();
             }
-            if(s!=null) {
-                s.release();
-            }
+            ThreadExecutor.LeaveIO();
         }
     }
  

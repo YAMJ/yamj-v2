@@ -574,8 +574,6 @@ public class MovieJukebox {
             };
         };
 
-        // final ToolSet localtools = threadTools.get();
-
         final MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
         final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
@@ -592,10 +590,12 @@ public class MovieJukebox {
         jukeboxTempDir = FileTools.getCanonicalPath(jukeboxTempDir);
 
         // Multi-thread: Processing thread settings
-        int MaxThreadsScan = Integer.parseInt(getProperty("mjb.MaxThreadsScan", "4"));
         int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", Integer.toString(Runtime.getRuntime().availableProcessors())));
-        logger.fine("Using " + MaxThreadsScan + " scanning threads and " + MaxThreadsProcess + " processing threads...");
-        if (MaxThreadsScan + MaxThreadsProcess == 2) {
+        MaxThreadsProcess = Math.max(MaxThreadsProcess, 1);
+        int MaxThreadsWebIO = Integer.parseInt(getProperty("mjb.MaxThreadsScan", "0"));
+        MaxThreadsWebIO = MaxThreadsWebIO <= 0 ? MaxThreadsProcess : MaxThreadsWebIO;
+        logger.fine("Using " + MaxThreadsWebIO + " web scanning threads and " + MaxThreadsProcess + " processing threads...");
+        if (MaxThreadsWebIO + MaxThreadsProcess == 2) {
             // Display the note about the performance, otherwise assume that the user knows how to change
             // these parameters as they aren't set to the minimum
             logger.fine("See README.TXT for increasing performance using these settings.");
@@ -638,11 +638,10 @@ public class MovieJukebox {
         logger.fine("Jukebox output goes to " + jukeboxRoot);
         FileTools.fileCache.addDir(jukeboxDetailsRootFile, false);
 
-        int threadsMaxDirScan = movieLibraryPaths.size();
-        if (threadsMaxDirScan < 1)
-            threadsMaxDirScan = 1;
+        int threadsMaxDirScan = Math.min(MaxThreadsProcess, movieLibraryPaths.size());
+        threadsMaxDirScan = Math.max(threadsMaxDirScan, 1);
 
-        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadsMaxDirScan);
+        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadsMaxDirScan, 0);
         final Library library = new Library();
         for (final MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
             // Multi-thread parallel processing
@@ -657,7 +656,6 @@ public class MovieJukebox {
                 };
             });
         }
-        ;
         tasks.waitFor();
 
         // If the user asked to preserve the existing movies, scan the output directory as well
@@ -673,7 +671,7 @@ public class MovieJukebox {
         logger.fine("Found " + library.size() + " movies in your media library");
         logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
-        tasks = new ThreadExecutor<Void>(MaxThreadsScan);
+        tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsWebIO);
 
         if (library.size() > 0) {
             logger.fine("Searching for movies information...");
@@ -750,7 +748,7 @@ public class MovieJukebox {
                 logger.fine("Indexing of libraries skipped.");
             } else {
                 logger.fine("Indexing libraries...");
-                library.buildIndex(MaxThreadsProcess);
+                library.buildIndex(tasks);
             }
 
             logger.fine("Indexing masters...");
@@ -767,7 +765,7 @@ public class MovieJukebox {
             jukeboxXml.movies = library.values();
 
             // Multi-thread: Parallel Executor
-            tasks = new ThreadExecutor<Void>(MaxThreadsProcess);
+            tasks.restart();
 
             for (final Movie movie : indexMasters) {
                 // Multi-tread: Start Parallel Processing
@@ -886,11 +884,11 @@ public class MovieJukebox {
 
             if (!skipIndexGeneration) {
                 logger.fine("Writing Indexes XML...");
-                xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library, MaxThreadsProcess);
+                xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, detailsDirName, library, tasks);
                 logger.fine("Writing Category XML...");
                 xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
                 logger.fine("Writing Indexes HTML...");
-                htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library, MaxThreadsProcess);
+                htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library, tasks);
                 logger.fine("Writing Category HTML...");
                 htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
             }
@@ -977,7 +975,6 @@ public class MovieJukebox {
             File rootIndex = new File(tempJukeboxRoot + File.separator + index);
             rootIndex.delete();
 
-            tasks.waitFor();
             FileTools.deleteDir(jukeboxTempDir);
         }
         timeEnd = System.currentTimeMillis();
