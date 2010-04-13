@@ -124,8 +124,9 @@ public class ThreadExecutor<T> implements ThreadFactory{
             return;
         }
         ScheduledThread st = (ScheduledThread)Thread.currentThread();
-        if(st.io_cnt > 0){
-            logger.fine("Nested call to EnterIO("+host+"); previous(("+st.iohost+"); ignored");
+        st.io_cnt ++;
+        if(st.io_cnt > 1){
+            logger.finer("Nested call to EnterIO("+host+"); previous("+st.iohost+"); ignored");
             return;
         }
         String semaphoreGroup;
@@ -149,7 +150,6 @@ public class ThreadExecutor<T> implements ThreadFactory{
         Semaphore s = grouplimits.get(semaphoreGroup);
         st.s_iotarget = s;
         st.iohost = host;
-        st.io_cnt ++;
         st.s_run.release(); // exit running state; another thread might be released;
         st.s_iotarget.acquireUninterruptibly(); // aquire URL target semaphore
         st.s_io.acquireUninterruptibly(); // enter io state
@@ -179,12 +179,15 @@ public class ThreadExecutor<T> implements ThreadFactory{
             return;
         }
         ScheduledThread st = (ScheduledThread)Thread.currentThread();
-        if (st.s_iotarget == null) {
-            logger.fine("Unbalanced LeaveIO call; ignored.");
+        if (st.io_cnt <= 0) {
+            logger.fine("Warning: unbalanced LeaveIO call; ignored.");
             return;
         }
         st.io_cnt --;
-        st.iohost = "";
+        if (st.io_cnt > 0) {
+            logger.finer("Nested LeaveIO call; ignored.");
+            return;
+        }
         st.s_iotarget.release();
         st.s_io.release();
         st.s_iotarget = null;
