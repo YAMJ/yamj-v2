@@ -13,6 +13,10 @@
 
 package com.moviejukebox.model;
 
+import static com.moviejukebox.tools.FileTools.createCategoryKey;
+import static com.moviejukebox.tools.FileTools.createPrefix;
+import static com.moviejukebox.tools.FileTools.makeSafeFilename;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -38,7 +42,6 @@ import java.util.logging.Logger;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
 
@@ -254,7 +257,7 @@ public class Library implements Map<String, Movie> {
             indexMaster.setSeason(-1);
             indexMaster.setTitleSort(index_name);
             indexMaster.setOriginalTitle(index_name);
-            indexMaster.setBaseName(FileTools.createPrefix(prefix, FileTools.createCategoryKey(index_name)) + "1");
+            indexMaster.setBaseName(makeSafeFilename(createPrefix(prefix, createCategoryKey(index_name)) + "1"));
             // set TV and HD properties of the master
             int cntTV = 0;
             int cntHD = 0;

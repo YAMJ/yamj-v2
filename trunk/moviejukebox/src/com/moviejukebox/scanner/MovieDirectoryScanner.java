@@ -265,6 +265,10 @@ public class MovieDirectoryScanner {
             if (!file.isDirectory()) {
                 baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
             }
+            
+            // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
+            // TODO: Actually it makes sense to use normalized movie name instead of first part name.
+            baseFileName += Integer.toHexString(file.getAbsolutePath().hashCode());
 
             // Compute the relative filename
             String relativeFilename = contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex);
@@ -294,6 +298,8 @@ public class MovieDirectoryScanner {
                 movie.setFormatType(Movie.TYPE_BLURAY);
             }
 
+            
+            // FIXME: part and file info are to be taken from filename scanner
             movieFile.setPart(i + 1);
             movieFile.setFile(contentFiles[i]);
 
@@ -301,12 +307,12 @@ public class MovieDirectoryScanner {
             movie.addMovieFile(movieFile);
             movie.setFile(contentFiles[i]);
             movie.setContainerFile(file);
-            movie.setBaseName(baseFileName);
+            movie.setBaseName(FileTools.makeSafeFilename(baseFileName));
             movie.setLibraryPath(srcPath.getPath());
-            movie.setPosterFilename(baseFileName + ".jpg");
-            movie.setThumbnailFilename(baseFileName + thumbnailToken + "." + thumbnailsFormat);
-            movie.setDetailPosterFilename(baseFileName + posterToken + "." + postersFormat);
-            movie.setBannerFilename(baseFileName + bannerToken + "." + bannersFormat);
+            movie.setPosterFilename(movie.getBaseName() + ".jpg");
+            movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailsFormat);
+            movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + postersFormat);
+            movie.setBannerFilename(movie.getBaseName() + bannerToken + "." + bannersFormat);
             movie.setSubtitles(hasSubtitles(movie.getFile())==true?"YES":"NO");
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());

@@ -133,7 +133,7 @@ public class PosterScanner {
             // Encode the basename to ensure that non-usable file system characters are replaced
             // Issue 1155 : YAMJ refuses to pickup fanart and poster for a movie -
             // Do not make safe file name before searching.
-            localPosterBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
+            localPosterBaseFilename = movie.getBaseName();
         } else if (searchForExistingCoverArt.equalsIgnoreCase("fixedcoverartname")) {
             localPosterBaseFilename = fixedCoverArtName;
         } else {
@@ -206,7 +206,7 @@ public class PosterScanner {
             fullPosterFilename = localPosterFile.getAbsolutePath();
             logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
 
-            String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
+            String safePosterFilename = movie.getPosterFilename();
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + safePosterFilename;
             String destFileName = tempJukeboxDetailsRoot + File.separator + safePosterFilename;
 

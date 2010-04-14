@@ -13,6 +13,8 @@
 
 package com.moviejukebox.scanner;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -97,11 +99,23 @@ public class MovieFilenameScanner {
     /** All symbols between '-' and '/' but not after '/TVSHOW/' or '/PART/' */
     protected static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
 
+    /** Parts/disks markers. CAUTION: Grouping is used for part number detection/parsing. */
     private static final List<Pattern> PART_PATTERNS = new ArrayList<Pattern>() {
         {
             add(iwpatt("CD ([0-9]+)"));
             add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)"));
             add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
+        }
+    };
+
+    /** Detect if the file/folder name is incomplete and additional info must be taken from parent folder. 
+     * CAUTION: Grouping is used for part number detection/parsing. */
+    private static final List<Pattern> PARENT_FOLDER_PART_PATTERNS = new ArrayList<Pattern>() {
+        {
+            for (Pattern p : PART_PATTERNS) {
+                add(Pattern.compile("^" + p, CASE_INSENSITIVE));
+            }
+            add(Pattern.compile("^" + TV_PATTERN, CASE_INSENSITIVE));
         }
     };
     
@@ -291,7 +305,8 @@ public class MovieFilenameScanner {
     private static final Pattern pattInSBrackets(String regex) {
         return ipatt("\\[([^\\[\\]]*" + regex + "[^\\[]*)\\]");
     }
-   /**
+
+    /**
      * @param regex
      * @return Case insensitive pattern with word delimiters around
      */
@@ -340,15 +355,28 @@ public class MovieFilenameScanner {
             dto.setVideoSource("DVD");
         }
 
-        // SKIP
-        for (Pattern p : skipPatterns) {
-            rest = p.matcher(rest).replaceAll("./.");
+        
+
+        rest = cleanUp(rest);
+
+        // Detect incomplete filenames and add parent folder name to parser
+        for (Pattern p : PARENT_FOLDER_PART_PATTERNS) {
+            final Matcher matcher = p.matcher(rest);
+            if (matcher.find()) {
+                final File folder = this.file.getParentFile();
+                if (folder == null) {
+                    break;
+                }
+                rest = cleanUp(folder.getName()) +  "./." + rest;
+                break;
+            }
         }
 
         // Remove version info
         for (Pattern p : movieVersionPatterns) {
             rest = p.matcher(rest).replaceAll("./.");
         }
+        
 
         // EXTRAS (Including Trailers)
         {
@@ -533,6 +561,14 @@ public class MovieFilenameScanner {
             }
 
         }
+    }
+
+    private String cleanUp(String filename) {
+        // SKIP
+        for (Pattern p : skipPatterns) {
+            filename = p.matcher(filename).replaceAll("./.");
+        }
+        return filename;
     }
     
     /**

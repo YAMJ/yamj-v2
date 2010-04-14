@@ -21,16 +21,12 @@ import static java.lang.Boolean.parseBoolean;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.instrument.Instrumentation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -773,7 +769,7 @@ public class MovieJukebox {
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
 
-                        String safeSetMasterBaseName = FileTools.makeSafeFilename(movie.getBaseName());
+                        String safeSetMasterBaseName = movie.getBaseName();
 
                         // The master's movie XML is used for generating the
                         // playlist it will be overwritten by the index XML
@@ -1007,7 +1003,7 @@ public class MovieJukebox {
          * For each video in the library, if an XML file for this video already exists, then there is no need to search for the video file information, just
          * parse the XML data.
          */
-        String safeBaseName = FileTools.makeSafeFilename(movie.getBaseName());
+        String safeBaseName = movie.getBaseName();
         File xmlFile = FileTools.fileCache.getFile(jukeboxDetailsRoot + File.separator + safeBaseName + ".xml");
 
         // See if we can find the NFO associated with this video file.
@@ -1128,7 +1124,7 @@ public class MovieJukebox {
      * @param tempJukeboxDetailsRoot
      */
     public void updateMoviePoster(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String posterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
+        String posterFilename = movie.getPosterFilename();
         File posterFile = new File(jukeboxDetailsRoot + File.separator + posterFilename);
         File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + posterFilename);
 
@@ -1165,7 +1161,7 @@ public class MovieJukebox {
      * @param tempJukeboxDetailsRoot
      */
     public void updateTvBanner(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String bannerFilename = FileTools.makeSafeFilename(movie.getBannerFilename());
+        String bannerFilename = movie.getBannerFilename();
         File bannerFile = FileTools.fileCache.getFile(jukeboxDetailsRoot + File.separator + bannerFilename);
         File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + bannerFilename);
 
@@ -1364,8 +1360,8 @@ public class MovieJukebox {
         try {
             // TODO Move all temp directory code to FileTools for a cleaner method
             // Issue 201 : we now download to local temp directory
-            String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
-            String safeThumbnailFilename = FileTools.makeSafeFilename(movie.getThumbnailFilename());
+            String safePosterFilename = movie.getPosterFilename();
+            String safeThumbnailFilename = movie.getThumbnailFilename();
             File src = new File(tempRootPath + File.separator + safePosterFilename);
             File oldsrc = FileTools.fileCache.getFile(rootPath + File.separator + safePosterFilename);
             String dst = tempRootPath + File.separator + safeThumbnailFilename;
@@ -1451,8 +1447,8 @@ public class MovieJukebox {
                     boolean forcePosterOverwrite) {
         try {
             // Issue 201 : we now download to local temporary directory
-            String safePosterFilename = FileTools.makeSafeFilename(movie.getPosterFilename());
-            String safeDetailPosterFilename = FileTools.makeSafeFilename(movie.getDetailPosterFilename());
+            String safePosterFilename = movie.getPosterFilename();
+            String safeDetailPosterFilename = movie.getDetailPosterFilename();
             File   src = new File(tempRootPath + File.separator + safePosterFilename);
             File   oldsrc = FileTools.fileCache.getFile(rootPath + File.separator + safePosterFilename);
             String dst = tempRootPath + File.separator + safeDetailPosterFilename;

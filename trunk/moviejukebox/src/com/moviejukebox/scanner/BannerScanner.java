@@ -71,7 +71,7 @@ public class BannerScanner {
      * @param movie
      */
     public static boolean scan(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String localBannerBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
+        String localBannerBaseFilename = movie.getBaseName();
         String fullBannerFilename = null;
         File localBannerFile = null;
         boolean foundLocalBanner = false;
@@ -108,7 +108,7 @@ public class BannerScanner {
             if (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setBannerURL(localBannerFile.toURI().toString());
             }
-            String bannerFilename = FileTools.makeSafeFilename(movie.getBannerFilename());
+            String bannerFilename = movie.getBannerFilename();
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + bannerFilename;
             String destFileName = tempJukeboxDetailsRoot + File.separator + bannerFilename;
 
@@ -156,7 +156,7 @@ public class BannerScanner {
      */
     private static void downloadBanner(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (movie.getBannerURL() != null && !movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-            String safeBannerFilename = FileTools.makeSafeFilename(movie.getBannerFilename());
+            String safeBannerFilename = movie.getBannerFilename();
             String bannerFilename = jukeboxDetailsRoot + File.separator + safeBannerFilename;
             File bannerFile = FileTools.fileCache.getFile(bannerFilename);
             String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + safeBannerFilename;

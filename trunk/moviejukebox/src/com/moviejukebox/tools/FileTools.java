@@ -15,6 +15,9 @@ package com.moviejukebox.tools;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import static java.lang.Boolean.parseBoolean;
+import static org.apache.commons.lang.StringUtils.substringAfter;
+import static org.apache.commons.lang.StringUtils.substringBefore;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -37,10 +40,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -101,6 +104,25 @@ public class FileTools {
                     }
                 }
             }
+        }
+        
+        // Parse transliteration map: (source_character [-] transliteration_sequence [,])+
+        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.charset.filename.translate", ""), ",");
+        while (st.hasMoreElements()) {
+            final String token = st.nextToken();
+            final String character = trimToNull(substringBefore(token, "-"));
+            if (character == null) {
+                // TODO Error message?
+                continue;
+            }
+            final String translation = trimToNull(substringAfter(token, "-"));
+            if (translation == null) {
+                // TODO Error message?
+                // TODO Allow empty transliteration?
+                continue;
+            }
+            unsafeChars.add(new ReplaceEntry(character.toUpperCase(), translation.toUpperCase()));
+            unsafeChars.add(new ReplaceEntry(character.toLowerCase(), translation.toLowerCase()));
         }
     }
 

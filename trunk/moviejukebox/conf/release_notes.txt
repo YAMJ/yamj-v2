@@ -6,6 +6,7 @@ MovieJukebox 2.0 BETA
 ---------------------
   - Enhancement   #118 Exclude strings for files/folders to support regex
   - Enhancement   #357 Use XBMC episodedetails NFO to override TV episode information
+  - Enhancement   #364 Use directory name to scan for movie title
   - Enhancement   #409 Enhance language/flags functionality
   - Enhancement  #1034 Multiple Language detect
   - Enhancement  #1042 TVRage.com scraper (Beta Release Only)
@@ -21,6 +22,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1363 Subtitles not being downloaded for new TV Show episodes
   - Enhancement  #1365 Allocine Plugin: Fallback to release date if production date isn't available
   - Fixed defect #1367 PART title processing broke
+  - Fixed defect #1373 Russian file names support
   - Fixed defect #1376 Null Pointer Exception in MovieDirectoryScanner
   - Enhancement  #1378 Kinopoisk plugin search enhancement
   - Fixed defect #1386 Keep previously scanned movies parameter causes playLink error

@@ -350,6 +350,19 @@ public class MovieFilenameScannerTest extends TestCase {
     public void testRussian() {
         MovieFileNameDTO d = scan("Воображариум доктора Парнаса.mkv");
         assertEquals("Воображариум доктора Парнаса", d.getTitle());
+        
+        d = scan("You Don't Mess with the Zohan.2008.Rus.DVDRip.avi");
+        assertEquals("You Don't Mess with the Zohan", d.getTitle());
+        assertEquals(2008, d.getYear());
+        assertEquals(1, d.getLanguages().size());
+        assertEquals("Russian", d.getLanguages().get(0));
+    }
+    
+    public void testParentFolderName() {
+        MovieFileNameDTO d = scan("Гора самоцветов 1 Рубин", "Part1 - Шейдулла-лентяй.avi");
+        assertEquals("Гора самоцветов 1 Рубин", d.getTitle());
+        assertEquals(1, d.getPart());
+        assertEquals("Шейдулла-лентяй", d.getPartTitle());
     }
     
     @SuppressWarnings("serial")
@@ -364,4 +377,63 @@ public class MovieFilenameScannerTest extends TestCase {
         return MovieFilenameScanner.scan(file);
     }
 
+    @SuppressWarnings("serial")
+    private static MovieFileNameDTO scan(String foldername, String filename) {
+        final File folder = new File(foldername) {
+            @Override
+            public boolean isFile() {
+                return false;
+            }
+        };
+
+        final File file = new File(filename) {
+            @Override
+            public boolean isFile() {
+                return true;
+            }
+
+            @Override
+            public File getParentFile() {
+                return folder;
+            }
+        };
+
+        return MovieFilenameScanner.scan(file);
+    }
+
+    @SuppressWarnings("serial")
+    private static MovieFileNameDTO scan(String parentfoldername, String foldername, String filename) {
+        final File parentfolder = new File(parentfoldername) {
+            @Override
+            public boolean isFile() {
+                return false;
+            }
+        };
+
+        final File folder = new File(foldername) {
+            @Override
+            public boolean isFile() {
+                return false;
+            }
+
+            @Override
+            public File getParentFile() {
+                return parentfolder;
+            }
+        };
+
+        final File file = new File(filename) {
+            @Override
+            public boolean isFile() {
+                return true;
+            }
+
+            @Override
+            public File getParentFile() {
+                return folder;
+            }
+        };
+
+        return MovieFilenameScanner.scan(file);
+    }
 }
