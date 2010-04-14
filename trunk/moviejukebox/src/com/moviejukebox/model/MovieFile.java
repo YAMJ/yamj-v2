@@ -231,7 +231,7 @@ public class MovieFile implements Comparable<MovieFile> {
         return subtitlesExchange;
     }
 
-    public void setSubtitlesExchange(boolean subtitlesExchange) {
+    public void setSubtitlesExchange(Boolean subtitlesExchange) {
         this.subtitlesExchange = subtitlesExchange;
     }
     
