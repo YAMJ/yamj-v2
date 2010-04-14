@@ -352,14 +352,26 @@ public class FileTools {
             
         return filename;
     }
-    
+
+    /*
+     * Returns the given path in canonical form
+     * i.e. no duplicated separators, no ".", ".."..., and ending without trailing separator
+     * the only exception is a root! the canonical form for a root INCLUDES the separator
+     */
     public static String getCanonicalPath(String path) {
         try {
-            return new File(path).getCanonicalPath();
-        } catch (IOException e) {
-            return path;
-        }
+            path = new File(path).getCanonicalPath();
+        } catch (IOException e) {}
+        return path;
         
+    }
+
+    /*
+     * when concatenating paths and the source MIGHT be a root, use this function
+     * to safely add the separator 
+     */
+    public static String getDirPathWithSeparator(String path) {
+        return path.endsWith(File.separator) ? path : path + File.separator;
     }
 
     public static String getFileExtension(String filename) {
@@ -571,7 +583,7 @@ public class FileTools {
         }
 
         public File[] listFiles(FilenameFilter filter) {
-            String ss[] = list();
+            String[] ss = list();
             if (ss == null) return null;
             ArrayList<FileEx> v = new ArrayList<FileEx>();
             FileEx f;
@@ -632,13 +644,15 @@ public class FileTools {
         /*
          * Add a full directory listing; used for existing jukebox
          */
-        public void addDir(File dir, boolean recursive) {
+        public void addDir(File dir, int depth) {
            File[] files=dir.listFiles();
            if(files.length == 0) return;
            addFiles(files);
+           if (depth <= 0) return;
+           depth --;
            for(File f : files){
-               if(recursive && f.isDirectory()){
-                   addDir(f, recursive);
+               if(f.isDirectory()){
+                   addDir(f, depth);
                }
            }
         }

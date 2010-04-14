@@ -42,8 +42,7 @@ import com.moviejukebox.tools.PropertiesUtil;
  */
 public class MovieDirectoryScanner {
 
-    protected int mediaLibraryRootPathIndex;
-    private String mediaLibraryRoot;
+    protected int mediaLibraryRootPathIndex; // always includes path delimiter
     private final Set<String> supportedExtensions = new HashSet<String>();
     private String thumbnailsFormat;
     private String postersFormat;
@@ -89,13 +88,14 @@ public class MovieDirectoryScanner {
 
         File directory = new FileTools.FileEx(srcPath.getPath());
 
+        String mediaLibraryRoot;
         if (directory.isFile()) {
             mediaLibraryRoot = directory.getParentFile().getAbsolutePath();
         } else {
             mediaLibraryRoot = directory.getAbsolutePath();
         }
-
-        mediaLibraryRootPathIndex = mediaLibraryRoot.length();
+        // including path delimiter
+        mediaLibraryRootPathIndex = FileTools.getDirPathWithSeparator(mediaLibraryRoot).length();
 
         this.scanDirectory(srcPath, directory, library);
         return library;
@@ -180,9 +180,6 @@ public class MovieDirectoryScanner {
 
         // Compute the relative filename
         String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
-        if (relativeFilename.startsWith(File.separator)) {
-            relativeFilename = relativeFilename.substring(1);
-        }
 
         String relativeFileNameLower = relativeFilename.toLowerCase();
         String jukeboxName = PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox");
@@ -271,9 +268,6 @@ public class MovieDirectoryScanner {
 
             // Compute the relative filename
             String relativeFilename = contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex);
-            if (relativeFilename.startsWith(File.separator)) {
-                relativeFilename = relativeFilename.substring(1);
-            }
 
             MovieFile movieFile = new MovieFile();
             relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!

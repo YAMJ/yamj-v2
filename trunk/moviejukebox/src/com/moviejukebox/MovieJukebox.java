@@ -332,7 +332,7 @@ public class MovieJukebox {
             return;
         }
 
-        if (!new File(movieLibraryRoot).exists()) {
+        if (! f.exists()) {
             logger.severe("Directory not found : " + movieLibraryRoot);
             return;
         }
@@ -578,7 +578,7 @@ public class MovieJukebox {
         final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
-        final String jukeboxDetailsRoot = jukeboxRoot + File.separator + detailsDirName;
+        final String jukeboxDetailsRoot = FileTools.getCanonicalPath(jukeboxRoot + File.separator + detailsDirName);
         final File jukeboxDetailsRootFile = new FileTools.FileEx(jukeboxDetailsRoot);
 
         MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
@@ -636,7 +636,7 @@ public class MovieJukebox {
          */
         logger.fine("Scanning library directory " + mediaLibraryRoot);
         logger.fine("Jukebox output goes to " + jukeboxRoot);
-        FileTools.fileCache.addDir(jukeboxDetailsRootFile, false);
+        FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
 
         int threadsMaxDirScan = Math.min(MaxThreadsProcess, movieLibraryPaths.size());
         threadsMaxDirScan = Math.max(threadsMaxDirScan, 1);
