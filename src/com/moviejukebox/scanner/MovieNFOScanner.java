@@ -81,7 +81,6 @@ public class MovieNFOScanner {
         }
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
-        NFOdirectory = FileTools.getCanonicalPath(NFOdirectory);
         NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
         getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
@@ -218,12 +217,8 @@ public class MovieNFOScanner {
         if (!NFOdirectory.equals("")) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
-            String sLibraryPath = movie.getLibraryPath();
-            if ((sLibraryPath.lastIndexOf("\\") == sLibraryPath.length()) || (sLibraryPath.lastIndexOf("/") == sLibraryPath.length())) {
-                checkNFO(nfos, movie.getLibraryPath() + NFOdirectory + File.separator + movie.getBaseName());
-            } else {
-                checkNFO(nfos, movie.getLibraryPath() + File.separator + NFOdirectory + File.separator + movie.getBaseName());
-            }
+            String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + NFOdirectory;
+            checkNFO(nfos, sNFOPath + File.separator + movie.getBaseName());
         }
 
         // *** Next step is to check for a directory wide NFO file.

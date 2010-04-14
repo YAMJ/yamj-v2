@@ -60,7 +60,7 @@ public class MediaInfoScanner {
     public final static String OS_ARCH = System.getProperty("os.arch");
     private static boolean activated;
     private static boolean enableMetadata;
-    String randomDirName;
+    private String randomDirName;
 
     static {
         logger.finer("OS name : " + OS_NAME);
@@ -81,7 +81,7 @@ public class MediaInfoScanner {
         }
         // System.out.println(checkMediainfo.getAbsolutePath());
         if (!checkMediainfo.canExecute()) {
-            //logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
+            logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
             activated = false;
         } else {
             activated = true;

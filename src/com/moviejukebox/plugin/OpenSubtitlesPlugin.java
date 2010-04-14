@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,8 +31,6 @@ import java.security.MessageDigest;
 import java.util.Scanner;
 import java.util.logging.Logger;
 import java.util.zip.DeflaterOutputStream;
-import java.util.zip.GZIPInputStream;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
@@ -145,7 +142,7 @@ public class OpenSubtitlesPlugin {
                 int index = path.lastIndexOf(".");
                 String basename = path.substring(0, index + 1);
 
-                File subtitleFile = new File(basename + "srt");
+                File subtitleFile = FileTools.fileCache.getFile(basename + "srt");
 
                 if (!subtitleFile.exists()) {
                     allSubtitleExchange = false;
@@ -171,7 +168,7 @@ public class OpenSubtitlesPlugin {
                     int index = path.lastIndexOf(".");
                     String basename = path.substring(0, index + 1);
 
-                    File subtitleFile = new File(basename + "srt");
+                    File subtitleFile = FileTools.fileCache.getFile(basename + "srt");
 
                     if (!subtitleFile.exists()) {
                         if (subtitleDownload(movie, mf.getFile(), subtitleFile) == true) {
@@ -279,6 +276,7 @@ public class OpenSubtitlesPlugin {
             }
 
             FileTools.copy(inputStream, new FileOutputStream(subtitleFile));
+            connection.disconnect();
 
             String subLanguageID = getValue("SubLanguageID", ret);
             if (subLanguageID != null) {
@@ -515,6 +513,8 @@ public class OpenSubtitlesPlugin {
         while (in.hasNextLine()) {
             str += in.nextLine();
         }
+        in.close();
+        ((HttpURLConnection)connection).disconnect();
 
         return str;
     }
