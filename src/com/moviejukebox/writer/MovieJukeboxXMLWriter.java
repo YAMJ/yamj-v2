@@ -753,7 +753,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
         writer.writeAttribute("isTV", Boolean.toString(movie.isTVShow()));
         writer.writeStartElement("details");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBaseName())) + ".html");
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getBaseName()) + ".html");
         writer.writeEndElement();
         writer.writeStartElement("title");
         writer.writeCharacters(movie.getTitle());
@@ -765,13 +765,13 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getOriginalTitle());
         writer.writeEndElement();
         writer.writeStartElement("detailPosterFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getDetailPosterFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
         writer.writeEndElement();
         writer.writeStartElement("thumbnail");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getThumbnailFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getThumbnailFilename()));
         writer.writeEndElement();
         writer.writeStartElement("bannerFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBannerFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getBannerFilename()));
         writer.writeEndElement();
         writer.writeStartElement("certification");
         writer.writeCharacters(movie.getCertification());
@@ -862,13 +862,13 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(Integer.toString(movie.getTop250()));
         writer.writeEndElement();
         writer.writeStartElement("details");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBaseName())) + ".html");
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getBaseName()) + ".html");
         writer.writeEndElement();
         writer.writeStartElement("posterURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getPosterURL()));
         writer.writeEndElement();
         writer.writeStartElement("posterFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getPosterFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getPosterFilename()));
         writer.writeEndElement();
         writer.writeStartElement("posterSubimage");
         writer.writeCharacters(movie.getPosterSubimage());
@@ -877,19 +877,19 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getFanartURL()));
         writer.writeEndElement();
         writer.writeStartElement("fanartFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getFanartFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getFanartFilename()));
         writer.writeEndElement();
         writer.writeStartElement("detailPosterFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getDetailPosterFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
         writer.writeEndElement();
         writer.writeStartElement("thumbnail");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getThumbnailFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getThumbnailFilename()));
         writer.writeEndElement();
         writer.writeStartElement("bannerURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getBannerURL()));
         writer.writeEndElement();
         writer.writeStartElement("bannerFile");
-        writer.writeCharacters(HTMLTools.encodeUrl(FileTools.makeSafeFilename(movie.getBannerFilename())));
+        writer.writeCharacters(HTMLTools.encodeUrl(movie.getBannerFilename()));
         writer.writeEndElement();
         writer.writeStartElement("plot");
         writer.writeCharacters(movie.getPlot());
@@ -1114,7 +1114,7 @@ public class MovieJukeboxXMLWriter {
      * forceXMLOverwrite is true.
      */
     public void writeMovieXML(String rootPath, String tempRootPath, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
-        String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+        String baseName = movie.getBaseName();
         File finalXmlFile = FileTools.fileCache.getFile(rootPath + File.separator + baseName + ".xml");
         File tempXmlFile = new File(tempRootPath + File.separator + baseName + ".xml");
 

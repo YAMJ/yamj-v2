@@ -72,7 +72,7 @@ public class FanartScanner {
     }
 
     public static boolean scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        String localFanartBaseFilename = FileTools.makeSafeFilename(movie.getBaseName());
+        String localFanartBaseFilename = movie.getBaseName();
         String fullFanartFilename = null;
         File localFanartFile = null;
         boolean foundLocalFanart = false;
@@ -123,7 +123,7 @@ public class FanartScanner {
             if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
             }
-            String fanartFilename = FileTools.makeSafeFilename(movie.getFanartFilename());
+            String fanartFilename = movie.getFanartFilename();
             String finalDestinationFileName = jukeboxDetailsRoot + File.separator + fanartFilename;
             String destFileName = tempJukeboxDetailsRoot + File.separator + fanartFilename;
 
@@ -164,7 +164,7 @@ public class FanartScanner {
 
     private static void downloadFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-            String safeFanartFilename = FileTools.makeSafeFilename(movie.getFanartFilename());
+            String safeFanartFilename = movie.getFanartFilename();
             String fanartFilename = jukeboxDetailsRoot + File.separator + safeFanartFilename;
             File fanartFile = FileTools.fileCache.getFile(fanartFilename);
             String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + safeFanartFilename;

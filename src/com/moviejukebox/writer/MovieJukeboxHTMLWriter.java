@@ -99,7 +99,7 @@ public class MovieJukeboxHTMLWriter {
 
     public void generateMovieDetailsHTML(String rootPath, String tempRootPath, Movie movie) {
         try {
-            String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+            String baseName = movie.getBaseName();
             String tempFilename = tempRootPath + File.separator + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
             File oldXmlFile = FileTools.fileCache.getFile(rootPath + File.separator + baseName + ".xml");
@@ -152,7 +152,7 @@ public class MovieJukeboxHTMLWriter {
         MovieFile[] movieFileArray = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()]);
 
         try {
-            String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+            String baseName = movie.getBaseName();
             String tempFilename = tempRootPath + File.separator + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
             File oldXmlFile = new File(rootPath + File.separator + baseName + ".xml");
@@ -237,7 +237,7 @@ public class MovieJukeboxHTMLWriter {
     private String generateSimplePlaylist(String rootPath, String tempRootPath, Movie movie, MovieFile[] movieFiles, int offset) 
             throws FileNotFoundException, UnsupportedEncodingException {
         String fileSuffix = ".playlist"+ movieFiles[offset % movieFiles.length].getFirstPart() + ".jsp";
-        String baseName = FileTools.makeSafeFilename(movie.getBaseName());
+        String baseName = movie.getBaseName();
         String tempFilename = tempRootPath + File.separator + baseName;
         File finalPlaylistFile = new File(rootPath + File.separator + baseName + fileSuffix);
         File tempPlaylistFile = new File(tempFilename + fileSuffix);
