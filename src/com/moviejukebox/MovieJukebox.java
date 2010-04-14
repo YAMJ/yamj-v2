@@ -590,12 +590,12 @@ public class MovieJukebox {
         jukeboxTempDir = FileTools.getCanonicalPath(jukeboxTempDir);
 
         // Multi-thread: Processing thread settings
-        int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", Integer.toString(Runtime.getRuntime().availableProcessors())));
-        MaxThreadsProcess = Math.max(MaxThreadsProcess, 1);
-        int MaxThreadsWebIO = Integer.parseInt(getProperty("mjb.MaxThreadsScan", "0"));
-        MaxThreadsWebIO = MaxThreadsWebIO <= 0 ? MaxThreadsProcess : MaxThreadsWebIO;
-        logger.fine("Using " + MaxThreadsWebIO + " web scanning threads and " + MaxThreadsProcess + " processing threads...");
-        if (MaxThreadsWebIO + MaxThreadsProcess == 2) {
+        int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0")); 
+        if(MaxThreadsProcess <= 0) MaxThreadsProcess = Runtime.getRuntime().availableProcessors();
+        int MaxThreadsDownload = Integer.parseInt(getProperty("mjb.MaxThreadsDownload", "0"));
+        if(MaxThreadsDownload <= 0) MaxThreadsDownload = MaxThreadsProcess;
+        logger.fine("Using " + MaxThreadsProcess + " processing threads and " + MaxThreadsDownload + " downloading threads...");
+        if (MaxThreadsDownload + MaxThreadsProcess == 2) {
             // Display the note about the performance, otherwise assume that the user knows how to change
             // these parameters as they aren't set to the minimum
             logger.fine("See README.TXT for increasing performance using these settings.");
@@ -671,7 +671,7 @@ public class MovieJukebox {
         logger.fine("Found " + library.size() + " movies in your media library");
         logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
-        tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsWebIO);
+        tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsDownload);
 
         if (library.size() > 0) {
             logger.fine("Searching for movies information...");
