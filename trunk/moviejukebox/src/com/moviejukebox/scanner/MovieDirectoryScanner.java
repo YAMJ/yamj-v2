@@ -51,6 +51,7 @@ public class MovieDirectoryScanner {
     private String bannersFormat;
     private String bannerToken;
     private String opensubtitles;
+    private Boolean usepathhash;
     private Boolean excludeFilesWithoutExternalSubtitles;
     private Boolean excludeMultiPartBluRay;
     private Boolean playFullBluRayDisk;
@@ -74,6 +75,7 @@ public class MovieDirectoryScanner {
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
         excludeMultiPartBluRay = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.excludeMultiPartBluRay", "false"));
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
+        usepathhash = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.scanner.usehashforbasename", "false"));
         localBDRipScanner = new BDRipScanner();
     }
 
@@ -307,7 +309,7 @@ public class MovieDirectoryScanner {
 
             // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
             // TODO: Actually it makes sense to use normalized movie name instead of first part name.
-            movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + Integer.toHexString(relativeFilename.hashCode()));
+            movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + (usepathhash?Integer.toHexString(relativeFilename.hashCode()):""));
             
             movie.setLibraryPath(srcPath.getPath());
             movie.setPosterFilename(movie.getBaseName() + ".jpg");
