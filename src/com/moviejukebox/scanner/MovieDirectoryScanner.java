@@ -266,10 +266,6 @@ public class MovieDirectoryScanner {
                 baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
             }
             
-            // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
-            // TODO: Actually it makes sense to use normalized movie name instead of first part name.
-            baseFileName += Integer.toHexString(file.getAbsolutePath().hashCode());
-
             // Compute the relative filename
             String relativeFilename = contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex);
 
@@ -307,7 +303,12 @@ public class MovieDirectoryScanner {
             movie.addMovieFile(movieFile);
             movie.setFile(contentFiles[i]);
             movie.setContainerFile(file);
-            movie.setBaseName(FileTools.makeSafeFilename(baseFileName));
+            movie.setBaseFilename(baseFileName);
+
+            // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
+            // TODO: Actually it makes sense to use normalized movie name instead of first part name.
+            movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + Integer.toHexString(file.getAbsolutePath().hashCode()));
+            
             movie.setLibraryPath(srcPath.getPath());
             movie.setPosterFilename(movie.getBaseName() + ".jpg");
             movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailsFormat);

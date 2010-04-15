@@ -218,7 +218,7 @@ public class MovieNFOScanner {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
             String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + NFOdirectory;
-            checkNFO(nfos, sNFOPath + File.separator + movie.getBaseName());
+            checkNFO(nfos, sNFOPath + File.separator + movie.getBaseFilename());
         }
 
         // *** Next step is to check for a directory wide NFO file.
@@ -251,7 +251,7 @@ public class MovieNFOScanner {
 
              if (currentDir != null) {
                  // Check the current directory for the video filename
-                 fFilter = new GenericFileFilter("(?i)" + movie.getBaseName() + nfoExtRegex);
+                 fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + nfoExtRegex);
                  checkRNFO(nfos, currentDir, fFilter);
              }
          }

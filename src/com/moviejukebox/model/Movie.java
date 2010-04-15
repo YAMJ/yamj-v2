@@ -71,7 +71,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String mjbRevision = UNKNOWN;
     private Date mjbGenerationDate = null;
 
+    // Safe name for generated files
     private String baseName;
+    
+    // Base name for finding posters, nfos, banners, etc.
+    private String baseFilename;
+    
     private boolean scrapeLibrary;
     // Movie properties
     private Map<String, String> idMap = new HashMap<String, String>(2);
@@ -225,7 +230,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return currentRevision;
     }
 
-    public void setMjbGenerationDate(String mjbGenerationDate) {
+    public void setMjbGenerationDateString(String mjbGenerationDate) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             this.mjbGenerationDate = dateFormat.parse(mjbGenerationDate);
@@ -366,6 +371,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      */
     public String getBaseName() {
         return baseName;
+    }
+
+    
+    public String getBaseFilename() {
+        return baseFilename;
     }
 
     @XmlElementWrapper(name = "cast")
@@ -694,13 +704,23 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void setBaseName(String filename) {
+    public void setBaseName(String baseName) {
+        if (baseName == null) {
+            baseName = UNKNOWN;
+        }
+        if (!baseName.equalsIgnoreCase(this.baseName)) {
+            this.isDirty = true;
+            this.baseName = baseName;
+        }
+    }
+
+    public void setBaseFilename(String filename) {
         if (filename == null) {
             filename = UNKNOWN;
         }
-        if (!filename.equalsIgnoreCase(baseName)) {
+        if (!filename.equalsIgnoreCase(this.baseFilename)) {
             this.isDirty = true;
-            this.baseName = filename;
+            this.baseFilename = filename;
         }
     }
 
