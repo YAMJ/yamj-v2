@@ -31,6 +31,8 @@ import java.security.MessageDigest;
 import java.util.Scanner;
 import java.util.logging.Logger;
 import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPInputStream;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
@@ -275,7 +277,7 @@ public class OpenSubtitlesPlugin {
                 return false;
             }
 
-            FileTools.copy(inputStream, new FileOutputStream(subtitleFile));
+            FileTools.copy(new GZIPInputStream(inputStream), new FileOutputStream(subtitleFile));
             connection.disconnect();
 
             String subLanguageID = getValue("SubLanguageID", ret);
