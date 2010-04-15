@@ -140,10 +140,10 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<xmlGenerationDate>")) {
                     movie.setMjbGenerationDateString(parseCData(r));
                 }
-                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseFilename() == null || movie.getBaseFilename() == Movie.UNKNOWN)) {
+                if (tag.equalsIgnoreCase("<baseFilenameBase>") && (movie.getBaseFilename() == null || movie.getBaseFilename() == Movie.UNKNOWN)) {
                     movie.setBaseFilename(parseCData(r));
                 }
-                if (tag.equalsIgnoreCase("<baseName>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
+                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
                     movie.setBaseName(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<title>")) {
@@ -839,10 +839,10 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("xmlGenerationDate");
         writer.writeCharacters(dateFormat.format(new Date()));
         writer.writeEndElement();
-        writer.writeStartElement("baseFilename");
+        writer.writeStartElement("baseFilenameBase");
         writer.writeCharacters(movie.getBaseFilename());
         writer.writeEndElement();
-        writer.writeStartElement("baseName");
+        writer.writeStartElement("baseFilename");
         writer.writeCharacters(movie.getBaseName());
         writer.writeEndElement();
         writer.writeStartElement("title");
