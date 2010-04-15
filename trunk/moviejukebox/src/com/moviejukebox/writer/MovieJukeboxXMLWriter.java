@@ -14,7 +14,6 @@
 package com.moviejukebox.writer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -520,12 +519,24 @@ public class MovieJukeboxXMLWriter {
         writer.close();
     }
 
+    private boolean checkIndexFiles(String basename, String rootPath)
+    {
+        String filetest = rootPath + File.separator + basename + ".xml";
+        if (!FileTools.fileCache.fileExists(filetest)) return false;
+        FileTools.addJukeboxFile(filetest);
+        //not nice, but no need to do this again in HTMLWriter                                            
+        filetest = rootPath + File.separator + basename + ".html";
+        if (!FileTools.fileCache.fileExists(filetest)) return false;
+        FileTools.addJukeboxFile(filetest);
+        return true;
+    }
+
     /**
      * Write the set of index XML files for the library
      * 
      * @throws Throwable
      */
-    public void writeIndexXML(final String rootPath, String detailsDirName, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
+    public void writeIndexXML(final String rootPath, final String originalPath, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
         
@@ -555,11 +566,6 @@ public class MovieJukeboxXMLWriter {
                                 skipindex = false;
                                 break;
                             }
-                        }
-                        if(skipindex){
-                            logger.finer("Category " + category_path + " no change detected, skipping XML generation.");
-                            library.skipIndex(group);
-                            //no exit, we need to mark the files, see below
                         }
 
                         String key = FileTools.createCategoryKey(group.getKey());
@@ -607,11 +613,11 @@ public class MovieJukeboxXMLWriter {
                                 nbMoviesLeft--;
 
                                 if (nbMoviesLeft == 0) {
-                                    if(skipindex){
-                                        //just mark the names
-                                        FileTools.addJukeboxFile(prefix + current + ".xml");
-                                        //not nice, but no need to do this again in HTMLWriter
-                                        FileTools.addJukeboxFile(prefix + current + ".html");
+                                    if(skipindex && !checkIndexFiles(prefix + current, originalPath)){
+                                        skipindex = false;
+                                    }
+
+                                    if(skipindex){//handled above, just skip here   
                                     } else if (current == 1) {
                                         // If this is the first page, link the previous page to the last page.
                                         writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, last, current, next, last, nbVideosPerPage,
@@ -635,16 +641,18 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (moviesInASinglePage.size() > 0) {
-                            if(skipindex){
-                                //just mark the names
-                                FileTools.addJukeboxFile(prefix + current + ".xml");
-                                //not nice, but no need to do this again in HTMLWriter
-                                FileTools.addJukeboxFile(prefix + current + ".html");
-
-                            } else {
+                            if(skipindex && !checkIndexFiles(prefix + current, originalPath)){
+                                skipindex = false;
+                            }
+                            if(!skipindex){
                                 writeIndexPage(library, moviesInASinglePage, rootPath, categoryName, key, previous, current, 
                                                 1, last, nbVideosPerPage, nbVideosPerLine);
                             }
+                        }
+
+                        if(skipindex){
+                            logger.finer("Category " + category_path + " no change detected, skipping XML generation.");
+                            library.skipIndex(group);
                         }
                         return null;
                     }

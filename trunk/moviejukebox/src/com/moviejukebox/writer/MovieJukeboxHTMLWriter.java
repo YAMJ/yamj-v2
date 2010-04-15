@@ -14,9 +14,7 @@
 package com.moviejukebox.writer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -395,7 +393,7 @@ public class MovieJukeboxHTMLWriter {
             
             FileTools.addJukeboxFile(xmlFile.getName());
             FileTools.addJukeboxFile(htmlFile.getName());
-            
+
             File transformCatKey = new File(skinHome, FileTools.makeSafeFilename(categoryName + "_" + key) + ".xsl");
             File transformCategory = new File(skinHome, FileTools.makeSafeFilename(categoryName) + ".xsl");
             File transformBase = new File(skinHome, "index.xsl");
