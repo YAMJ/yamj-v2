@@ -1022,11 +1022,14 @@ public class MovieJukebox {
                 }
             }
         }
-        
+
+        Collection<MovieFile> scannedFiles = null;
         // Only parse the XML file if we mean to update the XML file.
         if (xmlFile.exists() && !forceXMLOverwrite) {
             // parse the XML file
             logger.finer("XML file found for " + movie.getBaseName());
+            //Copy scanned files BEFORE parsing the existing xml
+            scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
             xmlWriter.parseMovieXML(xmlFile, movie);
             if (recheckXML && mjbRecheck(movie)) {
                 logger.fine("Recheck of " + movie.getBaseName() + " required");
@@ -1039,16 +1042,7 @@ public class MovieJukebox {
         if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
             // *** START of routine to check if the file has changed location
             // Set up some arrays to store the directory scanner files and the xml files
-            Collection<MovieFile> scannedFiles = new ArrayList<MovieFile>();
-            Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>();
-
-            // Copy the current movie files to a new collection (
-            for (MovieFile part : movie.getMovieFiles())
-                scannedFiles.add(part);
-
-            // Copy the XML movie files to a new collection
-            for (MovieFile part : movie.getMovieFiles())
-                xmlFiles.add(part);
+            Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
 
             // Now compare the before and after files
             Iterator<MovieFile> scanLoop = scannedFiles.iterator();
