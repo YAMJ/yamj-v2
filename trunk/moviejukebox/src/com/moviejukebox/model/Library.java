@@ -257,7 +257,8 @@ public class Library implements Map<String, Movie> {
             indexMaster.setSeason(-1);
             indexMaster.setTitleSort(index_name);
             indexMaster.setOriginalTitle(index_name);
-            indexMaster.setBaseName(makeSafeFilename(createPrefix(prefix, createCategoryKey(index_name)) + "1"));
+            indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(index_name)) + "1");
+            indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
             // set TV and HD properties of the master
             int cntTV = 0;
             int cntHD = 0;

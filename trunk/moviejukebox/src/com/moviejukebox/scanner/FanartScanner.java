@@ -90,7 +90,7 @@ public class FanartScanner {
             localFanartBaseFilename = localFanartBaseFilename.substring(localFanartBaseFilename.lastIndexOf(File.separator) + 1);
 
             // Checking for the MovieFolderName.*
-            fullFanartFilename = movie.getFile().getParent() + File.separator + localFanartBaseFilename + fanartToken;
+            fullFanartFilename = movie.getFile().getParent() + File.separator + movie.getBaseFilename() + fanartToken;
             localFanartFile = findFanartFile(fullFanartFilename, fanartExtensions);
             foundLocalFanart = localFanartFile.exists();
         }

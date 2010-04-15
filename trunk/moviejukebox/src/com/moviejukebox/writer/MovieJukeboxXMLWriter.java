@@ -138,9 +138,12 @@ public class MovieJukeboxXMLWriter {
                     movie.setMjbRevision(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<xmlGenerationDate>")) {
-                    movie.setMjbGenerationDate(parseCData(r));
+                    movie.setMjbGenerationDateString(parseCData(r));
                 }
-                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
+                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseFilename() == null || movie.getBaseFilename() == Movie.UNKNOWN)) {
+                    movie.setBaseFilename(parseCData(r));
+                }
+                if (tag.equalsIgnoreCase("<baseName>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
                     movie.setBaseName(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<title>")) {
@@ -837,6 +840,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(dateFormat.format(new Date()));
         writer.writeEndElement();
         writer.writeStartElement("baseFilename");
+        writer.writeCharacters(movie.getBaseFilename());
+        writer.writeEndElement();
+        writer.writeStartElement("baseName");
         writer.writeCharacters(movie.getBaseName());
         writer.writeEndElement();
         writer.writeStartElement("title");

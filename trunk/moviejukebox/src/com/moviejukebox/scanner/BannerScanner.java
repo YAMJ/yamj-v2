@@ -89,11 +89,12 @@ public class BannerScanner {
 
         // if no banner has been found, try the foldername.bannerToken.Extension
         if (!foundLocalBanner) {
+            // FIXME: localBannerBaseFilename is used nowhere.
             localBannerBaseFilename = movie.getFile().getParent();
             localBannerBaseFilename = localBannerBaseFilename.substring(localBannerBaseFilename.lastIndexOf(File.separator) + 1);
 
             // Checking for the MovieFolderName.*
-            fullBannerFilename = movie.getFile().getParent() + File.separator + localBannerBaseFilename + bannerToken;
+            fullBannerFilename = movie.getFile().getParent() + File.separator + movie.getBaseFilename() + bannerToken;
             localBannerFile = findBannerFile(fullBannerFilename, bannerExtensions);
             foundLocalBanner = localBannerFile.exists();
         }
