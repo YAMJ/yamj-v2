@@ -307,7 +307,7 @@ public class MovieDirectoryScanner {
 
             // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
             // TODO: Actually it makes sense to use normalized movie name instead of first part name.
-            movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + Integer.toHexString(file.getAbsolutePath().hashCode()));
+            movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + Integer.toHexString(relativeFilename.hashCode()));
             
             movie.setLibraryPath(srcPath.getPath());
             movie.setPosterFilename(movie.getBaseName() + ".jpg");

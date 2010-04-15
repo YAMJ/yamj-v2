@@ -634,10 +634,8 @@ public class MovieJukebox {
         logger.fine("Jukebox output goes to " + jukeboxRoot);
         FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
 
-        int threadsMaxDirScan = Math.min(MaxThreadsProcess, movieLibraryPaths.size());
-        threadsMaxDirScan = Math.max(threadsMaxDirScan, 1);
+        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsDownload);
 
-        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(threadsMaxDirScan, 0);
         final Library library = new Library();
         for (final MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
             // Multi-thread parallel processing
@@ -667,8 +665,7 @@ public class MovieJukebox {
         logger.fine("Found " + library.size() + " movies in your media library");
         logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
-        tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsDownload);
-
+        tasks.restart();
         if (library.size() > 0) {
             logger.fine("Searching for movies information...");
             int movieCounter = 0;
