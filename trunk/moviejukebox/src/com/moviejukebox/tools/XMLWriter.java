@@ -16,7 +16,6 @@ package com.moviejukebox.tools;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.logging.Logger;
 import javax.xml.stream.XMLOutputFactory;

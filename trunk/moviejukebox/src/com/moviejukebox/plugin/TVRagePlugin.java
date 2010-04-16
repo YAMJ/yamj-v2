@@ -15,13 +15,10 @@ package com.moviejukebox.plugin;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 
-import java.util.concurrent.Semaphore;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tvrage.TVRage;
 import com.moviejukebox.tvrage.model.Episode;
 import com.moviejukebox.tvrage.model.ShowInfo;
