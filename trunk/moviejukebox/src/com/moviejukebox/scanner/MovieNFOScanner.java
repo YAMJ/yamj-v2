@@ -825,7 +825,11 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("set")) {
                             String set = XMLHelper.getCData(r);
                             Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
-                            movie.addSet(set, orderAttribute == null ? null : Integer.parseInt(orderAttribute.getValue()));
+                            Integer order = null;
+                            try{
+                                order = new Integer(orderAttribute.getValue()); 
+                            }catch(NumberFormatException ex){}
+                            movie.addSet(set, order);
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
                             if (val != 0.0f) {

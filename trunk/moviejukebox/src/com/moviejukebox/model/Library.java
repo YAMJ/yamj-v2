@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
 
@@ -105,7 +106,6 @@ public class Library implements Map<String, Movie> {
     private static boolean setsRequireAll = false;
     private static String indexList;
     private static boolean splitHD = false;
-    private static Collection<Object> skipped_indexes = new ArrayList<Object>(); 
 
     static {
         minSetCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.sets.minSetCount", "2"));
@@ -167,6 +167,40 @@ public class Library implements Map<String, Movie> {
         logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
         newDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
     }
+
+    public static class IndexInfo{
+        public String categoryName;
+        public String key;
+        public String baseName;
+        public int VideosPerPage, VideosPerLine, pages;
+        public boolean canSkipXML = true, canSkipHTML = true;  //skip flags, global (all pages)
+
+        public IndexInfo(String category, String key, int pages, int VideosPerPage, int VideosPerLine, boolean canSkip){
+            this.categoryName = category;
+            this.key          = key;
+            this.pages        = pages;
+            this.VideosPerPage = VideosPerPage;
+            this.VideosPerLine = VideosPerLine;
+            canSkipXML = canSkipHTML = canSkip; //default values
+            //"categ_key_"; to be combined with pageid and extension
+            baseName = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
+            pages    = 0;
+        }
+
+        public void checkSkip(int page, String rootPath)
+        {
+            String filetest = rootPath + File.separator + baseName + page + ".xml";
+            canSkipXML = canSkipXML && FileTools.fileCache.fileExists(filetest);
+            FileTools.addJukeboxFile(filetest);
+            //not nice, but no need to do this again in HTMLWriter                                            
+            filetest = rootPath + File.separator + baseName + page + ".html";
+            canSkipHTML = canSkipXML && canSkipHTML && FileTools.fileCache.fileExists(filetest);
+            FileTools.addJukeboxFile(filetest);
+        }
+
+    }
+
+    private Collection<IndexInfo> generated_indexes = new ArrayList<IndexInfo>();
 
     public Library() {
     }
@@ -1040,10 +1074,11 @@ public class Library implements Map<String, Movie> {
         return response;
     }
     
-    public void skipIndex(Object index){
-        skipped_indexes.add(index);
+    public void addGeneratedIndex(IndexInfo index){
+        generated_indexes.add(index);
     }
-    public boolean isIndexSkipped(Object index){
-        return skipped_indexes.contains(index);
+
+    public Collection<IndexInfo> getGeneratedIndexes(){
+        return generated_indexes;
     }
 }
