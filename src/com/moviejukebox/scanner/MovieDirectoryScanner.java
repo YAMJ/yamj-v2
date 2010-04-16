@@ -51,7 +51,7 @@ public class MovieDirectoryScanner {
     private String bannersFormat;
     private String bannerToken;
     private String opensubtitles;
-    private Boolean usepathhash;
+    private int hashpathdepth;
     private Boolean excludeFilesWithoutExternalSubtitles;
     private Boolean excludeMultiPartBluRay;
     private Boolean playFullBluRayDisk;
@@ -75,7 +75,8 @@ public class MovieDirectoryScanner {
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
         excludeMultiPartBluRay = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.excludeMultiPartBluRay", "false"));
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
-        usepathhash = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.scanner.usehashforbasename", "false"));
+        hashpathdepth = Integer.parseInt(PropertiesUtil.getProperty("mjb.scanner.hashpathdepth", "0"));
+        playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "false"));
         localBDRipScanner = new BDRipScanner();
     }
 
@@ -230,7 +231,6 @@ public class MovieDirectoryScanner {
         File contentFiles[];
         int bdDuration = 0;
         boolean isBluRay = false;
-        playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "false"));
 
         contentFiles = new File[1];
         contentFiles[0] = file;
@@ -254,6 +254,7 @@ public class MovieDirectoryScanner {
             }
         }
 
+        String hashstr = "";
         for (int i = 0; i < contentFiles.length; i++) {
             Movie movie = new Movie();
             
@@ -309,8 +310,15 @@ public class MovieDirectoryScanner {
 
             // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
             // TODO: Actually it makes sense to use normalized movie name instead of first part name.
-            movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + (usepathhash?Integer.toHexString(relativeFilename.hashCode()):""));
-            
+            if(hashpathdepth > 0){
+                int d, pos=relativeFilename.length();
+                for(d = hashpathdepth+1; d > 0 && pos > 0; d-- )
+                    pos=relativeFilename.lastIndexOf("/", pos-1);
+                hashstr = relativeFilename.substring(pos+1);
+                hashstr = Integer.toHexString(hashstr.hashCode());
+            }
+            movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + hashstr);
+
             movie.setLibraryPath(srcPath.getPath());
             movie.setPosterFilename(movie.getBaseName() + ".jpg");
             movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailsFormat);

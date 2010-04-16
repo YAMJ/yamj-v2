@@ -14,7 +14,6 @@
 package com.moviejukebox.plugin;
 
 import java.util.StringTokenizer;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
@@ -24,7 +23,6 @@ import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
 
 /**
  * @author Stuart.Boston
