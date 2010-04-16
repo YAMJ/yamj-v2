@@ -41,10 +41,10 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import com.moviejukebox.model.Index;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Library.IndexInfo;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -288,43 +288,19 @@ public class MovieJukeboxHTMLWriter {
 
     public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
         tasks.restart();
-        for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
-            final String categoryName = category.getKey();
-
-            if (!categoriesIndexList.contains(categoryName)) continue;
-
-            Map<String, List<Movie>> index = category.getValue();
-
-            for (final Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
-                final String key = indexEntry.getKey();
-                if(library.isIndexSkipped(indexEntry)){
-                    logger.finer("Category " + categoryName + "/" + key + ", skipping HTML generation.");
-                    continue;
-                }
-
+        for(final IndexInfo idx : library.getGeneratedIndexes()){
+            if(idx.canSkipHTML && !forceHTMLOverwrite){
+                logger.finer("Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
+            }else{
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
-                        List<Movie> movies  = indexEntry.getValue();
-
-                        int nbVideosPerPage;
-                        if (key.equalsIgnoreCase("TV Shows") || (categoryName.equalsIgnoreCase("Set") && movies.get(0).isTVShow())) {
-                            nbVideosPerPage = nbTvShowsPerPage;
-                        } else {
-                            nbVideosPerPage = nbMoviesPerPage;
-                        }
-
-                        //FIXME This is horrible! Issue 735 will get rid of it.
-                        int countNbMovies= library.getMovieCountForIndex(categoryName, key);
-                        if (countNbMovies >= categoriesMinCount || Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                            int nbPages = 1 + (movies.size() - 1) / nbVideosPerPage;
-                            for (int page = 1; page <= nbPages; page++) {
-                                writeSingleIndexPage(rootPath, detailsDirName, categoryName, key, page);
-                            }
+                        for (int page = 1; page <= idx.pages; page++) {
+                            writeSingleIndexPage(rootPath, detailsDirName, idx, page);
                         }
                         return null;
-                    };
+                    }
                 });
-            };
+            }
         }
 
         tasks.waitFor();
@@ -380,13 +356,13 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    private void writeSingleIndexPage(String rootPath, String detailsDirName, String categoryName, String key, int page)
+    private void writeSingleIndexPage(String rootPath, String detailsDirName, IndexInfo idx, int page)
                     throws TransformerFactoryConfigurationError {
         try {
             File detailsDir = new File(rootPath, detailsDirName);
             detailsDir.mkdirs();
 
-            String filename = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key)) + page;
+            String filename = idx.baseName + page;
 
             File xmlFile = new File(detailsDir, filename + ".xml");
             File htmlFile = new File(detailsDir, filename + ".html");
@@ -394,8 +370,8 @@ public class MovieJukeboxHTMLWriter {
             FileTools.addJukeboxFile(xmlFile.getName());
             FileTools.addJukeboxFile(htmlFile.getName());
 
-            File transformCatKey = new File(skinHome, FileTools.makeSafeFilename(categoryName + "_" + key) + ".xsl");
-            File transformCategory = new File(skinHome, FileTools.makeSafeFilename(categoryName) + ".xsl");
+            File transformCatKey = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName + "_" + idx.key) + ".xsl");
+            File transformCategory = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName) + ".xsl");
             File transformBase = new File(skinHome, "index.xsl");
 
             Transformer transformer;
@@ -416,7 +392,7 @@ public class MovieJukeboxHTMLWriter {
 
             transformer.transform(xmlSource, xmlResult);
         } catch (Exception error) {
-            logger.severe("Failed generating HTML library index for Category: " + categoryName + ", Key: " + key + ", Page: " + page);
+            logger.severe("Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
