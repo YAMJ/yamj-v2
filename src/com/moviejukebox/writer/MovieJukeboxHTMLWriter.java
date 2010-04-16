@@ -289,7 +289,7 @@ public class MovieJukeboxHTMLWriter {
     public void generateMoviesIndexHTML(final String rootPath, final String detailsDirName, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
         tasks.restart();
         for(final IndexInfo idx : library.getGeneratedIndexes()){
-            if(idx.canSkipHTML && !forceHTMLOverwrite){
+            if(idx.canSkip){//this is evaluated during xml indexing
                 logger.finer("Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
             }else{
                 tasks.submit(new Callable<Void>() {

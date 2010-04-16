@@ -173,7 +173,7 @@ public class Library implements Map<String, Movie> {
         public String key;
         public String baseName;
         public int VideosPerPage, VideosPerLine, pages;
-        public boolean canSkipXML = true, canSkipHTML = true;  //skip flags, global (all pages)
+        public boolean canSkip = true;  //skip flags, global (all pages)
 
         public IndexInfo(String category, String key, int pages, int VideosPerPage, int VideosPerLine, boolean canSkip){
             this.categoryName = category;
@@ -181,7 +181,7 @@ public class Library implements Map<String, Movie> {
             this.pages        = pages;
             this.VideosPerPage = VideosPerPage;
             this.VideosPerLine = VideosPerLine;
-            canSkipXML = canSkipHTML = canSkip; //default values
+            this.canSkip       = canSkip; //default values
             //"categ_key_"; to be combined with pageid and extension
             baseName = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
             pages    = 0;
@@ -190,17 +190,17 @@ public class Library implements Map<String, Movie> {
         public void checkSkip(int page, String rootPath)
         {
             String filetest = rootPath + File.separator + baseName + page + ".xml";
-            canSkipXML = canSkipXML && FileTools.fileCache.fileExists(filetest);
+            canSkip = canSkip && FileTools.fileCache.fileExists(filetest);
             FileTools.addJukeboxFile(filetest);
             //not nice, but no need to do this again in HTMLWriter                                            
             filetest = rootPath + File.separator + baseName + page + ".html";
-            canSkipHTML = canSkipXML && canSkipHTML && FileTools.fileCache.fileExists(filetest);
+            canSkip = canSkip && FileTools.fileCache.fileExists(filetest);
             FileTools.addJukeboxFile(filetest);
         }
 
     }
 
-    private Collection<IndexInfo> generated_indexes = new ArrayList<IndexInfo>();
+    private Collection<IndexInfo> generated_indexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
 
     public Library() {
     }

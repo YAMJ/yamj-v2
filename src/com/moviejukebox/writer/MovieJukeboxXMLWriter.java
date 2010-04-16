@@ -596,18 +596,20 @@ public class MovieJukeboxXMLWriter {
 
                         for(current = 1 ; current <= last; current ++){
                             idx.checkSkip(current, originalPath);
-                            if(skipindex && !(idx.canSkipXML && idx.canSkipHTML)){
-                                skipindex = false;
-                            }
-                            if(!skipindex){
+                            skipindex = skipindex && idx.canSkip;
+                        }
+
+                        if(!skipindex){
+                            for(current = 1 ; current <= last; current ++){
                                 // All pages are handled here
                                 next = (current % last) + 1; //this gives 1 for last
                                 writeIndexPage(library, 
                                                 tmpMovieList.subList(moviepos, Math.min(moviepos+nbVideosPerPage, tmpMovieList.size())), 
                                                 rootPath, idx, previous, current, next, last);
+
+                                moviepos += nbVideosPerPage; 
+                                previous = current;
                             }
-                            moviepos += nbVideosPerPage; 
-                            previous = current;
                         }
 
                         if(skipindex){
