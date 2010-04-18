@@ -695,7 +695,7 @@ public class MovieJukebox {
                         }
 
                         // TODO remove these checks once all skins have transitioned to the new format
-                        fanartMovieDownload = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
+                        fanartMovieDownload = ImdbPlugin.checkDownloadFanart(!movie.isTVShow());
                         fanartTvDownload = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
 
                         // Get Fanart only if requested
