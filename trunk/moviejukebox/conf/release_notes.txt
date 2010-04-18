@@ -28,6 +28,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1386 Keep previously scanned movies parameter causes playLink error
   - Enhancement  #1389 Allocine now gets certifications
   - Fixed defect #1394 TV Series Episode names not picked up from filename
+  - Fixed defect #1398 Some movie descriptions broken <br/> replaced with <br> in skin-options.xsl
   - Fixed defect #1399 Keep previously scanned movies parameter causes <cast> duplicate name
   - Fixed defect #1403 Kinopoisk plugin changes for referrer string
   - Fixed defect #1412 Sort cast/writers in alphabetic order
