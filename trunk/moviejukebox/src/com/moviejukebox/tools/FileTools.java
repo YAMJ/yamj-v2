@@ -84,7 +84,8 @@ public class FileTools {
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
-    
+    private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
+
     static {
         // What to do if the user specifies a blank encodeEscapeChar? I guess disable encoding.
         String encodeEscapeCharString = PropertiesUtil.getProperty("mjb.charset.filenameEncodingEscapeChar", "$");
@@ -334,7 +335,7 @@ public class FileTools {
     }
 
     public static String createPrefix(String category, String key) {
-        return category + '_' + key + '_';
+        return indexFilesPrefix  + category + '_' + key + '_';
     }
 
     public static OutputStream createFileOutputStream(File f, int size) throws FileNotFoundException {
@@ -398,6 +399,35 @@ public class FileTools {
 
     public static String getFileExtension(String filename) {
         return filename.substring(filename.lastIndexOf('.')+1);
+    }
+
+    /*
+     * Returns the parent folder name only; used when searching for posters...
+     */
+    public static String getParentFolderName(File file) {
+        String path = file.getParent();
+        return path.substring(path.lastIndexOf(File.separator)+1);
+    }
+
+    /***
+     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the File
+     * 
+     * @param filename
+     * @param extensions
+     * @return always a File, to be tested with exists() for valid file
+     */
+    public static File findFileFromExtensions(String fullBaseFilename, String[] extensions) {
+        File localFile = null;
+
+        for (String extension : extensions) {
+            localFile = fileCache.getFile(fullBaseFilename + "." + extension);
+            if (localFile.exists()) {
+                logger.finest("The file " + localFile + " found");
+                return localFile;
+            }
+        }
+
+        return localFile != null ? localFile : new File(localFile+Movie.UNKNOWN); //just in case
     }
 
     /**

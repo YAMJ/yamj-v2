@@ -73,40 +73,36 @@ public class FanartScanner {
     public static boolean scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
         String localFanartBaseFilename = movie.getBaseName();
         String fullFanartFilename = null;
+        String parentPath = FileTools.getParentFolder(movie.getFile());
         File localFanartFile = null;
         boolean foundLocalFanart = false;
 
         // Look for the videoname.fanartToken.Extension
-        fullFanartFilename = FileTools.getParentFolder(movie.getFile());
-
-        fullFanartFilename += File.separator + localFanartBaseFilename + fanartToken;
-        localFanartFile = findFanartFile(fullFanartFilename, fanartExtensions);
+        fullFanartFilename = parentPath + File.separator + localFanartBaseFilename + fanartToken;
+        localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
         foundLocalFanart = localFanartFile.exists();
 
         // if no fanart has been found, try the foldername.fanartToken.Extension
         if (!foundLocalFanart) {
-            localFanartBaseFilename = movie.getFile().getParent();
-            localFanartBaseFilename = localFanartBaseFilename.substring(localFanartBaseFilename.lastIndexOf(File.separator) + 1);
+            localFanartBaseFilename = FileTools.getParentFolderName(movie.getFile());
 
             // Checking for the MovieFolderName.*
-            fullFanartFilename = movie.getFile().getParent() + File.separator + movie.getBaseFilename() + fanartToken;
-            localFanartFile = findFanartFile(fullFanartFilename, fanartExtensions);
+            fullFanartFilename = parentPath + File.separator + localFanartBaseFilename + fanartToken;
+            localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
             foundLocalFanart = localFanartFile.exists();
         }
-        
+
         // Check for fanart.* and background.* fanart.
         if (!foundLocalFanart && useFolderBackground) {
-            localFanartBaseFilename = "fanart";
-            
             // Checking for the fanart.*
-            fullFanartFilename = movie.getFile().getParent() + File.separator + "fanart";
-            localFanartFile = findFanartFile(fullFanartFilename, fanartExtensions);
+            fullFanartFilename = parentPath + File.separator + "fanart";
+            localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
             foundLocalFanart = localFanartFile.exists();
 
             if (!foundLocalFanart) {
                 // Checking for the background.*
-                fullFanartFilename = movie.getFile().getParent() + File.separator + "background";
-                localFanartFile = findFanartFile(fullFanartFilename, fanartExtensions);
+                fullFanartFilename = parentPath + File.separator + "background";
+                localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
                 foundLocalFanart = localFanartFile.exists();
             }
         }
@@ -117,7 +113,7 @@ public class FanartScanner {
             logger.finest("FanartScanner: File " + fullFanartFilename + " found");
 
             if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setFanartFilename(movie.getBaseName() + fanartToken + FileTools.getFileExtension(localFanartFile.getName()));
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + FileTools.getFileExtension(localFanartFile.getName()));
             }
             if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
@@ -195,27 +191,6 @@ public class FanartScanner {
                 logger.finest("Fanart Scanner: Fanart exists for " + movie.getBaseName());
             }
         }
-    }
-
-    /***
-     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the File
-     * 
-     * @param filename
-     * @param extensions
-     * @return always a File, to be tested with exists() for valid fanart
-     */
-    private static File findFanartFile(String fullFanartFilename, String[] fanartExtensions) {
-        File localFanartFile = null;
-
-        for (String extension : fanartExtensions) {
-            localFanartFile = FileTools.fileCache.getFile(fullFanartFilename + "." + extension);
-            if (localFanartFile.exists()) {
-                logger.finest("The file " + fullFanartFilename + "." + extension + " found");
-                return localFanartFile;
-            }
-        }
-
-        return localFanartFile != null ? localFanartFile : new File(fullFanartFilename+Movie.UNKNOWN); //just in case
     }
 
     /**

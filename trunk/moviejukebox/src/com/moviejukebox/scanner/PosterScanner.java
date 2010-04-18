@@ -126,7 +126,8 @@ public class PosterScanner {
         }
 
         String localPosterBaseFilename = Movie.UNKNOWN;
-        String fullPosterFilename = null;
+        String parentPath = FileTools.getParentFolder(movie.getFile());
+        String fullPosterFilename = parentPath;
         File localPosterFile = null;
 
         if (searchForExistingCoverArt.equalsIgnoreCase("moviename")) {
@@ -142,22 +143,12 @@ public class PosterScanner {
             return false;
         }
 
-        boolean foundLocalCoverArt = false;
-
-        for (String extension : coverArtExtensions) {
-            fullPosterFilename = FileTools.getParentFolder(movie.getFile());
-
-            if (!coverArtDirectory.equals("")) {
-                fullPosterFilename += File.separator + coverArtDirectory;
-            }
-            fullPosterFilename += File.separator + localPosterBaseFilename + "." + extension;
-            // logger.finest("PosterScanner: Checking for "+ fullPosterFilename);
-            localPosterFile = FileTools.fileCache.getFile(fullPosterFilename);
-            foundLocalCoverArt = localPosterFile.exists();               
-            if (foundLocalCoverArt) {
-                break;
-            }
+        if (!coverArtDirectory.equals("")) {
+            fullPosterFilename += File.separator + coverArtDirectory;
         }
+        fullPosterFilename += File.separator + localPosterBaseFilename;
+        localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, coverArtExtensions);
+        boolean foundLocalCoverArt = localPosterFile.exists();               
 
         /**
          * This part will look for a filename with the same name as the directory for the cover art or for folder.* coverart The intention is for you to be able
@@ -170,8 +161,7 @@ public class PosterScanner {
         if (!foundLocalCoverArt) {
             // if no coverart has been found, try the foldername
             // no need to check the coverart directory
-            localPosterBaseFilename = movie.getFile().getParent();
-            localPosterBaseFilename = localPosterBaseFilename.substring(localPosterBaseFilename.lastIndexOf(File.separator) + 1);
+            localPosterBaseFilename = FileTools.getParentFolderName(movie.getFile());
 
             if (useFolderImage) {
                 // Checking for MovieFolderName.* AND folder.*
@@ -181,21 +171,16 @@ public class PosterScanner {
                 logger.finest("PosterScanner: Checking for '" + localPosterBaseFilename + ".*' coverart");
             }
 
-            for (String extension : coverArtExtensions) {
-                // Check for the directory name with extension for coverart
-                fullPosterFilename = movie.getFile().getParent() + File.separator + movie.getBaseFilename() + "." + extension;
-                localPosterFile = FileTools.fileCache.getFile(fullPosterFilename);
+            // Check for the directory name with extension for coverart
+            fullPosterFilename = parentPath + File.separator + localPosterBaseFilename;
+            localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, coverArtExtensions);
+            foundLocalCoverArt = localPosterFile.exists();
+            if(!foundLocalCoverArt && useFolderImage){
+                // logger.finest("Checking for 'folder.*' coverart");
+                // Check for folder.jpg if it exists
+                fullPosterFilename = parentPath + File.separator + "folder";
+                localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, coverArtExtensions);
                 foundLocalCoverArt = localPosterFile.exists();
-                if (foundLocalCoverArt) break;
-
-                if (useFolderImage) {
-                    // logger.finest("Checking for 'folder.*' coverart");
-                    // Check for folder.jpg if it exists
-                    fullPosterFilename = movie.getFile().getParent() + File.separator + "folder." + extension;
-                    localPosterFile = FileTools.fileCache.getFile(fullPosterFilename);
-                    foundLocalCoverArt = localPosterFile.exists();
-                    if (foundLocalCoverArt) break;
-                }
             }
         }
         /*
