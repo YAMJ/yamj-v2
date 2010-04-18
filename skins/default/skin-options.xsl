@@ -55,6 +55,6 @@
 <xsl:variable name="skin-playAllText">PLAY ALL</xsl:variable>
 
 <!-- Detail Option #5: Change the <BR> by what you want in the plot -->
-<xsl:variable name="skin-PlotLineBreak">&lt;br/&gt;</xsl:variable>
+<xsl:variable name="skin-PlotLineBreak">&lt;br&gt;</xsl:variable>
 
 </xsl:stylesheet>
