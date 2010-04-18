@@ -334,7 +334,7 @@ public class FileTools {
     }
 
     public static String createPrefix(String category, String key) {
-        return "idx_" + category + '_' + key + '_';
+        return category + '_' + key + '_';
     }
 
     public static OutputStream createFileOutputStream(File f, int size) throws FileNotFoundException {
