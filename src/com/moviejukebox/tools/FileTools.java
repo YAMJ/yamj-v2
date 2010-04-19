@@ -57,7 +57,7 @@ import com.moviejukebox.model.MovieFile;
 public class FileTools {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    final static int BUFF_SIZE = 100000;
+    final static int BUFF_SIZE = 16*1024;
 
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
@@ -69,18 +69,24 @@ public class FileTools {
     };
     
     private static class ReplaceEntry{
-        private Pattern patt; 
-        private String newtext;
-        public ReplaceEntry(CharSequence oldtext, String newtext){
-            this.patt = Pattern.compile(oldtext.toString(), Pattern.LITERAL);
-            this.newtext = Matcher.quoteReplacement(newtext);
+        private String oldtext, newtext;
+        private int oldlen;
+        public ReplaceEntry(String oldtext, String newtext){
+            this.oldtext = oldtext;
+            this.newtext = newtext;
+            oldlen = oldtext.length();
         }
         public String check(String filename){
-            return patt.matcher(filename).replaceAll(newtext);
+            int p = filename.indexOf(oldtext, 0);
+            while(p >= 0){
+                filename = filename.substring(0, p-1) + newtext + filename.substring(p+1+oldlen);
+                p = filename.indexOf(oldtext, p+1+oldlen);
+            }
+            return filename;
         }
     };
 
-    private static Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();  
+    private static Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
