@@ -890,7 +890,7 @@ public class MovieJukebox {
                 final String totalMoviesXmlFileName = "CompleteMovies.xml";
                 final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
                 
-                OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile, 1024*1024);
+                OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                 context.createMarshaller().marshal(jukeboxXml, marStream);
                 marStream.close();
                 FileTools.addJukeboxFile(totalMoviesXmlFileName);
