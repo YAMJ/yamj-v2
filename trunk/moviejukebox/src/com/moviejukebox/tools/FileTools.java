@@ -46,9 +46,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 
@@ -79,8 +76,8 @@ public class FileTools {
         public String check(String filename){
             int p = filename.indexOf(oldtext, 0);
             while(p >= 0){
-                filename = filename.substring(0, p-1) + newtext + filename.substring(p+1+oldlen);
-                p = filename.indexOf(oldtext, p+1+oldlen);
+                filename = filename.substring(0, p) + newtext + filename.substring(p+oldlen);
+                p = filename.indexOf(oldtext, p+oldlen);
             }
             return filename;
         }
