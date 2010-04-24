@@ -606,13 +606,27 @@ public class MovieJukebox {
         logger.fine("Preparing environment...");
         
         // Create the ".mjbignore" file in the jukebox folder
-        jukeboxDetailsRootFile.mkdirs();
-        new File(jukeboxDetailsRootFile, ".mjbignore").createNewFile();
-        FileTools.addJukeboxFile(".mjbignore");
+        try {
+            jukeboxDetailsRootFile.mkdirs();
+            new File(jukeboxDetailsRootFile, ".mjbignore").createNewFile();
+            FileTools.addJukeboxFile(".mjbignore");
+        } catch (Exception error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe("Failed creating jukebox directory. Ensure this directory is read/write!");
+            logger.severe(eResult.toString());
+            return;
+        }
 
         logger.fine("Initializing...");
         final String tempJukeboxRoot = jukeboxTempDir;
-        FileTools.deleteDir(tempJukeboxRoot);
+        try {
+            FileTools.deleteDir(tempJukeboxRoot);
+        } catch (Exception error) {
+            logger.severe("Failed deleting the temporary jukebox directory (" + tempJukeboxRoot + "), please delete this manually and try again");
+            return;
+        }
         
         final String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
         File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
@@ -623,6 +637,11 @@ public class MovieJukebox {
         while (!status && i++ <= 10) {
             Thread.sleep(1000);
             status = tempJukeboxDetailsRootFile.mkdirs();
+        }
+        
+        if (status && i > 10) {
+            logger.severe("Failed creating the temporary jukebox directory (" + tempJukeboxDetailsRootFile.getAbsolutePath() + "). Ensure this directory is read/write!");
+            return;
         }
 
         /********************************************************************************
