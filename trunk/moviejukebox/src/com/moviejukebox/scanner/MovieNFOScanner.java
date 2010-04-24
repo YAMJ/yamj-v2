@@ -18,12 +18,9 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -36,6 +33,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
+
+import org.pojava.datetime.DateTime;
+import org.pojava.datetime.DateTimeConfig;
 
 import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.model.ExtraFile;
@@ -61,7 +61,7 @@ public class MovieNFOScanner {
     private static Logger logger = Logger.getLogger("moviejukebox");
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static String fanartToken;
     private static String forceNFOEncoding;
     private static String NFOdirectory;
@@ -71,6 +71,7 @@ public class MovieNFOScanner {
     private static String nfoExtRegex;
     private static String[] NFOExtensions;
     private static Pattern partPattern;
+    
 
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
@@ -99,6 +100,9 @@ public class MovieNFOScanner {
         nfoExtRegex = "(?i).*\\.(" + nfoExtRegex.substring(1) + ")";
         
         partPattern = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
+        
+        // Set the date format to dd-MM-yyyy
+        DateTimeConfig.globalEuropeanDateFormat();
     }
 
     /**
@@ -408,13 +412,14 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 try {
-                                    movie.setReleaseDate(val);
-                                    Date date = dateFormat.parse(val);
-                                    Calendar cal = Calendar.getInstance();
-                                    cal.setTime(date);
+                                    DateTime dateTime = new DateTime(val);
+
+                                    movie.setReleaseDate(dateTime.toString(dateFormatString));
                                     movie.setOverrideYear(true);
-                                    movie.setYear("" + cal.get(Calendar.YEAR));
+                                    movie.setYear(dateTime.toString("yyyy"));
                                 } catch (Exception ignore) {
+                                    System.out.println("EXCEPTION!!");
+                                    ignore.printStackTrace();
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("top250")) {
@@ -882,13 +887,14 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 try {
-                                    movie.setReleaseDate(val);
-                                    Date date = dateFormat.parse(val);
-                                    Calendar cal = Calendar.getInstance();
-                                    cal.setTime(date);
+                                    DateTime dateTime = new DateTime(val);
+
+                                    movie.setReleaseDate(dateTime.toString(dateFormatString));
                                     movie.setOverrideYear(true);
-                                    movie.setYear("" + cal.get(Calendar.YEAR));
+                                    movie.setYear(dateTime.toString("yyyy"));
                                 } catch (Exception ignore) {
+                                    // Set the release date if there is an exception
+                                    movie.setReleaseDate(val);
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("studio")) {
