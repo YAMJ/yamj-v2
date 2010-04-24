@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,8 +99,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String subtitles = UNKNOWN;
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private SortedSet<String> genres = new TreeSet<String>();
-    private Set<String> cast = new TreeSet<String>();
-    private Set<String> writers = new TreeSet<String>();
+    private Set<String> cast = new LinkedHashSet<String>();
+    private Set<String> writers = new LinkedHashSet<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.

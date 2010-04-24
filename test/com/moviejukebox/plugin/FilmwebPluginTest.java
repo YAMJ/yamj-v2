@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class FilmwebPluginTest extends TestCase {
@@ -45,43 +46,37 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testGetFilmwebUrlFromGoogle() {
         filmwebPlugin.imdbInfo.setPreferredSearchEngine("google");
-        filmwebPlugin
-                        .setRequestResult("<a href=\"http://www.google.pl/search?hl=pl&q=seksmisja+site:filmweb.pl&um=1&ie=UTF-8&cat=gwd/Top&sa=N&tab=wd\"></a><link rel=\"prefetch\" href=\"http://seksmisja.filmweb.pl/\"><h3 class=r><a href=\"http://seksmisja.filmweb.pl/\" class=l onmousedown=\"return clk(this.href,'','','res','1','')\"><em>Seksmisja</em> (1984) - Film - FILMWEB.pl</a></h3>");
+        filmwebPlugin.setRequestResult("<a href=\"http://www.google.pl/search?hl=pl&q=seksmisja+site:filmweb.pl&um=1&ie=UTF-8&cat=gwd/Top&sa=N&tab=wd\"></a><link rel=\"prefetch\" href=\"http://seksmisja.filmweb.pl/\"><h3 class=r><a href=\"http://seksmisja.filmweb.pl/\" class=l onmousedown=\"return clk(this.href,'','','res','1','')\"><em>Seksmisja</em> (1984) - Film - FILMWEB.pl</a></h3>");
         assertEquals("http://seksmisja.filmweb.pl/", filmwebPlugin.getFilmwebUrl("Seksmisja", null));
     }
 
     public void testGetFilmwebUrlFromGoogleWithId() {
         filmwebPlugin.imdbInfo.setPreferredSearchEngine("google");
-        filmwebPlugin
-                        .setRequestResult("<a href=\"http://www.google.pl/search?hl=pl&q=4400+site:filmweb.pl&um=1&ie=UTF-8&cat=gwd/Top&sa=N&tab=wd\"></a><h3 class=r><a href=\"http://www.filmweb.pl/f122684/4400,2004\" class=l onmousedown=\"return clk(this.href,'','','res','1','')\"><em>4400</em> / <em>4400</em>, The (2004) - Film - FILMWEB.pl</a></h3>");
+        filmwebPlugin.setRequestResult("<a href=\"http://www.google.pl/search?hl=pl&q=4400+site:filmweb.pl&um=1&ie=UTF-8&cat=gwd/Top&sa=N&tab=wd\"></a><h3 class=r><a href=\"http://www.filmweb.pl/f122684/4400,2004\" class=l onmousedown=\"return clk(this.href,'','','res','1','')\"><em>4400</em> / <em>4400</em>, The (2004) - Film - FILMWEB.pl</a></h3>");
         assertEquals("http://www.filmweb.pl/f122684/4400,2004", filmwebPlugin.getFilmwebUrl("4400", null));
     }
 
     public void testGetFilmwebUrlFromYahoo() {
         filmwebPlugin.imdbInfo.setPreferredSearchEngine("yahoo");
-        filmwebPlugin
-                        .setRequestResult("<a href=\"http://search.yahoo.com/ypredirect;_ylt=A0geu6dkwLFIMTEBu1ZXNyoA?ei=UTF-8&p=john+rambo+site%3Afilmweb.pl&y=Search&fr2=tab-web&fr=\">Local</a><a class=\"yschttl\" href=\"http://rds.yahoo.com/_ylt=A0geu6dkwLFIMTEByFZXNyoA;_ylu=X3oDMTE1aGEzbmUyBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA01BUDAxMV8xMDg-/SIG=11hviotu2/EXP=1219695076/**http%3a//john.rambo.filmweb.pl/\" ><b>John</b> <b>Rambo</b> / <b>Rambo</b> (2008) - Film - FILMWEB.pl</a>");
+        filmwebPlugin.setRequestResult("<a href=\"http://search.yahoo.com/ypredirect;_ylt=A0geu6dkwLFIMTEBu1ZXNyoA?ei=UTF-8&p=john+rambo+site%3Afilmweb.pl&y=Search&fr2=tab-web&fr=\">Local</a><a class=\"yschttl\" href=\"http://rds.yahoo.com/_ylt=A0geu6dkwLFIMTEByFZXNyoA;_ylu=X3oDMTE1aGEzbmUyBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA01BUDAxMV8xMDg-/SIG=11hviotu2/EXP=1219695076/**http%3a//john.rambo.filmweb.pl/\" ><b>John</b> <b>Rambo</b> / <b>Rambo</b> (2008) - Film - FILMWEB.pl</a>");
         assertEquals("http://john.rambo.filmweb.pl/", filmwebPlugin.getFilmwebUrl("john rambo", null));
     }
 
     public void testGetFilmwebUrlFromYahooWithId() {
         filmwebPlugin.imdbInfo.setPreferredSearchEngine("yahoo");
-        filmwebPlugin
-                        .setRequestResult("<a href=\"http://search.yahoo.com/web/advanced?ei=UTF-8&p=4400+site%3Afilmweb.pl&y=Search\">Advanced Search</a><a class=\"yschttl\" href=\"http://rds.yahoo.com/_ylt=A0geu5RTv7FI.jUB.DtXNyoA;_ylu=X3oDMTE1aGEzbmUyBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA01BUDAxMV8xMDg-/SIG=11rlibf7n/EXP=1219694803/**http%3a//www.filmweb.pl/f122684/4400,2004\" ><b>4400</b> / <b>4400</b>, The (2004) - Film - FILMWEB.pl</a>");
+        filmwebPlugin.setRequestResult("<a href=\"http://search.yahoo.com/web/advanced?ei=UTF-8&p=4400+site%3Afilmweb.pl&y=Search\">Advanced Search</a><a class=\"yschttl\" href=\"http://rds.yahoo.com/_ylt=A0geu5RTv7FI.jUB.DtXNyoA;_ylu=X3oDMTE1aGEzbmUyBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA01BUDAxMV8xMDg-/SIG=11rlibf7n/EXP=1219694803/**http%3a//www.filmweb.pl/f122684/4400,2004\" ><b>4400</b> / <b>4400</b>, The (2004) - Film - FILMWEB.pl</a>");
         assertEquals("http://www.filmweb.pl/f122684/4400,2004", filmwebPlugin.getFilmwebUrl("4400", null));
     }
 
     public void testGetFilmwebUrlFromFilmweb() {
         filmwebPlugin.imdbInfo.setPreferredSearchEngine("filmweb");
-        filmwebPlugin
-                        .setRequestResult("<img src=\"http://gfx.filmweb.pl/po/98/06/219806/7186729.1.jpg\"/><a class=\"searchResultTitle\" href=\"http://john.rambo.filmweb.pl/\"><b>John</b> <b>Rambo</b> / <b>Rambo</b> (2008)</a>");
+        filmwebPlugin.setRequestResult("<img src=\"http://gfx.filmweb.pl/po/98/06/219806/7186729.1.jpg\"/><a class=\"searchResultTitle\" href=\"http://john.rambo.filmweb.pl/\"><b>John</b> <b>Rambo</b> / <b>Rambo</b> (2008)</a>");
         assertEquals("http://john.rambo.filmweb.pl/", filmwebPlugin.getFilmwebUrl("john rambo", null));
     }
 
     public void testGetFilmwebUrlFromFilmwebWithId() {
         filmwebPlugin.imdbInfo.setPreferredSearchEngine("filmweb");
-        filmwebPlugin
-                        .setRequestResult("<a href=\"http://www.filmweb.pl/szukaj/film?q=400&type=&startYear=&endYear=&countryIds=&genreIds=&startRate=&endRate=&startCount=&endCount=&sort=TEXT_SCORE&sortAscending=false\">400</a><a class=\"searchResultTitle\" href=\"http://www.filmweb.pl/f122684/4400,2004\"><b>4400</b> / <b>4400</b>, The (2004)</a>");
+        filmwebPlugin.setRequestResult("<a href=\"http://www.filmweb.pl/szukaj/film?q=400&type=&startYear=&endYear=&countryIds=&genreIds=&startRate=&endRate=&startCount=&endCount=&sort=TEXT_SCORE&sortAscending=false\">400</a><a class=\"searchResultTitle\" href=\"http://www.filmweb.pl/f122684/4400,2004\"><b>4400</b> / <b>4400</b>, The (2004)</a>");
         assertEquals("http://www.filmweb.pl/f122684/4400,2004", filmwebPlugin.getFilmwebUrl("4400", null));
     }
 
@@ -146,56 +141,49 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoRating() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://ojciec.chrzestny.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("<div class=\"film-rating\">\n\t\t\t\t    \t\t        \t\t<p>Średnia ocena: <b>Rewelacyjny</b></p>\n        \t\t<div class=\"film-rating-precise\">\n\n\t\t\t\t\t        \t\t\t<div class=\"film-rating-fill\" style=\"width: 90.8260726928711%\">\n\t\t\t\t\t\t<span><strong class=\"value\">9,08</strong>/10</span></div>\n        \t\t</div>\n    \t\t    \t\t</div>");
+        filmwebPlugin.setRequestResult("<div class=\"film-rating\">\n\t\t\t\t    \t\t        \t\t<p>Średnia ocena: <b>Rewelacyjny</b></p>\n        \t\t<div class=\"film-rating-precise\">\n\n\t\t\t\t\t        \t\t\t<div class=\"film-rating-fill\" style=\"width: 90.8260726928711%\">\n\t\t\t\t\t\t<span><strong class=\"value\">9,08</strong>/10</span></div>\n        \t\t</div>\n    \t\t    \t\t</div>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals(91, movie.getRating());
     }
 
     public void testUpdateMediaInfoTop250() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://ojciec.chrzestny.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("<p class=\"film-top-world\">\n\t\t\t\t\t\t\t\t\t<span class=\"value         \t    \t\tsame\n    \t    \">\n\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/film/top/world#Ojciec chrzestny\">top świat: #1</a>\t\t\t\t\t\t</span>\n\n\t\t</p>");
+        filmwebPlugin.setRequestResult("<p class=\"film-top-world\">\n\t\t\t\t\t\t\t\t\t<span class=\"value         \t    \t\tsame\n    \t    \">\n\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/film/top/world#Ojciec chrzestny\">top świat: #1</a>\t\t\t\t\t\t</span>\n\n\t\t</p>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals(1, movie.getTop250());
     }
 
     public void testUpdateMediaInfoDirector() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://john.rambo.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("<p class=\"film-info\">\nreżyseria\t<a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>scenariusz<a href=\"http://www.filmweb.pl/o70013/Art+Monterastelli\" title=\"Art Monterastelli- filmografia - FILMWEB.pl\">Art Monterastelli</a>, <a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>zdjęcia<a href=\"http://www.filmweb.pl/o11625/Glen+MacPherson\" title=\"Glen MacPherson- filmografia - FILMWEB.pl\">Glen MacPherson</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\nmuzyka<a href=\"http://www.filmweb.pl/o48282/Brian+Tyler\" title=\"Brian Tyler- filmografia - FILMWEB.pl\">Brian Tyler</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\n\nczas trwania: 91<abbr title=\"Dystrybucja\">dyst.:</abbr>\n<a rel=\"nofollow\" class=\"external\" href=\"http://www.monolith.pl\">Monolith Films</a></p>");
+        filmwebPlugin.setRequestResult("<p class=\"film-info\">\nreżyseria\t<a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>scenariusz<a href=\"http://www.filmweb.pl/o70013/Art+Monterastelli\" title=\"Art Monterastelli- filmografia - FILMWEB.pl\">Art Monterastelli</a>, <a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>zdjęcia<a href=\"http://www.filmweb.pl/o11625/Glen+MacPherson\" title=\"Glen MacPherson- filmografia - FILMWEB.pl\">Glen MacPherson</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\nmuzyka<a href=\"http://www.filmweb.pl/o48282/Brian+Tyler\" title=\"Brian Tyler- filmografia - FILMWEB.pl\">Brian Tyler</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\n\nczas trwania: 91<abbr title=\"Dystrybucja\">dyst.:</abbr>\n<a rel=\"nofollow\" class=\"external\" href=\"http://www.monolith.pl\">Monolith Films</a></p>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("Sylvester Stallone", movie.getDirector());
     }
 
     public void testUpdateMediaInfoReleaseDate() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://john.rambo.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("<p class=\"film-premieres\">\ndata premiery:\t\t<strong>2008-03-07</strong>(Polska),<strong>2008-01-23</strong> (Świat)</p>");
+        filmwebPlugin.setRequestResult("<p class=\"film-premieres\">\ndata premiery:\t\t<strong>2008-03-07</strong>(Polska),<strong>2008-01-23</strong> (Świat)</p>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("2008-03-07", movie.getReleaseDate());
     }
 
     public void testUpdateMediaInfoRuntime() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://john.rambo.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("<p class=\"film-info\">\nreżyseria\t<a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>scenariusz<a href=\"http://www.filmweb.pl/o70013/Art+Monterastelli\" title=\"Art Monterastelli- filmografia - FILMWEB.pl\">Art Monterastelli</a>, <a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>zdjęcia<a href=\"http://www.filmweb.pl/o11625/Glen+MacPherson\" title=\"Glen MacPherson- filmografia - FILMWEB.pl\">Glen MacPherson</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\nmuzyka<a href=\"http://www.filmweb.pl/o48282/Brian+Tyler\" title=\"Brian Tyler- filmografia - FILMWEB.pl\">Brian Tyler</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\n\nczas trwania: 91<abbr title=\"Dystrybucja\">dyst.:</abbr>\n<a rel=\"nofollow\" class=\"external\" href=\"http://www.monolith.pl\">Monolith Films</a></p>");
+        filmwebPlugin.setRequestResult("<p class=\"film-info\">\nreżyseria\t<a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>scenariusz<a href=\"http://www.filmweb.pl/o70013/Art+Monterastelli\" title=\"Art Monterastelli- filmografia - FILMWEB.pl\">Art Monterastelli</a>, <a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>zdjęcia<a href=\"http://www.filmweb.pl/o11625/Glen+MacPherson\" title=\"Glen MacPherson- filmografia - FILMWEB.pl\">Glen MacPherson</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\nmuzyka<a href=\"http://www.filmweb.pl/o48282/Brian+Tyler\" title=\"Brian Tyler- filmografia - FILMWEB.pl\">Brian Tyler</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\n\nczas trwania: 91<abbr title=\"Dystrybucja\">dyst.:</abbr>\n<a rel=\"nofollow\" class=\"external\" href=\"http://www.monolith.pl\">Monolith Films</a></p>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("91", movie.getRuntime());
     }
 
     public void testUpdateMediaInfoCountry() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://john.rambo.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("\t\t\tprodukcja:\t\t<strong>\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=38&amp;sort=COUNT&amp;sortAscending=false\">Niemcy</a>\t\t\t\t, \t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=53&amp;sort=COUNT&amp;sortAscending=false\">USA</a>\t\t\t\t\t\t\t\t\t</strong>\t\t\t\tgatunek:\t\t\t\t\t<strong>\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?genreIds=26&amp;sort=COUNT&amp;sortAscending=false\">Wojenny</a>\t\t\t</strong>\t\t\t, \t\t\t\t\t<strong>\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?genreIds=28&amp;sort=COUNT&amp;sortAscending=false\">Akcja</a>\t\t\t</strong>\t\t\t\t\t\t\t</p>");
+        filmwebPlugin.setRequestResult("\t\t\tprodukcja:\t\t<strong>\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=38&amp;sort=COUNT&amp;sortAscending=false\">Niemcy</a>\t\t\t\t, \t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=53&amp;sort=COUNT&amp;sortAscending=false\">USA</a>\t\t\t\t\t\t\t\t\t</strong>\t\t\t\tgatunek:\t\t\t\t\t<strong>\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?genreIds=26&amp;sort=COUNT&amp;sortAscending=false\">Wojenny</a>\t\t\t</strong>\t\t\t, \t\t\t\t\t<strong>\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?genreIds=28&amp;sort=COUNT&amp;sortAscending=false\">Akcja</a>\t\t\t</strong>\t\t\t\t\t\t\t</p>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("Niemcy, USA", movie.getCountry());
     }
 
     public void testUpdateMediaInfoGenre() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://john.rambo.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("<p class=\"film-production-genre\">\n\t\t\tprodukcja:\t\t<strong>\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=38&amp;sort=COUNT&amp;sortAscending=false\">Niemcy</a>\t\t\t\t, \t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=53&amp;sort=COUNT&amp;sortAscending=false\">USA</a>\t\t\t\t\t\t\t\t\t</strong>\t\t\t\tgatunek:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<strong>\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?sort=COUNT&sortAscending=false&genreIds=26&amp;genreIds=28\"> Wojenny, Akcja</a>\t\t</strong>\t\t</p>");
+        filmwebPlugin.setRequestResult("<p class=\"film-production-genre\">\n\t\t\tprodukcja:\t\t<strong>\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=38&amp;sort=COUNT&amp;sortAscending=false\">Niemcy</a>\t\t\t\t, \t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?countryIds=53&amp;sort=COUNT&amp;sortAscending=false\">USA</a>\t\t\t\t\t\t\t\t\t</strong>\t\t\t\tgatunek:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<strong>\t\t\t<a href=\"http://www.filmweb.pl/szukaj/film?sort=COUNT&sortAscending=false&genreIds=26&amp;genreIds=28\"> Wojenny, Akcja</a>\t\t</strong>\t\t</p>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals(Arrays.asList(new String[] { "Akcja", "Wojenny" }).toString(), movie.getGenres().toString());
     }
@@ -203,12 +191,10 @@ public class FilmwebPluginTest extends TestCase {
     public void testUpdateMediaInfoShortPlot() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://seksmisja.filmweb.pl");
         filmwebPlugin.filmwebPlot = "short";
-        filmwebPlugin
-                        .setRequestResult("<h2 id=\"o-filmie-header\" class=\"replace\">Film - Seksmisja<span></span></h2>\n\t\t\t<p>\n\t\t\tAkcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efekt&oacute;w b\t\t\t\t\t\t\t\t... <a href=\"http://seksmisja.filmweb.pl/f1163/Seksmisja,1984/opisy\" title=\"więcej o Seksmisja\">więcej</a>\n\n\t\t\t\t\t\t</p>");
+        filmwebPlugin.setRequestResult("<h2 id=\"o-filmie-header\" class=\"replace\">Film - Seksmisja<span></span></h2>\n\t\t\t<p>\n\t\t\tAkcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efekt&oacute;w b\t\t\t\t\t\t\t\t... <a href=\"http://seksmisja.filmweb.pl/f1163/Seksmisja,1984/opisy\" title=\"więcej o Seksmisja\">więcej</a>\n\n\t\t\t\t\t\t</p>");
         filmwebPlugin.updateMediaInfo(movie);
-        assertEquals(
-                        "Akcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efektów b\t\t\t\t\t\t\t\t...",
-                        movie.getPlot());
+        assertEquals("Akcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efektów b\t\t\t\t\t\t\t\t...",
+                     movie.getPlot());
         assertEquals(movie.getPlot(), movie.getOutline());
     }
 
@@ -225,12 +211,10 @@ public class FilmwebPluginTest extends TestCase {
         };
         filmwebPlugin.filmwebPlot = "long";
         filmwebPlugin.updateMediaInfo(movie);
-        assertEquals(
-                        "Akcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efektów było całkowite zniszczenie genów męskich, w związku z czym są obecnie prawdopodobnie jedynymi mężczyznami na planecie.",
-                        movie.getPlot());
-        assertEquals(
-                        "Akcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efektów b\t\t\t\t\t\t\t\t...",
-                        movie.getOutline());
+        assertEquals("Akcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efektów było całkowite zniszczenie genów męskich, w związku z czym są obecnie prawdopodobnie jedynymi mężczyznami na planecie.",
+                     movie.getPlot());
+        assertEquals("Akcja filmu rozpoczyna się w sierpniu 1991 roku. Telewizja transmituje epokowy eksperyment. Maks i Albert, dwaj śmiałkowie, dobrowolnie poddają się hibernacji. Budzą się dopiero w roku 2044. Od opiekującej się nimi doktor Lamii dowiadują się, że w czasie ich snu wybuchła na Ziemi wojna nuklearna. Jednym z jej efektów b\t\t\t\t\t\t\t\t...",
+                     movie.getOutline());
     }
 
     public void testUpdateMediaInfoYear() {
@@ -245,7 +229,7 @@ public class FilmwebPluginTest extends TestCase {
         filmwebPlugin.setRequestResult("<table class=\"film-starring\">\n\t\t<thead>\n\t\t\t<tr>\n\t\t\t\t<th scope=\"col\">Aktor</th>\n\n\t\t\t\t<th scope=\"col\">Bohater</th>\n\t\t\t</tr>\n\t\t</thead>\n\t\t<tbody>\n\t\t\t\t\t\t\t        \t\t\t<tr >\n        \t\t\t\t<td class=\"film-actor\">\n\t\t\t\t\t\t\t<a href=\"http://jerzy.stuhr.filmweb.pl/\">\n                    \t\t                    \t\t\t<img width=\"23\" height=\"32\" src=\"http://gfx.filmweb.pl/p/01/10/110/145434.0.jpg\" title=\"Jerzy Stuhr - filmografia - FILMWEB.pl\" alt=\"Jerzy Stuhr\" />\n\n                    \t\t\t\t\t\t\t\t\t\tJerzy Stuhr\n                    \t\t</a>\n\t\t\t\t\t\t</td>\n        \t\t\t\t<td class=\"film-protagonist\">\n    \t\t\t\t\t                    \t\tMaks\n                    \t\t<span>\n                    \t\t\t                    \t\t</span>\n                    \t\t\t\t\t\t\t\t\t</td>\n        \t\t\t</tr>\n\t\t\t\t\t\t\t\t\t\t\t        \t\t\t<tr class=\"even\">\n\n        \t\t\t\t<td class=\"film-actor\">\n\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/o405/Olgierd+%C5%81ukaszewicz\">\n                    \t\t                    \t\t\t<img width=\"23\" height=\"32\" src=\"http://gfx.filmweb.pl/p/04/05/405/146170.0.jpg\" title=\"Olgierd Łukaszewicz - filmografia - FILMWEB.pl\" alt=\"Olgierd Łukaszewicz\" />\n                    \t\t\t\t\t\t\t\t\t\tOlgierd Łukaszewicz\n                    \t\t</a>\n\t\t\t\t\t\t</td>\n        \t\t\t\t<td class=\"film-protagonist\">\n    \t\t\t\t\t                    \t\tAlbert\n                    \t\t<span>\n                    \t\t\t                    \t\t</span>\n\n                    \t\t\t\t\t\t\t\t\t</td>\n        \t\t\t</tr>\n\t\t\t\t\t\t\t\t\t</tbody>\n\t</table>");
         filmwebPlugin.updateMediaInfo(movie);
         
-        Set<String> testCast = new HashSet<String>();
+        Set<String> testCast = new LinkedHashSet<String>();
         testCast.add("Jerzy Stuhr");
         testCast.add("Olgierd Łukaszewicz");
 
@@ -254,8 +238,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoPosterURL() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://seksmisja.filmweb.pl");
-        filmwebPlugin
-                        .setRequestResult("<div class=\"film-poster\">\n\n            \t\t\t\t\t                        \t\t\t            \t\t\t\t\t            \t\t\t\t\t            \t\t\t\t\t\t<a rel=\"artshow\" href=\"http://gfx.filmweb.pl/po/11/63/1163/6900169.3.jpg?l=1185190085000\">\n\t\t\t\t\t\t\t\t\t\t<img src=\"http://gfx.filmweb.pl/po/11/63/1163/6900169.2.jpg?l=1185190085000\" alt=\"Seksmisja (1984)\" title=\"Seksmisja (1984)\" />\n\t\t\t\t\t\t\t\t\t</a>\n            \t\t\t\t\t\t\t\t\t\t\t\t</div>");
+        filmwebPlugin.setRequestResult("<div class=\"film-poster\">\n\n            \t\t\t\t\t                        \t\t\t            \t\t\t\t\t            \t\t\t\t\t            \t\t\t\t\t\t<a rel=\"artshow\" href=\"http://gfx.filmweb.pl/po/11/63/1163/6900169.3.jpg?l=1185190085000\">\n\t\t\t\t\t\t\t\t\t\t<img src=\"http://gfx.filmweb.pl/po/11/63/1163/6900169.2.jpg?l=1185190085000\" alt=\"Seksmisja (1984)\" title=\"Seksmisja (1984)\" />\n\t\t\t\t\t\t\t\t\t</a>\n            \t\t\t\t\t\t\t\t\t\t\t\t</div>");
         filmwebPlugin.updateMediaInfo(movie);
         // assertEquals("http://gfx.filmweb.pl/po/11/63/1163/6900169.3.jpg?l=1185190085000", movie.getPosterURL());
     }
@@ -291,8 +274,7 @@ public class FilmwebPluginTest extends TestCase {
         movie.setDirector("John Doe");
         movie.setRating(30);
         movie.setPlot("Ble ble ble");
-        filmwebPlugin
-                        .setRequestResult("<p class=\"film-info\">\nreżyseria\t<a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>scenariusz<a href=\"http://www.filmweb.pl/o70013/Art+Monterastelli\" title=\"Art Monterastelli- filmografia - FILMWEB.pl\">Art Monterastelli</a>, <a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>zdjęcia<a href=\"http://www.filmweb.pl/o11625/Glen+MacPherson\" title=\"Glen MacPherson- filmografia - FILMWEB.pl\">Glen MacPherson</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\nmuzyka<a href=\"http://www.filmweb.pl/o48282/Brian+Tyler\" title=\"Brian Tyler- filmografia - FILMWEB.pl\">Brian Tyler</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\n\nczas trwania: 91<abbr title=\"Dystrybucja\">dyst.:</abbr>\n<a rel=\"nofollow\" class=\"external\" href=\"http://www.monolith.pl\">Monolith Films</a></p>");
+        filmwebPlugin.setRequestResult("<p class=\"film-info\">\nreżyseria\t<a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>scenariusz<a href=\"http://www.filmweb.pl/o70013/Art+Monterastelli\" title=\"Art Monterastelli- filmografia - FILMWEB.pl\">Art Monterastelli</a>, <a href=\"http://sylvester.stallone.filmweb.pl/\" title=\"Sylvester Stallone- filmografia - FILMWEB.pl\">Sylvester Stallone</a>zdjęcia<a href=\"http://www.filmweb.pl/o11625/Glen+MacPherson\" title=\"Glen MacPherson- filmografia - FILMWEB.pl\">Glen MacPherson</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\nmuzyka<a href=\"http://www.filmweb.pl/o48282/Brian+Tyler\" title=\"Brian Tyler- filmografia - FILMWEB.pl\">Brian Tyler</a><a href=\"http://john.rambo.filmweb.pl/f219806/John+Rambo,2008/obsada\">(więcej...)</a>\n\n\nczas trwania: 91<abbr title=\"Dystrybucja\">dyst.:</abbr>\n<a rel=\"nofollow\" class=\"external\" href=\"http://www.monolith.pl\">Monolith Films</a></p>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("John Doe", movie.getDirector());
         assertEquals(30, movie.getRating());
