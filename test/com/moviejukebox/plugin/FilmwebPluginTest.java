@@ -13,19 +13,19 @@
 
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tools.PropertiesUtil;
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import junit.framework.TestCase;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.WebBrowser;
 
 public class FilmwebPluginTest extends TestCase {
     private FilmwebPluginMock filmwebPlugin;
@@ -230,8 +230,9 @@ public class FilmwebPluginTest extends TestCase {
         filmwebPlugin.updateMediaInfo(movie);
         
         Set<String> testCast = new LinkedHashSet<String>();
-        testCast.add("Jerzy Stuhr");
+        // These need to be in the same order as the web page
         testCast.add("Olgierd Łukaszewicz");
+        testCast.add("Jerzy Stuhr");
 
         assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getCast().toArray(), 2)).toString());
     }
