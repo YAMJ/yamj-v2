@@ -13,11 +13,10 @@
 
 package com.moviejukebox.plugin.poster;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+
+import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -32,8 +31,6 @@ import com.moviejukebox.tools.ThreadExecutor;
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
-
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private String language;
     private TheTVDB tvDB;
@@ -63,10 +60,8 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                     if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
                         if (year != null && !year.equals(Movie.UNKNOWN)) {
                             try {
-                                Date firstAired = dateFormat.parse(s.getFirstAired());
-                                Calendar cal = Calendar.getInstance();
-                                cal.setTime(firstAired);
-                                if (cal.get(Calendar.YEAR) == Integer.parseInt(year)) {
+                                DateTime firstAired = DateTime.parse(s.getFirstAired());
+                                if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(year)) {
                                     series = s;
                                     break;
                                 }

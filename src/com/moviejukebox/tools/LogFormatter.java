@@ -17,6 +17,7 @@ public class LogFormatter extends java.util.logging.Formatter
     });
     private static boolean logThreadName = false;
     private static boolean logTimeStamp  = false;
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("kk:mm:ss");
 
     public synchronized String format(LogRecord logRecord) {
         String logMessage = logRecord.getMessage();
@@ -47,7 +48,6 @@ public class LogFormatter extends java.util.logging.Formatter
         String logSpace = "";
 
         if (logTimeStamp) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("kk:mm:ss");
             logPrefix += dateFormat.format(new Date());
             logSpace = " ";
         }
