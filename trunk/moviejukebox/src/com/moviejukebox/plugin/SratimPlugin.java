@@ -85,6 +85,7 @@ public class SratimPlugin extends ImdbPlugin {
     protected int plotLineMax;
     protected TheTvDBPlugin tvdb;
     protected static String preferredPosterSearchEngine;
+    protected static String lineBreak;
 
     public SratimPlugin() {
         super(); // use IMDB if sratim doesn't know movie
@@ -100,6 +101,8 @@ public class SratimPlugin extends ImdbPlugin {
         code = PropertiesUtil.getProperty("sratim.code", "");
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
 
+        lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
+        
         if (subtitleDownload == true && !login.equals(""))
             loadSratimCookie();
     }
@@ -557,7 +560,7 @@ public class SratimPlugin extends ImdbPlugin {
                 lineStart = lastBreakPos;
                 lastBreakPos = 0;
 
-                ret = ret + "{br}";
+                ret = ret + lineBreak;
             }
 
             scanPos++;

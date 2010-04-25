@@ -32,6 +32,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1399 Keep previously scanned movies parameter causes <cast> duplicate name
   - Fixed defect #1403 Kinopoisk plugin changes for referrer string
   - Fixed defect #1412 Sort cast/writers in alphabetic order
+  - Enhancement  #1434 Option to specify different plot line break type (other then {br})
   - Fixed defect #1436 Scraping of nfo-file fails for year
   - Fixed defect #1438 Proper parsing of MPAA rating by Kinopoisk plugin
 
