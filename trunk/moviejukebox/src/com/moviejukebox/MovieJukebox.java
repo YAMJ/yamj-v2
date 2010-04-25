@@ -1582,10 +1582,7 @@ public class MovieJukebox {
         if (recheckDays > 0) {
             //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date currentDate = new Date();
-            long dateDiff = (currentDate.getTime() - movie.getMjbGenerationDate().getTime()) / (1000 * 60 * 60 * 24);
-            //System.out.println("- mjbGenDate : " + dateFormat.format(movie.getMjbGenerationDate()));
-            //System.out.println("- CurrentDate: " + dateFormat.format(currentDate));
-            //System.out.println("- Difference : " + dateDiff);
+            long dateDiff = (currentDate.getTime() - movie.getMjbGenerationDate().toDate().getTime()) / (1000 * 60 * 60 * 24);
             if (dateDiff > recheckDays) {
                 logger.finest("Recheck: " + movie.getBaseName() + " XML is " + dateDiff + " days old, will rescan");
                 recheckCount++;

@@ -98,7 +98,6 @@ public class Library implements Map<String, Movie> {
     private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
     private Map<String, Index> unCompressedIndexes = new LinkedHashMap<String, Index>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000"); // Issue 190
-    private static final Calendar currentCal = Calendar.getInstance();
     private static int maxGenresPerMovie = 3;
     private static int newCount = 0;
     private static long newDays = 7;
@@ -106,6 +105,12 @@ public class Library implements Map<String, Movie> {
     private static boolean setsRequireAll = false;
     private static String indexList;
     private static boolean splitHD = false;
+
+    // Static values for the year indexes
+    private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+    private static final int finalYear = currentYear - 2;
+    private static final int currentDecade = (finalYear / 10) * 10;
+
 
     static {
         minSetCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.sets.minSetCount", "2"));
@@ -1035,10 +1040,6 @@ public class Library implements Map<String, Movie> {
         String yearCat = Movie.UNKNOWN;
         if (filmYear != null && !filmYear.equalsIgnoreCase(Movie.UNKNOWN)) {
             try {
-                int currentYear = currentCal.get(Calendar.YEAR);
-                int finalYear = currentYear - 2;
-                int currentDecade = (finalYear / 10) * 10;
-
                 if (filmYear.equals("" + currentYear)) {
                     yearCat = "This Year";
                 } else if (filmYear.equals("" + (currentYear - 1))) {

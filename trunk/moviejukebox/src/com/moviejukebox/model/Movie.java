@@ -14,7 +14,6 @@
 package com.moviejukebox.model;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -38,6 +37,8 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -69,7 +70,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     private String mjbVersion = UNKNOWN;
     private String mjbRevision = UNKNOWN;
-    private Date mjbGenerationDate = null;
+    private DateTime mjbGenerationDate = null;
 
     // Safe name for generated files
     private String baseName;
@@ -232,16 +233,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setMjbGenerationDateString(String mjbGenerationDate) {
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            this.mjbGenerationDate = dateFormat.parse(mjbGenerationDate);
+            this.mjbGenerationDate = DateTime.parse(mjbGenerationDate);
         } catch (Exception error) {
-            this.mjbGenerationDate = new Date();
+            this.mjbGenerationDate = new DateTime();
         }
     }
 
-    public void setMjbGenerationDate(Date mjbGenerationDate) {
+    public void setMjbGenerationDate(DateTime mjbGenerationDate) {
         if (mjbGenerationDate == null) {
-            this.mjbGenerationDate = new Date();
+            this.mjbGenerationDate = new DateTime();
         } else {
             this.mjbGenerationDate = mjbGenerationDate;
         }
@@ -249,12 +249,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     @XmlElement
     public String getMjbGenerationDateString() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getMjbGenerationDate());
+        return getMjbGenerationDate().toString("yyyy-MM-dd HH:mm:ss");
     }
 
-    public Date getMjbGenerationDate() {
+    public DateTime getMjbGenerationDate() {
         if (this.mjbGenerationDate == null) {
-            this.mjbGenerationDate = new Date();
+            this.mjbGenerationDate = new DateTime();
         }
         return this.mjbGenerationDate;
     }

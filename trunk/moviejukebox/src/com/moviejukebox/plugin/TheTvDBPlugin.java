@@ -15,10 +15,9 @@ package com.moviejukebox.plugin;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+
+import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -38,7 +37,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String webhost = "thetvdb.com";
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private TheTVDB tvDB;
     private String language;
     private boolean forceBannerOverwrite;
@@ -101,10 +99,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
                         if (movie.getYear() != null && !movie.getYear().equals(Movie.UNKNOWN)) {
                             try {
-                                Date firstAired = dateFormat.parse(s.getFirstAired());
-                                Calendar cal = Calendar.getInstance();
-                                cal.setTime(firstAired);
-                                if (cal.get(Calendar.YEAR) == Integer.parseInt(movie.getYear())) {
+                                DateTime firstAired = DateTime.parse(s.getFirstAired());
+                                if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(movie.getYear())) {
                                     series = s;
                                     break;
                                 }
