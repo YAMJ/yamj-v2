@@ -160,11 +160,11 @@ public class MovieFilenameScanner {
      * Mapping exact tokens to language. Strict mapping is case sensitive and must be obvious. 
      * E.q. it must avoid confusing movie name words and language markers. 
      * For example the English word "it" and Italian language marker "it", or "French" as part
-     * of the title and "french" as language marker.<br>
+     * of the title and "french" as language marker.
      * 
      * However, described above is important only by file naming with token delimiters 
      * (see tokens description constants TOKEN_DELIMITERS*). Language detection in non-token
-     * separated titles will be skipped automatically.<br>
+     * separated titles will be skipped automatically.
      * 
      * Language markers, found with this pattern are counted as token delimiters (they will cut
      * movie title)
