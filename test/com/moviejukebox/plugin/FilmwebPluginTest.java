@@ -18,7 +18,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -229,10 +228,10 @@ public class FilmwebPluginTest extends TestCase {
         filmwebPlugin.setRequestResult("<table class=\"film-starring\">\n\t\t<thead>\n\t\t\t<tr>\n\t\t\t\t<th scope=\"col\">Aktor</th>\n\n\t\t\t\t<th scope=\"col\">Bohater</th>\n\t\t\t</tr>\n\t\t</thead>\n\t\t<tbody>\n\t\t\t\t\t\t\t        \t\t\t<tr >\n        \t\t\t\t<td class=\"film-actor\">\n\t\t\t\t\t\t\t<a href=\"http://jerzy.stuhr.filmweb.pl/\">\n                    \t\t                    \t\t\t<img width=\"23\" height=\"32\" src=\"http://gfx.filmweb.pl/p/01/10/110/145434.0.jpg\" title=\"Jerzy Stuhr - filmografia - FILMWEB.pl\" alt=\"Jerzy Stuhr\" />\n\n                    \t\t\t\t\t\t\t\t\t\tJerzy Stuhr\n                    \t\t</a>\n\t\t\t\t\t\t</td>\n        \t\t\t\t<td class=\"film-protagonist\">\n    \t\t\t\t\t                    \t\tMaks\n                    \t\t<span>\n                    \t\t\t                    \t\t</span>\n                    \t\t\t\t\t\t\t\t\t</td>\n        \t\t\t</tr>\n\t\t\t\t\t\t\t\t\t\t\t        \t\t\t<tr class=\"even\">\n\n        \t\t\t\t<td class=\"film-actor\">\n\t\t\t\t\t\t\t<a href=\"http://www.filmweb.pl/o405/Olgierd+%C5%81ukaszewicz\">\n                    \t\t                    \t\t\t<img width=\"23\" height=\"32\" src=\"http://gfx.filmweb.pl/p/04/05/405/146170.0.jpg\" title=\"Olgierd Łukaszewicz - filmografia - FILMWEB.pl\" alt=\"Olgierd Łukaszewicz\" />\n                    \t\t\t\t\t\t\t\t\t\tOlgierd Łukaszewicz\n                    \t\t</a>\n\t\t\t\t\t\t</td>\n        \t\t\t\t<td class=\"film-protagonist\">\n    \t\t\t\t\t                    \t\tAlbert\n                    \t\t<span>\n                    \t\t\t                    \t\t</span>\n\n                    \t\t\t\t\t\t\t\t\t</td>\n        \t\t\t</tr>\n\t\t\t\t\t\t\t\t\t</tbody>\n\t</table>");
         filmwebPlugin.updateMediaInfo(movie);
         
-        Set<String> testCast = new LinkedHashSet<String>();
+        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
         // These need to be in the same order as the web page
-        testCast.add("Olgierd Łukaszewicz");
         testCast.add("Jerzy Stuhr");
+        testCast.add("Olgierd Łukaszewicz");
 
         assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getCast().toArray(), 2)).toString());
     }

@@ -217,12 +217,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
             movie.setPlot(plot);
 
             // Cast
-            Collection<String> newCast = new ArrayList<String>();
             for (String actor : HTMLTools.extractTags(xml, ">В главных ролях:", "</table>", "<a href=\"/level/4", "</a>")) {
-                newCast.add(actor);
+                movie.addActor(actor);
             }
-            if (newCast.size() > 0)
-                movie.setCast(newCast);
 
             for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr>", "</tr>")) {
                 item = "<td>" + item + "</tr>";
