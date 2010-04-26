@@ -33,23 +33,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static String COMINGSOON_NOT_PRESENT = "na";
     private static String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
-    private static String COMINGSOON_SEARCH_URL = "scheda_film.asp?";
+    private static String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
     private static String COMINGSOON_KEY_PARAM= "key=";
     private static int COMINGSOON_MAX_DIFF = 1000;
 
-	
+    //http://comingsoon.it/Film/Scheda/Trama/?key=47484&film=The-Last-Song
+    
     protected int preferredPlotLength;
-    
-    
-	
+
 	public ComingSoonPlugin() {
 		super();
 		preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
 		preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 	}
-	
-	
-	
+
 	@Override
 	public boolean scan(Movie mediaFile) {
 
@@ -66,13 +63,13 @@ public class ComingSoonPlugin extends ImdbPlugin {
         
         String bkPlot = mediaFile.getPlot();
 
-        logger.finest("Checking IMDB");
+        logger.finest("ComingSoon: Checking IMDB");
         boolean firstScanImdb = super.scan(mediaFile);      
         if (comingSoonId.equalsIgnoreCase(Movie.UNKNOWN)) {
         	// First run wasn't successful
         	if (firstScanImdb) {
         		// We try to fetch again ComingSoon, hopefully with more info
-                logger.finest("First search on ComingSoon was KO, retrying after succesful query to IMDB");
+                logger.finest("ComingSoon: First search on ComingSoon was KO, retrying after succesful query to IMDB");
                 comingSoonId = getComingSoonId(mediaFile.getTitle(), mediaFile.getYear());
                 mediaFile.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
         	}
@@ -81,7 +78,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         boolean firstScanComingSoon = false;
         if (!comingSoonId.equalsIgnoreCase(Movie.UNKNOWN)) {
 
-            logger.finest("Fetching movie data from ComingSoon");
+            logger.finest("ComingSoon: Fetching movie data from ComingSoon");
         	
             String bkPlot2 = mediaFile.getPlot();
             mediaFile.setPlot(bkPlot);
@@ -96,7 +93,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         if (!firstScanImdb && firstScanComingSoon) {
         	// Scan was successful on ComingSoon but not on IMDB, let's try again with more info
 
-            logger.finest("First scan on IMDB KO, retrying after succesful scan on ComingSoon");
+            logger.finest("ComingSoon: First scan on IMDB KO, retrying after succesful scan on ComingSoon");
         	
             String bkTitle = mediaFile.getTitle();
             String bkOriginalTitle = mediaFile.getOriginalTitle();
@@ -152,21 +149,21 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             sb.append("+site%3Acomingsoon.it");
 
-            logger.finest("Fetching ComingSoon search URL: " + sb.toString());
+            logger.finest("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
             String xml = webBrowser.request(sb.toString());
             
            
             int beginIndex = xml.indexOf(COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL);
             if (beginIndex > 0) {
             	comingSoonId = getComingSoonIdFromURL(xml.substring(beginIndex, xml.indexOf('"', beginIndex)));
-                logger.finest("Found ComingSoon ID: " + comingSoonId);
+                logger.finest("ComingSoon: Found ComingSoon ID: " + comingSoonId);
             }
             return comingSoonId;
             
             
         } catch (Exception error) {
-            logger.severe("Failed retreiving ComingSoon Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
+            logger.severe("ComingSoon: Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -185,14 +182,14 @@ public class ComingSoonPlugin extends ImdbPlugin {
         	
 	    	String comingSoonId = Movie.UNKNOWN;
 	    	
-            StringBuffer sb = new StringBuffer("http://www.comingsoon.it/film.asp?titoloFilm=");
+	    	StringBuffer sb = new StringBuffer("http://www.comingsoon.it/Film/Database/?titoloFilm=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));          	
 
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
                 sb.append("&anno=" + year);
             }
 
-            logger.finest("Fetching ComingSoon search URL: " + sb.toString());
+            logger.finest("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
             String xml = webBrowser.request(sb.toString());
             
             ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
@@ -202,15 +199,15 @@ public class ComingSoonPlugin extends ImdbPlugin {
             	String lId = (String) movieList.get(i)[0];
             	String lTitle = (String) movieList.get(i)[1];
             	String lOrig = (String) movieList.get(i)[2];
-            	String lYear = (String) movieList.get(i)[3];
+            	//String lYear = (String) movieList.get(i)[3];
             	int difference = compareTitles(movieName, lTitle);
             	int differenceOrig = compareTitles(movieName, lOrig);
             	difference = (differenceOrig < difference ? differenceOrig : difference);
             	if (difference < scoreToBeat) {
             		if (difference == 0) {
-            			logger.finest("Found perfect match for: " + lTitle + ", " + lOrig);
+            			logger.finest("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
             		} else {
-            			logger.finest("Found a match for: " + lTitle + ", " + lOrig);
+            			logger.finest("ComingSoon: Found a match for: " + lTitle + ", " + lOrig);
             		}
             		comingSoonId = lId;
             		scoreToBeat = difference;
@@ -218,7 +215,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
             
             if (!year.equalsIgnoreCase(Movie.UNKNOWN) && scoreToBeat > 0) {
-            	logger.finest("Perfect match not found, trying removing by year...");
+            	logger.finest("ComingSoon: Perfect match not found, trying removing by year...");
             	String newComingSoonId = getComingSoonIdFromComingSoon(movieName, Movie.UNKNOWN, scoreToBeat);
             	comingSoonId = (newComingSoonId.equalsIgnoreCase(Movie.UNKNOWN) ? comingSoonId : newComingSoonId);
             }
@@ -227,8 +224,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
             
         } catch (Exception error) {
-            logger.severe("Failed retreiving ComingSoon Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
+            logger.severe("ComingSoon: Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -279,7 +276,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
     
     private String getComingSoonIdFromURL (String URL) {
-    	//logger.fine("Parsing URL: " + URL);
+    	//logger.fine("ComingSoon: Parsing URL: " + URL);
     	int beginIndex = URL.indexOf(COMINGSOON_KEY_PARAM);
 		StringTokenizer st = new StringTokenizer(URL.substring(beginIndex + COMINGSOON_KEY_PARAM.length()), "&/\"");
         String comingSoonId = st.nextToken();
@@ -302,7 +299,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     		return COMINGSOON_MAX_DIFF;
     	}
     	
-    	logger.finest("Comparing: " + searchedTitle + " and : " + returnedTitle);
+    	logger.finest("ComingSoon: Comparing: " + searchedTitle + " and : " + returnedTitle);
     	
     	StringTokenizer st1 = new StringTokenizer(searchedTitle);
     	int lastMatchedWord = -1;
@@ -355,7 +352,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     	
     	try {
     		String movieURL = COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL +  COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
-    		logger.finest("Querying ComingSoon for " + movieURL);
+    		logger.finest("ComingSoon: Querying ComingSoon for " + movieURL);
     		String xml = webBrowser.request(movieURL);
     		
 			String title = HTMLTools.extractTag(xml, "<h1 class='titoloFilm'").trim();
@@ -365,7 +362,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 			}
 			
 			if (title == null || title.equalsIgnoreCase(Movie.UNKNOWN)) {
-				logger.severe("No title found at ComingSoon page. HTML layout has changed?");
+				logger.severe("ComingSoon: No title found at ComingSoon page. HTML layout has changed?");
 				return false;
 			}
 			
@@ -382,19 +379,19 @@ public class ComingSoonPlugin extends ImdbPlugin {
 			
 				int beginIndex = xml.indexOf("<span class='vociFilm'>Trama del film");
 				if (beginIndex < 0) {
-					logger.severe("No plot found at ComingSoon page. HTML layout has changed?");
+					logger.severe("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
 					return false;
 				}
 	
 				beginIndex = xml.indexOf("</span>", beginIndex);
 				if (beginIndex < 0) {
-					logger.severe("No plot found at ComingSoon page. HTML layout has changed?");
+					logger.severe("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
 					return false;
 				}
 	
 				int endIndex = xml.indexOf("</div>", beginIndex);
 				if (endIndex < 0) {
-					logger.severe("No plot found at ComingSoon page. HTML layout has changed?");
+					logger.severe("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
 					return false;
 				}
 				
@@ -411,7 +408,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     		return true;
     		
     	} catch (Exception error) {
-            logger.severe("Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
+            logger.severe("ComingSoon: Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
