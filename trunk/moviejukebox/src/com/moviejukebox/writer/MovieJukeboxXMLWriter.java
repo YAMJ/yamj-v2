@@ -70,7 +70,8 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
-    private boolean isPlayOnHD;
+    private static boolean isPlayOnHD;
+    private static String defaultSource;
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
@@ -96,6 +97,7 @@ public class MovieJukeboxXMLWriter {
         includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
         isPlayOnHD = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.PlayOnHD", "false"));
+        defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -921,7 +923,12 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getResolution());
         writer.writeEndElement(); // 1280x528
         writer.writeStartElement("videoSource");
-        writer.writeCharacters(movie.getVideoSource());
+        // If the source is unknown, use the default source
+        if (movie.getVideoSource().equalsIgnoreCase(Movie.UNKNOWN)) {
+            writer.writeCharacters(defaultSource);
+        } else {
+            writer.writeCharacters(movie.getVideoSource());
+        }
         writer.writeEndElement();
         writer.writeStartElement("videoOutput");
         writer.writeCharacters(movie.getVideoOutput());

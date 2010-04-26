@@ -37,8 +37,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private static String COMINGSOON_KEY_PARAM= "key=";
     private static int COMINGSOON_MAX_DIFF = 1000;
 
-    //http://comingsoon.it/Film/Scheda/Trama/?key=47484&film=The-Last-Song
-    
     protected int preferredPlotLength;
 
 	public ComingSoonPlugin() {
