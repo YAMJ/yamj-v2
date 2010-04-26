@@ -627,11 +627,16 @@ public class MovieNFOScanner {
                                             String val = XMLHelper.getCData(r);
                                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                                 // codec come first
+                                                // If the codec is lowercase, covert it to uppercase, otherwise leave it alone
+                                                if (val.toLowerCase().equals(val)) {
+                                                    val = val.toUpperCase();
+                                                }
+                                                
                                                 if (tmpCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
-                                                    tmpCodec = val.toUpperCase();
+                                                    tmpCodec = val;
                                                 } else {
                                                     // We alerady have language info, need to concat
-                                                    tmpCodec = val.toUpperCase() + " " + tmpCodec;
+                                                    tmpCodec = val + " " + tmpCodec;
                                                 }
                                                 // movie.setAudioCodec(val);
                                             }
