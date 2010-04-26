@@ -31,6 +31,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1398 Some movie descriptions broken <br/> replaced with <br> in skin-options.xsl
   - Fixed defect #1399 Keep previously scanned movies parameter causes <cast> duplicate name
   - Fixed defect #1403 Kinopoisk plugin changes for referrer string
+  - Enhancement  #1411 Default source property
   - Fixed defect #1412 Sort cast/writers in alphabetic order
   - Fixed defect #1431 Dolby TrueHD Codec, Case Changed from NFO, Breaks Skin
   - Enhancement  #1434 Option to specify different plot line break type (other then {br})
