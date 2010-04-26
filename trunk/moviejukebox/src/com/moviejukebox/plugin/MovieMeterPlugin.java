@@ -17,8 +17,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -170,8 +168,6 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
             if (mediaFile.getCast().isEmpty()) {
-                Collection<String> newCast = new ArrayList<String>();
-
                 if (filmInfo.get("actors") != null) {
                     // If no actor is known, false is returned instead of an array
                     // This results in a ClassCastException
@@ -179,10 +175,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                     if (filmInfo.get("actors").getClass().equals(Object[].class)) {
                         Object[] actors = (Object[])filmInfo.get("actors");
                         for (int i = 0; i < actors.length; i++) {
-                            newCast.add((String)(((HashMap)actors[i]).get("name")));
-                        }
-                        if (newCast.size() > 0) {
-                            mediaFile.setCast(newCast);
+                            mediaFile.addActor((String)(((HashMap)actors[i]).get("name")));
                         }
                     }
                 }

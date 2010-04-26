@@ -733,7 +733,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setCast(Collection<String> cast) {
         this.isDirty = true;
-        this.cast = new HashSet<String>(cast);
+        this.cast = new LinkedHashSet<String>(cast);
     }
 
     public void addWriter(String writer) {
