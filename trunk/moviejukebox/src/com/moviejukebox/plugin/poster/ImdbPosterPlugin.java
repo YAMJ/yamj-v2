@@ -36,7 +36,6 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
         String response = Movie.UNKNOWN;
 
         try {
-
             String imdbId = imdbInfo.getImdbId(title, year);
             if (!Movie.UNKNOWN.equals(imdbId)) {
                 response = imdbId;
