@@ -654,7 +654,7 @@ public class MovieFilenameScanner {
     public static void setSkipKeywords(String[] skipKeywords) {
         MovieFilenameScanner.skipKeywords = skipKeywords;
         skipPatterns.clear();
-        boolean caseSensitive = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.skip.keywords", "true"));
+        boolean caseSensitive = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.skip.caseSensitive", "true"));
         for (String s : skipKeywords) {
             if (caseSensitive) {
                 skipPatterns.add(wpatt(Pattern.quote(s)));
