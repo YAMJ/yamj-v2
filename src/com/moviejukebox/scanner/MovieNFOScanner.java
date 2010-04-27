@@ -836,9 +836,9 @@ public class MovieNFOScanner {
                             String set = XMLHelper.getCData(r);
                             Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
                             Integer order = null;
-                            try{
+                            // Check the attribute is found before getting the value
+                            if (orderAttribute != null)
                                 order = new Integer(orderAttribute.getValue()); 
-                            }catch(NumberFormatException ex){}
                             movie.addSet(set, order);
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
