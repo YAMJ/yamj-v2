@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -355,8 +356,6 @@ public class MovieFilenameScanner {
             dto.setVideoSource("DVD");
         }
 
-        
-
         rest = cleanUp(rest);
 
         // Detect incomplete filenames and add parent folder name to parser
@@ -655,8 +654,13 @@ public class MovieFilenameScanner {
     public static void setSkipKeywords(String[] skipKeywords) {
         MovieFilenameScanner.skipKeywords = skipKeywords;
         skipPatterns.clear();
+        boolean caseSensitive = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.skip.keywords", "true"));
         for (String s : skipKeywords) {
-            skipPatterns.add(wpatt(Pattern.quote(s)));
+            if (caseSensitive) {
+                skipPatterns.add(wpatt(Pattern.quote(s)));
+            } else {
+                skipPatterns.add(iwpatt(Pattern.quote(s)));
+            }
         }
     }
     
