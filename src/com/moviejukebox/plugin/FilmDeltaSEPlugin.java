@@ -25,6 +25,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
@@ -295,10 +296,15 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     }
 
     private void getFilmdeltaCast(Movie movie, String fdeltaHtml) {
+        Collection<String> newCast = new ArrayList<String>();
+
         for (String actor : HTMLTools.extractTags(fdeltaHtml, "<h4>Sk&aring;despelare</h4>", "</div>", "<h5>", "</h5>")) {
             String[] newActor = actor.split("</a>");
-            movie.addActor(newActor[0]);
-            logger.finest("FilmdeltaSE: scraped actor: " + newActor[0]);
+            newCast.add(newActor[0]);
+        }
+        if (newCast.size() > 0) {
+            movie.setCast(newCast);
+            logger.finest("FilmdeltaSE: scraped actor: " + movie.getCast().toString());
         }
     }
 
