@@ -576,6 +576,12 @@ public class MediaInfoScanner {
 
             String infoLanguage = "";
             infoValue = infosCurText.get("Language");
+            
+            // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an UNKNOWN value to make it appear
+            if(infoValue==null || infoValue.trim().length()==0){
+                infoValue= Movie.UNKNOWN;
+            }
+            
             if (infoValue != null) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
@@ -586,6 +592,12 @@ public class MediaInfoScanner {
 
             String infoFormat = "";
             infoValue = infosCurText.get("Format");
+
+            // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an UNKNOWN value to make it appear
+            if(infoValue==null || infoValue.trim().length()==0){
+                infoValue= Movie.UNKNOWN;
+            }
+            
             if (infoValue != null) {
                 infoFormat = infoValue;
             } else {
