@@ -53,7 +53,12 @@ public class MovieFilenameScannerTest extends TestCase {
         MovieFilenameScanner.addLanguage("Danish", "DA DAN DANISH da dan danish", "DA DAN DANISH");
         MovieFilenameScanner.addLanguage("Dutch", "NL Nl nl NLD Nld nld DUTCH Dutch dutch", "NL NLD DUTCH");
     }
-    
+    public void testNoSpaceBeforeBracket(){
+        MovieFileNameDTO d = scan("Aliens(1986).avi");
+        assertEquals("Aliens", d.getTitle());
+        assertEquals(1986, d.getYear());
+        
+    }
     public void testTrailer(){
       MovieFileNameDTO d = scan("Gladiator[PART1].[TRAILER-gladiator_480_sv2].mov");
       assertEquals("Gladiator", d.getTitle());

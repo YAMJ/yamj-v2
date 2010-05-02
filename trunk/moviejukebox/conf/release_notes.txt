@@ -38,6 +38,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1435 ComingSoon.IT Plugin needs changes due to new website format
   - Fixed defect #1436 Scraping of nfo-file fails for year
   - Fixed defect #1438 Proper parsing of MPAA rating by Kinopoisk plugin
+  - Fixed defect #1443 Aliens(1986).avi parsed incorrectly  
   - Enhancement  #1444 Property to turn off case sensitivity for skip keywords
   - Fixed defect #1447 NFO NullPointerException error for sets with no order
 
