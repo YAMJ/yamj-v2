@@ -88,8 +88,8 @@ public class MovieFilenameScanner {
     protected static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
     protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
 
-    /** Last 4 digits or last 4 digits in parenthesis. */
-    protected static final Pattern MOVIE_YEAR_PATTERN = patt("[^0-9]\\({0,1}([0-9]{4})\\){0,1}$");
+    /** Last 4 digits or last 4 digits in parenthesis. */ 
+    protected static final Pattern MOVIE_YEAR_PATTERN = patt("\\({0,1}([0-9]{4})\\){0,1}$"); // patt("[^0-9]\\({0,1}([0-9]{4})\\){0,1}$");
 
     /** One or more '.[]_ ' */
     protected static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
@@ -636,7 +636,7 @@ public class MovieFilenameScanner {
     }
 
     private static String cutMatch(String rest, Matcher matcher) {
-        return rest.substring(0, matcher.start()) + rest.substring(matcher.end());
+        return (rest.substring(0, matcher.start()) + rest.substring(matcher.end())).trim();
     }
 
     private static String cutMatch(String rest, Matcher matcher, String divider) {
