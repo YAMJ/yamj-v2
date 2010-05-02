@@ -41,6 +41,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1443 Aliens(1986).avi parsed incorrectly  
   - Enhancement  #1444 Property to turn off case sensitivity for skip keywords
   - Fixed defect #1447 NFO NullPointerException error for sets with no order
+  - Fixed defect #1450 Some DVDs don't have subtitle language info in medianfo output resulting in blank lang. info  
 
 MovieJukebox 1.9 (r1500)
 ------------------------
