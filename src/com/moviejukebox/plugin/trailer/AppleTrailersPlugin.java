@@ -11,7 +11,7 @@
  *      license terms of this work.  
  */
 
-package com.moviejukebox.plugin;
+package com.moviejukebox.plugin.trailer;
 
 import java.io.File;
 import java.io.FileOutputStream;
