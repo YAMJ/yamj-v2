@@ -280,6 +280,7 @@ public class PosterScanner {
                 iPosterPlugin = moviePosterPlugins.get(posterSearchToken);
                 msg = "Movie";
             }
+            
             if (iPosterPlugin == null) {
                 logger.info("Posterscanner: " + posterSearchToken + " is not a " + msg + " Poster plugin - skipping");
             } else {

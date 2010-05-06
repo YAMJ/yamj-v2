@@ -91,7 +91,8 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     public String getPosterUrl(String id, int season) {
         String response = Movie.UNKNOWN;
         ThreadExecutor.EnterIO(webhost);
-        if (!Movie.UNKNOWN.equals(id)) {
+        
+        if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
             String urlNormal = null;
             Banners banners = tvDB.getBanners(id);
 
