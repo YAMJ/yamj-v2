@@ -7,6 +7,15 @@
 		<!-- This only works if the build is done through Hudson, otherwise it stays the same -->
 		<property environment="env" />
 		<property name="revision" value="${env.SVN_REVISION}" />
+
+        <echo>Writing version.txt</echo>
+        <tstamp>
+            <format property="builddate" pattern="yyyy-MM-dd HH:mm:ss" locale="en"/>
+        </tstamp> 
+        <echo file="conf/version.txt" append="false">Yet Another Movie Jukebox</echo>
+        <echo file="conf/version.txt" append="true">Build Date: ${builddate}${line.separator}</echo>
+        <echo file="conf/version.txt" append="true">Version: ${version}${line.separator}</echo>
+        <echo file="conf/version.txt" append="true">Revision: ${env.SVN_REVISION}${line.separator}</echo>
 	</target>
 
 	<target name="clean">
