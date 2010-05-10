@@ -352,6 +352,7 @@ public class MovieFile implements Comparable<MovieFile> {
     }
     
 
+    @SuppressWarnings("unused")
     private void setPlayLink(Map<String, String> playLink) {
         if (playLink == null || playLink.equals("")) {
             this.playLink = calculatePlayLink();
