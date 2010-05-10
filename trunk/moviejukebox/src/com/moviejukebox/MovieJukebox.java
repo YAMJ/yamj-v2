@@ -1060,7 +1060,7 @@ public class MovieJukebox {
         // ForceBannerOverwrite is set here to force the re-load of TV Show data including the banners
         if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
             // *** START of routine to check if the file has changed location
-            // Set up some arrays to store the directory scanner files and the xml files
+            // Set up some arrays to store the directory scanner files and the XML files
             Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
 
             // Now compare the before and after files
@@ -1078,6 +1078,7 @@ public class MovieJukebox {
                 if (!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) {
                     logger.finest("Detected change of file location to: " + scannedFilename);
                     xmlLoop.setFilename(scannedFilename);
+                    xmlLoop.setNewFile(true);
                     movie.addMovieFile(xmlLoop);
                 }
             }
