@@ -46,6 +46,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1451 VideoImageScanner NullPointerException
   - Fixed defect #1458 Failed drawing Language logo to thumbnail file
   - Fixed defect #1459 ID -1 being ignored for TV shows
+  - Fixed defect #1465 Sorting.strip.prefixes not working
 
 MovieJukebox 1.9 (r1500)
 ------------------------
