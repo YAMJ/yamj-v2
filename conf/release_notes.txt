@@ -44,6 +44,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1447 NFO NullPointerException error for sets with no order
   - Fixed defect #1450 Some DVDs don't have subtitle language info in mediainfo output resulting in blank lang. info
   - Fixed defect #1451 VideoImageScanner NullPointerException
+  - Fixed defect #1458 Failed drawing Language logo to thumbnail file
   - Fixed defect #1459 ID -1 being ignored for TV shows
 
 MovieJukebox 1.9 (r1500)

@@ -122,7 +122,7 @@ public class PropertiesUtil {
                     continue;
                 }
                 m.keywords.add(lang);
-                String values = getProperty(prefix + lang);
+                String values = getProperty(prefix  + "." + lang);
                 if (values != null) {
                     m.put(lang, values);
                 }
