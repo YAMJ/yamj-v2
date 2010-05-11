@@ -290,7 +290,7 @@ public class MovieJukebox {
         if (temp != null) {
             StringTokenizer st = new StringTokenizer(temp, ",");
             while (st.hasMoreTokens()) {
-                String token = st.nextToken();
+                String token = st.nextToken().trim();
                 if (token.startsWith("\"") && token.endsWith("\"")) {
                     token = token.substring(1, token.length() - 1);
                 }
