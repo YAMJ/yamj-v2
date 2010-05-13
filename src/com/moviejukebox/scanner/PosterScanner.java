@@ -146,7 +146,10 @@ public class PosterScanner {
         if (!coverArtDirectory.equals("")) {
             fullPosterFilename += File.separator + coverArtDirectory;
         }
-        fullPosterFilename += File.separator + localPosterBaseFilename;
+
+        // Check to see if the fullPosterFilename ends with a "\/" and only add it if needed
+        // Usually this occurs because the files are at the root of a folder
+        fullPosterFilename += (fullPosterFilename.endsWith(File.separator)?"":File.separator) + localPosterBaseFilename;
         localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, coverArtExtensions);
         boolean foundLocalCoverArt = localPosterFile.exists();               
 
