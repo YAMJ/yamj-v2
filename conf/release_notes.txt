@@ -47,6 +47,7 @@ MovieJukebox 2.0 BETA
   - Fixed defect #1458 Failed drawing Language logo to thumbnail file
   - Fixed defect #1459 ID -1 being ignored for TV shows
   - Fixed defect #1465 Sorting.strip.prefixes not working
+  - Fixed defect #1475 Remove blank lines in playlist files
 
 MovieJukebox 1.9 (r1500)
 ------------------------

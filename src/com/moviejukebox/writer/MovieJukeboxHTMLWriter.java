@@ -13,8 +13,11 @@
 
 package com.moviejukebox.writer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -190,6 +193,8 @@ public class MovieJukeboxHTMLWriter {
 
                 transformer.transform(xmlSource, xmlResult);
 
+                removeBlankLines(tempPlaylistFile.getAbsolutePath());
+                
                 fileNames.add(baseName + filenameSuffix);
             }
         } catch (Exception error) {
@@ -218,6 +223,40 @@ public class MovieJukeboxHTMLWriter {
         }
         
         return fileNames;
+    }
+    
+    /**
+     * Remove blank lines from the file
+     * The PCH does not like blank lines in the playlist.jsp files, so this routine will remove them
+     * This routine is only called for the base playlist as this is transformed with the playlist.xsl
+     * file and therefore could end up with blank lines in it
+     * @param filename
+     */
+    private void removeBlankLines(String filename) {
+        BufferedReader reader;
+        StringBuffer sb = new StringBuffer("");
+
+        try {
+            reader = new BufferedReader(new FileReader(filename));
+            String br ="";
+
+            while((br = reader.readLine()) != null)
+            {
+                if (br.trim().length() > 0)
+                    sb.append(br + "\n");
+            }
+            reader.close();
+            
+            FileWriter outFile = new FileWriter(filename);
+            outFile.write(sb.toString());
+            outFile.flush();
+            outFile.close();
+            
+        } catch (Exception error) {
+            // TODO Auto-generated catch block
+            error.printStackTrace();
+        }
+        return;
     }
 
     /**
