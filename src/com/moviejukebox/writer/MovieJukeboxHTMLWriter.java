@@ -128,7 +128,7 @@ public class MovieJukeboxHTMLWriter {
                 transformer.transform(xmlSource, xmlResult);
             }
         } catch (Exception error) {
-            logger.severe("Failed generating HTML for movie " + movie);
+            logger.severe("HTMLWriter: Failed generating HTML for movie " + movie);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -173,7 +173,7 @@ public class MovieJukeboxHTMLWriter {
             }
             if (partCount > 0) {
                 // Note this will skip playlist generation for any movie that has an "mjb.playlist.ignoreextensions" entry.
-                logger.finest("Playlist for " + movie.getTitle() + " skipped - All parts are in mjb.playlist.IgnoreExtensions");
+                logger.finest("HTMLWriter: Playlist for " + movie.getTitle() + " skipped - All parts are in mjb.playlist.IgnoreExtensions");
                 return fileNames;
             } // Issue 884
             
@@ -198,7 +198,7 @@ public class MovieJukeboxHTMLWriter {
                 fileNames.add(baseName + filenameSuffix);
             }
         } catch (Exception error) {
-            logger.severe("Failed generating playlist for movie " + movie);
+            logger.severe("HTMLWriter: Failed generating playlist for movie " + movie);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -214,7 +214,7 @@ public class MovieJukeboxHTMLWriter {
                     }
                 }
             } catch (Exception error) {
-                logger.severe("Failed generating playlist for movie " + movie);
+                logger.severe("HTMLWriter: Failed generating playlist for movie " + movie);
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
@@ -253,8 +253,11 @@ public class MovieJukeboxHTMLWriter {
             outFile.close();
             
         } catch (Exception error) {
-            // TODO Auto-generated catch block
-            error.printStackTrace();
+            logger.finer("HTMLWriter: Failed deleting blank lines from " + filename);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
         return;
     }
@@ -317,7 +320,7 @@ public class MovieJukeboxHTMLWriter {
 
             transformer.transform(xmlSource, xmlResult);
         } catch (Exception error) {
-            logger.severe("Failed generating HTML library category index.");
+            logger.severe("HTMLWriter: Failed generating HTML library category index.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -329,7 +332,7 @@ public class MovieJukeboxHTMLWriter {
         tasks.restart();
         for(final IndexInfo idx : library.getGeneratedIndexes()){
             if(idx.canSkip){//this is evaluated during xml indexing
-                logger.finer("Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
+                logger.finer("HTMLWriter: Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
             }else{
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
@@ -387,7 +390,7 @@ public class MovieJukeboxHTMLWriter {
             writer.close();
             fos.close();
         } catch (Exception error) {
-            logger.severe("Failed generating HTML library index.");
+            logger.severe("HTMLWriter: Failed generating HTML library index.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -431,7 +434,7 @@ public class MovieJukeboxHTMLWriter {
 
             transformer.transform(xmlSource, xmlResult);
         } catch (Exception error) {
-            logger.severe("Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
+            logger.severe("HTMLWriter: Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
