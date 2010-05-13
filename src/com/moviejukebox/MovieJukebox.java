@@ -173,8 +173,6 @@ public class MovieJukebox {
             logger.fine("Build Date: " + mjbBuildDate);
             logger.fine("");
         }
-        logger.fine("Processing started at " + new Date());
-        logger.fine("");
 
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
@@ -190,7 +188,10 @@ public class MovieJukebox {
         try {
             for (int i = 0; i < args.length; i++) {
                 String arg = (String)args[i];
-                if ("-o".equalsIgnoreCase(arg)) {
+                if ("-v".equalsIgnoreCase(arg)) {
+                    // We've printed the version, so quit now
+                    return;
+                } else if ("-o".equalsIgnoreCase(arg)) {
                     jukeboxRoot = args[++i];
                 } else if ("-c".equalsIgnoreCase(arg)) {
                     jukeboxClean = true;
@@ -220,6 +221,9 @@ public class MovieJukebox {
             help();
             return;
         }
+        
+        logger.fine("Processing started at " + new Date());
+        logger.fine("");
 
         // Load the moviejukebox-default.properties file
         if (!setPropertiesStreamName("./properties/moviejukebox-default.properties")) {
