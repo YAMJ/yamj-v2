@@ -99,8 +99,8 @@ public class Library implements Map<String, Movie> {
     private Map<String, Index> unCompressedIndexes = new LinkedHashMap<String, Index>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000"); // Issue 190
     private static int maxGenresPerMovie = 3;
-    private static int newCount = 0;
-    private static long newDays = 7;
+    private static int newCount;
+    private static long newDays;
     private static int minSetCount = 2;
     private static boolean setsRequireAll = false;
     private static String indexList;
@@ -157,20 +157,24 @@ public class Library implements Map<String, Movie> {
 
         charGroupEnglish = PropertiesUtil.getProperty("indexing.character.groupEnglish", "false").equalsIgnoreCase("true");
 
-        String newDaysParam = PropertiesUtil.getProperty("mjb.newdays", "7");
         try {
-            newDays = Long.parseLong(newDaysParam.trim());
+            newDays = Long.parseLong(PropertiesUtil.getProperty("mjb.newdays", "7").trim());
         } catch (NumberFormatException nfe) {
             newDays = 7;
         }
-        String newCountParam = PropertiesUtil.getProperty("mjb.newcount", "0");
+
         try {
-            newCount = Integer.parseInt(newCountParam.trim());
+            newCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.newcount", "0").trim());
         } catch (NumberFormatException nfe) {
             newCount = 0;
         }
-        logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
-        newDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+        if (newDays > 0) {
+        	logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
+            // Convert newDays from DAYS to MILLISECONDS for comparison purposes
+            newDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+        } else {
+        	logger.finest("New category is disabled");
+        }
     }
 
     public static class IndexInfo{
@@ -692,7 +696,7 @@ public class Library implements Map<String, Movie> {
                     }
                 }
 
-                if ((now - movie.getLastModifiedTimestamp() < newDays) && categoriesMap.get("New") != null) {
+                if ((newDays > 0) && (now - movie.getLastModifiedTimestamp() <= newDays) && categoriesMap.get("New") != null) {
                     index.addMovie(categoriesMap.get("New"), movie);
                     movie.addIndex("Property", categoriesMap.get("New"));
                 }
