@@ -66,7 +66,7 @@ public class MovieJukeboxHTMLWriter {
     private int nbMoviesPerPage;
     private int nbTvShowsPerPage;
     private static String skinHome;
-    private static TransformerFactory transformerFactory;
+    private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
     private static final Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
     private static String str_categoriesIndexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
     private static List<String> categoriesIndexList;
@@ -443,18 +443,16 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Creates and caches Transformer, one for every xsl file.
+     * Creates and caches Transformer, one for every thread/xsl file.
      */
     public static synchronized Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) throws TransformerConfigurationException {
         // Gabriel: transformers are NOT thread safe; use thread name to make get the cache thread specific
         // the method itself must be synchronized because transformerCache map is modified inside
         String lookupID = Thread.currentThread().getId() + ":" + xslFile.getAbsolutePath();
-        if (! transformerCache.containsKey(lookupID)) {
-            if (transformerFactory == null) {
-                transformerFactory = TransformerFactory.newInstance();
-            }
+        Transformer transformer = transformerCache.get(lookupID);
+        if (transformer == null) {
             Source xslSource = new StreamSource(xslFile);
-            Transformer transformer = transformerFactory.newTransformer(xslSource);
+            transformer = transformerFactory.newTransformer(xslSource);
             transformer.setParameter("homePage", indexFile);
             transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
             for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
@@ -463,6 +461,6 @@ public class MovieJukeboxHTMLWriter {
             }
             transformerCache.put(lookupID, transformer);
         }
-        return transformerCache.get(lookupID);
+        return transformer;
     }
 }
