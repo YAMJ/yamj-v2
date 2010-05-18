@@ -669,21 +669,13 @@ public class FileTools {
             return cachedFiles.containsKey(absPath.toUpperCase());
         }
         public boolean fileExists(File file){
-            try {
-                return cachedFiles.containsKey(file.getCanonicalPath().toUpperCase());
-            } catch (IOException e) {
-                return false;
-            }
+            return cachedFiles.containsKey(file.getAbsolutePath().toUpperCase());
         }
         /**
          * Add a file instance to cache 
          */
         public void fileAdd(File file){
-            try {
-                cachedFiles.put(file.getCanonicalPath().toUpperCase(), file);
-            } catch (IOException e) {
-                //nothing, just skip
-            }
+            cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
         }
         /*
          * Retrieve a file from cache
@@ -716,11 +708,7 @@ public class FileTools {
             if(files.length == 0) return;
             Map<String, File> map = new HashMap<String, File>(files.length);
             for(File f : files){
-                try {
-                    map.put(f.getCanonicalPath().toUpperCase(), f);
-                } catch (IOException e) {
-                    //skip errors
-                }
+                map.put(f.getAbsolutePath().toUpperCase(), f);
             }            
             cachedFiles.putAll(map);
         }
