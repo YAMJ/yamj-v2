@@ -74,9 +74,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
     @Override
     public boolean scan(Movie movie) {
         ThreadExecutor.EnterIO(webhost);
-        try{
+        try {
             return doscan(movie);
-        }finally{
+        } finally {
             ThreadExecutor.LeaveIO();
         }
     }
@@ -90,9 +90,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
             if (!movie.getTitle().equals(Movie.UNKNOWN)) {
                 seriesList = tvDB.searchSeries(movie.getTitle(), language);
             }
+            
             if (seriesList == null || seriesList.isEmpty()) {
                 seriesList = tvDB.searchSeries(movie.getBaseName(), language);
             }
+            
             if (seriesList != null && !seriesList.isEmpty()) {
                 Series series = null;
                 for (Series s : seriesList) {
@@ -112,11 +114,14 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
                     }
                 }
+                
                 if (series == null) {
                     series = seriesList.get(0);
                 }
+                
                 id = series.getId();
                 movie.setId(THETVDB_PLUGIN_ID, id);
+                
                 if (series.getImdbId() != null && !series.getImdbId().isEmpty()) {
                     movie.setId(IMDB_PLUGIN_ID, series.getImdbId());
                 }
@@ -293,6 +298,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (dvdEpisodes) {
                         episode = tvDB.getDVDEpisode(id, movie.getSeason(), part, language);
                     }
+                    
                     if (episode == null) {
                         episode = tvDB.getEpisode(id, movie.getSeason(), part, language);
                     }

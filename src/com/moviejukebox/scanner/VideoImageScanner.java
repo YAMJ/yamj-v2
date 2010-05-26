@@ -108,6 +108,12 @@ public class VideoImageScanner {
             firstPart = mf.getFirstPart();  // The first part of the moviefile
             lastPart = mf.getLastPart();    // The last part of the moviefile
             
+            // Check to see if the file is null, this might be the case if the file is in the middle of a series
+            if (mf.getFile() == null) {
+                logger.finest("VideoImageScanner: Missing file - " + mf.getFilename());
+                continue;
+            }
+            
             // Loop round each of the parts looking for the video_name.videoimageToken.Extension
             for (int part = firstPart; part <= lastPart; part++ ) {
                 foundLocalVideoImage = false;   // Reset the "found" variable
