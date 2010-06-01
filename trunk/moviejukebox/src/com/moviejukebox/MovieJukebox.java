@@ -1568,15 +1568,31 @@ public class MovieJukebox {
             recheckCount++; // By incrementing this variable we will only display this message once.
             return false;
         }
+        
         int recheckDays     = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Days", "30"));
+        int recheckMinDays  = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.minDays", "7"));
         int recheckRevision = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Revision", "25"));
         boolean recheckVersion = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Version", "true"));
         boolean recheckUnknown = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Unknown", "true"));
+        Date currentDate = new Date();
+        long dateDiff = (currentDate.getTime() - movie.getMjbGenerationDate().toDate().getTime()) / (1000 * 60 * 60 * 24);
         
         // Check for the version of YAMJ that wrote the XML file vs the current version
         //System.out.println("- mjbVersion : " + movie.getMjbVersion() + " (" + movie.getCurrentMjbVersion() + ")");
         if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(movie.getCurrentMjbVersion())) {
             logger.finest("Recheck: " + movie.getBaseName() + " XML is from a previous version, will rescan");
+            recheckCount++;
+            return true;
+        }
+        
+        // Check the date the XML file was last written to and skip if it's less than minDays
+        if ((recheckMinDays > 0) && (dateDiff <= recheckDays)) {
+            return false;
+        }
+        
+        // Check the date the XML file was written vs the current date
+        if ((recheckDays > 0)  && (dateDiff > recheckDays)) {
+            logger.finest("Recheck: " + movie.getBaseName() + " XML is " + dateDiff + " days old, will rescan");
             recheckCount++;
             return true;
         }
@@ -1591,18 +1607,6 @@ public class MovieJukebox {
             logger.finest("Recheck: " + movie.getBaseName() + " XML is " + revDiff + " revisions old, will rescan");
             recheckCount++;
             return true;
-        }
-        
-        // Check the date the xml file was written vs the current date
-        if (recheckDays > 0) {
-            //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date currentDate = new Date();
-            long dateDiff = (currentDate.getTime() - movie.getMjbGenerationDate().toDate().getTime()) / (1000 * 60 * 60 * 24);
-            if (dateDiff > recheckDays) {
-                logger.finest("Recheck: " + movie.getBaseName() + " XML is " + dateDiff + " days old, will rescan");
-                recheckCount++;
-                return true;
-            }
         }
         
         // Check for "UNKNOWN" values in the XML
@@ -1626,7 +1630,7 @@ public class MovieJukebox {
             }
             
             if (movie.getGenres().isEmpty()) {
-                logger.finest("Recheck: " + movie.getBaseName() + "XML is missing genres, will rescan");
+                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing genres, will rescan");
                 recheckCount++;
                 return true;
             }
