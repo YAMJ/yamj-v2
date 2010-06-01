@@ -110,7 +110,7 @@ public class VideoImageScanner {
             
             // Check to see if the file is null, this might be the case if the file is in the middle of a series
             if (mf.getFile() == null) {
-                logger.finest("VideoImageScanner: Missing file - " + mf.getFilename());
+                logger.finest("VideoImage Scanner: Missing file - " + mf.getFilename());
                 continue;
             }
             
