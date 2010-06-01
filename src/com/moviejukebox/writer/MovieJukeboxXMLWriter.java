@@ -39,6 +39,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Library;
@@ -346,8 +347,26 @@ public class MovieJukeboxXMLWriter {
                     while (!r.peek().toString().equalsIgnoreCase("</file>")) {
                         e = r.nextEvent();
                         tag = e.toString();
-                        if (tag.equalsIgnoreCase("<fileURL>")) {
-                            mf.setFilename(parseCData(r));
+                        if (tag.equalsIgnoreCase("<fileLocation>")) {
+                        	try {
+                        		File mfFile = new File(parseCData(r));
+                        		
+                        		// Check to see if the file exists, or we are preserving the jukebox
+                        		if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
+                        			// Save the file to the MovieFile
+                                	mf.setFile(mfFile);
+                        		} else {
+                        			// We can't find this file anymore, so skip it.
+                        			logger.finest("Missing video file in the XML file, it may have been moved or no longer exist.");
+                        			continue;
+                        		}
+                        	} catch (Exception ignore) {
+                        		// If there is an error creating the file then don't save anything
+                        		logger.finest("XMLWriter: Failed parsing file " + xmlFile.getName());
+                        		continue;
+                        	}
+                        } else if (tag.equalsIgnoreCase("<fileURL>")) {
+                                mf.setFilename(parseCData(r));
                         } else if (tag.toLowerCase().startsWith("<filetitle")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
@@ -1031,6 +1050,12 @@ public class MovieJukeboxXMLWriter {
                 writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
             }
 
+            if (mf.getFile() != null) {
+	            writer.writeStartElement("fileLocation");
+	            writer.writeCharacters(mf.getFile().getAbsolutePath());
+	            writer.writeEndElement();
+            }
+            
             writer.writeStartElement("fileURL");
             String filename = mf.getFilename();
             // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD VIDEO_TS path names

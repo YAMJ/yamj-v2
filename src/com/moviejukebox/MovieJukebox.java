@@ -127,6 +127,7 @@ public class MovieJukebox {
     private static int recheckCount = 0;
     private static boolean skipIndexGeneration = false;
     private static boolean dumpLibraryStructure = false;
+    private static boolean jukeboxPreserve = false;
 
         // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
@@ -176,7 +177,6 @@ public class MovieJukebox {
 
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
-        boolean jukeboxPreserve = false;
         String propertiesName = "./moviejukebox.properties";
         Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
 
@@ -196,7 +196,7 @@ public class MovieJukebox {
                 } else if ("-c".equalsIgnoreCase(arg)) {
                     jukeboxClean = true;
                 } else if ("-k".equalsIgnoreCase(arg)) {
-                    jukeboxPreserve = true;
+                    setJukeboxPreserve(true);
                 } else if ("-p".equalsIgnoreCase(arg)) {
                     propertiesName = args[++i];
                 } else if ("-i".equalsIgnoreCase(arg)) {
@@ -344,7 +344,7 @@ public class MovieJukebox {
             logger.warning("WARNING !!! A dump of your library directory structure will be generated for debug purpose. !!! Library won't be built or updated");
             ml.makeDumpStructure();
         } else {
-            ml.generateLibrary(jukeboxPreserve);
+            ml.generateLibrary();
         }
 
         fh.close();
@@ -545,7 +545,7 @@ public class MovieJukebox {
         private Collection<Movie> movies;
     }
 
-    private void generateLibrary(boolean jukeboxPreserve) throws Throwable {
+    private void generateLibrary() throws Throwable {
 
         /********************************************************************************
          * @author Gabriel Corneanu: the tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all are added to a
@@ -676,8 +676,8 @@ public class MovieJukebox {
         tasks.waitFor();
 
         // If the user asked to preserve the existing movies, scan the output directory as well
-        if (jukeboxPreserve) {
-            logger.fine("Scanning output directory for additional movies");
+        if (isJukeboxPreserve()) {
+            logger.fine("Scanning output directory for additional videos");
             OutputDirectoryScanner ods = new OutputDirectoryScanner(jukeboxRoot + File.separator + detailsDirName);
             ods.scan(library);
         }
@@ -685,12 +685,12 @@ public class MovieJukebox {
         // Now that everything's been scanned, merge the trailers into the movies
         library.mergeExtras();
 
-        logger.fine("Found " + library.size() + " movies in your media library");
+        logger.fine("Found " + library.size() + " videos in your media library");
         logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
         tasks.restart();
         if (library.size() > 0) {
-            logger.fine("Searching for movies information...");
+            logger.fine("Searching for information on the video files...");
             int movieCounter = 0;
             for (final Movie movie : library.values()) {
                 final int count = ++movieCounter;
@@ -707,7 +707,7 @@ public class MovieJukebox {
                         logger.fine("Updating: " + movieTitleExt);
 
                         updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-
+                        
                         // Then get this movie's poster
                         logger.finer("Updating poster for: " + movieTitleExt);
                         updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
@@ -1049,11 +1049,12 @@ public class MovieJukebox {
         Collection<MovieFile> scannedFiles = null;
         // Only parse the XML file if we mean to update the XML file.
         if (xmlFile.exists() && !forceXMLOverwrite) {
-            // parse the XML file
+            // Parse the XML file
             logger.finer("XML file found for " + movie.getBaseName());
-            //Copy scanned files BEFORE parsing the existing xml
+            // Copy scanned files BEFORE parsing the existing XML
             scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
             xmlWriter.parseMovieXML(xmlFile, movie);
+            
             if (recheckXML && mjbRecheck(movie)) {
                 logger.fine("Recheck of " + movie.getBaseName() + " required");
                 forceXMLOverwrite = true;
@@ -1069,17 +1070,26 @@ public class MovieJukebox {
 
             // Now compare the before and after files
             Iterator<MovieFile> scanLoop = scannedFiles.iterator();
+            MovieFile sMF;
             String scannedFilename;
+            String scannedFileLocation;
 
             for (MovieFile xmlLoop : xmlFiles) {
-                //TODO: Detect the change of library location and update the path accordingly
-                
-                if (scanLoop.hasNext())
-                    scannedFilename = scanLoop.next().getFilename();
-                else
+            	if (xmlLoop.getFile() == null && !jukeboxPreserve) {
+            		// The file from the scanned XML file doesn't exist so delete it from the XML file
+            		movie.removeMovieFile(xmlLoop);
+            		continue;
+            	}
+            	
+                if (scanLoop.hasNext()) {
+                	sMF = scanLoop.next();
+                    scannedFilename = sMF.getFilename();
+                    scannedFileLocation = sMF.getFile().getAbsolutePath();
+                } else {
                     break; // No more files, so quit
+                }
 
-                if (!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) {
+                if ((!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) || (!scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath()))) {
                     logger.finest("Detected change of file location to: " + scannedFilename);
                     xmlLoop.setFilename(scannedFilename);
                     xmlLoop.setNewFile(true);
@@ -1630,24 +1640,32 @@ public class MovieJukebox {
                     for (MovieFile mf : movie.getMovieFiles()) {
                         for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                             if (recheckEpisodePlots && mf.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
-                                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing TV plot, will rescan");
+                                logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV plot, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
                             }
                             
                             if (recheckVideoImages && mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
-                                logger.finest("Recheck: " + movie.getBaseName() + " XML is missing TV video image, will rescan");
+                                logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV video image, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
                             }
                         }
                     }
-                    //System.out.println(" TV Show checks out ok");
                 }
             }
         }
         return false;
     }
+
+    public static boolean isJukeboxPreserve() {
+        return jukeboxPreserve;
+    }
+
+    public static void setJukeboxPreserve(boolean bJukeboxPreserve) {
+        jukeboxPreserve = bJukeboxPreserve;
+    }
+
 }
