@@ -3,7 +3,7 @@
 	<target name="all" depends="clean, compile, test, delivery" />
 
 	<target name="init">
-		<property name="version" value="v2.0" />
+		<property name="version" value="v2.1 BETA" />
 		<!-- This only works if the build is done through Hudson, otherwise it stays the same -->
 		<property environment="env" />
 		<property name="revision" value="${env.SVN_REVISION}" />
