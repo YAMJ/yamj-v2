@@ -2,8 +2,8 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 2.0 BETA
----------------------
+MovieJukebox 2.0
+----------------
   - Enhancement   #118 Exclude strings for files/folders to support regex
   - Enhancement   #357 Use XBMC episodedetails NFO to override TV episode information
   - Enhancement   #364 Use directory name to scan for movie title
