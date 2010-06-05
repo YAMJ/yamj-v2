@@ -472,7 +472,7 @@ public class Library implements Map<String, Movie> {
                         otherIndexes.put(newcat, newList);
                     }
                 } else {
-                    logger.warning("Warning : You need to enable index 'Other' to get 'New' categorie");
+                    logger.warning("Warning : You need to enable index 'Other' to get 'New' category");
                 }
             }
 
