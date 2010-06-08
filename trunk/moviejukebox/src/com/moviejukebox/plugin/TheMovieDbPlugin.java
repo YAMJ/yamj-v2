@@ -56,27 +56,30 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         boolean retval = false;
 
         ThreadExecutor.EnterIO(webhost);
-        // First look to see if we have a TMDb ID as this will make looking the film up easier
-        if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            // Search based on TMdb ID
-            moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
-        } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            // Search based on IMDb ID
-            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
-            tmdbID = moviedb.getId();
-            if (tmdbID != null && !tmdbID.equals("")) {
+        try{
+            // First look to see if we have a TMDb ID as this will make looking the film up easier
+            if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+                // Search based on TMdb ID
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
+            } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+                // Search based on IMDb ID
+                moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+                tmdbID = moviedb.getId();
+                if (tmdbID != null && !tmdbID.equals("")) {
+                    moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
+                } else {
+                    logger.fine("Error: No TMDb ID found for movie!");
+                }
             } else {
-                logger.fine("Error: No TMDb ID found for movie!");
+                // Search using movie name
+                moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
+                tmdbID = moviedb.getId();
+                moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
             }
-        } else {
-            // Search using movie name
-            moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
-            tmdbID = moviedb.getId();
-            moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
+        }finally{
+            // the rest is not web search anymore
+            ThreadExecutor.LeaveIO();
         }
-        // the rest is not web search anymore
-        ThreadExecutor.LeaveIO();
 
         if (moviedb.getId() != null && !moviedb.getId().equalsIgnoreCase(MovieDB.UNKNOWN)) {
             movie.setMovieType(Movie.TYPE_MOVIE);
