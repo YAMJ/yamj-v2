@@ -56,18 +56,21 @@ public class TVRagePlugin extends ImdbPlugin {
 
         if (id == null || id.equals(TVRage.UNKNOWN)) {
             ThreadExecutor.EnterIO(webhost);
-            if (!movie.getTitle().equals(TVRage.UNKNOWN)) {
-                showInfo = tvRage.searchShow(movie.getTitle());
+            try{
+                if (!movie.getTitle().equals(TVRage.UNKNOWN)) {
+                    showInfo = tvRage.searchShow(movie.getTitle());
+                }
+                
+                if (showInfo == null) {
+                    showInfo = tvRage.searchShow(movie.getBaseName());
+                }
+                
+                if (showInfo != null) {
+                    showInfo = tvRage.searchShowInfo(showInfo, showInfo.getShowID());
+                }
+            }finally{
+                ThreadExecutor.LeaveIO();
             }
-            
-            if (showInfo == null) {
-                showInfo = tvRage.searchShow(movie.getBaseName());
-            }
-            
-            if (showInfo != null) {
-                showInfo = tvRage.searchShowInfo(showInfo, showInfo.getShowID());
-            }
-            ThreadExecutor.LeaveIO();
             
             if (showInfo != null) {
                 movie.setId(TVRAGE_PLUGIN_ID, id);
@@ -91,10 +94,10 @@ public class TVRagePlugin extends ImdbPlugin {
         }
 
         ThreadExecutor.EnterIO(webhost);
+        try{
+          ShowInfo showInfo = tvRage.searchShowInfo(id);
 
-        ShowInfo showInfo = tvRage.searchShowInfo(id);
-        
-        for (MovieFile file : movie.getMovieFiles()) {
+          for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
                     Episode episode = new Episode();
@@ -136,8 +139,10 @@ public class TVRagePlugin extends ImdbPlugin {
                     }
                 }
             }
+          }
+        }finally{
+            ThreadExecutor.LeaveIO();
         }
-        ThreadExecutor.LeaveIO();
     }
 
     @Override
