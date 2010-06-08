@@ -81,7 +81,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
     }
 
-    public boolean doscan(Movie movie) {
+    private boolean doscan(Movie movie) {
         List<Series> seriesList = null;
 
         String id = movie.getId(THETVDB_PLUGIN_ID);
@@ -291,7 +291,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         ThreadExecutor.EnterIO(webhost);
-        for (MovieFile file : movie.getMovieFiles()) {
+        try{
+          for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
                     Episode episode = null;
@@ -345,8 +346,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
             }
+          }
+        }finally{
+            ThreadExecutor.LeaveIO();
         }
-        ThreadExecutor.LeaveIO();
     }
 
     @Override
