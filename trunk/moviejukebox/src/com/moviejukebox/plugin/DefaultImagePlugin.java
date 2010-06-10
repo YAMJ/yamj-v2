@@ -317,8 +317,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     g.drawImage(biLang, 1, 1, null);
                 } else {
                     if (languages.length == 1) {
-                        logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + fullLanguage
-                                        + ".png) is in the resources/languages directory.");
+                        logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
+                        logger.warning("Please check that language specific graphic (" + fullLanguage + ".png) is in the resources/languages directory.");
                     } else {
                         logger.finer("Unable to find multiple language image (" + fullLanguage
                                         + ".png) in the resources/languages directory, generating it from single one.");
@@ -344,8 +344,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     height = biLang.getHeight() / nbRows;
                                 }
                             } else {
-                                logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + language
-                                                + ".png) is in the resources/languages directory.");
+                                logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
+                                logger.warning("Please check that language specific graphic (" + language + ".png) is in the resources/languages directory.");
                             }
                         }
 
@@ -357,8 +357,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     }
                 }
             } catch (IOException e) {
-                logger.warning("Failed drawing Language logo to thumbnail file: Please check that language specific graphic (" + lang
-                                + ".png) is in the resources/languages directory.");
+                logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
+                logger.warning("Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
             }
 
         }
