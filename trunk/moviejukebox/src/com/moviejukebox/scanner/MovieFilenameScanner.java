@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 import com.moviejukebox.model.MovieFileNameDTO;
-import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -312,15 +311,19 @@ public class MovieFilenameScanner {
      * @return Case insensitive pattern with word delimiters around
      */
     public static final Pattern iwpatt(String regex) {
-        return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN, Pattern.CASE_INSENSITIVE);
+        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN 
+                + ")(?:" + regex + ")(?=" 
+                + WORD_DELIMITERS_MATCH_PATTERN + ")", Pattern.CASE_INSENSITIVE);
     }
 
     /**
      * @param regex
      * @return Case sensitive pattern with word delimiters around
      */
-    private static final Pattern wpatt(String regex) {
-        return Pattern.compile(WORD_DELIMITERS_MATCH_PATTERN + "(?:" + regex + ")" + WORD_DELIMITERS_MATCH_PATTERN);
+    public static final Pattern wpatt(String regex) {
+        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN 
+                + ")(?:" + regex + ")(?=" 
+                + WORD_DELIMITERS_MATCH_PATTERN + ")");
     }
 
     /**
@@ -651,10 +654,9 @@ public class MovieFilenameScanner {
         return skipKeywords;
     }
 
-    public static void setSkipKeywords(String[] skipKeywords) {
+    public static void setSkipKeywords(String[] skipKeywords, boolean caseSensitive) {
         MovieFilenameScanner.skipKeywords = skipKeywords;
         skipPatterns.clear();
-        boolean caseSensitive = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.skip.caseSensitive", "true"));
         for (String s : skipKeywords) {
             if (caseSensitive) {
                 skipPatterns.add(wpatt(Pattern.quote(s)));

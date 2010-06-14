@@ -269,7 +269,8 @@ public class MovieJukebox {
         sb.replace(sb.length() - 1, sb.length(), "}");
         logger.finer("Properties: " + sb.toString());
 
-        MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "));
+        MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "),
+                Boolean.parseBoolean(getProperty("filename.scanner.skip.caseSensitive", "true")));
         MovieFilenameScanner.setExtrasKeywords(tokenizeToArray(getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| "));
         MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray(getProperty("filename.movie.versions.keywords",
                         "remastered,directors cut,extended cut,final cut"), ",;|"));

@@ -18,6 +18,7 @@ import static com.moviejukebox.MovieJukebox.tokenizeToArray;
 import java.io.File;
 import java.util.Arrays;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
@@ -28,8 +29,8 @@ public class MovieFilenameScannerTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        MovieFilenameScanner.setSkipKeywords(new String[] { "-xor", "REMUX", "vfua", "-SMB", "-hdclub", "[KB]", "DiAMOND" });
-        MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray("remastered,directors cut,extended cut,final cut", ",;|"));
+        MovieFilenameScanner.setSkipKeywords(new String[] { "xor", "XOR", "vfua", "SMB", "hdclub", "KB", "DiAMOND" }, true);
+        MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray("remastered,directors cut,extended cut,final cut,remux", ",;|"));
 
         MovieFilenameScanner.clearLanguages();
         MovieFilenameScanner.addLanguage("Chinese", "ZH Zh zh CHI Chi chi CHINESE Chinese chinese", "ZH CHI CHINESE");
@@ -87,6 +88,26 @@ public class MovieFilenameScannerTest extends TestCase {
         assertFalse(matcher.find());
     }
 
+    public void testWPatterns() {
+        final Pattern wpatt = MovieFilenameScanner.wpatt("-SMB");
+        //Pattern.compile("(?<=[\\]\\.])(?:def)");
+        //MovieFilenameScanner.wpatt("bc");
+        Matcher matcher = wpatt.matcher("a]bc.def.-SMB");
+        assertTrue(matcher.find());
+//        assertEquals(0, matcher.start());
+//        assertEquals(0, matcher.end());
+//        assertTrue(matcher.find());
+//        assertEquals(1, matcher.start());
+//        assertEquals(2, matcher.end());
+//        assertEquals("]", matcher.group());
+//        assertTrue(matcher.find());
+//        assertEquals(".", matcher.group());
+//        assertTrue(matcher.find());
+//        assertEquals(8, matcher.start());
+//        assertEquals(8, matcher.end());
+//        assertFalse(matcher.find());
+    }
+
     public void testNaming(){
         MovieFileNameDTO d = scan("Aime ton Père (2002) [Jacob Berger, Gérard Depardieu, Guillaume Depardieu, Sylvie Testud].ISO");
         assertEquals("Aime ton Père", d.getTitle());
@@ -113,7 +134,7 @@ public class MovieFilenameScannerTest extends TestCase {
         MovieFileNameDTO d = scan("Blood Diamond.mkv");
         assertEquals("Blood Diamond", d.getTitle());
 
-        d = scan("Blood DiAMOND.mkv");
+        d = scan("Blood DiAMOND ccc.mkv");
         assertEquals("Blood", d.getTitle());
     }
     
@@ -150,18 +171,6 @@ public class MovieFilenameScannerTest extends TestCase {
         d = scan("House 3x101x19x3.avi");
         assertEquals(3, d.getSeason());
         assertEquals(Arrays.asList(new Integer[] { 101, 19, 3 }), d.getEpisodes());
-
-        d = scan("[SET Alien Collection] Alien vs Predator.mkv");
-        assertEquals(1, d.getSets().size());
-        assertEquals("Alien Collection", d.getSets().get(0).getTitle());
-        assertEquals("Alien vs Predator", d.getTitle());
-
-        d = scan("Alien vs Predator [SET Alien Collection 2][SET Predator-3].mkv");
-        assertEquals(2, d.getSets().size());
-        assertEquals("Alien Collection 2", d.getSets().get(0).getTitle());
-        assertEquals(-1, d.getSets().get(0).getIndex());
-        assertEquals("Predator", d.getSets().get(1).getTitle());
-        assertEquals(3, d.getSets().get(1).getIndex());
 
         d = scan("Dinner.Game.(Diner.De.Cons).1998.FRENCH.720p.BluRay.x264-zzz.ts");
         assertEquals(1998, d.getYear());
@@ -220,12 +229,6 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("BluRay", d.getVideoSource());
         assertEquals("H.264", d.getVideoCodec());
 
-        d = scan("X-Men 3 [SET X-Men - 99].avi");
-        assertEquals(1, d.getSets().size());
-        assertEquals(99, d.getSets().get(0).getIndex());
-        assertEquals("X-Men", d.getSets().get(0).getTitle());
-        assertEquals("X-Men 3", d.getTitle());
-
         d = scan("Rush hour 2 DVD");
         assertEquals(0, d.getSets().size());
         assertEquals("Rush hour 2", d.getTitle());
@@ -242,6 +245,32 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Cowboy Bebop", d.getTitle());
         assertEquals(7, d.getPart());
         assertNull(d.getPartTitle());
+
+    }
+    
+    public void testScanSets() {
+        MovieFileNameDTO d = scan("X-Men 3 [SET X-Men - 99].avi");
+        assertEquals(1, d.getSets().size());
+        assertEquals(99, d.getSets().get(0).getIndex());
+        assertEquals("X-Men", d.getSets().get(0).getTitle());
+        assertEquals("X-Men 3", d.getTitle());
+
+        d = scan("Spider-Man 2.1.720p[SET Spiderman-2].ts");
+        assertEquals(1, d.getSets().size());
+        assertEquals("Spiderman", d.getSets().get(0).getTitle());
+        assertEquals(2, d.getSets().get(0).getIndex());
+
+        d = scan("[SET Alien Collection] Alien vs Predator.mkv");
+        assertEquals(1, d.getSets().size());
+        assertEquals("Alien Collection", d.getSets().get(0).getTitle());
+        assertEquals("Alien vs Predator", d.getTitle());
+
+        d = scan("Alien vs Predator [SET Alien Collection 2][SET Predator-3].mkv");
+        assertEquals(2, d.getSets().size());
+        assertEquals("Alien Collection 2", d.getSets().get(0).getTitle());
+        assertEquals(-1, d.getSets().get(0).getIndex());
+        assertEquals("Predator", d.getSets().get(1).getTitle());
+        assertEquals(3, d.getSets().get(1).getIndex());
 
     }
 
@@ -300,8 +329,8 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("House", d.getTitle());
         assertEquals(3, d.getSeason());
         assertEquals(1, d.getEpisodes().size());
-        assertNull(d.getPartTitle());
-        assertNull(d.getEpisodeTitle());
+        assertEquals(null, d.getPartTitle());
+        assertEquals(null, d.getEpisodeTitle());
 
         d = scan("Dead_Like_Me_S02E12 - Forget Me Not.HDTV.XviD-vfua.avi");
         assertEquals("Dead Like Me", d.getTitle());
