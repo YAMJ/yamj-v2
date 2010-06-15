@@ -54,6 +54,7 @@ MovieJukebox 2.0
   - Fixed defect #1459 ID -1 being ignored for TV shows
   - Fixed defect #1465 Sorting.strip.prefixes not working
   - Fixed defect #1475 Remove blank lines in playlist files
+  - Fixed defect #1486 Poster import from moviecovers (French posters) broken
   - Fixed defect #1488 Recheck routine not updating TV Shows
 
 MovieJukebox 1.9 (r1500)

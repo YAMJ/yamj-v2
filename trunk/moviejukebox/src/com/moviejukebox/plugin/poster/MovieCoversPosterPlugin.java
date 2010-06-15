@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.WebBrowser;
 
+
 public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
@@ -33,25 +34,23 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
         String returnString = Movie.UNKNOWN;
 
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.com/search?meta=&q=site%3Amoviecovers.com+");
-            // tryout another google layout Issue #1250
-            sb.append('\"');
-            sb.append(URLEncoder.encode(title, "UTF-8"));
-            sb.append('\"');
-            // adding movie year in search could reduce ambiguities
+            StringBuffer sb = new StringBuffer("http://www.moviecovers.com/multicrit.html?titre=");
+            sb.append(URLEncoder.encode(title, "iso-8859-1"));
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                sb.append(URLEncoder.encode(" ", "UTF-8"));
-                sb.append(URLEncoder.encode(year, "UTF-8"));
+                sb.append("&anneemin=");
+                sb.append(URLEncoder.encode(year, "iso-8859-1"));
+                sb.append("&anneemax=");
+                sb.append(URLEncoder.encode(year, "iso-8859-1"));
             }
+            sb.append("&slow=1&tri=Titre&listes=1");
             String content = webBrowser.request(sb.toString());
             if (content != null) {
-
-                int indexEndLink = content.indexOf("html\"><b>");
-                if (indexEndLink >= 0) {
-                    String subContent = content.substring(0, indexEndLink);
-                    int indexStartLink = subContent.lastIndexOf("<a href=\"http://www.moviecovers.com/film/titre_");
-                    if (indexStartLink >= 0) {
-                        returnString = content.substring(indexStartLink + 47, indexEndLink);
+                int indexStartLink = content.indexOf("/film/titre_");
+                if (indexStartLink >= 0) {
+                    String subContent = content.substring(indexStartLink + 12);
+                    int indexEndLink = subContent.indexOf(".html\">");
+                    if (indexEndLink >= 0) {
+                        returnString = subContent.substring(0, indexEndLink);
                     }
                 }
             }
@@ -66,14 +65,21 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getPosterUrl(String title, String year) {
-        return getPosterUrl(getIdFromMovieInfo(title, year));
+       return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
     public String getPosterUrl(String id) {
         String returnString = Movie.UNKNOWN;
+        try {
         if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            returnString = "http://www.moviecovers.com/getjpg.html/" + id.substring(0, id.lastIndexOf('.')).replace("+", "%20");
+            logger.finer("MovieCoversPosterPlugin : Movie found on moviecovers.com" + id);
+            returnString = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
+        } else {
+            logger.finer("MovieCoversPosterPlugin: Unable to find posters for " + id);
+        }
+        } catch (Exception error) {
+            logger.finer("MovieCoversPosterPlugin: MovieCovers.com API Error: " + error.getMessage());
         }
         return returnString;
     }
