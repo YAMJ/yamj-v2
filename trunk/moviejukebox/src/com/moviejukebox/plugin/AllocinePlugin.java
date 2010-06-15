@@ -234,7 +234,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
-                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma", "</a>")).trim());
+                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma :", "<br />")).trim());
                 // logger.finest("AllocinePlugin: Movie Theater release date = [" + movie.getReleaseDate()+"]");
             }
 
@@ -274,14 +274,20 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideYear()) {
-                String aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année d e production : ", "</a>"));
-                
+                String aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>"));
+                logger.finest("AllocinePlugin: Année de production : " + aYear + " / " + aYear.substring(aYear.length() - 4));
+
                 // If the year is unknown, fall back to the release date
                 if (aYear.equalsIgnoreCase(Movie.UNKNOWN)) {
-                    aYear = HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "</a>");
-                    if (!aYear.equalsIgnoreCase(Movie.UNKNOWN)) {
-                        aYear = aYear.substring(aYear.length() - 4);
+                    aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "<br />"));
+                    logger.finest("AllocinePlugin: Date de sortie cinéma : " + aYear + " / " + aYear.substring(aYear.length() - 4));
+                    if (aYear.equalsIgnoreCase("inconnue")) {
+                        aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Film déjà disponible en ", "<br />"));
+                        logger.finest("AllocinePlugin: Film déjà disponible en " + aYear + " / " + aYear.substring(aYear.length() - 4));
                     }
+                } 
+                if (!aYear.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    aYear = aYear.substring(aYear.length() - 4);
                 }
                 movie.setYear(aYear);
             }
