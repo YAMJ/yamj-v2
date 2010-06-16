@@ -198,9 +198,9 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
             if (movieInformation.isTVShow()) {
-                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear(), movieInformation.getSeason());
+                id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear(), movieInformation.getSeason());
             } else {
-                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
+                id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             }
             // Id found
             if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {

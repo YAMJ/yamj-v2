@@ -90,7 +90,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
+            id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // Id found
             if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
                 ident.setId(getName(), id);
