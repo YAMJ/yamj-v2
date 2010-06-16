@@ -208,8 +208,6 @@
 
 <xsl:param name="mjb.fullMovieInfoInIndexes"/>
 
-<xsl:param name="filmweb.plot"/>
-
 <xsl:param name="fanart.movie.download"/>
 <xsl:param name="fanart.movie.width"/>
 <xsl:param name="fanart.movie.height"/>
