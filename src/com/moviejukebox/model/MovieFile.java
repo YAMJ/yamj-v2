@@ -210,7 +210,7 @@ public class MovieFile implements Comparable<MovieFile> {
     
 
     public boolean hasTitle() {
-        return !(titles.size()==0);
+        return !Movie.UNKNOWN.equals(getTitle());
     }
     
 
