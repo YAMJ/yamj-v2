@@ -53,7 +53,6 @@
     <xsl:param name="filmdelta.plot.maxlength">300</xsl:param>
     <xsl:param name="filmdelta.rating">filmdelta</xsl:param>
     <xsl:param name="filmweb.id.search">filmweb</xsl:param>
-    <xsl:param name="filmweb.plot">short</xsl:param>
     <xsl:param name="genres.max">3</xsl:param>
     <xsl:param name="highdef.1080.width">1920</xsl:param>
     <xsl:param name="highdef.720.width">1280</xsl:param>

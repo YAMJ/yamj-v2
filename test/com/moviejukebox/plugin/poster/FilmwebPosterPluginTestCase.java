@@ -16,13 +16,20 @@ package com.moviejukebox.plugin.poster;
 import junit.framework.TestCase;
 
 public class FilmwebPosterPluginTestCase extends TestCase {
+    FilmwebPosterPlugin posterPlugin = new FilmwebPosterPlugin();
 
-    public void testGetId() {
-        FilmwebPosterPlugin toTest = new FilmwebPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
-        assertEquals("http://avatar.filmweb.pl/", idFromMovieInfo);
+    public void testGetIdFromMovieInfo() {
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);
+        assertEquals("http://www.filmweb.pl/Avatar", idFromMovieInfo);
+    }
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
-        assertEquals("http://gfx.filmweb.pl/po/91/13/299113/7307579.3.jpg?l=1262705192000", posterUrl);
+    public void testGetIdFromMovieInfoTV() {
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Prison Break", null, 1);
+        assertEquals("http://www.filmweb.pl/Prison.Break", idFromMovieInfo);
+    }
+
+    public void testGetPosterUrl() {
+        String posterUrl = posterPlugin.getPosterUrl("http://www.filmweb.pl/Avatar");
+        assertEquals("http://gfx.filmweb.pl/po/91/13/299113/7322782.3.jpg?l=1270132598000", posterUrl);
     }
 }

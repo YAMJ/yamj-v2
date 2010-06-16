@@ -35,25 +35,21 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     public static String FILMWEB_PLUGIN_ID = "filmweb";
     private static Logger logger = Logger.getLogger("moviejukebox");
-    private static Pattern googlePattern = Pattern.compile("\"(http://[^\"/?&]*filmweb.pl[^\"]*)\"");
+    private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
-    private static Pattern filmwebPattern = Pattern.compile("searchResultTitle[^>]+\"(http://[^\"/?&]*filmweb.pl[^\"]*)\"");
+    private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\" href=\"([^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
-    private static Pattern longPlotUrlPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\"]*/opisy");
 
-    private static Pattern episodesUrlPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\"]*/odcinki");
     protected String filmwebPreferredSearchEngine;
-    protected String filmwebPlot;
+    protected int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 
     public FilmwebPlugin() {
         super(); // use IMDB if filmweb doesn't know movie
         init();
     }
-    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
 
     public void init() {
         filmwebPreferredSearchEngine = PropertiesUtil.getProperty("filmweb.id.search", "filmweb");
-        filmwebPlot = PropertiesUtil.getProperty("filmweb.plot", "short");
         try {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
@@ -83,11 +79,11 @@ public class FilmwebPlugin extends ImdbPlugin {
      * retrieve the filmweb url matching the specified movie name and year.
      */
     public String getFilmwebUrl(String movieName, String year) {
-        if ("google".equalsIgnoreCase(imdbInfo.getPreferredSearchEngine())) {
+        if ("google".equalsIgnoreCase(filmwebPreferredSearchEngine)) {
             return getFilmwebUrlFromGoogle(movieName, year);
-        } else if ("yahoo".equalsIgnoreCase(imdbInfo.getPreferredSearchEngine())) {
+        } else if ("yahoo".equalsIgnoreCase(filmwebPreferredSearchEngine)) {
             return getFilmwebUrlFromYahoo(movieName, year);
-        } else if ("none".equalsIgnoreCase(imdbInfo.getPreferredSearchEngine())) {
+        } else if ("none".equalsIgnoreCase(filmwebPreferredSearchEngine)) {
             return Movie.UNKNOWN;
         } else {
             return getFilmwebUrlFromFilmweb(movieName, year);
@@ -156,7 +152,7 @@ public class FilmwebPlugin extends ImdbPlugin {
      */
     private String getFilmwebUrlFromFilmweb(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.filmweb.pl/szukaj/film?q=");
+            StringBuffer sb = new StringBuffer("http://www.filmweb.pl/search/film?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -165,7 +161,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             String xml = webBrowser.request(sb.toString());
             Matcher m = filmwebPattern.matcher(xml);
             if (m.find()) {
-                return m.group(1);
+                return "http://www.filmweb.pl" + m.group(1);
             } else {
                 return Movie.UNKNOWN;
             }
@@ -203,27 +199,27 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "film-rating-precise")));
+                movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "average")));
             }
 
             if (movie.getTop250() == -1) {
                 try {
-                    movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "top świat: #")));
+                    movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "\"worldRanking\"", 0, ">.")));
                 } catch (NumberFormatException error) {
                     movie.setTop250(-1);
                 }
             }
 
             if (Movie.UNKNOWN.equals(movie.getDirector())) {
-                movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria"));
+                movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria:"));
             }
 
             if (Movie.UNKNOWN.equals(movie.getReleaseDate())) {
-                movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "data premiery:"));
+                movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "filmPremiereWorld"));
             }
 
             if (Movie.UNKNOWN.equals(movie.getRuntime())) {
-                movie.setRuntime(HTMLTools.getTextAfterElem(xml, "czas trwania:"));
+                movie.setRuntime(HTMLTools.getTextAfterElem(xml, "\"time\""));
             }
 
             if (Movie.UNKNOWN.equals(movie.getCountry())) {
@@ -231,32 +227,23 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (movie.getGenres().isEmpty()) {
-                String genres = HTMLTools.getTextAfterElem(xml, "gatunek:");
-                if (!Movie.UNKNOWN.equals(genres)) {
-                    for (String genre : genres.split(" *, *")) {
+                for (String genre : HTMLTools.extractTags(xml, "gatunek:", "</table>", "<a ", "</a>")) {
+                    if (!genre.isEmpty()) {
                         movie.addGenre(Library.getIndexingGenre(genre));
                     }
                 }
             }
 
             if (Movie.UNKNOWN.equals(movie.getOutline())) {
-                movie.setOutline(HTMLTools.getTextAfterElem(xml, "o-filmie-header", 1));
+                String outline = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "<span class=\"filmDescrBg\">", "</span>"));
+                if (outline.length() > preferredPlotLength) {
+                    outline = outline.substring(0, Math.min(outline.length(), preferredPlotLength - 3)) + "...";
+                }
+                movie.setOutline(outline);
             }
 
             if (Movie.UNKNOWN.equals(movie.getPlot())) {
-                String plot = Movie.UNKNOWN;
-                if (filmwebPlot.equalsIgnoreCase("long")) {
-                    plot = getLongPlot(xml);
-                }
-                // even if "long" is set we will default to the "short" one if none was found
-                if (filmwebPlot.equalsIgnoreCase("short") || Movie.UNKNOWN.equals(plot)) {
-                    plot = movie.getOutline();
-                }
-
-                if (plot.length() > preferredPlotLength) {
-                    plot = plot.substring(0, Math.min(plot.length(), preferredPlotLength - 3)) + "...";
-                }
-                movie.setPlot(plot);
+                movie.setPlot(movie.getOutline());
             }
 
             if (!movie.isOverrideYear()) {
@@ -264,15 +251,8 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (movie.getCast().isEmpty()) {
-                movie.setCast(HTMLTools.extractTags(xml, "film-starring", "</table>", "<img ", "</a>"));
+                movie.setCast(HTMLTools.extractTags(xml, "castListWrapper", "</ul>", "<span property", "</span>"));
             }
-
-            // Removing Poster info from plugins. Use of PosterScanner routine instead.
-            
-
-            // if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-            // movie.setPosterURL(getFilmwebPosterURL(movie, xml));
-            // }
 
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
@@ -303,34 +283,6 @@ public class FilmwebPlugin extends ImdbPlugin {
         }
     }
 
-    /**
-     * Retrieves the long plot description from filmweb if it exists, else Movie.UNKNOWN
-     * 
-     * @return long plot
-     */
-    private String getLongPlot(String mainXML) {
-        String plot;
-        try {
-            // searchs for long plot url
-            String longPlotUrl;
-            Matcher m = longPlotUrlPattern.matcher(mainXML);
-            if (m.find()) {
-                longPlotUrl = m.group();
-            } else {
-                return Movie.UNKNOWN;
-            }
-            String xml = webBrowser.request(longPlotUrl);
-            plot = HTMLTools.getTextAfterElem(xml, "opisy-header", 2);
-            if (plot.equalsIgnoreCase(Movie.UNKNOWN)) {
-                plot = Movie.UNKNOWN;
-            }
-        } catch (Exception error) {
-            plot = Movie.UNKNOWN;
-        }
-
-        return plot;
-    }
-
     private String updateImdbId(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -350,7 +302,6 @@ public class FilmwebPlugin extends ImdbPlugin {
         if (!movie.isTVShow() || !movie.hasNewMovieFiles()) {
             return;
         }
-
         String filmwebUrl = movie.getId(FILMWEB_PLUGIN_ID);
         if (filmwebUrl == null || filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
             // use IMDB if filmweb doesn't know episodes titles
@@ -359,39 +310,36 @@ public class FilmwebPlugin extends ImdbPlugin {
         }
 
         try {
-            if (mainXML == null) {
-                mainXML = webBrowser.request(filmwebUrl);
-            }
-            // searchs for episodes url
-            Matcher m = episodesUrlPattern.matcher(mainXML);
-            if (m.find()) {
-                String episodesUrl = m.group();
-                String xml = webBrowser.request(episodesUrl);
-                for (MovieFile file : movie.getMovieFiles()) {
-                    if (!file.isNewFile() || file.hasTitle()) {
-                        // don't scan episode title if it exists in XML data
-                        continue;
-                    }
-                    int fromIndex = xml.indexOf("sezon " + movie.getSeason());
-                    boolean first = true;
-                    StringBuilder sb = new StringBuilder();
-                    for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
-                        String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek " + part, 1, fromIndex);
-                        if (!episodeName.equals(Movie.UNKNOWN)) {
-                            if (first) {
-                                first = false;
-                            } else {
-                                sb.append(" / ");
-                            }
-                            sb.append(episodeName);
+            String xml = webBrowser.request(filmwebUrl + "/episodes");
+            boolean found = false;
+            boolean wasSeraching = false;
+            for (MovieFile file : movie.getMovieFiles()) {
+                if (!file.isNewFile() || file.hasTitle()) {
+                    // don't scan episode title if it exists in XML data
+                    continue;
+                }
+                int fromIndex = xml.indexOf("sezon " + movie.getSeason());
+                boolean first = true;
+                StringBuilder sb = new StringBuilder();
+                for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
+                    wasSeraching = true;
+                    String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek&nbsp;" + part, 2, fromIndex);
+                    if (!episodeName.equals(Movie.UNKNOWN)) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            sb.append(" / ");
                         }
-                    }
-                    String title = sb.toString();
-                    if (!"".equals(title)) {
-                        file.setTitle(title);
+                        sb.append(episodeName);
                     }
                 }
-            } else {
+                String title = sb.toString();
+                if (!"".equals(title)) {
+                    found = true;
+                    file.setTitle(title);
+                }
+            }
+            if (wasSeraching && !found) {
                 // use IMDB if filmweb doesn't know episodes titles
                 updateImdbId(movie);
                 super.scanTVShowTitles(movie);
