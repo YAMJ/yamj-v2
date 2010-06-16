@@ -26,7 +26,7 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
     public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
+            id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // Id found
             if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
                 logger.finest(this.getName() + " posterPlugin: id found setting it to movie " + id);

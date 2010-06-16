@@ -142,7 +142,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
             if (movieInformation.isTVShow()) {
-                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear(), movieInformation.getSeason());
+                id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear(), movieInformation.getSeason());
             }
             // Id found
             if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {

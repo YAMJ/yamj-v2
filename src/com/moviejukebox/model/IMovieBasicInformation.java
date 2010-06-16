@@ -17,6 +17,8 @@ public interface IMovieBasicInformation {
 
     public abstract String getTitleSort();
 
+    public abstract String getOriginalTitle();
+
     public abstract String getYear();
 
     @XmlAttribute(name = "isTV")
