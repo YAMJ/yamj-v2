@@ -214,11 +214,11 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
         <tr>
           <td width="95%" class="normal" colspan="2" align="right">
             <xsl:if test="plot != 'UNKNOWN'">
-			  <xsl:variable name="plotLinebreakReplaced">
-    			<xsl:call-template name="string-replace-plot-BR">
-      				<xsl:with-param name="text" select='translate(plot,"{}","&lt;&gt;")' />
-    			</xsl:call-template>
-  			  </xsl:variable>
+              <xsl:variable name="plotLinebreakReplaced">
+                <xsl:call-template name="string-replace-plot-BR">
+                      <xsl:with-param name="text" select='translate(plot,"{}","&lt;&gt;")' />
+                </xsl:call-template>
+                </xsl:variable>
             
             
               <xsl:value-of disable-output-escaping="yes" select='$plotLinebreakReplaced' />
@@ -459,7 +459,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 
       <xsl:for-each select="files/file">
         <div class="title">
-          <xsl:attribute name="id">title<xsl:value-of	select="@firstPart" /></xsl:attribute>
+          <xsl:attribute name="id">title<xsl:value-of select="@firstPart" /></xsl:attribute>
           <xsl:choose>
             <xsl:when test="@title='UNKNOWN'">
               <xsl:choose>
@@ -482,7 +482,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of select="@title" />
-              <xsl:if test="@firstPart!=@lastPart"> -	<xsl:value-of select="@lastPart" /></xsl:if>.
+              <xsl:if test="@firstPart!=@lastPart"> - <xsl:value-of select="@lastPart" /></xsl:if>.
               <xsl:value-of select="@firstPart" />
             </xsl:otherwise>
           </xsl:choose>

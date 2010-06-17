@@ -140,8 +140,10 @@ public class FileTools {
                     break;
                 }
                 else {
-                	bytesCopied += amountRead;
-                	if(stats != null) stats.bytes(amountRead);
+                    bytesCopied += amountRead;
+                    if (stats != null) {
+                        stats.bytes(amountRead);
+                    }
                 }
                 os.write(buffer, 0, amountRead);
             }
@@ -215,8 +217,13 @@ public class FileTools {
                         p += inChannel.transferTo(p, 1024*1024, outChannel);
                 }
                 finally {
-                    if (inChannel != null) inChannel.close();
-                    if (outChannel != null) outChannel.close();
+                    if (inChannel != null) {
+                        inChannel.close();
+                    }
+                    
+                    if (outChannel != null) {
+                        outChannel.close();
+                    }
                 }
             }
 
@@ -565,9 +572,11 @@ public class FileTools {
         private Boolean _isdir=null;
         @Override
         public boolean isDirectory() {
-            if(_isdir == null){
-                synchronized(this){
-                    if(_isdir == null) _isdir = super.isDirectory();
+            if (_isdir == null) {
+                synchronized(this) {
+                    if (_isdir == null) {
+                        _isdir = super.isDirectory();
+                    }
                 }
             }
             return _isdir;
@@ -576,9 +585,11 @@ public class FileTools {
         private Boolean _exists=null;
         @Override
         public boolean exists() {
-            if(_exists == null){
-                synchronized(this){
-                    if(_exists == null) _exists = super.exists();
+            if (_exists == null) {
+                synchronized(this) {
+                    if (_exists == null) {
+                        _exists = super.exists();
+                    }
                 }
             }
             return _exists;
@@ -587,9 +598,11 @@ public class FileTools {
         private Boolean _isfile=null;
         @Override
         public boolean isFile() {
-            if(_isfile == null){
-                synchronized(this){
-                    if(_isfile == null) _isfile = super.isFile();
+            if (_isfile == null) {
+                synchronized(this) {
+                    if(_isfile == null) {
+                        _isfile = super.isFile();
+                    }
                 }
             }
             return _isfile;
@@ -598,9 +611,11 @@ public class FileTools {
         private Long _len=null;
         @Override
         public long length() {
-            if(_len == null){
-                synchronized(this){
-                    if(_len == null) _len = super.length();
+            if (_len == null) {
+                synchronized(this) {
+                    if (_len == null) {
+                        _len = super.length();
+                    }
                 }
             }
             return _len;
@@ -609,9 +624,11 @@ public class FileTools {
         private Long _lastModified=null;
         @Override
         public long lastModified() {
-            if(_lastModified == null){
-                synchronized(this){
-                    if(_lastModified == null) _lastModified = super.lastModified();
+            if (_lastModified == null) {
+                synchronized(this) {
+                    if (_lastModified == null) {
+                        _lastModified = super.lastModified();
+                    }
                 }
             }
             return _lastModified;
@@ -639,7 +656,9 @@ public class FileTools {
 
         public File[] listFiles(FilenameFilter filter) {
             String[] ss = list();
-            if (ss == null) return null;
+            if (ss == null) {
+                return null;
+            }
             ArrayList<FileEx> v = new ArrayList<FileEx>();
             FileEx f;
             for (int i = 0 ; i < ss.length ; i++) {
@@ -665,18 +684,21 @@ public class FileTools {
         /**
          * Check whether the file exists 
          */
-        public boolean fileExists(String absPath){
+        public boolean fileExists(String absPath) {
             return cachedFiles.containsKey(absPath.toUpperCase());
         }
-        public boolean fileExists(File file){
+        
+        public boolean fileExists(File file) {
             return cachedFiles.containsKey(file.getAbsolutePath().toUpperCase());
         }
+        
         /**
          * Add a file instance to cache 
          */
-        public void fileAdd(File file){
+        public void fileAdd(File file) {
             cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
         }
+        
         /*
          * Retrieve a file from cache
          * If it is NOT found, construct one instance and mark it as non-existing
@@ -684,21 +706,26 @@ public class FileTools {
          * The path MUST be canonical (i.e. carefully constructed)
          * We do NOT want here to make it canonical because it goes to the file system and it's slow
          */
-        public File getFile(String path){
+        public File getFile(String path) {
             File f = cachedFiles.get(path.toUpperCase());
-            return f == null ? new FileEx(path, false) : f;
+            return (f == null ? new FileEx(path, false) : f);
         }
+        
         /*
          * Add a full directory listing; used for existing jukebox
          */
         public void addDir(File dir, int depth) {
-           File[] files=dir.listFiles();
-           if(files.length == 0) return;
+           File[] files = dir.listFiles();
+           if (files.length == 0) {
+               return;
+           }
            addFiles(files);
-           if (depth <= 0) return;
+           if (depth <= 0) {
+               return;
+           }
            depth --;
-           for(File f : files){
-               if(f.isDirectory()){
+           for (File f : files) {
+               if (f.isDirectory()) {
                    addDir(f, depth);
                }
            }
@@ -707,22 +734,22 @@ public class FileTools {
         public void addFiles(File[] files) {
             if(files.length == 0) return;
             Map<String, File> map = new HashMap<String, File>(files.length);
-            for(File f : files){
+            for (File f : files) {
                 map.put(f.getAbsolutePath().toUpperCase(), f);
             }            
             cachedFiles.putAll(map);
         }
 
-        public long size(){
+        public long size() {
             return cachedFiles.size();
         }
         
-        public void saveFileList(String filename) throws FileNotFoundException{
+        public void saveFileList(String filename) throws FileNotFoundException {
             PrintWriter p = new PrintWriter(filename);
             Set<String> names = cachedFiles.keySet();
             String[] sortednames = names.toArray(new String[names.size()]);
             Arrays.sort(sortednames);
-            for(String f : sortednames){
+            for (String f : sortednames) {
                 p.println(f);
             }
             p.close();
@@ -730,4 +757,4 @@ public class FileTools {
     }
     
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
-  }
+}

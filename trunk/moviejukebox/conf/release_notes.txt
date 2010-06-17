@@ -102,8 +102,8 @@ MovieJukebox 1.9 (r1500)
   
 MovieJukebox 1.8 (r1402)
 ------------------------
-  - Enhancement	  #145 Dual Language-Flag for DVDs
-  - Enhancement	  #274 Danish Plugin  
+  - Enhancement   #145 Dual Language-Flag for DVDs
+  - Enhancement   #274 Danish Plugin  
   - Enhancement   #400 Option to trim plot length for TheTVDB plots
   - Enhancement   #503 Simplify skins by figuring out the vod/vcd/playlist attributes in YAMJ itself (updated)
   - Fixed defect  #535 Appears the order of libraries in the XML makes a difference on output.

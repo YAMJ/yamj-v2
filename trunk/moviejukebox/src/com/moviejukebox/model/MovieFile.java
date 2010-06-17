@@ -172,8 +172,9 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setFirstPart(int part) {
         firstPart = part;
-        if (firstPart > lastPart)
+        if (firstPart > lastPart) {
             lastPart = firstPart;
+        }
     }
 
     public void setLastPart(int part) {
@@ -372,8 +373,10 @@ public class MovieFile implements Comparable<MovieFile> {
 
     @XmlElement(name = "filePlot")
     public List<PartDataDTO> getFilePlots() {
-        if (!includeEpisodePlots)
+        if (!includeEpisodePlots) {
             return null;
+        }
+        
         return toPartDataList(plots);
     }
     
@@ -385,8 +388,10 @@ public class MovieFile implements Comparable<MovieFile> {
 
     @XmlElement(name = "fileImageURL")
     public List<PartDataDTO> getFileImageUrls() {
-        if (!includeVideoImages)
+        if (!includeVideoImages) {
             return null;
+        }
+        
         return toPartDataList(videoImageURL);
     }
     
@@ -398,8 +403,10 @@ public class MovieFile implements Comparable<MovieFile> {
 
     @XmlElement(name = "fileImageFile")
     public List<PartDataDTO> getFileImageFiles() {
-        if (!includeVideoImages)
+        if (!includeVideoImages) {
             return null;
+        }
+        
         return toPartDataList(videoImageFilename);
     }
     

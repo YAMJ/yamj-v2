@@ -1076,14 +1076,14 @@ public class MovieJukebox {
             String scannedFileLocation;
 
             for (MovieFile xmlLoop : xmlFiles) {
-            	if (xmlLoop.getFile() == null && !jukeboxPreserve) {
-            		// The file from the scanned XML file doesn't exist so delete it from the XML file
-            		movie.removeMovieFile(xmlLoop);
-            		continue;
-            	}
-            	
+                if (xmlLoop.getFile() == null && !jukeboxPreserve) {
+                    // The file from the scanned XML file doesn't exist so delete it from the XML file
+                    movie.removeMovieFile(xmlLoop);
+                    continue;
+                }
+                
                 if (scanLoop.hasNext()) {
-                	sMF = scanLoop.next();
+                    sMF = scanLoop.next();
                     scannedFilename = sMF.getFilename();
                     scannedFileLocation = sMF.getFile().getAbsolutePath();
                 } else {

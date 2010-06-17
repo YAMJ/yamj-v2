@@ -169,11 +169,11 @@ public class Library implements Map<String, Movie> {
             newCount = 0;
         }
         if (newDays > 0) {
-        	logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
+            logger.finest("New category will have " + (newCount > 0 ? newCount : "all of the") + " most recent videos in the last " + newDays + " days");
             // Convert newDays from DAYS to MILLISECONDS for comparison purposes
             newDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         } else {
-        	logger.finest("New category is disabled");
+            logger.finest("New category is disabled");
         }
     }
 

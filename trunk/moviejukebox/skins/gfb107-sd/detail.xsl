@@ -170,20 +170,20 @@
           <tr class="spacer"><td colspan="2" /></tr>
           <tr>
             <td class="normal" colspan="2">
-	            <xsl:variable name="plotTruncated">
-	              <xsl:choose>
-	                <xsl:when test="string-length(plot)&lt;350">
-	                  <xsl:value-of select="plot"/>
-	                </xsl:when>
-	                <xsl:otherwise>
-	                  <xsl:value-of select="substring(plot,1,346)"/>...
-	                </xsl:otherwise>
-	              </xsl:choose>
+                <xsl:variable name="plotTruncated">
+                  <xsl:choose>
+                    <xsl:when test="string-length(plot)&lt;350">
+                      <xsl:value-of select="plot"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:value-of select="substring(plot,1,346)"/>...
+                    </xsl:otherwise>
+                  </xsl:choose>
                 </xsl:variable>
   
-    			<xsl:call-template name="string-replace-plot-BR">
-      				<xsl:with-param name="text" select='$plotTruncated' />
-    			</xsl:call-template>
+                <xsl:call-template name="string-replace-plot-BR">
+                      <xsl:with-param name="text" select='$plotTruncated' />
+                </xsl:call-template>
             </td>
           </tr>
         </xsl:if>
@@ -262,9 +262,9 @@
                       </xsl:when>
                     <xsl:otherwise>
                       Episode <xsl:value-of select="@firstPart"/>
-                      </xsl:otherwise>	 
+                      </xsl:otherwise>
                       </xsl:choose>
-                    </xsl:when>	 
+                    </xsl:when>
                               <xsl:otherwise>
                                 <xsl:value-of select="@title"/>
                   </xsl:otherwise>
