@@ -227,15 +227,15 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                 <xsl:if test="string-length(plot) >= 700">x</xsl:if>
                 <xsl:if test="string-length(plot) >= 250">large-</xsl:if>plot</xsl:attribute>
 
- 			  <xsl:variable name="plotLinebreakPreserved">
+              <xsl:variable name="plotLinebreakPreserved">
                 <xsl:call-template name="PreserveLineBreaks">
                   <xsl:with-param name="text" select="plot"/>
                 </xsl:call-template>
               </xsl:variable>
               
-    			<xsl:call-template name="string-replace-plot-BR">
-      				<xsl:with-param name="text" select='$plotLinebreakPreserved' />
-    			</xsl:call-template>
+                <xsl:call-template name="string-replace-plot-BR">
+                    <xsl:with-param name="text" select='$plotLinebreakPreserved' />
+                </xsl:call-template>
               
             </td>
           </tr>
@@ -490,7 +490,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 
       <xsl:for-each select="files/file">
         <div class="title">
-          <xsl:attribute name="id">title<xsl:value-of	select="@firstPart" /></xsl:attribute>
+          <xsl:attribute name="id">title<xsl:value-of select="@firstPart" /></xsl:attribute>
           <xsl:choose>
             <xsl:when test="@title='UNKNOWN'">
               <xsl:choose>
@@ -513,7 +513,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of select="@firstPart" />
-              <xsl:if test="@firstPart!=@lastPart"> -	<xsl:value-of select="@lastPart" /></xsl:if>. 
+              <xsl:if test="@firstPart!=@lastPart"> - <xsl:value-of select="@lastPart" /></xsl:if>. 
               <xsl:value-of select="@title" />
             </xsl:otherwise>
           </xsl:choose>

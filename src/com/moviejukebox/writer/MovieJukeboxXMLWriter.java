@@ -348,23 +348,23 @@ public class MovieJukeboxXMLWriter {
                         e = r.nextEvent();
                         tag = e.toString();
                         if (tag.equalsIgnoreCase("<fileLocation>")) {
-                        	try {
-                        		File mfFile = new File(parseCData(r));
-                        		
-                        		// Check to see if the file exists, or we are preserving the jukebox
-                        		if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
-                        			// Save the file to the MovieFile
-                                	mf.setFile(mfFile);
-                        		} else {
-                        			// We can't find this file anymore, so skip it.
-                        			logger.finest("Missing video file in the XML file, it may have been moved or no longer exist.");
-                        			continue;
-                        		}
-                        	} catch (Exception ignore) {
-                        		// If there is an error creating the file then don't save anything
-                        		logger.finest("XMLWriter: Failed parsing file " + xmlFile.getName());
-                        		continue;
-                        	}
+                            try {
+                                File mfFile = new File(parseCData(r));
+                                
+                                // Check to see if the file exists, or we are preserving the jukebox
+                                if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
+                                    // Save the file to the MovieFile
+                                    mf.setFile(mfFile);
+                                } else {
+                                    // We can't find this file anymore, so skip it.
+                                    logger.finest("Missing video file in the XML file, it may have been moved or no longer exist.");
+                                    continue;
+                                }
+                            } catch (Exception ignore) {
+                                // If there is an error creating the file then don't save anything
+                                logger.finest("XMLWriter: Failed parsing file " + xmlFile.getName());
+                                continue;
+                            }
                         } else if (tag.equalsIgnoreCase("<fileURL>")) {
                                 mf.setFilename(parseCData(r));
                         } else if (tag.toLowerCase().startsWith("<filetitle")) {
@@ -1051,9 +1051,9 @@ public class MovieJukeboxXMLWriter {
             }
 
             if (mf.getFile() != null) {
-	            writer.writeStartElement("fileLocation");
-	            writer.writeCharacters(mf.getFile().getAbsolutePath());
-	            writer.writeEndElement();
+                writer.writeStartElement("fileLocation");
+                writer.writeCharacters(mf.getFile().getAbsolutePath());
+                writer.writeEndElement();
             }
             
             writer.writeStartElement("fileURL");

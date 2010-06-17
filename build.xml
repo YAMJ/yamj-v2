@@ -1,12 +1,12 @@
 <project name="moviejukebox" default="all" basedir=".">
 
-	<target name="all" depends="clean, compile, test, delivery" />
+    <target name="all" depends="clean, compile, test, delivery" />
 
-	<target name="init">
-		<property name="version" value="v2.1 BETA" />
-		<!-- This only works if the build is done through Hudson, otherwise it stays the same -->
-		<property environment="env" />
-		<property name="revision" value="${env.SVN_REVISION}" />
+    <target name="init">
+        <property name="version" value="v2.1 BETA" />
+        <!-- This only works if the build is done through Hudson, otherwise it stays the same -->
+        <property environment="env" />
+        <property name="revision" value="${env.SVN_REVISION}" />
 
         <echo>Writing version.txt</echo>
         <tstamp>
@@ -16,163 +16,163 @@
         <echo file="conf/version.txt" append="true">Build Date: ${builddate}${line.separator}</echo>
         <echo file="conf/version.txt" append="true">Version: ${version}${line.separator}</echo>
         <echo file="conf/version.txt" append="true">Revision: r${env.SVN_REVISION}${line.separator}</echo>
-	</target>
+    </target>
 
-	<target name="clean">
-		<delete dir="build" />
-		<delete includeemptydirs="true" failonerror="false">
-			<fileset dir="dist" includes="**/*" excludes="mediaInfo/*" followsymlinks="false" />
-		</delete>
-	</target>
+    <target name="clean">
+        <delete dir="build" />
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="dist" includes="**/*" excludes="mediaInfo/*" followsymlinks="false" />
+        </delete>
+    </target>
 
-	<target name="prepare" depends="init">
-		<mkdir dir="build/classes" />
-		<mkdir dir="dist" />
-	</target>
+    <target name="prepare" depends="init">
+        <mkdir dir="build/classes" />
+        <mkdir dir="dist" />
+    </target>
 
-	<target name="compile" depends="prepare">
-		<javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="src">
-			<classpath>
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
+    <target name="compile" depends="prepare">
+        <javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="src">
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
 
-	<target name="prepare-test">
-		<mkdir dir="build/test" />
-		<mkdir dir="build/report" />
-	</target>
+    <target name="prepare-test">
+        <mkdir dir="build/test" />
+        <mkdir dir="build/report" />
+    </target>
 
-	<target name="compile-test" depends="prepare-test, compile">
-		<javac debug="true" encoding="utf-8" destdir="build/test" srcdir="test">
-			<classpath>
-				<pathelement path="build/classes" />
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
+    <target name="compile-test" depends="prepare-test, compile">
+        <javac debug="true" encoding="utf-8" destdir="build/test" srcdir="test">
+            <classpath>
+                <pathelement path="build/classes" />
+                <fileset dir="lib">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
 
-	<target name="test" depends="compile-test">
-		<junit forkmode="once" fork="yes" printsummary="yes" haltonfailure="no" failureproperty="tests.failed" showoutput="true">
-			<jvmarg value="-Dfile.encoding=UTF-8" />
-			<classpath>
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-				<pathelement path="build/classes" />
-				<pathelement path="build/test" />
-				<pathelement path="conf" />
-			</classpath>
-			<formatter type="xml" />
-			<formatter type="plain" />
-			<batchtest todir="build/report">
-				<fileset dir="build/test">
-					<include name="**/*Test.class" />
-					<include name="**/*TestCase.class" />
-					<exclude name="**/*PosterPluginTestCase.class" />
-				</fileset>
-			</batchtest>
-		</junit>
-		<junitreport todir="build/report">
-			<report format="frames" todir="build/report/html" />
-			<fileset dir="build/report">
-				<include name="TEST-*.xml" />
-			</fileset>
-		</junitreport>
-		<fail if="tests.failed">
+    <target name="test" depends="compile-test">
+        <junit forkmode="once" fork="yes" printsummary="yes" haltonfailure="no" failureproperty="tests.failed" showoutput="true">
+            <jvmarg value="-Dfile.encoding=UTF-8" />
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar" />
+                </fileset>
+                <pathelement path="build/classes" />
+                <pathelement path="build/test" />
+                <pathelement path="conf" />
+            </classpath>
+            <formatter type="xml" />
+            <formatter type="plain" />
+            <batchtest todir="build/report">
+                <fileset dir="build/test">
+                    <include name="**/*Test.class" />
+                    <include name="**/*TestCase.class" />
+                    <exclude name="**/*PosterPluginTestCase.class" />
+                </fileset>
+            </batchtest>
+        </junit>
+        <junitreport todir="build/report">
+            <report format="frames" todir="build/report/html" />
+            <fileset dir="build/report">
+                <include name="TEST-*.xml" />
+            </fileset>
+        </junitreport>
+        <fail if="tests.failed">
       tests.failed=${tests.failed}
       ****************************************************************
       **** One or more tests failed! Check the tests report ... ****
       ****************************************************************
     </fail>
-	</target>
+    </target>
 
-	<target name="test-poster-plugin" depends="compile-test">
-		<junit forkmode="once" fork="yes" printsummary="yes" haltonfailure="no" failureproperty="tests.failed" showoutput="true">
-			<classpath>
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-				<pathelement path="build/classes" />
-				<pathelement path="build/test" />
-				<pathelement path="conf" />
-			</classpath>
-			<formatter type="xml" />
-			<formatter type="plain" />
-			<batchtest todir="build/report">
-				<fileset dir="build/test">
-					<include name="**/*PosterPluginTestCase.class" />
-				</fileset>
-			</batchtest>
-		</junit>
-		<junitreport todir="build/report">
-			<report format="frames" todir="build/report/html" />
-			<fileset dir="build/report">
-				<include name="TEST-*.xml" />
-			</fileset>
-		</junitreport>
-		<fail if="tests.failed">
-	      tests.failed=${tests.failed}
-	      ****************************************************************
-	      **** One or more tests failed! Check the tests report ... ****
-	      ****************************************************************
-	    </fail>
-	</target>
+    <target name="test-poster-plugin" depends="compile-test">
+        <junit forkmode="once" fork="yes" printsummary="yes" haltonfailure="no" failureproperty="tests.failed" showoutput="true">
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar" />
+                </fileset>
+                <pathelement path="build/classes" />
+                <pathelement path="build/test" />
+                <pathelement path="conf" />
+            </classpath>
+            <formatter type="xml" />
+            <formatter type="plain" />
+            <batchtest todir="build/report">
+                <fileset dir="build/test">
+                    <include name="**/*PosterPluginTestCase.class" />
+                </fileset>
+            </batchtest>
+        </junit>
+        <junitreport todir="build/report">
+            <report format="frames" todir="build/report/html" />
+            <fileset dir="build/report">
+                <include name="TEST-*.xml" />
+            </fileset>
+        </junitreport>
+        <fail if="tests.failed">
+          tests.failed=${tests.failed}
+          ****************************************************************
+          **** One or more tests failed! Check the tests report ... ****
+          ****************************************************************
+        </fail>
+    </target>
 
-	<target name="delivery" depends="clean, compile">
-		<mkdir dir="dist/lib" />
+    <target name="delivery" depends="clean, compile">
+        <mkdir dir="dist/lib" />
 
-		<tstamp>
-			<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
-		</tstamp>
+        <tstamp>
+            <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+        </tstamp>
 
-		<manifest file="MANIFEST.MF">
-			<attribute name="Built-By" value="${user.name}" />
-			<attribute name="Specification-Title" value="Yet Another Movie Jukebox" />
-			<attribute name="Specification-Version" value="${version}" />
-			<attribute name="Implementation-Version" value="${revision}" />
-			<attribute name="Implementation-Title" value="${TODAY}" />
-		</manifest>
+        <manifest file="MANIFEST.MF">
+            <attribute name="Built-By" value="${user.name}" />
+            <attribute name="Specification-Title" value="Yet Another Movie Jukebox" />
+            <attribute name="Specification-Version" value="${version}" />
+            <attribute name="Implementation-Version" value="${revision}" />
+            <attribute name="Implementation-Title" value="${TODAY}" />
+        </manifest>
 
-		<copy todir="build/classes/" overwrite="true">
-			<fileset dir="resources">
-				<include name="**/*.*" />
-			</fileset>
-		</copy>
+        <copy todir="build/classes/" overwrite="true">
+            <fileset dir="resources">
+                <include name="**/*.*" />
+            </fileset>
+        </copy>
 
 
-		<jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class,META-INF/**" manifest="MANIFEST.MF" />
+        <jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class,META-INF/**" manifest="MANIFEST.MF" />
 
-		<copy todir="dist/lib">
-			<fileset dir="lib">
-				<include name="**/*" />
-				<exclude name="junit*.jar" />
-			</fileset>
-		</copy>
+        <copy todir="dist/lib">
+            <fileset dir="lib">
+                <include name="**/*" />
+                <exclude name="junit*.jar" />
+            </fileset>
+        </copy>
 
-		<copy todir="dist">
-			<fileset dir="conf">
-				<include name="**/*" />
-			</fileset>
-		</copy>
+        <copy todir="dist">
+            <fileset dir="conf">
+                <include name="**/*" />
+            </fileset>
+        </copy>
 
-		<copy todir="dist/skins">
-			<fileset dir="skins">
-				<include name="**/*" />
-			</fileset>
-		</copy>
+        <copy todir="dist/skins">
+            <fileset dir="skins">
+                <include name="**/*" />
+            </fileset>
+        </copy>
 
-		<copy todir="dist/notices">
-			<fileset dir="notices">
-				<include name="**/*" />
-			</fileset>
-		</copy>
+        <copy todir="dist/notices">
+            <fileset dir="notices">
+                <include name="**/*" />
+            </fileset>
+        </copy>
 
-		<zip basedir="dist" destfile="dist/moviejukebox_${version}.zip" excludes="mediaInfo/" followsymlinks="false" />
-	</target>
+        <zip basedir="dist" destfile="dist/moviejukebox_${version}.zip" excludes="mediaInfo/" followsymlinks="false" />
+    </target>
 
 </project>

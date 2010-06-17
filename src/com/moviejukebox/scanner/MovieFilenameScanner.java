@@ -212,7 +212,7 @@ public class MovieFilenameScanner {
                     } else {
                         first = false;
                     }
-					sb.append(quotedToken);
+                    sb.append(quotedToken);
                 }
             }
             put(key, iwpatt(sb.toString()));

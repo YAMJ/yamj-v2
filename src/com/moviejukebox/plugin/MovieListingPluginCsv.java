@@ -173,7 +173,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
             // clean 'UNKNOWN' values
             str = "";
         }
-		
+
         // remove quotes from the string (before encapsulation)
         if (str.contains("\"")) {
             str = str.replace("\"", "");

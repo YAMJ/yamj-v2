@@ -30,15 +30,15 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
   function bind() {
     if ( title == 1 ) title = document.getElementById('title');
     if ( pgup == 1 ) {
-    	pgup = document.getElementById('pgup');
-    	pgupload = document.getElementById('pgupload');
-    	pgupHref = (pgup == null) ? null : pgup.getAttribute('href');
-    	}
+        pgup = document.getElementById('pgup');
+        pgupload = document.getElementById('pgupload');
+        pgupHref = (pgup == null) ? null : pgup.getAttribute('href');
+        }
     if ( pgdn == 1 ) {
-    	pgdn = document.getElementById('pgdn');
-    	pgdnload = document.getElementById('pgdnload');
-    	pgdnHref = (pgdn == null) ? null : pgdn.getAttribute('href');
-    	}
+        pgdn = document.getElementById('pgdn');
+        pgdnload = document.getElementById('pgdnload');
+        pgdnHref = (pgdn == null) ? null : pgdn.getAttribute('href');
+        }
   }
   
   function show(x) {
@@ -56,34 +56,34 @@ var nmov = <xsl:value-of select="count(library/movies/movie)"/>;
   }
   
   function init() {
-  	bind();
-  	
-	if (cols <= 1 || rows < 1) return;
+    bind();
 
- 	var l = "" + location.href;
- 	var it = l.indexOf("?t=");
- 	var is = l.indexOf("&s=");
+    if (cols <= 1 || rows < 1) return;
 
- 	if (it <= 0 || is <= 0 || is < it) return;
- 	
-	try {
-		var x = parseInt(l.substr(is + 3));
-		var t = l.substr(it + 3, 2).toLowerCase();
-		var c = ((x - 1) % cols) + 1;
-		
-		if (t == "u2") {
-			x =	((rows - 1) * cols) + c;
-		} else if (t == "d2") {
-			x = c;
-		}
-		
-		if (x > nmov) {
-			if (nmov <= c) x = nmov;
-			else x = (Math.floor(nmov / cols) * cols) + c;
-		}
-		
-		document.body.setAttribute('onloadset', "" + x);
-	} catch (e) {}
+    var l = "" + location.href;
+    var it = l.indexOf("?t=");
+    var is = l.indexOf("&s=");
+
+    if (it <= 0 || is <= 0 || is < it) return;
+    
+    try {
+        var x = parseInt(l.substr(is + 3));
+        var t = l.substr(it + 3, 2).toLowerCase();
+        var c = ((x - 1) % cols) + 1;
+
+        if (t == "u2") {
+            x = ((rows - 1) * cols) + c;
+        } else if (t == "d2") {
+            x = c;
+        }
+
+        if (x > nmov) {
+            if (nmov <= c) x = nmov;
+            else x = (Math.floor(nmov / cols) * cols) + c;
+        }
+
+        document.body.setAttribute('onloadset', "" + x);
+    } catch (e) {}
   }
 //]]>
 </xsl:text>
@@ -129,82 +129,82 @@ var ratingnow=0;
 
 function prompter(y) 
 {
-	ratingnow=ratingsys[y];
+    ratingnow=ratingsys[y];
 
-	<xsl:choose>
-		<xsl:when test="$number-of-children > 1">
+    <xsl:choose>
+        <xsl:when test="$number-of-children > 1">
 
-			if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
-				{
-					if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-oldest"/>)
-						{		
-							var reply = prompt("Password?", "")
+            if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
+                {
+                    if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-oldest"/>)
+                        {
+                            var reply = prompt("Password?", "")
 
-								if (reply=="<xsl:value-of select="$parental-password-master"/>")
-									{
-										return
-									}
-								else 
-									{
-										alert ( "Sorry,You have entered the wrong password")
-										return false
-									}
-						}
-					<xsl:if test="$number-of-children=3">
-					else if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-middle"/>)
-						{		
-							var reply = prompt("Password?", "")
+                                if (reply=="<xsl:value-of select="$parental-password-master"/>")
+                                    {
+                                        return
+                                    }
+                                else 
+                                    {
+                                        alert ( "Sorry,You have entered the wrong password")
+                                        return false
+                                    }
+                        }
+                    <xsl:if test="$number-of-children=3">
+                    else if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-middle"/>)
+                        {
+                            var reply = prompt("Password?", "")
 
-								if (reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
-									{
-										return
-									}
-								else 
-									{
-										alert ( "Sorry,You have entered the wrong password")
-										return false
-									}
-						}
-					</xsl:if>
+                                if (reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
+                                    {
+                                        return
+                                    }
+                                else 
+                                    {
+                                        alert ( "Sorry,You have entered the wrong password")
+                                        return false
+                                    }
+                        }
+                    </xsl:if>
 
-					else
-						{		
-							var reply = prompt("Password?", "")
+                    else
+                        {
+                            var reply = prompt("Password?", "")
 
-								if (reply=="<xsl:value-of select="$parental-password-middle"/>" || reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
-									{
-										return
-									}
-								else 
-									{
-										alert ( "Sorry,You have entered the wrong password")
-										return false
-									}
-						}
-				}
-		</xsl:when>
-		<xsl:otherwise>
-			if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
-				{
-					var reply = prompt("Password?", "")
+                                if (reply=="<xsl:value-of select="$parental-password-middle"/>" || reply=="<xsl:value-of select="$parental-password-oldest"/>" || reply=="<xsl:value-of select="$parental-password-master"/>")
+                                    {
+                                        return
+                                    }
+                                else 
+                                    {
+                                        alert ( "Sorry,You have entered the wrong password")
+                                        return false
+                                    }
+                        }
+                }
+        </xsl:when>
+        <xsl:otherwise>
+            if (ratingnow<xsl:value-of select="'&gt;'" disable-output-escaping="yes"/>=<xsl:value-of select="$childs-age-youngest"/>)
+                {
+                    var reply = prompt("Password?", "")
 
-					if (reply=="<xsl:value-of select="$parental-password-master"/>")
-						{
-							return
-						}
-					else 
-						{
-							alert ( "Sorry,You have entered the wrong password")
-							return false
-						}
-						
-				}
-		</xsl:otherwise>
-	</xsl:choose>
-			else
-				{
-					return
-				}
+                    if (reply=="<xsl:value-of select="$parental-password-master"/>")
+                        {
+                            return
+                        }
+                    else 
+                        {
+                            alert ( "Sorry,You have entered the wrong password")
+                            return false
+                        }
+                        
+                }
+        </xsl:otherwise>
+    </xsl:choose>
+            else
+                {
+                    return
+                }
 
 
 }
@@ -218,8 +218,8 @@ function prompter(y)
 <table class="main" border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td COLSPAN="2" align="center"> 
-    	<xsl:apply-templates select="library/category[@name='Title']" mode="t9TitleNavigation"/>
-	</td>
+        <xsl:apply-templates select="library/category[@name='Title']" mode="t9TitleNavigation"/>
+    </td>
   </tr>
   <tr align="left" valign="top">
     <td width="120">
@@ -284,11 +284,11 @@ function prompter(y)
               <xsl:with-param name="lastGap" select="($nbLines - 1) * $nbCols" />
             </xsl:apply-templates>
             <xsl:if test="count(following-sibling::movie[position() &lt; $nbCols]) &lt; ($nbCols - 1)">
-            	<td>
-            		<xsl:attribute name="colspan"><xsl:value-of select="($nbCols - 1) - count(following-sibling::movie[position() &lt; $nbCols])" /></xsl:attribute>
-            		<xsl:attribute name="width"><xsl:value-of select="($nbCols - 1) - count(following-sibling::movie[position() &lt; $nbCols])" /></xsl:attribute>
-            		<xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
-            	</td>
+                <td>
+                    <xsl:attribute name="colspan"><xsl:value-of select="($nbCols - 1) - count(following-sibling::movie[position() &lt; $nbCols])" /></xsl:attribute>
+                    <xsl:attribute name="width"><xsl:value-of select="($nbCols - 1) - count(following-sibling::movie[position() &lt; $nbCols])" /></xsl:attribute>
+                    <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+                </td>
             </xsl:if>
           </tr>
         </xsl:for-each>
@@ -318,9 +318,9 @@ function prompter(y)
     <a name="pgupload" onfocusload="" id="pgupload"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
   </div>
 
-	<script type="text/javascript" defer="defer">
-	init();
-	</script>
+    <script type="text/javascript" defer="defer">
+    init();
+    </script>
 </body>
 
 </html>
@@ -338,7 +338,7 @@ function prompter(y)
           <xsl:attribute name="id">movie<xsl:value-of select="position()+$gap"/></xsl:attribute>
           <xsl:attribute name="onfocus">show(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
           <xsl:attribute name="onblur">hide(<xsl:value-of select="position()+$gap"/>)</xsl:attribute>
-	  <xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute>
+      <xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute>
           <xsl:if test="$lastIndex != 1">
             <xsl:if test="$gap=0 and $currentIndex != 1">
               <xsl:attribute name="onkeyupset">pgupload</xsl:attribute>
@@ -354,170 +354,170 @@ function prompter(y)
           </img>
         </a>
      <xsl:choose>
-	     <xsl:when test="count(files/file) > 1">
-			    <a>
-					<xsl:attribute name="href"><xsl:value-of select="baseFilename"/>.playlist.jsp</xsl:attribute>
-				       <xsl:attribute name="tvid">#</xsl:attribute>
-					<xsl:attribute name="id">playid<xsl:value-of select="position()+$gap"/></xsl:attribute>
-					<xsl:attribute name="vod">playlist</xsl:attribute>
-					 <xsl:if test="$parental-control-on='true'"> <xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute></xsl:if>
+         <xsl:when test="count(files/file) > 1">
+                <a>
+                    <xsl:attribute name="href"><xsl:value-of select="baseFilename"/>.playlist.jsp</xsl:attribute>
+                       <xsl:attribute name="tvid">#</xsl:attribute>
+                    <xsl:attribute name="id">playid<xsl:value-of select="position()+$gap"/></xsl:attribute>
+                    <xsl:attribute name="vod">playlist</xsl:attribute>
+                     <xsl:if test="$parental-control-on='true'"> <xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute></xsl:if>
        
-			    </a>
-		</xsl:when>
-		<xsl:otherwise>
-				<a>
-					<xsl:attribute name="href"><xsl:value-of select="files/file/fileURL"/></xsl:attribute>
-				       <xsl:attribute name="tvid">#</xsl:attribute>
-					<xsl:attribute name="id">playid<xsl:value-of select="position()+$gap"/></xsl:attribute>
-					<xsl:if test="files/file/@vod"><xsl:attribute name="vod"></xsl:attribute></xsl:if>
-					<xsl:if test="files/file/@zcd"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
-					<xsl:if test="files/file/@rar"><xsl:attribute name="rar"><xsl:value-of select="files/file/@rar" /></xsl:attribute></xsl:if>
-					<xsl:if test="$parental-control-on='true'"><xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute></xsl:if>
+                </a>
+        </xsl:when>
+        <xsl:otherwise>
+                <a>
+                    <xsl:attribute name="href"><xsl:value-of select="files/file/fileURL"/></xsl:attribute>
+                       <xsl:attribute name="tvid">#</xsl:attribute>
+                    <xsl:attribute name="id">playid<xsl:value-of select="position()+$gap"/></xsl:attribute>
+                    <xsl:if test="files/file/@vod"><xsl:attribute name="vod"></xsl:attribute></xsl:if>
+                    <xsl:if test="files/file/@zcd"><xsl:attribute name="zcd">2</xsl:attribute></xsl:if>
+                    <xsl:if test="files/file/@rar"><xsl:attribute name="rar"><xsl:value-of select="files/file/@rar" /></xsl:attribute></xsl:if>
+                    <xsl:if test="$parental-control-on='true'"><xsl:attribute name="onclick">return prompter('<xsl:value-of select="certification"/>')</xsl:attribute></xsl:if>
           
 
-				</a>
-				 
-	      </xsl:otherwise>
+                </a>
+                 
+          </xsl:otherwise>
       </xsl:choose>
-	</td>
+    </td>
 </xsl:template>
 
 <xsl:template mode="t9TitleNavigation" match="category[@name='Title']">
-	<!-- 1-0...9 2-ABC 3-DEF 4-GHI 5-JKL 6-MNO 7-PQRS 8-TUV 9-WXYZ-->
+    <!-- 1-0...9 2-ABC 3-DEF 4-GHI 5-JKL 6-MNO 7-PQRS 8-TUV 9-WXYZ-->
 
-	<table id="t9">
-	<tr>
-		<xsl:call-template name="letter">
-			<xsl:with-param name="name">09</xsl:with-param>
-			<xsl:with-param name="navigate">1</xsl:with-param>
-			<xsl:with-param name="neighbors">09</xsl:with-param>
-		</xsl:call-template>
-		
-		<td class="separator"></td>
+    <table id="t9">
+    <tr>
+        <xsl:call-template name="letter">
+            <xsl:with-param name="name">09</xsl:with-param>
+            <xsl:with-param name="navigate">1</xsl:with-param>
+            <xsl:with-param name="neighbors">09</xsl:with-param>
+        </xsl:call-template>
+        
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">ABC</xsl:with-param>
-			<xsl:with-param name="navigate">2</xsl:with-param>
-		</xsl:call-template>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">ABC</xsl:with-param>
+            <xsl:with-param name="navigate">2</xsl:with-param>
+        </xsl:call-template>
 
-		<td class="separator"></td>
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">DEF</xsl:with-param>
-			<xsl:with-param name="navigate">3</xsl:with-param>
-		</xsl:call-template>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">DEF</xsl:with-param>
+            <xsl:with-param name="navigate">3</xsl:with-param>
+        </xsl:call-template>
 
-		<td class="separator"></td>
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">GHI</xsl:with-param>
-			<xsl:with-param name="navigate">4</xsl:with-param>
-		</xsl:call-template>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">GHI</xsl:with-param>
+            <xsl:with-param name="navigate">4</xsl:with-param>
+        </xsl:call-template>
 
-		<td class="separator"></td>
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">JKL</xsl:with-param>
-			<xsl:with-param name="navigate">5</xsl:with-param>
-		</xsl:call-template>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">JKL</xsl:with-param>
+            <xsl:with-param name="navigate">5</xsl:with-param>
+        </xsl:call-template>
 
-		<td class="separator"></td>
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">MNO</xsl:with-param>
-			<xsl:with-param name="navigate">6</xsl:with-param>
-		</xsl:call-template>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">MNO</xsl:with-param>
+            <xsl:with-param name="navigate">6</xsl:with-param>
+        </xsl:call-template>
 
-		<td class="separator"></td>
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">PQRS</xsl:with-param>
-			<xsl:with-param name="navigate">7</xsl:with-param>
-		</xsl:call-template>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">PQRS</xsl:with-param>
+            <xsl:with-param name="navigate">7</xsl:with-param>
+        </xsl:call-template>
 
-		<td class="separator"></td>
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">TUV</xsl:with-param>
-			<xsl:with-param name="navigate">8</xsl:with-param>
-		</xsl:call-template>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">TUV</xsl:with-param>
+            <xsl:with-param name="navigate">8</xsl:with-param>
+        </xsl:call-template>
 
-		<td class="separator"></td>
+        <td class="separator"></td>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters">WXYZ</xsl:with-param>
-			<xsl:with-param name="navigate">9</xsl:with-param>
-		</xsl:call-template>
-	</tr>
-	</table>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters">WXYZ</xsl:with-param>
+            <xsl:with-param name="navigate">9</xsl:with-param>
+        </xsl:call-template>
+    </tr>
+    </table>
 </xsl:template>
 
 
 <xsl:template name="lettersgroup">
-	<xsl:param name="letters"/>
-	<xsl:param name="navigate"/>
-	<xsl:param name="neighbors"/>
-	
-	<xsl:variable name="nb">
-		<xsl:choose>
-			<xsl:when test="$neighbors"><xsl:value-of select="$neighbors"/></xsl:when>
-			<xsl:otherwise><xsl:value-of select="$letters"/></xsl:otherwise>
-		</xsl:choose>
-	</xsl:variable>
-	
-	<xsl:if test="string-length($letters) > 0">
-		<xsl:call-template name="letter">
-			<xsl:with-param name="name" select="substring($letters, 1, 1)"/>
-			<xsl:with-param name="navigate" select="$navigate"/>
-			<xsl:with-param name="neighbors" select="$nb"/>
-		</xsl:call-template>
+    <xsl:param name="letters"/>
+    <xsl:param name="navigate"/>
+    <xsl:param name="neighbors"/>
+    
+    <xsl:variable name="nb">
+        <xsl:choose>
+            <xsl:when test="$neighbors"><xsl:value-of select="$neighbors"/></xsl:when>
+            <xsl:otherwise><xsl:value-of select="$letters"/></xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
+    <xsl:if test="string-length($letters) > 0">
+        <xsl:call-template name="letter">
+            <xsl:with-param name="name" select="substring($letters, 1, 1)"/>
+            <xsl:with-param name="navigate" select="$navigate"/>
+            <xsl:with-param name="neighbors" select="$nb"/>
+        </xsl:call-template>
 
-		<xsl:call-template name="lettersgroup">
-			<xsl:with-param name="letters"><xsl:value-of select="substring($letters, 2)"/></xsl:with-param>
-			<xsl:with-param name="navigate" select="$navigate"/>
-			<xsl:with-param name="neighbors" select="$nb"/>
-		</xsl:call-template>
-	</xsl:if>
+        <xsl:call-template name="lettersgroup">
+            <xsl:with-param name="letters"><xsl:value-of select="substring($letters, 2)"/></xsl:with-param>
+            <xsl:with-param name="navigate" select="$navigate"/>
+            <xsl:with-param name="neighbors" select="$nb"/>
+        </xsl:call-template>
+    </xsl:if>
 </xsl:template>
 
 
 <xsl:template name="letter">
-	<xsl:param name="name"/>
-	<xsl:param name="navigate"/>
-	<xsl:param name="neighbors"/>
-	
-	<td align="right">
+    <xsl:param name="name"/>
+    <xsl:param name="navigate"/>
+    <xsl:param name="neighbors"/>
+    
+    <td align="right">
 
     <xsl:variable name="lastcurrent" select="index[contains($neighbors, @name)][last()]/@current" />
-	
-	<xsl:choose>
-		<xsl:when test="index[@name=$name]">
-			<xsl:for-each select="index[@name=$name]">
-			
-			<xsl:variable name="tvid">
-				<xsl:if test="preceding-sibling::*[position() = 1 and contains($neighbors, @name) and @current]">
-		        	<xsl:value-of select="normalize-space($navigate)" />
-				</xsl:if>
-		        <xsl:if test="not(preceding-sibling::*[contains($neighbors, @name)])">
-			        <xsl:if test="$lastcurrent or (not(@current) and not(following-sibling::*[contains($neighbors, @name) and @current]))">
-			        	<xsl:value-of select="normalize-space($navigate)" />
-			        </xsl:if>
-		        </xsl:if>
-			</xsl:variable>
-        	<xsl:if test="string-length($tvid) > 0"><small><xsl:value-of select="$tvid" /></small></xsl:if>
-	        <a>
-		        <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
-		        <xsl:if test="@current"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
-		        <xsl:if test="string-length($tvid) > 0"><xsl:attribute name="tvid"><xsl:value-of select="$tvid" /></xsl:attribute></xsl:if>
-		        <xsl:value-of select="@name" />
-	        </a>
-			</xsl:for-each>
-		</xsl:when>
-		<xsl:otherwise><span class="a"><xsl:value-of select="$name" /></span></xsl:otherwise>
-	</xsl:choose>
+    
+    <xsl:choose>
+        <xsl:when test="index[@name=$name]">
+            <xsl:for-each select="index[@name=$name]">
+            
+            <xsl:variable name="tvid">
+                <xsl:if test="preceding-sibling::*[position() = 1 and contains($neighbors, @name) and @current]">
+                    <xsl:value-of select="normalize-space($navigate)" />
+                </xsl:if>
+                <xsl:if test="not(preceding-sibling::*[contains($neighbors, @name)])">
+                    <xsl:if test="$lastcurrent or (not(@current) and not(following-sibling::*[contains($neighbors, @name) and @current]))">
+                        <xsl:value-of select="normalize-space($navigate)" />
+                    </xsl:if>
+                </xsl:if>
+            </xsl:variable>
+            <xsl:if test="string-length($tvid) > 0"><small><xsl:value-of select="$tvid" /></small></xsl:if>
+            <a>
+                <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+                <xsl:if test="@current"><xsl:attribute name="class">current</xsl:attribute></xsl:if>
+                <xsl:if test="string-length($tvid) > 0"><xsl:attribute name="tvid"><xsl:value-of select="$tvid" /></xsl:attribute></xsl:if>
+                <xsl:value-of select="@name" />
+            </a>
+            </xsl:for-each>
+        </xsl:when>
+        <xsl:otherwise><span class="a"><xsl:value-of select="$name" /></span></xsl:otherwise>
+    </xsl:choose>
 
-	</td>
-	
+    </td>
+    
 </xsl:template>
 
 <!-- http://www.dpawson.co.uk/xsl/sect4/N9745.html#d15577e189 -->

@@ -295,16 +295,16 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
     
     public void removeMovieFile(MovieFile movieFile) {
-    	if (movieFile != null) {
-    		this.isDirty = true;
-    		for (MovieFile mf : this.movieFiles) {
-    			if (mf.compareTo(movieFile) == 0) {
-    				this.movieFiles.remove(mf);
-    				break;
-    			}
-    		}
-    		
-    	}
+        if (movieFile != null) {
+            this.isDirty = true;
+            for (MovieFile mf : this.movieFiles) {
+                if (mf.compareTo(movieFile) == 0) {
+                    this.movieFiles.remove(mf);
+                    break;
+                }
+            }
+            
+        }
     }
 
     public boolean hasNewMovieFiles() {
