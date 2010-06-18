@@ -63,6 +63,7 @@ public class PosterScanner {
     protected static String fixedCoverArtName;
     protected static String coverArtDirectory;
     protected static Boolean useFolderImage;
+    protected static Collection<String> posterImageName;
     protected static WebBrowser webBrowser;
     protected static String preferredPosterSearchEngine;
     protected static String posterSearchPriority;
@@ -75,15 +76,26 @@ public class PosterScanner {
     private static String moviePosterSearchPriority;
 
     static {
+    	StringTokenizer st;
+    	
         // We get covert art scanner behaviour
         searchForExistingCoverArt = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
         // We get the fixed name property
         fixedCoverArtName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
         // See if we use folder.* image or not
+        // Note: We need the useFolderImage because of the special "folder.jpg" case in windows.
         useFolderImage = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.useFolderImage", "false"));
 
+        if (useFolderImage) {
+	        st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.imageName", "folder,poster"), ",;|");
+	        posterImageName = new ArrayList<String>();
+	        while (st.hasMoreTokens()) {
+	        	posterImageName.add(st.nextToken());
+	        }
+        }
+        
         // We get valid extensions
-        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.coverArtExtensions", "jpg,png,gif"), ",;| ");
+        st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.coverArtExtensions", "jpg,png,gif"), ",;| ");
         Collection<String> extensions = new ArrayList<String>();
         while (st.hasMoreTokens()) {
             extensions.add(st.nextToken());
@@ -168,7 +180,7 @@ public class PosterScanner {
 
             if (useFolderImage) {
                 // Checking for MovieFolderName.* AND folder.*
-                logger.finest("PosterScanner: Checking for '" + localPosterBaseFilename + ".*' coverart AND folder.* coverart");
+                logger.finest("PosterScanner: Checking for '" + localPosterBaseFilename + ".*' coverart AND " + posterImageName + ".* coverart");
             } else {
                 // Only checking for the MovieFolderName.* and not folder.*
                 logger.finest("PosterScanner: Checking for '" + localPosterBaseFilename + ".*' coverart");
@@ -179,11 +191,15 @@ public class PosterScanner {
             localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, coverArtExtensions);
             foundLocalCoverArt = localPosterFile.exists();
             if(!foundLocalCoverArt && useFolderImage){
-                // logger.finest("Checking for 'folder.*' coverart");
-                // Check for folder.jpg if it exists
-                fullPosterFilename = parentPath + File.separator + "folder";
-                localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, coverArtExtensions);
-                foundLocalCoverArt = localPosterFile.exists();
+            	for (String imageFileName : posterImageName) {
+	                // logger.finest("Checking for '" + imageFileName + ".*' coverart");
+	                fullPosterFilename = parentPath + File.separator + imageFileName;
+	                localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, coverArtExtensions);
+	                foundLocalCoverArt = localPosterFile.exists();
+	                if (foundLocalCoverArt) {
+	                	break;
+	                }
+            	}
             }
         }
         /*

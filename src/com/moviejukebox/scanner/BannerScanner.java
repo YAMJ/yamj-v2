@@ -45,6 +45,8 @@ public class BannerScanner {
     protected static String[] bannerExtensions;
     protected static String bannerToken;
     protected static boolean bannerOverwrite;
+    protected static boolean useFolderBanner;
+    protected static Collection<String> bannerImageName;
 
     static {
 
@@ -56,9 +58,20 @@ public class BannerScanner {
         }
         bannerExtensions = extensions.toArray(new String[] {});
 
-        bannerToken = PropertiesUtil.getProperty("banner.scanner.bannerToken", ".banner");
+        bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
 
-        bannerOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forcePosterOverwrite", "false"));
+        bannerOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceBannersOverwrite", "false"));
+        
+        // See if we use the folder banner artwork
+        useFolderBanner = Boolean.parseBoolean(PropertiesUtil.getProperty("banner.scanner.useFolderImage", "false"));
+        if (useFolderBanner) {
+	        st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
+	        bannerImageName = new ArrayList<String>();
+	        while (st.hasMoreTokens()) {
+	        	bannerImageName.add(st.nextToken());
+	        }
+        }
+
     }
 
     /**
@@ -89,6 +102,20 @@ public class BannerScanner {
             fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + bannerToken;
             localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
             foundLocalBanner = localBannerFile.exists();
+        }
+        
+        // Check for folder banners.
+        if (!foundLocalBanner && useFolderBanner) {
+        	// Check for each of the farnartImageName.* files
+        	for (String fanartFilename : bannerImageName) {
+        		fullBannerFilename = parentPath + File.separator + fanartFilename;
+                localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
+                foundLocalBanner = localBannerFile.exists();
+
+                if (foundLocalBanner) {
+                	break;
+                }
+        	}
         }
 
         // If we've found the banner, copy it to the jukebox, otherwise download it.

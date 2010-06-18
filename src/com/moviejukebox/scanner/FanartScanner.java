@@ -50,6 +50,7 @@ public class FanartScanner {
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
     protected static boolean useFolderBackground;
+    protected static Collection<String> fanartImageName;
 
     static {
 
@@ -67,6 +68,13 @@ public class FanartScanner {
         
         // See if we use background.* or fanart.*
         useFolderBackground = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.useFolderImage", "false"));
+        if (useFolderBackground) {
+	        st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
+	        fanartImageName = new ArrayList<String>();
+	        while (st.hasMoreTokens()) {
+	        	fanartImageName.add(st.nextToken());
+	        }
+        }
 
     }
 
@@ -94,17 +102,16 @@ public class FanartScanner {
 
         // Check for fanart.* and background.* fanart.
         if (!foundLocalFanart && useFolderBackground) {
-            // Checking for the fanart.*
-            fullFanartFilename = parentPath + File.separator + "fanart";
-            localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
-            foundLocalFanart = localFanartFile.exists();
-
-            if (!foundLocalFanart) {
-                // Checking for the background.*
-                fullFanartFilename = parentPath + File.separator + "background";
+        	// Check for each of the farnartImageName.* files
+        	for (String fanartFilename : fanartImageName) {
+                fullFanartFilename = parentPath + File.separator + fanartFilename;
                 localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
                 foundLocalFanart = localFanartFile.exists();
-            }
+
+                if (foundLocalFanart) {
+                	break;
+                }
+        	}
         }
 
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
