@@ -108,8 +108,17 @@ public class FanartScanner {
                 localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
                 foundLocalFanart = localFanartFile.exists();
 
-                if (foundLocalFanart) {
-                	break;
+                if (!foundLocalFanart && movie.isTVShow()) {
+                    // Get the parent directory and check that
+                    fullFanartFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + fanartFilename;
+                    System.out.println("SCANNER: " + fullFanartFilename);
+                    localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
+                    foundLocalFanart = localFanartFile.exists();
+                    if (foundLocalFanart) {
+                        break;   // We found the artwork so quit the loop
+                    }
+                } else {
+                    break;    // We found the artwork so quit the loop
                 }
         	}
         }
