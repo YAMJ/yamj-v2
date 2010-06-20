@@ -547,10 +547,10 @@ public class FileTools {
         return generatedFileNames;
     }
     
-    /*
-     * Gabriel Corneanu
+    /**
      * special file whith "cached" attributes
      * used to minimize file system access which slows down everything
+     * @author Gabriel Corneanu
      */
     @SuppressWarnings("serial")
     public static class FileEx extends File{
@@ -673,10 +673,10 @@ public class FileTools {
 
     }
 
-    /*
-     * Gabriel Corneanu
+    /**
      * cached File instances
      * the key is always absolute path in upper-case, so it will NOT work for case only differences
+     * @author Gabriel Corneanu
      */
     public static class ScannedFilesCache {       
         //cache for ALL files found during initial scan
