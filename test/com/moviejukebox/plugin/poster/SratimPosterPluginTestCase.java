@@ -16,15 +16,20 @@ package com.moviejukebox.plugin.poster;
 import junit.framework.TestCase;
 
 public class SratimPosterPluginTestCase extends TestCase {
+    SratimPosterPlugin posterPlugin = new SratimPosterPlugin();
 
-    private static final String ID_MOVIE = "tt0172495";
+    public void testGetIdFromMovieInfo() {
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);
+        assertEquals("http://www.sratim.co.il/movies/view.aspx?id=43628", idFromMovieInfo);
+    }
 
-    public void testGetId() {
-        SratimPosterPlugin toTest = new SratimPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null);
-        assertEquals(ID_MOVIE, idFromMovieInfo);
+    public void testGetIdFromMovieInfoTV() {
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("The Lost Islands", null, 1);
+        assertEquals("http://www.sratim.co.il/movies/series/view.aspx?id=116", idFromMovieInfo);
+    }
 
-        String posterUrl = toTest.getPosterUrl(ID_MOVIE);
-        assertEquals("http://www.sratim.co.il/movies/images/1/51.jpg", posterUrl);
+    public void testGetPosterUrl() {
+        String posterUrl = posterPlugin.getPosterUrl("http://www.sratim.co.il/movies/view.aspx?id=43628").getUrl();
+        assertEquals("http://www.sratim.co.il/movies/images/8/43628.jpg", posterUrl);
     }
 }

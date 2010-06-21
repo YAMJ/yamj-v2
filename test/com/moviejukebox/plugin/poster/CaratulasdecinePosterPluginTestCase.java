@@ -22,7 +22,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Millennium I", null);
         assertEquals("4504", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas5/millennium1_loshombresquenoamabanalasmujeres.jpg", posterUrl);
     }
 
@@ -31,7 +31,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("El ultimátum de Bourne", null);
         assertEquals("3654", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas4/elultimatumdebourne.jpg", posterUrl);
     }
 
@@ -40,7 +40,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", null);
         assertEquals("2141", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas1/Troya.jpg", posterUrl);
     }
 
@@ -49,7 +49,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil", null);
         assertEquals("4783", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
     }
 
@@ -58,7 +58,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil (The Hurt Locker)", null);
         // assertEquals("4783", idFromMovieInfo);
         //
-        // String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        // String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         // assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
     }
 
@@ -67,7 +67,7 @@ public class CaratulasdecinePosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Up", null);
         assertEquals("3754", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas4/shootemup.jpg", posterUrl);
     }
 

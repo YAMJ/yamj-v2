@@ -19,6 +19,8 @@ import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -90,9 +92,9 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         // <td><img src="
-        String response = Movie.UNKNOWN;
+        String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equals(id)) {
             try {
                 StringBuffer sb = new StringBuffer("http://www.caratulasdecine.com/caratula.php?pel=");
@@ -102,7 +104,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 String searchString = "<td><img src=\"";
                 int beginIndex = xml.indexOf(searchString);
                 if (beginIndex > -1) {
-                    response = "http://www.caratulasdecine.com/"
+                    posterURL = "http://www.caratulasdecine.com/"
                                     + xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length()));
                 }
 
@@ -111,11 +113,14 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 logger.severe("Error : " + e.getMessage());
             }
         }
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 

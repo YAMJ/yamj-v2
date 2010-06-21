@@ -22,13 +22,13 @@ public class FilmAffinityPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", "2009", -1);
         assertEquals("495280.html", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://pics.filmaffinity.com/Avatar-208925608-large.jpg", posterUrl);
         
         idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", "2004", -1);
         assertEquals("564615.html", idFromMovieInfo);
 
-        posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://pics.filmaffinity.com/Troya_Troy-963506535-large.jpg", posterUrl);
         
         toTest.getPosterUrl("Troya", null);
@@ -37,7 +37,7 @@ public class FilmAffinityPosterPluginTestCase extends TestCase {
         idFromMovieInfo = toTest.getIdFromMovieInfo("FUTURAMA",null,2);
         assertEquals("826281.html", idFromMovieInfo);
 
-        posterUrl =toTest.getPosterUrl(idFromMovieInfo);
+        posterUrl =toTest.getPosterUrl(idFromMovieInfo).getUrl();
         
         assertEquals("http://pics.filmaffinity.com/Futurama_Serie_de_TV-151391426-large.jpg", posterUrl);
         
@@ -45,7 +45,7 @@ public class FilmAffinityPosterPluginTestCase extends TestCase {
         idFromMovieInfo = toTest.getIdFromMovieInfo("Crepusculo",null,-1);
         assertEquals("826281.html", idFromMovieInfo);
 
-        posterUrl =toTest.getPosterUrl(idFromMovieInfo);
+        posterUrl =toTest.getPosterUrl(idFromMovieInfo).getUrl();
         
         assertEquals("http://pics.filmaffinity.com/Futurama_Serie_de_TV-151391426-large.jpg", posterUrl);
     }

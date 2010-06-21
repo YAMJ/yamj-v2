@@ -36,6 +36,8 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
 import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
@@ -277,13 +279,11 @@ public class PosterScanner {
      * 
      * @param movie
      *            The movieBean to search for
-     * @param imdbXML
-     *            The IMDb XML page (for the IMDb poster search)
-     * @return The posterURL that was found (Maybe Movie.UNKNOWN)
+     * @return The posterImage with poster url that was found (Maybe Image.UNKNOWN)
      */
-    public static String getPosterURL(Movie movie) {
+    public static IImage getPosterURL(Movie movie) {
         String posterSearchToken;
-        String posterURL = Movie.UNKNOWN;
+        IImage posterImage = Image.UNKNOWN;
         StringTokenizer st;
 
         if (movie.isTVShow()) {
@@ -292,7 +292,7 @@ public class PosterScanner {
             st = new StringTokenizer(moviePosterSearchPriority, ",");
         }
 
-        while (st.hasMoreTokens() && posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+        while (st.hasMoreTokens() && posterImage.getUrl().equalsIgnoreCase(Movie.UNKNOWN)) {
             posterSearchToken = st.nextToken();
 
             IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
@@ -313,31 +313,31 @@ public class PosterScanner {
             if (iPosterPlugin == null) {
                 logger.info("Posterscanner: " + posterSearchToken + " is not a " + msg + " Poster plugin - skipping");
             } else {
-                posterURL = iPosterPlugin.getPosterUrl(movie, movie);
+                posterImage = iPosterPlugin.getPosterUrl(movie, movie);
             }
 
             // Validate the poster- No need to validate if we're UNKNOWN
-            if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL) && posterValidate && !validatePoster(posterURL, posterWidth, posterHeight, posterValidateAspect)) {
-                posterURL = Movie.UNKNOWN;
+            if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl()) && posterValidate && !validatePoster(posterImage, posterWidth, posterHeight, posterValidateAspect)) {
+                posterImage = Image.UNKNOWN;
             } else {
-                if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-                    logger.finest("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterURL);
+                if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
+                    logger.finest("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterImage);
                 }
             }
         }
 
-        return posterURL;
+        return posterImage;
     }
 
-    public static boolean validatePoster(String posterURL) {
-        return validatePoster(posterURL, posterWidth, posterHeight, posterValidateAspect);
+    public static boolean validatePoster(IImage posterImage) {
+        return validatePoster(posterImage, posterWidth, posterHeight, posterValidateAspect);
     }
 
     /**
      * Get the size of the file at the end of the URL Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
      * 
-     * @param posterURL
-     *            The URL to check as a string
+     * @param posterImage
+     *            Poster image to check
      * @param posterWidth
      *            The width to check
      * @param posterHeight
@@ -347,7 +347,7 @@ public class PosterScanner {
      * @return True if the poster is good, false otherwise
      */
     @SuppressWarnings("unchecked")
-    public static boolean validatePoster(String posterURL, int posterWidth, int posterHeight, boolean checkAspect) {
+    public static boolean validatePoster(IImage posterImage, int posterWidth, int posterHeight, boolean checkAspect) {
         Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
         ImageReader reader = (ImageReader)readers.next();
         int urlWidth = 0, urlHeight = 0;
@@ -357,12 +357,12 @@ public class PosterScanner {
             return true;
         }
 
-        if (posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (posterImage.getUrl().equalsIgnoreCase(Movie.UNKNOWN)) {
             return false;
         }
 
         try {
-            URL url = new URL(posterURL);
+            URL url = new URL(posterImage.getUrl());
             InputStream in = url.openStream();
             ImageInputStream iis = ImageIO.createImageInputStream(in);
             reader.setInput(iis, true);
@@ -373,10 +373,22 @@ public class PosterScanner {
             return false; // Quit and return a false poster
         }
 
+        // Check if we need to cut the poster into a sub image
+        if (!posterImage.getSubimage().equalsIgnoreCase(Movie.UNKNOWN)) {
+            StringTokenizer st = new StringTokenizer(posterImage.getSubimage(), ", ");
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+            int l = Integer.parseInt(st.nextToken());
+            int h = Integer.parseInt(st.nextToken());
+
+            urlWidth = urlWidth * l / 100 - urlWidth * x / 100;
+            urlHeight = urlHeight * h / 100 - urlHeight * y / 100;
+        }
+
         urlAspect = (float)urlWidth / (float)urlHeight;
 
         if (checkAspect && urlAspect > 1.0) {
-            logger.finest(posterURL + " rejected: URL is landscape format");
+            logger.finest(posterImage + " rejected: URL is landscape format");
             return false;
         }
 
@@ -385,12 +397,12 @@ public class PosterScanner {
         posterHeight = posterHeight * (posterValidateMatch / 100);
 
         if (urlWidth < posterWidth) {
-            logger.finest("PosterScanner: " + posterURL + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + posterWidth + ")");
+            logger.finest("PosterScanner: " + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + posterWidth + ")");
             return false;
         }
 
         if (urlHeight < posterHeight) {
-            logger.finest("PosterScanner: " + posterURL + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + posterHeight + ")");
+            logger.finest("PosterScanner: " + posterImage + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + posterHeight + ")");
             return false;
         }
         return true;
@@ -414,9 +426,10 @@ public class PosterScanner {
 
     public static void scan(Movie movie) {
         logger.finer("PosterScanner: Searching for " + movie.getBaseName());
-        String posterURL = getPosterURL(movie);
-        if (!Movie.UNKNOWN.equals(posterURL)) {
-            movie.setPosterURL(posterURL);
+        IImage posterImage = getPosterURL(movie);
+        if (!Movie.UNKNOWN.equals(posterImage.getUrl())) {
+            movie.setPosterURL(posterImage.getUrl());
+            movie.setPosterSubimage(posterImage.getSubimage());
         }
     }
 }

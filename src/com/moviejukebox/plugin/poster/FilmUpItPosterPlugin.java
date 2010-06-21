@@ -20,6 +20,8 @@ import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -61,8 +63,8 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id) {
-        String response = Movie.UNKNOWN;
+    public IImage getPosterUrl(String id) {
+        String posterURL = Movie.UNKNOWN;
         String xml = "";
 
         try {
@@ -73,7 +75,7 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             xml = webBrowser.request(baseUrl + posterPageUrl);
             String tmpPosterURL = HTMLTools.extractTag(xml, "\"../loc/", "\"");
             if (!tmpPosterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
-                response = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
+                posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
                 logger.finest("Movie PosterURL : " + posterPageUrl);
             }
 
@@ -84,11 +86,14 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
         }
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 

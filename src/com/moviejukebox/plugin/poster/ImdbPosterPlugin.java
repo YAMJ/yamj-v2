@@ -17,6 +17,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -48,12 +50,12 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
         String imdbXML;
 
@@ -80,9 +82,12 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
             }
         } catch (Exception error) {
             logger.severe("PosterScanner: Imdb Error: " + error.getMessage());
-            return Movie.UNKNOWN;
+            return Image.UNKNOWN;
         }
-        return posterURL;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override

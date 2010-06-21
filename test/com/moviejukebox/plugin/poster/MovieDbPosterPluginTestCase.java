@@ -25,7 +25,7 @@ public class MovieDbPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", "2000");
         assertEquals("98", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://images.themoviedb.org/posters/1297/Gladiator.jpg", posterUrl);
     }
 }

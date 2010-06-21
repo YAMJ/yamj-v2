@@ -24,7 +24,7 @@ public class MotechnetPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("King arthur", null);
         assertEquals(ID_MOVIE, idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(ID_MOVIE);
+        String posterUrl = toTest.getPosterUrl(ID_MOVIE).getUrl();
         assertEquals("http://www.motechposters.com/posters/king-arthur-2004_poster.jpg", posterUrl);
                      
     }

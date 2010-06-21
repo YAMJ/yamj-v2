@@ -14,6 +14,8 @@
 package com.moviejukebox.plugin.poster;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.FilmwebPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
@@ -24,15 +26,17 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.logging.Logger;
 
-public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin {
+public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
+    private FilmwebPlugin filmwebPlugin;
 
     public FilmwebPosterPlugin() {
         super();
-        webBrowser = new WebBrowser();
         try {
+            webBrowser = new WebBrowser();
+            filmwebPlugin = new FilmwebPlugin();
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
@@ -41,16 +45,15 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IM
     }
 
     public String getIdFromMovieInfo(String title, String year) {
-        FilmwebPlugin filmWebPlugin = new FilmwebPlugin();
-        return filmWebPlugin.getFilmwebUrl(title, year);
+        return filmwebPlugin.getFilmwebUrl(title, year);
     }
 
-    public String getPosterUrl(String id) {
-        String response = Movie.UNKNOWN;
+    public IImage getPosterUrl(String id) {
+        String posterURL = Movie.UNKNOWN;
         String xml;
         try {
             xml = webBrowser.request(id);
-            response = HTMLTools.extractTag(xml, "posterLightbox", 3, "\"");
+            posterURL = HTMLTools.extractTag(xml, "posterLightbox", 3, "\"");
         } catch (Exception error) {
             logger.severe("Failed retreiving filmweb poster for movie : " + id);
             final Writer eResult = new StringWriter();
@@ -58,10 +61,13 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IM
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
         }
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
@@ -69,11 +75,11 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IM
         return getIdFromMovieInfo(title, year);
     }
 
-    public String getPosterUrl(String title, String year, int tvSeason) {
+    public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(title, year);
     }
 
-    public String getPosterUrl(String id, int season) {
+    public IImage getPosterUrl(String id, int season) {
         return getPosterUrl(id);
     }
 

@@ -137,13 +137,15 @@ public class SratimPlugin extends ImdbPlugin {
     /**
      * retrieve the sratim url matching the specified movie name and year.
      */
-    protected String getSratimUrl(Movie mediaFile, String movieName, String year) {
+    public String getSratimUrl(Movie mediaFile, String movieName, String year) {
 
         try {
-            String imdbId = mediaFile.getId(IMDB_PLUGIN_ID);
+            String imdbId = mediaFile == null ? null : mediaFile.getId(IMDB_PLUGIN_ID);
             if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-                imdbId = imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear());
-                mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
+                imdbId = imdbInfo.getImdbId(movieName, year);
+                if (mediaFile != null) {
+                    mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
+                }
             }
 
             if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -152,7 +154,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             String sratimUrl;
 
-            String xml = webBrowser.request("http://www.sratim.co.il/movies/search.aspx?Keyword=" + mediaFile.getId(IMDB_PLUGIN_ID));
+            String xml = webBrowser.request("http://www.sratim.co.il/movies/search.aspx?Keyword=" + imdbId);
 
             String detailsUrl = HTMLTools.extractTag(xml, "cellpadding=\"0\" cellspacing=\"0\" onclick=\"document.location='", 0, "'");
 

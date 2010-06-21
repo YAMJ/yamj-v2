@@ -22,7 +22,7 @@ public class ImpAwardsPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator","2000");
         assertEquals("2000/posters/gladiator_ver1.html", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.impawards.com/2000/posters/gladiator_ver1.jpg", posterUrl);
     }
 }

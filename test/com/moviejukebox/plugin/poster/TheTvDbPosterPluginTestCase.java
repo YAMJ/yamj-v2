@@ -25,10 +25,10 @@ public class TheTvDbPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Friends", null, 1);
         assertEquals("79168", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo,1);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo,1).getUrl();
         assertEquals("http://thetvdb.com/banners/seasons/79168-1.jpg", posterUrl);
         
-        posterUrl = toTest.getPosterUrl(idFromMovieInfo,2);
+        posterUrl = toTest.getPosterUrl(idFromMovieInfo,2).getUrl();
         assertEquals("http://thetvdb.com/banners/seasons/79168-2-4.jpg", posterUrl);
     }
 }

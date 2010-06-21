@@ -15,10 +15,11 @@ package com.moviejukebox.plugin.poster;
 
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.IImage;
 
 public interface IPosterPlugin {
 
     public String getName();
 
-    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation);
+    public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation);
 }

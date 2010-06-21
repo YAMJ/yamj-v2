@@ -18,12 +18,14 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
 
     @Override
-    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+    public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
@@ -39,7 +41,7 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
             return getPosterUrl(id);
         }
-        return Movie.UNKNOWN;
+        return Image.UNKNOWN;
     }
 
     private String getId(Identifiable ident) {

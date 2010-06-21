@@ -22,7 +22,7 @@ public class MovieCoversPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", "2000");
         assertEquals("GLADIATOR.", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.moviecovers.com/getjpg.html/GLADIATOR", posterUrl);
     }
 }

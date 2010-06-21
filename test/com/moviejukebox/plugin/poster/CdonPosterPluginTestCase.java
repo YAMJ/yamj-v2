@@ -24,7 +24,7 @@ public class CdonPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null, -1);
         assertEquals(ID_MOVIE, idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(ID_MOVIE);
+        String posterUrl = toTest.getPosterUrl(ID_MOVIE).getUrl();
         assertEquals("http://cdon.se/media-dynamic/images/product/000/440/440892.jpg", posterUrl);
     }
 }
