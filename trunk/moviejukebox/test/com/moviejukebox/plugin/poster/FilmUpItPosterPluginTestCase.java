@@ -22,7 +22,7 @@ public class FilmUpItPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
         assertEquals("avatar", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://filmup.leonardo.it/posters/loc/500/avatar.jpg", posterUrl);
     }
 }

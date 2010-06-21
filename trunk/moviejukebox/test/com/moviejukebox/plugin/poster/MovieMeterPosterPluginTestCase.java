@@ -25,7 +25,7 @@ public class MovieMeterPosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
         assertEquals("17552", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo);
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.moviemeter.nl/images/covers/17000/17552.jpg", posterUrl);
     }
 }

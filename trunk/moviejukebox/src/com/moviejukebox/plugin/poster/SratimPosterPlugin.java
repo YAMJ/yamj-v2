@@ -6,68 +6,71 @@ import java.io.Writer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.plugin.ImdbInfo;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.plugin.SratimPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class SratimPosterPlugin extends AbstractMoviePosterPlugin {
+public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
-    private ImdbInfo imdbInfo;
+    private SratimPlugin sratimPlugin;
 
     public SratimPosterPlugin() {
         super();
         webBrowser = new WebBrowser();
+        sratimPlugin = new SratimPlugin();
     }
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        String response = Movie.UNKNOWN;
-        try {
-            imdbInfo = new ImdbInfo();
-            response = imdbInfo.getImdbId(title, year);
-
-        } catch (Exception error) {
-            logger.severe("Failed retreiving sratim informations for movie : " + title);
-            logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
-        }
-        return response;
+        return sratimPlugin.getSratimUrl(new Movie(), title, year);
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
-        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            try {
-                String xml = webBrowser.request("http://www.sratim.co.il/movies/search.aspx?Keyword=" + id);
+        try {
+            String xml = webBrowser.request(id);
+            posterURL = HTMLTools.extractTag(xml, "<img src=\"/movies/", 0, "\"");
 
-                String detailsUrl = HTMLTools.extractTag(xml, "cellpadding=\"0\" cellspacing=\"0\" onclick=\"document.location='", 0, "'");
-
-                String sratimUrl = "http://www.sratim.co.il" + detailsUrl;
-
-                xml = webBrowser.request(sratimUrl);
-
-                posterURL = "http://www.sratim.co.il/movies/" + HTMLTools.extractTag(xml, "<img src=\"/movies/", 0, "\"");
-            } catch (Exception error) {
-                logger.severe("sratim: Failed retreiving poster for movie : " + id);
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+            if (!Movie.UNKNOWN.equals(posterURL)) {
+                posterURL = "http://www.sratim.co.il/movies/" + posterURL;
             }
+        } catch (Exception error) {
+            logger.severe("sratim: Failed retreiving poster for movie : " + id);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
         }
-        return posterURL;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
+    }
+
+    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+        return getIdFromMovieInfo(title, year);
+    }
+
+    public IImage getPosterUrl(String title, String year, int tvSeason) {
+        return getPosterUrl(title, year);
+    }
+
+    public IImage getPosterUrl(String id, int season) {
+        return getPosterUrl(id);
     }
 
     @Override
     public String getName() {
-        return "sratim";
+        return SratimPlugin.SRATIM_PLUGIN_ID;
     }
 
 }

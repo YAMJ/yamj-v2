@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.WebBrowser;
 
 public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
@@ -88,7 +90,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
             String xml = "";
@@ -108,14 +110,15 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                 logger.severe(eResult.toString());
             }
         }
-        return posterURL;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
-        String response = Movie.UNKNOWN;
-        response = getPosterUrl(getIdFromMovieInfo(title, year));
-        return response;
+    public IImage getPosterUrl(String title, String year) {
+        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override

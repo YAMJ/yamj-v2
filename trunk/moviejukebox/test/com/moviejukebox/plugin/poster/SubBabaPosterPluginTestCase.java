@@ -14,17 +14,33 @@
 package com.moviejukebox.plugin.poster;
 
 import junit.framework.TestCase;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
 
 public class SubBabaPosterPluginTestCase extends TestCase {
 
-    private static final String ID_MOVIE = "488";
+    SubBabaPosterPlugin posterPlugin = new SubBabaPosterPlugin();
 
-    public void testGetId() {
-        SubBabaPosterPlugin toTest = new SubBabaPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null);
+    public void testGetIdFromMovieInfo() {
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", null);
         assertEquals("488", idFromMovieInfo);
+    }
 
-        String posterUrl = toTest.getPosterUrl(ID_MOVIE);
-        assertEquals("http://www.sub-baba.com/site/download.php?type=1&id=488", posterUrl);
+    public void testGetIdFromMovieInfoTV() {
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Prison Break", null, 1);
+        assertEquals("1800", idFromMovieInfo);
+    }
+
+    public void testGetPosterUrl() {
+        IImage posterImage = posterPlugin.getPosterUrl("6415");
+        assertEquals("http://www.sub-baba.com/site/download.php?type=1&id=6415", posterImage.getUrl());
+        assertEquals(Movie.UNKNOWN, posterImage.getSubimage());
+    }
+
+    public void testGetPosterUrlWithSubimage() {
+        // front-back poster needs to be cut
+        IImage posterImage = posterPlugin.getPosterUrl("488");
+        assertEquals("http://www.sub-baba.com/site/download.php?type=1&id=488", posterImage.getUrl());
+        assertEquals("0, 0, 47, 100", posterImage.getSubimage());
     }
 }

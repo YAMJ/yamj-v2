@@ -18,6 +18,8 @@ import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.WebBrowser;
 
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
@@ -36,7 +38,8 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
+        String posterURL = Movie.UNKNOWN;
         try {
             // TODO Change out the French Yahoo for English
             StringBuffer sb = new StringBuffer("http://fr.images.search.yahoo.com/search/images?p=");
@@ -48,19 +51,20 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
             int endIndex = xml.indexOf("%26", beginIndex);
 
             if (beginIndex != -1 && endIndex > beginIndex) {
-                return URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
-            } else {
-                return Movie.UNKNOWN;
+                posterURL = URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
             }
         } catch (Exception error) {
             logger.severe("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);
             logger.severe("Error : " + error.getMessage());
-            return Movie.UNKNOWN;
         }
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         return getPosterUrl(id, null);
     }
 

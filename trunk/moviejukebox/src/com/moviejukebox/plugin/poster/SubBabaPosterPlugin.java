@@ -15,11 +15,18 @@ package com.moviejukebox.plugin.poster;
 
 import java.net.URLEncoder;
 import java.util.logging.Logger;
+import java.io.IOException;
+import java.io.Writer;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.HTMLTools;
 
-public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin {
+public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser;
@@ -41,7 +48,6 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin {
             String xml = webBrowser.request(searchURL);
 
             String posterID = Movie.UNKNOWN;
-            boolean dvdCover = false;
 
             int index = 0;
             int endIndex = 0;
@@ -51,34 +57,6 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin {
                     break;
 
                 index += 40;
-
-                index = xml.indexOf("width=\"", index);
-                if (index == -1)
-                    break;
-
-                index += 7;
-
-                endIndex = xml.indexOf("\"", index);
-                if (endIndex == -1)
-                    break;
-
-                String scanWidth = xml.substring(index, endIndex);
-
-                index = endIndex + 1;
-
-                index = xml.indexOf("height=\"", index);
-                if (index == -1)
-                    break;
-
-                index += 8;
-
-                endIndex = xml.indexOf("\"", index);
-                if (endIndex == -1)
-                    break;
-
-                String scanHeight = xml.substring(index, endIndex);
-
-                index = endIndex + 1;
 
                 index = xml.indexOf("<a href=\"content?id=", index);
                 if (index == -1)
@@ -110,17 +88,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin {
 
                 if (scanName.equalsIgnoreCase(title)) {
                     posterID = scanPosterID;
-
-                    if (Integer.parseInt(scanWidth) > Integer.parseInt(scanHeight))
-                        dvdCover = true;
-                    else
-                        dvdCover = false;
                 }
-                // FIXME - Handle DVD Cover
-                // if (dvdCover) {
-                // // Cut the dvd cover into normal poster using the left side of the image
-                // movie.setPosterSubimage("0, 0, 47, 100");
-                // }
             }
             if (!Movie.UNKNOWN.equals(posterID)) {
                 response = posterID;
@@ -134,17 +102,50 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id) {
-        String response = Movie.UNKNOWN;
+    public IImage getPosterUrl(String id) {
         if (!Movie.UNKNOWN.equals(id)) {
-            response = "http://www.sub-baba.com/site/download.php?type=1&id=" + id;
+            try {
+                // poster URL
+                Image posterImage = new Image("http://www.sub-baba.com/site/download.php?type=1&id=" + id);
+
+                // checking poster dimension
+                String xml = webBrowser.request("http://www.sub-baba.com/content?id=" + id);
+                String imgTag = HTMLTools.extractTag(xml, "<img src=\"site/thumbs/", "/>");
+                String width = HTMLTools.extractTag(imgTag, "width=\"", 0, "\"");
+                String height = HTMLTools.extractTag(imgTag, "height=\"", 0, "\"");
+
+                // DVD Cover
+                if (Integer.parseInt(width) > Integer.parseInt(height)) {
+                    posterImage.setSubimage("0, 0, 47, 100");
+                }
+
+                return posterImage;
+            } catch (IOException error) {
+                logger.severe("Failed retreiving SubBaba poster for movie : " + id);
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
+            }
         }
-        return response;
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
+    }
+
+    public String getIdFromMovieInfo(String title, String year, int tvSeason) {
+        return getIdFromMovieInfo(title, year);
+    }
+
+    public IImage getPosterUrl(String title, String year, int tvSeason) {
+        return getPosterUrl(title, year);
+    }
+
+    public IImage getPosterUrl(String id, int season) {
+        return getPosterUrl(id);
     }
 
     @Override

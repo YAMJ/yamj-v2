@@ -22,6 +22,8 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.IImage;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -139,13 +141,13 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
     }
 
     @Override
-    public String getPosterUrl(String id) {
-        String response = Movie.UNKNOWN;
+    public IImage getPosterUrl(String id) {
+        String posterURL = Movie.UNKNOWN;
         String xml = "";
         try {
             xml = getCdonMovieDetailsPage(id);
             // extract poster url and return it
-            response = extractCdonPosterUrl(xml);
+            posterURL = extractCdonPosterUrl(xml);
         } catch (Exception error) {
             logger.severe("Failed retreiving Cdon poster for movie : " + id);
             final Writer eResult = new StringWriter();
@@ -153,11 +155,14 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
         }
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
+    public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
     }
 
@@ -167,7 +172,7 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
     }
 
     @Override
-    public String getPosterUrl(String id, int season) {
+    public IImage getPosterUrl(String id, int season) {
         return getPosterUrl(id);
     }
 
@@ -177,12 +182,12 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
-    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+    public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
             if (movieInformation.isTVShow()) {
@@ -204,7 +209,7 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
             }
 
         }
-        return Movie.UNKNOWN;
+        return Image.UNKNOWN;
     }
 
     private String getId(Identifiable ident) {

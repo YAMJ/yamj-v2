@@ -24,7 +24,7 @@ public class AllocinePosterPluginTestCase extends TestCase {
         String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
         assertEquals("61282", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(ID_MOVIE);
+        String posterUrl = toTest.getPosterUrl(ID_MOVIE).getUrl();
         assertEquals("http://images.allocine.fr/r_760_x/medias/nmedia/18/64/43/65/19211318.jpg", posterUrl);
     }
 }

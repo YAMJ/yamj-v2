@@ -29,7 +29,7 @@ public class FilmwebPosterPluginTestCase extends TestCase {
     }
 
     public void testGetPosterUrl() {
-        String posterUrl = posterPlugin.getPosterUrl("http://www.filmweb.pl/Avatar");
+        String posterUrl = posterPlugin.getPosterUrl("http://www.filmweb.pl/Avatar").getUrl();
         assertEquals("http://gfx.filmweb.pl/po/91/13/299113/7322782.3.jpg?l=1270132598000", posterUrl);
     }
 }

@@ -21,6 +21,8 @@ import org.pojava.datetime.DateTime;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
@@ -88,8 +90,8 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id, int season) {
-        String response = Movie.UNKNOWN;
+    public IImage getPosterUrl(String id, int season) {
+        String posterURL = Movie.UNKNOWN;
         ThreadExecutor.EnterIO(webhost);
         
         if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
@@ -120,15 +122,18 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
             if (urlNormal != null) {
-                response = urlNormal;
+                posterURL = urlNormal;
             }
         }
         ThreadExecutor.LeaveIO();
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
+    public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason), tvSeason);
     }
 
@@ -138,7 +143,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+    public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
             if (movieInformation.isTVShow()) {
@@ -156,7 +161,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
         }
-        return Movie.UNKNOWN;
+        return Image.UNKNOWN;
     }
 
     private String getId(Identifiable ident) {

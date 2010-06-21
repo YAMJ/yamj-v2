@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -116,24 +118,27 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         // <td><img src="
-        String response = Movie.UNKNOWN;
+        String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equals(id)) {
             try {
                 HashMap filmInfo = session.getMovieDetailsById(Integer.valueOf(id));
-                response = filmInfo.get("thumbnail").toString().replaceAll("thumbs/", "");
+                posterURL = filmInfo.get("thumbnail").toString().replaceAll("thumbs/", "");
 
             } catch (Exception e) {
                 logger.severe("Failed retreiving CaratulasdecinePoster url for movie : " + id);
                 logger.severe("Error : " + e.getMessage());
             }
         }
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 

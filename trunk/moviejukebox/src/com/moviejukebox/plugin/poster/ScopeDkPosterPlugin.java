@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -73,9 +75,9 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         // <td><img src="
-        String response = Movie.UNKNOWN;
+        String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equals(id)) {
             try {
                 StringBuffer sb = new StringBuffer("http://www.scope.dk/film/");
@@ -86,7 +88,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                 posterPageUrl = HTMLTools.extractTag(posterPageUrl, "<a href=\"#\"", "</a>");
                 posterPageUrl = posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2);
                 if (!posterPageUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-                    response = posterPageUrl;
+                    posterURL = posterPageUrl;
                 }
 
             } catch (Exception e) {
@@ -94,11 +96,14 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                 logger.severe("Error : " + e.getMessage());
             }
         }
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 

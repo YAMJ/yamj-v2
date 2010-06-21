@@ -20,7 +20,9 @@ import java.util.regex.Pattern;
 
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -135,27 +137,30 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
     }
 
     @Override
-    public String getPosterUrl(String id) {
+    public IImage getPosterUrl(String id) {
         // <td><img src="
-        String response = Movie.UNKNOWN;
+        String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equals(id)) {
             try {
                 StringBuffer sb = new StringBuffer("http://www.filmaffinity.com/es/film");
                 sb.append(id);
 
                 String xml = webBrowser.request(sb.toString());
-                response = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
+                posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
 
             } catch (Exception e) {
                 logger.severe("Failed retreiving FilmAffinity poster url for movie : " + id);
                 logger.severe("Error : " + e.getMessage());
             }
         }
-        return response;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
-    public String getPosterUrl(String title, String year, int tvSeason) {
+    public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
     }
 
@@ -165,7 +170,7 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
     }
 
     @Override
-    public String getPosterUrl(String id, int season) {
+    public IImage getPosterUrl(String id, int season) {
         return getPosterUrl(id);
     }
 
@@ -175,12 +180,12 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
-    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+    public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident, movieInformation);
 
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
@@ -190,7 +195,7 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
                 return getPosterUrl(id);
             }
         }
-        return Movie.UNKNOWN;
+        return Image.UNKNOWN;
     }
     
 

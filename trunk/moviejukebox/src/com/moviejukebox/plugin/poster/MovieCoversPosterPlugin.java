@@ -17,6 +17,8 @@ import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.WebBrowser;
 
 
@@ -64,24 +66,27 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
        return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
-    public String getPosterUrl(String id) {
-        String returnString = Movie.UNKNOWN;
+    public IImage getPosterUrl(String id) {
+        String posterURL = Movie.UNKNOWN;
         try {
         if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
             logger.finer("MovieCoversPosterPlugin : Movie found on moviecovers.com" + id);
-            returnString = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
+            posterURL = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
         } else {
             logger.finer("MovieCoversPosterPlugin: Unable to find posters for " + id);
         }
         } catch (Exception error) {
             logger.finer("MovieCoversPosterPlugin: MovieCovers.com API Error: " + error.getMessage());
         }
-        return returnString;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override

@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
@@ -52,15 +54,15 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(String title, String year) {
+    public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
     @Override
-    public String getPosterUrl(String id) {
-        String returnString = Movie.UNKNOWN;
+    public IImage getPosterUrl(String id) {
+        String posterURL = Movie.UNKNOWN;
         if (id.equalsIgnoreCase(Movie.UNKNOWN)) {
-            return returnString;
+            return Image.UNKNOWN;
         }
 
         MovieDB moviedb = theMovieDb.moviedbGetImages(id, language);
@@ -70,7 +72,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
                 Artwork artwork = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL, posterPosition);
                 if (!(artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN))) {
                     logger.finest("MovieDbPosterPlugin : Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
-                    returnString = artwork.getUrl();
+                    posterURL = artwork.getUrl();
                 }
             } else {
                 logger.finer("MovieDbPosterPlugin: Unable to find posters for " + id);
@@ -78,7 +80,10 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         } catch (Exception error) {
             logger.severe("MovieDbPosterPlugin: TheMovieDB.org API Error: " + error.getMessage());
         }
-        return returnString;
+        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            return new Image(posterURL);
+        }
+        return Image.UNKNOWN;
     }
 
     @Override
@@ -87,7 +92,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     }
 
     @Override
-    public String getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
+    public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
         if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
@@ -100,7 +105,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
             return getPosterUrl(id);
         }
-        return Movie.UNKNOWN;
+        return Image.UNKNOWN;
     }
 
     private String getId(Identifiable ident) {
