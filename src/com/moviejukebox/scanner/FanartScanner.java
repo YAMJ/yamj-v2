@@ -238,7 +238,7 @@ public class FanartScanner {
             //moviedb = TMDb.moviedbImdbLookup(imdbID, language);
             moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
-            moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
+            moviedb = TMDb.moviedbSearch(movie.getOriginalTitle(), language);
         }
 
         // Check that the returned movie bean isn't null
