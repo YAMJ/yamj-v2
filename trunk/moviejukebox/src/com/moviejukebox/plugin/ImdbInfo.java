@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -36,22 +37,22 @@ public class ImdbInfo {
 
     private ImdbSiteDataDefinition siteDef;
     static {
-        matchsDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Release Date", "Runtime", "Country",
+        matchsDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Cast", "Release Date", "Runtime", "Country",
                         "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer"));
 
-        matchsDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Date de sortie", "Dur&#xE9;e", "Pays",
+        matchsDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Pays",
                         "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes"));
 
-        matchsDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Fecha de Estreno", "Duraci&#xF3;n", "Pa&#xED;s",
+        matchsDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Pa&#xED;s",
                         "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Quotes", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores"));
 
-        matchsDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Premierendatum", "L&#xE4;nge", "Land",
+        matchsDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Besetzung", "Premierendatum", "L&#xE4;nge", "Land",
                         "Firma", "Genre", "Quotes", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Guionista"));
 
-        matchsDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Data di uscita", "Durata",
+        matchsDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Cast", "Data di uscita", "Durata",
                         "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore"));
 
-        matchsDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
+        matchsDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
                         "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
                         "Roteirista"));
     }
@@ -192,7 +193,24 @@ public class ImdbInfo {
             Pattern titleregex = Pattern.compile("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "title/(tt\\d+)/\"");
             Matcher titlematch = titleregex.matcher(xml);
             if (titlematch.find()) {
-                logger.finest("ImdbInfo Found exact IMDB match for " + movieName + " (" + year + ")");
+               // logger.finer("ImdbInfo direct found " + titlematch.group(1));
+               return titlematch.group(1);
+            }
+
+            // Check if first "popular title" match
+            titleregex = Pattern.compile("find-title-1/title_popular/images/b.gif\\?link=/title/(tt\\d+)/';\">"+ movieName +"</a>");
+            titlematch = titleregex.matcher(xml);
+            if (titlematch.find()) {
+                // logger.finer("ImdbInfo first \"popular title\" match " + titlematch.group(1));
+               return titlematch.group(1);
+            }
+            
+            // Check for an exact match in the results list, based on given name better as the "exact titles" list
+            titleregex = Pattern.compile("title_exact/images/b.gif\\?link=/title/(tt\\d+)/'");
+            // Pattern titleregex = Pattern.compile("/images/b.gif\\?link=/title/(tt\\d+)/';\">"+ movieName +"</a>");
+            titlematch = titleregex.matcher(xml);
+            if (titlematch.find()) {
+                // logger.finer("ImdbInfo \"exact title\" match " + titlematch.group(1));
                 return titlematch.group(1);
             }
 

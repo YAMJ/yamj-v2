@@ -17,6 +17,7 @@ import java.nio.charset.Charset;
 public class ImdbSiteDataDefinition {
     private String site;
     private String director;
+    private String cast;
     private String release_date;
     private String runtime;
     private String country;
@@ -30,11 +31,12 @@ public class ImdbSiteDataDefinition {
     private String writer;
     private Charset charset;
 
-    public ImdbSiteDataDefinition(String site, String charsetName, String director, String releaseDate, String runtime, String country, String company,
+    public ImdbSiteDataDefinition(String site, String charsetName, String director, String cast, String releaseDate, String runtime, String country, String company,
                     String genre, String quotes, String plot, String rated, String certification, String originalAirDate, String writer) {
         super();
         this.site = site;
         this.director = director;
+        this.cast= cast;
         release_date = releaseDate;
         this.runtime = runtime;
         this.country = country;
@@ -59,6 +61,10 @@ public class ImdbSiteDataDefinition {
 
     public String getDirector() {
         return director;
+    }
+
+    public String getCast() {
+        return cast;
     }
 
     public String getRelease_date() {
