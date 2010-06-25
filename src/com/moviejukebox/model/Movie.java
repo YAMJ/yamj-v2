@@ -66,7 +66,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public static final String TYPE_BLURAY = "BLURAY"; // Used to indicate what physical format the video is
     public static final String TYPE_DVD = "DVD"; // Used to indicate what physical format the video is
     public static final String TYPE_FILE = "FILE"; // Used to indicate what physical format the video is
-    private static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
+    public static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
     private String mjbVersion = UNKNOWN;
     private String mjbRevision = UNKNOWN;
@@ -295,16 +295,16 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
     
     public void removeMovieFile(MovieFile movieFile) {
-        if (movieFile != null) {
-            this.isDirty = true;
-            for (MovieFile mf : this.movieFiles) {
-                if (mf.compareTo(movieFile) == 0) {
-                    this.movieFiles.remove(mf);
-                    break;
-                }
-            }
-            
-        }
+    	if (movieFile != null) {
+    		this.isDirty = true;
+    		for (MovieFile mf : this.movieFiles) {
+    			if (mf.compareTo(movieFile) == 0) {
+    				this.movieFiles.remove(mf);
+    				break;
+    			}
+    		}
+    		
+    	}
     }
 
     public boolean hasNewMovieFiles() {

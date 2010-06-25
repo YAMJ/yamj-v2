@@ -229,7 +229,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             int plotBegin = xml.indexOf(("<h5>" + siteDef.getPlot() + ":</h5>"));
             if (plotBegin > -1) {
                 plotBegin += ("<h5>" + siteDef.getPlot() + ":</h5>").length();
-                int plotEnd = xml.indexOf("<a class=\"tn15more", plotBegin);
+                // search "<a " for the international variety of "more" oder "add synopsis"
+                int plotEnd = xml.indexOf("<a ", plotBegin);
                 int plotEndOther = xml.indexOf("</a>", plotBegin);
                 if (plotEnd > -1 || plotEndOther > -1) {
                     if ((plotEnd > -1 && plotEndOther < plotEnd) || plotEnd == -1) {

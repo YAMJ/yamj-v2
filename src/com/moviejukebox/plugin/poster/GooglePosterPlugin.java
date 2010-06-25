@@ -21,8 +21,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
 import com.moviejukebox.scanner.PosterScanner;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -50,8 +48,8 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public IImage getPosterUrl(String title, String year) {
-        Image posterImage = new Image();
+    public String getPosterUrl(String title, String year) {
+        String response = Movie.UNKNOWN;
         try {
             StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
@@ -60,7 +58,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             String xml = webBrowser.request(sb.toString());
             // int tryLeft = nbRetry;
             int startSearch = 0;
-            // while (tryLeft-- > 0 && Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
+            // while (tryLeft-- > 0 && Movie.UNKNOWN.equalsIgnoreCase(response)) {
             // logger.finest("GooglePosterPlugin: Try " + (nbRetry - tryLeft) + "/" + nbRetry);
             String searchString = "imgurl=";
             int beginIndex = xml.indexOf(searchString, startSearch) + 7;
@@ -68,9 +66,10 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             if (beginIndex != -1) {
                 startSearch = beginIndex + searchString.length();
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
-                posterImage.setUrl(st.nextToken());
-                if (!PosterScanner.validatePoster(posterImage)) {
-                    posterImage.setUrl(Movie.UNKNOWN);
+                // TODO fix to much encodings! "space" char -> %20 -> %2520
+                response = st.nextToken().replace("%2520", "%20");
+                if (!PosterScanner.validatePoster(response)) {
+                    response = Movie.UNKNOWN;
                 }
             }
             // } else {
@@ -82,11 +81,11 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             logger.severe("GooglePosterPlugin: Failed retreiving poster URL from google images : " + title);
             logger.severe("Error : " + error.getMessage());
         }
-        return posterImage;
+        return response;
     }
 
     @Override
-    public IImage getPosterUrl(String id) {
+    public String getPosterUrl(String id) {
         return getPosterUrl(id, null);
     }
 
