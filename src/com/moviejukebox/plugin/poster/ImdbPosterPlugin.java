@@ -65,7 +65,8 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
                 StringTokenizer st;
 
-                int castIndex = imdbXML.indexOf("<h3>Cast</h3>");
+                // Use cast token to avoid internalization trouble
+                int castIndex = imdbXML.indexOf("<h3>" + imdbInfo.getSiteDef().getCast() + "</h3>");
                 int beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
 
                 // Search the XML from IMDB for a poster
@@ -78,6 +79,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                     } else {
                         posterURL = Movie.UNKNOWN;
                     }
+                    logger.finer("PosterScanner: Imdb found poster @: " + posterURL);
                 }
             }
         } catch (Exception error) {

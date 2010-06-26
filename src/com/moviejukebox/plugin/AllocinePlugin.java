@@ -19,6 +19,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.moviejukebox.model.Library;
@@ -228,10 +229,10 @@ public class AllocinePlugin extends ImdbPlugin {
                 // logger.finest("AllocinePlugin: Movie Plot = " + movie.getPlot());
             }
 
-            if (movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
+/*            if (movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setDirector(removeHtmlTags(HTMLTools.extractTag(xml, "Réalisé par ", "</span>")));
                 // logger.finest("AllocinePlugin: Movie Director = " + movie.getDirector());
-            }
+            }*/
 
             if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
                 movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma :", "<br />")).trim());
@@ -300,18 +301,63 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
             }
 
-            if (movie.getCast().isEmpty()) {
-                for (String actor : HTMLTools.extractTags(xml, "Avec ", "<br />", "<a", "</a>", false)) {
-                    // logger.finest("AllocinePlugin: actorTag=["+actor+"]");
-                    if (actor.contains("/personne/fichepersonne_gen_cpersonne")) {
+            parseCasting(movie);
+/*            if (movie.getCast().isEmpty()) {
+                for (String actor : HTMLTools.extractTags(xml, "Avec ", "<br />", "<span", "</span>", false)) {
+                    // logger.finer("AllocinePlugin: actorTag=["+actor+"]");
+                    if (actor.contains("class=\"acLnk")) {
                         String cleanActor = removeOpenedHtmlTags(actor);
-                        // logger.finest("AllocinePlugin: Actor added : " + cleanActor);
-                        movie.addActor(cleanActor);
+                        if (!cleanActor.equals("plus")) {
+                            movie.addActor(cleanActor);
+                            logger.finer("AllocinePlugin: Actor added : " + cleanActor);
+                        }
                     }
+                }
+            }*/
+        } catch (IOException error) {
+            logger.severe("AllocinePlugin: Failed retreiving allocine infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+        return true;
+    }
+
+    private boolean parseCasting(Movie movie) {
+        try {
+            String xmlCasting = webBrowser.request("http://www.allocine.fr/film/casting_gen_cfilm=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
+            
+            // Check for director
+            ArrayList<String> tempDirectors = HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id='direction'></a>", "</div><!-- /rubric !-->", "<div class=\"datablock\">", "</div><!-- /datablock -->", false);
+            if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (!tempDirectors.isEmpty()) {
+                    movie.setDirector(removeHtmlTags(HTMLTools.extractTag(tempDirectors.get(0),"<h3>","</h3>")));
+                }
+            }
+
+            // Check for writers
+            // logger.finer("AllocinePlugin: Check for writers");
+            if (movie.getWriters().isEmpty()) {
+                for (String writer : HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id=\"scenario\"></a>", "</table>", ".html\">", "</a>", false)) {
+                    // logger.finer("AllocinePlugin: Writer found : " + writer);
+                    movie.addWriter(removeHtmlTags(writer));
+                }
+            }
+            
+            // Check for company 
+            if (movie.getCompany().equals(Movie.UNKNOWN)) {
+                movie.setCompany(removeHtmlTags(HTMLTools.extractTag(xmlCasting, "Film distribué par ", "</a>")));
+            }
+
+            // Check for actors
+            if (movie.getCast().isEmpty()) {
+                for (String actor : HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id='actors'></a>", "</div><!-- /rubric !-->", "<div class=\"datablock\">", "</div><!-- /datablock -->", false)) {
+                    movie.addActor(removeHtmlTags(HTMLTools.extractTag(actor,"<h3>","</h3>")));
                 }
             }
         } catch (IOException error) {
-            logger.severe("AllocinePlugin: Failed retreiving allocine infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
+            logger.severe("AllocinePlugin: Failed retreiving allocine casting infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -375,7 +421,8 @@ public class AllocinePlugin extends ImdbPlugin {
      */
     public String getAllocineId(String movieName, String year, int tvSeason) throws ParseException {
         String allocineId = Movie.UNKNOWN;
-        String allocineBaseRequest = "http://www.allocine.fr/recherche/?q=";
+        // Add '/1' in the URL to obtain the 20 first matches
+        String allocineBaseRequest = "http://www.allocine.fr/recherche/1/?q=";
         try {
             StringBuffer sb = new StringBuffer(allocineBaseRequest);
             sb.append(URLEncoder.encode(movieName, "UTF-8").replace(' ', '+'));
