@@ -9,8 +9,9 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1500 More support for folder images, for programs such as meta browser and Ember Media Manager
   - Fixed defect #1503 Filmweb plugin doesn't work after filmweb site has been changed
   - Fixed defect #1506 TV Show episodes titles in IMDB, Filmweb plugin
-  - Enhancement  #1507 Search the original movie tittle by PosterPlugins instead of localized tittle
-  - Enhancement  #1512 Search the original movie tittle by FanartScanner instead of localized tittle
+  - Enhancement  #1507 Search the original movie title by PosterPlugins instead of localized title
+  - Enhancement  #1512 Search the original movie title by FanartScanner instead of localized title
+  - Fixed defect #1514 Kinopoisk plugin fix
 
 MovieJukebox 2.0
 ----------------

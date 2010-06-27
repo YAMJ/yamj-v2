@@ -112,8 +112,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (season != -1) {
                 sb = sb + "&m_act[content_find]=serial";
             } else {
-                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN))
-                    sb = sb + "&m_act[year]=" + year;
+                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    try {
+                        // Search for year +/-1, since the year is not always correct
+                        int y = Integer.parseInt(year);
+                        sb = sb + "&m_act[from_year]=" + Integer.toString(y - 1);
+                        sb = sb + "&m_act[to_year]=" + Integer.toString(y + 1);
+                    } catch (Exception ignore) {
+                        sb = sb + "&m_act[year]=" + year;
+                    }
+                }
             }
 
             sb = "http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=content" + sb;
@@ -128,7 +136,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             int beginIndex = xml.indexOf("id_film = ");
             if (beginIndex == -1) {
                 // It's search results page, searching a link to the movie page
-                beginIndex = xml.indexOf("href=\"/level/1/film/");
+                beginIndex = xml.indexOf("<!-- Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ñ‹ Ð¿Ð¾Ð¸Ñ�ÐºÐ°");
+                beginIndex = xml.indexOf("href=\"/level/1/film/", beginIndex);
                 if (beginIndex == -1) 
                     return Movie.UNKNOWN;
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
