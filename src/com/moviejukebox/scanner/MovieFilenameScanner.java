@@ -433,7 +433,8 @@ public class MovieFilenameScanner {
         // SETS
         {
             for (;;) {
-                final Matcher matcher = SET_PATTERN.matcher(rest);
+                logger.finest("MovieFileNameScanner Sets : " + rest);
+              final Matcher matcher = SET_PATTERN.matcher(rest);
                 if (!matcher.find()) {
                     break;
                 }
@@ -449,11 +450,13 @@ public class MovieFilenameScanner {
                     n = cutMatch(n, nmatcher);
                 }
                 set.setTitle(n.trim());
+                logger.finest("MovieFileNameScanner Sets : " + rest + " / " + n.trim());
             }
         }
 
         // LANGUAGES
         if (languageDetection) {
+            logger.finest("MovieFileNameScanner Languages : " + rest);
             for (;;) {
                 String language = seekPatternAndUpdateRest(strictLanguageMap, null);
                 if (language == null) {
@@ -461,6 +464,7 @@ public class MovieFilenameScanner {
                 }
                 dto.getLanguages().add(language);
             }
+            logger.finest("MovieFileNameScanner Languages : " + rest);
         }
 
         // TITLE
@@ -478,8 +482,13 @@ public class MovieFilenameScanner {
                 String title = "";
                 StringTokenizer t = new StringTokenizer(rest.substring(0, min), "/[]");
                 while (t.hasMoreElements()) {
-                    String token = t.nextToken();
-                    token = cleanUpTitle(token);
+                    // Keep the original title "untouched"
+                    String token = t.nextToken().trim();
+                    if (token.endsWith(".")) {
+                        token = token.substring(0,token.length()-1);
+                    }
+//                  token = cleanUpTitle(token);
+                    logger.finest("MovieFileNameScanner setTitle : " + token);
                     if (token.length() >= 1 && token.charAt(0) != '-') {
                         title = token;
                         break;
