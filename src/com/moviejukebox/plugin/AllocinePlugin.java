@@ -18,9 +18,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
@@ -31,6 +33,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class AllocinePlugin extends ImdbPlugin {
 
     public static String ALLOCINE_PLUGIN_ID = "allocine";
+    public static final Pattern DIACRITICS_AND_FRIENDS = Pattern.compile("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
 
     public AllocinePlugin() {
         super();
@@ -234,13 +237,13 @@ public class AllocinePlugin extends ImdbPlugin {
                 // logger.finest("AllocinePlugin: Movie Director = " + movie.getDirector());
             }*/
 
-            if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
-                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma :", "<br />")).trim());
+            if ( (movie.getReleaseDate().equals(Movie.UNKNOWN)) && (xml.indexOf("Date de sortie cinéma : <span>inconnue</span>") == -1) ) {
+                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "<br />")));
                 // logger.finest("AllocinePlugin: Movie Theater release date = [" + movie.getReleaseDate()+"]");
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(HTMLTools.extractTag(xml, "Durée", "Année"));
+                movie.setRuntime(HTMLTools.extractTag(xml, "Durée :", "Année"));
                 // logger.finest("AllocinePlugin: Durée = " + movie.getRuntime());
             }
 
@@ -255,7 +258,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // }
 
             if (movie.getGenres().isEmpty()) {
-                for (String genre : HTMLTools.extractTags(xml, "Genre", "<br/>", "/film/tous/genre-", "</a>", false)) {
+                for (String genre : HTMLTools.extractTags(xml, "Genre", "<br />", "/film/tous/genre-", "</a>", false)) {
                     movie.addGenre(removeOpenedHtmlTags(genre));
                 }
             }
@@ -275,22 +278,17 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideYear()) {
-                String aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>"));
-                logger.finest("AllocinePlugin: Année de production : " + aYear + " / " + aYear.substring(aYear.length() - 4));
-
-                // If the year is unknown, fall back to the release date
-                if (aYear.equalsIgnoreCase(Movie.UNKNOWN)) {
-                    aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "<br />"));
-                    logger.finest("AllocinePlugin: Date de sortie cinéma : " + aYear + " / " + aYear.substring(aYear.length() - 4));
-                    if (aYear.equalsIgnoreCase("inconnue")) {
-                        aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Film déjà disponible en ", "<br />"));
-                        logger.finest("AllocinePlugin: Film déjà disponible en " + aYear + " / " + aYear.substring(aYear.length() - 4));
+                String aYear = movie.getReleaseDate();
+                // Looking for the release date
+                if (aYear.equals(Movie.UNKNOWN)) {
+                    aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>"));
+                    if ( (aYear.equals(Movie.UNKNOWN)) ||  (aYear.equals("inconnue")) ) {
+                        aYear = removeHtmlTags(HTMLTools.extractTag(HTMLTools.extractTag(xml, "Film déjà disponible en ", "<br />"), "</a> depuis le : "));
                     }
                 } 
-                if (!aYear.equalsIgnoreCase(Movie.UNKNOWN)) {
-                    aYear = aYear.substring(aYear.length() - 4);
+                if (!aYear.equals(Movie.UNKNOWN)) {
+                    movie.setYear(aYear.substring(aYear.length() - 4));
                 }
-                movie.setYear(aYear);
             }
 
             // Get Fanart
@@ -301,19 +299,8 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
             }
 
+            // Get Casting
             parseCasting(movie);
-/*            if (movie.getCast().isEmpty()) {
-                for (String actor : HTMLTools.extractTags(xml, "Avec ", "<br />", "<span", "</span>", false)) {
-                    // logger.finer("AllocinePlugin: actorTag=["+actor+"]");
-                    if (actor.contains("class=\"acLnk")) {
-                        String cleanActor = removeOpenedHtmlTags(actor);
-                        if (!cleanActor.equals("plus")) {
-                            movie.addActor(cleanActor);
-                            logger.finer("AllocinePlugin: Actor added : " + cleanActor);
-                        }
-                    }
-                }
-            }*/
         } catch (IOException error) {
             logger.severe("AllocinePlugin: Failed retreiving allocine infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
             final Writer eResult = new StringWriter();
@@ -391,7 +378,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
             // we also get imdb Id for extra infos
             if (mediaFile.getId(IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
+                mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getOriginalTitle(), mediaFile.getYear()));
                 logger.finest("AllocinePlugin: Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
             if (!allocineId.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -420,57 +407,95 @@ public class AllocinePlugin extends ImdbPlugin {
      * @throws ParseException
      */
     public String getAllocineId(String movieName, String year, int tvSeason) throws ParseException {
-        String allocineId = Movie.UNKNOWN;
-        // Add '/1' in the URL to obtain the 20 first matches
-        String allocineBaseRequest = "http://www.allocine.fr/recherche/1/?q=";
-        try {
-            StringBuffer sb = new StringBuffer(allocineBaseRequest);
-            sb.append(URLEncoder.encode(movieName, "UTF-8").replace(' ', '+'));
-            logger.finest("AllocinePlugin: Allocine request : " + sb.toString());
-            String xml = webBrowser.request(sb.toString());
+        if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            return getAllocineIdFromGoogle(movieName, year);
+        } else {
+            String allocineId = Movie.UNKNOWN;
+            // Add '/1' in the URL to obtain the 20 first matches
+            String allocineBaseRequest = "http://www.allocine.fr/recherche/1/?q=";
+            try {
+                StringBuffer sb = new StringBuffer(allocineBaseRequest);
+                sb.append(URLEncoder.encode(movieName, "UTF-8"));
+                String xml = webBrowser.request(sb.toString());
 
-            String alloCineStartResult;
-            String alloCineMediaPrefix;
-            if (tvSeason > -1) {
-                alloCineStartResult = "dans les titres de séries TV";
-                alloCineMediaPrefix = "/series/ficheserie_gen_cserie=";
-            } else {
-                alloCineStartResult = "dans les titres de films";
-                alloCineMediaPrefix = "/film/fichefilm_gen_cfilm=";
-            }
-
-            String alloCineEndResult = "</table>";
-            String alloCineMediaSectionTagEnd = "</span> <!--  /fs11 -->";
-
-            String alloCineYearTagStart = "<span class=\"fs11\">";
-            String alloCineYearTagEnd = "<br />";
-
-            for (String searchResult : HTMLTools.extractTags(xml, alloCineStartResult, alloCineEndResult, alloCineMediaPrefix, alloCineMediaSectionTagEnd,
-                            false)) {
-                // logger.finest("AllocinePlugin: SearchResult = " + searchResult);
-                String searchResultYear = searchResult.substring(searchResult.lastIndexOf(alloCineYearTagStart) + alloCineYearTagStart.length(), searchResult
-                                .length());
-                searchResultYear = searchResultYear.substring(0, searchResultYear.indexOf(alloCineYearTagEnd)).trim();
-                // Issue #1265: to prevent some strange layout where tags <b></b> are inside the movie year
-                searchResultYear = removeHtmlTags(searchResultYear);
-                // logger.finest("AllocinePlugin: searchResultYear = [" + searchResultYear+"] while year=["+year+"]");
-                if (year == null || year.equalsIgnoreCase(Movie.UNKNOWN) || year.equalsIgnoreCase(searchResultYear)) {
-                    int allocineIndexBegin = 0;
-                    int allocineIndexEnd = searchResult.indexOf(".html");
-
-                    allocineId = searchResult.substring(allocineIndexBegin, allocineIndexEnd);
-                    // validate that allocineId is an int
-                    Integer.valueOf(allocineId);
-                    logger.finer("AllocinePlugin: Found AllocineId = " + allocineId);
-                    return allocineId;
+                String alloCineStartResult;
+                String alloCineMediaPrefix;
+                if (tvSeason > -1) {
+                    alloCineStartResult = "dans les titres de séries TV";
+                    alloCineMediaPrefix = "/series/ficheserie_gen_cserie=";
+                } else {
+                    alloCineStartResult = "dans les titres de films";
+                    alloCineMediaPrefix = "/film/fichefilm_gen_cfilm=";
                 }
+
+                String alloCineEndResult = "</table>";
+                String alloCineMediaSectionTagEnd = "</span> <!--  /fs11 -->";
+
+                String alloCineYearTagStart = "<span class=\"fs11\">";
+                String alloCineYearTagEnd = "<br />";
+            
+                String formattedMovieName = Normalizer.normalize(movieName.replace("\u0153","oe").toLowerCase(), Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
+                for (String searchResult : HTMLTools.extractTags(xml, alloCineStartResult, alloCineEndResult, alloCineMediaPrefix, alloCineMediaSectionTagEnd, false)) {
+                    String formattedTitle = "<" + HTMLTools.extractTag(searchResult, alloCineMediaPrefix, "</a>").replace("<b>", "").replace("</b>", "");
+                    formattedTitle = HTMLTools.getTextAfterElem(formattedTitle, ".html'>").replace(":", "-");
+                    formattedTitle = Normalizer.normalize(formattedTitle, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "").replace(" (TV)", "");
+
+                    if (formattedTitle.equalsIgnoreCase(formattedMovieName)) {
+                        String searchResultYear = searchResult.substring(searchResult.lastIndexOf(alloCineYearTagStart) + alloCineYearTagStart.length(), searchResult
+                                .length());
+                        searchResultYear = searchResultYear.substring(0, searchResultYear.indexOf(alloCineYearTagEnd)).trim();
+                        // Issue #1265: to prevent some strange layout where tags <b></b> are inside the movie year
+                        searchResultYear = removeHtmlTags(searchResultYear);
+                        logger.finest("AllocinePlugin: searchResultYear = [" + searchResultYear+"] while year=["+year+"]");
+                        if (year == null || year.equalsIgnoreCase(Movie.UNKNOWN) || year.equalsIgnoreCase(searchResultYear)) {
+                            int allocineIndexBegin = 0;
+                            int allocineIndexEnd = searchResult.indexOf(".html");
+
+                            allocineId = searchResult.substring(allocineIndexBegin, allocineIndexEnd);
+                            // validate that allocineId is an int
+                            Integer.valueOf(allocineId);
+                            logger.finer("AllocinePlugin: Found AllocineId = " + allocineId);
+                            return allocineId;
+                        }
+                    }
+                }
+                return Movie.UNKNOWN;
+            } catch (Exception error) {
+                logger.severe("AllocinePlugin: Failed to retrieve alloCine Id for movie : " + movieName);
+                logger.severe("AllocinePlugin: Now using ImdbPlugin");
+                throw new ParseException(allocineId, 0);
             }
-            logger.finer("AllocinePlugin: No AllocineId Found with request : " + sb.toString());
-            return Movie.UNKNOWN;
+        }
+    }
+
+
+    /**
+     * Retrieve the AllocineId matching the specified movie name and year. This routine is base on a Google request.
+     * 
+     * @param movieName
+     *            The name of the Movie to search for
+     * @param year
+     *            The year of the movie
+     * @return The AllocineId if it was found
+     */
+    private String getAllocineIdFromGoogle(String movieName, String year) {
+        try {
+            StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
+            sb.append(URLEncoder.encode(movieName, "UTF-8"));
+
+            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                sb.append("+%28").append(year).append("%29");
+            }
+            sb.append("+site%3Awww.allocine.fr&meta=");
+//            logger.finest("AllocinePlugin: Allocine request via Google : " + sb.toString());
+            String xml = webBrowser.request(sb.toString());
+            String allocineId = HTMLTools.extractTag(xml, "film/fichefilm_gen_cfilm=",".html");
+//            logger.finest("AllocinePlugin: Allocine found via Google : " + allocineId);
+            return allocineId;
         } catch (Exception error) {
-            logger.severe("AllocinePlugin: Failed to retrieve alloCine Id for movie : " + movieName);
-            logger.severe("AllocinePlugin: Now using ImdbPlugin");
-            throw new ParseException(allocineId, 0);
+            logger.severe("ImdbInfo Failed retreiving AlloCine Id for movie : " + movieName);
+            logger.severe("ImdbInfo Error : " + error.getMessage());
+            return Movie.UNKNOWN;
         }
     }
 

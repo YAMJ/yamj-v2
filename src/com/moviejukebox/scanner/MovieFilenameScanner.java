@@ -433,7 +433,6 @@ public class MovieFilenameScanner {
         // SETS
         {
             for (;;) {
-                logger.finest("MovieFileNameScanner Sets : " + rest);
               final Matcher matcher = SET_PATTERN.matcher(rest);
                 if (!matcher.find()) {
                     break;
@@ -450,13 +449,11 @@ public class MovieFilenameScanner {
                     n = cutMatch(n, nmatcher);
                 }
                 set.setTitle(n.trim());
-                logger.finest("MovieFileNameScanner Sets : " + rest + " / " + n.trim());
             }
         }
 
         // LANGUAGES
         if (languageDetection) {
-            logger.finest("MovieFileNameScanner Languages : " + rest);
             for (;;) {
                 String language = seekPatternAndUpdateRest(strictLanguageMap, null);
                 if (language == null) {
@@ -464,7 +461,6 @@ public class MovieFilenameScanner {
                 }
                 dto.getLanguages().add(language);
             }
-            logger.finest("MovieFileNameScanner Languages : " + rest);
         }
 
         // TITLE
@@ -488,7 +484,7 @@ public class MovieFilenameScanner {
                         token = token.substring(0,token.length()-1);
                     }
 //                  token = cleanUpTitle(token);
-                    logger.finest("MovieFileNameScanner setTitle : " + token);
+//                    logger.finest("MovieFileNameScanner setTitle : " + token);
                     if (token.length() >= 1 && token.charAt(0) != '-') {
                         title = token;
                         break;
