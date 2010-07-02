@@ -289,6 +289,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                     movieFile.setInfo(mf.getInfo());
                 }
             }
+            logger.finest("Movie addMovieFile : " + movieFile.getFilename());
             this.movieFiles.remove(movieFile);
             this.movieFiles.add(movieFile);
         }
@@ -998,6 +999,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
         if ((runtime != null) && !runtime.equalsIgnoreCase(this.runtime)) {
             this.isDirty = true;
+            // Escape the first "0" AlloCine gives sometimes
+            if (runtime.startsWith("0")) {
+                runtime = runtime.substring(1);
+            }
             this.runtime = runtime;
         }
     }
