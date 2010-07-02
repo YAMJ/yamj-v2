@@ -166,7 +166,7 @@ public class FanartScanner {
                 logger.finer("FanartScanner: " + finalDestinationFileName + " already exists");
             }
         } else {
-            // logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
+            logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
             downloadFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
         }
         
@@ -186,9 +186,14 @@ public class FanartScanner {
                 fanartFile.getParentFile().mkdirs();
 
                 try {
-                    logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
+                    // Quick fix to prevent false ".png" url tmdb gives sometimes
+                    String FanartURL = movie.getFanartURL();
+                    if ( (FanartURL.endsWith(".png")) || (FanartURL.endsWith(".PNG"))) {
+                        FanartURL = FanartURL.substring(0,FanartURL.length()-3) + "jpg";
+                    }
+                    logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin] @ " + FanartURL);
 
-                    FileTools.downloadImage(tmpDestFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
+                    FileTools.downloadImage(tmpDestFile, URLDecoder.decode(FanartURL, "UTF-8"));
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(tmpDestFile);
 
                     if (fanartImage != null) {
@@ -249,7 +254,6 @@ public class FanartScanner {
         try {
             Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
             if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
-                logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseName());
                 return Movie.UNKNOWN;
             } else {
                 movie.setDirtyFanart(true);
