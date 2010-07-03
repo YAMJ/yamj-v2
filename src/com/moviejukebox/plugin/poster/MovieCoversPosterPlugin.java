@@ -16,8 +16,6 @@ package com.moviejukebox.plugin.poster;
 import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -38,12 +36,10 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         String returnString = Movie.UNKNOWN;
-        Pattern titleregex;
-        Matcher titlematch;
         
         try {
             StringBuffer sb = new StringBuffer("http://www.moviecovers.com/multicrit.html?titre=");
-            sb.append(URLEncoder.encode(title, "iso-8859-1"));
+            sb.append(URLEncoder.encode(title.replace("\u0153", "oe"), "iso-8859-1"));
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
                 sb.append("&anneemin=");
                 sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) - 1), "iso-8859-1"));
@@ -52,55 +48,60 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
             }
             sb.append("&slow=0&tri=Titre&listes=1");
             String content = webBrowser.request(sb.toString());
+            // logger.finer("MovieCoversPosterPlugin: Searching for: " + sb.toString());
             if (content != null) {
-        // Check for "no result" message...
-                titleregex = Pattern.compile("/forum/index.html\\?forum=MovieCovers&vue=demande");
-                titlematch = titleregex.matcher(content);
-                if (!titlematch.find()) {
+                String formattedTitle = Normalizer.normalize(title.replace("\u0153", "oe").toUpperCase(), Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
+                if (formattedTitle.endsWith(" (TV)")) {
+                    formattedTitle = formattedTitle.substring(0, formattedTitle.length() - 5);
+                }
+                String formattedTitleNormalized = formattedTitle;
+                for (String prefix : Movie.sortIgnorePrefixes) {
+                    if (formattedTitle.startsWith(prefix.toUpperCase())) {
+                        formattedTitleNormalized = formattedTitle.substring(prefix.length()) + " (" + prefix.toUpperCase().replace(" ","") + ")";
+                        break;
+                    }
+                }
+//                logger.finer("MovieCoversPosterPlugin: Looking for a poster for: " + formattedTitleNormalized);
+       // Checking for "no result" message...
+                if (!content.contains("/forum/index.html?forum=MovieCovers&vue=demande")) {
        // There is some results
-       // Check for exact match
-                    titleregex = Pattern.compile("<LI><A href=\"/film/titre_(\\w+).html\">" + URLEncoder.encode(title.toUpperCase(), "iso-8859-1") + "</A>");
-                    titlematch = titleregex.matcher(content);
-                    if (titlematch.find()) {
-                        returnString = titlematch.group(1);
-                    } else {
-        // If no exact match found, check for the first match
-                        titleregex = Pattern.compile("<LI><A href=\"/film/titre_(\\w+).html\">");
-                        titlematch = titleregex.matcher(content);
-                        if (titlematch.find()) {
-                            returnString = titlematch.group(1);
-                        }
-                    }
-                } else {
-        // Search the forum if no answer
-                    String formattedTitle = Normalizer.normalize(title.toUpperCase(), Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
-                    if (formattedTitle.endsWith(" (TV)")) {
-                        formattedTitle = formattedTitle.substring(0, formattedTitle.length() - 5);
-                    }
-                    String formattedTitleNormalized = formattedTitle;
-                    for (String prefix : Movie.sortIgnorePrefixes) {
-                        if (formattedTitle.startsWith(prefix.toUpperCase())) {
-                            formattedTitleNormalized = formattedTitle.substring(prefix.length()) + " (" + prefix.toUpperCase().replace(" ","") + ")";
+                    for (String filmURL : HTMLTools.extractTags(content, "<TD bgcolor=\"#339900\"", "<FORM action=\"/multicrit.html\"", "<LI><A href=\"/film/titre", "</A>", false)) {
+                        if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
+                            returnString = HTMLTools.extractTag(filmURL, "_", ".html\">");
+//                            logger.finer("MovieCoversPosterPlugin: Seems to find something: " + returnString + " - " + filmURL);
                             break;
                         }
                     }
+                }
+        // Search the forum if no answer
+                if (returnString == Movie.UNKNOWN) {
                     sb = new StringBuffer("http://www.moviecovers.com/forum/search-mysql.html?forum=MovieCovers&query=");
                     sb.append(URLEncoder.encode(formattedTitle, "iso-8859-1"));
+//                    logger.finer("MovieCoversPosterPlugin: We have to explore the forums: " + sb);
                     content = webBrowser.request(sb.toString());
                     if (content != null) {
         // Loop through the search results
                         for (String filmURL : HTMLTools.extractTags(content, "<TABLE border=\"0\" cellpadding=\"0\" cellspacing=\"0\">", "<FORM action=\"search-mysql.html\">", "<TD><A href=\"fil.html?query=", "</A></TD>", false)) {
+//                            logger.finer("MovieCoversPosterPlugin: examining: " + filmURL);
                             if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
                                 content = webBrowser.request("http://www.moviecovers.com/forum/fil.html?query=" + filmURL.substring(0,filmURL.length()-formattedTitle.length()-2));
                                 if (content != null) {
                                     int sizePoster = 0;
                                     int oldSizePoster = 0;
+                                    // A quick trick to find a " fr " reference in the comments
+                                    int indexFR = content.toUpperCase().indexOf(" FR ");
+                                    if (indexFR != -1) {
+                                        content = "</STRONG></B></FONT>" + content.substring(indexFR);
+                                    }
         // Search the biggest picture
                                     for (String poster : HTMLTools.extractTags(content, "</STRONG></B></FONT>", ">MovieCovers Team<", "<LI><A TARGET=\"affiche\" ", "Ko)", false)) {
                                         sizePoster = Integer.parseInt(HTMLTools.extractTag(poster, ".jpg\">Image .JPG</A> ("));
                                         if (sizePoster > oldSizePoster) {
                                             oldSizePoster = sizePoster;
                                             returnString = HTMLTools.extractTag(poster, "HREF=\"/getjpg.html/", ".jpg\">Image .JPG</A>");
+                                            if (indexFR != -1) {
+                                                break;
+                                            }
                                         }
                                     }
                                     break;

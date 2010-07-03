@@ -27,8 +27,10 @@ import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -37,11 +39,13 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String language;
     private TheTVDB tvDB;
     private static String webhost = "thetvdb.com";
+    private WebBrowser webBrowser;
 
     public TheTvDBPosterPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
         language = PropertiesUtil.getProperty("thetvdb.language", "en");
+        webBrowser = new WebBrowser();
 
     }
 
@@ -94,40 +98,51 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         String posterURL = Movie.UNKNOWN;
         ThreadExecutor.EnterIO(webhost);
         
-        if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
-            String urlNormal = null;
-            Banners banners = tvDB.getBanners(id);
+        try {
+            // TODO Fix the TheTvDB API banner.language issue
+            StringBuffer sb = new StringBuffer("http://www.thetvdb.com/data/series/");
+            sb.append(id);
+            sb.append("/banners.xml");
+            String xmlBanners = webBrowser.request(sb.toString());
+        
+            if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
+                String urlNormal = null;
+                Banners banners = tvDB.getBanners(id);
 
-            if (!banners.getSeasonList().isEmpty()) {
-                for (Banner banner : banners.getSeasonList()) {
-                    if (banner.getSeason() == season) { // only check for the correct season
-                        if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
-                            urlNormal = banner.getUrl();
-                        }
+                if (!banners.getSeasonList().isEmpty()) {
+                    for (Banner banner : banners.getSeasonList()) {
+                        // Grab only localized banner
+                        if (checkBannerLanguage(banner.getUrl(), xmlBanners) && (banner.getSeason() == season)) { // only check for the correct season
+                            if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
+                                urlNormal = banner.getUrl();
+                            }
 
-                        if (urlNormal != null) {
-                            break;
+                            if (urlNormal != null) {
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            if (urlNormal == null && !banners.getPosterList().isEmpty()) {
-                urlNormal = banners.getPosterList().get(0).getUrl();
-            }
-            if (urlNormal == null) {
-                Series series = tvDB.getSeries(id, language);
-                if (series.getPoster() != null && !series.getPoster().isEmpty()) {
-                    urlNormal = series.getPoster();
+                if (urlNormal == null && !banners.getPosterList().isEmpty()) {
+                    urlNormal = banners.getPosterList().get(0).getUrl();
+                }
+                if (urlNormal == null) {
+                    Series series = tvDB.getSeries(id, language);
+                    if (series.getPoster() != null && !series.getPoster().isEmpty()) {
+                        urlNormal = series.getPoster();
+                    }
+                }
+
+                if (urlNormal != null) {
+                    posterURL = urlNormal;
                 }
             }
-
-            if (urlNormal != null) {
-                posterURL = urlNormal;
+            ThreadExecutor.LeaveIO();
+            if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+                return new Image(posterURL);
             }
-        }
-        ThreadExecutor.LeaveIO();
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-            return new Image(posterURL);
+        } catch (Exception error) {
+            logger.severe("TheTvDBPlugin: Failed to retrieve alloCine Id for movie : " + id);
         }
         return Image.UNKNOWN;
     }
@@ -173,5 +188,17 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
         }
         return response;
+    }
+    
+    private boolean checkBannerLanguage(String bannerURL, String xml) {
+        for (String bannerXML : HTMLTools.extractTags(xml, "<Banners>", "</Banners>", "<Banner>", "</Banner>", false)) {
+            if (bannerURL.endsWith(HTMLTools.extractTag(bannerXML, "<BannerPath>", "</BannerPath>"))) {
+                if (HTMLTools.extractTag(bannerXML, "<Language>", "</Language>").equalsIgnoreCase(language)) {
+                    logger.finer("TheTVDB plugin found a " + language + " banner : " + bannerURL);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
