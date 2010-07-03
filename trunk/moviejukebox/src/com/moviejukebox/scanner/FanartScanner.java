@@ -186,14 +186,21 @@ public class FanartScanner {
                 fanartFile.getParentFile().mkdirs();
 
                 try {
-                    // Quick fix to prevent false ".png" url tmdb gives sometimes
                     String FanartURL = movie.getFanartURL();
-                    if ( (FanartURL.endsWith(".png")) || (FanartURL.endsWith(".PNG"))) {
-                        FanartURL = FanartURL.substring(0,FanartURL.length()-3) + "jpg";
-                    }
                     logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin] @ " + FanartURL);
-
-                    FileTools.downloadImage(tmpDestFile, URLDecoder.decode(FanartURL, "UTF-8"));
+                    try {
+                        FileTools.downloadImage(tmpDestFile, URLDecoder.decode(FanartURL, "UTF-8"));
+                    } catch (Exception error) {
+                        // Quick fix to prevent false ".png" url tmdb gives sometimes
+                        if ( (FanartURL.endsWith(".png")) || (FanartURL.endsWith(".PNG"))) {
+                            FanartURL = FanartURL.substring(0,FanartURL.length()-3) + "jpg";
+                            FileTools.downloadImage(tmpDestFile, URLDecoder.decode(FanartURL, "UTF-8"));
+                        } else {
+                            logger.finer("Fanart Scanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
+                            movie.setFanartFilename(Movie.UNKNOWN);
+                            movie.setFanartURL(Movie.UNKNOWN);
+                        }
+                    }
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(tmpDestFile);
 
                     if (fanartImage != null) {

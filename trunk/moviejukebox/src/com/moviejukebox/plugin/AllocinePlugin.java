@@ -22,6 +22,7 @@ import java.text.Normalizer;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Library;
@@ -238,7 +239,12 @@ public class AllocinePlugin extends ImdbPlugin {
             }*/
 
             if ( (movie.getReleaseDate().equals(Movie.UNKNOWN)) && (xml.indexOf("Date de sortie cinéma : <span>inconnue</span>") == -1) ) {
-                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "<br />")));
+                Pattern yearRegex = Pattern.compile(".*(\\d{4})$");
+                String releaseDate = removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "<br />"));
+                Matcher match = yearRegex.matcher(releaseDate);
+                if (match.find()) {
+                    movie.setReleaseDate(releaseDate);
+                }
                 // logger.finest("AllocinePlugin: Movie Theater release date = [" + movie.getReleaseDate()+"]");
             }
 
@@ -277,13 +283,22 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setCertification(HTMLTools.extractTag(xml, "Interdit aux moins de ", " ans"));
             }
 
-            if (!movie.isOverrideYear()) {
+            if (!movie.isOverrideYear() && movie.getYear().equals(Movie.UNKNOWN)) {
+
+                Pattern yearRegex = Pattern.compile(".*(\\d{4})$");
+
+                
                 String aYear = movie.getReleaseDate();
                 // Looking for the release date
                 if (aYear.equals(Movie.UNKNOWN)) {
                     aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>"));
-                    if ( (aYear.equals(Movie.UNKNOWN)) ||  (aYear.equals("inconnue")) ) {
+                    Matcher match = yearRegex.matcher(aYear);
+                    if (!match.find()) {
                         aYear = removeHtmlTags(HTMLTools.extractTag(HTMLTools.extractTag(xml, "Film déjà disponible en ", "<br />"), "</a> depuis le : "));
+                        match = yearRegex.matcher(aYear);
+                        if (!match.find()) {
+                            aYear = Movie.UNKNOWN;
+                        }
                     }
                 } 
                 if (!aYear.equals(Movie.UNKNOWN)) {
@@ -439,6 +454,7 @@ public class AllocinePlugin extends ImdbPlugin {
                     String formattedTitle = "<" + HTMLTools.extractTag(searchResult, alloCineMediaPrefix, "</a>").replace("<b>", "").replace("</b>", "");
                     formattedTitle = HTMLTools.getTextAfterElem(formattedTitle, ".html'>").replace(":", "-");
                     formattedTitle = Normalizer.normalize(formattedTitle, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "").replace(" (TV)", "");
+                    // logger.finest("AllocinePlugin search '" + formattedMovieName + "' in " + searchResult);
 
                     if (formattedTitle.equalsIgnoreCase(formattedMovieName)) {
                         String searchResultYear = searchResult.substring(searchResult.lastIndexOf(alloCineYearTagStart) + alloCineYearTagStart.length(), searchResult
