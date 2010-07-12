@@ -478,13 +478,8 @@ public class MovieFilenameScanner {
                 String title = "";
                 StringTokenizer t = new StringTokenizer(rest.substring(0, min), "/[]");
                 while (t.hasMoreElements()) {
-                    // Keep the original title "untouched"
-                    String token = t.nextToken().trim();
-                    if (token.endsWith(".")) {
-                        token = token.substring(0,token.length()-1);
-                    }
-//                  token = cleanUpTitle(token);
-//                    logger.finest("MovieFileNameScanner setTitle : " + token);
+                    String token = t.nextToken();
+                    token = cleanUpTitle(token);
                     if (token.length() >= 1 && token.charAt(0) != '-') {
                         title = token;
                         break;
