@@ -17,7 +17,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.scanner.FanartScanner;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
