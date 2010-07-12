@@ -29,7 +29,7 @@ import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.scanner.FanartScanner;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;

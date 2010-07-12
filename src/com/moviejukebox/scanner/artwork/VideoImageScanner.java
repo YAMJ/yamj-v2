@@ -17,7 +17,7 @@
  * Routines for locating and downloading VideoImage for videos
  *
  */
-package com.moviejukebox.scanner;
+package com.moviejukebox.scanner.artwork;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

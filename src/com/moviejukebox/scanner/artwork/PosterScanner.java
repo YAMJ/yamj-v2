@@ -15,7 +15,7 @@
  * Scanner for posters.
  * Includes local searches (scan) and Internet Searches
  */
-package com.moviejukebox.scanner;
+package com.moviejukebox.scanner.artwork;
 
 import java.io.File;
 import java.io.IOException;
