@@ -139,10 +139,12 @@ public class MovieJukebox {
         LogFormatter mjbFormatter = new LogFormatter();
 
         FileHandler fh = new FileHandler(logFilename);
+        fh.setEncoding("UTF-8");
         fh.setFormatter(mjbFormatter);
         fh.setLevel(Level.ALL);
 
         ConsoleHandler ch = new ConsoleHandler();
+        ch.setEncoding("UTF-8");
         ch.setFormatter(mjbFormatter);
         ch.setLevel(Level.FINE);
 
