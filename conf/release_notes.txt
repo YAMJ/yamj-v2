@@ -12,6 +12,7 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1507 Search the original movie title by PosterPlugins instead of localized title
   - Enhancement  #1512 Search the original movie title by FanartScanner instead of localized title
   - Fixed defect #1514 Kinopoisk plugin fix
+  - Fixed defect #1522 SET Coverart no longer works properly
 
 MovieJukebox 2.0
 ----------------
