@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2010 YAMJ Members
+ *      CfoundLopyright (c) 2004-2010 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list 
  *  
  *      Web: http://code.google.com/p/moviejukebox/
@@ -61,7 +61,7 @@ public class PosterScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected static String[] posterExtensions;
-    protected static String searchForExistingCoverArt;
+    protected static String searchForExistingPoster;
     protected static String fixedCoverArtName;
     protected static String coverArtDirectory;
     protected static Boolean useFolderImage;
@@ -81,7 +81,7 @@ public class PosterScanner {
     	StringTokenizer st;
     	
         // We get covert art scanner behaviour
-        searchForExistingCoverArt = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
+        searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingPoster", "moviename");
         // We get the fixed name property
         fixedCoverArtName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
         // See if we use folder.* image or not
@@ -134,7 +134,7 @@ public class PosterScanner {
     }
 
     public static boolean scan(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
-        if (searchForExistingCoverArt.equalsIgnoreCase("no")) {
+        if (searchForExistingPoster.equalsIgnoreCase("no")) {
             // nothing to do we return
             return false;
         }
@@ -144,15 +144,15 @@ public class PosterScanner {
         String fullPosterFilename = parentPath;
         File localPosterFile = null;
 
-        if (searchForExistingCoverArt.equalsIgnoreCase("moviename")) {
+        if (searchForExistingPoster.equalsIgnoreCase("moviename")) {
             // Encode the basename to ensure that non-usable file system characters are replaced
             // Issue 1155 : YAMJ refuses to pickup fanart and poster for a movie -
-            // Do not make safe file name before searching.
-            localPosterBaseFilename = movie.getBaseFilename();
-        } else if (searchForExistingCoverArt.equalsIgnoreCase("fixedcoverartname")) {
+            // Use the encoded filename first. We'll check the unencoded filename later
+            localPosterBaseFilename = movie.getBaseName();
+        } else if (searchForExistingPoster.equalsIgnoreCase("fixedcoverartname")) {
             localPosterBaseFilename = fixedCoverArtName;
         } else {
-            logger.fine("PosterScanner: Wrong value for poster.scanner.searchForExistingCoverArt properties!");
+            logger.fine("PosterScanner: Wrong value for poster.scanner.searchForExistingPoster properties!");
             logger.fine("PosterScanner: Expected 'moviename' or 'fixedcoverartname'");
             return false;
         }
@@ -160,13 +160,23 @@ public class PosterScanner {
         if (!coverArtDirectory.equals("")) {
             fullPosterFilename += File.separator + coverArtDirectory;
         }
-
+        
         // Check to see if the fullPosterFilename ends with a "\/" and only add it if needed
         // Usually this occurs because the files are at the root of a folder
         fullPosterFilename += (fullPosterFilename.endsWith(File.separator)?"":File.separator) + localPosterBaseFilename;
         localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
-        boolean foundLocalCoverArt = localPosterFile.exists();               
+        boolean foundLocalCoverArt = localPosterFile.exists();
 
+        // If we can't find the poster using the encoded filename, check for the un-encoded filename
+        if (!foundLocalCoverArt && searchForExistingPoster.equalsIgnoreCase("moviename")) {
+            if (!movie.getBaseName().equals(movie.getBaseFilename())) {
+                fullPosterFilename += (fullPosterFilename.endsWith(File.separator)?"":File.separator) + movie.getBaseFilename();
+                localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
+                foundLocalCoverArt = localPosterFile.exists();
+            }
+        }
+
+        
         /**
          * This part will look for a filename with the same name as the directory for the cover art or for folder.* coverart The intention is for you to be able
          * to create the season / TV series art for the whole series and not for the first show. Useful if you change the files regularly.
