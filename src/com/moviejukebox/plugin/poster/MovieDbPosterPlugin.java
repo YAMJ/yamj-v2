@@ -112,7 +112,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         String response = Movie.UNKNOWN;
         if (ident != null) {
             String imdbID = ident.getId(TheMovieDbPlugin.IMDB_PLUGIN_ID);
-            String tmdbID = ident.getId(TheMovieDbPlugin.IMDB_PLUGIN_ID);
+            String tmdbID = ident.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
             MovieDB moviedb;
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
