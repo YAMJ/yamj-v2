@@ -30,6 +30,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -481,20 +482,62 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     @Override
     public void scanNFO(String nfo, Movie movie) {
         logger.finest("Scanning NFO for Imdb Id");
-        int beginIndex = nfo.indexOf("/tt");
-        if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$");
-            movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
-            logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+        String id = searchIMDB(nfo, movie);
+        if (id != null) {
+            movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, id);
+            logger.finer("Imdb Id found in nfo: " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         } else {
-            beginIndex = nfo.indexOf("/Title?");
-            if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
-                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
-                movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
+            int beginIndex = nfo.indexOf("/tt");
+            if (beginIndex != -1) {
+                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
+                movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
+                logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             } else {
-                logger.finer("No Imdb Id found in nfo !");
+                beginIndex = nfo.indexOf("/Title?");
+                if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
+                    StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
+                    movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
+                } else {
+                    logger.finer("No Imdb Id found in nfo !");
+                }
             }
         }
+    }
+
+    private String searchIMDB(String nfo, Movie movie) {
+        final int flags = Pattern.CASE_INSENSITIVE | Pattern.DOTALL;
+        String imdbPattern = ")[\\W].*?(tt\\d{7})";
+        String title = movie.getTitle();
+        String id = null;
+
+        Pattern patternTitle = Pattern.compile("(" + title + imdbPattern, flags);
+        Matcher matchTitle = patternTitle.matcher(nfo);
+        if (matchTitle.find()) {
+            id = matchTitle.group(2);
+        } else {
+            String dir = FileTools.getParentFolderName(movie.getFile());
+            Pattern patternDir = Pattern.compile("(" + dir + imdbPattern, flags);
+            Matcher matchDir = patternDir.matcher(nfo); 
+            if (matchDir.find()) {
+                id = matchDir.group(2);
+            } else {
+                String strippedNfo = nfo.replaceAll("(?is)[^\\w\\r\\n]", "");
+                String strippedTitle = title.replaceAll("(?is)[^\\w\\r\\n]", "");
+                Pattern patternStrippedTitle = Pattern.compile("(" + strippedTitle + imdbPattern, flags);
+                Matcher matchStrippedTitle = patternStrippedTitle.matcher(strippedNfo);
+                if (matchStrippedTitle.find()) {
+                    id = matchTitle.group(2);
+                } else {
+                    String strippedDir = dir.replaceAll("(?is)[^\\w\\r\\n]", "");
+                    Pattern patternStrippedDir = Pattern.compile("(" + strippedDir + imdbPattern, flags);
+                    Matcher matchStrippedDir = patternStrippedDir.matcher(strippedNfo);
+                    if (matchStrippedDir.find()) {
+                        id = matchTitle.group(2);
+                    }
+                }
+            }
+        }
+        return id;
     }
 
     /**
