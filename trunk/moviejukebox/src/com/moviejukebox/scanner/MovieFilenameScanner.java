@@ -49,6 +49,7 @@ public class MovieFilenameScanner {
     protected static final Logger logger = Logger.getLogger("moviejukebox");
 
     private static String[] skipKeywords;
+    private static String[] skipRegexKeywords;
     private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
     private static boolean languageDetection = true;
 
@@ -662,6 +663,21 @@ public class MovieFilenameScanner {
                 skipPatterns.add(wpatt(Pattern.quote(s)));
             } else {
                 skipPatterns.add(iwpatt(Pattern.quote(s)));
+            }
+        }
+    }
+    
+    public static String[] getSkipRegexKeywords() {
+        return skipRegexKeywords;
+    }
+    
+    public static void setSkipRegexKeywords(String[] skipRegexKeywords, boolean caseSensitive) {
+        MovieFilenameScanner.skipRegexKeywords = skipRegexKeywords;
+        for (String s : skipRegexKeywords) {
+            if (caseSensitive) {
+                skipPatterns.add(patt(s));
+            } else {
+                skipPatterns.add(ipatt(s));
             }
         }
     }

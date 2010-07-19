@@ -273,6 +273,8 @@ public class MovieJukebox {
 
         MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "),
                 Boolean.parseBoolean(getProperty("filename.scanner.skip.caseSensitive", "true")));
+        MovieFilenameScanner.setSkipRegexKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords.regex", ""), ","),
+                Boolean.parseBoolean(getProperty("filename.scanner.skip.caseSensitive.regex", "true")));
         MovieFilenameScanner.setExtrasKeywords(tokenizeToArray(getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| "));
         MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray(getProperty("filename.movie.versions.keywords",
                         "remastered,directors cut,extended cut,final cut"), ",;|"));
