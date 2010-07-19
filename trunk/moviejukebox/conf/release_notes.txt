@@ -13,6 +13,10 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1512 Search the original movie title by FanartScanner instead of localized title
   - Fixed defect #1514 Kinopoisk plugin fix
   - Fixed defect #1522 SET Coverart no longer works properly
+  - Fixed defect #1526 Small issue with TheMovieDB plugin
+  - Enhancement  #1526 Allow regex in filename skip keywords
+  - Enhancement  #1526 Ability for multiple IMDB Ids in a NFO file
+  
 
 MovieJukebox 2.0
 ----------------
