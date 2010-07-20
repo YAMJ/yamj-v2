@@ -173,22 +173,24 @@ public class MovieNFOScanner {
         List<File> nfos = new ArrayList<File>();
         GenericFileFilter fFilter = null;
         
-        File currentDir = movie.getContainerFile();
-
+        File currentDir = movie.getFirstFile().getFile();
+        
         if (currentDir == null) {
             return nfos;
         }
 
-        String fn = currentDir.getAbsolutePath();
+        String baseFileName = currentDir.getName();
+        String pathFileName = currentDir.getAbsolutePath();
 
-        // If "fn" is a file then strip the extension from the file.
+        // If "pathFileName" is a file then strip the extension from the file.
         if (currentDir.isFile()) {
-            fn = fn.substring(0, fn.lastIndexOf("."));
+            pathFileName = pathFileName.substring(0, pathFileName.lastIndexOf("."));
+            baseFileName = baseFileName.substring(0, baseFileName.lastIndexOf("."));
         } else {
             // *** First step is to check for VIDEO_TS
             // The movie is a directory, which indicates that this is a VIDEO_TS file
             // So, we should search for the file moviename.nfo in the sub-directory
-            checkNFO(nfos, fn + fn.substring(fn.lastIndexOf(File.separator)));
+            checkNFO(nfos, pathFileName + pathFileName.substring(pathFileName.lastIndexOf(File.separator)));
         }
 
         if (movie.isTVShow()) {
@@ -216,13 +218,13 @@ public class MovieNFOScanner {
         // *** Second step is to check for the filename.nfo file
         // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
-        checkNFO(nfos, fn);
+        checkNFO(nfos, pathFileName);
 
         if (!NFOdirectory.equals("")) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
             String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + NFOdirectory;
-            checkNFO(nfos, sNFOPath + File.separator + movie.getBaseFilename());
+            checkNFO(nfos, sNFOPath + File.separator + baseFileName);
         }
 
         // *** Next step is to check for a directory wide NFO file.

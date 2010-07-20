@@ -296,7 +296,6 @@ public class MovieDirectoryScanner {
                 // This is to overwrite the TYPE_FILE check above if the disk is bluray but not playFullBluRayDisk
                 movie.setFormatType(Movie.TYPE_BLURAY);
             }
-
             
             // FIXME: part and file info are to be taken from filename scanner
             movieFile.setPart(i + 1);

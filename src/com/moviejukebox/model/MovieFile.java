@@ -90,7 +90,6 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     };
 
-
     @XmlElement(name = "fileURL")
     public String getFilename() {
         return filename;
@@ -209,23 +208,19 @@ public class MovieFile implements Comparable<MovieFile> {
         return title.toString();
     }
     
-
     public boolean hasTitle() {
         return !Movie.UNKNOWN.equals(getTitle());
     }
     
-
     @XmlAttribute
     public boolean isNewFile() {
         return newFile;
     }
     
-
     public void setNewFile(boolean newFile) {
         this.newFile = newFile;
     }
     
-
     @XmlAttribute
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
     public Boolean isSubtitlesExchange() {
@@ -273,18 +268,15 @@ public class MovieFile implements Comparable<MovieFile> {
         return this.getFirstPart() - anotherMovieFile.getFirstPart();
     }
     
-
     @XmlTransient
     public File getFile() {
         return file;
     }
     
-
     public void setFile(File file) {
         this.file = file;
     }
     
-
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
 
         info = dto;
@@ -328,13 +320,11 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
     
-
     @XmlElement
     public MovieFileNameDTO getInfo() {
         return info;
     }
     
-
     public void setInfo(MovieFileNameDTO info) {
         this.info = info;
     }
@@ -347,12 +337,10 @@ public class MovieFile implements Comparable<MovieFile> {
         return playLink;
     }
     
-
     public void addPlayLink(String key, String value) {
         playLink.put(key, value);
     }
     
-
     @SuppressWarnings("unused")
     private void setPlayLink(Map<String, String> playLink) {
         if (playLink == null || playLink.equals("")) {
@@ -362,7 +350,6 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
     
-
     public static class PartDataDTO {
         @XmlAttribute
         public int part;
@@ -370,7 +357,6 @@ public class MovieFile implements Comparable<MovieFile> {
         public String value;
     }
     
-
     @XmlElement(name = "filePlot")
     public List<PartDataDTO> getFilePlots() {
         if (!includeEpisodePlots) {
@@ -380,12 +366,10 @@ public class MovieFile implements Comparable<MovieFile> {
         return toPartDataList(plots);
     }
     
-
     public void setFilePlots(List<PartDataDTO> list) {
         fromPartDataList(plots, list);
     }
     
-
     @XmlElement(name = "fileImageURL")
     public List<PartDataDTO> getFileImageUrls() {
         if (!includeVideoImages) {
@@ -395,12 +379,10 @@ public class MovieFile implements Comparable<MovieFile> {
         return toPartDataList(videoImageURL);
     }
     
-
     public void setFileImageUrls(List<PartDataDTO> list) {
         fromPartDataList(videoImageURL, list);
     }
     
-
     @XmlElement(name = "fileImageFile")
     public List<PartDataDTO> getFileImageFiles() {
         if (!includeVideoImages) {
@@ -410,12 +392,10 @@ public class MovieFile implements Comparable<MovieFile> {
         return toPartDataList(videoImageFilename);
     }
     
-
     public void setFileImageFiles(List<PartDataDTO> list) {
         fromPartDataList(videoImageFilename, list);
     }
     
-
     private static List<PartDataDTO> toPartDataList(LinkedHashMap<Integer, String> map) {
         List<PartDataDTO> list = new ArrayList<PartDataDTO>();
         for (Integer part : map.keySet()) {
@@ -427,7 +407,6 @@ public class MovieFile implements Comparable<MovieFile> {
         return list;
     }
     
-
     private static void fromPartDataList(LinkedHashMap<Integer, String> map, List<PartDataDTO> list) {
         map.clear();
         for (PartDataDTO p : list) {
@@ -435,7 +414,6 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
     
-
     /**
      * Calculate the playlink additional information for the file
      */
@@ -487,7 +465,6 @@ public class MovieFile implements Comparable<MovieFile> {
         return playLinkMap;
     }
     
-
     /**
      * Return the extension of the file, this will be blank for directories
      * 
