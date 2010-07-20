@@ -280,8 +280,9 @@ public class FileTools {
                     }
                 }
             }
-        //no exception to catch here
-        }finally{}
+        } catch (Exception ignore) {
+            //no exception to catch here
+        }
     }
 
     public static String readFileToString(File file) {
