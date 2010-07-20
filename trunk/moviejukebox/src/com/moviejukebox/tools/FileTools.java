@@ -415,6 +415,9 @@ public class FileTools {
      * Returns the parent folder name only; used when searching for posters...
      */
     public static String getParentFolderName(File file) {
+        if (file == null) {
+            return "";
+        }
         String path = file.getParent();
         return path.substring(path.lastIndexOf(File.separator)+1);
     }
