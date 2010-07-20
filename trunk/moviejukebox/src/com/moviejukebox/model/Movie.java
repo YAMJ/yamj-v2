@@ -439,6 +439,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return first;
     }
 
+    /**
+     * Get the first logical file of the set of videos
+     * @return
+     */
     public MovieFile getFirstFile() {
 
         for (MovieFile part : movieFiles) {
