@@ -131,7 +131,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 return null;
             }
 
-            beginIndex = xml.indexOf("Tal�lat(ok) filmek k�z�tt");
+            beginIndex = xml.indexOf("Találat(ok) filmek között");
             if (beginIndex != -1) { // more then one entry found use the first one
                 beginIndex = xml.indexOf("HREF='/", beginIndex);
                 int endIndex = xml.indexOf("TITLE", beginIndex);
