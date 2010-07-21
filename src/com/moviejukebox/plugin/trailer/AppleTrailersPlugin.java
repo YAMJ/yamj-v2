@@ -16,6 +16,9 @@ package com.moviejukebox.plugin.trailer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -67,8 +70,9 @@ public class AppleTrailersPlugin {
     public void generate(Movie movie) {
 
         // Check if trailer resolution was selected
-        if (configResolution.equals(""))
+        if (configResolution.equals("")) {
             return;
+        }
 
         // Check if this movie was already checked for trailers
         if (movie.isTrailerExchange()) {
@@ -76,11 +80,13 @@ public class AppleTrailersPlugin {
             return;
         }
 
-        if (movie.isExtra())
+        if (movie.isExtra()) {
             return;
+        }
 
-        if (movie.getMovieType().equals(Movie.TYPE_TVSHOW))
+        if (movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
             return;
+        }
 
         String movieName = movie.getOriginalTitle();
         
@@ -164,9 +170,9 @@ public class AppleTrailersPlugin {
                 String playPath = slash == -1 ? mf.getFilename() : mf.getFilename().substring(0, slash);
                 String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
                 
-                logger.finest("Found trailer: " + trailerRealUrl);
-                logger.finest("Download path: " + trailerFileName);
-                logger.finest("     Play URL: " + trailerPlayFileName);
+                logger.finest("AppleTrailers Plugin: Found trailer: " + trailerRealUrl);
+                logger.finest("AppleTrailers Plugin: Download path: " + trailerFileName);
+                logger.finest("AppleTrailers Plugin:      Play URL: " + trailerPlayFileName);
                 
                 File trailerFile = new File(trailerFileName);
                 
@@ -210,33 +216,36 @@ public class AppleTrailersPlugin {
             int endIndex = 0;
             while (true) {
                 index = xml.indexOf("\"title\":\"", index);
-                if (index == -1)
+                if (index == -1) {
                     break;
+                }
 
                 index += 9;
 
                 endIndex = xml.indexOf("\",", index);
-                if (endIndex == -1)
+                if (endIndex == -1) {
                     break;
+                }
 
                 String trailerTitle = decodeEscapeICU(xml.substring(index, endIndex));
 
                 index = endIndex + 2;
 
                 index = xml.indexOf("\"location\":\"", index);
-                if (index == -1)
+                if (index == -1) {
                     break;
+                }
 
                 index += 12;
 
                 endIndex = xml.indexOf("\",", index);
-                if (endIndex == -1)
+                if (endIndex == -1) {
                     break;
+                }
 
                 String trailerLocation = decodeEscapeICU( xml.substring(index, endIndex) );
 
                 index = endIndex + 2;
-                
                 
                 if (trailerTitle.equalsIgnoreCase(movieName)) {
                     String trailerUrl;
@@ -255,8 +264,11 @@ public class AppleTrailersPlugin {
             }
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving trailer for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("AppleTrailers Plugin: Failed retreiving trailer for movie : " + movieName);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return Movie.UNKNOWN;
         }
     
@@ -283,14 +295,16 @@ public class AppleTrailersPlugin {
             int endIndex = 0;
             while (true) {
                 index = xml.indexOf("href=\"", index);
-                if (index == -1)
+                if (index == -1) {
                     break;
+                }
 
                 index += 6;
 
                 endIndex = xml.indexOf("\"", index);
-                if (endIndex == -1)
+                if (endIndex == -1) {
                     break;
+                }
 
                 String href = xml.substring(index, endIndex);
 
@@ -310,7 +324,11 @@ public class AppleTrailersPlugin {
 
 
         } catch (Exception error) {
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("AppleTrailers Plugin: Error : " + error.getMessage());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return;
         }
     }
@@ -318,13 +336,11 @@ public class AppleTrailersPlugin {
     // Get sub page url - if error return empty page
     private String getSubPage(String url) {
     
-        String ret="";
+        String ret = "";
         
         try {
-        
             ret = webBrowser.request(url);
             return ret;
-            
         } catch (Exception error) {
             return ret;
         }
@@ -340,12 +356,14 @@ public class AppleTrailersPlugin {
             // Check for duplicate
             for (int i=0;i<trailersUrl.size();i++) {
             
-                if (trailersUrl.get(i).equals(movieUrl))
+                if (trailersUrl.get(i).equals(movieUrl)) {
                     duplicate = true;
+                }
             }
         
-            if (!duplicate)
+            if (!duplicate) {
                 trailersUrl.add(movieUrl.substring(0, movieUrl.lastIndexOf("\"")));
+            }
         }
     }
 
@@ -357,27 +375,30 @@ public class AppleTrailersPlugin {
                 
                 String curURL = trailersUrl.get(i);
                             
-                if (curURL.indexOf("1080p")!=-1)
+                if (curURL.indexOf("1080p")!=-1) {
                     addTailerRealUrl(bestTrailersUrl,curURL);
+                }
             }
             
-            if (!bestTrailersUrl.isEmpty())
+            if (!bestTrailersUrl.isEmpty()) {
                 return;
+            }
         }
 
-        if ((configResolution.equals("1080p")) ||
-            (configResolution.equals("720p"))) {
+        if ((configResolution.equals("1080p")) || (configResolution.equals("720p"))) {
             // Search for 720p
             for (int i=0;i<trailersUrl.size();i++) {
                 
                 String curURL = trailersUrl.get(i);
                 
-                if (curURL.indexOf("720p")!=-1)
+                if (curURL.indexOf("720p")!=-1) {
                     addTailerRealUrl(bestTrailersUrl,curURL);
+                }
             }
 
-            if (!bestTrailersUrl.isEmpty())
+            if (!bestTrailersUrl.isEmpty()) {
                 return;
+            }
         }
 
         if ((configResolution.equals("1080p")) ||
@@ -388,12 +409,14 @@ public class AppleTrailersPlugin {
                 
                 String curURL = trailersUrl.get(i);
                 
-                if (curURL.indexOf("480p")!=-1)
+                if (curURL.indexOf("480p")!=-1) {
                     addTailerRealUrl(bestTrailersUrl,curURL);
+                }
             }
 
-            if (!bestTrailersUrl.isEmpty())
+            if (!bestTrailersUrl.isEmpty()) {
                 return;
+            }
         }
 
         // Search for 640
@@ -401,20 +424,23 @@ public class AppleTrailersPlugin {
             
             String curURL = trailersUrl.get(i);
             
-            if (curURL.indexOf("640")!=-1)
+            if (curURL.indexOf("640")!=-1) {
                 addTailerRealUrl(bestTrailersUrl,curURL);
+            }
         }
 
-        if (!bestTrailersUrl.isEmpty())
+        if (!bestTrailersUrl.isEmpty()) {
             return;
+        }
         
         // Search for 480
         for (int i=0;i<trailersUrl.size();i++) {
             
             String curURL = trailersUrl.get(i);
             
-            if (curURL.indexOf("480")!=-1)
+            if (curURL.indexOf("480")!=-1) {
                 addTailerRealUrl(bestTrailersUrl,curURL);
+            }
         }
         
     }
@@ -425,32 +451,28 @@ public class AppleTrailersPlugin {
         
         // Check for duplicate
         for (int i=0;i<bestTrailersUrl.size();i++) {
-        
-            if (bestTrailersUrl.get(i).equals(trailerRealUrl))
+            if (bestTrailersUrl.get(i).equals(trailerRealUrl)) {
                 return;
+            }
         }
-        
         
         bestTrailersUrl.add(trailerRealUrl);
     }
 
     private String getTrailerRealUrl(String trailerUrl) {
         try {
-        
-    
             URL url = new URL(trailerUrl);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
             InputStream inputStream = connection.getInputStream();
-        
         
             byte buf[] = new byte[1024];
             int len;
             len = inputStream.read(buf);
 
             // Check if too much data read, that this is the real url already
-            if (len==1024)
+            if (len==1024) {
                 return trailerUrl;
-
+            }
         
             String mov = new String(buf);
 
@@ -468,7 +490,11 @@ public class AppleTrailersPlugin {
             return absRealURL;
             
         } catch (Exception error) {
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("AppleTrailers Plugin: Error : " + error.getMessage());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return Movie.UNKNOWN;
         }
     }
@@ -477,21 +503,22 @@ public class AppleTrailersPlugin {
         int start=url.lastIndexOf('/');
         int end=url.indexOf(".mov",start);
         
-        if ((start==-1) || (end==-1))
+        if ((start==-1) || (end==-1)) {
             return Movie.UNKNOWN;
+        }
             
         String title="";
         
         for (int i=start+1;i<end;i++) {
-            if ((url.charAt(i)=='-') || (url.charAt(i)=='_'))
+            if ((url.charAt(i) == '-') || (url.charAt(i) == '_')) {
                 title += ' ';
-            else
-            
-            if (i==start+1)
-                title += Character.toUpperCase(url.charAt(i));
-            else
-            
-                title += url.charAt(i);
+            } else {
+                if (i == start+1) {
+                    title += Character.toUpperCase(url.charAt(i));
+                } else {
+                    title += url.charAt(i);
+                }
+            }
         }                        
             
         return title;
@@ -530,14 +557,13 @@ public class AppleTrailersPlugin {
 
                 r += c;
                 i += 6;
-            }
-            else
-            if (s.charAt(i) == '\\') {
-                i++;
-            }
-            else {
-                r += s.charAt(i);
-                i++;
+            } else {
+                if (s.charAt(i) == '\\') {
+                    i++;
+                } else {
+                    r += s.charAt(i);
+                    i++;
+                }
             }
         }
         
@@ -609,19 +635,21 @@ public class AppleTrailersPlugin {
     private boolean isValidTrailer(String trailerFilename) {
         boolean validTrailer;
         
-        if (configTypesInclude)
+        if (configTypesInclude) {
             validTrailer = false;
-        else
+        } else {
             validTrailer = true;
+        }
 
         for (String ttype : configTrailerTypes.split(",")) {
             if (trailerFilename.lastIndexOf(ttype) > 0) {
-                if (configTypesInclude)
+                if (configTypesInclude) {
                     // Found the trailer type, so this is a valid trailer
                     validTrailer = true;
-                else
+                } else {
                     // Found the trailer type, so this trailer should be excluded
                     validTrailer = false;
+                }
                 break;
             }
         }

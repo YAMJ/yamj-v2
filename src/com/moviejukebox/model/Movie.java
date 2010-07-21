@@ -1041,8 +1041,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
             setTitleSort(name);
 
-            if (originalTitle.equals(UNKNOWN))
+            if (originalTitle.equals(UNKNOWN)) {
                 setOriginalTitle(name);
+            }
         }
     }
 
@@ -1397,16 +1398,18 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                 videoOutput = "1080p 30Hz";
                 break;
             case 50:
-                if (!videoOutput.equals(""))
+                if (!videoOutput.equals("")) {
                     videoOutput += " ";
+                }
                 videoOutput += "50Hz";
                 break;
             case 59:
                 videoOutput = "1080p 59.94Hz";
                 break;
             case 60:
-                if (!videoOutput.equals(""))
+                if (!videoOutput.equals("")) {
                     videoOutput += " ";
+                }
                 videoOutput += "60Hz";
                 break;
             default:

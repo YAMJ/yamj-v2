@@ -53,34 +53,39 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             int endIndex = 0;
             while (true) {
                 index = xml.indexOf("<div align=\"center\"><a href=\"content?id=", index);
-                if (index == -1)
+                if (index == -1) {
                     break;
+                }
 
                 index += 40;
 
                 index = xml.indexOf("<a href=\"content?id=", index);
-                if (index == -1)
+                if (index == -1) {
                     break;
+                }
 
                 index += 20;
 
                 endIndex = xml.indexOf("\">", index);
-                if (endIndex == -1)
+                if (endIndex == -1) {
                     break;
+                }
 
                 String scanPosterID = xml.substring(index, endIndex);
 
                 index = endIndex + 2;
 
                 index = xml.indexOf("<span dir=\"ltr\">", index);
-                if (index == -1)
+                if (index == -1) {
                     break;
+                }
 
                 index += 16;
 
                 endIndex = xml.indexOf("</span>", index);
-                if (endIndex == -1)
+                if (endIndex == -1) {
                     break;
+                }
 
                 String scanName = xml.substring(index, endIndex).trim();
 

@@ -55,8 +55,9 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         try {
             String temp = PropertiesUtil.getProperty("plugin.plot.maxlength", "500");
             maxLength = Integer.parseInt(temp);
-            if (maxLength < 50)
+            if (maxLength < 50) {
                 maxLength = 500;
+            }
         } catch (NumberFormatException ex) {
             maxLength = 500;
         } 
@@ -109,8 +110,9 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             int beginIndex = xml.indexOf("<H1>");
             if (beginIndex > 0) { // exact match is found
                 int endIndex = xml.indexOf("</H1>", beginIndex);
-                if (gettitle)
+                if (gettitle) {
                     movie.setTitle(xml.substring((beginIndex + 4), endIndex));
+                }
 
                 // PLOT
                 beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
@@ -143,8 +145,9 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 beginIndex = xml.indexOf("<H1>");
                 if (beginIndex != -1) {
                     endIndex = xml.indexOf("</H1>", beginIndex);
-                    if (gettitle)
+                    if (gettitle) {
                         movie.setTitle(xml.substring((beginIndex + 4), endIndex));
+                    }
 
                     // PLOT
                     beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);

@@ -155,8 +155,9 @@ public class MovieJukebox {
 
         // Just create a pretty underline.
         String mjbTitle = "";
-        if (mjbVersion == null)
+        if (mjbVersion == null) {
             mjbVersion = "";
+        }
         for (int i = 1; i <= mjbVersion.length(); i++) {
             mjbTitle += "~";
         }
@@ -596,9 +597,13 @@ public class MovieJukebox {
 
         // Multi-thread: Processing thread settings
         int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0")); 
-        if(MaxThreadsProcess <= 0) MaxThreadsProcess = Runtime.getRuntime().availableProcessors();
+        if (MaxThreadsProcess <= 0) {
+            MaxThreadsProcess = Runtime.getRuntime().availableProcessors();
+        }
         int MaxThreadsDownload = Integer.parseInt(getProperty("mjb.MaxThreadsDownload", "0"));
-        if(MaxThreadsDownload <= 0) MaxThreadsDownload = MaxThreadsProcess;
+        if (MaxThreadsDownload <= 0) {
+            MaxThreadsDownload = MaxThreadsProcess;
+        }
         logger.fine("Using " + MaxThreadsProcess + " processing threads and " + MaxThreadsDownload + " downloading threads...");
         if (MaxThreadsDownload + MaxThreadsProcess == 2) {
             // Display the note about the performance, otherwise assume that the user knows how to change
@@ -981,8 +986,9 @@ public class MovieJukebox {
                     }
                 }
                 logger.fine(Integer.toString(nbFiles) + " files in the jukebox directory");
-                if (cleanDeletedTotal > 0 )
+                if (cleanDeletedTotal > 0 ) {
                     logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " unused " + (cleanDeletedTotal==1?"file":"files") + " from the jukebox directory");
+                }
             } else {
                 logger.fine("Jukebox cleaning skipped");
             }
