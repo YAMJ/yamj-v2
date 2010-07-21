@@ -129,8 +129,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String xml = webBrowser.request(sb);
 
             // Checking for zero results
-            if (xml.indexOf("найдено 0 результатов") >= 0)
+            if (xml.indexOf("найдено 0 результатов") >= 0) {
                 return Movie.UNKNOWN;
+            }
 
             // Checking if we got the movie page directly 
             int beginIndex = xml.indexOf("id_film = ");
@@ -138,8 +139,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // It's search results page, searching a link to the movie page
                 beginIndex = xml.indexOf("<!-- Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ñ‹ Ð¿Ð¾Ð¸Ñ�ÐºÐ°");
                 beginIndex = xml.indexOf("href=\"/level/1/film/", beginIndex);
-                if (beginIndex == -1) 
+                if (beginIndex == -1) {
                     return Movie.UNKNOWN;
+                }
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
                 kinopoiskId = st.nextToken();
             }
@@ -191,8 +193,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         movie.setMovieType(Movie.TYPE_TVSHOW);
                     }
                     newTitle = newTitle.replace('\u00A0', ' ').trim();
-                    if (movie.getSeason() != -1)
+                    if (movie.getSeason() != -1) {
                         newTitle = newTitle + ", сезон " + String.valueOf(movie.getSeason());
+                    }
 
                     // Original title
                     originalTitle = newTitle;
@@ -203,26 +206,29 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                         break;
                     }
-                }
-                else 
+                } else { 
                     newTitle = originalTitle;
+                }
             }
 
             // Plot
             String plot = "";
             for (String p : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
                 if (!p.isEmpty()) {
-                    if (!plot.isEmpty())
+                    if (!plot.isEmpty()) {
                         plot += " ";
+                    }
                     plot += p;
                 }
             }
 
-            if (plot.isEmpty())
+            if (plot.isEmpty()) {
                 plot = movie.getPlot();
+            }
 
-            if (plot.length() > preferredPlotLength)
+            if (plot.length() > preferredPlotLength) {
                 plot = plot.substring(0, preferredPlotLength - 3) + "...";
+            }
             movie.setPlot(plot);
 
             // Cast
@@ -274,8 +280,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 for (String writer : HTMLTools.extractTags(item, ">сценарий<", "</tr>", "<a href=\"/level/4", "</a>")) {
                     newWriters.add(writer);
                 }
-                if (newWriters.size() > 0)
+                if (newWriters.size() > 0) {
                     movie.setWriters(newWriters);
+                }
 
                 // Certification from MPAA
                 for (String mpaaTag : HTMLTools.extractTags(item, ">рейтинг MPAA<", "</tr>", "<a href=\'/level/38", "</a>")) {
@@ -342,10 +349,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             int r = kinopoiskRating;
             if (imdbRating != -1) {
-                if (preferredRating.equals("imdb") || kinopoiskRating == -1)
+                if (preferredRating.equals("imdb") || kinopoiskRating == -1) {
                     r = imdbRating;
-                else if (preferredRating.equals("average"))
+                } else if (preferredRating.equals("average")) {
                     r = (kinopoiskRating + imdbRating) / 2;
+                }
             }
             movie.setRating(r);
 

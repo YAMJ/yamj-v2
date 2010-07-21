@@ -169,7 +169,9 @@ public class MovieJukeboxHTMLWriter {
             for (int i = 0; i < movieFileArray.length; i++) {
                 MovieFile moviePart = movieFileArray[i];
                 String partExt = moviePart.getFilename().substring(moviePart.getFilename().lastIndexOf(".") + 1);
-                if (playlistIgnoreExtensions.indexOf(partExt) > -1) partCount++;
+                if (playlistIgnoreExtensions.indexOf(partExt) > -1) {
+                    partCount++;
+                }
             }
             if (partCount > 0) {
                 // Note this will skip playlist generation for any movie that has an "mjb.playlist.ignoreextensions" entry.
@@ -242,8 +244,9 @@ public class MovieJukeboxHTMLWriter {
 
             while((br = reader.readLine()) != null)
             {
-                if (br.trim().length() > 0)
+                if (br.trim().length() > 0) {
                     sb.append(br + "\n");
+                }
             }
             reader.close();
             
@@ -456,8 +459,9 @@ public class MovieJukeboxHTMLWriter {
             transformer.setParameter("homePage", indexFile);
             transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
             for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
-                if (e.getKey() != null && e.getValue() != null)
+                if (e.getKey() != null && e.getValue() != null) {
                     transformer.setParameter(e.getKey().toString(), e.getValue().toString());
+                }
             }
             transformerCache.put(lookupID, transformer);
         }

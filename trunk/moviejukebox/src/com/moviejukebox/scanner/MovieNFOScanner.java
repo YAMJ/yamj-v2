@@ -393,8 +393,8 @@ public class MovieNFOScanner {
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setOriginalTitle(val);
                             }
-                        } else if (tag.equalsIgnoreCase("sorttitle")) {
-                            // ignored
+                        //} else if (tag.equalsIgnoreCase("sorttitle")) {
+                            // Not currently used
                         } else if (tag.equalsIgnoreCase("set")) {
                             String set = XMLHelper.getCData(r);
                             Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
@@ -429,8 +429,8 @@ public class MovieNFOScanner {
                             if (val > 0) {
                                 movie.setTop250(val);
                             }
-                        } else if (tag.equalsIgnoreCase("votes")) {
-                            // ignored
+                        //} else if (tag.equalsIgnoreCase("votes")) {
+                            // Not currently used
                         } else if (tag.equalsIgnoreCase("outline")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -441,8 +441,8 @@ public class MovieNFOScanner {
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setPlot(val);
                             }
-                        } else if (tag.equalsIgnoreCase("tagline")) {
-                            // ignored
+                        //} else if (tag.equalsIgnoreCase("tagline")) {
+                            // Not currently used
                         } else if (tag.equalsIgnoreCase("runtime")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -505,10 +505,10 @@ public class MovieNFOScanner {
                                 }
                                 movie.setCertification(val);
                             }
-                        } else if (tag.equalsIgnoreCase("playcount")) {
-                            // ignored
-                        } else if (tag.equalsIgnoreCase("watched")) {
-                            // ignored
+                        //} else if (tag.equalsIgnoreCase("playcount")) {
+                            // Not currently used
+                        //} else if (tag.equalsIgnoreCase("watched")) {
+                            // Not currently used
                         } else if (tag.equalsIgnoreCase("id")) {
                             Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
                             String val = XMLHelper.getCData(r);
@@ -521,8 +521,8 @@ public class MovieNFOScanner {
                                     logger.finest("In parseMovieNFO Id=" + val + " found for default IMDB");
                                 }
                             }
-                        } else if (tag.equalsIgnoreCase("filenameandpath")) {
-                            // ignored
+                        //} else if (tag.equalsIgnoreCase("filenameandpath")) {
+                            // Not currently used
                         } else if (tag.equalsIgnoreCase("trailer")) {
                             String trailer = XMLHelper.getCData(r).trim();
                             if (!trailer.isEmpty()) {
@@ -543,8 +543,8 @@ public class MovieNFOScanner {
                             List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
-                        } else if (tag.equalsIgnoreCase("credits")) {
-                            // ignored
+                        //} else if (tag.equalsIgnoreCase("credits")) {
+                            // Not currently used
                         } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -558,8 +558,8 @@ public class MovieNFOScanner {
                                     if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                         movie.addActor(val);
                                     }
-                                } else if (event.equalsIgnoreCase("<role>")) {
-                                    // ignored
+                                //} else if (event.equalsIgnoreCase("<role>")) {
+                                    // Not currently used
                                 }
                                 if (r.hasNext()) {
                                     event = r.nextEvent().toString();
@@ -612,8 +612,9 @@ public class MovieNFOScanner {
                                             nfoHeight = null;
                                         }
 
-                                        if (r.hasNext())
+                                        if (r.hasNext()) {
                                             fiEvent = r.nextEvent().toString();
+                                        }
                                     }
                                 }
 
@@ -665,8 +666,9 @@ public class MovieNFOScanner {
                                             }
                                         }
 
-                                        if (r.hasNext())
+                                        if (r.hasNext()) {
                                             fiEvent = r.nextEvent().toString();
+                                        }
                                     }
                                     // Parsing of audio end - setting data to movie.
                                     if (!tmpCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -712,8 +714,9 @@ public class MovieNFOScanner {
                                             // Unused
                                         }
 
-                                        if (r.hasNext())
+                                        if (r.hasNext()) {
                                             fiEvent = r.nextEvent().toString();
+                                        }
                                     }
                                 }
 
@@ -839,8 +842,9 @@ public class MovieNFOScanner {
                             Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
                             Integer order = null;
                             // Check the attribute is found before getting the value
-                            if (orderAttribute != null)
-                                order = new Integer(orderAttribute.getValue()); 
+                            if (orderAttribute != null) {
+                                order = new Integer(orderAttribute.getValue());
+                            }
                             movie.addSet(set, order);
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
@@ -870,16 +874,16 @@ public class MovieNFOScanner {
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setCertification(val);
                             }
-                        } else if (tag.equalsIgnoreCase("season")) {
-                            // ignored
-                        } else if (tag.equalsIgnoreCase("episode")) {
-                            // ignored
-                        } else if (tag.equalsIgnoreCase("votes")) {
-                            // ignored
-                        } else if (tag.equalsIgnoreCase("displayseason")) {
-                            // ignored
-                        } else if (tag.equalsIgnoreCase("displayepisode")) {
-                            // ignored
+                        //} else if (tag.equalsIgnoreCase("season")) {
+                            // Not currently used
+                        //} else if (tag.equalsIgnoreCase("episode")) {
+                            // Not currently used
+                        //} else if (tag.equalsIgnoreCase("votes")) {
+                            // Not currently used
+                        //} else if (tag.equalsIgnoreCase("displayseason")) {
+                            // Not currently used
+                        //} else if (tag.equalsIgnoreCase("displayepisode")) {
+                            // Not currently used
                         } else if (tag.equalsIgnoreCase("plot")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -937,10 +941,10 @@ public class MovieNFOScanner {
                                     if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                         movie.addActor(val);
                                     }
-                                } else if (event.equalsIgnoreCase("<role>")) {
-                                    // ignored
-                                } else if (event.equalsIgnoreCase("<thumb>")) {
-                                    // ignored
+                                //} else if (event.equalsIgnoreCase("<role>")) {
+                                    // Not currently used
+                                //} else if (event.equalsIgnoreCase("<thumb>")) {
+                                    // Not currently used
                                 }
                                 if (r.hasNext()) {
                                     event = r.nextEvent().toString();
@@ -989,8 +993,9 @@ public class MovieNFOScanner {
                                             nfoHeight = null;
                                         }
 
-                                        if (r.hasNext())
+                                        if (r.hasNext()) {
                                             fiEvent = r.nextEvent().toString();
+                                        }
                                     }
                                 }
 
@@ -1017,8 +1022,9 @@ public class MovieNFOScanner {
                                             }
                                         }
 
-                                        if (r.hasNext())
+                                        if (r.hasNext()) {
                                             fiEvent = r.nextEvent().toString();
+                                        }
                                     }
                                 }
 
@@ -1028,8 +1034,9 @@ public class MovieNFOScanner {
                                             // Unused
                                         }
 
-                                        if (r.hasNext())
+                                        if (r.hasNext()) {
                                             fiEvent = r.nextEvent().toString();
+                                        }
                                     }
                                 }
 
@@ -1065,7 +1072,7 @@ public class MovieNFOScanner {
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 episodedetail.setTitle(val);
                             }
-                        } else if (tag.equalsIgnoreCase("rating")) {
+                        //} else if (tag.equalsIgnoreCase("rating")) {
                             // Not currently used
                         } else if (tag.equalsIgnoreCase("season")) {
                             String val = XMLHelper.getCData(r);
@@ -1082,11 +1089,11 @@ public class MovieNFOScanner {
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 episodedetail.setPlot(val);
                             }
-                        } else if (tag.equalsIgnoreCase("credits")) {
+                        //} else if (tag.equalsIgnoreCase("credits")) {
                             // Not currently used
-                        } else if (tag.equalsIgnoreCase("director")) {
+                        //} else if (tag.equalsIgnoreCase("director")) {
                             // Not currently used
-                        } else if (tag.equalsIgnoreCase("actor")) {
+                        //} else if (tag.equalsIgnoreCase("actor")) {
                             // Not currently used
                         }
                     }                    

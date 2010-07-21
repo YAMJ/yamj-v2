@@ -141,9 +141,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer("http://www.google.com/search?hl=it&q=");
             sb.append("\"" + URLEncoder.encode(movieName, "UTF-8") + "\"");              
 
+            /*
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
                 // No year search as for now
-            }
+            }*/
 
             sb.append("+site%3Acomingsoon.it");
 
@@ -161,7 +162,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
         } catch (Exception error) {
             logger.severe("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
-            logger.severe("ComingSoon: Error : " + error.getMessage());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return Movie.UNKNOWN;
         }
     }
@@ -220,10 +224,12 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
             return comingSoonId;
             
-            
         } catch (Exception error) {
             logger.severe("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
-            logger.severe("ComingSoon: Error : " + error.getMessage());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
             return Movie.UNKNOWN;
         }
     }
@@ -416,10 +422,12 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     }
     
+    /**
+     * ComingSoon has some titles all caps. We normalize them
+     * @param title
+     * @return
+     */
     private String correctCapsTitle(String title) {
-        
-        // ComingSoon has some titles all caps. We normalize them
-        
         if (title.equals(title.toUpperCase())) {
             StringBuffer sb = new StringBuffer();
             StringTokenizer st = new StringTokenizer(title);
@@ -439,6 +447,4 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
         
     }
-    
-
 }

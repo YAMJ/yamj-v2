@@ -111,8 +111,9 @@ public class MovieDirectoryScanner {
         } else {
             File[] files = directory.listFiles();
 
-            if (files != null)
+            if (files != null) {
                 fileCount += files.length;
+            }
             
             System.out.print("\r    Scanning directory #" + dirCount++ + ", " + fileCount + " files scanned");
 
@@ -259,8 +260,9 @@ public class MovieDirectoryScanner {
             Movie movie = new Movie();
             
             // Hopefully this is a fix for issue #670 -- I can't duplicate it, since I don't have an BD rips
-            if (contentFiles[i] == null)
+            if (contentFiles[i] == null) {
                 continue;
+            }
 
             // Compute the baseFilename: This is the filename without the extension
             String baseFileName = file.getName();
@@ -355,8 +357,9 @@ public class MovieDirectoryScanner {
             library.addMovie(movie);
             
             // Stop after first file part if full BluRay Disk
-            if (isBluRay && playFullBluRayDisk)
+            if (isBluRay && playFullBluRayDisk) {
                 break;
+            }
         }
     }
 

@@ -136,9 +136,11 @@ public class ThreadExecutor<T> implements ThreadFactory{
                 if (semaphoreGroup == null) {
                     semaphoreGroup = ".*";
                     for (String searchGroup : grouplimits.keySet()) {
-                        if (host.matches(searchGroup))
-                            if (searchGroup.length() > semaphoreGroup.length())
+                        if (host.matches(searchGroup)) {
+                            if (searchGroup.length() > semaphoreGroup.length()) {
                                 semaphoreGroup = searchGroup;
+                            }
+                        }
                     }
                     logger.finer(String.format("IO download host: %s; rule: %s", host, semaphoreGroup));
                     hostgrp.put(host, semaphoreGroup);
@@ -281,7 +283,8 @@ public class ThreadExecutor<T> implements ThreadFactory{
     public void waitFor() throws Throwable{
         waitForValues();
         int dif = threads_io - ioThreads.availablePermits(); 
-        if(dif != 0)
+        if (dif != 0) {
             logger.severe("ThreadExecutor: unfinished downloading threads detected: " + dif);
+        }
     }
 }

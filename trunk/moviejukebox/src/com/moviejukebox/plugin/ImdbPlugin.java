@@ -307,11 +307,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 Matcher m = getYear.matcher(xml);
                 if (m.find()) {
                     String Year = m.group(1);
-                    if (Year == null || Year.isEmpty())
+                    if (Year == null || Year.isEmpty()) {
                         Year = m.group(2);
+                    }
 
-                    if (Year != null && !Year.isEmpty())
+                    if (Year != null && !Year.isEmpty()) {
                         movie.setYear(Year);
+                    }
                 }
             }
 

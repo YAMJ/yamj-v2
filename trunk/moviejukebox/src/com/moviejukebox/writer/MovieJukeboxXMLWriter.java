@@ -589,16 +589,18 @@ public class MovieJukeboxXMLWriter {
                         List<Movie> tmpMovieList = movies;
                         int moviepos = 0;
                         for (Movie movie : movies) {
-                            if(movie.isDirty())
+                            if(movie.isDirty()) {
                                 skipindex = false;
+                            }
                             // Issue 1263 - Allow explode of Set in category .
                             if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
                                 List<Movie> boxedSetMovies = library.getIndexes().get("Set").get(movie.getTitle());
                                 boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
                                 logger.finest("Exploding set for " + category_path+ "[" + movie.getTitle() + "] " + boxedSetMovies.size());
                                 //delay new instance
-                                if(tmpMovieList == movies)
+                                if(tmpMovieList == movies) {
                                     tmpMovieList = new ArrayList<Movie>(movies);
+                                }
 
                                 //do we want to keep the set?
                                 //tmpMovieList.remove(moviepos);
