@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/filters.jar" sourcepath="C:/Users/Julien/workspace/Filters/src"/>
 	<classpathentry kind="lib" path="lib/mucommanderlight.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.5.jar"/>
-	<classpathentry kind="lib" path="lib/saxon9.jar"/>
 	<classpathentry kind="lib" path="lib/thetvdbapi.jar"/>
 	<classpathentry kind="lib" path="lib/themoviedbapi.jar"/>
 	<classpathentry kind="lib" path="lib/ws-commons-util-1.0.2.jar"/>
@@ -21,6 +20,7 @@
 	<classpathentry kind="lib" path="lib/xmlrpc-common-3.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/simmetrics.jar"/>
 	<classpathentry kind="lib" path="lib/tvrageapi.jar"/>
-	<classpathentry kind="lib" path="lib/pojava-2.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/pojava-2.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/saxon9he.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
