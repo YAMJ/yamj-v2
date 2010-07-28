@@ -70,6 +70,13 @@ public class TheTvDBPlugin extends ImdbPlugin {
         forceBannerOverwrite = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
         textBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("banners.addText.season", "false"));
+        
+        // We need to set the proxy parameters if set.
+        tvDB.setProxy(PropertiesUtil.getProperty("mjb.ProxyHost", null), 
+                      PropertiesUtil.getProperty("mjb.ProxyPort", null), 
+                      PropertiesUtil.getProperty("mjb.ProxyUsername", null), 
+                      PropertiesUtil.getProperty("mjb.ProxyPassword", null));
+        
     }
 
     @Override
