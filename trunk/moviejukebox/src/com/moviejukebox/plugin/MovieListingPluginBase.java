@@ -85,7 +85,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      * @param JukeboxRoot
      * @param library
      */
-    public void generate(String tempJukeboxRoot, String JukeboxRoot, Library library) {
+    public void generate(String tempJukeboxRoot, String jukeboxRoot, Library library) {
         logger.fine("  MovieListingPluginBase: not generating listing file.");
     } // generate()
 

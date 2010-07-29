@@ -1028,6 +1028,7 @@ public class MovieNFOScanner {
                                     }
                                 }
 
+                                /* We don't check for subtitles at this time
                                 if (fiEvent.equalsIgnoreCase("<subtitle>")) {
                                     while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
@@ -1038,7 +1039,7 @@ public class MovieNFOScanner {
                                             fiEvent = r.nextEvent().toString();
                                         }
                                     }
-                                }
+                                }*/
 
                                 if (r.hasNext()) {
                                     fiEvent = r.nextEvent().toString();

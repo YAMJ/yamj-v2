@@ -184,10 +184,11 @@ public class VideoImageScanner {
                     if (videoimageExtension == null) {
                         videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
                         
-                        if (firstPart < lastPart)
+                        if (firstPart < lastPart) {
                             localVideoImageBaseFilename += partSuffix + videoimageExtension;
-                        else
+                        } else {
                             localVideoImageBaseFilename += videoimageExtension;
+                        }
                     }
                     // This is the YAMJ generated filename.
                     mf.setVideoImageFilename(part, localVideoImageBaseFilename);

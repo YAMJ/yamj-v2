@@ -240,37 +240,37 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Rotate a specific part of a string
-    private static void RotateString(char[] String, int StartPos, int EndPos) {
-        int Pos;
-        char TempChar;
+    private static void RotateString(char[] stringToRotate, int startPos, int endPos) {
+        int currentPos;
+        char tempChar;
 
-        for (Pos = 0; Pos < (EndPos - StartPos + 1) / 2; Pos++) {
-            TempChar = String[StartPos + Pos];
+        for (currentPos = 0; currentPos < (endPos - startPos + 1) / 2; currentPos++) {
+            tempChar = stringToRotate[startPos + currentPos];
 
-            String[StartPos + Pos] = String[EndPos - Pos];
+            stringToRotate[startPos + currentPos] = stringToRotate[endPos - currentPos];
 
-            String[EndPos - Pos] = TempChar;
+            stringToRotate[endPos - currentPos] = tempChar;
         }
 
     }
 
     // Set the string char types
-    private static void SetStringCharType(char[] String, int[] CharType) {
-        int Pos;
+    private static void SetStringCharType(char[] stringToSet, int[] charType) {
+        int currentPos;
 
-        Pos = 0;
+        currentPos = 0;
 
-        while (Pos < String.length) {
-            CharType[Pos] = GetCharType(String[Pos]);
+        while (currentPos < stringToSet.length) {
+            charType[currentPos] = GetCharType(stringToSet[currentPos]);
 
             // Fix "(" and ")"
-            if (String[Pos] == ')') {
-                String[Pos] = '(';
-            } else if (String[Pos] == '(') {
-                String[Pos] = ')';
+            if (stringToSet[currentPos] == ')') {
+                stringToSet[currentPos] = '(';
+            } else if (stringToSet[currentPos] == '(') {
+                stringToSet[currentPos] = ')';
             }
 
-            Pos++;
+            currentPos++;
         }
 
     }
@@ -327,13 +327,13 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Resolving Natural Types
-    private static void ResolveNaturalType(char[] String, int[] CharType, int DefaultDirection) {
+    private static void ResolveNaturalType(char[] stringToResolve, int[] CharType, int DefaultDirection) {
         int Pos, CheckPos;
         int Before, After;
 
         Pos = 0;
 
-        while (Pos < String.length) {
+        while (Pos < stringToResolve.length) {
             // Check if this is natural type and we need to cahnge it
             if (CharType[Pos] == BCT_N) {
                 // Search for the type of the previous strong type
@@ -363,7 +363,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 // Search for the type of the next strong type
                 while (true) {
-                    if (CheckPos >= String.length) {
+                    if (CheckPos >= stringToResolve.length) {
                         // Default language
                         After = DefaultDirection;
                         break;
@@ -403,22 +403,22 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Resolving Implicit Levels
-    private static void ResolveImplictLevels(char[] String, int[] CharType, int[] Level) {
+    private static void ResolveImplictLevels(char[] stringToResolve, int[] charType, int[] level) {
         int Pos;
 
         Pos = 0;
 
-        while (Pos < String.length) {
-            if (CharType[Pos] == BCT_L) {
-                Level[Pos] = 2;
+        while (Pos < stringToResolve.length) {
+            if (charType[Pos] == BCT_L) {
+                level[Pos] = 2;
             }
 
-            if (CharType[Pos] == BCT_R) {
-                Level[Pos] = 1;
+            if (charType[Pos] == BCT_R) {
+                level[Pos] = 1;
             }
 
-            if (CharType[Pos] == BCT_EN) {
-                Level[Pos] = 2;
+            if (charType[Pos] == BCT_EN) {
+                level[Pos] = 2;
             }
 
             Pos++;
@@ -426,41 +426,41 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Reordering Resolved Levels
-    private static void ReorderResolvedLevels(char[] String, int[] Level) {
-        int Count;
-        int StartPos, EndPos, Pos;
+    private static void ReorderResolvedLevels(char[] stringToLevel, int[] level) {
+        int count;
+        int startPos, endPos, currentPos;
 
-        for (Count = 2; Count >= 1; Count--) {
-            Pos = 0;
+        for (count = 2; count >= 1; count--) {
+            currentPos = 0;
 
-            while (Pos < String.length) {
+            while (currentPos < stringToLevel.length) {
                 // Check if this is the level start
-                if (Level[Pos] >= Count) {
-                    StartPos = Pos;
+                if (level[currentPos] >= count) {
+                    startPos = currentPos;
 
                     // Search for the end
-                    while ((Pos + 1 != String.length) && (Level[Pos + 1] >= Count)) {
-                        Pos++;
+                    while ((currentPos + 1 != stringToLevel.length) && (level[currentPos + 1] >= count)) {
+                        currentPos++;
                     }
 
-                    EndPos = Pos;
+                    endPos = currentPos;
 
-                    RotateString(String, StartPos, EndPos);
+                    RotateString(stringToLevel, startPos, endPos);
                 }
 
-                Pos++;
+                currentPos++;
             }
         }
     }
 
     // Convert logical string to visual
-    private static void LogicalToVisual(char[] String, int DefaultDirection) {
+    private static void LogicalToVisual(char[] stringToConvert, int defaultDirection) {
         int[] CharType;
         int[] Level;
 
         int Len;
 
-        Len = String.length;
+        Len = stringToConvert.length;
 
         // Allocate CharType and Level arrays
         CharType = new int[Len];
@@ -468,19 +468,19 @@ public class SratimPlugin extends ImdbPlugin {
         Level = new int[Len];
 
         // Set the string char types
-        SetStringCharType(String, CharType);
+        SetStringCharType(stringToConvert, CharType);
 
         // Resolving Weak Types
-        ResolveWeakType(String, CharType);
+        ResolveWeakType(stringToConvert, CharType);
 
         // Resolving Natural Types
-        ResolveNaturalType(String, CharType, DefaultDirection);
+        ResolveNaturalType(stringToConvert, CharType, defaultDirection);
 
         // Resolving Implicit Levels
-        ResolveImplictLevels(String, CharType, Level);
+        ResolveImplictLevels(stringToConvert, CharType, Level);
 
         // Reordering Resolved Levels
-        ReorderResolvedLevels(String, Level);
+        ReorderResolvedLevels(stringToConvert, Level);
     }
 
     private static boolean isCharNatural(char c) {

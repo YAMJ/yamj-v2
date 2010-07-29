@@ -211,12 +211,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         // Determine which logo to use.
         if (highdefDiff) {
-            if (movie.isHD1080())
+            if (movie.isHD1080()) {
                 // Use the 1080p logo
                 logoName = "hd-1080.png";
-            else
+            } else {
                 // Otherwise use the 720p
                 logoName = "hd-720.png";
+            }
         } else {
             // We don't care, so use the default HD logo.
             logoName = "hd.png";

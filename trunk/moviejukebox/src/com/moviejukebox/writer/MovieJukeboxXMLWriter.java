@@ -719,8 +719,8 @@ public class MovieJukeboxXMLWriter {
             }
             // FIXME
             writer.writeStartElement("movies");
-            writer.writeAttribute("count", "" + idx.VideosPerPage);
-            writer.writeAttribute("cols", "" + idx.VideosPerLine);
+            writer.writeAttribute("count", "" + idx.videosPerPage);
+            writer.writeAttribute("cols", "" + idx.videosPerLine);
 
             if (fullMovieInfoInIndexes) {
                 for (Movie movie : movies) {

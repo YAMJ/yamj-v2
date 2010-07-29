@@ -71,17 +71,19 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         String widthProperty = null;
         int backgroundWidth = 0;
         
-        if (isTvShow) 
+        if (isTvShow) {
             widthProperty = PropertiesUtil.getProperty(imageType + ".tv.width");
-        else
+        } else {
             widthProperty = PropertiesUtil.getProperty(imageType + ".movie.width");
+        }
         
         //TODO remove these checks once all the skins have upgraded to the new properties
         // If this is null, then the property wasn't found, so look for the original
-        if (widthProperty == null)
+        if (widthProperty == null) {
             backgroundWidth = Integer.parseInt(PropertiesUtil.getProperty("background.width", "1280"));
-        else
+        } else {
             backgroundWidth = Integer.parseInt(widthProperty);
+        }
 
         return backgroundWidth;
     }
@@ -94,17 +96,19 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         String heightProperty = null;
         int backgroundHeight = 0;
         
-        if (isTvShow) 
+        if (isTvShow) {
             heightProperty = PropertiesUtil.getProperty(imageType + ".tv.height");
-        else
+        } else { 
             heightProperty = PropertiesUtil.getProperty(imageType + ".movie.height");
+        }
         
         //TODO remove these checks once all the skins have upgraded to the new properties
         // If this is null, then the property wasn't found, so look for the original
-        if (heightProperty == null)
+        if (heightProperty == null) {
             backgroundHeight = Integer.parseInt(PropertiesUtil.getProperty("background.height", "720"));
-        else
+        } else {
             backgroundHeight = Integer.parseInt(heightProperty);
+        }
 
         return backgroundHeight;
     }
