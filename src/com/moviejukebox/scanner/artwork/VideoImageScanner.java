@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.MovieImagePlugin;
@@ -70,7 +71,7 @@ public class VideoImageScanner {
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    public static void scan(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static void scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         // Check to see if this is a TV show.
         if (!movie.isTVShow())
             return;
@@ -223,8 +224,8 @@ public class VideoImageScanner {
                         }
                     }
                     String videoimageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
-                    String finalDestinationFileName = jukeboxDetailsRoot + File.separator + videoimageFilename;
-                    String tmpDestFilename = tempJukeboxDetailsRoot + File.separator + videoimageFilename;
+                    String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + videoimageFilename;
+                    String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + videoimageFilename;
                     
                     File tmpDestFile = new File(tmpDestFilename);
                     File finalDestinationFile = new File(finalDestinationFileName);
@@ -259,7 +260,7 @@ public class VideoImageScanner {
                     }
                 } else {
                     // logger.finer("VideoImageScanner : No local VideoImage found for " + movie.getBaseName() + " attempting to download");
-                    downloadVideoImage(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, mf, part);
+                    downloadVideoImage(imagePlugin, jukebox, movie, mf, part);
                 }
             }
         }
@@ -298,13 +299,13 @@ public class VideoImageScanner {
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    private static void downloadVideoImage(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie, MovieFile mf, int part) {
+    private static void downloadVideoImage(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie, MovieFile mf, int part) {
 
         if (mf.getVideoImageURL(part) != null && !mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
             String safeVideoImageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
-            String videoimageFilename = jukeboxDetailsRoot + File.separator + safeVideoImageFilename;
+            String videoimageFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeVideoImageFilename;
             File videoimageFile = FileTools.fileCache.getFile(videoimageFilename);
-            String tmpDestFilename = tempJukeboxDetailsRoot + File.separator + safeVideoImageFilename;
+            String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + safeVideoImageFilename;
             File tmpDestFile = new File(tmpDestFilename);
             boolean fileOK = true;
             
