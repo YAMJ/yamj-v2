@@ -524,15 +524,13 @@ public class AppleTrailersPlugin {
         return title;
     }
     
-    private String getAbsUrl(String BaseUrl,String RelativeUrl) {
+    private String getAbsUrl(String baseUrl,String relativeUrl) {
         try {
-       
-            URL BaseURL = new URL(BaseUrl);
-            URL AbsURL = new URL(BaseURL, RelativeUrl);
+            URL BaseURL = new URL(baseUrl);
+            URL AbsURL = new URL(BaseURL, relativeUrl);
             String AbsUrl = AbsURL.toString();
             
             return AbsUrl;
-            
         } catch (Exception error) {
             return Movie.UNKNOWN;
         }

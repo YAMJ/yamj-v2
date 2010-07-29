@@ -168,8 +168,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 System.out.println("Job : " + person.getJob());
                 System.out.println("URL : " + person.getUrl());
             }
-        } else
+        } else {
             System.out.println(">>No people");
+        }
 
         return movie;
     }
@@ -187,12 +188,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // false if the source is null or UNKNOWN
         if (sourceString != null && !sourceString.equalsIgnoreCase(Movie.UNKNOWN)) {
             // sourceString is valid, check target string IS null OR UNKNOWN
-            if (targetString == null || targetString.equalsIgnoreCase(Movie.UNKNOWN) || targetString == "-1")
+            if (targetString == null || targetString.equalsIgnoreCase(Movie.UNKNOWN) || targetString == "-1") {
                 return true;
-            else
+            } else {
                 return false;
-        } else
+            }
+        } else {
             return false;
+        }
     }
 
     @Override

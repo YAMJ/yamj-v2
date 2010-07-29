@@ -41,7 +41,7 @@ public class ThreadExecutor<T> implements ThreadFactory{
     private Collection<Future<T>> values = new ArrayList<Future<T>>(100);
     private ThreadPoolExecutor pool = null;
     private BlockingQueue<Runnable> queue = null;
-    private int threads_run, threads_io, threads_total;
+    private int threadsRun, threadsIo, threadsTotal;
     private boolean ignoreErrors = true;
     private static Logger logger = Logger.getLogger("moviejukebox");
     private Semaphore runningThreads, ioThreads;
@@ -91,9 +91,9 @@ public class ThreadExecutor<T> implements ThreadFactory{
      */
 
     public ThreadExecutor(int threads_run, int threads_io) {
-        this.threads_run = threads_run;
-        this.threads_io = threads_io <= 0 ? threads_run : threads_io;
-        threads_total = this.threads_run + this.threads_io;
+        this.threadsRun = threads_run;
+        this.threadsIo = threads_io <= 0 ? threads_run : threads_io;
+        threadsTotal = this.threadsRun + this.threadsIo;
         restart();
     }
 
@@ -222,8 +222,8 @@ public class ThreadExecutor<T> implements ThreadFactory{
 
     public void restart(){
         values.clear();
-        runningThreads = new Semaphore(threads_run);
-        ioThreads      = new Semaphore(threads_io);
+        runningThreads = new Semaphore(threadsRun);
+        ioThreads      = new Semaphore(threadsIo);
 
         //refined: use a fixed queue with some extra space; in relation with submit
         //the size is just an approximation; it has no real connection to thread count
@@ -231,7 +231,7 @@ public class ThreadExecutor<T> implements ThreadFactory{
         queue = new ArrayBlockingQueue<Runnable>(100);
 //        queue = new LinkedBlockingQueue<Runnable>();
         //allow more threads, they are managed by semaphores 
-        pool = new ThreadPoolExecutor(threads_run, 2*threads_total,
+        pool = new ThreadPoolExecutor(threadsRun, 2 * threadsTotal,
                         100, TimeUnit.MILLISECONDS,
                         queue,
                         this);
@@ -268,10 +268,11 @@ public class ThreadExecutor<T> implements ThreadFactory{
             try{
                 v.add(f.get());
             } catch (ExecutionException e) {
-                if(ignoreErrors)
+                if(ignoreErrors) {
                     logger.fine(getStackTrace(e.getCause()));
-                else
+                } else {
                     throw e.getCause();
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -282,7 +283,7 @@ public class ThreadExecutor<T> implements ThreadFactory{
 
     public void waitFor() throws Throwable{
         waitForValues();
-        int dif = threads_io - ioThreads.availablePermits(); 
+        int dif = threadsIo - ioThreads.availablePermits(); 
         if (dif != 0) {
             logger.severe("ThreadExecutor: unfinished downloading threads detected: " + dif);
         }

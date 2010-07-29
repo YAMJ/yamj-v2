@@ -551,16 +551,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String fanartProperty = null;
         boolean downloadFanart = false;
 
-        if (isTvShow)
+        if (isTvShow) {
             fanartProperty = PropertiesUtil.getProperty("fanart.tv.download");
-        else
+        } else {
             fanartProperty = PropertiesUtil.getProperty("fanart.movie.download");
+        }
 
         // If this is null, then the property wasn't found, so look for the original
-        if (fanartProperty == null)
+        if (fanartProperty == null) {
             downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
-        else
+        } else {
             downloadFanart = Boolean.parseBoolean(fanartProperty);
+        }
 
         return downloadFanart;
     }

@@ -125,6 +125,7 @@ public class Library implements Map<String, Movie> {
         try {
             maxGenresPerMovie = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "" + maxGenresPerMovie));
         } catch (Exception ignore) {
+            maxGenresPerMovie = 3;
         }
 
         {
@@ -177,27 +178,26 @@ public class Library implements Map<String, Movie> {
         }
     }
 
-    public static class IndexInfo{
+    public static class IndexInfo {
         public String categoryName;
         public String key;
         public String baseName;
-        public int VideosPerPage, VideosPerLine, pages;
+        public int videosPerPage, videosPerLine, pages;
         public boolean canSkip = true;  //skip flags, global (all pages)
 
-        public IndexInfo(String category, String key, int pages, int VideosPerPage, int VideosPerLine, boolean canSkip){
+        public IndexInfo(String category, String key, int pages, int videosPerPage, int videosPerLine, boolean canSkip) {
             this.categoryName = category;
             this.key          = key;
             this.pages        = pages;
-            this.VideosPerPage = VideosPerPage;
-            this.VideosPerLine = VideosPerLine;
+            this.videosPerPage = videosPerPage;
+            this.videosPerLine = videosPerLine;
             this.canSkip       = canSkip; //default values
             //"categ_key_"; to be combined with pageid and extension
             baseName = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
             pages    = 0;
         }
 
-        public void checkSkip(int page, String rootPath)
-        {
+        public void checkSkip(int page, String rootPath) {
             String filetest = rootPath + File.separator + baseName + page + ".xml";
             canSkip = canSkip && FileTools.fileCache.fileExists(filetest);
             FileTools.addJukeboxFile(filetest);
@@ -382,26 +382,27 @@ public class Library implements Map<String, Movie> {
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
                         logger.fine("  Indexing " + indexStr + "...");
-                        if (indexStr.equals("Other"))
+                        if (indexStr.equals("Other")) {
                             syncindexes.put("Other", indexByProperties(indexMovies));
-                        else if (indexStr.equals("Genres"))
+                        } else if (indexStr.equals("Genres")) {
                             syncindexes.put("Genres", indexByGenres(indexMovies));
-                        else if (indexStr.equals("Title"))
+                        } else if (indexStr.equals("Title")) {
                             syncindexes.put("Title", indexByTitle(indexMovies));
-                        else if (indexStr.equals("Rating"))
+                        } else if (indexStr.equals("Rating")) {
                             syncindexes.put("Rating", indexByCertification(indexMovies));
-                        else if (indexStr.equals("Year"))
+                        } else if (indexStr.equals("Year")) {
                             syncindexes.put("Year", indexByYear(indexMovies));
-                        else if (indexStr.equals("Library"))
+                        } else if (indexStr.equals("Library")) {
                             syncindexes.put("Library", indexByLibrary(indexMovies));
-                        else if (indexStr.equals("Cast"))
+                        } else if (indexStr.equals("Cast")) {
                             syncindexes.put("Cast", indexByCast(indexMovies));
-                        else if (indexStr.equals("Director"))
+                        } else if (indexStr.equals("Director")) {
                             syncindexes.put("Director", indexByDirector(indexMovies));
-                        else if (indexStr.equals("Country"))
+                        } else if (indexStr.equals("Country")) { 
                             syncindexes.put("Country", indexByCountry(indexMovies));
-                        else if (indexStr.equals("Writer"))
+                        } else if (indexStr.equals("Writer")) {
                             syncindexes.put("Writer", indexByWriter(indexMovies));
+                        }
                         return null;
                     }
                 });

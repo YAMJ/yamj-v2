@@ -279,10 +279,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
         
     }
     
-    private String getComingSoonIdFromURL (String URL) {
+    private String getComingSoonIdFromURL (String url) {
         //logger.fine("ComingSoon: Parsing URL: " + URL);
-        int beginIndex = URL.indexOf(COMINGSOON_KEY_PARAM);
-        StringTokenizer st = new StringTokenizer(URL.substring(beginIndex + COMINGSOON_KEY_PARAM.length()), "&/\"");
+        int beginIndex = url.indexOf(COMINGSOON_KEY_PARAM);
+        StringTokenizer st = new StringTokenizer(url.substring(beginIndex + COMINGSOON_KEY_PARAM.length()), "&/\"");
         String comingSoonId = st.nextToken();
         
         return comingSoonId;

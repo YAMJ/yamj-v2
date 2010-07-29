@@ -59,10 +59,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
         if (kinopoiskId == null || kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
             // Get base info from imdb or tvdb
-            if (!mediaFile.isTVShow())
+            if (!mediaFile.isTVShow()) {
                 super.scan(mediaFile);
-            else
+            } else {
                 tvdb.scan(mediaFile);
+            }
 
             String year = mediaFile.getYear();
             kinopoiskId = getKinopoiskId(mediaFile.getTitle(), year, mediaFile.getSeason());
@@ -250,10 +251,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 for (String genre : HTMLTools.extractTags(item, ">жанр<", "</tr>", "<a href=\"/level/10", "</a>")) {
                     GenresFound = true;
                     genre = genre.substring(0, 1).toUpperCase() + genre.substring(1, genre.length());
-                    if (genre.equalsIgnoreCase("мультфильм"))
+                    if (genre.equalsIgnoreCase("мультфильм")) {
                         newGenres.addFirst(genre);
-                    else
+                    } else {
                         newGenres.add(genre);
+                    }
                 }
                 if (GenresFound) {
                     // Limit genres count
