@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
@@ -78,7 +79,7 @@ public class FanartScanner {
 
     }
 
-    public static boolean scan(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static boolean scan(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
         String localFanartBaseFilename = movie.getBaseName();
         String fullFanartFilename = null;
         String parentPath = FileTools.getParentFolder(movie.getFile());
@@ -135,8 +136,8 @@ public class FanartScanner {
                 movie.setFanartURL(localFanartFile.toURI().toString());
             }
             String fanartFilename = movie.getFanartFilename();
-            String finalDestinationFileName = jukeboxDetailsRoot + File.separator + fanartFilename;
-            String destFileName = tempJukeboxDetailsRoot + File.separator + fanartFilename;
+            String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + fanartFilename;
+            String destFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + fanartFilename;
 
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullFanartFile = new File(fullFanartFilename);
@@ -166,19 +167,19 @@ public class FanartScanner {
                 logger.finer("FanartScanner: " + finalDestinationFileName + " already exists");
             }
         } else {
-            logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
-            downloadFanart(backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            // logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
+            downloadFanart(backgroundPlugin, jukebox, movie);
         }
         
         return foundLocalFanart;
     }
 
-    private static void downloadFanart(MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    private static void downloadFanart(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
         if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             String safeFanartFilename = movie.getFanartFilename();
-            String fanartFilename = jukeboxDetailsRoot + File.separator + safeFanartFilename;
+            String fanartFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeFanartFilename;
             File fanartFile = FileTools.fileCache.getFile(fanartFilename);
-            String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + safeFanartFilename;
+            String tmpDestFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + safeFanartFilename;
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing fanart unless ForceFanartOverwrite = true
@@ -186,21 +187,9 @@ public class FanartScanner {
                 fanartFile.getParentFile().mkdirs();
 
                 try {
-                    String FanartURL = movie.getFanartURL();
-                    logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin] @ " + FanartURL);
-                    try {
-                        FileTools.downloadImage(tmpDestFile, URLDecoder.decode(FanartURL, "UTF-8"));
-                    } catch (Exception error) {
-                        // Quick fix to prevent false ".png" url tmdb gives sometimes
-                        if ( (FanartURL.endsWith(".png")) || (FanartURL.endsWith(".PNG"))) {
-                            FanartURL = FanartURL.substring(0,FanartURL.length()-3) + "jpg";
-                            FileTools.downloadImage(tmpDestFile, URLDecoder.decode(FanartURL, "UTF-8"));
-                        } else {
-                            logger.finer("Fanart Scanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
-                            movie.setFanartFilename(Movie.UNKNOWN);
-                            movie.setFanartURL(Movie.UNKNOWN);
-                        }
-                    }
+                    logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
+
+                    FileTools.downloadImage(tmpDestFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(tmpDestFile);
 
                     if (fanartImage != null) {
@@ -261,6 +250,7 @@ public class FanartScanner {
         try {
             Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
             if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
+                logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseName());
                 return Movie.UNKNOWN;
             } else {
                 movie.setDirtyFanart(true);

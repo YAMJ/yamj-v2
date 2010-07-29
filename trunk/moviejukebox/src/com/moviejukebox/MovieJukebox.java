@@ -57,11 +57,11 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.plugin.trailer.AppleTrailersPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
@@ -70,13 +70,14 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
 import com.moviejukebox.plugin.OpenSubtitlesPlugin;
-import com.moviejukebox.scanner.artwork.BannerScanner;
-import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.plugin.trailer.AppleTrailersPlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.OutputDirectoryScanner;
+import com.moviejukebox.scanner.artwork.BannerScanner;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.scanner.artwork.VideoImageScanner;
 import com.moviejukebox.tools.FileTools;
@@ -93,11 +94,16 @@ public class MovieJukebox {
     private static Logger logger = Logger.getLogger("moviejukebox");
     Collection<MediaLibraryPath> movieLibraryPaths;
     private String movieLibraryRoot;
-    private String jukeboxRoot;
     private String skinHome;
-    private String detailsDirName;
+    
+    // Jukebox parameters
+    protected static Jukebox jukebox;
+    protected static String jukeboxLocation;
+    protected static String jukeboxTempLocation;
+    private static boolean jukeboxPreserve = false;
+    private static boolean jukeboxClean = false;
 
-    // Timestamps
+    // Time Stamps
     private static long timeStart = System.currentTimeMillis();
     private static long timeEnd;
 
@@ -114,20 +120,16 @@ public class MovieJukebox {
     private static String videoimageToken;
     private static String fanartToken;
 
-    private static boolean jukeboxClean = false;
-    
     private boolean fanartMovieDownload;
     private boolean fanartTvDownload;
     private static boolean videoimageDownload;
     private boolean bannerDownload;
-    private String jukeboxTempDir;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
     private boolean recheckXML;
     private static int recheckCount = 0;
     private static boolean skipIndexGeneration = false;
     private static boolean dumpLibraryStructure = false;
-    private static boolean jukeboxPreserve = false;
 
         // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
@@ -503,8 +505,12 @@ public class MovieJukebox {
 
     private MovieJukebox(String source, String jukeboxRoot) {
         this.movieLibraryRoot = source;
-        this.jukeboxRoot = jukeboxRoot;
-        this.detailsDirName = getProperty("mjb.detailsDirName", "Jukebox");
+        String jukeboxTempLocation = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"));
+
+        String detailsDirName = getProperty("mjb.detailsDirName", "Jukebox");
+        
+        jukebox = new Jukebox(jukeboxRoot, jukeboxTempLocation, detailsDirName);
+        
         this.forcePosterOverwrite = parseBoolean(getProperty("mjb.forcePostersOverwrite", "false"));
         this.forceThumbnailOverwrite = parseBoolean(getProperty("mjb.forceThumbnailsOverwrite", "false"));
         this.forceBannerOverwrite = parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
@@ -584,16 +590,13 @@ public class MovieJukebox {
         final MovieJukeboxHTMLWriter htmlWriter = new MovieJukeboxHTMLWriter();
 
         File mediaLibraryRoot = new File(movieLibraryRoot);
-        final String jukeboxDetailsRoot = FileTools.getCanonicalPath(jukeboxRoot + File.separator + detailsDirName);
-        final File jukeboxDetailsRootFile = new FileTools.FileEx(jukeboxDetailsRoot);
+        final File jukeboxDetailsRootFile = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails());
 
         MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
         this.moviejukeboxListing = parseBoolean(getProperty("mjb.listing.generate", "false"));
 
         videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
         bannerDownload = parseBoolean(getProperty("mjb.includeWideBanners", "false"));
-        jukeboxTempDir = PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp");
-        jukeboxTempDir = FileTools.getCanonicalPath(jukeboxTempDir);
 
         // Multi-thread: Processing thread settings
         int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0")); 
@@ -634,27 +637,23 @@ public class MovieJukebox {
         }
 
         logger.fine("Initializing...");
-        final String tempJukeboxRoot = jukeboxTempDir;
         try {
-            FileTools.deleteDir(tempJukeboxRoot);
+            FileTools.deleteDir(jukebox.getJukeboxTempLocation());
         } catch (Exception error) {
-            logger.severe("Failed deleting the temporary jukebox directory (" + tempJukeboxRoot + "), please delete this manually and try again");
+            logger.severe("Failed deleting the temporary jukebox directory (" + jukebox.getJukeboxTempLocation() + "), please delete this manually and try again");
             return;
         }
         
-        final String tempJukeboxDetailsRoot = tempJukeboxRoot + File.separator + detailsDirName;
-        File tempJukeboxDetailsRootFile = new File(tempJukeboxDetailsRoot);
-
         // Try and create the temp directory
-        boolean status = tempJukeboxDetailsRootFile.mkdirs();
+        boolean status = jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
         int i = 1;
         while (!status && i++ <= 10) {
             Thread.sleep(1000);
-            status = tempJukeboxDetailsRootFile.mkdirs();
+            status = jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
         }
         
         if (status && i > 10) {
-            logger.severe("Failed creating the temporary jukebox directory (" + tempJukeboxDetailsRootFile.getAbsolutePath() + "). Ensure this directory is read/write!");
+            logger.severe("Failed creating the temporary jukebox directory (" + jukebox.getJukeboxRootLocationDetails() + "). Ensure this directory is read/write!");
             return;
         }
 
@@ -664,7 +663,7 @@ public class MovieJukebox {
          * 
          */
         logger.fine("Scanning library directory " + mediaLibraryRoot);
-        logger.fine("Jukebox output goes to " + jukeboxRoot);
+        logger.fine("Jukebox output goes to " + jukebox.getJukeboxRootLocation());
         FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
 
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsDownload);
@@ -688,7 +687,7 @@ public class MovieJukebox {
         // If the user asked to preserve the existing movies, scan the output directory as well
         if (isJukeboxPreserve()) {
             logger.fine("Scanning output directory for additional videos");
-            OutputDirectoryScanner ods = new OutputDirectoryScanner(jukeboxRoot + File.separator + detailsDirName);
+            OutputDirectoryScanner ods = new OutputDirectoryScanner(jukebox.getJukeboxRootLocationDetails());
             ods.scan(library);
         }
 
@@ -716,15 +715,15 @@ public class MovieJukebox {
                         // First get movie data (title, year, director, genre, etc...)
                         logger.fine("Updating: " + movieTitleExt);
 
-                        updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                        updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie);
                         
                         // Then get this movie's poster
                         logger.finer("Updating poster for: " + movieTitleExt);
-                        updateMoviePoster(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                        updateMoviePoster(jukebox, movie);
 
                         // Download episode images if required
                         if (videoimageDownload) {
-                            VideoImageScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
                         }
 
                         // TODO remove these checks once all skins have transitioned to the new format
@@ -734,13 +733,13 @@ public class MovieJukebox {
                         // Get Fanart only if requested
                         // Note that the FanartScanner will check if the file is newer / different
                         if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                            FanartScanner.scan(tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
                         }
 
                         // Get Banner if requested and is a TV show
                         if (bannerDownload && movie.isTVShow()) {
-                            if (!BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
-                                updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
+                                updateTvBanner(jukebox, movie);
                             }
                         }
 
@@ -805,7 +804,7 @@ public class MovieJukebox {
                         // playlist it will be overwritten by the index XML
                         
                         logger.finest("Writing index data for master: " + movie.getBaseName());
-                        xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
+                        xmlWriter.writeMovieXML(jukebox, movie, library);
 
                         logger.finer("Updating poster for index master: " + movie.getOriginalTitle() + "...");
 
@@ -814,7 +813,7 @@ public class MovieJukebox {
 
                         // Set a default poster name in case it's not found during the scan
                         movie.setPosterFilename(safeSetMasterBaseName + "." + getProperty("posters.format", "jpg"));
-                        if (!PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
+                        if (!PosterScanner.scan(jukebox, movie).equalsIgnoreCase(Movie.UNKNOWN)) {
                             logger.finest("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
                         }
@@ -823,8 +822,8 @@ public class MovieJukebox {
                         if (movie.isTVShow() && bannerDownload) {
                             // Set a default banner filename in case it's not found during the scan
                             movie.setBannerFilename(safeSetMasterBaseName + bannerToken + ".jpg");
-                            if (!BannerScanner.scan(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
-                                updateTvBanner(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
+                                updateTvBanner(jukebox, movie);
                                 logger.finest("Local set banner (" + safeSetMasterBaseName + bannerToken + ") not found, using "
                                                 + oldPosterFilename);
                             } else {
@@ -836,7 +835,7 @@ public class MovieJukebox {
                         if (setIndexFanart) {
                             // Set a default fanart filename in case it's not found during the scan
                             movie.setFanartFilename(safeSetMasterBaseName + fanartToken + ".jpg");
-                            if (!FanartScanner.scan(tools.backgroundPlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie)) {
+                            if (!FanartScanner.scan(tools.backgroundPlugin, jukebox, movie)) {
                                 logger.finest("Local set fanart (" + safeSetMasterBaseName + fanartToken + ") not found, using "
                                                 + oldPosterFilename);
                             } else {
@@ -852,12 +851,12 @@ public class MovieJukebox {
                         if (Boolean.parseBoolean(getProperty("mjb.sets.createPosters", "false"))) {
                             // Create a detail poster for each movie
                             logger.finest("Creating detail poster for index master: " + movie.getBaseName());
-                            createPoster(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                            createPoster(tools.imagePlugin, jukebox, skinHome, movie, forcePosterOverwrite);
                         }
 
                         // Create a thumbnail for each movie
                         logger.finest("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
-                        createThumbnail(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                        createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, forceThumbnailOverwrite);
 
                         // No playlist for index masters
                         // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
@@ -882,22 +881,22 @@ public class MovieJukebox {
                         ToolSet tools = threadTools.get();
                         // Update movie XML files with computed index information
                         logger.finest("Writing index data to movie: " + movie.getBaseName());
-                        xmlWriter.writeMovieXML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie, library);
+                        xmlWriter.writeMovieXML(jukebox, movie, library);
 
                         // Create a detail poster for each movie
                         logger.finest("Creating detail poster for movie: " + movie.getBaseName());
-                        createPoster(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forcePosterOverwrite);
+                        createPoster(tools.imagePlugin, jukebox, skinHome, movie, forcePosterOverwrite);
 
                         // Create a thumbnail for each movie
                         logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
-                        createThumbnail(tools.imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, skinHome, movie, forceThumbnailOverwrite);
+                        createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, forceThumbnailOverwrite);
 
                         if (!skipIndexGeneration) {
                             // write the movie details HTML
-                            htmlWriter.generateMovieDetailsHTML(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                            htmlWriter.generateMovieDetailsHTML(jukebox, movie);
 
                             // write the playlist for the movie if needed
-                            FileTools.addJukeboxFiles(htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie));
+                            FileTools.addJukeboxFiles(htmlWriter.generatePlaylist(jukebox, movie));
                         }
                         // Add all the movie files to the exclusion list
                         FileTools.addMovieToJukeboxFilenames(movie);
@@ -910,28 +909,28 @@ public class MovieJukebox {
 
             if (!skipIndexGeneration) {
                 logger.fine("Writing Indexes XML...");
-                xmlWriter.writeIndexXML(tempJukeboxDetailsRoot, jukeboxDetailsRoot, library, tasks);
+                xmlWriter.writeIndexXML(jukebox, library, tasks);
                 logger.fine("Writing Category XML...");
-                xmlWriter.writeCategoryXML(tempJukeboxRoot, detailsDirName, library);
+                xmlWriter.writeCategoryXML(jukebox, library);
                 logger.fine("Writing Indexes HTML...");
-                htmlWriter.generateMoviesIndexHTML(tempJukeboxRoot, detailsDirName, library, tasks);
+                htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
                 logger.fine("Writing Category HTML...");
-                htmlWriter.generateMoviesCategoryHTML(tempJukeboxRoot, detailsDirName, library);
+                htmlWriter.generateMoviesCategoryHTML(jukebox, library);
             }
 
             try {
                 final String totalMoviesXmlFileName = "CompleteMovies.xml";
-                final File totalMoviesXmlFile = new File(tempJukeboxDetailsRoot, totalMoviesXmlFileName);
+                final File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), totalMoviesXmlFileName);
                 
                 OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                 context.createMarshaller().marshal(jukeboxXml, marStream);
                 marStream.close();
                 FileTools.addJukeboxFile(totalMoviesXmlFileName);
-                Transformer transformer = getTransformer(new File("rss.xsl"), jukeboxDetailsRoot);
+                Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
 
                 final String rssXmlFileName = "RSS.xml";
                 FileTools.addJukeboxFile(rssXmlFileName);
-                Result xmlResult = new StreamResult(new File(tempJukeboxDetailsRoot, rssXmlFileName));
+                Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
                 transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
             } catch (Exception e) {
                 logger.finest("RSS is not generated." /* + e.getStackTrace().toString() */);
@@ -944,11 +943,11 @@ public class MovieJukebox {
              */
             logger.fine("Copying new files to Jukebox directory...");
             String index = getProperty("mjb.indexFile", "index.htm");
-            FileTools.copyDir(tempJukeboxDetailsRoot, jukeboxDetailsRoot, true);
-            FileTools.copyFile(new File(tempJukeboxRoot + File.separator + index), new File(jukeboxRoot + File.separator + index));
+            FileTools.copyDir(jukebox.getJukeboxTempLocationDetails(), jukebox.getJukeboxRootLocationDetails(), true);
+            FileTools.copyFile(new File(jukebox.getJukeboxTempLocation() + File.separator + index), new File(jukebox.getJukeboxRootLocation() + File.separator + index));
 
             logger.fine("Copying resources to Jukebox directory...");
-            FileTools.copyDir(skinHome + File.separator + "html", jukeboxDetailsRoot, true);
+            FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxTempLocationDetails(), true);
             FileTools.fileCache.saveFileList("filecache.txt");
 
             /********************************************************************************
@@ -995,14 +994,15 @@ public class MovieJukebox {
 
             if (moviejukeboxListing) {
                 logger.fine("Generating listing output...");
-                listingPlugin.generate(tempJukeboxRoot, jukeboxRoot, library);
+                // XXX
+                listingPlugin.generate(jukebox.getJukeboxTempLocation(), jukebox.getJukeboxRootLocation(), library);
             }
 
             logger.fine("Clean up temporary files");
-            File rootIndex = new File(tempJukeboxRoot + File.separator + index);
+            File rootIndex = new File(jukebox.getJukeboxRootLocation() + File.separator + index);
             rootIndex.delete();
 
-            FileTools.deleteDir(jukeboxTempDir);
+            FileTools.deleteDir(jukebox.getJukeboxTempLocation());
         }
         timeEnd = System.currentTimeMillis();
 
@@ -1024,9 +1024,9 @@ public class MovieJukebox {
      * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. Once scanned, the <tt>movie</tt>
      * object is persisted.
      */
-    public void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, String jukeboxDetailsRoot,
-                    String tempJukeboxDetailsRoot, Movie movie) throws FileNotFoundException, XMLStreamException {
-
+    public void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) throws FileNotFoundException, XMLStreamException {
+        String jukeboxDetailsRoot = jukebox.getJukeboxRootLocation();
+        
         boolean forceXMLOverwrite = parseBoolean(getProperty("mjb.forceXMLOverwrite", "false"));
         boolean checkNewer = parseBoolean(getProperty("filename.nfo.checknewer", "true"));
 
@@ -1120,7 +1120,7 @@ public class MovieJukebox {
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
             // Check for local CoverArt
-            PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+            PosterScanner.scan(jukebox, movie);
 
         } else {
             // No XML file for this movie. 
@@ -1139,7 +1139,7 @@ public class MovieJukebox {
 
             // Added forceXMLOverwrite for issue 366
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
-                PosterScanner.scan(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                PosterScanner.scan(jukebox, movie);
             }
             
             DatabasePluginController.scan(movie);
@@ -1159,10 +1159,10 @@ public class MovieJukebox {
      * 
      * @param tempJukeboxDetailsRoot
      */
-    public void updateMoviePoster(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public void updateMoviePoster(Jukebox jukebox, Movie movie) {
         String posterFilename = movie.getPosterFilename();
-        File posterFile = new File(jukeboxDetailsRoot + File.separator + posterFilename);
-        File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + posterFilename);
+        File posterFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + posterFilename);
+        File tmpDestFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + posterFilename);
 
         // Check to see if there is a local poster.
         // Check to see if there are posters in the jukebox directories (target and temp)
@@ -1196,10 +1196,10 @@ public class MovieJukebox {
      * 
      * @param tempJukeboxDetailsRoot
      */
-    public void updateTvBanner(String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public void updateTvBanner(Jukebox jukebox, Movie movie) {
         String bannerFilename = movie.getBannerFilename();
-        File bannerFile = FileTools.fileCache.getFile(jukeboxDetailsRoot + File.separator + bannerFilename);
-        File tmpDestFile = new File(tempJukeboxDetailsRoot + File.separator + bannerFilename);
+        File bannerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + bannerFilename);
+        File tmpDestFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + bannerFilename);
 
         // Check to see if there is a local banner.
         // Check to see if there are banners in the jukebox directories (target and temp)
@@ -1391,17 +1391,17 @@ public class MovieJukebox {
      * @param movie
      * @param forceThumbnailOverwrite
      */
-    public static void createThumbnail(MovieImagePlugin imagePlugin, String rootPath, String tempRootPath, String skinHome, Movie movie,
+    public static void createThumbnail(MovieImagePlugin imagePlugin, Jukebox jukebox, String skinHome, Movie movie,
                     boolean forceThumbnailOverwrite) {
         try {
             // TODO Move all temp directory code to FileTools for a cleaner method
             // Issue 201 : we now download to local temp directory
             String safePosterFilename = movie.getPosterFilename();
             String safeThumbnailFilename = movie.getThumbnailFilename();
-            File src = new File(tempRootPath + File.separator + safePosterFilename);
-            File oldsrc = FileTools.fileCache.getFile(rootPath + File.separator + safePosterFilename);
-            String dst = tempRootPath + File.separator + safeThumbnailFilename;
-            String olddst = rootPath + File.separator + safeThumbnailFilename;
+            File src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
+            File oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
+            String dst = jukebox.getJukeboxTempLocationDetails() + File.separator + safeThumbnailFilename;
+            String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeThumbnailFilename;
             File fin;
 
             if (forceThumbnailOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()) {
@@ -1417,8 +1417,8 @@ public class MovieJukebox {
                 BufferedImage bi = GraphicTools.loadJPEGImage(fin);
                 if (bi == null) {
                     logger.info("Using dummy thumbnail image for " + movie.getOriginalTitle());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), new File(rootPath + File.separator
-                                    + safePosterFilename));
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), 
+                                       new File(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename));
                     bi = GraphicTools.loadJPEGImage(src);
                 }
 
@@ -1479,16 +1479,16 @@ public class MovieJukebox {
      * @param movie
      * @param forcePosterOverwrite
      */
-    public static void createPoster(MovieImagePlugin posterManager, String rootPath, String tempRootPath, String skinHome, Movie movie,
+    public static void createPoster(MovieImagePlugin posterManager, Jukebox jukebox, String skinHome, Movie movie,
                     boolean forcePosterOverwrite) {
         try {
             // Issue 201 : we now download to local temporary directory
             String safePosterFilename = movie.getPosterFilename();
             String safeDetailPosterFilename = movie.getDetailPosterFilename();
-            File   src = new File(tempRootPath + File.separator + safePosterFilename);
-            File   oldsrc = FileTools.fileCache.getFile(rootPath + File.separator + safePosterFilename);
-            String dst = tempRootPath + File.separator + safeDetailPosterFilename;
-            String olddst = rootPath + File.separator + safeDetailPosterFilename;
+            File   src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
+            File   oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
+            String dst = jukebox.getJukeboxTempLocationDetails() + File.separator + safeDetailPosterFilename;
+            String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeDetailPosterFilename;
             File fin;
 
             if (forcePosterOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()){
@@ -1683,4 +1683,11 @@ public class MovieJukebox {
         jukeboxPreserve = bJukeboxPreserve;
     }
 
+    /**
+     * Return the Jukebox object
+     * @return the jukebox
+     */
+    public static final Jukebox getJukebox() {
+        return jukebox;
+    }
 }

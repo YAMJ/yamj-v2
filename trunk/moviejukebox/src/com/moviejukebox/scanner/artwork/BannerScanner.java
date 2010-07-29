@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
@@ -82,7 +83,7 @@ public class BannerScanner {
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    public static boolean scan(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         String localBannerBaseFilename = movie.getBaseName();
         String fullBannerFilename = null;
         String parentPath = FileTools.getParentFolder(movie.getFile());
@@ -138,8 +139,8 @@ public class BannerScanner {
                 movie.setBannerURL(localBannerFile.toURI().toString());
             }
             String bannerFilename = movie.getBannerFilename();
-            String finalDestinationFileName = jukeboxDetailsRoot + File.separator + bannerFilename;
-            String destFileName = tempJukeboxDetailsRoot + File.separator + bannerFilename;
+            String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + bannerFilename;
+            String destFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + bannerFilename;
 
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullBannerFile = localBannerFile;
@@ -169,7 +170,7 @@ public class BannerScanner {
             
             // Don't download banners for sets as they will use the first banner from the set
             if (!movie.isSetMaster()) 
-                downloadBanner(imagePlugin, jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
+                downloadBanner(imagePlugin, jukebox, movie);
         }
         return foundLocalBanner;
     }
@@ -183,12 +184,12 @@ public class BannerScanner {
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    private static void downloadBanner(MovieImagePlugin imagePlugin, String jukeboxDetailsRoot, String tempJukeboxDetailsRoot, Movie movie) {
+    private static void downloadBanner(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         if (movie.getBannerURL() != null && !movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             String safeBannerFilename = movie.getBannerFilename();
-            String bannerFilename = jukeboxDetailsRoot + File.separator + safeBannerFilename;
+            String bannerFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeBannerFilename;
             File bannerFile = FileTools.fileCache.getFile(bannerFilename);
-            String tmpDestFileName = tempJukeboxDetailsRoot + File.separator + safeBannerFilename;
+            String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + safeBannerFilename;
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing banner unless ForceBannerOverwrite = true

@@ -280,9 +280,8 @@ public class FileTools {
                     }
                 }
             }
-        } catch (Exception ignore) {
-            //no exception to catch here
-        }
+        //no exception to catch here
+        }finally{}
     }
 
     public static String readFileToString(File file) {
@@ -552,7 +551,7 @@ public class FileTools {
     }
     
     /**
-     * special file whith "cached" attributes
+     * special file with "cached" attributes
      * used to minimize file system access which slows down everything
      * @author Gabriel Corneanu
      */
@@ -641,18 +640,14 @@ public class FileTools {
         @Override
         public File getParentFile() {
             String p = this.getParent();
-            if (p == null) {
-                return null;
-            }
+            if (p == null) return null;
             return new FileEx(p);
         }
 
         @Override
         public File[] listFiles() {
             String[] ss = list();
-            if (ss == null) {
-                return null;
-            }
+            if (ss == null) return null;
             int n = ss.length;
             FileEx[] fs = new FileEx[n];
             for (int i = 0; i < n; i++) {
@@ -740,9 +735,7 @@ public class FileTools {
         }
 
         public void addFiles(File[] files) {
-            if(files.length == 0) {
-                return;
-            }
+            if(files.length == 0) return;
             Map<String, File> map = new HashMap<String, File>(files.length);
             for (File f : files) {
                 map.put(f.getAbsolutePath().toUpperCase(), f);
@@ -767,4 +760,25 @@ public class FileTools {
     }
     
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
+ 
+    /**
+     * Check the string passed to see if it contains a value.
+     * @param testString The string to test
+     * @return False if the string is empty, null or UNKNOWN, True otherwise
+     */
+    public static boolean isValidString(String testString) {
+        if (testString == null) {
+            return false;
+        }
+        
+        if (testString.equalsIgnoreCase(Movie.UNKNOWN)) {
+            return false;
+        }
+        
+        if (testString.equals("")) {
+            return false;
+        }
+        
+        return true;
+    }
 }

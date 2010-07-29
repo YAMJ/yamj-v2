@@ -42,6 +42,7 @@ import javax.xml.stream.events.XMLEvent;
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Library.IndexInfo;
 import com.moviejukebox.model.Movie;
@@ -466,11 +467,10 @@ public class MovieJukeboxXMLWriter {
         return HTMLTools.decodeHtml(sb.toString());
     }
 
-    public void writeCategoryXML(String rootPath, String detailsDirName, Library library) throws FileNotFoundException, XMLStreamException {
-        File folder = new File(rootPath, detailsDirName);
-        folder.mkdirs();
+    public void writeCategoryXML(Jukebox jukebox, Library library) throws FileNotFoundException, XMLStreamException {
+        jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
 
-        File xmlFile = new File(folder, "Categories.xml");
+        File xmlFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), "Categories.xml");
         FileTools.addJukeboxFile("Categories.xml");
 
         XMLWriter writer = new XMLWriter(xmlFile);
@@ -548,7 +548,9 @@ public class MovieJukeboxXMLWriter {
      * 
      * @throws Throwable
      */
-    public void writeIndexXML(final String rootPath, final String originalPath, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
+    public void writeIndexXML(final Jukebox jukebox, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
+        //rootPath == TEMP
+        //OriginalPath == ROOT
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
         
@@ -589,18 +591,16 @@ public class MovieJukeboxXMLWriter {
                         List<Movie> tmpMovieList = movies;
                         int moviepos = 0;
                         for (Movie movie : movies) {
-                            if(movie.isDirty()) {
+                            if(movie.isDirty())
                                 skipindex = false;
-                            }
                             // Issue 1263 - Allow explode of Set in category .
                             if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
                                 List<Movie> boxedSetMovies = library.getIndexes().get("Set").get(movie.getTitle());
                                 boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
                                 logger.finest("Exploding set for " + category_path+ "[" + movie.getTitle() + "] " + boxedSetMovies.size());
                                 //delay new instance
-                                if(tmpMovieList == movies) {
+                                if(tmpMovieList == movies)
                                     tmpMovieList = new ArrayList<Movie>(movies);
-                                }
 
                                 //do we want to keep the set?
                                 //tmpMovieList.remove(moviepos);
@@ -618,7 +618,7 @@ public class MovieJukeboxXMLWriter {
                         IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipindex); 
 
                         for(current = 1 ; current <= last; current ++){
-                            idx.checkSkip(current, originalPath);
+                            idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
                             skipindex = skipindex && idx.canSkip;
                         }
 
@@ -628,7 +628,7 @@ public class MovieJukeboxXMLWriter {
                                 next = (current % last) + 1; //this gives 1 for last
                                 writeIndexPage(library, 
                                                 tmpMovieList.subList(moviepos, Math.min(moviepos+nbVideosPerPage, tmpMovieList.size())), 
-                                                rootPath, idx, previous, current, next, last);
+                                                jukebox.getJukeboxTempLocationDetails(), idx, previous, current, next, last);
 
                                 moviepos += nbVideosPerPage; 
                                 previous = current;
@@ -1123,10 +1123,10 @@ public class MovieJukeboxXMLWriter {
      * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed or
      * forceXMLOverwrite is true.
      */
-    public void writeMovieXML(String rootPath, String tempRootPath, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
+    public void writeMovieXML(Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         String baseName = movie.getBaseName();
-        File finalXmlFile = FileTools.fileCache.getFile(rootPath + File.separator + baseName + ".xml");
-        File tempXmlFile = new File(tempRootPath + File.separator + baseName + ".xml");
+        File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
+        File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + baseName + ".xml");
 
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
 
