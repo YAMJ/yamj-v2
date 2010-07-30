@@ -344,6 +344,7 @@ public class MovieJukebox {
             logger.severe("Directory not found : " + movieLibraryRoot);
             return;
         }
+        
         // make canonical names
         jukeboxRoot = FileTools.getCanonicalPath(jukeboxRoot);
         movieLibraryRoot = FileTools.getCanonicalPath(movieLibraryRoot); 
@@ -560,15 +561,23 @@ public class MovieJukebox {
     private void generateLibrary() throws Throwable {
 
         /********************************************************************************
-         * @author Gabriel Corneanu: the tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all are added to a
-         *         container which is instantiated one per thread
+         * @author Gabriel Corneanu
          * 
-         *         - xmlWriter looks thread safe - htmlWriter was not thread safe, getTransformer is fixed (simple workaround) - MovieImagePlugin : not clear,
-         *         made thread specific for safety - MediaInfoScanner : not sure, made thread specific
+         *  The tools used for parallel processing are NOT thread safe (some operations 
+         *  are, but not all) therefore all are added to a container which is instantiated 
+         *  one per thread
          * 
-         *         Also important: - the library itself is not thread safe for modifications (API says so) it could be adjusted with concurrent versions, but it
-         *         needs many changes it seems that it is safe for subsequent reads (iterators), so leave for now... - DatabasePluginController is also fixed to
-         *         be thread safe (plugins map for each thread)
+         *  - xmlWriter looks thread safe 
+         *  - htmlWriter was not thread safe, 
+         *  - getTransformer is fixed (simple workaround) 
+         *  - MovieImagePlugin : not clear, made thread specific for safety 
+         *  - MediaInfoScanner : not sure, made thread specific
+         * 
+         *  Also important: The library itself is not thread safe for modifications 
+         *  (API says so) it could be adjusted with concurrent versions, but it needs many 
+         *  changes it seems that it is safe for subsequent reads (iterators), so leave for now... 
+         *  
+         *  - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
          * 
          */
         class ToolSet {
@@ -645,15 +654,16 @@ public class MovieJukebox {
         }
         
         // Try and create the temp directory
-        boolean status = jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
+        logger.finest("Creating temporary jukebox location: " + jukebox.getJukeboxTempLocation());
+        boolean status = jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
         int i = 1;
         while (!status && i++ <= 10) {
             Thread.sleep(1000);
-            status = jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
+            status = jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
         }
         
         if (status && i > 10) {
-            logger.severe("Failed creating the temporary jukebox directory (" + jukebox.getJukeboxRootLocationDetails() + "). Ensure this directory is read/write!");
+            logger.severe("Failed creating the temporary jukebox directory (" + jukebox.getJukeboxTempLocationDetails() + "). Ensure this directory is read/write!");
             return;
         }
 
@@ -1148,7 +1158,6 @@ public class MovieJukebox {
             if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 PosterScanner.scan(movie);
             }
-
         }
     }
 
