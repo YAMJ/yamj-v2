@@ -209,29 +209,31 @@ public class SratimPlugin extends ImdbPlugin {
     public static final int BCT_CS = 6;
 
     // Return the type of a specific charcter
-    private static int GetCharType(char C) {
-        if (((C >= 'א') && (C <= 'ת'))) {
+    private static int getCharType(char charToCheck) {
+        if (((charToCheck >= 'א') && (charToCheck <= 'ת'))) {
             return BCT_R;
         }
 
-        if ((C == 0x26) || (C == 0x40) || ((C >= 0x41) && (C <= 0x5A)) || ((C >= 0x61) && (C <= 0x7A)) || ((C >= 0xC0) && (C <= 0xD6))
-                        || ((C >= 0xD8) && (C <= 0xDF))) {
+        if ((charToCheck == 0x26) || (charToCheck == 0x40) || ((charToCheck >= 0x41) && (charToCheck <= 0x5A)) || 
+           ((charToCheck >= 0x61) && (charToCheck <= 0x7A)) || ((charToCheck >= 0xC0) && (charToCheck <= 0xD6))
+                        || ((charToCheck >= 0xD8) && (charToCheck <= 0xDF))) {
             return BCT_L;
         }
 
-        if (((C >= 0x30) && (C <= 0x39))) {
+        if (((charToCheck >= 0x30) && (charToCheck <= 0x39))) {
             return BCT_EN;
         }
 
-        if ((C == 0x2E) || (C == 0x2F)) {
+        if ((charToCheck == 0x2E) || (charToCheck == 0x2F)) {
             return BCT_ES;
         }
 
-        if ((C == 0x23) || (C == 0x24) || ((C >= 0xA2) && (C <= 0xA5)) || (C == 0x25) || (C == 0x2B) || (C == 0x2D) || (C == 0xB0) || (C == 0xB1)) {
+        if ((charToCheck == 0x23) || (charToCheck == 0x24) || ((charToCheck >= 0xA2) && (charToCheck <= 0xA5)) || 
+                        (charToCheck == 0x25) || (charToCheck == 0x2B) || (charToCheck == 0x2D) || (charToCheck == 0xB0) || (charToCheck == 0xB1)) {
             return BCT_ET;
         }
 
-        if ((C == 0x2C) || (C == 0x3A)) {
+        if ((charToCheck == 0x2C) || (charToCheck == 0x3A)) {
             return BCT_CS;
         }
 
@@ -240,7 +242,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Rotate a specific part of a string
-    private static void RotateString(char[] stringToRotate, int startPos, int endPos) {
+    private static void rotateString(char[] stringToRotate, int startPos, int endPos) {
         int currentPos;
         char tempChar;
 
@@ -255,13 +257,13 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Set the string char types
-    private static void SetStringCharType(char[] stringToSet, int[] charType) {
+    private static void setStringCharType(char[] stringToSet, int[] charType) {
         int currentPos;
 
         currentPos = 0;
 
         while (currentPos < stringToSet.length) {
-            charType[currentPos] = GetCharType(stringToSet[currentPos]);
+            charType[currentPos] = getCharType(stringToSet[currentPos]);
 
             // Fix "(" and ")"
             if (stringToSet[currentPos] == ')') {
@@ -276,40 +278,38 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Resolving Weak Types
-    private static void ResolveWeakType(char[] String, int[] CharType) {
-        int Pos;
+    private static void resolveWeakType(char[] stringType, int[] charType) {
+        int pos = 0;
 
-        Pos = 0;
-
-        while (Pos < String.length) {
+        while (pos < stringType.length) {
             // Check that we have at least 3 chars
-            if (String.length - Pos >= 3) {
-                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 2] == BCT_EN) && ((CharType[Pos + 1] == BCT_ES) || (CharType[Pos + 1] == BCT_CS))) // Change
+            if (stringType.length - pos >= 3) {
+                if ((charType[pos] == BCT_EN) && (charType[pos + 2] == BCT_EN) && ((charType[pos + 1] == BCT_ES) || (charType[pos + 1] == BCT_CS))) // Change
                 // the char
                 // type
                 {
-                    CharType[Pos + 1] = BCT_EN;
+                    charType[pos + 1] = BCT_EN;
                 }
             }
 
-            if (String.length - Pos >= 2) {
-                if ((CharType[Pos] == BCT_EN) && (CharType[Pos + 1] == BCT_ET)) // Change the char type
+            if (stringType.length - pos >= 2) {
+                if ((charType[pos] == BCT_EN) && (charType[pos + 1] == BCT_ET)) // Change the char type
                 {
-                    CharType[Pos + 1] = BCT_EN;
+                    charType[pos + 1] = BCT_EN;
                 }
 
-                if ((CharType[Pos] == BCT_ET) && (CharType[Pos + 1] == BCT_EN)) // Change the char type
+                if ((charType[pos] == BCT_ET) && (charType[pos + 1] == BCT_EN)) // Change the char type
                 {
-                    CharType[Pos] = BCT_EN;
+                    charType[pos] = BCT_EN;
                 }
             }
 
             // Default change all the terminators to natural
-            if ((CharType[Pos] == BCT_ES) || (CharType[Pos] == BCT_ET) || (CharType[Pos] == BCT_CS)) {
-                CharType[Pos] = BCT_N;
+            if ((charType[pos] == BCT_ES) || (charType[pos] == BCT_ET) || (charType[pos] == BCT_CS)) {
+                charType[pos] = BCT_N;
             }
 
-            Pos++;
+            pos++;
         }
 
         /*
@@ -327,7 +327,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Resolving Natural Types
-    private static void ResolveNaturalType(char[] stringToResolve, int[] CharType, int DefaultDirection) {
+    private static void resolveNaturalType(char[] stringToResolve, int[] charType, int defaultDirection) {
         int Pos, CheckPos;
         int Before, After;
 
@@ -335,23 +335,23 @@ public class SratimPlugin extends ImdbPlugin {
 
         while (Pos < stringToResolve.length) {
             // Check if this is natural type and we need to cahnge it
-            if (CharType[Pos] == BCT_N) {
+            if (charType[Pos] == BCT_N) {
                 // Search for the type of the previous strong type
                 CheckPos = Pos - 1;
 
                 while (true) {
                     if (CheckPos < 0) {
                         // Default language
-                        Before = DefaultDirection;
+                        Before = defaultDirection;
                         break;
                     }
 
-                    if (CharType[CheckPos] == BCT_R) {
+                    if (charType[CheckPos] == BCT_R) {
                         Before = BCT_R;
                         break;
                     }
 
-                    if (CharType[CheckPos] == BCT_L) {
+                    if (charType[CheckPos] == BCT_L) {
                         Before = BCT_L;
                         break;
                     }
@@ -365,16 +365,16 @@ public class SratimPlugin extends ImdbPlugin {
                 while (true) {
                     if (CheckPos >= stringToResolve.length) {
                         // Default language
-                        After = DefaultDirection;
+                        After = defaultDirection;
                         break;
                     }
 
-                    if (CharType[CheckPos] == BCT_R) {
+                    if (charType[CheckPos] == BCT_R) {
                         After = BCT_R;
                         break;
                     }
 
-                    if (CharType[CheckPos] == BCT_L) {
+                    if (charType[CheckPos] == BCT_L) {
                         After = BCT_L;
                         break;
                     }
@@ -384,11 +384,11 @@ public class SratimPlugin extends ImdbPlugin {
 
                 // Change the natural depanded on the strong type before and after
                 if ((Before == BCT_R) && (After == BCT_R)) {
-                    CharType[Pos] = BCT_R;
+                    charType[Pos] = BCT_R;
                 } else if ((Before == BCT_L) && (After == BCT_L)) {
-                    CharType[Pos] = BCT_L;
+                    charType[Pos] = BCT_L;
                 } else {
-                    CharType[Pos] = DefaultDirection;
+                    charType[Pos] = defaultDirection;
                 }
             }
 
@@ -403,7 +403,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Resolving Implicit Levels
-    private static void ResolveImplictLevels(char[] stringToResolve, int[] charType, int[] level) {
+    private static void resolveImplictLevels(char[] stringToResolve, int[] charType, int[] level) {
         int Pos;
 
         Pos = 0;
@@ -426,7 +426,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Reordering Resolved Levels
-    private static void ReorderResolvedLevels(char[] stringToLevel, int[] level) {
+    private static void reorderResolvedLevels(char[] stringToLevel, int[] level) {
         int count;
         int startPos, endPos, currentPos;
 
@@ -445,7 +445,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                     endPos = currentPos;
 
-                    RotateString(stringToLevel, startPos, endPos);
+                    rotateString(stringToLevel, startPos, endPos);
                 }
 
                 currentPos++;
@@ -454,7 +454,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     // Convert logical string to visual
-    private static void LogicalToVisual(char[] stringToConvert, int defaultDirection) {
+    private static void logicalToVisual(char[] stringToConvert, int defaultDirection) {
         int[] CharType;
         int[] Level;
 
@@ -468,19 +468,19 @@ public class SratimPlugin extends ImdbPlugin {
         Level = new int[Len];
 
         // Set the string char types
-        SetStringCharType(stringToConvert, CharType);
+        setStringCharType(stringToConvert, CharType);
 
         // Resolving Weak Types
-        ResolveWeakType(stringToConvert, CharType);
+        resolveWeakType(stringToConvert, CharType);
 
         // Resolving Natural Types
-        ResolveNaturalType(stringToConvert, CharType, defaultDirection);
+        resolveNaturalType(stringToConvert, CharType, defaultDirection);
 
         // Resolving Implicit Levels
-        ResolveImplictLevels(stringToConvert, CharType, Level);
+        resolveImplictLevels(stringToConvert, CharType, Level);
 
         // Reordering Resolved Levels
-        ReorderResolvedLevels(stringToConvert, Level);
+        reorderResolvedLevels(stringToConvert, Level);
     }
 
     private static boolean isCharNatural(char c) {
@@ -496,10 +496,9 @@ public class SratimPlugin extends ImdbPlugin {
 
         ret = text.toCharArray();
         if (containsHebrew(ret)) {
-            LogicalToVisual(ret, BCT_R);
+            logicalToVisual(ret, BCT_R);
         }
-        String s = new String(ret);
-        return s;
+        return (new String(ret));
     }
 
     private static ArrayList<String> logicalToVisual(ArrayList<String> text) {
@@ -1170,8 +1169,9 @@ public class SratimPlugin extends ImdbPlugin {
                         }
                     }
 
-                    while ((n = zipinputstream.read(buf, 0, 1024)) > -1)
+                    while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
                         fileoutputstream.write(buf, 0, n);
+                    }
 
                     fileoutputstream.close();
 
@@ -1302,8 +1302,9 @@ public class SratimPlugin extends ImdbPlugin {
                                 logger.finest("Sratim Plugin: cookieName:" + cookieName);
                                 logger.finest("Sratim Plugin: cookieValue:" + cookieValue);
 
-                                if (!cookieHeader.equals(""))
+                                if (!cookieHeader.equals("")) {
                                     cookieHeader = cookieHeader + "; ";
+                                }
                                 cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
                             }
                         }
@@ -1366,8 +1367,9 @@ public class SratimPlugin extends ImdbPlugin {
                             logger.finest("Sratim Plugin: cookieName:" + cookieName);
                             logger.finest("Sratim Plugin: cookieValue:" + cookieValue);
 
-                            if (!cookieHeader.equals(""))
+                            if (!cookieHeader.equals("")) {
                                 cookieHeader = cookieHeader + "; ";
+                            }
                             cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
                         }
                     }
@@ -1404,8 +1406,9 @@ public class SratimPlugin extends ImdbPlugin {
     public static String removeChar(String s, char c) {
         String r = "";
         for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) != c)
+            if (s.charAt(i) != c) {
                 r += s.charAt(i);
+            }
         }
         return r;
     }
@@ -1551,7 +1554,7 @@ public class SratimPlugin extends ImdbPlugin {
             return false;
         }
         for (int i = 0; i < chars.length; i++) {
-            if (GetCharType(chars[i]) == BCT_R) {
+            if (getCharType(chars[i]) == BCT_R) {
                 return true;
             }
         }

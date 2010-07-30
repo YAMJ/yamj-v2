@@ -53,8 +53,9 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         }
         
         if (addPerspective) {
-            if (perspectiveDirection == null) // make sure the perspectiveDirection is populated
+            if (perspectiveDirection == null) { // make sure the perspectiveDirection is populated
                 perspectiveDirection = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
+            }
 
             bi = GraphicTools.create3DPicture(bi, imageType, perspectiveDirection);
         }

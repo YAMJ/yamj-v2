@@ -96,6 +96,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
         return "google";
     }
 
+    @SuppressWarnings("unused")
     private boolean checkPosterUrl(String posterURL) {
         try {
             URL url = new URL(posterURL);

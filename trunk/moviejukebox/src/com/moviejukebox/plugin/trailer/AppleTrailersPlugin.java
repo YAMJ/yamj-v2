@@ -90,7 +90,7 @@ public class AppleTrailersPlugin {
 
         String movieName = movie.getOriginalTitle();
         
-        String trailerPageUrl = GetTrailerPageUrl(movieName);
+        String trailerPageUrl = getTrailerPageUrl(movieName);
         
         if (trailerPageUrl == Movie.UNKNOWN) {
             logger.finer("AppleTrailers Plugin: Trailer not found for " + movie.getBaseName());
@@ -206,7 +206,7 @@ public class AppleTrailersPlugin {
         movie.setTrailerExchange(true);
     }
     
-    private String GetTrailerPageUrl(String movieName) {
+    private String getTrailerPageUrl(String movieName) {
         try {
             String searchURL = "http://www.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q=" + URLEncoder.encode(movieName, "UTF-8");
 
@@ -545,11 +545,12 @@ public class AppleTrailersPlugin {
             if ((s.charAt(i) == '%') && (i+5 < s.length()) && (s.charAt(i+1) == 'u')) {
 
                 String value=s.substring(i+2,i+6);
-                int intValue= Integer.parseInt(value,16);
+                int intValue = Integer.parseInt(value,16);
                 
                 // fix for ' char
-                if (intValue==0x2019)
-                    intValue=0x0027;
+                if (intValue == 0x2019) {
+                    intValue = 0x0027;
+                }
                 
                 char c = (char)intValue;
 
@@ -576,7 +577,7 @@ public class AppleTrailersPlugin {
             return false;
         }
 
-        ThreadExecutor.EnterIO(url);
+        ThreadExecutor.enterIO(url);
         HttpURLConnection connection = null;
         Timer timer = new Timer();
         try {
@@ -588,7 +589,9 @@ public class AppleTrailersPlugin {
                 public void run() {
                     String status = stats.calculatePercentageComplete();
                     // only print if percentage changed
-                    if (status.equals(lastStatus)) return;
+                    if (status.equals(lastStatus)) {
+                        return;
+                    }
                     lastStatus = status;
                     // this runs in a thread, so there is no way to output on one line...
                     // try to keep it visible at least...
@@ -619,7 +622,7 @@ public class AppleTrailersPlugin {
             if(connection != null){
                 connection.disconnect();
             }
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
     }
  

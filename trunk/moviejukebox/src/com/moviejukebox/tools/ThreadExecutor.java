@@ -90,9 +90,9 @@ public class ThreadExecutor<T> implements ThreadFactory{
      * @author Gabriel Corneanu
      */
 
-    public ThreadExecutor(int threads_run, int threads_io) {
-        this.threadsRun = threads_run;
-        this.threadsIo = threads_io <= 0 ? threads_run : threads_io;
+    public ThreadExecutor(int threadsRun, int threadsIo) {
+        this.threadsRun = threadsRun;
+        this.threadsIo = threadsIo <= 0 ? threadsRun : threadsIo;
         threadsTotal = this.threadsRun + this.threadsIo;
         restart();
     }
@@ -101,24 +101,24 @@ public class ThreadExecutor<T> implements ThreadFactory{
      * Thread descendant class used for our execution scheduling
      */ 
     static private class ScheduledThread extends Thread {
-        private Semaphore s_run, s_io, s_iotarget;
+        private Semaphore sRun, sIo, sIotarget;
         private Stack<String> hosts = new Stack<String>();
-        private ScheduledThread(Runnable r, Semaphore s_run, Semaphore s_io) {
+        private ScheduledThread(Runnable r, Semaphore sRun, Semaphore sIo) {
             super(r);
-            this.s_run = s_run;
-            this.s_io = s_io;
+            this.sRun = sRun;
+            this.sIo = sIo;
         }
         @Override
         public void run() {
-            s_run.acquireUninterruptibly();
-            try{
+            sRun.acquireUninterruptibly();
+            try {
                 super.run();
-            }finally{
-                s_run.release();
+            } finally {
+                sRun.release();
             }
         }
 
-        private void EnterIO(URL url){
+        private void enterIO(URL url) {
             String host = url.getHost().toLowerCase();
 
             if(!hosts.empty()){
@@ -130,7 +130,7 @@ public class ThreadExecutor<T> implements ThreadFactory{
                 return;
             }
             String semaphoreGroup;
-            synchronized(hostgrp){
+            synchronized(hostgrp) {
                 semaphoreGroup = hostgrp.get(host);
                 // first time not found, search for matching group
                 if (semaphoreGroup == null) {
@@ -151,16 +151,16 @@ public class ThreadExecutor<T> implements ThreadFactory{
             //String dbgstr = "host="+host+"; thread="+getName();
             //logger.finest("ThreadExecutor: Try EnterIO: "+dbgstr);
             Semaphore s = grouplimits.get(semaphoreGroup);
-            s_iotarget = s;
-            s_run.release(); // exit running state; another thread might be released;
-            s_iotarget.acquireUninterruptibly(); // aquire URL target semaphore
+            sIotarget = s;
+            sRun.release(); // exit running state; another thread might be released;
+            sIotarget.acquireUninterruptibly(); // aquire URL target semaphore
             hosts.push(host);
-            s_io.acquireUninterruptibly(); // enter io state
+            sIo.acquireUninterruptibly(); // enter io state
             //logger.finest("ThreadExecutor: EnterIO done: "+dbgstr);
             //ready to go...
         }
 
-        private void LeaveIO(){
+        private void leaveIO(){
             if (hosts.empty()) {
                 logger.fine(ThreadExecutor.getStackTrace(new Throwable("ThreadExecutor: Unbalanced LeaveIO call.")));
                 return;
@@ -174,24 +174,24 @@ public class ThreadExecutor<T> implements ThreadFactory{
             }
     
             //String dbgstr = "host="+host+"; thread="+getName();
-            s_iotarget.release();
-            s_io.release();
-            s_iotarget = null;
+            sIotarget.release();
+            sIo.release();
+            sIotarget = null;
             //logger.finest("ThreadExecutor: Try LeaveIO: "+dbgstr);
-            s_run.acquireUninterruptibly(); //back to running state
+            sRun.acquireUninterruptibly(); //back to running state
             //logger.finest("ThreadExecutor: LeaveIO done: "+dbgstr);
         }
     }
 
-    static public void EnterIO(URL url){
+    static public void enterIO(URL url){
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
             logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to EnterIO; ignored.")));
             return;
         }
-        ((ScheduledThread)Thread.currentThread()).EnterIO(url);
+        ((ScheduledThread)Thread.currentThread()).enterIO(url);
     }
 
-    static public void EnterIO(String url){
+    static public void enterIO(String url){
         URL u;
         try {
             u = new URL(url);
@@ -204,15 +204,15 @@ public class ThreadExecutor<T> implements ThreadFactory{
                 return;
             }
         }
-        EnterIO(u);
+        enterIO(u);
     }
 
-    static public void LeaveIO(){
+    static public void leaveIO(){
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
             logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to LeaveIO; ignored.")));
             return;
         }
-        ((ScheduledThread)Thread.currentThread()).LeaveIO();
+        ((ScheduledThread)Thread.currentThread()).leaveIO();
     }
 
     @Override
@@ -241,8 +241,9 @@ public class ThreadExecutor<T> implements ThreadFactory{
         //never queue too many objects; wait for some space to limit resource allocations
         //in case of fixed size queues, tasks could even be rejected
         //therefore wait here a very short time
-        while (queue.remainingCapacity() <= 0)
-              Thread.sleep(5);
+        while (queue.remainingCapacity() <= 0) {
+            Thread.sleep(5);
+        }
         values.add(pool.submit(c));
     }
 

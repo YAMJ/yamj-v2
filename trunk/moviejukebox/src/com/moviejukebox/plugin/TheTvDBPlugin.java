@@ -81,11 +81,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie movie) {
-        ThreadExecutor.EnterIO(webhost);
+        ThreadExecutor.enterIO(webhost);
         try {
             return doscan(movie);
         } finally {
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
     }
 
@@ -310,7 +310,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             return;
         }
 
-        ThreadExecutor.EnterIO(webhost);
+        ThreadExecutor.enterIO(webhost);
         try{
           for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
@@ -368,7 +368,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             }
           }
         }finally{
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
     }
 

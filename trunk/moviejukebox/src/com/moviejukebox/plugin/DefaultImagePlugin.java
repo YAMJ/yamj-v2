@@ -148,8 +148,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
 
             if (addPerspective) {
-                if (perspectiveDirection == null) // make sure the perspectiveDirection is populated
+                if (perspectiveDirection == null) { // make sure the perspectiveDirection is populated {
                     perspectiveDirection = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
+                }
 
                 bi = GraphicTools.create3DPicture(bi, imageType, perspectiveDirection);
             }
@@ -485,8 +486,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     
         public static Color get(String name){
             for (myColor aColor : myColor.values()) {
-               if (aColor.toString().equalsIgnoreCase(name))
+               if (aColor.toString().equalsIgnoreCase(name)) {
                    return aColor.color;
+               }
             }
             return null;
         }

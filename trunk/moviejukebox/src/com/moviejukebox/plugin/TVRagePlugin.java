@@ -55,7 +55,7 @@ public class TVRagePlugin extends ImdbPlugin {
         String id = movie.getId(TVRAGE_PLUGIN_ID);
 
         if (id == null || id.equals(TVRage.UNKNOWN)) {
-            ThreadExecutor.EnterIO(webhost);
+            ThreadExecutor.enterIO(webhost);
             try{
                 if (!movie.getTitle().equals(TVRage.UNKNOWN)) {
                     showInfo = tvRage.searchShow(movie.getTitle());
@@ -69,7 +69,7 @@ public class TVRagePlugin extends ImdbPlugin {
                     showInfo = tvRage.searchShowInfo(showInfo, showInfo.getShowID());
                 }
             }finally{
-                ThreadExecutor.LeaveIO();
+                ThreadExecutor.leaveIO();
             }
             
             if (showInfo != null) {
@@ -93,7 +93,7 @@ public class TVRagePlugin extends ImdbPlugin {
             return;
         }
 
-        ThreadExecutor.EnterIO(webhost);
+        ThreadExecutor.enterIO(webhost);
         try{
           ShowInfo showInfo = tvRage.searchShowInfo(id);
 
@@ -141,7 +141,7 @@ public class TVRagePlugin extends ImdbPlugin {
             }
           }
         }finally{
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
     }
 

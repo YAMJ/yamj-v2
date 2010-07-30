@@ -101,7 +101,7 @@ public class WebBrowser {
         StringWriter content = null;
 
         // get the download limit for the host
-        ThreadExecutor.EnterIO(url);
+        ThreadExecutor.enterIO(url);
         content = new StringWriter(10*1024);
         try {
             BufferedReader in = null;
@@ -129,14 +129,15 @@ public class WebBrowser {
                     in.close();
                 }
                 if (cnx != null) {
-                    if(cnx instanceof HttpURLConnection)
-                      ((HttpURLConnection)cnx).disconnect();
+                    if(cnx instanceof HttpURLConnection) {
+                        ((HttpURLConnection)cnx).disconnect();
+                    }
                 }
             }
             return content.toString();
         } finally {
             content.close();
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
     }
 
@@ -153,7 +154,7 @@ public class WebBrowser {
         }
 
         URL url = new URL(imageURL);
-        ThreadExecutor.EnterIO(url);
+        ThreadExecutor.enterIO(url);
         boolean success = false;
         int retryCount = imageRetryCount;
         try {
@@ -179,7 +180,7 @@ public class WebBrowser {
                 }
             }
         }finally{
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
         if (!success) {
             logger.finest("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
@@ -197,8 +198,9 @@ public class WebBrowser {
         // TODO: Move these workarounds into a property file so they can be overridden at runtime 
 
         // A workaround for the need to use a referrer for thetvdb.com
-        if (checkUrl.indexOf("thetvdb") > 0)
+        if (checkUrl.indexOf("thetvdb") > 0) {
             checkCnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
+        }
 
         // A workaround for the kinopoisk.ru site
         if (checkUrl.indexOf("kinopoisk") > 0) {
@@ -314,7 +316,7 @@ public class WebBrowser {
     public String getUrl(String urlStr) throws Exception {
         String response = urlStr;
         URL url = new URL(urlStr);
-        ThreadExecutor.EnterIO(url);
+        ThreadExecutor.enterIO(url);
         try {
             URLConnection cnx = openProxiedConnection(url);
             sendHeader(cnx);
@@ -322,7 +324,7 @@ public class WebBrowser {
             response = cnx.getURL().toString();
 
         } finally {
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
         return response;
     }

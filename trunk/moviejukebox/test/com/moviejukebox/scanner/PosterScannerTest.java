@@ -22,7 +22,6 @@ import com.moviejukebox.plugin.ImdbInfo;
 
 public class PosterScannerTest extends TestCase {
 
-    @SuppressWarnings("unused")
     private Movie movieTest;
 
     protected void setUp() throws Exception {

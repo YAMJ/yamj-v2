@@ -52,7 +52,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
-        ThreadExecutor.EnterIO(webhost);
+        ThreadExecutor.enterIO(webhost);
         try {
             List<Series> seriesList = null;
 
@@ -89,14 +89,14 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             logger.severe("Failed retreiving TvDb Id for movie : " + title);
             logger.severe("Error : " + e.getMessage());
         }
-        ThreadExecutor.LeaveIO();
+        ThreadExecutor.leaveIO();
         return response;
     }
 
     @Override
     public IImage getPosterUrl(String id, int season) {
         String posterURL = Movie.UNKNOWN;
-        ThreadExecutor.EnterIO(webhost);
+        ThreadExecutor.enterIO(webhost);
         
         try {
             // TODO Fix the TheTvDB API banner.language issue
@@ -137,7 +137,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                     posterURL = urlNormal;
                 }
             }
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
             if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
                 return new Image(posterURL);
             }

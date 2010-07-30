@@ -152,7 +152,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 kinopoiskId = st.nextToken();
             }
 
-            if (kinopoiskId != "") {
+            if (!kinopoiskId.equals("")) {
                 // Check if ID is integer
                 try {
                     Integer.parseInt(kinopoiskId);
@@ -265,8 +265,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     } catch (Exception ignore) {
                         //
                     }
-                    while (newGenres.size() > maxGenres)
+                    while (newGenres.size() > maxGenres) {
                         newGenres.removeLast();
+                    }
 
                     movie.setGenres(newGenres);
                 }

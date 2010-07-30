@@ -117,6 +117,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         return response;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public IImage getPosterUrl(String id) {
         // <td><img src="

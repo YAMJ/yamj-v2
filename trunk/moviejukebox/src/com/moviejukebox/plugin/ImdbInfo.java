@@ -198,7 +198,7 @@ public class ImdbInfo {
             }
             String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>" , "</b>").toLowerCase();
             String formattedMovieName;
-            if (otherMovieName != "") {
+            if (!otherMovieName.equals("")) {
                 if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
                     otherMovieName = otherMovieName.substring(0,otherMovieName.lastIndexOf("(")-1);
                     formattedMovieName = otherMovieName + "</a> (" + year + ")";
@@ -266,6 +266,7 @@ public class ImdbInfo {
         return Movie.UNKNOWN;
     }
 
+    @SuppressWarnings("unused")
     private String searchForTitle(String imdbXML, String movieName) {
         Pattern imdbregex = Pattern.compile("\\<a(?:\\s*[^\\>])\\s*" // start of a-tag, and cruft before the href
                         + "href=\"/title/(tt\\d+)" // the href, grab the id

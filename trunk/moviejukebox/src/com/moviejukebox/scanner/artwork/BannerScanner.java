@@ -169,8 +169,9 @@ public class BannerScanner {
             // logger.finer("BannerScanner : No local Banner found for " + movie.getBaseName() + " attempting to download");
             
             // Don't download banners for sets as they will use the first banner from the set
-            if (!movie.isSetMaster()) 
+            if (!movie.isSetMaster()) {
                 downloadBanner(imagePlugin, jukebox, movie);
+            }
         }
         return foundLocalBanner;
     }
