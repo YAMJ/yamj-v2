@@ -15,10 +15,15 @@ package com.moviejukebox.tools;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -30,6 +35,7 @@ import com.moviejukebox.tools.WebBrowser;
  * @author altman.matthew
  */
 public class XMLHelper {
+    protected static Logger logger = Logger.getLogger("moviejukebox");
 
     public static XMLEventReader getEventReader(String url) throws IOException, XMLStreamException {
         WebBrowser wb = new WebBrowser();
@@ -41,8 +47,12 @@ public class XMLHelper {
         if (reader != null) {
             try {
                 reader.close();
-            } catch (XMLStreamException ex) {
-                ex.printStackTrace();
+            } catch (XMLStreamException error) {
+                logger.severe("Failed closing the event reader.");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
             }
         }
     }

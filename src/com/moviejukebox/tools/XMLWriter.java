@@ -66,12 +66,9 @@ public class XMLWriter {
         writer.writeEndDocument();
     }
 
-    private void flush() throws XMLStreamException {
-        writer.flush();
-    }
-
     public void close() {
         try {
+            writer.flush();
             writer.close();
             printWriter.close();
             outputStream.close();
@@ -119,10 +116,12 @@ public class XMLWriter {
         printWriter.flush();
     }
 
+    @SuppressWarnings("unused")
     private int getIndent() {
         return indent;
     }
 
+    @SuppressWarnings("unused")
     private void setIndent(int indent) {
         this.indent  = indent;
         indentString = "";

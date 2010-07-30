@@ -73,8 +73,9 @@ public class VideoImageScanner {
      */
     public static void scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         // Check to see if this is a TV show.
-        if (!movie.isTVShow())
+        if (!movie.isTVShow()) {
             return;
+        }
 
         String genericVideoImageFilename = null;
         String localVideoImageBaseFilename = null;

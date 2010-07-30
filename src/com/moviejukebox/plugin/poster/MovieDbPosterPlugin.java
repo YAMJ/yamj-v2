@@ -46,8 +46,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         theMovieDb = new TheMovieDb(API_KEY);
         MovieDB moviedb = theMovieDb.moviedbSearch(title, language);
         if (moviedb != null) {
-            String response = moviedb.getId();
-            return response;
+            return moviedb.getId();
         } else {
             return Movie.UNKNOWN;
         }

@@ -167,8 +167,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         for (int i = 0; i < skip; i++) {
             st.nextToken();
         }
-        String filmdeltaId = st.nextToken() + "/" + st.nextToken();
-        return filmdeltaId;
+        return (st.nextToken() + "/" + st.nextToken());
     }
 
     /*

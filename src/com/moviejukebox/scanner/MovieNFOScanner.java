@@ -419,9 +419,12 @@ public class MovieNFOScanner {
                                     movie.setReleaseDate(dateTime.toString(dateFormatString));
                                     movie.setOverrideYear(true);
                                     movie.setYear(dateTime.toString("yyyy"));
-                                } catch (Exception ignore) {
-                                    System.out.println("EXCEPTION!!");
-                                    ignore.printStackTrace();
+                                } catch (Exception error) {
+                                    logger.severe("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+                                    final Writer eResult = new StringWriter();
+                                    final PrintWriter printWriter = new PrintWriter(eResult);
+                                    error.printStackTrace(printWriter);
+                                    logger.severe(eResult.toString());
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("top250")) {

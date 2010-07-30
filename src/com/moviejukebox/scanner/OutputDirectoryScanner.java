@@ -63,7 +63,9 @@ public class OutputDirectoryScanner {
                             }
                         }
                         
-                        if (skip) continue;
+                        if (skip) {
+                            continue;
+                        }
                     
                         logger.finest("  Found XML file: " + filename);
                         

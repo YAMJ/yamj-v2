@@ -56,7 +56,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         MovieDB moviedb = null;
         boolean retval = false;
 
-        ThreadExecutor.EnterIO(webhost);
+        ThreadExecutor.enterIO(webhost);
         try{
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -79,7 +79,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
         }finally{
             // the rest is not web search anymore
-            ThreadExecutor.LeaveIO();
+            ThreadExecutor.leaveIO();
         }
 
         if (moviedb.getId() != null && !moviedb.getId().equalsIgnoreCase(MovieDB.UNKNOWN)) {
@@ -188,7 +188,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // false if the source is null or UNKNOWN
         if (sourceString != null && !sourceString.equalsIgnoreCase(Movie.UNKNOWN)) {
             // sourceString is valid, check target string IS null OR UNKNOWN
-            if (targetString == null || targetString.equalsIgnoreCase(Movie.UNKNOWN) || targetString == "-1") {
+            if (targetString == null || targetString.equalsIgnoreCase(Movie.UNKNOWN) || targetString.equals("-1")) {
                 return true;
             } else {
                 return false;

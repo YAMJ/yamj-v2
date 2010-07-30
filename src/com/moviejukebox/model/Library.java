@@ -294,48 +294,58 @@ public class Library implements Map<String, Movie> {
             String index_name = index_entry.getKey();
             List<Movie> index_list = index_entry.getValue();
 
-            Movie indexMaster = (Movie)index_list.get(0).clone();
-            indexMaster.setSetMaster(true);
-            indexMaster.setTitle(index_name);
-            indexMaster.setSeason(-1);
-            indexMaster.setTitleSort(index_name);
-            indexMaster.setOriginalTitle(index_name);
-            indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(index_name)) + "1");
-            indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
-            // set TV and HD properties of the master
-            int cntTV = 0;
-            int cntHD = 0;
-            int top250 = -1;
+            Movie indexMaster;
+            try {
+                indexMaster = (Movie)index_list.get(0).clone();
+                indexMaster.setSetMaster(true);
+                indexMaster.setTitle(index_name);
+                indexMaster.setSeason(-1);
+                indexMaster.setTitleSort(index_name);
+                indexMaster.setOriginalTitle(index_name);
+                indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(index_name)) + "1");
+                indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
 
-            // We Can't use a TreeSet because MF.compareTo just compares part #
-            // so it fails when we combine multiple seasons into one collection
-            Collection<MovieFile> master_mf_col = new LinkedList<MovieFile>();
-            for (Movie m : index_list) {
-                if (m.isTVShow()) {
-                    ++cntTV;
-                }
-                if (m.isHD()) {
-                    ++cntHD;
+                // set TV and HD properties of the master
+                int cntTV = 0;
+                int cntHD = 0;
+                int top250 = -1;
+
+                // We Can't use a TreeSet because MF.compareTo just compares part #
+                // so it fails when we combine multiple seasons into one collection
+                Collection<MovieFile> master_mf_col = new LinkedList<MovieFile>();
+                for (Movie m : index_list) {
+                    if (m.isTVShow()) {
+                        ++cntTV;
+                    }
+                    if (m.isHD()) {
+                        ++cntHD;
+                    }
+
+                    int mTop250 = m.getTop250();
+                    if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
+                        top250 = mTop250;
+                    }
+
+                    Collection<MovieFile> mf_col = m.getMovieFiles();
+                    if (mf_col != null) {
+                        master_mf_col.addAll(mf_col);
+                    }
                 }
 
-                int mTop250 = m.getTop250();
-                if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
-                    top250 = mTop250;
-                }
-
-                Collection<MovieFile> mf_col = m.getMovieFiles();
-                if (mf_col != null) {
-                    master_mf_col.addAll(mf_col);
-                }
+                indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
+                indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
+                logger.finest("Setting index master >" + indexMaster.getTitle() + "< - isTV: " + indexMaster.isTVShow() + " - isHD: " + indexMaster.isHD()
+                                + " - top250: " + indexMaster.getTop250());
+                indexMaster.setTop250(top250);
+                indexMaster.setMovieFiles(master_mf_col);
+                masters.put(index_name, indexMaster);
+            } catch (CloneNotSupportedException error) {
+                logger.severe("Failed building index masters");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
             }
-
-            indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
-            indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
-            logger.finest("Setting index master >" + indexMaster.getTitle() + "< - isTV: " + indexMaster.isTVShow() + " - isHD: " + indexMaster.isHD()
-                            + " - top250: " + indexMaster.getTop250());
-            indexMaster.setTop250(top250);
-            indexMaster.setMovieFiles(master_mf_col);
-            masters.put(index_name, indexMaster);
         }
 
         return masters;
@@ -444,15 +454,15 @@ public class Library implements Map<String, Movie> {
             tasks.restart();
             // OK, now that all the index masters are in-place, sort everything.
             logger.fine("  Sorting Indexes ...");
-            for (final Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
-                for (final Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
+            for (final Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
+                for (final Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
                     tasks.submit(new Callable<Void>() {
                         public Void call() {
-                            Comparator<Movie> comp = getComparator(indexes_entry.getKey(), index_entry.getKey());
+                            Comparator<Movie> comp = getComparator(indexesEntry.getKey(), indexEntry.getKey());
                             if (null != comp) {
-                                Collections.sort(index_entry.getValue(), comp);
+                                Collections.sort(indexEntry.getValue(), comp);
                             } else {
-                                Collections.sort(index_entry.getValue());
+                                Collections.sort(indexEntry.getValue());
                             }
                             return null;
                         }
@@ -834,7 +844,7 @@ public class Library implements Map<String, Movie> {
         library.clear();
     }
 
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         return library.clone();
     }
 

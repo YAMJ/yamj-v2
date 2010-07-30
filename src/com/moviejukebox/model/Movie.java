@@ -1350,7 +1350,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         sortIgnorePrefixes.add(prefix);
     }
 
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         try {
             return super.clone();
         } catch (CloneNotSupportedException ignored) {

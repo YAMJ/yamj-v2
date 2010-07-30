@@ -171,7 +171,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
-                movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>" + siteDef.getRelease_date() + ":</h5>", 1));
+                movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>" + siteDef.getReleaseDate() + ":</h5>", 1));
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
@@ -320,7 +320,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (!movie.isOverrideYear() && (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN))) {
                 movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1));
                 if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-                    String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 0);
+                    String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginalAirDate() + ":</h5>", 0);
                     if (!fullReleaseDate.equalsIgnoreCase(Movie.UNKNOWN)) {
                         movie.setYear(fullReleaseDate.split(" ")[2]);
                     }

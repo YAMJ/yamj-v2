@@ -435,7 +435,7 @@ public class MovieFilenameScannerTest extends TestCase {
         return MovieFilenameScanner.scan(file);
     }
 
-    @SuppressWarnings("serial")
+    @SuppressWarnings({ "serial", "unused" })
     private static MovieFileNameDTO scan(String parentfoldername, String foldername, String filename) {
         final File parentfolder = new File(parentfoldername) {
             @Override

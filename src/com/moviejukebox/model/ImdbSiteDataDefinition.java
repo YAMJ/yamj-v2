@@ -67,7 +67,7 @@ public class ImdbSiteDataDefinition {
         return cast;
     }
 
-    public String getRelease_date() {
+    public String getReleaseDate() {
         return release_date;
     }
 
@@ -103,7 +103,7 @@ public class ImdbSiteDataDefinition {
         return certification;
     }
 
-    public String getOriginal_air_date() {
+    public String getOriginalAirDate() {
         return original_air_date;
     }
 

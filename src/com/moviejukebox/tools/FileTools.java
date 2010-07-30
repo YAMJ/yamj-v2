@@ -213,8 +213,9 @@ public class FileTools {
                 FileChannel outChannel = new FileOutputStream(dst).getChannel();
                 try {
                     long p = 0, s = inChannel.size();
-                    while(p < s)
+                    while(p < s) {
                         p += inChannel.transferTo(p, 1024*1024, outChannel);
+                    }
                 }
                 finally {
                     if (inChannel != null) {
@@ -642,14 +643,18 @@ public class FileTools {
         @Override
         public File getParentFile() {
             String p = this.getParent();
-            if (p == null) return null;
+            if (p == null) {
+                return null;
+            }
             return new FileEx(p);
         }
 
         @Override
         public File[] listFiles() {
             String[] ss = list();
-            if (ss == null) return null;
+            if (ss == null) {
+                return null;
+            }
             int n = ss.length;
             FileEx[] fs = new FileEx[n];
             for (int i = 0; i < n; i++) {
@@ -737,7 +742,9 @@ public class FileTools {
         }
 
         public void addFiles(File[] files) {
-            if(files.length == 0) return;
+            if(files.length == 0) {
+                return;
+            }
             Map<String, File> map = new HashMap<String, File>(files.length);
             for (File f : files) {
                 map.put(f.getAbsolutePath().toUpperCase(), f);
