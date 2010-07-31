@@ -346,7 +346,7 @@ public class MovieJukeboxHTMLWriter {
         tasks.waitFor();
 
         try {
-            File htmlFile = new File(jukebox.getJukeboxRootLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
+            File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             htmlFile.getParentFile().mkdirs();
 
             OutputStream fos = FileTools.createFileOutputStream(htmlFile);

@@ -619,12 +619,12 @@ public class MovieJukeboxXMLWriter {
                         moviepos = 0;
                         IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipindex); 
 
-                        for(current = 1 ; current <= last; current ++){
+                        for (current = 1 ; current <= last; current ++) {
                             idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
                             skipindex = skipindex && idx.canSkip;
                         }
 
-                        if(!skipindex){
+                        if (!skipindex) {
                             for(current = 1 ; current <= last; current ++){
                                 // All pages are handled here
                                 next = (current % last) + 1; //this gives 1 for last
@@ -637,7 +637,7 @@ public class MovieJukeboxXMLWriter {
                             }
                         }
 
-                        if(skipindex){
+                        if (skipindex) {
                             logger.finer("Category " + category_path + " no change detected, skipping XML generation.");
                         }
                         library.addGeneratedIndex(idx);

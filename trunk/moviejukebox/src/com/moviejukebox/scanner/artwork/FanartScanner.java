@@ -137,7 +137,7 @@ public class FanartScanner {
             }
             String fanartFilename = movie.getFanartFilename();
             String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + fanartFilename;
-            String destFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + fanartFilename;
+            String destFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + fanartFilename;
 
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullFanartFile = new File(fullFanartFilename);
@@ -179,7 +179,7 @@ public class FanartScanner {
             String safeFanartFilename = movie.getFanartFilename();
             String fanartFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeFanartFilename;
             File fanartFile = FileTools.fileCache.getFile(fanartFilename);
-            String tmpDestFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + safeFanartFilename;
+            String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + safeFanartFilename;
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing fanart unless ForceFanartOverwrite = true
