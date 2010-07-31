@@ -612,10 +612,12 @@ public class MovieJukebox {
         if (MaxThreadsProcess <= 0) {
             MaxThreadsProcess = Runtime.getRuntime().availableProcessors();
         }
+        
         int MaxThreadsDownload = Integer.parseInt(getProperty("mjb.MaxThreadsDownload", "0"));
         if (MaxThreadsDownload <= 0) {
             MaxThreadsDownload = MaxThreadsProcess;
         }
+        
         logger.fine("Using " + MaxThreadsProcess + " processing threads and " + MaxThreadsDownload + " downloading threads...");
         if (MaxThreadsDownload + MaxThreadsProcess == 2) {
             // Display the note about the performance, otherwise assume that the user knows how to change
@@ -957,7 +959,7 @@ public class MovieJukebox {
             FileTools.copyFile(new File(jukebox.getJukeboxTempLocation() + File.separator + index), new File(jukebox.getJukeboxRootLocation() + File.separator + index));
 
             logger.fine("Copying resources to Jukebox directory...");
-            FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxTempLocationDetails(), true);
+            FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxRootLocationDetails(), true);
             FileTools.fileCache.saveFileList("filecache.txt");
 
             /********************************************************************************
@@ -1009,7 +1011,7 @@ public class MovieJukebox {
             }
 
             logger.fine("Clean up temporary files");
-            File rootIndex = new File(jukebox.getJukeboxRootLocation() + File.separator + index);
+            File rootIndex = new File(jukebox.getJukeboxTempLocation() + File.separator + index);
             rootIndex.delete();
 
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
@@ -1035,8 +1037,6 @@ public class MovieJukebox {
      * object is persisted.
      */
     public void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) throws FileNotFoundException, XMLStreamException {
-        String jukeboxDetailsRoot = jukebox.getJukeboxRootLocation();
-        
         boolean forceXMLOverwrite = parseBoolean(getProperty("mjb.forceXMLOverwrite", "false"));
         boolean checkNewer = parseBoolean(getProperty("filename.nfo.checknewer", "true"));
 
@@ -1045,7 +1045,7 @@ public class MovieJukebox {
          * parse the XML data.
          */
         String safeBaseName = movie.getBaseName();
-        File xmlFile = FileTools.fileCache.getFile(jukeboxDetailsRoot + File.separator + safeBaseName + ".xml");
+        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocation() + File.separator + safeBaseName + ".xml");
 
         // See if we can find the NFO associated with this video file.
         List<File> nfoFiles = MovieNFOScanner.locateNFOs(movie);
