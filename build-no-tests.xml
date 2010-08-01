@@ -6,7 +6,12 @@
         <property name="version" value="v2.1 BETA" />
         <!-- This only works if the build is done through Hudson, otherwise it stays the same -->
         <property environment="env" />
-        <property name="revision" value="${env.SVN_REVISION}" />
+        
+        <!-- Get the revision information from SVN -->
+        <property environment="env" />
+        <condition property="revision" value="${env.SVN_REVISION}" else="0000">
+            <isset property="env.SVN_REVISION" />
+        </condition>
 
         <echo>Writing version.txt</echo>
         <tstamp>
@@ -33,22 +38,6 @@
     <target name="compile" depends="prepare">
         <javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="src">
             <classpath>
-                <fileset dir="lib">
-                    <include name="**/*.jar" />
-                </fileset>
-            </classpath>
-        </javac>
-    </target>
-
-    <target name="prepare-test">
-        <mkdir dir="build/test" />
-        <mkdir dir="build/report" />
-    </target>
-
-    <target name="compile-test" depends="prepare-test, compile">
-        <javac debug="true" encoding="utf-8" destdir="build/test" srcdir="test">
-            <classpath>
-                <pathelement path="build/classes" />
                 <fileset dir="lib">
                     <include name="**/*.jar" />
                 </fileset>
@@ -105,6 +94,9 @@
             </fileset>
         </copy>
 
+        <!-- <zip basedir="dist" destfile="dist/moviejukebox_${version}.zip" excludes="mediaInfo/" followsymlinks="false" /> -->
+        
+        <zip basedir="dist" destfile="dist/yamj-svn-r${revision}.zip" excludes="mediaInfo/" followsymlinks="false" />
     </target>
 
 </project>
