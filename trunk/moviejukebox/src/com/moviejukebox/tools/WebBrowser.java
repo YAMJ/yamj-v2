@@ -120,8 +120,8 @@ public class WebBrowser {
                 while ((line = in.readLine()) != null) {
                     content.write(line);
                 }
-                // attempt to force close connection
-                // we have http connections, so these are always valid
+                // Attempt to force close connection
+                // We have HTTP connections, so these are always valid
                 content.flush();
                 in.close();
             } finally {
