@@ -175,7 +175,11 @@ public class MovieJukebox {
 
         // Print the revision information if it was populated by Hudson CI
         if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
-            logger.fine("  Revision: r" + mjbRevision);
+            if (mjbRevision.equals("0000")) {
+                logger.fine("  Revision: Custom Build (r" + mjbRevision + ")");
+            } else {
+                logger.fine("  Revision: r" + mjbRevision);
+            }
             logger.fine("Build Date: " + mjbBuildDate);
             logger.fine("");
         }
@@ -825,11 +829,11 @@ public class MovieJukebox {
 
                         // Set a default poster name in case it's not found during the scan
                         movie.setPosterFilename(safeSetMasterBaseName + "." + getProperty("posters.format", "jpg"));
-                        if (!PosterScanner.scan(jukebox, movie).equalsIgnoreCase(Movie.UNKNOWN)) {
+                        if (PosterScanner.scan(jukebox, movie).equalsIgnoreCase(Movie.UNKNOWN)) {
                             logger.finest("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
                         }
-
+                        
                         // If this is a TV Show and we want to download banners, then also check for a banner Set file
                         if (movie.isTVShow() && bannerDownload) {
                             // Set a default banner filename in case it's not found during the scan
@@ -1045,7 +1049,7 @@ public class MovieJukebox {
          * parse the XML data.
          */
         String safeBaseName = movie.getBaseName();
-        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocation() + File.separator + safeBaseName + ".xml");
+        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safeBaseName + ".xml");
 
         // See if we can find the NFO associated with this video file.
         List<File> nfoFiles = MovieNFOScanner.locateNFOs(movie);
@@ -1416,10 +1420,10 @@ public class MovieJukebox {
             if (forceThumbnailOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (src.exists()) {
-                    logger.finest("New file exists");
+                    //logger.finest("New file exists: " + src.getAbsolutePath());
                     fin = src;
                 } else {
-                    logger.finest("Use old file");
+                    //logger.finest("Use old file: " + oldsrc.getAbsolutePath());
                     fin = oldsrc;
                 }
 
