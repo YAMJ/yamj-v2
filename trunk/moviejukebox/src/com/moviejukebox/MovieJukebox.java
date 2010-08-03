@@ -728,9 +728,16 @@ public class MovieJukebox {
                     public Void call() throws FileNotFoundException, XMLStreamException {
 
                         ToolSet tools = threadTools.get();
-                        // First get movie data (title, year, director, genre, etc...)
-                        logger.fine("Updating: " + movieTitleExt);
+                        
+                        // Change the output message depending on the existance of the XML file
+                        boolean xmlExists = FileTools.fileCache.fileExists(jukebox.getJukeboxRootLocationDetails() + File.separator + movie.getBaseName() + ".xml");
+                        if (xmlExists) {
+                            logger.fine("Checking existing video: " + movieTitleExt);
+                        } else {
+                            logger.fine("Processing new video   : " + movieTitleExt);
+                        }
 
+                        // First get movie data (title, year, director, genre, etc...)
                         updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie);
                         
                         // Then get this movie's poster
