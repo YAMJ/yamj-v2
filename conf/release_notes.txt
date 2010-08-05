@@ -19,8 +19,8 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1526 Ability for multiple IMDB Ids in a NFO file
   - Fixed defect #1531 java.util.NoSuchElementException on most movies
   - Fixed defect #1545 Failed creating thumbnail with Set or Series
+  - Fixed defect #1547 KinoPoisk's plugin is malfunction
   - Fixed defect #1549 All movies now seen as new even when re-run
-
 
 MovieJukebox 2.0
 ----------------
