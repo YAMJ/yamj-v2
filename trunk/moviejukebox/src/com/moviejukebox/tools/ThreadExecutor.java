@@ -185,7 +185,8 @@ public class ThreadExecutor<T> implements ThreadFactory{
 
     static public void enterIO(URL url){
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
-            logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to EnterIO; ignored.")));
+            // logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to EnterIO; ignored.")));
+            // If this isn't a managed thread, then just exit.
             return;
         }
         ((ScheduledThread)Thread.currentThread()).enterIO(url);
@@ -209,7 +210,8 @@ public class ThreadExecutor<T> implements ThreadFactory{
 
     static public void leaveIO(){
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
-            logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to LeaveIO; ignored.")));
+            //logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to LeaveIO; ignored.")));
+            // If this isn't a managed thread, then just exit.
             return;
         }
         ((ScheduledThread)Thread.currentThread()).leaveIO();
