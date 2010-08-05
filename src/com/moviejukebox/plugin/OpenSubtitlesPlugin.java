@@ -421,7 +421,7 @@ public class OpenSubtitlesPlugin {
         str += "</string></value></param><param><value><struct>";
 
         for (int i = 0; i < subhash.length; i++) {
-            str += "<member><name>" + "cd" + String.valueOf(i + 1) + "</name><value><struct>";
+            str += "<member><name>" + "cd" + (i + 1) + "</name><value><struct>";
             str += addymember("movietimems", movietimems[i]);
             str += addymember("moviebytesize", moviebytesize[i]);
             str += addymember("subfilename", subfilename[i]);
@@ -458,7 +458,7 @@ public class OpenSubtitlesPlugin {
         str += "</string></value></param><param><value><struct>";
 
         for (int i = 0; i < subhash.length; i++) {
-            str += "<member><name>" + "cd" + String.valueOf(i + 1) + "</name><value><struct>";
+            str += "<member><name>" + "cd" + (i + 1) + "</name><value><struct>";
             str += addymember("movietimems", movietimems[i]);
             str += addymember("moviebytesize", moviebytesize[i]);
             str += addymember("subfilename", subfilename[i]);

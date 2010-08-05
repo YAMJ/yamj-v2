@@ -532,7 +532,7 @@ public class MediaInfoScanner {
 
             if (infoValue != null) { // Make sure we have a codec before continuing
                 // String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
-                if (tmpAudioCodec.toUpperCase().equals(Movie.UNKNOWN)) {
+                if (tmpAudioCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
                     tmpAudioCodec = infoValue + infoLanguage;
                 } else {
                     tmpAudioCodec = tmpAudioCodec + " / " + infoValue + infoLanguage;
@@ -542,7 +542,7 @@ public class MediaInfoScanner {
             infoValue = infosCurAudio.get("Channel(s)");
             if (infoValue != null) {
                 // String oldInfo = movie.getAudioChannels();
-                if (tmpAudioChannels.toUpperCase().equals(Movie.UNKNOWN)) {
+                if (tmpAudioChannels.equalsIgnoreCase(Movie.UNKNOWN)) {
                     tmpAudioChannels = infoValue;
                 } else {
                     tmpAudioChannels = tmpAudioChannels + " / " + infoValue;
@@ -611,7 +611,7 @@ public class MediaInfoScanner {
             if (infoFormat != null) { // Make sure we have a codec before continuing
                 if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE") || infoFormat.equals("PGS")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
-                    if (oldInfo.toUpperCase().equals(Movie.UNKNOWN) || oldInfo.toUpperCase().equals("NO")) {
+                    if (oldInfo.equalsIgnoreCase(Movie.UNKNOWN) || oldInfo.equalsIgnoreCase("NO")) {
                         movie.setSubtitles(infoLanguage);
                     } else {
                         // Don't overwrite what is there currently
