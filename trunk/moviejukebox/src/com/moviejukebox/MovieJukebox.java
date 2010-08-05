@@ -459,8 +459,7 @@ public class MovieJukebox {
         while (st.hasMoreTokens()) {
             keywords.add(st.nextToken());
         }
-        final String[] array = keywords.toArray(new String[] {});
-        return array;
+        return keywords.toArray(new String[] {});
     }
 
     private static void help() {

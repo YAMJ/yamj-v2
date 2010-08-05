@@ -846,7 +846,7 @@ public class MovieNFOScanner {
                             Integer order = null;
                             // Check the attribute is found before getting the value
                             if (orderAttribute != null) {
-                                order = new Integer(orderAttribute.getValue());
+                                order = Integer.valueOf(orderAttribute.getValue());
                             }
                             movie.addSet(set, order);
                         } else if (tag.equalsIgnoreCase("rating")) {

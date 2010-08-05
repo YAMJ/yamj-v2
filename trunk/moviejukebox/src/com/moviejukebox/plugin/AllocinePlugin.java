@@ -165,7 +165,7 @@ public class AllocinePlugin extends ImdbPlugin {
                                 // logger.finest("AllocinePlugin: episodeTag=[" + episode+"]");
                                 String episodeNbS = episode.substring(episode.lastIndexOf("Episode") + 8, episode.lastIndexOf(':')).trim();
                                 // logger.finest("AllocinePlugin: episodeNbS=[" + episodeNbS+"]");
-                                Integer episodeNbI = new Integer(episodeNbS);
+                                Integer episodeNbI = Integer.valueOf(episodeNbS);
                                 String episodeName = episode.substring(episode.lastIndexOf(':') + 1).trim();
                                 // logger.finest("AllocinePlugin: episodeName=[" + episodeName+"]");
                                 episodeNames.put(episodeNbI, episodeName);
