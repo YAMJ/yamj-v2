@@ -123,6 +123,11 @@ public final class Jukebox {
     }
 
     private static String addDetailsName(String rootDirectory) {
-        return (rootDirectory + File.separator + Jukebox.detailsDirName);
+        if (rootDirectory.endsWith(File.separator)) {
+            // To deal with the jukebox directory in the root of a drive and already having a "/" or "\" at the end
+            return (rootDirectory + Jukebox.detailsDirName);
+        } else {
+            return (rootDirectory + File.separator + Jukebox.detailsDirName);
+        }
     }
 }
