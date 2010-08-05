@@ -68,7 +68,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String year = mediaFile.getYear();
             kinopoiskId = getKinopoiskId(mediaFile.getTitle(), year, mediaFile.getSeason());
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN) && kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
-                // Trying without specifying the year 
+                // Trying without specifying the year
                 kinopoiskId = getKinopoiskId(mediaFile.getTitle(), Movie.UNKNOWN, mediaFile.getSeason());
             }
             mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
@@ -104,7 +104,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         try {
             String kinopoiskId = "";
             String sb = movieName;
-            // Unaccenting letters 
+            // Unaccenting letters
             sb = Normalizer.normalize(sb, Normalizer.Form.NFD);
             sb = sb.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
@@ -134,19 +134,21 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-            // Checking if we got the movie page directly 
+            // Checking if we got the movie page directly
             int beginIndex = xml.indexOf("id_film = ");
             if (beginIndex == -1) {
                 // It's search results page, searching a link to the movie page
-                beginIndex = xml.indexOf("<!-- Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ñ‹ Ð¿Ð¾Ð¸Ñ�ÐºÐ°");
+                beginIndex = xml.indexOf("<!-- результаты поиска");
+                if (beginIndex == -1) {
+                    return Movie.UNKNOWN;
+                }
                 beginIndex = xml.indexOf("href=\"/level/1/film/", beginIndex);
                 if (beginIndex == -1) {
                     return Movie.UNKNOWN;
                 }
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
                 kinopoiskId = st.nextToken();
-            }
-            else {
+            } else {
                 // It's the movie page
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 10), ";");
                 kinopoiskId = st.nextToken();
@@ -207,7 +209,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                         break;
                     }
-                } else { 
+                } else {
                     newTitle = originalTitle;
                 }
             }
@@ -234,7 +236,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Cast
             Collection<String> newCast = new ArrayList<String>();
-            
+
             for (String actor : HTMLTools.extractTags(xml, ">В главных ролях:", "</table>", "<a href=\"/level/4", "</a>")) {
                 newCast.add(actor);
             }
