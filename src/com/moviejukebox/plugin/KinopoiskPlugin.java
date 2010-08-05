@@ -369,6 +369,17 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // movie.setPosterURL(locatePosterURL(movie, ""));
             }
 
+            // Top250
+            // Clear previous rating : if KinoPoisk is selected as search engine - 
+            // it means user wants KinoPoisk's rating, not global.
+            movie.setTop250(-1);
+            String top250 = HTMLTools.extractTag(xml, "<a href=\"/level/20/#", 0, "\"");
+            try {
+                movie.setTop250(Integer.parseInt(top250));
+            } catch (Exception ignore) {
+                // Ignore
+            }
+
             // Finally set title
             movie.setTitle(newTitle);
 
