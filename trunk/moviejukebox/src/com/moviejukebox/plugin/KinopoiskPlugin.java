@@ -66,10 +66,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             String year = mediaFile.getYear();
-            kinopoiskId = getKinopoiskId(mediaFile.getTitle(), year, mediaFile.getSeason());
+            // Let's trim everything after dash (-) from BaseName (not Title).
+            String name = mediaFile.getBaseName();
+            int dash = name.indexOf('-');
+            if (dash != -1) {
+                name = name.substring(0, dash);
+            }
+            kinopoiskId = getKinopoiskId(name, year, mediaFile.getSeason());
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN) && kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 // Trying without specifying the year
-                kinopoiskId = getKinopoiskId(mediaFile.getTitle(), Movie.UNKNOWN, mediaFile.getSeason());
+                kinopoiskId = getKinopoiskId(name, Movie.UNKNOWN, mediaFile.getSeason());
             }
             mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
         } else {
