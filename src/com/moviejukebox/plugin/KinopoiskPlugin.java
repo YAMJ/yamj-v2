@@ -386,6 +386,33 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // Ignore
             }
 
+            // Fanart
+            String fanURL = movie.getFanartURL();
+            if (fanURL == null || fanURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+                try {
+                    fanURL = Movie.UNKNOWN;
+                    // Load page with all fanarts
+                    String wholeArts = webBrowser.request("http://www.kinopoisk.ru/level/13/film/" + kinopoiskId + "/");
+                    if (wholeArts != null && !wholeArts.equalsIgnoreCase(Movie.UNKNOWN)) {
+                        // Looking for photos table
+                        int photosInd = wholeArts.indexOf("\"fotos\"");
+                        if (photosInd != -1) {
+                            String picture = HTMLTools.extractTag(wholeArts, "src=\"/images/kadr/sm_", 0, "\"");
+                            if (picture != null && !picture.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                fanURL = "http://www.kinopoisk.ru/images/kadr/" + picture;
+                            }
+                        }
+                    }
+                    if (!fanURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+                        movie.setFanartURL(fanURL);
+                        movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                        logger.finest("KinoPoisk Plugin: Set fanart URL to " + fanURL + " for " + movie.getBaseName());
+                    }
+                } catch (Exception ignore) {
+                    // Ignore
+                }
+            }
+
             // Finally set title
             movie.setTitle(newTitle);
 
