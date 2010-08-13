@@ -638,7 +638,7 @@ public class MediaInfoScanner {
             if (nbHours != 0) {
                 returnString.append(" ");
             }
-            returnString.append(nbMinutes).append("mn");
+            returnString.append(nbMinutes).append("m");
         }
 
         return returnString.toString();
