@@ -35,8 +35,10 @@ import com.moviejukebox.tools.WebBrowser;
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
+    private static final String defaultLanguage = "en";
 
     private String language;
+    private String language2nd;
     private TheTVDB tvDB;
     private static String webhost = "thetvdb.com";
     private WebBrowser webBrowser;
@@ -44,9 +46,13 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     public TheTvDBPosterPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
-        language = PropertiesUtil.getProperty("thetvdb.language", "en");
+        language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage);
+        language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage);
+        // We do not need use the same secondary language... So clearing when equal.
+        if (language2nd.equalsIgnoreCase(language)) {
+            language2nd = "";
+        }
         webBrowser = new WebBrowser();
-
     }
 
     @Override
@@ -58,6 +64,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
             if (!title.equals(Movie.UNKNOWN)) {
                 seriesList = tvDB.searchSeries(title, language);
+                // Try Alternative Language
+                if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
+                    seriesList = tvDB.searchSeries(title, language2nd);
+                }
             }
 
             if (seriesList != null && !seriesList.isEmpty()) {
@@ -99,20 +109,24 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         ThreadExecutor.enterIO(webhost);
         
         try {
-            // TODO Fix the TheTvDB API banner.language issue
-            StringBuffer sb = new StringBuffer("http://www.thetvdb.com/data/series/");
-            sb.append(id);
-            sb.append("/banners.xml");
-            String xmlBanners = webBrowser.request(sb.toString());
-        
             if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
                 String urlNormal = null;
                 Banners banners = tvDB.getBanners(id);
 
                 if (!banners.getSeasonList().isEmpty()) {
+                    StringBuffer sb = new StringBuffer("http://www.thetvdb.com/data/series/");
+                    sb.append(id);
+                    sb.append("/banners.xml");
+                    String xmlBanners = webBrowser.request(sb.toString());
+                
                     for (Banner banner : banners.getSeasonList()) {
-                        // Grab only localized banner
-                        if (checkBannerLanguage(banner.getUrl(), xmlBanners) && (banner.getSeason() == season)) { // only check for the correct season
+                        // Trying to grab localized banner at first...
+                        boolean checked = checkBannerLanguage(banner.getUrl(), xmlBanners, language);
+                        if (!checked && !language2nd.isEmpty()) {
+                            // In a case of failure - trying to grab banner in alternative language.
+                            checked = checkBannerLanguage(banner.getUrl(), xmlBanners, language2nd);
+                        }
+                        if (checked && banner.getSeason() == season) { // only check for the correct season
                             if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
                                 urlNormal = banner.getUrl();
                             }
@@ -128,6 +142,9 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 }
                 if (urlNormal == null) {
                     Series series = tvDB.getSeries(id, language);
+                    if (series == null && !language2nd.isEmpty()) {
+                        series = tvDB.getSeries(id, language2nd);
+                    }
                     if (series.getPoster() != null && !series.getPoster().isEmpty()) {
                         urlNormal = series.getPoster();
                     }
@@ -139,6 +156,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
             ThreadExecutor.leaveIO();
             if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+                logger.finer("TheTvDBPlugin: Used poster " + posterURL);
                 return new Image(posterURL);
             }
         } catch (Exception error) {
@@ -190,11 +208,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         return response;
     }
     
-    private boolean checkBannerLanguage(String bannerURL, String xml) {
+    private boolean checkBannerLanguage(final String bannerURL, final String xml, final String languageId) {
         for (String bannerXML : HTMLTools.extractTags(xml, "<Banners>", "</Banners>", "<Banner>", "</Banner>", false)) {
             if (bannerURL.endsWith(HTMLTools.extractTag(bannerXML, "<BannerPath>", "</BannerPath>"))) {
-                if (HTMLTools.extractTag(bannerXML, "<Language>", "</Language>").equalsIgnoreCase(language)) {
-                    logger.finer("TheTVDB plugin found a " + language + " banner : " + bannerURL);
+                if (HTMLTools.extractTag(bannerXML, "<Language>", "</Language>").equalsIgnoreCase(languageId)) {
                     return true;
                 }
             }

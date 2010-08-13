@@ -17,6 +17,7 @@ MovieJukebox 2.1 BETA
   - Fixed defect #1526 Small issue with TheMovieDB plugin
   - Enhancement  #1526 Allow regex in filename skip keywords
   - Enhancement  #1526 Ability for multiple IMDB Ids in a NFO file
+  - Enhancement  #1530 banner from thetvdb
   - Fixed defect #1531 java.util.NoSuchElementException on most movies
   - Fixed defect #1545 Failed creating thumbnail with Set or Series
   - Fixed defect #1547 KinoPoisk's plugin is malfunction
