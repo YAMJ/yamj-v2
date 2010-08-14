@@ -27,10 +27,8 @@ import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
-import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -41,7 +39,6 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String language2nd;
     private TheTVDB tvDB;
     private static String webhost = "thetvdb.com";
-    private WebBrowser webBrowser;
 
     public TheTvDBPosterPlugin() {
         super();
@@ -52,7 +49,6 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         if (language2nd.equalsIgnoreCase(language)) {
             language2nd = "";
         }
-        webBrowser = new WebBrowser();
     }
 
     @Override
@@ -96,7 +92,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
         } catch (Exception e) {
-            logger.severe("Failed retreiving TvDb Id for movie : " + title);
+            logger.severe("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for movie : " + title);
             logger.severe("Error : " + e.getMessage());
         }
         ThreadExecutor.leaveIO();
@@ -107,34 +103,18 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     public IImage getPosterUrl(String id, int season) {
         String posterURL = Movie.UNKNOWN;
         ThreadExecutor.enterIO(webhost);
-        
+
         try {
             if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
                 String urlNormal = null;
                 Banners banners = tvDB.getBanners(id);
 
                 if (!banners.getSeasonList().isEmpty()) {
-                    StringBuffer sb = new StringBuffer("http://www.thetvdb.com/data/series/");
-                    sb.append(id);
-                    sb.append("/banners.xml");
-                    String xmlBanners = webBrowser.request(sb.toString());
-                
-                    for (Banner banner : banners.getSeasonList()) {
-                        // Trying to grab localized banner at first...
-                        boolean checked = checkBannerLanguage(banner.getUrl(), xmlBanners, language);
-                        if (!checked && !language2nd.isEmpty()) {
-                            // In a case of failure - trying to grab banner in alternative language.
-                            checked = checkBannerLanguage(banner.getUrl(), xmlBanners, language2nd);
-                        }
-                        if (checked && banner.getSeason() == season) { // only check for the correct season
-                            if (urlNormal == null && banner.getBannerType2().equalsIgnoreCase("season")) {
-                                urlNormal = banner.getUrl();
-                            }
-
-                            if (urlNormal != null) {
-                                break;
-                            }
-                        }
+                    // Trying to grab localized banners at first...
+                    urlNormal = findPosterURL(banners, season, language);
+                    if (urlNormal == null && !language2nd.isEmpty()) {
+                        // In a case of failure - trying to grab banner in alternative language.
+                        urlNormal = findPosterURL(banners, season, language2nd);
                     }
                 }
                 if (urlNormal == null && !banners.getPosterList().isEmpty()) {
@@ -156,11 +136,12 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
             ThreadExecutor.leaveIO();
             if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-                logger.finer("TheTvDBPlugin: Used poster " + posterURL);
+                logger.finer("TheTvDBPosterPlugin: Used poster " + posterURL);
                 return new Image(posterURL);
             }
-        } catch (Exception error) {
-            logger.severe("TheTvDBPlugin: Failed to retrieve alloCine Id for movie : " + id);
+        } catch (Exception e) {
+            logger.severe("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id movie : " + id);
+            logger.severe("Error : " + e.getMessage());
         }
         return Image.UNKNOWN;
     }
@@ -207,15 +188,17 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         }
         return response;
     }
-    
-    private boolean checkBannerLanguage(final String bannerURL, final String xml, final String languageId) {
-        for (String bannerXML : HTMLTools.extractTags(xml, "<Banners>", "</Banners>", "<Banner>", "</Banner>", false)) {
-            if (bannerURL.endsWith(HTMLTools.extractTag(bannerXML, "<BannerPath>", "</BannerPath>"))) {
-                if (HTMLTools.extractTag(bannerXML, "<Language>", "</Language>").equalsIgnoreCase(languageId)) {
-                    return true;
+
+    private String findPosterURL(final Banners bannerList, final int season, final String languageId) {
+        for (Banner banner : bannerList.getSeasonList()) {
+            if (banner.getSeason() == season) {
+                if (banner.getBannerType2().equalsIgnoreCase(Banner.TYPE_SEASON)) {
+                    if (banner.getLanguage().equalsIgnoreCase(languageId)) {
+                        return banner.getUrl();
+                    }
                 }
             }
         }
-        return false;
+        return null;
     }
 }
