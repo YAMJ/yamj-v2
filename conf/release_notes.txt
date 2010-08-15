@@ -26,7 +26,8 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1550 KinoPoisk's plugin can use Top250 rating of movie
   - Enhancement  #1551 KinoPoisk's plugin can use fanart picture
   - Fixed defect #1552 KinoPoisk's plugin has problems when filename contains dash (-)
-
+  - Enhancement  #1557 MovieJukebox-listing.csv file should be configurable
+  
 MovieJukebox 2.0
 ----------------
   - Enhancement   #118 Exclude strings for files/folders to support regex

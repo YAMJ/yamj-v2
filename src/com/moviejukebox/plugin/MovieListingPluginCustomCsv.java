@@ -1,0 +1,380 @@
+/*
+ *      Copyright (c) 2004-2010 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list 
+ *  
+ *      Web: http://code.google.com/p/moviejukebox/
+ *  
+ *      This software is licensed under a Creative Commons License
+ *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *  
+ *      For any reuse or distribution, you must make clear to others the 
+ *      license terms of this work.  
+ */
+
+package com.moviejukebox.plugin;
+
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.CSVWriter;
+import com.moviejukebox.tools.PropertiesUtil;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.sql.Timestamp;
+
+/**
+ * User: nmn Date: Aug 15, 2010
+ */
+public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
+    private static Logger logger = Logger.getLogger("moviejukebox");
+
+    private List<String> mFields;
+    private String mDelimiter = ",";
+    private String mSecondDelimiter = "|";
+    private SimpleDateFormat mDateFormatter = null;
+    private Double mRatingFactor = null;
+    private NumberFormat mRatingFormatter = null;
+
+    // The default list of fields
+    private static final String DEFAULT_FIELDS = "Type," + "Title," + "TitleSort," + "IMDB ID," + "Director," + "Company," + "Country," + "Language,"
+                    + "Runtime," + "Release Date," + "Year," + "Certification," + "Season #," + "TheTVDB ID," + "VideoSource," + "Container," + "File,"
+                    + "Audio Codec," + "Audio Channels," + "Resolution," + "Video Codec," + "Video Output," + "FPS," + "# Files," + "# Extras," + "# Genres,"
+                    + "# Cast," + "SubTitles?," + "Poster?," + "Detail Poster Filename," + "Rating #," + "Top 250 #," + "Library Description,"
+                    + "Library Path," + "Allocine ID," + "FilmDelta ID," + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Sratim ID,"
+                    + "Last Modified Date," + "File Size";
+
+    /**
+     * Take a comma-separated list of field names and split them into separate fields
+     * 
+     * @param aFields
+     *            Text to split
+     * @return Number of fileds found
+     */
+    private int initFields(String aFields) {
+
+        mFields = new Vector<String>();
+        for (StringTokenizer t = new StringTokenizer(aFields, ","); t.hasMoreTokens();) {
+            String st = t.nextToken();
+            if (st != null && st.trim().length() > 0)
+                mFields.add(st);
+        }
+        return mFields.size();
+    } // initFields()
+
+    /**
+     * @return CSV-formatted header row
+     */
+    protected String headerLine() {
+        StringBuffer sb = new StringBuffer();
+        for (Iterator<String> iterator = mFields.iterator(); iterator.hasNext();) {
+            if (sb.length() > 0) {
+                sb.append(mDelimiter);
+            }
+            sb.append(iterator.next());
+        }
+        return sb.toString();
+    } // headerLine();
+
+    /**
+     * Check if a header filed matches a known type
+     * 
+     * @param field
+     *            The text we are checking
+     * @param knownType
+     *            The type to match
+     * @return true if we got a match
+     */
+    private boolean checkHeaderField(String field, String knownType) {
+        if (field == null || knownType == null) {
+            return false; // no need to compare
+        }
+        if (field.equalsIgnoreCase(knownType)) {
+            return true; // it matched
+        }
+
+        // Last try - Remove all spaces, and any trailing ? or #
+        knownType = knownType.replace((CharSequence)" ", (CharSequence)"");
+        if (knownType.endsWith("?") || knownType.endsWith("#")) {
+            knownType = knownType.substring(0, knownType.length() - 1).trim();
+        }
+        if (field.equalsIgnoreCase(knownType)) {
+            return true;
+        }
+        return false;
+    } // checkHeaderField()
+
+    /**
+     * @param sItemType
+     * @param movie
+     * @return output string properly formatted for CSV output
+     */
+    protected String toCSV(String sItemType, Movie movie) {
+        Collection<ExtraFile> extras = movie.getExtraFiles();
+        Collection<MovieFile> movieFiles = movie.getMovieFiles();
+        Collection<String> genres = movie.getGenres();
+        Collection<String> cast = movie.getCast();
+
+        StringBuffer sb = new StringBuffer();
+
+        for (String header : mFields) {
+            if (sb.length() > 0) {
+                sb.append(mDelimiter);
+            }
+            if (checkHeaderField(header, "Type")) {
+                sb.append(prep(sItemType));
+            } else if (checkHeaderField(header, "Title")) {
+                sb.append(prep(movie.getTitle()));
+            } else if (checkHeaderField(header, "TitleSort")) {
+                sb.append(prep(movie.getTitleSort()));
+            } else if (checkHeaderField(header, "IMDB ID")) {
+                sb.append(prep(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "Director")) {
+                sb.append(prep(movie.getDirector()));
+            } else if (checkHeaderField(header, "Company")) {
+                sb.append(prep(movie.getCompany()));
+            } else if (checkHeaderField(header, "Country")) {
+                sb.append(prep(movie.getCountry()));
+            } else if (checkHeaderField(header, "Language")) {
+                sb.append(prep(movie.getLanguage()));
+            } else if (checkHeaderField(header, "Runtime")) {
+                sb.append(prep(movie.getRuntime()));
+            } else if (checkHeaderField(header, "Release Date")) {
+                sb.append(prep(movie.getReleaseDate()));
+            } else if (checkHeaderField(header, "Year")) {
+                sb.append(prep(movie.getYear()));
+            } else if (checkHeaderField(header, "Certification")) {
+                sb.append(prep(movie.getCertification()));
+            } else if (checkHeaderField(header, "Season #")) {
+                sb.append(prep(blankNegatives(movie.getSeason())));
+            } else if (checkHeaderField(header, "TheTVDB ID")) {
+                sb.append(prep(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "VideoSource")) {
+                sb.append(prep(movie.getVideoSource()));
+            } else if (checkHeaderField(header, "Container")) {
+                sb.append(prep(movie.getContainer()));
+            } else if (checkHeaderField(header, "File")) {
+                sb.append(prep(movie.getContainerFile().getAbsolutePath()));
+            } else if (checkHeaderField(header, "Audio Codec")) {
+                sb.append(prep(movie.getAudioCodec()));
+            } else if (checkHeaderField(header, "Audio Channels")) {
+                sb.append(prep(movie.getAudioChannels()));
+            } else if (checkHeaderField(header, "Resolution")) {
+                sb.append(prep(movie.getResolution()));
+            } else if (checkHeaderField(header, "Video Codec")) {
+                sb.append(prep(movie.getVideoCodec()));
+            } else if (checkHeaderField(header, "Video Output")) {
+                sb.append(prep(movie.getVideoOutput()));
+            } else if (checkHeaderField(header, "FPS")) {
+                sb.append(prep(Float.toString(movie.getFps())));
+            } else if (checkHeaderField(header, "# Files")) {
+                sb.append(prep("" + (null == movieFiles ? "0" : movieFiles.size())));
+            } else if (checkHeaderField(header, "# Extras")) {
+                sb.append(prep("" + (null == extras ? "0" : extras.size())));
+            } else if (checkHeaderField(header, "# Genres")) {
+                sb.append(prep("" + (null == genres ? "0" : genres.size())));
+            } else if (checkHeaderField(header, "# Cast")) {
+                sb.append(prep("" + (null == cast ? "0" : cast.size())));
+            } else if (checkHeaderField(header, "SubTitles?")) {
+                sb.append(prep(movie.getSubtitles()));
+            } else if (checkHeaderField(header, "Poster?")) {
+                sb.append(prep("" + (null != movie.getPosterURL() ? "True" : "False")));
+            } else if (checkHeaderField(header, "Detail Poster Filename")) {
+                sb.append(prep("" + (null != movie.getDetailPosterFilename() ? "True" : "False")));
+            } else if (checkHeaderField(header, "Rating #")) {
+                if (mRatingFactor != null) {
+                    double fr = mRatingFactor.doubleValue() * movie.getRating();
+                    sb.append(prep(mRatingFormatter.format(fr)));
+                } else {
+                    sb.append(prep(Integer.toString(movie.getRating())));
+                }
+            } else if (checkHeaderField(header, "Top 250 #")) {
+                sb.append(prep(Integer.toString(movie.getTop250())));
+            } else if (checkHeaderField(header, "Library Description")) {
+                sb.append(prep(movie.getLibraryDescription()));
+            } else if (checkHeaderField(header, "Library Path")) {
+                sb.append(prep(movie.getLibraryPath()));
+            } else if (checkHeaderField(header, "Allocine ID")) {
+                sb.append(prep(movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "FilmDelta ID")) {
+                sb.append(prep(movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "FilmUpIT ID")) {
+                sb.append(prep(movie.getId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "FilmWeb ID")) {
+                sb.append(prep(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "Kinopoisk ID")) {
+                sb.append(prep(movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "Sratim ID")) {
+                sb.append(prep(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "Last Modified Date")) {
+                if (mDateFormatter != null) {
+                    sb.append(prep(mDateFormatter.format(new Date(movie.getLastModifiedTimestamp()))));
+                } else {
+                    sb.append(prep(new Timestamp(movie.getLastModifiedTimestamp()).toString()));
+                }
+            } else if (checkHeaderField(header, "File Size")) {
+                sb.append(prep(movie.getFileSizeString()));
+            } else if (checkHeaderField(header, "Genres")) {
+                if (null != genres) {
+                    StringBuffer tmp = new StringBuffer();
+                    for (String string : genres) {
+                        if (tmp.length() > 0) {
+                            tmp.append(mSecondDelimiter);
+                        }
+                        tmp.append(string);
+                    }
+                    sb.append(prep(tmp.toString()));
+                }
+            } else if (checkHeaderField(header, "Cast")) {
+                if (null != cast) {
+                    StringBuffer tmp = new StringBuffer();
+                    for (String string : cast) {
+                        if (tmp.length() > 0) {
+                            tmp.append(mSecondDelimiter);
+                        }
+                        tmp.append(string);
+                    }
+                    sb.append(prep(tmp.toString()));
+                }
+            }
+        }
+        return sb.toString();
+    } // toCSV()
+
+    /**
+     * @param i
+     * @return empty string if input = -1
+     */
+    protected String blankNegatives(int i) {
+        String sResult = "";
+        if (0 <= i) {
+            sResult = "" + i;
+        }
+        return sResult;
+    } // blankNegatives()
+
+    /**
+     * @param str
+     * @return String cleaned up, NEVER comma appended
+     */
+    protected String prep(String str) {
+        if (null == str) {
+            str = "";
+        } else if (blankUNKNOWN && UNKNOWN.equals(str)) {
+            // clean 'UNKNOWN' values
+            str = "";
+        }
+
+        // remove quotes from the string (before encapsulation)
+        if (str.contains("\"")) {
+            str = str.replace("\"", "");
+        }
+
+        // enclose strings with commas in quotes
+        if (str.contains(",")) {
+            str = "\"" + str + "\"";
+        }
+        return str;
+    } // prepOutput()
+
+    /**
+     * @param tempJukeboxRoot
+     * @param jukeboxRoot
+     * @param library
+     */
+    public void generate(String tempJukeboxRoot, String jukeboxRoot, Library library) {
+        // logger.fine("rootPath='" + rootPath +"'");
+
+        initialize(jukeboxRoot);
+        String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
+        initFields(fields);
+        mDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.delimiter", ",");
+        mSecondDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.secondDelimiter", "|");
+        String dateFormat = PropertiesUtil.getProperty("mjb.listing.csv.dateFormat", "");
+        String ratingFactor = PropertiesUtil.getProperty("mjb.listing.csv.ratingFactor", "1.00");
+        DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.US);
+        mRatingFormatter = new DecimalFormat("#0.00", decimalFormatSymbols);
+
+        mRatingFactor = new Double(ratingFactor);
+        if (dateFormat.length() > 1) {
+            mDateFormatter = new SimpleDateFormat(dateFormat);
+        }
+
+        String filename = baseFilename + ".csv";
+        File csvFile = new File(tempJukeboxRoot, filename);
+
+        ArrayList<String> alTypes = getSelectedTypes();
+        try {
+            CSVWriter writer = new CSVWriter(csvFile);
+            logger.finer("  Writing CSV to: " + csvFile.getAbsolutePath());
+
+            // write header line
+            writer.line(headerLine());
+
+            if (!groupByType) {
+                for (Movie movie : library.values()) {
+                    logger.finer(movie.toString());
+
+                    String sType;
+                    if (movie.isExtra()) {
+                        sType = typeExtra;
+                    } else if (movie.isTVShow()) {
+                        sType = typeTVShow;
+                    } else {
+                        sType = typeMovie;
+                    }
+
+                    if (null != sType && alTypes.contains(sType)) {
+                        writer.line(toCSV(sType, movie));
+                    }
+                } // for movie
+            } else {
+                for (String thisType : alTypes) {
+                    for (Movie movie : library.values()) {
+                        String sType;
+                        if (movie.isExtra()) {
+                            sType = typeExtra;
+                        } else if (movie.isTVShow()) {
+                            sType = typeTVShow;
+                        } else {
+                            sType = typeMovie;
+                        }
+
+                        if (null != sType && thisType.equalsIgnoreCase(sType)) {
+                            writer.line(toCSV(sType, movie));
+                        }
+                    }
+                }
+            }
+            writer.close();
+        } catch (IOException error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+
+        // move to configured (default) location
+        copyListingFile(csvFile, filename);
+
+    } // generate()
+
+} // class MovieListingPluginCustomCsv
+
