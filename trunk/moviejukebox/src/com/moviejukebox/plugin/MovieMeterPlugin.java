@@ -55,7 +55,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.severe("MovieMeterPlugin: " + eResult.toString());
         }
 
     }
@@ -63,29 +63,29 @@ public class MovieMeterPlugin extends ImdbPlugin {
     @SuppressWarnings("unchecked")
     @Override
     public boolean scan(Movie mediaFile) {
-        logger.finest("Start fetching info from moviemeter.nl for : year=" + mediaFile.getYear() + ", title=" + mediaFile.getTitle());
+        logger.finest("MovieMeterPlugin: Start fetching info from moviemeter.nl for : year=" + mediaFile.getYear() + ", title=" + mediaFile.getTitle());
         String moviemeterId = mediaFile.getId(MOVIEMETER_PLUGIN_ID);
 
         HashMap filmInfo = null;
 
         if (moviemeterId == null || moviemeterId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            logger.finest("Preferred search engine for moviemeter id: " + preferredSearchEngine);
+            logger.finest("MovieMeterPlugin: Preferred search engine for moviemeter id: " + preferredSearchEngine);
             if ("google".equalsIgnoreCase(preferredSearchEngine)) {
                 // Get moviemeter website from google
-                logger.finest("Searching google.nl to get moviemeter.nl id");
+                logger.finest("MovieMeterPlugin: Searching google.nl to get moviemeter.nl id");
                 moviemeterId = getMovieMeterIdFromGoogle(mediaFile.getTitle(), mediaFile.getYear());
-                logger.finest("Returned id: " + moviemeterId);
+                logger.finest("MovieMeterPlugin: Returned id: " + moviemeterId);
                 if (moviemeterId != Movie.UNKNOWN) {
                     filmInfo = session.getMovieDetailsById(Integer.parseInt(moviemeterId));
                 }
             } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
                 moviemeterId = Movie.UNKNOWN;
             } else {
-                logger.finest("Searching moviemeter.nl for title: " + mediaFile.getTitle());
+                logger.finest("MovieMeterPlugin: Searching moviemeter.nl for title: " + mediaFile.getTitle());
                 filmInfo = session.getMovieDetailsByTitleAndYear(mediaFile.getTitle(), mediaFile.getYear());
             }
         } else {
-            logger.finest("Searching moviemeter.nl for id: " + moviemeterId);
+            logger.finest("MovieMeterPlugin: Searching moviemeter.nl for id: " + moviemeterId);
             filmInfo = session.getMovieDetailsById(Integer.parseInt(moviemeterId));
         }
 
@@ -95,7 +95,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (filmInfo.get("imdb") != null) {
                 // if moviemeter returns the imdb id, add it to the mediaFile
                 mediaFile.setId(IMDB_PLUGIN_ID, "tt" + filmInfo.get("imdb").toString());
-                logger.finest("Fetched imdb id: " + mediaFile.getId(IMDB_PLUGIN_ID));
+                logger.finest("MovieMeterPlugin: Fetched imdb id: " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
 
             if (!mediaFile.isOverrideTitle()) {
@@ -103,14 +103,14 @@ public class MovieMeterPlugin extends ImdbPlugin {
                     mediaFile.setTitle(filmInfo.get("title").toString());
                     mediaFile.setOriginalTitle(filmInfo.get("title").toString());
                 }
-                logger.finest("Fetched title: " + mediaFile.getTitle());
+                logger.finest("MovieMeterPlugin: Fetched title: " + mediaFile.getTitle());
             }
 
             if (mediaFile.getRating() == -1) {
                 if (filmInfo.get("average") != null) {
                     mediaFile.setRating(Math.round(Float.parseFloat(filmInfo.get("average").toString()) * 20));
                 }
-                logger.finest("Fetched rating: " + mediaFile.getRating());
+                logger.finest("MovieMeterPlugin: Fetched rating: " + mediaFile.getRating());
             }
 
             if (mediaFile.getReleaseDate().equals(Movie.UNKNOWN)) {
@@ -118,7 +118,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 if (dates != null && dates.length > 0) {
                     HashMap dateshm = (HashMap)dates[0];
                     mediaFile.setReleaseDate(dateshm.get("date").toString());
-                    logger.finest("Fetched releasedate: " + mediaFile.getReleaseDate());
+                    logger.finest("MovieMeterPlugin: Fetched releasedate: " + mediaFile.getReleaseDate());
                 }
             }
 
@@ -130,14 +130,14 @@ public class MovieMeterPlugin extends ImdbPlugin {
                         mediaFile.setRuntime(durations.get("duration").toString());
                     }
                 }
-                logger.finest("Fetched runtime: " + mediaFile.getRuntime());
+                logger.finest("MovieMeterPlugin: Fetched runtime: " + mediaFile.getRuntime());
             }
 
             if (mediaFile.getCountry().equals(Movie.UNKNOWN)) {
                 if (filmInfo.get("countries_text") != null) {
                     mediaFile.setCountry(filmInfo.get("countries_text").toString());
                 }
-                logger.finest("Fetched country: " + mediaFile.getCountry());
+                logger.finest("MovieMeterPlugin: Fetched country: " + mediaFile.getCountry());
             }
 
             if (mediaFile.getGenres().isEmpty()) {
@@ -147,7 +147,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                         mediaFile.addGenre(Library.getIndexingGenre(genres[i].toString()));
                     }
                 }
-                logger.finest("Fetched genres: " + mediaFile.getGenres().toString());
+                logger.finest("MovieMeterPlugin: Fetched genres: " + mediaFile.getGenres().toString());
             }
 
             if (mediaFile.getPlot().equals(Movie.UNKNOWN)) {
@@ -164,7 +164,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 if (filmInfo.get("year") != null) {
                     mediaFile.setYear(filmInfo.get("year").toString());
                 }
-                logger.finest("Fetched year: " + mediaFile.getYear());
+                logger.finest("MovieMeterPlugin: Fetched year: " + mediaFile.getYear());
             }
 
             if (mediaFile.getCast().isEmpty()) {
@@ -179,7 +179,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                         }
                     }
                 }
-                logger.finest("Fetched actors: " + mediaFile.getCast().toString());
+                logger.finest("MovieMeterPlugin: Fetched actors: " + mediaFile.getCast().toString());
             }
 
             if (mediaFile.getDirector().equals(Movie.UNKNOWN)) {
@@ -187,7 +187,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 if (directors != null && directors.length > 0) {
                     HashMap directorshm = (HashMap)directors[0];
                     mediaFile.setDirector(directorshm.get("name").toString());
-                    logger.finest("Fetched director: " + mediaFile.getDirector());
+                    logger.finest("MovieMeterPlugin: Fetched director: " + mediaFile.getDirector());
                 }
             }
 
@@ -199,7 +199,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
         } else {
-            logger.finest("No info found");
+            logger.finest("MovieMeterPlugin: No info found");
         }
 
         return true;
@@ -237,8 +237,8 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving moviemeter Id from Google for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("MovieMeterPlugin: Failed retreiving moviemeter Id from Google for movie : " + movieName);
+            logger.severe("MovieMeterPlugin: Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -254,14 +254,14 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
     @Override
     public void scanNFO(String nfo, Movie movie) {
-        logger.finest("Scanning NFO for Moviemeter Id");
+        logger.finest("MovieMeterPlugin: Scanning NFO for Moviemeter Id");
         int beginIndex = nfo.indexOf("www.moviemeter.nl/film/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 23), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(MOVIEMETER_PLUGIN_ID, st.nextToken());
-            logger.finer("Moviemeter Id found in nfo = " + movie.getId(MOVIEMETER_PLUGIN_ID));
+            logger.finer("MovieMeterPlugin: Moviemeter Id found in nfo = " + movie.getId(MOVIEMETER_PLUGIN_ID));
         } else {
-            logger.finer("No Moviemeter Id found in nfo !");
+            logger.finer("MovieMeterPlugin: No Moviemeter Id found in nfo !");
         }
     }
 }
