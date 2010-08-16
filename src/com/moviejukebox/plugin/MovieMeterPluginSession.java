@@ -14,6 +14,7 @@
 package com.moviejukebox.plugin;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class MovieMeterPluginSession {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.severe("MovieMeterPluginSession: " + eResult.toString());
         }
     }
 
@@ -82,7 +83,7 @@ public class MovieMeterPluginSession {
     public MovieMeterPluginSession() throws XmlRpcException {
         init();
 
-        logger.finest("MovieMeterPlugin: Getting stored session");
+        logger.finest("MovieMeterPluginSession: Getting stored session");
         // Read previous session
         FileReader fread;        
         try
@@ -100,7 +101,7 @@ public class MovieMeterPluginSession {
         } catch (IOException error) {
         }
 
-        logger.finest("MovieMeterPlugin: Stored session: " + getKey());
+        logger.finest("MovieMeterPluginSession: Stored session: " + getKey());
 
         if (!isValid()) {
             createNewSession(MOVIEMETER_API_KEY);
@@ -118,7 +119,7 @@ public class MovieMeterPluginSession {
         HashMap session = (HashMap) client.execute("api.startSession", params);
         if (session != null) {
             if (session.size() > 0) {
-                logger.finest("Created new session with moviemeter.nl");
+                logger.finest("MovieMeterPluginSession: Created new session with moviemeter.nl");
                 setKey((String) session.get("session_key"));
                 setTimestamp((Integer) session.get("valid_till"));
                 setCounter(0);
@@ -149,7 +150,7 @@ public class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length>0) {
-                logger.finest("MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
+                logger.finest("MovieMeterPluginSession: MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
                 for (int i=0; i<films.length; i++){
                     logger.fine("Film " + i + ": " + films[i]);
                 }
@@ -160,7 +161,7 @@ public class MovieMeterPluginSession {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.severe("MovieMeterPluginSession: " + eResult.toString());
         }
 
         return result;
@@ -185,7 +186,7 @@ public class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length>0) {
-                logger.finest("Moviemeter search for " + movieName + " returned " + films.length + " results");
+                logger.finest("MovieMeterPluginSession: Searching for " + movieName + " returned " + films.length + " results");
                 if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
                     for (int i=0; i<films.length; i++){
                         HashMap film = (HashMap) films[i];
@@ -202,7 +203,7 @@ public class MovieMeterPluginSession {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.severe("MovieMeterPluginSession: " + eResult.toString());
         }
 
         return result;
@@ -248,7 +249,7 @@ public class MovieMeterPluginSession {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.severe("MovieMeterPluginSession: " + eResult.toString());
         }
 
         return result;
@@ -284,13 +285,13 @@ public class MovieMeterPluginSession {
 
             return true;
         } catch (XmlRpcException error) {
-            logger.finest(error.getMessage());
+            logger.finest("MovieMeterPluginSession: " + error.getMessage());
             return false;
         } catch (MalformedURLException error) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.severe("MovieMeterPluginSession: " + eResult.toString());
         }
         return false;
     }
@@ -305,25 +306,29 @@ public class MovieMeterPluginSession {
      */
     private void saveSessionToFile() {
         FileOutputStream fout;
-        try
-        {
-            fout = new FileOutputStream (SESSION_FILENAME);
+        try {
+            fout = new FileOutputStream(SESSION_FILENAME);
             new PrintStream(fout).println (getKey() + "," + getTimestamp() + "," + getCounter());
-            fout.close();        
+            fout.close();
+        } catch (FileNotFoundException ignore) {
+            logger.finest("MovieMeterPluginSession: " + ignore.getMessage());
         } catch (IOException error) {
-            logger.severe(error.getMessage());
+            logger.severe("MovieMeterPluginSession: " + error.getMessage());
         }        
     }
 
     public String getKey() {
         return key;
     }
+    
     public void setKey(String key) {
         this.key = key;
     }
+    
     public Integer getTimestamp() {
         return timestamp;
     }
+    
     public void setTimestamp(Integer timestamp) {
         this.timestamp = timestamp;
     }
@@ -335,5 +340,4 @@ public class MovieMeterPluginSession {
     private void setCounter(Integer counter) {
         this.counter = counter;
     }
-
 }
