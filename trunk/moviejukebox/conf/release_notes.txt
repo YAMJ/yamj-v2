@@ -27,6 +27,7 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1551 KinoPoisk's plugin can use fanart picture
   - Fixed defect #1552 KinoPoisk's plugin has problems when filename contains dash (-)
   - Enhancement  #1557 MovieJukebox-listing.csv file should be configurable
+  - Enhancement  #1559 It's useful to have amount of set's elements in XML
   
 MovieJukebox 2.0
 ----------------

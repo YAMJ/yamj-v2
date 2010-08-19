@@ -111,7 +111,6 @@ public class Library implements Map<String, Movie> {
     private static final int finalYear = currentYear - 2;
     private static final int currentDecade = (finalYear / 10) * 10;
 
-
     static {
         minSetCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.sets.minSetCount", "2"));
         setsRequireAll = PropertiesUtil.getProperty("mjb.sets.requireAll", "false").equalsIgnoreCase("true");
@@ -183,25 +182,25 @@ public class Library implements Map<String, Movie> {
         public String key;
         public String baseName;
         public int videosPerPage, videosPerLine, pages;
-        public boolean canSkip = true;  //skip flags, global (all pages)
+        public boolean canSkip = true; // skip flags, global (all pages)
 
         public IndexInfo(String category, String key, int pages, int videosPerPage, int videosPerLine, boolean canSkip) {
             this.categoryName = category;
-            this.key          = key;
-            this.pages        = pages;
+            this.key = key;
+            this.pages = pages;
             this.videosPerPage = videosPerPage;
             this.videosPerLine = videosPerLine;
-            this.canSkip       = canSkip; //default values
-            //"categ_key_"; to be combined with pageid and extension
+            this.canSkip = canSkip; // default values
+            // "categ_key_"; to be combined with pageid and extension
             baseName = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
-            pages    = 0;
+            pages = 0;
         }
 
         public void checkSkip(int page, String rootPath) {
             String filetest = rootPath + File.separator + baseName + page + ".xml";
             canSkip = canSkip && FileTools.fileCache.fileExists(filetest);
             FileTools.addJukeboxFile(filetest);
-            //not nice, but no need to do this again in HTMLWriter                                            
+            // not nice, but no need to do this again in HTMLWriter
             filetest = rootPath + File.separator + baseName + page + ".html";
             canSkip = canSkip && FileTools.fileCache.fileExists(filetest);
             FileTools.addJukeboxFile(filetest);
@@ -233,7 +232,7 @@ public class Library implements Map<String, Movie> {
         // logger.finest("Adding video " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isExtra()) {
-            //logger.finest("  It's an extra: " + movie.getBaseName());
+            // logger.finest("  It's an extra: " + movie.getBaseName());
             extras.put(movie.getBaseName(), movie);
         } else if (existingMovie == null) {
             library.put(key, movie);
@@ -298,6 +297,7 @@ public class Library implements Map<String, Movie> {
             try {
                 indexMaster = (Movie)index_list.get(0).clone();
                 indexMaster.setSetMaster(true);
+                indexMaster.setSetSize(index_list.size());
                 indexMaster.setTitle(index_name);
                 indexMaster.setSeason(-1);
                 indexMaster.setTitleSort(index_name);
@@ -387,7 +387,7 @@ public class Library implements Map<String, Movie> {
             dynamic_indexes.put(SET, indexBySets(indexMovies));
 
             final Map<String, Index> syncindexes = Collections.synchronizedMap(indexes);
-            
+
             for (final String indexStr : indexList.split(",")) {
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
@@ -408,7 +408,7 @@ public class Library implements Map<String, Movie> {
                             syncindexes.put("Cast", indexByCast(indexMovies));
                         } else if (indexStr.equals("Director")) {
                             syncindexes.put("Director", indexByDirector(indexMovies));
-                        } else if (indexStr.equals("Country")) { 
+                        } else if (indexStr.equals("Country")) {
                             syncindexes.put("Country", indexByCountry(indexMovies));
                         } else if (indexStr.equals("Writer")) {
                             syncindexes.put("Writer", indexByWriter(indexMovies));
@@ -1089,12 +1089,12 @@ public class Library implements Map<String, Movie> {
         }
         return response;
     }
-    
-    public void addGeneratedIndex(IndexInfo index){
+
+    public void addGeneratedIndex(IndexInfo index) {
         generated_indexes.add(index);
     }
 
-    public Collection<IndexInfo> getGeneratedIndexes(){
+    public Collection<IndexInfo> getGeneratedIndexes() {
         return generated_indexes;
     }
 }

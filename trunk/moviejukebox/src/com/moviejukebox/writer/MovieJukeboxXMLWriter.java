@@ -749,6 +749,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
+        if (movie.isSetMaster()) {
+            writer.writeAttribute("setSize", Integer.toString(movie.getSetSize()));
+        }
         writer.writeAttribute("isTV", Boolean.toString(movie.isTVShow()));
         writer.writeStartElement("details");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getBaseName()) + ".html");
@@ -817,6 +820,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
+        if (movie.isSetMaster()) {
+            writer.writeAttribute("setSize", Integer.toString(movie.getSetSize()));
+        }
         writer.writeAttribute("isTV", Boolean.toString(movie.isTVShow()));
 
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {

@@ -50,6 +50,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean highdefDiff;
     private boolean addTextTitle;
     private boolean addTextSeason;
+    private boolean addTextSetSize;
     private static String textAlignment;
     private static String textFont;
     private static int textFontSize;
@@ -83,9 +84,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addTVLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoTV", "false"));
         addSetLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
         addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
-        
+
         addTextTitle = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.title", "false"));
         addTextSeason = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.season", "false"));
+        addTextSetSize = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.setSize", "false")); // Note: This should only be for thumbnails
         textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
         textFont = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
         textFontSize = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.fontSize", "36"));
@@ -130,18 +132,40 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             } else if (!skipResize) {
                 bi = GraphicTools.scaleToSize(imageWidth, imageHeight, bi);
             }
-            
+
             if (imageType.equalsIgnoreCase("banners")) {
                 if (addTextTitle) {
                     bi = drawText(bi, movie.getTitle(), true);
                 }
-                
+
                 if (addTextSeason && movie.isTVShow()) {
                     bi = drawText(bi, "Season " + movie.getSeason(), false);
                 }
             }
 
             bi = drawLogos(movie, bi);
+
+            // Should only really happen on set's thumbnails.
+            if (imageType.equalsIgnoreCase("thumbnails") && movie.isSetMaster()) {
+                // Draw the set logo if requested.
+                if (addSetLogo) {
+                    bi = drawSet(movie, bi);
+                    logger.finest("Drew set logo on " + movie.getTitle());
+                }
+                // Let's draw the set's size (at bottom) if requested.
+                final int size = movie.getSetSize();
+                if (addTextSetSize && size > 0) {
+                    String text = null;
+                    // Let's draw not more than 9...
+                    if (size > 9) {
+                        text = "9+";
+                    } else {
+                        text = Integer.toString(size);
+                    }
+                    bi = drawText(bi, text, false);
+                    logger.finest("Size (" + movie.getSetSize() + ") of set [" + movie.getTitle() + "] was drawn");
+                }
+            }
 
             if (addReflectionEffect) {
                 bi = GraphicTools.createReflectedPicture(bi, imageType);
@@ -153,12 +177,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
 
                 bi = GraphicTools.create3DPicture(bi, imageType, perspectiveDirection);
-            }
-
-            // Draw the set logo on any set masters if requested. Should only really happen on thumbnails.
-            if (addSetLogo && movie.isSetMaster()) {
-                bi = drawSet(movie, bi);
-                logger.finest("Drew set logo on " + movie.getTitle());
             }
         }
 
@@ -242,7 +260,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 // Only the HD logo is required so set it in the centre
                 g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
                 logger.finest("Drew HD logo (" + logoName + ") in the middle");
-            }          
+            }
         } catch (IOException error) {
             logger.warning("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
@@ -412,15 +430,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         int imageHeight = bi.getHeight();
         int leftAlignment = 0;
         int topAlignment = 0;
-        
+
         if (textAlignment.equalsIgnoreCase("left")) {
             leftAlignment = textOffset;
         } else if (textAlignment.equalsIgnoreCase("right")) {
             leftAlignment = imageWidth - textWidth - textOffset;
         } else {
-            leftAlignment = (imageWidth/2) - (textWidth/2);
+            leftAlignment = (imageWidth / 2) - (textWidth / 2);
         }
-        
+
         if (verticalAlign) {
             // Align the text to the top
             topAlignment = fm.getHeight() - 10;
@@ -428,20 +446,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             // Align the text to the bottom
             topAlignment = imageHeight - 10;
         }
-        
+
         // Create the drop shadow
         if (!textFontShadow.equalsIgnoreCase("")) {
             g2.setColor(getColor(textFontShadow, Color.DARK_GRAY));
             g2.drawString(outputText, leftAlignment + 2, topAlignment + 2);
         }
-        
+
         // Create the text itself
         g2.setColor(getColor(textFontColor, Color.LIGHT_GRAY));
         g2.drawString(outputText, leftAlignment, topAlignment);
 
         return bi;
     }
-    
+
     private static Color getColor(String color, Color defaultColor) {
         Color returnColor = myColor.get(color);
         if (returnColor == null) {
@@ -449,46 +467,34 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
         return returnColor;
     }
-    
+
     enum myColor {
-        white (Color.white), 
-        WHITE (Color.WHITE),
-        lightGray (Color.lightGray),
-        LIGHT_GRAY (Color.LIGHT_GRAY),
-        gray (Color.gray),
-        GRAY (Color.GRAY),
-        darkGray (Color.darkGray),
-        DARK_GRAY (Color.DARK_GRAY),
-        black (Color.black),
-        BLACK (Color.BLACK),
-        red (Color.red),
-        RED (Color.RED),
-        pink (Color.pink),
-        PINK (Color.PINK),
-        orange (Color.orange),
-        ORANGE (Color.ORANGE),
-        yellow (Color.yellow),
-        YELLOW (Color.YELLOW),
-        green (Color.green),
-        GREEN (Color.GREEN),
-        magenta (Color.magenta),
-        MAGENTA (Color.MAGENTA),
-        cyan (Color.cyan),
-        CYAN (Color.CYAN),
-        blue (Color.blue),
-        BLUE (Color.BLUE);
-        
+        white(Color.white), WHITE(Color.WHITE),
+        lightGray(Color.lightGray), LIGHT_GRAY(Color.LIGHT_GRAY),
+        gray(Color.gray), GRAY(Color.GRAY),
+        darkGray(Color.darkGray), DARK_GRAY(Color.DARK_GRAY),
+        black(Color.black), BLACK(Color.BLACK),
+        red(Color.red), RED(Color.RED),
+        pink(Color.pink), PINK(Color.PINK),
+        orange(Color.orange), ORANGE(Color.ORANGE),
+        yellow(Color.yellow), YELLOW(Color.YELLOW),
+        green(Color.green), GREEN(Color.GREEN),
+        magenta(Color.magenta), MAGENTA(Color.MAGENTA),
+        cyan(Color.cyan), CYAN(Color.CYAN),
+        blue(Color.blue), BLUE(Color.BLUE);
+
         private final Color color;
-        //Constructor
+
+        // Constructor
         myColor(Color color) {
             this.color = color;
         }
-    
-        public static Color get(String name){
+
+        public static Color get(String name) {
             for (myColor aColor : myColor.values()) {
-               if (aColor.toString().equalsIgnoreCase(name)) {
-                   return aColor.color;
-               }
+                if (aColor.toString().equalsIgnoreCase(name)) {
+                    return aColor.color;
+                }
             }
             return null;
         }
