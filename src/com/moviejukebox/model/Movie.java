@@ -74,10 +74,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     // Safe name for generated files
     private String baseName;
-    
+
     // Base name for finding posters, nfos, banners, etc.
     private String baseFilename;
-    
+
     private boolean scrapeLibrary;
     // Movie properties
     private Map<String, String> idMap = new HashMap<String, String>(2);
@@ -161,6 +161,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     // True if movie actually is only a entry point to movies set.
     private boolean isSetMaster = false;
+    // Amount of movies in set
+    private int setSize = 0;
 
     // http://stackoverflow.com/questions/343669/how-to-let-jaxb-render-boolean-as-0-and-1-not-true-and-false
     public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean> {
@@ -226,7 +228,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         String currentRevision = MovieJukebox.mjbRevision;
         // If YAMJ is self compiled then the revision information may not exist.
         if ((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
-            currentRevision =  Movie.UNKNOWN;
+            currentRevision = Movie.UNKNOWN;
         }
         return currentRevision;
     }
@@ -294,18 +296,18 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             this.movieFiles.add(movieFile);
         }
     }
-    
+
     public void removeMovieFile(MovieFile movieFile) {
-    	if (movieFile != null) {
-    		this.isDirty = true;
-    		for (MovieFile mf : this.movieFiles) {
-    			if (mf.compareTo(movieFile) == 0) {
-    				this.movieFiles.remove(mf);
-    				break;
-    			}
-    		}
-    		
-    	}
+        if (movieFile != null) {
+            this.isDirty = true;
+            for (MovieFile mf : this.movieFiles) {
+                if (mf.compareTo(movieFile) == 0) {
+                    this.movieFiles.remove(mf);
+                    break;
+                }
+            }
+
+        }
     }
 
     public boolean hasNewMovieFiles() {
@@ -350,22 +352,23 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
         return text + " (" + this.getYear() + ") " + season;
     }
-    
+
     /**
      * Remove the sorting strip prefix from the title
+     * 
      * @param title
      * @return
      */
     private String getStrippedTitle(String title) {
         String lowerTitle = title.toLowerCase();
-        
+
         for (String prefix : sortIgnorePrefixes) {
             if (lowerTitle.startsWith(prefix.toLowerCase())) {
                 title = title.substring(prefix.length());
                 break;
             }
         }
-        
+
         return title;
     }
 
@@ -387,7 +390,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return baseName;
     }
 
-    
     public String getBaseFilename() {
         return baseFilename;
     }
@@ -441,6 +443,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     /**
      * Get the first logical file of the set of videos
+     * 
      * @return
      */
     public MovieFile getFirstFile() {
@@ -1145,10 +1148,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     private Long tmstmp = null; // cache value
+
     public long getLastModifiedTimestamp() {
-        if(tmstmp == null) {
-            synchronized(this){
-                if(tmstmp == null){
+        if (tmstmp == null) {
+            synchronized (this) {
+                if (tmstmp == null) {
                     tmstmp = new Long(0);
                     for (MovieFile mf : getMovieFiles()) {
                         tmstmp = Math.max(tmstmp, mf.getLastModified());
@@ -1466,6 +1470,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.isSetMaster = isSetMaster;
     }
 
+    @XmlAttribute(name = "setSize")
+    public int getSetSize() {
+        return this.setSize;
+    }
+
+    public void setSetSize(final int size) {
+        this.setSize = size;
+    }
+
     public void setFileDate(Date fileDate) {
         this.fileDate = fileDate;
 
@@ -1542,8 +1555,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     /**
-     * Should be called only from PosterScanner. Avoid calling this inside MoviePlugin
-     * Also called from MovieNFOScanner
+     * Should be called only from PosterScanner. Avoid calling this inside MoviePlugin Also called from MovieNFOScanner
      * 
      * @param url
      */
@@ -1681,7 +1693,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setIndexes(Map<String, String> indexes) {
         this.indexes = new HashMap<String, String>(indexes);
     }
-    
+
     public boolean isOverrideYear() {
         return overrideYear;
     }
