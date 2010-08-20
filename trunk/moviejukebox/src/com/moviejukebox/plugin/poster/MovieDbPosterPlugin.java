@@ -87,7 +87,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
 
     @Override
     public String getName() {
-        return "moviedb";
+        return "themoviedb";
     }
 
     @Override
