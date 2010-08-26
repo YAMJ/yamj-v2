@@ -13,32 +13,31 @@
 
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.CSVWriter;
-import com.moviejukebox.tools.PropertiesUtil;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.logging.Logger;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringTokenizer;
-import java.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.logging.Logger;
+
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.CSVWriter;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * User: nmn Date: Aug 15, 2010
@@ -66,23 +65,25 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * 
      * @param aFields
      *            Text to split
-     * @return Number of fileds found
+     * @return Number of fields found
      */
     private int initFields(String aFields) {
-
-        mFields = new Vector<String>();
+        ArrayList<String> list = new ArrayList<String>(50); // Ensure capacity
         for (StringTokenizer t = new StringTokenizer(aFields, ","); t.hasMoreTokens();) {
             String st = t.nextToken();
-            if (st != null && st.trim().length() > 0)
-                mFields.add(st);
+            if (st != null && st.trim().length() > 0) {
+                list.add(st);
+            }
         }
-        return mFields.size();
+        list.trimToSize();
+        mFields = list;
+        return list.size();
     } // initFields()
 
     /**
      * @return CSV-formatted header row
      */
-    protected String headerLine() {
+    private String headerLine() {
         StringBuffer sb = new StringBuffer();
         for (Iterator<String> iterator = mFields.iterator(); iterator.hasNext();) {
             if (sb.length() > 0) {
@@ -96,10 +97,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     /**
      * Check if a header filed matches a known type
      * 
-     * @param field
-     *            The text we are checking
-     * @param knownType
-     *            The type to match
+     * @param field The text we are checking
+     * @param knownType  The type to match
      * @return true if we got a match
      */
     private boolean checkHeaderField(String field, String knownType) {
@@ -111,11 +110,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         }
 
         // Last try - Remove all spaces, and any trailing ? or #
-        knownType = knownType.replace((CharSequence)" ", (CharSequence)"");
-        if (knownType.endsWith("?") || knownType.endsWith("#")) {
-            knownType = knownType.substring(0, knownType.length() - 1).trim();
+        String type = knownType.replace((CharSequence)" ", (CharSequence)"");
+        if (type.endsWith("?") || type.endsWith("#")) {
+            type = type.substring(0, type.length() - 1).trim();
         }
-        if (field.equalsIgnoreCase(knownType)) {
+        if (field.equalsIgnoreCase(type)) {
             return true;
         }
         return false;
@@ -126,7 +125,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param movie
      * @return output string properly formatted for CSV output
      */
-    protected String toCSV(String sItemType, Movie movie) {
+    private String toCSV(String sItemType, Movie movie) {
         Collection<ExtraFile> extras = movie.getExtraFiles();
         Collection<MovieFile> movieFiles = movie.getMovieFiles();
         Collection<String> genres = movie.getGenres();
@@ -254,6 +253,9 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                     sb.append(prep(tmp.toString()));
                 }
             }
+            else if (checkHeaderField(header, "Plot")) {
+                sb.append(prep(movie.getPlot()));
+            }
         }
         return sb.toString();
     } // toCSV()
@@ -262,7 +264,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param i
      * @return empty string if input = -1
      */
-    protected String blankNegatives(int i) {
+    private String blankNegatives(int i) {
         String sResult = "";
         if (0 <= i) {
             sResult = "" + i;
@@ -274,14 +276,15 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param str
      * @return String cleaned up, NEVER comma appended
      */
-    protected String prep(String str) {
-        if (null == str) {
-            str = "";
-        } else if (blankUNKNOWN && UNKNOWN.equals(str)) {
+    String prep(String input) {
+        String str = input;
+        
+        if (null == str || (blankUNKNOWN && UNKNOWN.equals(str))) {
             // clean 'UNKNOWN' values
             str = "";
-        }
-
+        }        
+        // convert all whitespace to a single space
+        str = str.replaceAll("[\\s]", " ").trim();;
         // remove quotes from the string (before encapsulation)
         if (str.contains("\"")) {
             str = str.replace("\"", "");
