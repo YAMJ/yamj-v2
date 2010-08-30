@@ -18,6 +18,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +37,11 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
 
+    private final String BANNER = "banners";
+    private final String POSTER = "posters";
+    private final String VIDEOIMAGE = "videoimages";
+    private final String THUMBNAIL = "thumbnails";
+    
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String skinHome;
     private boolean addReflectionEffect;
@@ -57,6 +64,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static String textFontColor;
     private static String textFontShadow;
     private static int textOffset;
+    private String imageType;
+    private boolean roundCorners;
+    private int cornerRadius;
 
     public DefaultImagePlugin() {
         // Generic properties
@@ -65,10 +75,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     @Override
-    public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String imageType, String perspectiveDirection) {
-        imageType = imageType.toLowerCase();
+    public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String gImageType, String perspectiveDirection) {
+        imageType = gImageType.toLowerCase();
 
-        if ("posters|thumbnails|banners|videoimages".indexOf(imageType) < 0) {
+        if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE).indexOf(imageType) < 0) {
             // This is an error with the calling function
             logger.severe("YAMJ Error with calling function in DefaultImagePlugin.java");
             return imageGraphic;
@@ -95,6 +105,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         textFontShadow = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
         textOffset = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.offset", "10"));
 
+        roundCorners = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".roundCorners", "false"));
+        cornerRadius = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".cornerRadius", "25"));
+        
         ratio = (float)imageWidth / (float)imageHeight;
 
         BufferedImage bi = imageGraphic;
@@ -133,7 +146,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 bi = GraphicTools.scaleToSize(imageWidth, imageHeight, bi);
             }
 
-            if (imageType.equalsIgnoreCase("banners")) {
+            if (imageType.equalsIgnoreCase(BANNER)) {
                 if (addTextTitle) {
                     bi = drawText(bi, movie.getTitle(), true);
                 }
@@ -142,11 +155,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     bi = drawText(bi, "Season " + movie.getSeason(), false);
                 }
             }
+            
+            if (roundCorners) {
+                bi = roundCorners(bi);
+            }
 
             bi = drawLogos(movie, bi);
 
             // Should only really happen on set's thumbnails.
-            if (imageType.equalsIgnoreCase("thumbnails") && movie.isSetMaster()) {
+            if (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster()) {
                 // Draw the set logo if requested.
                 if (addSetLogo) {
                     bi = drawSet(movie, bi);
@@ -181,6 +198,17 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         return bi;
+    }
+    
+    protected BufferedImage roundCorners(BufferedImage bi) {
+        BufferedImage newImg = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D newGraphics = newImg.createGraphics();
+        newGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius, cornerRadius);
+        newGraphics.setClip(rect);
+        newGraphics.drawImage(bi, 0, 0, null);
+        return newImg;
     }
 
     /**

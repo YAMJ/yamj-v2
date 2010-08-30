@@ -4,6 +4,7 @@
 
 MovieJukebox 2.1 BETA
 ---------------------
+  - Enhancement   #941 Allow rounded corners on graphics
   - Enhancement  #1566 Would be nice to have plot in CSV listing
   - Fixed defect #1402 No Hebrew posters only plot
   - Enhancement  #1483 XBMC-style TV artwork support
