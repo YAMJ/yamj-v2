@@ -92,7 +92,7 @@ import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 public class MovieJukebox {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    Collection<MediaLibraryPath> movieLibraryPaths;
+    static Collection<MediaLibraryPath> movieLibraryPaths;
     private String movieLibraryRoot;
     private String skinHome;
     
@@ -344,7 +344,7 @@ public class MovieJukebox {
             return;
         }
 
-        if (! f.exists()) {
+        if (!f.exists()) {
             logger.severe("Directory not found : " + movieLibraryRoot);
             return;
         }
@@ -361,25 +361,58 @@ public class MovieJukebox {
         }
 
         fh.close();
+        
+        renameLogFile(logFilename, movieLibraryPaths);
+
+        return;
+    }
+
+    /**
+     * Append the library filename or the date/time to the log filename
+     * @param logFilename
+     */
+    private static void renameLogFile(String logFilename, Collection<MediaLibraryPath> movieLibraryPaths) {
+        String newLogFilename = "moviejukebox";
+        boolean renameFile = false;
+        
+        String libraryName = "_Library";
+        if (Boolean.parseBoolean(getProperty("mjb.appendLibraryToLogFile", "false"))) {
+            renameFile = true;
+            for (final MediaLibraryPath mediaLibrary : movieLibraryPaths) {
+                if (FileTools.isValidString(mediaLibrary.getDescription())) {
+                    libraryName = "_" + mediaLibrary.getDescription();
+                    libraryName = FileTools.makeSafeFilename(libraryName);
+                    break;
+                }
+            }
+            
+            newLogFilename += libraryName;
+        }
+        
         if (Boolean.parseBoolean(getProperty("mjb.appendDateToLogFile", "false"))) {
+            renameFile = true;
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
+            newLogFilename += "_" + dateFormat.format(timeStart);
+        }
+        
+        if (renameFile) {
+            newLogFilename += ".log";
+            
             // File (or directory) with old name
             File file = new File(logFilename);
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
-            logFilename = "moviejukebox_" + dateFormat.format(timeStart) + ".log";
-
             // File with new name
-            File file2 = new File(logFilename);
+            File file2 = new File(newLogFilename);
 
             // Rename file (or directory)
             if (!file.renameTo(file2)) {
                 logger.severe("Error renaming log file.");
             }
         }
-
         return;
     }
-
+    
     private void makeDumpStructure() {
         logger.finest("Dumping library directory structure for debug");
 
