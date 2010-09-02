@@ -429,13 +429,13 @@ public class FileTools {
      * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the File
      * 
      * @param filename
-     * @param extensions
+     * @param artworkExtensions
      * @return always a File, to be tested with exists() for valid file
      */
-    public static File findFileFromExtensions(String fullBaseFilename, String[] extensions) {
+    public static File findFileFromExtensions(String fullBaseFilename, Collection<String> artworkExtensions) {
         File localFile = null;
 
-        for (String extension : extensions) {
+        for (String extension : artworkExtensions) {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
                 logger.finest("The file " + localFile + " found");
@@ -790,4 +790,16 @@ public class FileTools {
         
         return true;
     }
+
+    /**
+     * Append a string to the end of a path ensuring that there are the correct number of File.separators
+     * @param basePath
+     * @param additionalPath
+     * @return
+     */
+    public static String appendToPath(String basePath, String additionalPath) {
+        basePath = basePath.trim();
+        return (basePath + (basePath.endsWith(File.separator)?"":File.separator) + additionalPath.trim());
+    }
+    
 }
