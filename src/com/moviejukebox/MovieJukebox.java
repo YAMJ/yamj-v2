@@ -95,6 +95,7 @@ public class MovieJukebox {
     static Collection<MediaLibraryPath> movieLibraryPaths;
     private String movieLibraryRoot;
     private String skinHome;
+    private static String propertiesName = "./moviejukebox.properties";
     
     // Jukebox parameters
     protected static Jukebox jukebox;
@@ -111,6 +112,7 @@ public class MovieJukebox {
     private boolean forcePosterOverwrite;
     private boolean forceThumbnailOverwrite;
     private boolean forceBannerOverwrite;
+    private boolean forceSkinOverwrite;
 
     // Scanner Tokens
     private static String posterToken;
@@ -186,7 +188,6 @@ public class MovieJukebox {
 
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
-        String propertiesName = "./moviejukebox.properties";
         Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
 
         if (args.length == 0) {
@@ -551,6 +552,7 @@ public class MovieJukebox {
         this.forcePosterOverwrite = parseBoolean(getProperty("mjb.forcePostersOverwrite", "false"));
         this.forceThumbnailOverwrite = parseBoolean(getProperty("mjb.forceThumbnailsOverwrite", "false"));
         this.forceBannerOverwrite = parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
+        this.forceSkinOverwrite = parseBoolean(getProperty("mjb.forceSkinOverwrite", "false"));
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
         this.fanartMovieDownload = parseBoolean(getProperty("fanart.movie.download", "false"));
@@ -1001,8 +1003,19 @@ public class MovieJukebox {
             FileTools.copyDir(jukebox.getJukeboxTempLocationDetails(), jukebox.getJukeboxRootLocationDetails(), true);
             FileTools.copyFile(new File(jukebox.getJukeboxTempLocation() + File.separator + index), new File(jukebox.getJukeboxRootLocation() + File.separator + index));
 
-            logger.fine("Copying resources to Jukebox directory...");
-            FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxRootLocationDetails(), true);
+            String skinDate = jukebox.getJukeboxRootLocationDetails() + File.separator + "pictures" + File.separator + "skin.date";
+            File skinFile = new File(skinDate);
+            File propFile = new File(propertiesName);
+            
+            if (forceSkinOverwrite || FileTools.isNewer(propFile, skinFile)) {
+                logger.fine("Copying skin files to Jukebox directory...");
+                FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxRootLocationDetails(), true);
+                new File(skinDate).createNewFile();
+            } else {
+                logger.fine("Skin copying skipped.");
+                logger.finest("Use mjb.forceSkinOverwrite=true to force the overwitting of the skin files");
+            }
+
             FileTools.fileCache.saveFileList("filecache.txt");
 
             /********************************************************************************

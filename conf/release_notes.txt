@@ -31,6 +31,7 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1557 MovieJukebox-listing.csv file should be configurable
   - Enhancement  #1559 It's useful to have amount of set's elements in XML
   - Enhancement  #1575 Append library description to the log filename
+  - Enhancement  #1577 Skip copying of the skin files if they already exist
   
 MovieJukebox 2.0
 ----------------
