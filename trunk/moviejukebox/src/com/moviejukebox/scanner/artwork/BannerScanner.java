@@ -43,7 +43,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class BannerScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected static String[] bannerExtensions;
+    protected static Collection<String> bannerExtensions = new ArrayList<String>();
     protected static String bannerToken;
     protected static boolean bannerOverwrite;
     protected static boolean useFolderBanner;
@@ -53,11 +53,9 @@ public class BannerScanner {
 
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.bannerExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
-        Collection<String> extensions = new ArrayList<String>();
         while (st.hasMoreTokens()) {
-            extensions.add(st.nextToken());
+            bannerExtensions.add(st.nextToken());
         }
-        bannerExtensions = extensions.toArray(new String[] {});
 
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
 

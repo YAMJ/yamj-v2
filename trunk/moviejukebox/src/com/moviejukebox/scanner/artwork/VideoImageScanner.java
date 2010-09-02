@@ -45,7 +45,7 @@ public class VideoImageScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected static String skinHome;
-    protected static String[] videoimageExtensions;
+    protected static Collection<String> videoimageExtensions = new ArrayList<String>();
     protected static String videoimageToken;
     protected static boolean videoimageOverwrite;
 
@@ -53,12 +53,11 @@ public class VideoImageScanner {
 
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("videoimage.scanner.videoimageExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
-        Collection<String> extensions = new ArrayList<String>();
         while (st.hasMoreTokens()) {
-            extensions.add(st.nextToken());
+            videoimageExtensions.add(st.nextToken());
         }
+        
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        videoimageExtensions = extensions.toArray(new String[] {});
         videoimageToken = PropertiesUtil.getProperty("videoimage.scanner.videoimageToken", ".videoimage");
         videoimageOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceVideoImagesOverwrite", "false"));
     }
@@ -353,7 +352,7 @@ public class VideoImageScanner {
      * @param extensions
      * @return extension of videoimage that was found
      */
-    private static String findVideoImageFile(String fullVideoImageFilename, String[] videoimageExtensions) {
+    private static String findVideoImageFile(String fullVideoImageFilename, Collection<String> videoimageExtensions) {
         File localVideoImageFile;
         String videoimageExtension = null;
         boolean foundLocalVideoImage = false;

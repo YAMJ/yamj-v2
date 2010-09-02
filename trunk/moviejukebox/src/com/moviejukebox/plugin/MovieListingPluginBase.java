@@ -13,6 +13,7 @@
 
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.FileTools;
@@ -85,7 +86,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      * @param JukeboxRoot
      * @param library
      */
-    public void generate(String tempJukeboxRoot, String jukeboxRoot, Library library) {
+    public void generate(Jukebox jukebox, Library library) {
         logger.fine("  MovieListingPluginBase: not generating listing file.");
     } // generate()
 
