@@ -13,6 +13,7 @@
 
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 
 /**
@@ -29,6 +30,6 @@ public interface MovieListingPlugin {
 
   public static String UNKNOWN = "UNKNOWN";
 
-  public void generate(String tempJukeboxRoot, String jukeboxRoot, Library library);
+  public void generate(Jukebox jukebox, Library library);
 
 } // interface MovieListingPlugin

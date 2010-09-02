@@ -47,7 +47,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class FanartScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected static String[] fanartExtensions;
+    protected static Collection<String> fanartExtensions = new ArrayList<String>();
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
     protected static boolean useFolderBackground;
@@ -57,11 +57,9 @@ public class FanartScanner {
 
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.fanartExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
-        Collection<String> extensions = new ArrayList<String>();
         while (st.hasMoreTokens()) {
-            extensions.add(st.nextToken());
+            fanartExtensions.add(st.nextToken());
         }
-        fanartExtensions = extensions.toArray(new String[] {});
 
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 

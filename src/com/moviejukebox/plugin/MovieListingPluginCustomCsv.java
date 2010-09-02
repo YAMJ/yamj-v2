@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -298,13 +299,13 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     } // prepOutput()
 
     /**
-     * @param tempJukeboxRoot
-     * @param jukeboxRoot
+     * @param jukebox
      * @param library
      */
-    public void generate(String tempJukeboxRoot, String jukeboxRoot, Library library) {
-        // logger.fine("rootPath='" + rootPath +"'");
-
+    public void generate(Jukebox jukebox, Library library) {
+        String tempJukeboxRoot = jukebox.getJukeboxTempLocation();
+        String jukeboxRoot = jukebox.getJukeboxRootLocation();
+        
         initialize(jukeboxRoot);
         String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
         initFields(fields);

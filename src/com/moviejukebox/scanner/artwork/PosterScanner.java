@@ -62,7 +62,7 @@ public class PosterScanner {
     private static Map<String, ITvShowPosterPlugin> tvShowPosterPlugins = new HashMap<String, ITvShowPosterPlugin>();
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected static String[] posterExtensions;
+    protected static Collection<String> posterExtensions  = new ArrayList<String>();
     protected static String searchForExistingPoster;
     protected static String fixedPosterName;
     protected static String posterDirectory;
@@ -100,11 +100,9 @@ public class PosterScanner {
         
         // We get valid extensions
         st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.coverArtExtensions", "jpg,png,gif"), ",;| ");
-        Collection<String> extensions = new ArrayList<String>();
         while (st.hasMoreTokens()) {
-            extensions.add(st.nextToken());
+            posterExtensions.add(st.nextToken());
         }
-        posterExtensions = extensions.toArray(new String[] {});
 
         // We get Poster Directory if needed
         posterDirectory = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");

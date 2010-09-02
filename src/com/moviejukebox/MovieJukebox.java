@@ -1049,12 +1049,11 @@ public class MovieJukebox {
 
             if (moviejukeboxListing) {
                 logger.fine("Generating listing output...");
-                // XXX
-                listingPlugin.generate(jukebox.getJukeboxTempLocation(), jukebox.getJukeboxRootLocation(), library);
+                listingPlugin.generate(jukebox, library);
             }
 
             logger.fine("Clean up temporary files");
-            File rootIndex = new File(jukebox.getJukeboxTempLocation() + File.separator + index);
+            File rootIndex = new File(FileTools.appendToPath(jukebox.getJukeboxTempLocation(), index));
             rootIndex.delete();
 
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
