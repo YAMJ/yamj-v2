@@ -115,12 +115,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private boolean updateImdbMediaInfo(Movie movie) {
         try {
-            String xml = null;
-            if (getFullInfo) {
-                xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/combined", siteDef.getCharset());
-            } else {
-                xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/", siteDef.getCharset());
+            String imdbID = movie.getId(IMDB_PLUGIN_ID);
+            if (!imdbID.startsWith("tt")) {
+                imdbID = "tt" + imdbID;
             }
+            
+            String xml = siteDef.getSite() + "title/" + imdbID + "/";
+            
+            // Add the combined tag to the end of the request if required
+            if (getFullInfo) {
+                xml += "combined";
+            }
+            xml = webBrowser.request(xml, siteDef.getCharset());
             
             if (xml.contains("\"tv-extra\"")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
