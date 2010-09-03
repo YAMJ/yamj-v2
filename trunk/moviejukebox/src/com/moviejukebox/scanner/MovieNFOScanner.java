@@ -513,7 +513,7 @@ public class MovieNFOScanner {
                         //} else if (tag.equalsIgnoreCase("watched")) {
                             // Not currently used
                         } else if (tag.equalsIgnoreCase("id")) {
-                            Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("themoviedb"));
+                            Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 if (movieDbIdAttribute != null) { // if we have a moviedb attribute

@@ -391,11 +391,13 @@ public class AllocinePlugin extends ImdbPlugin {
             if (allocineId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 allocineId = getAllocineId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.isTVShow() ? 0 : -1);
             }
+            
             // we also get imdb Id for extra infos
             if (mediaFile.getId(IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getOriginalTitle(), mediaFile.getYear()));
                 logger.finest("AllocinePlugin: Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
+            
             if (!allocineId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 mediaFile.setId(ALLOCINE_PLUGIN_ID, allocineId);
                 if (mediaFile.isTVShow()) {
