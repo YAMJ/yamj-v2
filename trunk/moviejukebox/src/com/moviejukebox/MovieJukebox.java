@@ -1010,7 +1010,11 @@ public class MovieJukebox {
             if (forceSkinOverwrite || FileTools.isNewer(propFile, skinFile)) {
                 logger.fine("Copying skin files to Jukebox directory...");
                 FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxRootLocationDetails(), true);
-                new File(skinDate).createNewFile();
+                if (skinFile.exists()) {
+                    skinFile.setLastModified(timeStart);
+                } else {
+                    new File(skinDate).createNewFile();
+                }
             } else {
                 logger.fine("Skin copying skipped.");
                 logger.finest("Use mjb.forceSkinOverwrite=true to force the overwitting of the skin files");
