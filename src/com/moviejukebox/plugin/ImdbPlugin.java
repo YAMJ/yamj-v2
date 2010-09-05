@@ -139,6 +139,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 String title = HTMLTools.extractTag(xml, "<title>");
                 title = title.replaceAll(" \\([VG|V]\\)$", ""); // Remove the (VG) or (V) tags from the title
                 title = title.replaceAll(" \\((\\d{4})(?:/[^\\)]+)?\\)", ""); // Remove the Date identifier
+                if (title.toLowerCase().endsWith(" - imdb")) {
+                    title = title.substring(0, title.length() - 7);   
+                }
                 movie.setTitle(title);
                 movie.setOriginalTitle(title);
             }
