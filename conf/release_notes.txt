@@ -34,6 +34,7 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1575 Append library description to the log filename
   - Enhancement  #1577 Skip copying of the skin files if they already exist
   - Fixed defect #1582 Movie titles contain "- IMDb"
+  - Fixed defect #1584 Movies with punctuation not detected without an nfo file
   
 MovieJukebox 2.0
 ----------------

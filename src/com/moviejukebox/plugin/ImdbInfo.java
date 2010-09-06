@@ -137,7 +137,9 @@ public class ImdbInfo {
      */
     private String getImdbIdFromGoogle(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
+            logger.finer("ImdbInfo querying Google for " + movieName);
+
+            StringBuffer sb = new StringBuffer("http://www.google.com/search?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -146,12 +148,15 @@ public class ImdbInfo {
 
             sb.append("+site%3Awww.imdb.com&meta=");
 
+            logger.finest("ImdbInfo Google search: " + sb.toString());
+            
             String xml = webBrowser.request(sb.toString());
             int beginIndex = xml.indexOf("/title/tt");
             StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
             String imdbId = st.nextToken();
 
             if (imdbId.startsWith("tt")) {
+                logger.finer("Found IMDb ID: " + imdbId);
                 return imdbId;
             } else {
                 return Movie.UNKNOWN;
@@ -176,6 +181,8 @@ public class ImdbInfo {
          * We should check the Exact match section first, then the poplar titles and finally the partial matches. Note: That even with exact matches there can
          * be more than 1 hit, for example "Star Trek"
          */
+        
+        //logger.fine("Movie Name: " + movieName + " - " + year);
 
         try {
             StringBuffer sb = new StringBuffer(siteDef.getSite() + "find?q=");
@@ -186,7 +193,7 @@ public class ImdbInfo {
             }
             sb.append(";s=tt;site=aka");
 
-            // logger.finest("ImdbInfo Querying IMDB for " + sb.toString());
+            logger.finest("ImdbInfo Querying IMDB for " + sb.toString());
             String xml = webBrowser.request(sb.toString());
 
             // Check if this is an exact match (we got a movie page instead of a results list)
@@ -196,6 +203,7 @@ public class ImdbInfo {
                // logger.finer("ImdbInfo direct found " + titlematch.group(1));
                return titlematch.group(1);
             }
+            
             String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>" , "</b>").toLowerCase();
             String formattedMovieName;
             if (!otherMovieName.equals("")) {
@@ -213,21 +221,26 @@ public class ImdbInfo {
                 otherMovieName = sb.toString();
                 formattedMovieName = otherMovieName;
             }
-            // logger.finer("ImdbInfo title search : " + formattedMovieName);
+            
+            //logger.fine("ImdbInfo title search : " + formattedMovieName);
             for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-title-", "</td>", false)) {
-                // logger.finer("ImdbInfo title check : " + searchResult);
+                //logger.fine("ImdbInfo title check : " + searchResult);
                 if (searchResult.toLowerCase().indexOf(formattedMovieName) != -1) {
-                   //  logger.finer("ImdbInfo title match : " + searchResult);
+                    //logger.fine("ImdbInfo title match : " + searchResult);
                     return HTMLTools.extractTag(searchResult, "/images/b.gif?link=/title/", "/';\">");
                 } else {
                     for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
                         if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
-                            // logger.finer("ImdbInfo othertitle match : " + otherResult);
+                            //logger.fine("ImdbInfo othertitle match : " + otherResult);
                             return HTMLTools.extractTag(searchResult, "/images/b.gif?link=/title/", "/';\">");
                         }
                     }
                 }
             }
+            
+            // If we don't have an ID try google
+            logger.finer("Failed to find an exact match on IMDb, trying Google");
+            return getImdbIdFromGoogle(movieName, year);
 /*            
             // Check if first "popular title" match
             titleregex = Pattern.compile(Pattern.quote("find-title-1/title_popular/images/b.gif?link=/title/") + "(tt\\d+)" + Pattern.quote("/';\">"+ sb));
