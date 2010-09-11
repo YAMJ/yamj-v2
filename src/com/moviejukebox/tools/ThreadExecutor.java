@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ThreadExecutor<T> implements ThreadFactory{
+public class ThreadExecutor<T> implements ThreadFactory {
 
     private Collection<Future<T>> values = new ArrayList<Future<T>>(100);
     private ThreadPoolExecutor pool = null;

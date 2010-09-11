@@ -673,6 +673,7 @@ public class MovieJukebox {
         
         // Create the ".mjbignore" file in the jukebox folder
         try {
+            jukebox.getJukeboxRootLocationDetailsFile();
             jukeboxDetailsRootFile.mkdirs();
             new File(jukeboxDetailsRootFile, ".mjbignore").createNewFile();
             FileTools.addJukeboxFile(".mjbignore");
