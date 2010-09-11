@@ -179,9 +179,10 @@ public class WebBrowser {
                     logger.finest("WebBrowser: Image download attempt failed, bytes expected: " + reportedLength + ", bytes received: " + inputStreamLength);
                 }
             }
-        }finally{
+        } finally {
             ThreadExecutor.leaveIO();
         }
+        
         if (!success) {
             logger.finest("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
         }
