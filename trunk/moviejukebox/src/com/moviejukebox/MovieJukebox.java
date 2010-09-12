@@ -1032,7 +1032,7 @@ public class MovieJukebox {
                 logger.fine("Cleaning up the jukebox directory...");
                 Collection<String> generatedFileNames = FileTools.getJukeboxFiles();
 
-                File[] cleanList = jukeboxDetailsRootFile.listFiles();
+                File[] cleanList = jukebox.getJukeboxRootLocationDetailsFile().listFiles();
                 int cleanDeletedTotal = 0;
                 boolean skip = false;
 

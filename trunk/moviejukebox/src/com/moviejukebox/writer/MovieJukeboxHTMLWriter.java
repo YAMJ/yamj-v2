@@ -331,6 +331,12 @@ public class MovieJukeboxHTMLWriter {
         for (final IndexInfo idx : library.getGeneratedIndexes()){
             if (idx.canSkip) { //this is evaluated during XML indexing
                 logger.finer("HTMLWriter: Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
+
+                // Add the index files to the cache so they aren't deleted
+                for (int page = 1; page <= idx.pages; page++) {
+                    FileTools.addJukeboxFile(idx.baseName + page + ".xml");
+                    FileTools.addJukeboxFile(idx.baseName + page + ".html");
+                }
             } else {
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
