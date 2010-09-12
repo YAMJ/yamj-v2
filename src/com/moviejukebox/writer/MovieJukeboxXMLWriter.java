@@ -626,11 +626,6 @@ public class MovieJukeboxXMLWriter {
 
                         if (skipindex) {
                             logger.finer("Category " + category_path + " no change detected, skipping XML generation.");
-                            
-                            // Add the index files to the cache so they aren't deleted
-                            for (current = 1 ; current <= last ; current++) {
-                                FileTools.addJukeboxFile(jukebox.getJukeboxTempLocationDetails() + idx.baseName + current + ".xml");
-                            }
                         } else {
                             for (current = 1 ; current <= last ; current++) {
                                 // All pages are handled here
