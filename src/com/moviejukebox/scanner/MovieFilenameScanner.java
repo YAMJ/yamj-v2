@@ -28,7 +28,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -47,6 +49,7 @@ import com.moviejukebox.model.MovieFileNameDTO;
 public class MovieFilenameScanner {
 
     protected static final Logger logger = Logger.getLogger("moviejukebox");
+    protected static boolean skipEpisodeTitle;
 
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
@@ -58,6 +61,11 @@ public class MovieFilenameScanner {
     private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
     static {
         setExtrasKeywords(new String[] {"trailer"});
+        try {
+            skipEpisodeTitle = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.skip.episodeTitle", "false"));
+        } catch (Exception ignore) {
+            skipEpisodeTitle = false;
+        }
     }
 
     private static String[] movieVersionKeywords;
@@ -541,7 +549,11 @@ public class MovieFilenameScanner {
                 while (matcher.find()) {
                     String title = cleanUpTitle(matcher.group(1));
                     if (title.length() > 0) {
-                        dto.setEpisodeTitle(title);
+                        if (skipEpisodeTitle) {
+                            dto.setEpisodeTitle(Movie.UNKNOWN);
+                        } else {
+                            dto.setEpisodeTitle(title);
+                        }
                         break;
                     }
                 }
