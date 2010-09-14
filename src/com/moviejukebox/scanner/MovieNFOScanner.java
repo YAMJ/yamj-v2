@@ -264,11 +264,13 @@ public class MovieNFOScanner {
         
         // Recurse through the directories to the library root looking for NFO files
          String libraryRootPath = new File(movie.getLibraryPath()).getAbsolutePath();
-         while (!currentDir.getAbsolutePath().equals(libraryRootPath)) {
+         while (currentDir != null && !currentDir.getAbsolutePath().equals(libraryRootPath)) {
              //fFilter.setPattern("(?i)" + currentDir.getName() + nfoExtRegex);
              //checkRNFO(nfos, currentDir, fFilter);
              currentDir = currentDir.getParentFile();
-             checkNFO(nfos, currentDir.getPath() + File.separator + currentDir.getName());
+             if (currentDir != null && currentDir.length() > 0) {
+                 checkNFO(nfos, FileTools.appendToPath(currentDir.getPath(), currentDir.getName()));
+             }
          }
 
         // we added the most specific ones first, and we want to parse those the last,
