@@ -21,6 +21,7 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1526 Ability for multiple IMDB Ids in a NFO file
   - Enhancement  #1530 banner from thetvdb
   - Fixed defect #1531 java.util.NoSuchElementException on most movies
+  - Enhancement  #1540 Ability to specify IMDB (or theTVDB) on the filename
   - Fixed defect #1541 Poster english or french
   - Fixed defect #1545 Failed creating thumbnail with Set or Series
   - Fixed defect #1547 KinoPoisk's plugin is malfunction

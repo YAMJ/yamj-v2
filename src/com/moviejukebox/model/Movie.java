@@ -1371,6 +1371,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         setContainer(dto.getContainer());
         setFps(dto.getFps() > 0 ? dto.getFps() : 60);
         setSeason(dto.getSeason());
+        setMovieIds(dto.getMovieIds());
+        
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }

@@ -14,12 +14,17 @@
 package com.moviejukebox.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
+
+import com.moviejukebox.model.Movie.MovieId;
 
 /**
  * Container of parsed data from movie file name.
@@ -45,6 +50,7 @@ import javax.xml.bind.annotation.XmlValue;
     private int     fps = -1;
     private String  hdResolution = null;
     private String  videoSource = null;
+    private Map<String, String> idMap = new HashMap<String, String>(2);
 
     @XmlType public static class SetDTO {
         private String title = null;
@@ -200,5 +206,42 @@ import javax.xml.bind.annotation.XmlValue;
 
     public void setEpisodeTitle(String episodeTitle) {
         this.episodeTitle = episodeTitle;
+    }
+    
+    public void setId(String key, String id) {
+        if (key != null && id != null && !id.equalsIgnoreCase(this.getId(key))) {
+            this.idMap.put(key, id);
+        }
+    }
+
+    public String getId(String key) {
+        String result = idMap.get(key);
+        if (result != null) {
+            return result;
+        } else {
+            return Movie.UNKNOWN;
+        }
+    }
+
+    public Map<String, String> getIdMap() {
+        return idMap;
+    }
+
+    public List<MovieId> getMovieIds() {
+        List<MovieId> list = new ArrayList<MovieId>();
+        for (Entry<String, String> e : idMap.entrySet()) {
+            MovieId id = new MovieId();
+            id.movieDatabase = e.getKey();
+            id.value = e.getValue();
+            list.add(id);
+        }
+        return list;
+    }
+
+    public void setMovieIds(List<MovieId> list) {
+        idMap.clear();
+        for (MovieId id : list) {
+            idMap.put(id.movieDatabase, id.value);
+        }
     }
 }
