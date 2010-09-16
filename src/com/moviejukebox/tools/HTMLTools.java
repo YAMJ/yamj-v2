@@ -594,39 +594,41 @@ public class HTMLTools {
         return tags;
     }
 
-    public static String encodeUrl(String s) {
-        if (s != null && s.length() != 0) {
+    public static String encodeUrl(String url) {
+    	String returnUrl = url;
+
+    	if (url != null && url.length() != 0) {
             try {
-                s = URLEncoder.encode(s, "UTF-8");
-                s = s.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
+                returnUrl = URLEncoder.encode(url, "UTF-8");
+                returnUrl = returnUrl.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
             } catch (UnsupportedEncodingException ignored) {
-                logger.fine("Could not decode URL string: " + s + ", will proceed with undecoded string.");
+                logger.fine("Could not decode URL string: " + returnUrl + ", will proceed with undecoded string.");
             }
         }
-        return s;
+        return returnUrl;
     }
 
-    public static String encodeUrlPath(String s) {
-        if (s != null && s.length() != 0) {
-            int slash = s.lastIndexOf('/');
+    public static String encodeUrlPath(String url) {
+        if (url != null && url.length() != 0) {
+            int slash = url.lastIndexOf('/');
             String parentPart = "";
             if (slash != -1) {
-                parentPart = encodeUrlPath(s.substring(0, slash)) + '/';
+                parentPart = encodeUrlPath(url.substring(0, slash)) + '/';
             }
-            s = parentPart + encodeUrl(s.substring(slash + 1));
+            return parentPart + encodeUrl(url.substring(slash + 1));
         }
-        return s;
+        return url;
     }
 
-    public static String decodeUrl(String s) {
-        if (s != null && s.length() != 0) {
+    public static String decodeUrl(String url) {
+        if (url != null && url.length() != 0) {
             try {
-                s = URLDecoder.decode(s, "UTF-8");
+                return URLDecoder.decode(url, "UTF-8");
             } catch (UnsupportedEncodingException ignored) {
-                logger.fine("Could not decode URL string: " + s + ", will proceed with undecoded string.");
+                logger.fine("Could not decode URL string: " + url + ", will proceed with undecoded string.");
             }
         }
-        return s;
+        return url;
     }
 
     public static String stripTags(String s) {
