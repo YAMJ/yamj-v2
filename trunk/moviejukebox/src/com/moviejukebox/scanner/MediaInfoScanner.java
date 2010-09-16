@@ -608,7 +608,8 @@ public class MediaInfoScanner {
                 }
             }
 
-            if (infoFormat != null) { // Make sure we have a codec before continuing
+            // Make sure we have a codec & language before continuing
+            if (FileTools.isValidString(infoFormat) && FileTools.isValidString(infoLanguage)) { 
                 if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE") || infoFormat.equals("PGS")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
                     if (oldInfo.equalsIgnoreCase(Movie.UNKNOWN) || oldInfo.equalsIgnoreCase("NO")) {
