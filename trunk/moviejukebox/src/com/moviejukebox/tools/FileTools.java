@@ -65,21 +65,23 @@ public class FileTools {
         };
     };
     
-    private static class ReplaceEntry{
-        private String oldtext, newtext;
-        private int oldlen;
+    private static class ReplaceEntry {
+        private String oldText, newText;
+        private int oldLength;
         public ReplaceEntry(String oldtext, String newtext){
-            this.oldtext = oldtext;
-            this.newtext = newtext;
-            oldlen = oldtext.length();
+            this.oldText = oldtext;
+            this.newText = newtext;
+            oldLength = oldtext.length();
         }
-        public String check(String filename){
-            int p = filename.indexOf(oldtext, 0);
-            while(p >= 0){
-                filename = filename.substring(0, p) + newtext + filename.substring(p+oldlen);
-                p = filename.indexOf(oldtext, p+oldlen);
+        
+        public String check(String filename) {
+        	String newFilename = filename;
+            int pos = newFilename.indexOf(oldText, 0);
+            while(pos >= 0) {
+            	newFilename = newFilename.substring(0, pos) + newText + newFilename.substring(pos + oldLength);
+                pos = newFilename.indexOf(oldText, pos + oldLength);
             }
-            return filename;
+            return newFilename;
         }
     };
 
@@ -378,15 +380,16 @@ public class FileTools {
     }
 
     public static String makeSafeFilename(String filename) {
-        String oldfilename = filename;
+        String newFilename = filename;
+        
         for (ReplaceEntry rep : unsafeChars) {
-            filename = rep.check(filename);
+        	newFilename = rep.check(newFilename);
         }
-        if (!filename.equals(oldfilename)) {
-            logger.finest("Encoded filename string " + oldfilename + " to " + filename);
+        if (!newFilename.equals(filename)) {
+            logger.finest("Encoded filename string " + filename + " to " + newFilename);
         }
             
-        return filename;
+        return newFilename;
     }
 
     /*
@@ -396,10 +399,10 @@ public class FileTools {
      */
     public static String getCanonicalPath(String path) {
         try {
-            path = new File(path).getCanonicalPath();
-        } catch (IOException e) {}
-        return path;
-        
+            return new File(path).getCanonicalPath();
+        } catch (IOException e) {
+        	return path;
+        }
     }
 
     /*
@@ -729,14 +732,15 @@ public class FileTools {
            if (files.length == 0) {
                return;
            }
+           
            addFiles(files);
            if (depth <= 0) {
                return;
            }
-           depth --;
+           
            for (File f : files) {
                if (f.isDirectory()) {
-                   addDir(f, depth);
+                   addDir(f, depth - 1);
                }
            }
         }
@@ -798,8 +802,7 @@ public class FileTools {
      * @return
      */
     public static String appendToPath(String basePath, String additionalPath) {
-        basePath = basePath.trim();
-        return (basePath + (basePath.endsWith(File.separator)?"":File.separator) + additionalPath.trim());
+        return (basePath.trim() + (basePath.trim().endsWith(File.separator)?"":File.separator) + additionalPath.trim());
     }
     
 }

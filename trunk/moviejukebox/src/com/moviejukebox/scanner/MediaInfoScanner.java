@@ -631,10 +631,9 @@ public class MediaInfoScanner {
         int nbHours = duration / 3600;
         if (nbHours != 0) {
             returnString.append(nbHours).append("h");
-            duration = duration - nbHours * 3600;
         }
 
-        int nbMinutes = duration / 60;
+        int nbMinutes = (duration - (nbHours * 3600)) / 60;
         if (nbMinutes != 0) {
             if (nbHours != 0) {
                 returnString.append(" ");

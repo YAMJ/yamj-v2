@@ -37,10 +37,11 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
     private List<String> getResult(String html) {
         List<String> result = new ArrayList<String>();
         String tmp = null;
+        String tempHtml = html;
 
-        while ((tmp = getUrl(html)) != null) {
+        while ((tmp = getUrl(tempHtml)) != null) {
             result.add(tmp);
-            html = html.substring(html.indexOf(tmp) + tmp.length());
+            tempHtml = tempHtml.substring(tempHtml.indexOf(tmp) + tmp.length());
         }
         return result;
     }

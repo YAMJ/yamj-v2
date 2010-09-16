@@ -577,7 +577,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             pos = uncleanString.toLowerCase().indexOf("see more");
             if (pos > 0) {
-            	uncleanString = uncleanString.substring(0, pos).trim();
+            	return uncleanString.substring(0, pos).trim();
             }
     	} else {
     		return uncleanString.trim();

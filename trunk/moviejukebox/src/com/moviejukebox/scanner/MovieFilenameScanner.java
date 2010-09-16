@@ -595,10 +595,11 @@ public class MovieFilenameScanner {
 
     private String cleanUp(String filename) {
         // SKIP
+    	String rFilename = filename; // We can't modify the parameter, so copy it
         for (Pattern p : skipPatterns) {
-            filename = p.matcher(filename).replaceAll("./.");
+        	rFilename = p.matcher(rFilename).replaceAll("./.");
         }
-        return filename;
+        return rFilename;
     }
     
     /**

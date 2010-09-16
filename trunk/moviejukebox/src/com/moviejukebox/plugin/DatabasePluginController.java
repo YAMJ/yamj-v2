@@ -38,15 +38,14 @@ public class DatabasePluginController {
     private static ThreadLocal<Map<String, MovieDatabasePlugin>> 
       PluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
         @Override protected Map<String, MovieDatabasePlugin> initialValue() {
-            HashMap<String, MovieDatabasePlugin> m = new HashMap<String, MovieDatabasePlugin>(2);
+            HashMap<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
 
-            m.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
-            m.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin").trim()));
+            movieDatabasePlugin.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
+            movieDatabasePlugin.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin").trim()));
             
-            return m;
+            return movieDatabasePlugin;
         }
-    };    
-
+    };
     
     public static void scan(Movie movie) {
         // if the movie id was set to 0 or -1 then do not continue with database scanning.
@@ -102,7 +101,6 @@ public class DatabasePluginController {
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
-
         }
         return movieDB;
     }

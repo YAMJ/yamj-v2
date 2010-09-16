@@ -42,7 +42,7 @@ import com.moviejukebox.tools.PropertiesUtil;
  */
 public class MovieDirectoryScanner {
 
-    protected int mediaLibraryRootPathIndex; // always includes path delimiter
+    private int mediaLibraryRootPathIndex; // always includes path delimiter
     private final Set<String> supportedExtensions = new HashSet<String>();
     private String thumbnailsFormat;
     private String postersFormat;
@@ -312,9 +312,10 @@ public class MovieDirectoryScanner {
             // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
             // TODO: Actually it makes sense to use normalized movie name instead of first part name.
             if(hashpathdepth > 0){
-                int d, pos=relativeFilename.length();
-                for(d = hashpathdepth+1; d > 0 && pos > 0; d-- )
-                    pos=relativeFilename.lastIndexOf("/", pos-1);
+                int d, pos = relativeFilename.length();
+                for(d = hashpathdepth+1; d > 0 && pos > 0; d-- ) {
+                	pos = relativeFilename.lastIndexOf("/", pos-1);
+                }
                 hashstr = relativeFilename.substring(pos+1);
                 hashstr = Integer.toHexString(hashstr.hashCode());
             }
