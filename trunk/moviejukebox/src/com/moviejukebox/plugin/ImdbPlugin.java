@@ -211,14 +211,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (movie.getGenres().isEmpty()) {
                 for (String genre : HTMLTools.extractTags(xml, "<h5>" + siteDef.getGenre() + ":</h5>", "</div>")) {
                     genre = HTMLTools.removeHtmlTags(genre);
-                    if (genre.toLowerCase().endsWith("more")) {
-                        genre = genre.substring(0, genre.length() - 4).trim();
-                    }
-                    int pos = genre.toLowerCase().indexOf("see more");
-                    if (pos > 0) {
-                        genre = genre.substring(0, pos).trim();
-                    }
-                    movie.addGenre(Library.getIndexingGenre(genre));
+                    movie.addGenre(Library.getIndexingGenre(cleanSeeMore(genre)));
                 }
             }
 
@@ -226,10 +219,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 for (String quote : HTMLTools.extractTags(xml, "<h5>" + siteDef.getQuotes() + ":</h5>", "</div>", "<a href=\"/name/nm", "</a class=\"")) {
                     if (quote != null) {
                         quote = HTMLTools.stripTags(quote);
-                        if (quote.endsWith("more")) {
-                            quote = quote.substring(0, quote.length() - 4);
-                        }
-                        movie.setQuote(quote);
+                        movie.setQuote(cleanSeeMore(quote));
                         break;
                     }
                 }
@@ -576,4 +566,23 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return downloadFanart;
     }
 
+    protected static String cleanSeeMore(String uncleanString) {
+    	int pos = uncleanString.indexOf("more");
+    	
+    	// First let's check if "more" exists in the string
+    	if (pos > 0) {
+            if (uncleanString.endsWith("more")) {
+                return uncleanString.substring(0, uncleanString.length() - 4);
+            }
+
+            pos = uncleanString.toLowerCase().indexOf("see more");
+            if (pos > 0) {
+            	uncleanString = uncleanString.substring(0, pos).trim();
+            }
+    	} else {
+    		return uncleanString.trim();
+    	}
+    	
+    	return uncleanString;
+    }
 }
