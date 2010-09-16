@@ -47,7 +47,6 @@ import com.moviejukebox.tools.PropertiesUtil;
  */
 @SuppressWarnings("serial")
 public class MovieFilenameScanner {
-
     protected static final Logger logger = Logger.getLogger("moviejukebox");
     protected static boolean skipEpisodeTitle;
 
@@ -71,20 +70,19 @@ public class MovieFilenameScanner {
     private static String[] movieVersionKeywords;
     private static final List<Pattern> movieVersionPatterns = new ArrayList<Pattern>();
     
-
-    /** Everything in format [SET something] */
+    // Allow the use of [IMDB tt123456] to define the IMDB reference
+    private static final Pattern IMDB_PATTERN = patt("\\[ID ([^\\[\\]]*)\\]");
+    
+    // Everything in format [SET something]
     private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
 
-    /** Number at the end of string preceded with '-' */
+    // Number at the end of string preceded with '-'
     private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
 
     private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
 
-    //protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})((?:(?:e[0-9]+)+)|(?:(?:x[0-9]+)+))");
     protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)");
-    //protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)[ex]");
     protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
-    //protected static final Pattern EPISODE_PATTERN = ipatt("[ex]([0-9]+)");
     protected static final Pattern EPISODE_PATTERN = ipatt("[ex]\\s??([0-9]+)");
 
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
@@ -96,19 +94,19 @@ public class MovieFilenameScanner {
     protected static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
     protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
 
-    /** Last 4 digits or last 4 digits in parenthesis. */ 
+    // Last 4 digits or last 4 digits in parenthesis. 
     protected static final Pattern MOVIE_YEAR_PATTERN = patt("\\({0,1}([0-9]{4})\\){0,1}$"); // patt("[^0-9]\\({0,1}([0-9]{4})\\){0,1}$");
 
-    /** One or more '.[]_ ' */
+    // One or more '.[]_ '
     protected static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
 
-    /** '-' or '(' at the end */
+    // '-' or '(' at the end
     protected static final Pattern TITLE_CLEANUP_CUT_PATTERN = patt("-$|\\($");
 
-    /** All symbols between '-' and '/' but not after '/TVSHOW/' or '/PART/' */
+    // All symbols between '-' and '/' but not after '/TVSHOW/' or '/PART/'
     protected static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
 
-    /** Parts/disks markers. CAUTION: Grouping is used for part number detection/parsing. */
+    // Parts/disks markers. CAUTION: Grouping is used for part number detection/parsing.
     private static final List<Pattern> PART_PATTERNS = new ArrayList<Pattern>() {
         {
             add(iwpatt("CD ([0-9]+)"));
@@ -117,8 +115,11 @@ public class MovieFilenameScanner {
         }
     };
 
-    /** Detect if the file/folder name is incomplete and additional info must be taken from parent folder. 
-     * CAUTION: Grouping is used for part number detection/parsing. */
+    /**
+     * Detect if the file/folder name is incomplete and additional 
+     * info must be taken from parent folder. 
+     * CAUTION: Grouping is used for part number detection/parsing.
+     */
     private static final List<Pattern> PARENT_FOLDER_PART_PATTERNS = new ArrayList<Pattern>() {
         {
             for (Pattern p : PART_PATTERNS) {
@@ -371,8 +372,8 @@ public class MovieFilenameScanner {
         rest = cleanUp(rest);
 
         // Detect incomplete filenames and add parent folder name to parser
-        for (Pattern p : PARENT_FOLDER_PART_PATTERNS) {
-            final Matcher matcher = p.matcher(rest);
+        for (Pattern pattern : PARENT_FOLDER_PART_PATTERNS) {
+            final Matcher matcher = pattern.matcher(rest);
             if (matcher.find()) {
                 final File folder = this.file.getParentFile();
                 if (folder == null) {
@@ -384,8 +385,8 @@ public class MovieFilenameScanner {
         }
 
         // Remove version info
-        for (Pattern p : movieVersionPatterns) {
-            rest = p.matcher(rest).replaceAll("./.");
+        for (Pattern pattern : movieVersionPatterns) {
+            rest = pattern.matcher(rest).replaceAll("./.");
         }
         
 
@@ -458,6 +459,21 @@ public class MovieFilenameScanner {
                     n = cutMatch(n, nmatcher);
                 }
                 set.setTitle(n.trim());
+            }
+        }
+        
+        // Movie ID detection
+        {
+            Matcher matcher = IMDB_PATTERN.matcher(rest);
+            if (matcher.find()) {
+                rest = cutMatch(rest, matcher, " /ID/ ");
+
+                String idString[] = matcher.group(1).split("[-\\s+]");
+                if (idString.length == 2) {
+                	dto.setId(idString[0].toLowerCase(), idString[1]);
+                } else {
+                	logger.finer("MovieFilenameScanner: Error decoding ID from filename: " + matcher.group(1));
+                }
             }
         }
 
@@ -574,7 +590,6 @@ public class MovieFilenameScanner {
                     }
                 }
             }
-
         }
     }
 
