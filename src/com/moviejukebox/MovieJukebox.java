@@ -1208,15 +1208,22 @@ public class MovieJukebox {
             MovieNFOScanner.scan(movie, nfoFiles);
 
             // Added forceXMLOverwrite for issue 366
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN) || movie.isDirtyPoster()) {
+            if (!FileTools.isValidString(movie.getPosterURL()) || movie.isDirtyPoster()) {
                 PosterScanner.scan(jukebox, movie);
             }
             
             DatabasePluginController.scan(movie);
             // Issue 1323:      Posters not picked up from NFO file
             // Only search for poster if we didn't have already
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (!FileTools.isValidString(movie.getPosterURL())) {
                 PosterScanner.scan(movie);
+            }
+            
+            // Check for new fanart if we need to (Issue 1563)
+            if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
+	            if (!FileTools.isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
+	            	FanartScanner.scan(backgroundPlugin, jukebox, movie);
+	            }
             }
         }
     }
