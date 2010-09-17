@@ -470,9 +470,9 @@ public class MovieFilenameScanner {
 
                 String idString[] = matcher.group(1).split("[-\\s+]");
                 if (idString.length == 2) {
-                	dto.setId(idString[0].toLowerCase(), idString[1]);
+                    dto.setId(idString[0].toLowerCase(), idString[1]);
                 } else {
-                	logger.finer("MovieFilenameScanner: Error decoding ID from filename: " + matcher.group(1));
+                    logger.finer("MovieFilenameScanner: Error decoding ID from filename: " + matcher.group(1));
                 }
             }
         }
@@ -595,9 +595,9 @@ public class MovieFilenameScanner {
 
     private String cleanUp(String filename) {
         // SKIP
-    	String rFilename = filename; // We can't modify the parameter, so copy it
+        String rFilename = filename; // We can't modify the parameter, so copy it
         for (Pattern p : skipPatterns) {
-        	rFilename = p.matcher(rFilename).replaceAll("./.");
+            rFilename = p.matcher(rFilename).replaceAll("./.");
         }
         return rFilename;
     }

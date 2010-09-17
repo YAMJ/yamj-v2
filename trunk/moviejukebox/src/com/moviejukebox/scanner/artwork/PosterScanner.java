@@ -80,8 +80,8 @@ public class PosterScanner {
     private static String moviePosterSearchPriority;
 
     static {
-    	StringTokenizer st;
-    	
+        StringTokenizer st;
+        
         // We get covert art scanner behaviour
         searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
         // We get the fixed name property
@@ -91,11 +91,11 @@ public class PosterScanner {
         useFolderImage = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.useFolderImage", "false"));
 
         if (useFolderImage) {
-	        st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.imageName", "folder,poster"), ",;|");
-	        posterImageName = new ArrayList<String>();
-	        while (st.hasMoreTokens()) {
-	        	posterImageName.add(st.nextToken());
-	        }
+            st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.imageName", "folder,poster"), ",;|");
+            posterImageName = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                posterImageName.add(st.nextToken());
+            }
         }
         
         // We get valid extensions
@@ -193,25 +193,25 @@ public class PosterScanner {
             localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
             foundLocalPoster = localPosterFile.exists();
             if(!foundLocalPoster && useFolderImage){
-            	for (String imageFileName : posterImageName) {
-	                // logger.finest("Checking for '" + imageFileName + ".*' poster");
-	                fullPosterFilename = FileTools.getParentFolder(movie.getFile()) + File.separator + imageFileName;
-	                localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
-	                foundLocalPoster = localPosterFile.exists();
-	                
-	                if (!foundLocalPoster && movie.isTVShow()) {
-	                    // Get the parent directory and check that
-		                fullPosterFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + imageFileName;
-		                System.out.println("SCANNER: " + fullPosterFilename);
-		                localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
-		                foundLocalPoster = localPosterFile.exists();
-		                if (foundLocalPoster) {
-		                	break;   // We found the artwork so quit the loop
-		                }
-	                } else {
-	                	break;    // We found the artwork so quit the loop
-	                }
-            	}
+                for (String imageFileName : posterImageName) {
+                    // logger.finest("Checking for '" + imageFileName + ".*' poster");
+                    fullPosterFilename = FileTools.getParentFolder(movie.getFile()) + File.separator + imageFileName;
+                    localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
+                    foundLocalPoster = localPosterFile.exists();
+                    
+                    if (!foundLocalPoster && movie.isTVShow()) {
+                        // Get the parent directory and check that
+                        fullPosterFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + imageFileName;
+                        System.out.println("SCANNER: " + fullPosterFilename);
+                        localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
+                        foundLocalPoster = localPosterFile.exists();
+                        if (foundLocalPoster) {
+                            break;   // We found the artwork so quit the loop
+                        }
+                    } else {
+                        break;    // We found the artwork so quit the loop
+                    }
+                }
             }
         }
         /*

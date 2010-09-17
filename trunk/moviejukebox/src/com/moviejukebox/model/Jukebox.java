@@ -34,7 +34,7 @@ public final class Jukebox {
     /**
      * @return the jukeboxRootLocationFile
      */
-    public static final File getJukeboxRootLocationFile() {
+    public final File getJukeboxRootLocationFile() {
         return jukeboxRootLocationFile;
     }
 
@@ -62,7 +62,7 @@ public final class Jukebox {
     /**
      * @return the jukeboxTempLocationFile
      */
-    public static final File getJukeboxTempLocationFile() {
+    public final File getJukeboxTempLocationFile() {
         return jukeboxTempLocationFile;
     }
 
@@ -90,7 +90,7 @@ public final class Jukebox {
     /**
      * @param jukeboxRootLocation the jukeboxRootLocation to set
      */
-    public static final void setJukeboxRootLocation(String jukeboxRootLocation) {
+    public final void setJukeboxRootLocation(String jukeboxRootLocation) {
         // First set the two string directory names
         Jukebox.jukeboxRootLocation = jukeboxRootLocation;
         Jukebox.jukeboxRootLocationDetails = addDetailsName(jukeboxRootLocation);
@@ -103,7 +103,7 @@ public final class Jukebox {
     /**
      * @param jukeboxTempLocation the jukeboxTempLocation to set
      */
-    public static final void setJukeboxTempLocation(String jukeboxTempLocation) {
+    public final void setJukeboxTempLocation(String jukeboxTempLocation) {
         // First set the two string directory names
         Jukebox.jukeboxTempLocation = jukeboxTempLocation;
         Jukebox.jukeboxTempLocationDetails = addDetailsName(jukeboxTempLocation);
@@ -118,11 +118,11 @@ public final class Jukebox {
      * This MUST be set first
      * @param detailsDirName the detailsDirName to set
      */
-    public static final void setDetailsDirName(String detailsDirName) {
+    public final void setDetailsDirName(String detailsDirName) {
         Jukebox.detailsDirName = detailsDirName;
     }
 
-    private static String addDetailsName(String rootDirectory) {
+    private String addDetailsName(String rootDirectory) {
         if (rootDirectory.endsWith(File.separator)) {
             // To deal with the jukebox directory in the root of a drive and already having a "/" or "\" at the end
             return (rootDirectory + Jukebox.detailsDirName);

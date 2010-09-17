@@ -75,10 +75,10 @@ public class FileTools {
         }
         
         public String check(String filename) {
-        	String newFilename = filename;
+            String newFilename = filename;
             int pos = newFilename.indexOf(oldText, 0);
             while(pos >= 0) {
-            	newFilename = newFilename.substring(0, pos) + newText + newFilename.substring(pos + oldLength);
+                newFilename = newFilename.substring(0, pos) + newText + newFilename.substring(pos + oldLength);
                 pos = newFilename.indexOf(oldText, pos + oldLength);
             }
             return newFilename;
@@ -383,7 +383,7 @@ public class FileTools {
         String newFilename = filename;
         
         for (ReplaceEntry rep : unsafeChars) {
-        	newFilename = rep.check(newFilename);
+            newFilename = rep.check(newFilename);
         }
         if (!newFilename.equals(filename)) {
             logger.finest("Encoded filename string " + filename + " to " + newFilename);
@@ -401,7 +401,7 @@ public class FileTools {
         try {
             return new File(path).getCanonicalPath();
         } catch (IOException e) {
-        	return path;
+            return path;
         }
     }
 

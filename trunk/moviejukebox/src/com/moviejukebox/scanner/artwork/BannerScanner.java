@@ -64,11 +64,11 @@ public class BannerScanner {
         // See if we use the folder banner artwork
         useFolderBanner = Boolean.parseBoolean(PropertiesUtil.getProperty("banner.scanner.useFolderImage", "false"));
         if (useFolderBanner) {
-	        st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
-	        bannerImageName = new ArrayList<String>();
-	        while (st.hasMoreTokens()) {
-	        	bannerImageName.add(st.nextToken());
-	        }
+            st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
+            bannerImageName = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                bannerImageName.add(st.nextToken());
+            }
         }
 
     }
@@ -105,9 +105,9 @@ public class BannerScanner {
         
         // Check for folder banners.
         if (!foundLocalBanner && useFolderBanner) {
-        	// Check for each of the farnartImageName.* files
-        	for (String fanartFilename : bannerImageName) {
-        		fullBannerFilename = parentPath + File.separator + fanartFilename;
+            // Check for each of the farnartImageName.* files
+            for (String fanartFilename : bannerImageName) {
+                fullBannerFilename = parentPath + File.separator + fanartFilename;
                 localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
                 foundLocalBanner = localBannerFile.exists();
 
@@ -123,7 +123,7 @@ public class BannerScanner {
                 } else {
                     break;    // We found the artwork so quit the loop
                 }
-        	}
+            }
         }
 
         // If we've found the banner, copy it to the jukebox, otherwise download it.

@@ -19,7 +19,7 @@ public class Base64 {
 
     public static int splitLinesAt = 76;
     public static String base64Encode(String string) {
-    	String unEncoded = string; // Copy the string so we can modify it
+        String unEncoded = string; // Copy the string so we can modify it
         String encoded = "";
         // determine how many padding bytes to add to the output
         int paddingCount = (3 - (unEncoded.length() % 3)) % 3;
