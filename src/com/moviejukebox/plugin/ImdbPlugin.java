@@ -567,22 +567,22 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     protected static String cleanSeeMore(String uncleanString) {
-    	int pos = uncleanString.indexOf("more");
-    	
-    	// First let's check if "more" exists in the string
-    	if (pos > 0) {
+        int pos = uncleanString.indexOf("more");
+        
+        // First let's check if "more" exists in the string
+        if (pos > 0) {
             if (uncleanString.endsWith("more")) {
                 return uncleanString.substring(0, uncleanString.length() - 4);
             }
 
             pos = uncleanString.toLowerCase().indexOf("see more");
             if (pos > 0) {
-            	return uncleanString.substring(0, pos).trim();
+                return uncleanString.substring(0, pos).trim();
             }
-    	} else {
-    		return uncleanString.trim();
-    	}
-    	
-    	return uncleanString;
+        } else {
+            return uncleanString.trim();
+        }
+        
+        return uncleanString;
     }
 }

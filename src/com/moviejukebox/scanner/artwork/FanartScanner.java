@@ -68,11 +68,11 @@ public class FanartScanner {
         // See if we use background.* or fanart.*
         useFolderBackground = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.useFolderImage", "false"));
         if (useFolderBackground) {
-	        st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
-	        fanartImageName = new ArrayList<String>();
-	        while (st.hasMoreTokens()) {
-	        	fanartImageName.add(st.nextToken());
-	        }
+            st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
+            fanartImageName = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                fanartImageName.add(st.nextToken());
+            }
         }
 
     }
@@ -101,8 +101,8 @@ public class FanartScanner {
 
         // Check for fanart.* and background.* fanart.
         if (!foundLocalFanart && useFolderBackground) {
-        	// Check for each of the farnartImageName.* files
-        	for (String fanartFilename : fanartImageName) {
+            // Check for each of the farnartImageName.* files
+            for (String fanartFilename : fanartImageName) {
                 fullFanartFilename = parentPath + File.separator + fanartFilename;
                 localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
                 foundLocalFanart = localFanartFile.exists();
@@ -119,7 +119,7 @@ public class FanartScanner {
                 } else {
                     break;    // We found the artwork so quit the loop
                 }
-        	}
+            }
         }
 
         // If we've found the fanart, copy it to the jukebox, otherwise download it.

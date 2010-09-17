@@ -595,9 +595,9 @@ public class HTMLTools {
     }
 
     public static String encodeUrl(String url) {
-    	String returnUrl = url;
+        String returnUrl = url;
 
-    	if (url != null && url.length() != 0) {
+        if (url != null && url.length() != 0) {
             try {
                 returnUrl = URLEncoder.encode(url, "UTF-8");
                 returnUrl = returnUrl.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!

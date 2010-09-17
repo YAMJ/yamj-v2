@@ -314,7 +314,7 @@ public class MovieDirectoryScanner {
             if(hashpathdepth > 0){
                 int d, pos = relativeFilename.length();
                 for(d = hashpathdepth+1; d > 0 && pos > 0; d-- ) {
-                	pos = relativeFilename.lastIndexOf("/", pos-1);
+                    pos = relativeFilename.lastIndexOf("/", pos-1);
                 }
                 hashstr = relativeFilename.substring(pos+1);
                 hashstr = Integer.toHexString(hashstr.hashCode());
