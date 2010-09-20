@@ -22,7 +22,9 @@ package com.moviejukebox.plugin;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -100,21 +102,21 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     public void scanNFO(String nfo, Movie movie) {
         // Always look for imdb id look for ttXXXXXX
         super.scanNFO(nfo, movie);
-        logger.finest("Scanning NFO for Filmdelta Id");
+        logger.finest("FilmDeltaSEPlugin: Scanning NFO for Filmdelta Id");
 
         int beginIndex = nfo.indexOf("www.filmdelta.se/prevsearch");
         if (beginIndex != -1) {
             beginIndex = beginIndex + 27;
             String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 2);
             movie.setId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID, filmdeltaId);
-            logger.finest("FilmdeltaSE: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
+            logger.finest("FilmdeltaSEPlugin: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
         } else if (nfo.indexOf("www.filmdelta.se/filmer") != -1) {
             beginIndex = nfo.indexOf("www.filmdelta.se/filmer") + 24;
             String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 0);
             movie.setId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID, filmdeltaId);
-            logger.finest("FilmdeltaSE: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
+            logger.finest("FilmdeltaSEPlugin: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
         } else {
-            logger.finer("FilmdeltaSE: no id found in nfo for movie: " + movie.getTitle());
+            logger.finest("FilmdeltaSEPlugin: no id found in nfo for movie: " + movie.getTitle());
         }
     }
 
@@ -130,30 +132,29 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             }
             sb.append(URLEncoder.encode("+site:filmdelta.se/filmer", "UTF-8"));
             String googleHtml = webBrowser.request(sb.toString());
-
-            // String <ul><li> is only present in the google page for
-            // no matches so check if we got a page with results
-            if (googleHtml.indexOf("<ul><li>") == -1) {
+            // String <ul><li is only present in the google page when
+            // no matches are found so check if we got a page with results
+            if (!googleHtml.contains("<ul><li")) {
                 // we have a a google page with valid filmdelta links
                 int beginIndex = googleHtml.indexOf("www.filmdelta.se/filmer/") + 24;
                 String filmdeltaId = makeFilmDeltaId(googleHtml, beginIndex, 0);
                 // regex to match that a valid filmdeltaId contains at least 3 numbers,
                 // a dash, and one or more letters (may contain [-&;])
-                if (filmdeltaId.matches("\\d{3,}/[\\w-&;]+")) {
-                    logger.finest("FilmdeltaSE: filmdelta id found = " + filmdeltaId);
+                if (filmdeltaId.matches("\\d{3,}/.+")) {
+                    logger.finest("FilmdeltaSEPlugin: filmdelta id found = " + filmdeltaId);
                     return filmdeltaId;
                 } else {
-                    logger.info("(FilmdeltaSE) Found a filmdeltaId but it's not valid. Id: " + filmdeltaId);
+                    logger.info("FilmdeltaSEPlugin: Found a filmdeltaId but it's not valid. Id: " + filmdeltaId);
                     return Movie.UNKNOWN;
                 }
             } else {
                 // no valid results for the search
-                logger.info("(FilmdeltaSE) No filmdelta.se matches found for movie: \'" + movieName + "\'");
+                logger.info("FilmdeltaSEPlugin: No filmdelta.se matches found for movie: \'" + movieName + "\'");
                 return Movie.UNKNOWN;
             }
 
         } catch (Exception error) {
-            logger.severe("FilmdeltaSE: failed retreiving Filmdelta Id for movie : " + movieName);
+            logger.severe("FilmdeltaSEPlugin: error retreiving Filmdelta Id for movie : " + movieName);
             logger.severe(" -Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
@@ -167,7 +168,14 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         for (int i = 0; i < skip; i++) {
             st.nextToken();
         }
-        return (st.nextToken() + "/" + st.nextToken());
+        String result = st.nextToken() + "/" + st.nextToken();
+        try {
+			result = URLDecoder.decode(result, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.warning("FilmdeltaSEPlugin: in makeFilmDeltaId for string : " + nfo);
+			logger.warning(" -Error : " + e.getMessage());
+		}
+        return result;
     }
 
     /*
@@ -182,7 +190,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         if (!fdeltaHtml.equals(Movie.UNKNOWN)) {
             getFilmdeltaTitle(movie, fdeltaHtml);
             getFilmdeltaPlot(movie, fdeltaHtml);
-            // Genres - prefer imdb
+            // Genres - only fetch if there is no IMDb results
             if (movie.getGenres().isEmpty()) {
                 getFilmdeltaGenres(movie, fdeltaHtml);
             }
@@ -234,12 +242,14 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private void getFilmdeltaTitle(Movie movie, String fdeltaHtml) {
         if (!movie.isOverrideTitle()) {
             String newTitle = HTMLTools.extractTag(fdeltaHtml, "title>", 0, "<");
-            // split the string so that we get the title at index 0
-            String[] titleArray = newTitle.split("-\\sFilmdelta");
-            if (titleArray != null) {
+            // check if everything is ok
+            if (newTitle != Movie.UNKNOWN) {
+            	//split the string so that we get the title at index 0
+            	String[] titleArray = newTitle.split("-\\sFilmdelta");
                 newTitle = titleArray[0];
             } else {
                 logger.finer("FilmdeltaSE: Error scraping title");
+                return;
             }
             String originalTitle = HTMLTools.extractTag(fdeltaHtml, "riginaltitel</h4>", 2);
             logger.finest("FilmdeltaSE: scraped title: " + newTitle);
@@ -253,14 +263,25 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         }
     }
 
-    private void getFilmdeltaPlot(Movie movie, String fdeltaHtml) {
-        String plot = HTMLTools.extractTag(fdeltaHtml, "<div class=\"text\">", 2);
-        logger.finest("FilmdeltaSE: scraped plot: " + plot);
+    protected void getFilmdeltaPlot(Movie movie, String fdeltaHtml) {        
+    	String plot = HTMLTools.extractTag(fdeltaHtml, "<div class=\"text\">", "</p>");
+        //strip remaining html tags
+        plot = HTMLTools.stripTags(plot);
         if (!plot.equals(Movie.UNKNOWN)) {
             if (plot.length() > preferredPlotLength) {
                 plot = plot.substring(0, preferredPlotLength - 3) + "...";
             }
             movie.setPlot(plot);
+            //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
+            int preferredOutlineLength = 300;
+            if (preferredPlotLength > preferredOutlineLength && plot.length() > preferredOutlineLength) {
+            	int outlineLength = (plot.length() > preferredOutlineLength) ? preferredOutlineLength-3 : plot.length()-3; 
+            	plot = plot.substring(0, outlineLength) + "...";
+            }
+            movie.setOutline(plot);
+        }
+        else {
+        	logger.info("FilmdeltaSEPlugin: error finding plot for movie: " + movie.getTitle());
         }
     }
 
@@ -325,7 +346,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     }
 
     private void getFilmdeltaRating(Movie movie, String fdeltaHtml) {
-        String rating = HTMLTools.extractTag(fdeltaHtml, "style=\"margin-top:2px; font-weight:bold;\">", 8, "<");
+        String rating = HTMLTools.extractTag(fdeltaHtml, "<h4>Medlemmarna</h4>", 3, "<");
         int newRating = 0;
         // check if valid rating string is found
         if (rating.indexOf("Snitt") != -1) {
@@ -335,7 +356,8 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             // multiply by 20 to make comparable to IMDB-ratings
             newRating = (int)(Float.parseFloat(rating) * 20);
         } else {
-            logger.finer("FilmdeltaSE: error finding filmdelta rating for movie " + movie.getTitle());
+            logger.warning("FilmdeltaSE: error finding filmdelta rating for movie " + movie.getTitle());
+            return;
         }
         // set rating depending on property value set by user
         if (preferredRating.equals("filmdelta")) {
