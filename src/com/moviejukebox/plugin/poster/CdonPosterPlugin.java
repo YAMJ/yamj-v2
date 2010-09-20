@@ -19,173 +19,197 @@ import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Image;
-import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
-    private WebBrowser webBrowser;
+    protected WebBrowser webBrowser;
 
     public CdonPosterPlugin() {
         super();
         webBrowser = new WebBrowser();
     }
-
-    private String getCdonMovieDetailsPage(String movieURL) {
-        String cdonMoviePage;
-        try {
-            // sanity check on result before trying to load details page from url
-            if (!movieURL.isEmpty() && movieURL.contains("http")) {
-                // fetch movie page from cdon
-                StringBuffer buf = new StringBuffer(movieURL);
-                cdonMoviePage = webBrowser.request(buf.toString());
-                return cdonMoviePage;
-            } else {
-                // search didn't even find an url to the movie
-                logger.finer("Error in fetching movie detail page from CDON for movie: " + movieURL);
-                return Movie.UNKNOWN;
-            }
-        } catch (Exception error) {
-            logger.severe("Error while retreiving CDON image for movie : " + movieURL);
-            // logger.severe("Error : " + e.getMessage());
-            return Movie.UNKNOWN;
-        }
+    /* Implements getName for IPosterPlugin
+     * @return String posterPluginName
+     * @see com.moviejukebox.plugin.poster.IPosterPlugin#getName()
+     */
+    @Override
+    public String getName() {
+        return "cdon";
     }
-
-    private String extractCdonPosterUrl(String cdonMoviePage) {
-
-        String cdonPosterURL = Movie.UNKNOWN;
-        String[] htmlArray = cdonMoviePage.split("<");
-
-        // check if there is an large front cover image for this movie
-        if (cdonMoviePage.contains("St&#246;rre framsida")) {
-            // first look for a large cover
-            cdonPosterURL = findUrlString("St&#246;rre framsida", htmlArray);
-        } else if (cdonMoviePage.contains("/media-dynamic/images/product/")) {
-            // if not found look for a small cover
-            cdonPosterURL = findUrlString("/media-dynamic/images/product/", htmlArray);
-        } else {
-            logger.info(" No CDON cover was found for movie ");
-        }
-        return cdonPosterURL;
-    }
-
-    private String findUrlString(String searchString, String[] htmlArray) {
-        String result;
-        String[] posterURL = null;
-        // all cdon pages don't look the same so
-        // loop over the array to find the string with a link to an image
-        int i = 0;
-        for (String s : htmlArray) {
-            if (s.contains(searchString)) {
-                // found a matching string
-                posterURL = htmlArray[i].split("\"|\\s");
-                break;
-            }
-            i++;
-        }
-        // sanity check again (the found url should point to a jpg)
-        if (posterURL.length > 2 && posterURL[2].contains(".jpg")) {
-            result = "http://cdon.se" + posterURL[2];
-            logger.finest("FilmdeltaSE: found cdon cover: " + result);
-            return result;
-        } else {
-            logger.info("(FilmdeltaSE) Error in finding poster url");
-            return Movie.UNKNOWN;
-        }
-    }
-
+    
+    /* Implements getIdFromMovieInfo for ITvShowPosterPlugin
+     * Returns an url for the Cdon movie information page
+     * @return String id
+     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getIdFromMovieInfo(java.lang.String, java.lang.String, int)
+     */
     @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
         String xml = null;
 
         // Search CDON to get an URL to the movie page
+        // if title starts with "the" -> remove it to get better results
+        if (title.startsWith("the")) {
+        	title = title.substring(4, title.length());
+        }
         try {
-            StringBuffer sb = new StringBuffer("http://cdon.se/search?q=");
-            sb.append(URLEncoder.encode(title, "UTF-8"));
-            if (tvSeason >= 0) {
-                sb.append("+").append(URLEncoder.encode("säsong", "UTF-8"));
-                sb.append("+" + tvSeason);
-            }
+            //first make a search string
+        	StringBuffer sb = new StringBuffer("");
+       		sb = new StringBuffer("http://cdon.se/search?q=");
+       		sb.append(URLEncoder.encode(title, "UTF-8"));
+           	if (tvSeason >= 0) {
+       			sb.append("+").append(URLEncoder.encode("s\u0229song", "UTF-8"));
+       			sb.append("+" + tvSeason);
+        	}
+           	//get the result page from the search
             xml = webBrowser.request(sb.toString());
-            // find the movie url in the search result page
+            //check that the result page contains some movie info
             if (xml.contains("/section-movie.gif\" alt=\"\" />")) {
+            	//get moviedetail page WITH year
+            	if (year != null) {
+            		// find the movie url in the search result page
+            		//remove unused parts of resulting web page
+            		int beginIndex = xml.indexOf("<th colspan=\"5\">Filmtitel");
+            		int endIndex = xml.indexOf("<div id=\"banner-content-wrapper\">");
+                    String xmlPart = xml.substring(beginIndex, endIndex);
+                    //the result is in a table split it on td elements to search for year
+                    String[] splitXmlPart = xmlPart.split("<td");
+                    //loop through the result array and find the table cell containing the year specified
+                    //just looking for the first match, should be good enough
+                    int yearFoundAtIndex = 0;
+                    for (int i = 0; i < splitXmlPart.length; i++) {
+                    	if (splitXmlPart[i].contains(year)) {
+                    		yearFoundAtIndex = i;
+                    		break;
+                    	}
+                    	if (splitXmlPart[i].contains("</table>")) {
+                    		//end of table indicates that we have no movie matches
+                    		break;
+                    	}
+                    }
+                    //if we found a match return it without further ado
+                    if (yearFoundAtIndex > 0) {
+                    	//find the movie detail page that is in the td before the year
+                    	response = extractMovieDetailUrl(title, splitXmlPart[yearFoundAtIndex-1], true);
+                    	return response;
+                    }
+            	}
+            	//if no match with year try finding the movie without using year
                 int beginIndex = xml.indexOf("/section-movie.gif\" alt=\"\" />") + 28;
                 response = HTMLTools.extractTag(xml.substring(beginIndex), "<td class=\"title\">", 0);
-                // Split string to extract the url
-                if (response.contains("http")) {
-                    String[] splitMovieURL = response.split("\\s");
-                    response = splitMovieURL[1].replaceAll("href|=|\"", "");
-                    logger.finest("CDon.es: found cdon movie url = " + response);
-                } else {
-                    response = Movie.UNKNOWN;
-                    logger.finer("CDon.es: error extracting movie url for: " + title);
-                }
-
+                response = extractMovieDetailUrl(title, response, false);                
+            //else there was no results matching, return Movie.UNKNOWN
             } else {
                 response = Movie.UNKNOWN;
-                logger.finer("CDon.es: error finding movieURL..");
-            }
+                logger.warning("CdonPosterPlugin: could not find movie: " + title);
+            } 
+        //there was an error getting the webpage, catch the exception
         } catch (Exception error) {
-            logger.severe("Error while retreiving CDON id for movie : " + title);
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("CdonPosterPlugin: An exception happened while retreiving CDON id for movie : " + title);
+            logger.severe("CdonPosterPlugin: the exception was caused by: " + error.getCause());
         }
         return response;
     }
-
+    //function to extract the url of a movie detail page from the td it is in
+	private String extractMovieDetailUrl(String title, String response, boolean withYear) {
+		// Split string to extract the url
+		if (response.contains("http")) {
+		    String[] splitMovieURL = response.split("\\s");
+		    //check withYear because the url is different positions
+		    //depending on where it is called from
+		    if(withYear) {
+		    	response = splitMovieURL[2].replaceAll("href|=|\"", "");
+		    } 
+		    else {
+		    	response = splitMovieURL[1].replaceAll("href|=|\"", "");	
+		    }
+		    logger.finest("CDonPosterPlugin: found cdon movie url = " + response);
+		} else {
+		    //something went wrong and we do not have an url in the result
+			//set response to Movie.UNKNOWN and write to the log
+			response = Movie.UNKNOWN;
+		    logger.warning("CdonPosterPlugin: error extracting movie url for: " + title);
+		}
+		return response;
+	}
+    
+    /* 
+     * Implements getIdFromMovieInfo for IMoviePosterPlugin. 
+     * Just adds an empty value for year and calls the method getIdFromMovieInfo(string, string, int); 
+     * @see com.moviejukebox.plugin.poster.IMoviePosterPlugin#getIdFromMovieInfo(java.lang.String, java.lang.String)
+     */
+    @Override
+    public String getIdFromMovieInfo(String title, String year) {
+        return getIdFromMovieInfo(title, year, -1);
+    }
+    
+    /* Implements getPosterUrl for IMoviePosterPlugin
+     * The url of the Cdon movie information page is passed as id
+     * @return IImage posterUrl
+     * @see com.moviejukebox.plugin.poster.IMoviePosterPlugin#getPosterUrl(java.lang.String)
+     */
     @Override
     public IImage getPosterUrl(String id) {
-        String posterURL = Movie.UNKNOWN;
+    	if (!id.contains("http")) {
+    		id = getIdFromMovieInfo(id, null);
+    	}
+    	String posterURL = Movie.UNKNOWN;
         String xml = "";
         try {
             xml = getCdonMovieDetailsPage(id);
             // extract poster url and return it
             posterURL = extractCdonPosterUrl(xml);
         } catch (Exception error) {
-            logger.severe("Failed retreiving Cdon poster for movie : " + id);
+            logger.severe(" CdonPosterPlugin: Failed retreiving Cdon poster for movie : " + id);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-            return new Image(posterURL);
+        	return new Image(posterURL);
         }
+        logger.warning(" CdonPosterPlugin: No poster found for movie: " + id);
         return Image.UNKNOWN;
     }
-
-    @Override
-    public IImage getPosterUrl(String title, String year, int tvSeason) {
-        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
-    }
-
-    @Override
-    public String getName() {
-        return "cdon";
-    }
-
-    @Override
-    public IImage getPosterUrl(String id, int season) {
-        return getPosterUrl(id);
-    }
-
-    @Override
-    public String getIdFromMovieInfo(String title, String year) {
-        return getIdFromMovieInfo(title, year, -1);
-    }
-
+    
+    /* Implements getPosterUrl for IMoviePosterPlugin. Uses getIdFromMovieInfo 
+     * to find an id and then calls getPosterUrl(String id, String year). 
+     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
+     */
     @Override
     public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
-
+    
+    /* Implements getPosterUrl for ITVShowPosterPlugin. Uses getIdFromMovieInfo 
+     * to find an id and then calls getPosterUrl(String id). 
+     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
+     */
+    @Override
+    public IImage getPosterUrl(String title, String year, int tvSeason) {
+        return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
+    }
+    
+    /* Implements getPosterUrl for ITVShowPosterPlugin.   
+     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
+     */    
+    @Override
+    public IImage getPosterUrl(String title, int season) {
+        return getPosterUrl(getIdFromMovieInfo(title, null, season));
+    }
+    
+    /* Implements getPosterUrl for IPosterPlugin
+     * @see com.moviejukebox.plugin.poster.IPosterPlugin#getPosterUrl(com.moviejukebox.model.Identifiable, com.moviejukebox.model.IMovieBasicInformation)
+     */
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
@@ -210,6 +234,70 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
 
         }
         return Image.UNKNOWN;
+    }
+    
+    protected String getCdonMovieDetailsPage(String movieURL) {
+        String cdonMoviePage;
+        try {
+            // sanity check on result before trying to load details page from url
+            if (!movieURL.isEmpty() && movieURL.contains("http")) {
+                // fetch movie page from cdon
+                StringBuffer buf = new StringBuffer(movieURL);
+                cdonMoviePage = webBrowser.request(buf.toString());
+                return cdonMoviePage;
+            } else {
+                // search didn't even find an url to the movie
+                logger.finer("CdonPosterPlugin: Error in fetching movie detail page from CDON for movie: " + movieURL);
+                return Movie.UNKNOWN;
+            }
+        } catch (Exception error) {
+            logger.severe("CdonPosterPlugin: Error while retreiving CDON image for movie : " + movieURL);
+            // logger.severe("Error : " + e.getMessage());
+            return Movie.UNKNOWN;
+        }
+    }
+
+    protected String extractCdonPosterUrl(String cdonMoviePage) {
+
+        String cdonPosterURL = Movie.UNKNOWN;
+        String[] htmlArray = cdonMoviePage.split("<");
+        
+        // check if there is an large front cover image for this movie
+        if (cdonMoviePage.contains("St&#246;rre framsida")) {
+            // first look for a large cover
+            cdonPosterURL = findUrlString("St&#246;rre framsida", htmlArray);
+        } else if (cdonMoviePage.contains("/media-dynamic/images/product/")) {
+            // if not found look for a small cover
+            cdonPosterURL = findUrlString("/media-dynamic/images/product/", htmlArray);
+        } else {
+            logger.info("CdonPosterPlugin: No CDON cover was found for movie ");
+        }
+        return cdonPosterURL;
+    }
+
+    protected String findUrlString(String searchString, String[] htmlArray) {
+        String result;
+        String[] posterURL = null;
+        // all cdon pages don't look the same so
+        // loop over the array to find the string with a link to an image
+        int i = 0;
+        for (String s : htmlArray) {
+            if (s.contains(searchString)) {
+                // found a matching string
+                posterURL = htmlArray[i].split("\"|\\s");
+                break;
+            }
+            i++;
+        }
+        // sanity check again (the found url should point to a jpg)
+        if (posterURL != null && posterURL.length > 2 && posterURL[2].contains(".jpg")) {
+            result = "http://cdon.se" + posterURL[2];
+            logger.finest("CdonPosterPlugin:  found cdon cover: " + result);
+            return result;
+        } else {
+            logger.info("CdonPosterPlugin: error in finding poster url");
+            return Movie.UNKNOWN;
+        }
     }
 
     private String getId(Identifiable ident) {

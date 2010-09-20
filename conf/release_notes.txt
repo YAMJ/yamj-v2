@@ -39,6 +39,7 @@ MovieJukebox 2.1 BETA
   - Fixed defect #1582 Movie titles contain "- IMDb"
   - Fixed defect #1584 Movies with punctuation not detected without an nfo file
   - Fixed defect #1588 Set HTML and XML files removed when -c parameter used
+  - Fixed defect #1601 Bugs in FilmDeltaSEPlugin and CdonPosterPlugin
   
 MovieJukebox 2.0
 ----------------
