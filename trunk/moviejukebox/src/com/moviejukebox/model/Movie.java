@@ -284,7 +284,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void addMovieFile(MovieFile movieFile) {
         if (movieFile != null) {
             this.isDirty = true;
-            // always replace MovieFile
+            // Always replace MovieFile
             for (MovieFile mf : this.movieFiles) {
                 if (mf.compareTo(movieFile) == 0) {
                     movieFile.setFile(mf.getFile());
