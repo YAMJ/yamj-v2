@@ -674,7 +674,7 @@ public class MovieJukebox {
         // Create the ".mjbignore" file in the jukebox folder
         try {
             jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
-            new File(jukebox.getJukeboxRootLocationFile(), ".mjbignore").createNewFile();
+            new File(jukebox.getJukeboxRootLocationDetailsFile(), ".mjbignore").createNewFile();
             FileTools.addJukeboxFile(".mjbignore");
         } catch (Exception error) {
             final Writer eResult = new StringWriter();

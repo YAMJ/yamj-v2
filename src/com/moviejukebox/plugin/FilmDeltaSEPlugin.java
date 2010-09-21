@@ -149,7 +149,6 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 }
             } else {
                 // no valid results for the search
-                logger.info("FilmdeltaSEPlugin: No filmdelta.se matches found for movie: \'" + movieName + "\'");
                 return Movie.UNKNOWN;
             }
 
