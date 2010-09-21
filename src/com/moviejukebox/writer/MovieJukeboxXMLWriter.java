@@ -358,7 +358,7 @@ public class MovieJukeboxXMLWriter {
                                     mf.setFile(mfFile);
                                 } else {
                                     // We can't find this file anymore, so skip it.
-                                    logger.finest("Missing video file in the XML file, it may have been moved or no longer exist.");
+                                    logger.finest("Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
                                     continue;
                                 }
                             } catch (Exception ignore) {

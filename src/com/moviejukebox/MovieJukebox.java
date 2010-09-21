@@ -84,8 +84,8 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -673,9 +673,8 @@ public class MovieJukebox {
         
         // Create the ".mjbignore" file in the jukebox folder
         try {
-            jukebox.getJukeboxRootLocationDetailsFile();
-            jukeboxDetailsRootFile.mkdirs();
-            new File(jukeboxDetailsRootFile, ".mjbignore").createNewFile();
+            jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
+            new File(jukebox.getJukeboxRootLocationFile(), ".mjbignore").createNewFile();
             FileTools.addJukeboxFile(".mjbignore");
         } catch (Exception error) {
             final Writer eResult = new StringWriter();
@@ -1221,9 +1220,9 @@ public class MovieJukebox {
             
             // Check for new fanart if we need to (Issue 1563)
             if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-	            if (!FileTools.isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
-	            	FanartScanner.scan(backgroundPlugin, jukebox, movie);
-	            }
+                if (!FileTools.isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
+                    FanartScanner.scan(backgroundPlugin, jukebox, movie);
+                }
             }
         }
     }

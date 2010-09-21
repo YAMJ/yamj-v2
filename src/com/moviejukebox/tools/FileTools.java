@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -313,6 +314,24 @@ public class FileTools {
         }
         
         return out.toString();
+    }
+    
+    /**
+     * Write string to a file (Used for debugging)
+     * @param filename
+     * @param outputString
+     */
+    public static void writeStringToFile(String filename, String outputString) {
+        try {
+            File outFile = new File(filename);
+            
+            FileWriter out = new FileWriter(outFile);
+            out.write(outputString);
+            out.close();
+
+        } catch (Exception ignore) {
+            logger.finer("Error writing string to " + filename);
+        }
     }
 
     /***
