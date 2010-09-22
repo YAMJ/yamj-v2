@@ -799,6 +799,23 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    /**
+     * Take a collection of directors and just use the first
+     * WARNING: This may take a random director from the list because it's a collection!
+     * @param directors
+     */
+    public void setDirector(Collection<String> directors) {
+        if (directors != null && !directors.isEmpty()) {
+            try {
+                setDirector(directors.iterator().next());
+            } catch (Exception ignore) {
+                setDirector(UNKNOWN);
+            }
+        } else {
+            setDirector(UNKNOWN);
+        }
+    }
+    
     public void setDirector(String director) {
         if (director == null) {
             director = UNKNOWN;
@@ -1002,15 +1019,19 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setRuntime(String runtime) {
         if (runtime == null) {
-            runtime = UNKNOWN;
+            this.runtime = UNKNOWN;
+            return;
         }
+        
+        
         if ((runtime != null) && !runtime.equalsIgnoreCase(this.runtime)) {
             this.isDirty = true;
             // Escape the first "0" AlloCine gives sometimes
             if (runtime.startsWith("0")) {
-                runtime = runtime.substring(1);
+                this.runtime = runtime.substring(1).trim();
+            } else {
+                this.runtime = runtime.trim();
             }
-            this.runtime = runtime;
         }
     }
 

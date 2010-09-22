@@ -30,31 +30,36 @@ import com.moviejukebox.tools.WebBrowser;
 public class ImdbInfo {
     protected static Logger logger = Logger.getLogger("moviejukebox");
     private static final String DEFAULT_SITE = "us";
-    private static final Map<String, ImdbSiteDataDefinition> matchsDataPerSite = new HashMap<String, ImdbSiteDataDefinition>();
+    private static final Map<String, ImdbSiteDataDefinition> matchesDataPerSite = new HashMap<String, ImdbSiteDataDefinition>();
+    private final String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
 
     private String preferredSearchEngine;
     private WebBrowser webBrowser;
 
     private ImdbSiteDataDefinition siteDef;
     static {
-        matchsDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Cast", "Release Date", "Runtime", "Country",
+        matchesDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Cast", "Release Date", "Runtime", "Country",
                         "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer"));
 
-        matchsDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Pays",
+        matchesDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Pays",
                         "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes"));
 
-        matchsDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Pa&#xED;s",
+        matchesDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Pa&#xED;s",
                         "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Quotes", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores"));
 
-        matchsDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Besetzung", "Premierendatum", "L&#xE4;nge", "Land",
+        matchesDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Besetzung", "Premierendatum", "L&#xE4;nge", "Land",
                         "Firma", "Genre", "Quotes", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Guionista"));
 
-        matchsDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Cast", "Data di uscita", "Durata",
+        matchesDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Cast", "Data di uscita", "Durata",
                         "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore"));
 
-        matchsDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
+        matchesDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
                         "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
                         "Roteirista"));
+        
+        matchesDataPerSite.put("us2", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Cast", "Release Date", "Runtime", "Country",
+                        "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer"));
+
     }
 
     public void setPreferredSearchEngine(String preferredSearchEngine) {
@@ -64,17 +69,16 @@ public class ImdbInfo {
     public ImdbInfo() {
         webBrowser = new WebBrowser();
 
-        String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
         preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        siteDef = matchsDataPerSite.get(imdbSite);
+        siteDef = matchesDataPerSite.get(imdbSite);
         if (siteDef == null) {
             logger.warning("ImdbInfo: No site definition for " + imdbSite + " using the default instead " + DEFAULT_SITE);
-            siteDef = matchsDataPerSite.get(DEFAULT_SITE);
+            siteDef = matchesDataPerSite.get(DEFAULT_SITE);
         }
     }
 
     /**
-     * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     public String getImdbId(String movieName, String year) {
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
@@ -170,7 +174,7 @@ public class ImdbInfo {
     }
 
     /**
-     * retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year) {
         /*
@@ -312,10 +316,22 @@ public class ImdbInfo {
     public ImdbSiteDataDefinition getSiteDef() {
         return siteDef;
     }
+    
+    /**
+     * Get a specific site definition from the list
+     * @param requiredSiteDef
+     * @return The Site definition if found, null otherwise
+     */
+    public ImdbSiteDataDefinition getSiteDef(String requiredSiteDef) {
+        return matchesDataPerSite.get(requiredSiteDef);
+    }
 
     public String getPreferredSearchEngine() {
         return preferredSearchEngine;
     }
-    
+
+    public String getImdbsite() {
+        return imdbSite;
+    }
     
 }

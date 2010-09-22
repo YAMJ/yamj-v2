@@ -37,9 +37,10 @@ MovieJukebox 2.1 BETA
   - Enhancement  #1577 Skip copying of the skin files if they already exist
   - Fixed defect #1578 Issue with mjb.listing.clear.UNKNOWN
   - Fixed defect #1582 Movie titles contain "- IMDb"
-  - Fixed defect #1584 Movies with punctuation not detected without an nfo file
+  - Fixed defect #1584 Movies with punctuation not detected without a NFO file
   - Fixed defect #1588 Set HTML and XML files removed when -c parameter used
   - Fixed defect #1601 Bugs in FilmDeltaSEPlugin and CdonPosterPlugin
+  - Fixed defect #1605 New IMDb site format breaks IMDb scanner
   
 MovieJukebox 2.0
 ----------------
