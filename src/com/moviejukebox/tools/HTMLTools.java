@@ -382,60 +382,52 @@ public class HTMLTools {
         return result.toString();
     }
 
-    public static String getTextAfterElem(String src, String findStr) {
-        return getTextAfterElem(src, findStr, 0);
-    }
-
-    public static String getTextAfterElem(String src, String findStr, int skip) {
-        return getTextAfterElem(src, findStr, skip, 0);
-    }
-
-    /**
-     * Example: src = "<a id="specialID"><br/>
-     * <img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
-     * 
-     * @param src
-     *            html text
-     * @param findStr
-     *            string to find in src
-     * @param skip
-     *            count of found texts to skip
-     * @param fromIndex
-     *            begin index in src
-     * @return string from html text which is plain text without html tags
-     */
-    public static String getTextAfterElem(String src, String findStr, int skip, int fromIndex) {
-        int beginIndex = src.indexOf(findStr, fromIndex);
-        if (beginIndex == -1) {
-            return Movie.UNKNOWN;
-        }
-        StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), "<");
-        int i = 0;
-        while (st.hasMoreElements()) {
-            String elem = st.nextToken().replaceAll("&nbsp;|&#160;", "").trim();
-            if (elem.length() != 0 && !elem.endsWith(">") && i++ >= skip) {
-                String[] elems = elem.split(">");
-                if (elems.length > 1) {
-                    return HTMLTools.decodeHtml(elems[1].trim());
-                } else {
-                    return HTMLTools.decodeHtml(elems[0].trim());
-                }
+    public static String decodeUrl(String url) {
+        if (url != null && url.length() != 0) {
+            try {
+                return URLDecoder.decode(url, "UTF-8");
+            } catch (UnsupportedEncodingException ignored) {
+                logger.fine("Could not decode URL string: " + url + ", will proceed with undecoded string.");
             }
         }
-        return Movie.UNKNOWN;
+        return url;
+    }
+
+    public static String encodeUrl(String url) {
+        String returnUrl = url;
+
+        if (url != null && url.length() != 0) {
+            try {
+                returnUrl = URLEncoder.encode(url, "UTF-8");
+                returnUrl = returnUrl.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
+            } catch (UnsupportedEncodingException ignored) {
+                logger.fine("Could not decode URL string: " + returnUrl + ", will proceed with undecoded string.");
+            }
+        }
+        return returnUrl;
+    }
+
+    public static String encodeUrlPath(String url) {
+        if (url != null && url.length() != 0) {
+            int slash = url.lastIndexOf('/');
+            String parentPart = "";
+            if (slash != -1) {
+                parentPart = encodeUrlPath(url.substring(0, slash)) + '/';
+            }
+            return parentPart + encodeUrl(url.substring(slash + 1));
+        }
+        return url;
     }
 
     public static ArrayList<String> extractHtmlTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
-            // logger.finest("AllocinePlugin: HTMLTools.extractTags no sectionStart Tags found");
             return tags;
         }
         index += sectionStart.length();
         int endIndex = src.indexOf(sectionEnd, index);
         if (endIndex == -1) {
-            // logger.finest("AllocinePlugin: HTMLTools.extractTags no sectionEnd Tags found");
             return tags;
         }
 
@@ -447,9 +439,7 @@ public class HTMLTools {
         if (startTag != null) {
             index = sectionText.indexOf(startTag);
         }
-        // logger.finest("AllocinePlugin: HTMLTools.extractTags sectionText = " + sectionText);
-        // logger.finest("AllocinePlugin: HTMLTools.extractTags startTag = " + startTag);
-        // logger.finest("AllocinePlugin: HTMLTools.extractTags startTag index = " + index);
+        
         while (index != -1) {
             endIndex = sectionText.indexOf(endTag, index);
             if (endIndex == -1) {
@@ -457,7 +447,6 @@ public class HTMLTools {
             }
             endIndex += endLen;
             String text = sectionText.substring(index, endIndex);
-            // logger.finest("AllocinePlugin: HTMLTools.extractTags Tag found text = " + text);
             tags.add(text);
             if (endIndex > lastIndex) {
                 break;
@@ -469,10 +458,6 @@ public class HTMLTools {
             }
         }
         return tags;
-    }
-
-    public static String removeHtmlTags(String src) {
-        return src.replaceAll("\\<.*?>", "");
     }
 
     public static String extractTag(String src, String findStr) {
@@ -545,40 +530,40 @@ public class HTMLTools {
 
     public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag, boolean forceCloseTag) {
         ArrayList<String> tags = new ArrayList<String>();
-        int index = src.indexOf(sectionStart);
-        if (index == -1) {
+        int startIndex = src.indexOf(sectionStart);
+        if (startIndex == -1) {
             return tags;
         }
-        index += sectionStart.length();
-        int endIndex = src.indexOf(sectionEnd, index);
+        startIndex += sectionStart.length();
+        int endIndex = src.indexOf(sectionEnd, startIndex);
         if (endIndex == -1) {
             return tags;
         }
 
-        String sectionText = src.substring(index, endIndex);
+        String sectionText = src.substring(startIndex, endIndex);
         int lastIndex = sectionText.length();
-        index = 0;
+        startIndex = 0;
         int startLen = 0;
         int endLen = endTag.length();
 
         if (startTag != null) {
-            index = sectionText.indexOf(startTag);
+            startIndex = sectionText.indexOf(startTag);
             startLen = startTag.length();
         }
 
-        while (index != -1) {
-            index += startLen;
+        while (startIndex != -1) {
+            startIndex += startLen;
             if (forceCloseTag) {
-                int close = sectionText.indexOf('>', index);
+                int close = sectionText.indexOf('>', startIndex);
                 if (close != -1) {
-                    index = close + 1;
+                    startIndex = close + 1;
                 }
             }
-            endIndex = sectionText.indexOf(endTag, index);
+            endIndex = sectionText.indexOf(endTag, startIndex);
             if (endIndex == -1) {
                 endIndex = lastIndex;
             }
-            String text = sectionText.substring(index, endIndex);
+            String text = sectionText.substring(startIndex, endIndex);
 
             tags.add(HTMLTools.decodeHtml(text.trim()));
             endIndex += endLen;
@@ -586,49 +571,59 @@ public class HTMLTools {
                 break;
             }
             if (startTag != null) {
-                index = sectionText.indexOf(startTag, endIndex);
+                startIndex = sectionText.indexOf(startTag, endIndex);
             } else {
-                index = endIndex;
+                startIndex = endIndex;
             }
         }
         return tags;
     }
 
-    public static String encodeUrl(String url) {
-        String returnUrl = url;
-
-        if (url != null && url.length() != 0) {
-            try {
-                returnUrl = URLEncoder.encode(url, "UTF-8");
-                returnUrl = returnUrl.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
-            } catch (UnsupportedEncodingException ignored) {
-                logger.fine("Could not decode URL string: " + returnUrl + ", will proceed with undecoded string.");
-            }
-        }
-        return returnUrl;
+    public static String getTextAfterElem(String src, String findStr) {
+        return getTextAfterElem(src, findStr, 0);
     }
 
-    public static String encodeUrlPath(String url) {
-        if (url != null && url.length() != 0) {
-            int slash = url.lastIndexOf('/');
-            String parentPart = "";
-            if (slash != -1) {
-                parentPart = encodeUrlPath(url.substring(0, slash)) + '/';
-            }
-            return parentPart + encodeUrl(url.substring(slash + 1));
-        }
-        return url;
+    public static String getTextAfterElem(String src, String findStr, int skip) {
+        return getTextAfterElem(src, findStr, skip, 0);
     }
 
-    public static String decodeUrl(String url) {
-        if (url != null && url.length() != 0) {
-            try {
-                return URLDecoder.decode(url, "UTF-8");
-            } catch (UnsupportedEncodingException ignored) {
-                logger.fine("Could not decode URL string: " + url + ", will proceed with undecoded string.");
+    /**
+     * Example: src = "<a id="specialID"><br/>
+     * <img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
+     * 
+     * @param src
+     *            html text
+     * @param findStr
+     *            string to find in src
+     * @param skip
+     *            count of found texts to skip
+     * @param fromIndex
+     *            begin index in src
+     * @return string from html text which is plain text without html tags
+     */
+    public static String getTextAfterElem(String src, String findStr, int skip, int fromIndex) {
+        int beginIndex = src.indexOf(findStr, fromIndex);
+        if (beginIndex == -1) {
+            return Movie.UNKNOWN;
+        }
+        StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), "<");
+        int i = 0;
+        while (st.hasMoreElements()) {
+            String elem = st.nextToken().replaceAll("&nbsp;|&#160;", "").trim();
+            if (elem.length() != 0 && !elem.endsWith(">") && i++ >= skip) {
+                String[] elems = elem.split(">");
+                if (elems.length > 1) {
+                    return HTMLTools.decodeHtml(elems[1].trim());
+                } else {
+                    return HTMLTools.decodeHtml(elems[0].trim());
+                }
             }
         }
-        return url;
+        return Movie.UNKNOWN;
+    }
+
+    public static String removeHtmlTags(String src) {
+        return src.replaceAll("\\<.*?>", "");
     }
 
     public static String stripTags(String s) {
@@ -639,6 +634,10 @@ public class HTMLTools {
         while (m.find()) {
             res += m.group(1);
         }
-        return res;
+        
+        // Replace escaped spaces
+        res = res.replaceAll("&nbsp;", " ");
+        
+        return res.trim();
     }
 }

@@ -31,8 +31,21 @@ public class ImdbSiteDataDefinition {
     private String writer;
     private Charset charset;
 
-    public ImdbSiteDataDefinition(String site, String charsetName, String director, String cast, String releaseDate, String runtime, String country, String company,
-                    String genre, String quotes, String plot, String rated, String certification, String originalAirDate, String writer) {
+    public ImdbSiteDataDefinition(String site,
+                                  String charsetName,
+                                  String director,
+                                  String cast,
+                                  String releaseDate,
+                                  String runtime,
+                                  String country,
+                                  String company,
+                                  String genre,
+                                  String quotes,
+                                  String plot,
+                                  String rated,
+                                  String certification,
+                                  String originalAirDate,
+                                  String writer) {
         super();
         this.site = site;
         this.director = director;
@@ -114,5 +127,4 @@ public class ImdbSiteDataDefinition {
     public Charset getCharset() {
         return charset;
     }
-
 }
