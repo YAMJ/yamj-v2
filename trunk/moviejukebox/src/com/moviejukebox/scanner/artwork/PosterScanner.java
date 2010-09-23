@@ -346,8 +346,8 @@ public class PosterScanner {
      *            Should the aspect ratio be checked
      * @return True if the poster is good, false otherwise
      */
-    @SuppressWarnings("unchecked")
     public static boolean validatePoster(IImage posterImage, int posterWidth, int posterHeight, boolean checkAspect) {
+        @SuppressWarnings("rawtypes")
         Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
         ImageReader reader = (ImageReader)readers.next();
         int urlWidth = 0, urlHeight = 0;
