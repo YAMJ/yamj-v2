@@ -34,13 +34,14 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
                 logger.finest(this.getName() + " posterPlugin: id found setting it to movie " + id);
                 ident.setId(getName(), id);
             }
-        }else{
+        } else {
             logger.finest(this.getName() + " posterPlugin: id already in movie using it, skipping id search : " + id);
         }
 
-        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+        if (!(Movie.UNKNOWN.equalsIgnoreCase(id) || "-1".equals(id) || "0".equals(id))) {
             return getPosterUrl(id);
         }
+        
         return Image.UNKNOWN;
     }
 
