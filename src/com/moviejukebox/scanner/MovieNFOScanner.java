@@ -268,8 +268,15 @@ public class MovieNFOScanner {
              //fFilter.setPattern("(?i)" + currentDir.getName() + nfoExtRegex);
              //checkRNFO(nfos, currentDir, fFilter);
              currentDir = currentDir.getParentFile();
-             if (currentDir != null && currentDir.length() > 0) {
-                 checkNFO(nfos, FileTools.appendToPath(currentDir.getPath(), currentDir.getName()));
+             if (currentDir != null) {
+                 final String path = currentDir.getPath();
+                 // Path is not empty
+                 if (!path.isEmpty()) {
+                     // Path is not the root
+                     if (!path.endsWith(File.separator)) {
+                         checkNFO(nfos, FileTools.appendToPath(path, currentDir.getName()));
+                     }
+                 }
              }
          }
 
