@@ -555,8 +555,23 @@ public class MovieNFOScanner {
                             List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
-                        //} else if (tag.equalsIgnoreCase("credits")) {
-                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("credits")) {
+                            String event = r.nextEvent().toString();
+                            while (!event.equalsIgnoreCase("</credits>")) {
+                                if (event.equalsIgnoreCase("<writer>")) {
+                                    String val = XMLHelper.getCData(r);
+                                    if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                        movie.addWriter(val);
+                                    }
+                                //} else if (event.equalsIgnoreCase("<otherCredits>")) {
+                                    // Not currently used
+                                }
+                                if (r.hasNext()) {
+                                    event = r.nextEvent().toString();
+                                } else {
+                                    break;
+                                }
+                            }
                         } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
