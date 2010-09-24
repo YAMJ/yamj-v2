@@ -130,7 +130,7 @@ public class MovieJukeboxXMLWriter {
                         Attribute attr = i.next();
                         String ns = attr.getName().toString();
 
-                        if (ns.equalsIgnoreCase("movieDatabase")) {
+                        if (ns.equalsIgnoreCase("moviedb")) {
                             movieDatabase = attr.getValue();
                             continue;
                         }
@@ -826,7 +826,7 @@ public class MovieJukeboxXMLWriter {
 
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
             writer.writeStartElement("id");
-            writer.writeAttribute("movieDatabase", e.getKey());
+            writer.writeAttribute("moviedb", e.getKey());
             writer.writeCharacters(e.getValue());
             writer.writeEndElement();
         }
