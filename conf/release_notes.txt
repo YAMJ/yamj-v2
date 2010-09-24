@@ -41,6 +41,7 @@ MovieJukebox 2.1 BETA
   - Fixed defect #1588 Set HTML and XML files removed when -c parameter used
   - Fixed defect #1601 Bugs in FilmDeltaSEPlugin and CdonPosterPlugin
   - Fixed defect #1605 New IMDb site format breaks IMDb scanner
+  - Enhancement  #1607 Add Credits info from XML NFO files to YAMJ 
   
 MovieJukebox 2.0
 ----------------
