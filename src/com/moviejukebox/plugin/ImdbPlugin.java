@@ -136,13 +136,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 xml += "combined";
             }
             
-            File testFile = new File("..\\Videos\\" + movie.getBaseName() + ".txt");
-            if (testFile.exists()) {
-                xml = FileTools.readFileToString(testFile);
-                logger.fine("*** READ FILE: " + testFile.getCanonicalPath());
-            } else {
-                xml = webBrowser.request(xml, siteDef.getCharset());
-            }
+            xml = webBrowser.request(xml, siteDef.getCharset());
             
             if (xml.contains("\"tv-extra\"")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
