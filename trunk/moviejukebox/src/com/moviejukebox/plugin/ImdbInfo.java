@@ -78,7 +78,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      */
     public String getImdbId(String movieName, String year) {
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {

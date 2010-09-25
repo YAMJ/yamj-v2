@@ -1201,7 +1201,7 @@ public class MovieJukebox {
                 logger.finer("Scanning for information on " + movie.getBaseName());
             }
 
-            // Changing call order, first MediaInfo then NFO. NFO will overwrite every info it will contains.
+            // Changing call order, first MediaInfo then NFO. NFO will overwrite any information found by the MediaInfo Scanner.
             miScanner.scan(movie);
             
             MovieNFOScanner.scan(movie, nfoFiles);
@@ -1725,27 +1725,34 @@ public class MovieJukebox {
                 boolean recheckEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
                 boolean recheckVideoImages  = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
                 
-                if (recheckEpisodePlots || recheckVideoImages) {
-                    // scan the TV episodes
-                    for (MovieFile mf : movie.getMovieFiles()) {
+                // scan the TV episodes
+                for (MovieFile mf : movie.getMovieFiles()) {
+                    if (mf.getTitle().equals(Movie.UNKNOWN)) {
+                        logger.finest("Recheck: " + movie.getBaseName() + " - Part " + mf.getFirstPart() + " XML is missing Title, will rescan");
+                        mf.setNewFile(true); // This forces the episodes to be rechecked
+                        recheckCount++;
+                        return true;
+                    }
+                    
+                    if (recheckEpisodePlots || recheckVideoImages) {
                         for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                             if (recheckEpisodePlots && mf.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV plot, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
-                            }
+                            } // plots
                             
                             if (recheckVideoImages && mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV video image, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
-                            }
-                        }
-                    }
-                }
-            }
+                            } // videoimages
+                        } // moviefile parts loop
+                    } // if
+                } // moviefiles loop
+            } // isTVShow
         }
         return false;
     }
