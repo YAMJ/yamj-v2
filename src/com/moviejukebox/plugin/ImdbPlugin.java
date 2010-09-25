@@ -13,7 +13,6 @@
 
 package com.moviejukebox.plugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -60,8 +59,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         webBrowser = new WebBrowser();
 
-        PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
+        // PropertiesUtil.getProperty("imdb.id.search", "imdb");
+        // Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));

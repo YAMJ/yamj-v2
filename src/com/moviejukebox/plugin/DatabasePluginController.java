@@ -48,9 +48,14 @@ public class DatabasePluginController {
     };
     
     public static void scan(Movie movie) {
+        boolean ignore = false;
+
+        if (!movie.isScrapeLibrary()) {
+            ignore = true;
+        }
+
         // if the movie id was set to 0 or -1 then do not continue with database scanning.
         // the user has disabled scanning for this movie
-        boolean ignore = false;
         for (String id : movie.getIdMap().values()) {
             if (id.equals("0") || id.equals("-1")) {
                 ignore = true;
@@ -58,11 +63,9 @@ public class DatabasePluginController {
             }
         }
 
-        if (!movie.isScrapeLibrary()) {
-            ignore = true;
-        }
-
-        if (!ignore) {
+        if (ignore) {
+            return;
+        } else {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
             String origType = movie.getMovieType();
             if (!origType.equals(Movie.TYPE_UNKNOWN)) {
