@@ -153,10 +153,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (title.toLowerCase().endsWith(" - imdb")) {
                 title = title.substring(0, title.length() - 7);
                 imdbNewVersion = true;
-                FileTools.writeStringToFile("..\\IMDB\\" + movie.getBaseFilename()+"_NEW.txt", xml); // XXX DEBUG
             } else {
                 imdbNewVersion = false;
-                FileTools.writeStringToFile("..\\IMDB\\" + movie.getBaseFilename()+"_OLD.txt", xml); // XXX DEBUG
             }
                 
             if (!movie.isOverrideTitle()) {
