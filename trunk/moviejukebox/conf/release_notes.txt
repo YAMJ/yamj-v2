@@ -2,7 +2,7 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 2.1 BETA
+MovieJukebox 2.1
 ---------------------
   - Enhancement   #941 Allow rounded corners on graphics
   - Enhancement  #1566 Would be nice to have plot in CSV listing
