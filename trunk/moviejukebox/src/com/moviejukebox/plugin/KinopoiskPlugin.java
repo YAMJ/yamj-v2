@@ -58,6 +58,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean retval = true;
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
         if (kinopoiskId == null || kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            // It's better to remove everything after dash (-) before call of English plugins...
+            final String previousTitle = mediaFile.getTitle();
+            int dash = previousTitle.indexOf('-');
+            if (dash != -1) {
+                mediaFile.setTitle(previousTitle.substring(0, dash));
+            }
             // Get base info from imdb or tvdb
             if (!mediaFile.isTVShow()) {
                 super.scan(mediaFile);
@@ -66,12 +72,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             String year = mediaFile.getYear();
-            // Let's trim everything after dash (-) from BaseName (not Title).
-            String name = mediaFile.getBaseName();
-            int dash = name.indexOf('-');
-            if (dash != -1) {
-                name = name.substring(0, dash);
-            }
+            // Let's replace dash (-) by space ( ) in Title.
+            String name = mediaFile.getTitle();
+            name.replace('-', ' ');
             kinopoiskId = getKinopoiskId(name, year, mediaFile.getSeason());
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN) && kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 // Trying without specifying the year
