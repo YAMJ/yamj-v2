@@ -82,6 +82,8 @@ import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.scanner.artwork.VideoImageScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.JukeboxProperties;
+import com.moviejukebox.tools.JukeboxProperties.PropertyInformation;
 import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
@@ -95,7 +97,7 @@ public class MovieJukebox {
     static Collection<MediaLibraryPath> movieLibraryPaths;
     private String movieLibraryRoot;
     private String skinHome;
-    private static String propertiesName = "./moviejukebox.properties";
+    private static String userPropertiesName = "./moviejukebox.properties";
     
     // Jukebox parameters
     protected static Jukebox jukebox;
@@ -133,7 +135,7 @@ public class MovieJukebox {
     private static boolean skipIndexGeneration = false;
     private static boolean dumpLibraryStructure = false;
 
-        // These are pulled from the Manifest.MF file that is created by the Ant build script
+    // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
     public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
@@ -208,7 +210,7 @@ public class MovieJukebox {
                 } else if ("-k".equalsIgnoreCase(arg)) {
                     setJukeboxPreserve(true);
                 } else if ("-p".equalsIgnoreCase(arg)) {
-                    propertiesName = args[++i];
+                    userPropertiesName = args[++i];
                 } else if ("-i".equalsIgnoreCase(arg)) {
                     skipIndexGeneration = true;
                 } else if ("-dump".equalsIgnoreCase(arg)) {
@@ -232,6 +234,9 @@ public class MovieJukebox {
             return;
         }
         
+        // Save the name of the properties file for use later
+        setProperty("userPropertiesName", userPropertiesName);        
+        
         logger.fine("Processing started at " + new Date());
         logger.fine("");
 
@@ -243,7 +248,7 @@ public class MovieJukebox {
         // Load the user properties file "moviejukebox.properties"
         // No need to abort if we don't find this file
         // Must be read before the skin, because this may contain an override skin
-        setPropertiesStreamName(propertiesName);
+        setPropertiesStreamName(userPropertiesName);
 
         // Grab the skin from the command-line properties
         if (cmdLineProps.containsKey("mjb.skin.dir")) {
@@ -684,6 +689,61 @@ public class MovieJukebox {
             logger.severe(eResult.toString());
             return;
         }
+        
+        if (parseBoolean(PropertiesUtil.getProperty("mjb.monitorJukeboxProperties", "false"))) {
+            // Create or Read the mjbDetails file that stores the jukebox properties we want to watch
+            File mjbDetails = new File(jukebox.getJukeboxRootLocationFile(), "jukebox_details.xml");
+            FileTools.addJukeboxFile(mjbDetails.getName());
+            try {
+                if (mjbDetails.exists()) {
+                    PropertyInformation pi = JukeboxProperties.readFile(mjbDetails);
+                    
+                    if (pi.isBannerOverwrite()) {
+                        logger.fine("Setting 'forceBannerOverwrite = true' due to property file changes"); // XXX DEBUG
+                        PropertiesUtil.setProperty("mjb.forceBannersOverwrite", "true");
+                    }
+                    
+                    if (pi.isFanartOverwrite()) {
+                        logger.fine("Setting 'forceFanartOverwrite = true' due to property file changes"); // XXX DEBUG
+                        PropertiesUtil.setProperty("mjb.forceFanartOverwrite", "true");
+                    }
+                    
+                    if (pi.isHtmlOverwrite()) {
+                        logger.fine("Setting 'forceHtmlOverwrite = true' due to property file changes"); // XXX DEBUG
+                        PropertiesUtil.setProperty("mjb.forceHtmlOverwrite", "true");
+                    }
+                    
+                    if (pi.isPosterOverwrite()) {
+                        logger.fine("Setting 'forcePosterOverwrite = true' due to property file changes"); // XXX DEBUG
+                        PropertiesUtil.setProperty("mjb.forcePosterOverwrite", "true");
+                    }
+                    
+                    if (pi.isThumbnailOverwrite()) {
+                        logger.fine("Setting 'forceThumbnailOverwrite = true' due to property file changes"); // XXX DEBUG
+                        PropertiesUtil.setProperty("mjb.forceThumbnailOverwrite", "true");
+                    }
+                    
+                    if (pi.isVideoimageOverwrite()) {
+                        logger.fine("Setting 'forceVideoimageOverwrite = true' due to property file changes"); // XXX DEBUG
+                        PropertiesUtil.setProperty("mjb.forceVideoimageOverwrite", "true");
+                    }
+                    
+                    if (pi.isXmlOverwrite()) {
+                        logger.fine("Setting 'forceXmlOverwrite = true' due to property file changes"); // XXX DEBUG
+                        PropertiesUtil.setProperty("mjb.forceXmlOverwrite", "true");
+                    }
+                } else {
+                    mjbDetails.createNewFile();
+                    JukeboxProperties.createFile(mjbDetails, jukebox);
+                }
+            } catch (Exception error) {
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe("Failed creating " + mjbDetails.getName() + " file!");
+                logger.severe(eResult.toString());
+            }
+        }
 
         logger.fine("Initializing...");
         try {
@@ -1005,7 +1065,7 @@ public class MovieJukebox {
 
             String skinDate = jukebox.getJukeboxRootLocationDetails() + File.separator + "pictures" + File.separator + "skin.date";
             File skinFile = new File(skinDate);
-            File propFile = new File(propertiesName);
+            File propFile = new File(userPropertiesName);
             
             // If forceSkinOverwrite is set, the user properties file doesn't exist or is newer than the skin.date file
             if (forceSkinOverwrite || !propFile.exists() || FileTools.isNewer(propFile, skinFile)) {
