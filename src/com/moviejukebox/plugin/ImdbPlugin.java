@@ -351,7 +351,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setCertification(certification);
         }
 
-        // get year of imdb site
+        // Get year of movie from IMDb site
         if (!movie.isOverrideYear()) {
             Pattern getYear = Pattern.compile("(?:\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)|<a href=\"/year/(\\d{4}))");
             Matcher m = getYear.matcher(xml);
@@ -386,11 +386,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.getWriters().isEmpty()) {
             movie.setWriters(HTMLTools.extractTags(xml, "<h5>" + siteDef.getWriter(), "</div>", "<a href=\"/name/", "</a>"));
         }
-        // Removing Poster info from plugins. Use of PosterScanner routine instead.
-
-        // if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-        // movie.setPosterURL(locatePosterURL(movie, xml));
-        // }
 
         if (movie.isTVShow()) {
             updateTVShowInfo(movie);
@@ -616,7 +611,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // WRITER(S)
         if (movie.getWriters().isEmpty()) {
-            movie.setWriters(parseNewPeople(xml, siteDef.getWriter(), siteDef.getWriter() + "s"));
+            peopleList = parseNewPeople(xml, siteDef.getWriter(), siteDef.getWriter() + "s"); 
+            String writer;
+            
+            for (Iterator<String> iter = peopleList.iterator(); iter.hasNext();) {
+                writer = iter.next();
+                // Clean up by removing the phrase "and ? more credits"
+                if (writer.indexOf("more credit") == -1) {
+                    movie.addWriter(writer);
+                }
+            }
         }
         
         // TV SHOW
