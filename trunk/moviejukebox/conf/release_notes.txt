@@ -6,6 +6,7 @@ MovieJukebox 2.2 BETA
 ---------------------
   - Enhancement  #1560 Rescanning based on Jukebox Property changes
   - Fixed defect #1616 KinoPoisk's plugin has problems when filename contains media-tags (like 'BLU-RAY')
+  - Fixed defect #1618 IMDB writers contain "and ? more credits"
 
 MovieJukebox 2.1
 ----------------
