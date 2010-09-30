@@ -900,7 +900,7 @@ public class Library implements Map<String, Movie> {
         return library.toString();
     }
 
-    public Collection<Movie> values() {
+    public List<Movie> values() {
         List<Movie> retour = new ArrayList<Movie>(library.values());
         return retour;
     }

@@ -1,0 +1,34 @@
+      The syntax for the MovieJukebox command is the following:
+
+              MovieJukebox [movieLibrary] [-o jukeboxRoot] [-c] [-p propertiesFile]
+
+      Where parameters are:
+
+            movieLibrary        : OPTIONAL
+                                  The directory (local or network)
+                                  where your movie files are stored.
+                                  - or -   
+                                  The XML configuration file specifying one or
+                                  more to be scanned for movies.  See 
+                                  "Using a libraries XML file as input" below.
+
+                                  If not specified on the command line, the 
+                                  mjb.movieLibrary property  from the properties file
+                                  will be used.
+
+            -o jukeboxRoot      : OPTIONAL
+                                  output directory (local or network directory)
+                                  This is where the jukebox files will be written.
+                                  If not specified on the the command line, the 
+                                  mjb.jukeboxRoot property from the properties file will be used.
+                                  If that property also isn't defined, it'll default to the value of  
+                                  movieLibrary.
+
+            -c                  : OPTIONAL
+                                  Clean the jukebox directory after running.
+                                  This will delete any unused files from the jukebox
+                                  directory at the end of the run.
+
+            -p propertiesFile   : OPTIONAL      
+                                  The properties file to use instead of the default
+                                  moviejukebox.properties                            

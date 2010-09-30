@@ -546,7 +546,7 @@ public class MovieJukebox {
         System.out.println("                      The properties file to use instead of moviejukebox.properties");
     }
 
-    private MovieJukebox(String source, String jukeboxRoot) {
+    public MovieJukebox(String source, String jukeboxRoot) {
         this.movieLibraryRoot = source;
         String jukeboxTempLocation = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"));
 
@@ -598,7 +598,7 @@ public class MovieJukebox {
     public static class JukeboxXml {
         @SuppressWarnings("unused")
         @XmlElement
-        private Collection<Movie> movies;
+        public List<Movie> movies;
     }
 
     private void generateLibrary() throws Throwable {
