@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -31,6 +33,10 @@ import javax.swing.table.AbstractTableModel;
 import javax.xml.bind.JAXBContext;
 
 import com.moviejukebox.MovieJukebox.JukeboxXml;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.MediaLibraryPath;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -155,16 +161,16 @@ public class MovieJukeboxGUI implements Runnable {
 		logger.addHandler(new Handler() {
 			@Override
 			public void publish(LogRecord record) {
-				logTextArea.append(logTextArea.getText().concat(record.getMessage() + "\r\n"));
+				logTextArea.append(record.getMessage() + "\r\n");
 				if (record.getParameters() != null) {
 					for (Object param : record.getParameters()) {
-						logTextArea.append(logTextArea.getText().concat("- " + param.toString() + "\r\n"));
+						logTextArea.append("- " + param.toString() + "\r\n");
 					}
 				}
 				if (record.getThrown() != null) {
-					logTextArea.append(logTextArea.getText().concat(" " + record.getThrown().toString() + "\r\n"));
+					logTextArea.append(" " + record.getThrown().toString() + "\r\n");
 					for (StackTraceElement el : record.getThrown().getStackTrace()) {
-						logTextArea.append(logTextArea.getText().concat("- " + el.toString() + "\r\n"));
+						logTextArea.append("- " + el.toString() + "\r\n");
 					}
 				}
 				final int l=logTextArea.getDocument().getLength();
@@ -193,13 +199,6 @@ public class MovieJukeboxGUI implements Runnable {
 		root.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		root.setVisible(true);
 		
-//        MovieJukebox ml = new MovieJukebox(movieLibraryRoot, jukeboxRoot);
-//        try {
-//			ml.generateLibrary();
-//		} catch (Throwable e) {
-//			logger.log(Level.SEVERE, "Cannot continue processing", e);
-//		}
-
 		logger.info("Loading old movies");
 		
         try {
@@ -209,18 +208,28 @@ public class MovieJukeboxGUI implements Runnable {
 			oldMoviesTable.setModel(new AbstractTableModel() {
 				
 				@Override
+				public String getColumnName(int column) {
+					return properties.get(column);
+				}
+
+				private final List<String> properties = new ArrayList<String>()	{
+					{
+						add("getTitle");
+						add("getBaseFilename");
+						add("getPlot");
+						add("getResolution");
+						add("getPosterFilename");
+					}
+				};
+				
+				@Override
 				public Object getValueAt(int row, int col) {
-					if (col == 0) {
-						return jukeboxXml.movies.get(row).getTitle();
-					}
-					if (col == 1) {
-						return jukeboxXml.movies.get(row).getBaseFilename();
-					}
-					if (col == 2) {
-						return jukeboxXml.movies.get(row).getPlot();
-					}
 					
-					return null;
+					try {
+						return Movie.class.getMethod(properties.get(col)).invoke(jukeboxXml.movies.get(row));
+					} catch (Exception e) {
+						return "Error";
+					}
 				}
 				
 				@Override
@@ -231,9 +240,23 @@ public class MovieJukeboxGUI implements Runnable {
 				@Override
 				public int getColumnCount() {
 					// TODO Auto-generated method stub
-					return 3;
+					return properties.size();
 				}
 			});
+			
+			
+            MovieDirectoryScanner mds = new MovieDirectoryScanner();
+            // scan uses synchronized method Library.addMovie
+            
+            Library library = new Library();
+            MediaLibraryPath mlp = new MediaLibraryPath();
+            mlp.setPath(movieLibraryRoot);
+            mlp.setPlayerRootPath("test");
+            mlp.setScrapeLibrary(true);
+            mlp.setExcludes(new ArrayList<String>());
+            
+            mds.scan(mlp, library);
+
 			
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Cannot continue processing", e);
