@@ -38,7 +38,7 @@ public class ImdbInfo {
 
     private ImdbSiteDataDefinition siteDef;
     static {
-        matchesDataPerSite.put("us", new ImdbSiteDataDefinition("http://labs.imdb.com/", "ISO-8859-1", "Director", "Cast", "Release Date", "Runtime", "Country",
+        matchesDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Cast", "Release Date", "Runtime", "Country",
                         "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer"));
 
         matchesDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Pays",
@@ -57,6 +57,7 @@ public class ImdbInfo {
                         "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
                         "Roteirista"));
         
+        // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
         matchesDataPerSite.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", "ISO-8859-1", "Director|Directors", "Cast", "Release Date", "Runtime", "Country",
                         "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers"));
 
