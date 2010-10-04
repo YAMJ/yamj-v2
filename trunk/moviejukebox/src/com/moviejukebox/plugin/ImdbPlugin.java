@@ -415,6 +415,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean updateInfoNew(Movie movie, String xml) throws MalformedURLException, IOException {
         logger.finer("ImdbPlugin: Detected new IMDb format for '" + movie.getBaseName() + "'");
         Collection<String> peopleList;
+        String releaseInfoXML = Movie.UNKNOWN;  // Store the release info page for release info & AKAs
 
         // Overwrite the normal siteDef with a v2 siteDef if it exists
         ImdbSiteDataDefinition siteDef = imdbInfo.getSiteDef(imdbInfo.getImdbsite() + "2");
@@ -441,9 +442,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // RELEASE DATE (Working)
         if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
             // Load the release page from IMDb
-            String releaseXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
-            releaseXML = HTMLTools.stripTags(HTMLTools.extractTag(releaseXML, "\">" + preferredCountry, "</a></td>")).trim();
-            movie.setReleaseDate(releaseXML);
+            if (releaseInfoXML.equals(Movie.UNKNOWN)) {
+                releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
+            }
+            movie.setReleaseDate(HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, "\">" + preferredCountry, "</a></td>")).trim());
         }
 
         // RUNTIME (Working)
@@ -633,6 +635,42 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 if (writer.indexOf("more credit") == -1) {
                     movie.addWriter(writer);
                 }
+            }
+        }
+        
+        // ORIGINAL TITLE / AKAS
+
+        // Load the AKA page from IMDb
+        if (releaseInfoXML.equals(Movie.UNKNOWN)) {
+            releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
+        }
+        
+        
+        // The AKAs are stored in the format "title", "country"
+        // therefore we need to look for the preferredCountry and then work backwards
+        
+        // Just extract the AKA section from the page
+        ArrayList<String> akaList = HTMLTools.extractTags(releaseInfoXML, "Also Known As (AKA)", "</table>", "<td>", "</td>", false);
+
+        // Does the preferred country exist in the table
+        if (akaList.toString().indexOf(preferredCountry) > 0) {
+            // This table comes back as a single list, so we have to save the last entry in case it's the one we need
+            String previousEntry = "";
+            boolean foundAka = false;
+            for (String akaTitle : akaList) {
+                if (akaTitle.indexOf(preferredCountry) >= 0) {
+                    // We've found the entry, so quit
+                    foundAka = true;
+                    break;
+                } else {
+                    previousEntry = akaTitle;
+                }
+            }
+            
+            if (foundAka) {
+                previousEntry = HTMLTools.stripTags(previousEntry);
+                logger.fine("ORIGINAL TITLE: " + previousEntry);
+                movie.setOriginalTitle(previousEntry.trim());
             }
         }
         
