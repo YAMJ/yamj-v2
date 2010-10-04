@@ -264,7 +264,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void addGenre(String genre) {
         if (genre != null && !extra) {
             this.isDirty = true;
-            logger.finest("Genre added : " + genre);
+            //logger.finest("Genre added : " + genre);
             genres.add(genre);
         }
     }
