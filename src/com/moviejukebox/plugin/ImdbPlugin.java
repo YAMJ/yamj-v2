@@ -527,7 +527,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             
             // Check the length of the plot is OK
-            if (!FileTools.isValidString(imdbPlot)) {
+            if (FileTools.isValidString(imdbPlot)) {
                 if  (imdbPlot.length() > preferredPlotLength) {
                     imdbPlot = imdbPlot.substring(0, Math.min(imdbPlot.length(), preferredPlotLength - 3)) + "...";
                 }
@@ -645,21 +645,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
         }
         
-        
         // The AKAs are stored in the format "title", "country"
         // therefore we need to look for the preferredCountry and then work backwards
         
         // Just extract the AKA section from the page
         ArrayList<String> akaList = HTMLTools.extractTags(releaseInfoXML, "Also Known As (AKA)", "</table>", "<td>", "</td>", false);
 
-        // Does the preferred country exist in the table
-        if (akaList.toString().indexOf(preferredCountry) > 0) {
+        // Does the "original title" exist on the page?
+        if (akaList.toString().indexOf("original title") > 0) {
             // This table comes back as a single list, so we have to save the last entry in case it's the one we need
             String previousEntry = "";
             boolean foundAka = false;
             for (String akaTitle : akaList) {
-                // See if we have the country and NOT a "working title"
-                if ((akaTitle.indexOf(preferredCountry) >= 0) && (akaTitle.indexOf("working title") == -1)) {
+                if (akaTitle.indexOf("original title") == -1) {
                     // We've found the entry, so quit
                     foundAka = true;
                     break;
@@ -669,8 +667,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             
             if (foundAka) {
-                previousEntry = HTMLTools.stripTags(previousEntry);
-                movie.setOriginalTitle(previousEntry.trim());
+                movie.setOriginalTitle(HTMLTools.stripTags(previousEntry).trim());
             }
         }
         
