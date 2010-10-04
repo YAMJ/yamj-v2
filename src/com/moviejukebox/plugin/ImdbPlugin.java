@@ -518,7 +518,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef.getPlot() + "</h2>", "<em class=\"nobr\">");
             imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
             
-            if (!imdbPlot.equals(Movie.UNKNOWN) && imdbPlot.length() > preferredPlotLength) {
+            // This plot didn't work, look for another version
+            if (!FileTools.isValidString(imdbPlot)) {
+                imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef.getPlot() + "</h2>", "<span class=\"");
+                imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
+            }
+            
+            if (!FileTools.isValidString(imdbPlot) && imdbPlot.length() > preferredPlotLength) {
                 imdbPlot = imdbPlot.substring(0, Math.min(imdbPlot.length(), preferredPlotLength - 3)) + "...";
             }
             movie.setPlot(imdbPlot);
@@ -606,12 +612,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // DIRECTOR(S) (Working)
         if (movie.getDirector().equals(Movie.UNKNOWN)) {
-            movie.setDirector(parseNewPeople(xml, siteDef.getDirector(), siteDef.getDirector() + "s"));
+            peopleList = parseNewPeople(xml, siteDef.getDirector().split("\\|"));
+            movie.setDirector(peopleList);
         }
 
         // WRITER(S)
         if (movie.getWriters().isEmpty()) {
-            peopleList = parseNewPeople(xml, siteDef.getWriter(), siteDef.getWriter() + "s"); 
+            peopleList = parseNewPeople(xml, siteDef.getWriter().split("\\|")); 
             String writer;
             
             for (Iterator<String> iter = peopleList.iterator(); iter.hasNext();) {
@@ -638,15 +645,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param pluralCategory    The plural version of the category, e.g. "Writers"
      * @return
      */
-    private Collection<String> parseNewPeople(String sourceXml, String singleCategory, String pluralCategory) {
+    private Collection<String> parseNewPeople(String sourceXml, String[] categoryList) {
         Collection<String> people = new LinkedHashSet<String>();
         
-        if (sourceXml.indexOf(singleCategory + ":") == -1) {
-            // We didn't find the single category, so process the plural
-            people = HTMLTools.extractTags(sourceXml, pluralCategory + ":", "</div>", "<a ", "</a>");
-        } else {
-            // This is the single category processing
-            people = HTMLTools.extractTags(sourceXml, singleCategory, "</div>", "<a ", "</a>");
+        for (String category : categoryList) {
+            if (sourceXml.indexOf(category + ":") >= 0) {
+                people = HTMLTools.extractTags(sourceXml, category, "</div>", "<a ", "</a>");
+            }
         }
         return people;
     }
