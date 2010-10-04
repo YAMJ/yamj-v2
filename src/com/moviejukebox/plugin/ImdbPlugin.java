@@ -524,8 +524,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
             }
             
-            if (!FileTools.isValidString(imdbPlot) && imdbPlot.length() > preferredPlotLength) {
-                imdbPlot = imdbPlot.substring(0, Math.min(imdbPlot.length(), preferredPlotLength - 3)) + "...";
+            // Check the length of the plot is OK
+            if (!FileTools.isValidString(imdbPlot)) {
+                if  (imdbPlot.length() > preferredPlotLength) {
+                    imdbPlot = imdbPlot.substring(0, Math.min(imdbPlot.length(), preferredPlotLength - 3)) + "...";
+                }
+            } else {
+                // The plot might be blank or null so set it to UNKNOWN
+                imdbPlot = Movie.UNKNOWN;
             }
             movie.setPlot(imdbPlot);
         }
