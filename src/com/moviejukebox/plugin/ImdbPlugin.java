@@ -658,7 +658,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String previousEntry = "";
             boolean foundAka = false;
             for (String akaTitle : akaList) {
-                if (akaTitle.indexOf(preferredCountry) >= 0) {
+                // See if we have the country and NOT a "working title"
+                if ((akaTitle.indexOf(preferredCountry) >= 0) && (akaTitle.indexOf("working title") == -1)) {
                     // We've found the entry, so quit
                     foundAka = true;
                     break;
@@ -669,7 +670,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             
             if (foundAka) {
                 previousEntry = HTMLTools.stripTags(previousEntry);
-                logger.fine("ORIGINAL TITLE: " + previousEntry);
                 movie.setOriginalTitle(previousEntry.trim());
             }
         }
