@@ -423,6 +423,13 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 try {
+                                    if (val.length() == 4) {
+                                        // Assume just the year an append "-01-01" to the end
+                                        val += "-01-01";
+                                        // Warn the user
+                                        logger.finer("NFOScanner: Partial date detected in premiered field of NFO for " + nfo); 
+                                    }
+                                    
                                     DateTime dateTime = new DateTime(val);
 
                                     movie.setReleaseDate(dateTime.toString(dateFormatString));
