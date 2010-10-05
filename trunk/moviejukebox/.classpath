@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="lib/xmlrpc-common-3.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/simmetrics.jar"/>
 	<classpathentry kind="lib" path="lib/tvrageapi.jar"/>
-	<classpathentry kind="lib" path="lib/pojava-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/saxon9he.jar"/>
+	<classpathentry kind="lib" path="lib/pojava-2.5.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
