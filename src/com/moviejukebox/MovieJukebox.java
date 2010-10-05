@@ -596,7 +596,6 @@ public class MovieJukebox {
 
     @XmlRootElement(name = "jukebox")
     public static class JukeboxXml {
-        @SuppressWarnings("unused")
         @XmlElement
         public List<Movie> movies;
     }
@@ -1153,8 +1152,8 @@ public class MovieJukebox {
      * 
      * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
      * 
-     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. Once scanned, the <tt>movie</tt>
-     * object is persisted.
+     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. 
+     * Once scanned, the <tt>movie</tt> object is persisted.
      */
     public void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = parseBoolean(getProperty("mjb.forceXMLOverwrite", "false"));
@@ -1235,6 +1234,17 @@ public class MovieJukebox {
                     xmlLoop.setFilename(scannedFilename);
                     xmlLoop.setNewFile(true);
                     movie.addMovieFile(xmlLoop);
+                    
+                    // if we have more than one path, we'll need to change the library details in the movie
+                    if (movieLibraryPaths.size() > 1) {
+                        for (MediaLibraryPath mlp : movieLibraryPaths) {
+                            // Check to see if the paths match and then update the description and quit
+                            if (scannedFilename.startsWith(mlp.getPlayerRootPath())) {
+                                movie.setLibraryDescription(mlp.getDescription());
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             // *** END of file location change

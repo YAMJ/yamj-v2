@@ -51,7 +51,7 @@ public class Library implements Map<String, Movie> {
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     private static class MovieSetComparator implements Comparator {
         private String set;
 
