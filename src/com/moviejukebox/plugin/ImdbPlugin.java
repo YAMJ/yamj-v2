@@ -297,8 +297,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
 
                     imdbOutline = outline.trim();
-                    if (imdbOutline.length() > preferredPlotLength) {
-                        imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
+                    if (FileTools.isValidString(imdbOutline)) {
+                        if (imdbOutline.length() > preferredPlotLength) {
+                            imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
+                        }
+                    } else {
+                        // Ensure the outline isn't blank or null
+                        imdbOutline = Movie.UNKNOWN;
                     }
                 }
             }
@@ -508,8 +513,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String imdbOutline = HTMLTools.extractTag(xml, "reviews</a></span>", "<div class=\"txt-block\">");
             imdbOutline = HTMLTools.removeHtmlTags(imdbOutline).trim();
             
-            if (!imdbOutline.equals(Movie.UNKNOWN) && imdbOutline.length() > preferredPlotLength) {
-                imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
+            if (FileTools.isValidString(imdbOutline)) {
+                if (imdbOutline.length() > preferredPlotLength) {
+                    imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
+                }
+            } else {
+                // ensure the outline is set to unknown if it's blank or null
+                imdbOutline = Movie.UNKNOWN;
             }
             movie.setOutline(imdbOutline);
         }
@@ -535,7 +545,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 // The plot might be blank or null so set it to UNKNOWN
                 imdbPlot = Movie.UNKNOWN;
             }
-            movie.setPlot(imdbPlot);
+            
+            // Update the plot with the found plot, or the outline if not found
+            if (FileTools.isValidString(imdbPlot)) {
+                movie.setPlot(imdbPlot);
+            } else {
+                movie.setPlot(movie.getOutline());
+            }
         }
         
         // CERTIFICATION (Working)
