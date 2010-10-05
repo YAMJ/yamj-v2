@@ -82,7 +82,7 @@ public class BannerScanner {
      * @param movie
      */
     public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
-        String localBannerBaseFilename = movie.getBaseName();
+        String localBannerBaseFilename = movie.getBaseFilename();
         String fullBannerFilename = null;
         String parentPath = FileTools.getParentFolder(movie.getFile());
         File localBannerFile = null;
@@ -131,7 +131,7 @@ public class BannerScanner {
             fullBannerFilename = localBannerFile.getAbsolutePath();
             logger.finest("BannerScanner: File " + fullBannerFilename + " found");
             if (movie.getBannerFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setBannerFilename(movie.getBaseName() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
+                movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
             }
             if (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setBannerURL(localBannerFile.toURI().toString());
@@ -164,7 +164,7 @@ public class BannerScanner {
                 logger.finer("BannerScanner: " + finalDestinationFileName + " already exists");
             }
         } else {
-            // logger.finer("BannerScanner : No local Banner found for " + movie.getBaseName() + " attempting to download");
+            // logger.finer("BannerScanner : No local Banner found for " + movie.getBaseFilename() + " attempting to download");
             
             // Don't download banners for sets as they will use the first banner from the set
             if (!movie.isSetMaster()) {
@@ -196,7 +196,7 @@ public class BannerScanner {
                 bannerFile.getParentFile().mkdirs();
 
                 try {
-                    logger.finest("Banner Scanner: Downloading banner for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.finest("Banner Scanner: Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the banner using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
@@ -213,7 +213,7 @@ public class BannerScanner {
                     logger.finer("Banner Scanner: Failed to download banner : " + movie.getBannerURL());
                 }
             } else {
-                logger.finest("Banner Scanner: Banner exists for " + movie.getBaseName());
+                logger.finest("Banner Scanner: Banner exists for " + movie.getBaseFilename());
             }
         }
         
