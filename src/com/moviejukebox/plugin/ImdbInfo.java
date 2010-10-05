@@ -61,6 +61,9 @@ public class ImdbInfo {
         matchesDataPerSite.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", "ISO-8859-1", "Director|Directors", "Cast", "Release Date", "Runtime", "Country",
                         "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers"));
 
+        // Not 100% sure these are correct
+        matchesDataPerSite.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Attori", "Data di uscita", "Durata",
+                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore"));
     }
 
     public void setPreferredSearchEngine(String preferredSearchEngine) {
