@@ -9,6 +9,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1616 KinoPoisk's plugin has problems when filename contains media-tags (like 'BLU-RAY')
   - Fixed defect #1618 IMDB writers contain "and ? more credits"
   - Enhancement  #1621 Use original title instead of title for skins.
+  - Fixed defect #1623 Custom Fanart not found when 'mjb.scanner.hashpathdepth' enabled
   - Fixed defect #1627 ImdbPlugin - bug with plot
   - Fixed defect #1628 NFO Premiered date error
 

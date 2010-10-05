@@ -259,7 +259,7 @@ public class PosterScanner {
             movie.setPosterURL(localPosterFile.toURI().toString());
             return localPosterFile.toURI().toString();
         } else {
-            logger.finer("PosterScanner: No local poster found for " + movie.getBaseName());
+            logger.finer("PosterScanner: No local poster found for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
         }
     }
@@ -425,7 +425,7 @@ public class PosterScanner {
     }
 
     public static void scan(Movie movie) {
-        logger.finer("PosterScanner: Searching for " + movie.getBaseName());
+        logger.finer("PosterScanner: Searching for " + movie.getBaseFilename());
         IImage posterImage = getPosterURL(movie);
         if (!Movie.UNKNOWN.equals(posterImage.getUrl())) {
             movie.setPosterURL(posterImage.getUrl());
