@@ -167,8 +167,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             
             // TODO: Remove this check at some point when all skins have moved over to the new property
-            downloadFanart = checkDownloadFanart(movie.isTVShow());
+            downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
+            // TODO: Move this check out of here, it doesn't belong.
             if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -396,7 +397,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // TODO: Remove this check at some point when all skins have moved over to the new property
-        downloadFanart = checkDownloadFanart(movie.isTVShow());
+        downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
         if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
             movie.setFanartURL(getFanartURL(movie));
@@ -881,31 +882,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
         return id;
-    }
-
-    /**
-     * Checks for older fanart property in case the skin hasn't been updated. TODO: Remove this procedure at some point
-     * 
-     * @return true if the fanart is to be downloaded, or false otherwise
-     */
-    public static boolean checkDownloadFanart(boolean isTvShow) {
-        String fanartProperty = null;
-        boolean downloadFanart = false;
-
-        if (isTvShow) {
-            fanartProperty = PropertiesUtil.getProperty("fanart.tv.download");
-        } else {
-            fanartProperty = PropertiesUtil.getProperty("fanart.movie.download");
-        }
-
-        // If this is null, then the property wasn't found, so look for the original
-        if (fanartProperty == null) {
-            downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
-        } else {
-            downloadFanart = Boolean.parseBoolean(fanartProperty);
-        }
-
-        return downloadFanart;
     }
 
     protected static String cleanSeeMore(String uncleanString) {
