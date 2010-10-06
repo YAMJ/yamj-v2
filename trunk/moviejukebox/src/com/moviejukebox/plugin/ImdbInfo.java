@@ -58,7 +58,7 @@ public class ImdbInfo {
                         "Roteirista"));
         
         // Use this as a workaround for English speakers abroad who get localised versions of imdb.com
-        matchesDataPerSite.put("labs", new ImdbSiteDataDefinition("http://labs.imdb.com/", "ISO-8859-1", "Director|Directors", "Cast", "Release Date", "Runtime", "Country",
+        matchesDataPerSite.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", "ISO-8859-1", "Director|Directors", "Cast", "Release Date", "Runtime", "Country",
                         "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers"));
         
         // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
