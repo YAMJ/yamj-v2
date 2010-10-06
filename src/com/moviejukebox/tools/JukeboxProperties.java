@@ -51,7 +51,7 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("mjb.includeEpisodePlots",   true,  false, false, false, false, false, false));
         propInfo.add(new PropertyInformation("mjb.includeVideoImages",    true,  false, false, false, false, false, true));
         propInfo.add(new PropertyInformation("mjb.includeWideBanners",    false, false, false, false, false, true,  false));
-
+        propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle", true, true, false, false, false, false, false));
         propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerPage",   false, true,  true,  false, false, false, false));
         propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerLine",   false, true,  true,  false, false, false, false));
         propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage", false, true,  true,  false, false, false, false));
