@@ -12,7 +12,7 @@
  */
 
 /**
- *  Fanart Scanner
+ *  FanartScanner
  *
  * Routines for locating and downloading Fanart for videos
  *
@@ -185,7 +185,7 @@ public class FanartScanner {
                 fanartFile.getParentFile().mkdirs();
 
                 try {
-                    logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.finest("FanartScanner: Downloading fanart for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
 
                     FileTools.downloadImage(tmpDestFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(tmpDestFile);
@@ -198,12 +198,12 @@ public class FanartScanner {
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.finer("Fanart Scanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
+                    logger.finer("FanartScanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
                     movie.setFanartFilename(Movie.UNKNOWN);
                     movie.setFanartURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.finest("Fanart Scanner: Fanart exists for " + movie.getBaseFilename());
+                logger.finest("FanartScanner: Fanart exists for " + movie.getBaseFilename());
             }
         }
     }
@@ -258,5 +258,40 @@ public class FanartScanner {
             logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
             return Movie.UNKNOWN;
         }
+    }
+
+    /**
+     * Checks for older fanart property in case the skin hasn't been updated. 
+     * TODO: Remove this procedure at some point
+     * 
+     * @return true if the fanart is to be downloaded, or false otherwise
+     */
+    public static boolean checkDownloadFanart(boolean isTvShow) {
+        String fanartProperty = null;
+        boolean downloadFanart = false;
+
+        if (isTvShow) {
+            fanartProperty = PropertiesUtil.getProperty("fanart.tv.download", null);
+            logger.fine("fanartProperty (TV): " + fanartProperty); // XXX DEBUG
+        } else {
+            fanartProperty = PropertiesUtil.getProperty("fanart.movie.download", null);
+            logger.fine("fanartProperty (MOVIE): " + fanartProperty); // XXX DEBUG
+        }
+        
+
+        // If this is null, then the property wasn't found, so look for the original
+        if (fanartProperty == null) {
+            logger.severe("The property moviedb.fanart.download needs to be changed to 'fanart.tv.download' AND 'fanart.movie.download' ");
+            downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+        } else {
+            try {
+                downloadFanart = Boolean.parseBoolean(fanartProperty);
+            } catch (Exception ignore) {
+                logger.severe("ImdbPlugin: Error with fanart property, should be true/false and not '" + fanartProperty + "'");
+                downloadFanart = false;
+            }
+        }
+
+        return downloadFanart;
     }
 }

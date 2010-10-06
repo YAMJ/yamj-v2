@@ -91,7 +91,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // }
 
         // TODO: Remove this check at some point when all skins have moved over to the new property
-        downloadFanart = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
+        downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
         if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
             movie.setFanartURL(getFanartURL(movie));

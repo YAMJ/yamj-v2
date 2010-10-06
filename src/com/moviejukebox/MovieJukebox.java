@@ -65,7 +65,6 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
-import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
@@ -126,7 +125,7 @@ public class MovieJukebox {
 
     private boolean fanartMovieDownload;
     private boolean fanartTvDownload;
-    private static boolean videoimageDownload;
+    private boolean videoimageDownload;
     private boolean bannerDownload;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
@@ -560,8 +559,11 @@ public class MovieJukebox {
         this.forceSkinOverwrite = parseBoolean(getProperty("mjb.forceSkinOverwrite", "false"));
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
-        this.fanartMovieDownload = parseBoolean(getProperty("fanart.movie.download", "false"));
-        this.fanartTvDownload = parseBoolean(getProperty("fanart.tv.download", "false"));
+        // This is what these properties should look like
+        // this.fanartMovieDownload = parseBoolean(getProperty("fanart.movie.download", "false"));
+        // this.fanartTvDownload = parseBoolean(getProperty("fanart.tv.download", "false"));
+        this.fanartMovieDownload = FanartScanner.checkDownloadFanart(false);
+        this.fanartTvDownload = FanartScanner.checkDownloadFanart(true);
 
         this.setIndexFanart = parseBoolean(getProperty("mjb.sets.indexFanart", "false"));
         
@@ -841,10 +843,6 @@ public class MovieJukebox {
                         if (videoimageDownload) {
                             VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
                         }
-
-                        // TODO remove these checks once all skins have transitioned to the new format
-                        fanartMovieDownload = ImdbPlugin.checkDownloadFanart(!movie.isTVShow());
-                        fanartTvDownload = ImdbPlugin.checkDownloadFanart(movie.isTVShow());
 
                         // Get Fanart only if requested
                         // Note that the FanartScanner will check if the file is newer / different

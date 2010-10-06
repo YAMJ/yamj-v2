@@ -288,7 +288,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         waitForValues();
         int dif = threadsIo - ioThreads.availablePermits(); 
         if (dif != 0) {
-            logger.severe("ThreadExecutor: unfinished downloading threads detected: " + dif);
+            logger.severe("ThreadExecutor: Unfinished downloading threads detected: " + dif);
         }
     }
 }

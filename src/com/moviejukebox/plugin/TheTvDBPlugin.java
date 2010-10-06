@@ -21,6 +21,7 @@ import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
@@ -246,7 +247,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
 
                 // TODO remove this once all skins are using the new fanart properties
-                downloadFanart = checkDownloadFanart(movie.isTVShow());
+                downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
                 if (downloadFanart && (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceFanartOverwrite) || (movie.isDirtyFanart())) {
                     String url = null;
