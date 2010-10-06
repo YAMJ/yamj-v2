@@ -59,8 +59,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         webBrowser = new WebBrowser();
 
-        // PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        // Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.perfect.match", "true"));
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
@@ -422,13 +420,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         logger.finer("ImdbPlugin: Detected new IMDb format for '" + movie.getBaseName() + "'");
         Collection<String> peopleList;
         String releaseInfoXML = Movie.UNKNOWN;  // Store the release info page for release info & AKAs
-
-        // Overwrite the normal siteDef with a v2 siteDef if it exists
-        ImdbSiteDataDefinition siteDef = imdbInfo.getSiteDef(imdbInfo.getImdbsite() + "2");
-        if (siteDef == null) {
-            logger.severe("ImdbPlugin: No new format definition found for language '" + imdbInfo.getImdbsite() + "'");
-            logger.severe("ImdbPlugin: No data will be scraped for this movie");
-            return false;
+        ImdbSiteDataDefinition siteDef2;
+        
+        // If we are using sitedef=labs, there's no need to change it
+        if (imdbInfo.getSiteDef().equals("labs")) {
+            siteDef2 = this.siteDef;
+        } else {
+            // Overwrite the normal siteDef with a v2 siteDef if it exists
+            siteDef2 = imdbInfo.getSiteDef(imdbInfo.getImdbsite() + "2");
+            if (siteDef2 == null) {
+                // c2 siteDef doesn't exist, so use labs to atleast return something
+                logger.severe("ImdbPlugin: No new format definition found for language '" + imdbInfo.getImdbsite() + "' using default language instead.");
+                siteDef2 = imdbInfo.getSiteDef("labs");
+            }
         }
         
         // RATING (Working)
@@ -450,14 +454,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
             // Load the release page from IMDb
             if (releaseInfoXML.equals(Movie.UNKNOWN)) {
-                releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
+                releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef2.getCharset());
             }
             movie.setReleaseDate(HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, "\">" + preferredCountry, "</a></td>")).trim());
         }
 
         // RUNTIME (Working)
         if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-            String runtime = siteDef.getRuntime() + ":</h4>";
+            String runtime = siteDef2.getRuntime() + ":</h4>";
             ArrayList<String> runtimes = HTMLTools.extractTags(xml, runtime, "</div>", null, "|", false);
             runtime = getPreferredValue(runtimes);
 
@@ -471,7 +475,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY (Working)
         if (movie.getCountry().equals(Movie.UNKNOWN)) {
-            for (String country : HTMLTools.extractTags(xml, siteDef.getCountry() + ":</h4>", "</div>", "<a href", "</a>")) {
+            for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + ":</h4>", "</div>", "<a href", "</a>")) {
                 if (country != null) {
                     // TODO Save more than one country
                     movie.setCountry(HTMLTools.removeHtmlTags(country));
@@ -482,7 +486,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COMPANY (Changed)
         if (movie.getCompany().equals(Movie.UNKNOWN)) {
-            for (String company : HTMLTools.extractTags(xml, siteDef.getCompany() + ":</h4>", "<span class", "<a ", "</a>")) {
+            for (String company : HTMLTools.extractTags(xml, siteDef2.getCompany() + ":</h4>", "<span class", "<a ", "</a>")) {
                 if (company != null) {
                     // TODO Save more than one company
                     movie.setCompany(company);
@@ -493,14 +497,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // GENRES (Working)
         if (movie.getGenres().isEmpty()) {
-            for (String genre : HTMLTools.extractTags(xml, siteDef.getGenre() + ":</h4>", "</div>", "<a href=\"", "</a>")) {
+            for (String genre : HTMLTools.extractTags(xml, siteDef2.getGenre() + ":</h4>", "</div>", "<a href=\"", "</a>")) {
                 movie.addGenre(Library.getIndexingGenre(HTMLTools.removeHtmlTags(genre)));
             }
         }
 
         // QUOTE (Working)
         if (movie.getQuote().equals(Movie.UNKNOWN)) {
-            for (String quote : HTMLTools.extractTags(xml, "<h4>" + siteDef.getQuotes() + "</h4>", "<span class=\"", "<a ", "<br")) {
+            for (String quote : HTMLTools.extractTags(xml, "<h4>" + siteDef2.getQuotes() + "</h4>", "<span class=\"", "<a ", "<br")) {
                 if (quote != null) {
                     quote = HTMLTools.stripTags(quote);
                     movie.setQuote(cleanSeeMore(quote));
@@ -529,12 +533,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // PLOT (Working)
         if (movie.getPlot().equals(Movie.UNKNOWN)) {
             // The new plot is now called Storyline
-            String imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef.getPlot() + "</h2>", "<em class=\"nobr\">");
+            String imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<em class=\"nobr\">");
             imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
             
             // This plot didn't work, look for another version
             if (!FileTools.isValidString(imdbPlot)) {
-                imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef.getPlot() + "</h2>", "<span class=\"");
+                imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<span class=\"");
                 imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
             }
             
@@ -559,11 +563,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // CERTIFICATION (Working)
         String certification = movie.getCertification();
         if (certification.equals(Movie.UNKNOWN)) {
-            String certXML = webBrowser.request(getImdbUrl(movie) + "parentalguide#certification", siteDef.getCharset());
+            String certXML = webBrowser.request(getImdbUrl(movie) + "parentalguide#certification", siteDef2.getCharset());
             if (extractCertificationFromMPAA) {
                 String mpaa = HTMLTools.extractTag(certXML, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>", 1);
                 if (!mpaa.equals(Movie.UNKNOWN)) {
-                    String key = siteDef.getRated() + " ";
+                    String key = siteDef2.getRated() + " ";
                     int pos = mpaa.indexOf(key);
                     if (pos != -1) {
                         int start = key.length();
@@ -578,7 +582,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
             if (certification.equals(Movie.UNKNOWN)) {
-                certification = getPreferredValue(HTMLTools.extractTags(certXML, "<h5>" + siteDef.getCertification() + ":</h5>", "</div>",
+                certification = getPreferredValue(HTMLTools.extractTags(certXML, "<h5>" + siteDef2.getCertification() + ":</h5>", "</div>",
                                 "<a href=\"/search/title?certificates=", "</a>"));
             }
             if (certification == null || certification.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -606,7 +610,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (!movie.isOverrideYear() && (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN))) {
             movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1));
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
-                String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginalAirDate() + ":</h5>", 0);
+                String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef2.getOriginalAirDate() + ":</h5>", 0);
                 if (!fullReleaseDate.equalsIgnoreCase(Movie.UNKNOWN)) {
                     movie.setYear(fullReleaseDate.split(" ")[2]);
                 }
@@ -638,13 +642,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // DIRECTOR(S) (Working)
         if (movie.getDirector().equals(Movie.UNKNOWN)) {
-            peopleList = parseNewPeople(xml, siteDef.getDirector().split("\\|"));
+            peopleList = parseNewPeople(xml, siteDef2.getDirector().split("\\|"));
             movie.setDirector(peopleList);
         }
 
         // WRITER(S)
         if (movie.getWriters().isEmpty()) {
-            peopleList = parseNewPeople(xml, siteDef.getWriter().split("\\|")); 
+            peopleList = parseNewPeople(xml, siteDef2.getWriter().split("\\|")); 
             String writer;
             
             for (Iterator<String> iter = peopleList.iterator(); iter.hasNext();) {
@@ -660,7 +664,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // Load the AKA page from IMDb
         if (releaseInfoXML.equals(Movie.UNKNOWN)) {
-            releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
+            releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef2.getCharset());
         }
         
         // The AKAs are stored in the format "title", "country"
