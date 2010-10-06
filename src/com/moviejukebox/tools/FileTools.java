@@ -807,7 +807,7 @@ public class FileTools {
             return false;
         }
         
-        if (testString.equals("")) {
+        if (testString.trim().equals("")) {
             return false;
         }
         

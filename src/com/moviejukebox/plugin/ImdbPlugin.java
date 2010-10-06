@@ -684,7 +684,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
             
-            if (foundAka) {
+            if (foundAka && FileTools.isValidString(previousEntry)) {
                 movie.setOriginalTitle(HTMLTools.stripTags(previousEntry).trim());
             }
         }
@@ -716,12 +716,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
     
     private int parseRating(String rating) {
-        logger.fine("PARSE RATING: " + rating);
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
         try {
             return (int)(Float.parseFloat(st.nextToken()) * 10);
         } catch (Exception error) {
-            logger.fine("FLOAT ERROR");
             return -1;
         }
     }
