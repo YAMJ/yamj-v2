@@ -50,7 +50,7 @@ public class ImdbSiteDataDefinition {
         this.site = site;
         this.director = director;
         this.cast= cast;
-        release_date = releaseDate;
+        this.release_date = releaseDate;
         this.runtime = runtime;
         this.country = country;
         this.company = company;
@@ -59,12 +59,12 @@ public class ImdbSiteDataDefinition {
         this.plot = plot;
         this.rated = rated;
         this.certification = certification;
-        original_air_date = originalAirDate;
+        this.original_air_date = originalAirDate;
         this.writer = writer;
         if (charsetName == null || charsetName.length() == 0) {
-            charset = Charset.defaultCharset();
+            this.charset = Charset.defaultCharset();
         } else {
-            charset = Charset.forName(charsetName);
+            this.charset = Charset.forName(charsetName);
         }
     }
 
