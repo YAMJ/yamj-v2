@@ -309,7 +309,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 newDirector = newDirector + dir + " / ";
             }
             newDirector = newDirector.substring(0, newDirector.length() - 3);
-            movie.setDirector(newDirector);
+            movie.addDirector(newDirector);
             logger.finest("FilmdeltaSE: scraped director: " + movie.getDirector());
         }
     }

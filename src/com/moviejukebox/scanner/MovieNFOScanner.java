@@ -582,7 +582,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
-                                movie.setDirector(val);
+                                movie.addDirector(val);
                             }
                         } else if (tag.equalsIgnoreCase("actor")) {
                             String event = r.nextEvent().toString();

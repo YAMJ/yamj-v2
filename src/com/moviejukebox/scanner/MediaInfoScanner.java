@@ -290,7 +290,7 @@ public class MediaInfoScanner {
             }
             infoValue = infosGeneral.get("Director");
             if (infoValue != null) {
-                movie.setDirector(infoValue);
+                movie.addDirector(infoValue);
             }
             infoValue = infosGeneral.get("Summary");
             if (infoValue == null) {

@@ -319,7 +319,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             // TODO Assign the director to each episode.
                             if (((movie.getDirector().equals(Movie.UNKNOWN)) || (movie.getDirector().isEmpty())) && !episode.getDirectors().isEmpty()) {
                                 // Director is a single entry, not a list, so only get the first director
-                                movie.setDirector(episode.getDirectors().get(0));
+                                movie.addDirector(episode.getDirectors().get(0));
                             }
 
                             // Set the title of the episode

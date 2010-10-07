@@ -211,7 +211,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (Movie.UNKNOWN.equals(movie.getDirector())) {
-                movie.setDirector(HTMLTools.getTextAfterElem(xml, "yseria:"));
+                movie.addDirector(HTMLTools.getTextAfterElem(xml, "yseria:"));
             }
 
             if (Movie.UNKNOWN.equals(movie.getReleaseDate())) {

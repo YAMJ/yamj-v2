@@ -807,16 +807,16 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setDirector(Collection<String> directors) {
         if (directors != null && !directors.isEmpty()) {
             try {
-                setDirector(directors.iterator().next());
+                addDirector(directors.iterator().next());
             } catch (Exception ignore) {
-                setDirector(UNKNOWN);
+                addDirector(UNKNOWN);
             }
         } else {
-            setDirector(UNKNOWN);
+            addDirector(UNKNOWN);
         }
     }
     
-    public void setDirector(String director) {
+    public void addDirector(String director) {
         if (director == null) {
             director = UNKNOWN;
         }

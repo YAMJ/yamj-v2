@@ -638,7 +638,7 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.setRating(parseRating(HTMLTools.extractTag(xml, "<span style=\"font-size:12pt;font-weight:bold\"><img alt=\"", 0, "/")));
             }
 
-            movie.setDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "במאי:")));
+            movie.addDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "במאי:")));
             movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "תאריך יציאה לקולנוע בחו\"ל:"));
             // Issue 1176 - Prevent lost of NFO Data
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {

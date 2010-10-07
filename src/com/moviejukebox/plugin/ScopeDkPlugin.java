@@ -55,7 +55,7 @@ public class ScopeDkPlugin extends FilmUpITPlugin {
             }
 
             if (movie.getDirector().equals(Movie.UNKNOWN)) {
-                movie.setDirector(removeHtmlTags(extractTag(xml, "<th>Instruktør", "</td>")));
+                movie.addDirector(removeHtmlTags(extractTag(xml, "<th>Instruktør", "</td>")));
             }
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                 movie.setRuntime(removeHtmlTags(extractTag(xml, "<th>Spilletid", ".</td>")));

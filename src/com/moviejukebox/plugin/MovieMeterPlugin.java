@@ -186,7 +186,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 Object[] directors = (Object[])filmInfo.get("directors");
                 if (directors != null && directors.length > 0) {
                     HashMap directorshm = (HashMap)directors[0];
-                    mediaFile.setDirector(directorshm.get("name").toString());
+                    mediaFile.addDirector(directorshm.get("name").toString());
                     logger.finest("MovieMeterPlugin: Fetched director: " + mediaFile.getDirector());
                 }
             }

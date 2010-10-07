@@ -226,7 +226,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
                 if (!tempDirectors.isEmpty()) {
-                    movie.setDirector(tempDirectors.get(0));
+                    movie.addDirector(tempDirectors.get(0));
                 }
             }
         }

@@ -57,7 +57,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
             if (movie.getDirector().equals(Movie.UNKNOWN)) {
-                movie.setDirector(removeHtmlTags(removeHtmlTags(extractTag(xml,
+                movie.addDirector(removeHtmlTags(removeHtmlTags(extractTag(xml,
                                 "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"))));
             }
 
