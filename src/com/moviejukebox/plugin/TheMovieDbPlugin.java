@@ -164,12 +164,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // people section
         if (!moviedb.getPeople().isEmpty()) {
             for (Person person : moviedb.getPeople()) {
-                System.out.println("Name: " + person.getName());
-                System.out.println("Job : " + person.getJob());
-                System.out.println("URL : " + person.getUrl());
+                logger.fine("Name: " + person.getName());
+                logger.fine("Job : " + person.getJob());
+                logger.fine("URL : " + person.getUrl());
             }
         } else {
-            System.out.println(">>No people");
+            logger.fine(">>No people");
         }
 
         return movie;

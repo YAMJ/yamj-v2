@@ -272,10 +272,8 @@ public class FanartScanner {
 
         if (isTvShow) {
             fanartProperty = PropertiesUtil.getProperty("fanart.tv.download", null);
-            logger.fine("fanartProperty (TV): " + fanartProperty); // XXX DEBUG
         } else {
             fanartProperty = PropertiesUtil.getProperty("fanart.movie.download", null);
-            logger.fine("fanartProperty (MOVIE): " + fanartProperty); // XXX DEBUG
         }
         
 
