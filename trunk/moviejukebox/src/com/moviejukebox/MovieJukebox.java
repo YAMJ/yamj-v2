@@ -700,37 +700,37 @@ public class MovieJukebox {
                     PropertyInformation pi = JukeboxProperties.readFile(mjbDetails);
                     
                     if (pi.isBannerOverwrite()) {
-                        logger.fine("Setting 'forceBannerOverwrite = true' due to property file changes"); // XXX DEBUG
+                        logger.finer("Setting 'forceBannerOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forceBannersOverwrite", "true");
                     }
                     
                     if (pi.isFanartOverwrite()) {
-                        logger.fine("Setting 'forceFanartOverwrite = true' due to property file changes"); // XXX DEBUG
+                        logger.finer("Setting 'forceFanartOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forceFanartOverwrite", "true");
                     }
                     
                     if (pi.isHtmlOverwrite()) {
-                        logger.fine("Setting 'forceHtmlOverwrite = true' due to property file changes"); // XXX DEBUG
+                        logger.finer("Setting 'forceHtmlOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forceHtmlOverwrite", "true");
                     }
                     
                     if (pi.isPosterOverwrite()) {
-                        logger.fine("Setting 'forcePosterOverwrite = true' due to property file changes"); // XXX DEBUG
+                        logger.finer("Setting 'forcePosterOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forcePosterOverwrite", "true");
                     }
                     
                     if (pi.isThumbnailOverwrite()) {
-                        logger.fine("Setting 'forceThumbnailOverwrite = true' due to property file changes"); // XXX DEBUG
+                        logger.finer("Setting 'forceThumbnailOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forceThumbnailOverwrite", "true");
                     }
                     
                     if (pi.isVideoimageOverwrite()) {
-                        logger.fine("Setting 'forceVideoimageOverwrite = true' due to property file changes"); // XXX DEBUG
+                        logger.finer("Setting 'forceVideoimageOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forceVideoimageOverwrite", "true");
                     }
                     
                     if (pi.isXmlOverwrite()) {
-                        logger.fine("Setting 'forceXmlOverwrite = true' due to property file changes"); // XXX DEBUG
+                        logger.finer("Setting 'forceXmlOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forceXmlOverwrite", "true");
                     }
                 } else {
