@@ -4,6 +4,7 @@
 
 MovieJukebox 2.2 BETA
 ---------------------
+  - Enhanvement   #323 TheMovieDB plugin created
   - Enhancement  #1560 Rescanning based on Jukebox Property changes
   - Fixed defect #1605 New IMDb site format breaks IMDb scanner (Updated for additional plot formats)
   - Fixed defect #1609 Only one fanart downloaded
