@@ -13,14 +13,20 @@
 
 package com.moviejukebox.plugin;
 
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import org.pojava.datetime.DateTime;
+
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
+import com.moviejukebox.themoviedb.model.Country;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
+import com.moviejukebox.themoviedb.model.Studio;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
@@ -125,6 +131,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // Title
         if (overwriteCheck(moviedb.getTitle(), movie.getTitle())) {
             movie.setTitle(moviedb.getTitle());
+            
+            // We're overwriting the title, so we should do the original name too
+            movie.setOriginalTitle(moviedb.getOriginalName());
         }
 
         // TMDb ID
@@ -153,13 +162,19 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 float rating = Float.valueOf(moviedb.getRating()) * 10; // Convert rating to integer
                 movie.setRating(Integer.valueOf(Float.toString(rating)));
             } catch (Exception error) {
-                
+                movie.setRating(-1);
             }
         }
 
         // Release Date
         if (overwriteCheck(moviedb.getReleaseDate(), movie.getReleaseDate())) {
             movie.setReleaseDate(moviedb.getReleaseDate());
+            try {
+                String year = (new DateTime(moviedb.getReleaseDate())).toString("yyyy");
+                movie.setYear(year);
+            } catch (Exception ignore) {
+                // Don't set the year
+            }
         }
 
         // runtime
@@ -190,6 +205,41 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 }
                 //logger.fine("Skipped job " + job + " for " +person.getName());
             }
+        }
+        
+        // quote / tagline
+        if (overwriteCheck(moviedb.getTagline(), movie.getQuote())) {
+            movie.setQuote(moviedb.getTagline());
+        }
+        
+        // Country
+        List<Country> countries = moviedb.getCountries();
+        if (!countries.isEmpty()) {
+            String country = countries.get(0).getName();
+            if (overwriteCheck(country, movie.getCountry())) {
+                // This only returns one country.
+                movie.setCountry(country);
+            }
+        }
+        
+        // Company
+        List<Studio> studios = moviedb.getStudios();
+        if (!studios.isEmpty()) {
+            String studio = studios.get(0).getName();
+            if (overwriteCheck(studio, movie.getCompany())) {
+                movie.setCompany(studio);
+            }
+        }
+        
+        // Certification
+        if (overwriteCheck(moviedb.getCertification(), movie.getCertification())) {
+            movie.setCertification(moviedb.getCertification());
+        }
+        
+        // Language
+        if (overwriteCheck(moviedb.getLanguage(), movie.getLanguage())) {
+            String language = MovieFilenameScanner.determineLanguage(moviedb.getLanguage());
+            movie.setLanguage(language);
         }
 
         return;
@@ -254,18 +304,4 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     protected String getFanartURL(Movie movie) {
         return FanartScanner.getFanartURL(movie);
     }
-
-    // /**
-    // * Locate the poster URL from online sources
-    // *
-    // * @param movie
-    // * Movie bean for the video to locate
-    // * @param imdbXML
-    // * XML page from IMDB to search for a URL
-    // * @return The URL of the poster if found.
-    // */
-    // protected String locatePosterURL(Movie movie) {
-    // // Note: Second parameter is null, because there is no IMDb XML
-    // return PosterScanner.getPosterURL(movie, null, IMDB_PLUGIN_ID);
-    // }
 }
