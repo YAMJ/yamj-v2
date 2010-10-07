@@ -246,7 +246,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoNotOverwrite() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
-        movie.setDirector("John Doe");
+        movie.addDirector("John Doe");
         movie.setRating(30);
         movie.setPlot("Ble ble ble");
         filmwebPlugin.setRequestResult("<span class=\"average\">            8,9      </span><tr>            \t\t            \t\t\t<th>reżyseria:</th>            \t\t\t<td>            \t\t\t            \t\t\t\t                              \t\t\t\t                        \t\t\t\t\t<a href=\"/person/Sylvester.Stallone\" title=\"Sylvester Stallone\">Sylvester Stallone</a>            \t\t\t\t            \t\t\t            \t\t\t            \t\t\t</td>            \t\t\t\t\t\t\t</tr>");

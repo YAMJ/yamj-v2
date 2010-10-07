@@ -62,7 +62,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
             movie.setPlot(tmpPlot);
             // logger.finest("AllocinePlugin: TV Show Plot = " + movie.getPlot());
-            movie.setDirector(removeHtmlTags(HTMLTools.extractTag(xml, "Créée par", "</span>")));
+            movie.addDirector(removeHtmlTags(HTMLTools.extractTag(xml, "Créée par", "</span>")));
             // logger.finest("AllocinePlugin: TV Show Director = " + movie.getDirector());
 
             // movie.setRuntime(HTMLTools.extractTag(xml, "Format</span> : ", "."));
@@ -334,7 +334,7 @@ public class AllocinePlugin extends ImdbPlugin {
             ArrayList<String> tempDirectors = HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id='direction'></a>", "</div><!-- /rubric !-->", "<div class=\"datablock\">", "</div><!-- /datablock -->", false);
             if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
                 if (!tempDirectors.isEmpty()) {
-                    movie.setDirector(removeHtmlTags(HTMLTools.extractTag(tempDirectors.get(0),"<h3>","</h3>")));
+                    movie.addDirector(removeHtmlTags(HTMLTools.extractTag(tempDirectors.get(0),"<h3>","</h3>")));
                 }
             }
 

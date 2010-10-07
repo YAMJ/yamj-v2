@@ -21,6 +21,7 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
 
@@ -57,7 +58,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         boolean retval = false;
 
         ThreadExecutor.enterIO(webhost);
-        try{
+        try {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
                 // Search based on TMdb ID
@@ -77,7 +78,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 tmdbID = moviedb.getId();
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
             }
-        }finally{
+        } finally {
             // the rest is not web search anymore
             ThreadExecutor.leaveIO();
         }
@@ -101,7 +102,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         }
 
         if (moviedb.getTitle() != null && !moviedb.getTitle().equalsIgnoreCase(MovieDB.UNKNOWN)) {
-            movie = copyMovieInfo(moviedb, movie);
+            copyMovieInfo(moviedb, movie);
             retval = true;
         } else {
             retval = false;
@@ -119,7 +120,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      *            The YAMJ target
      * @return The altered movie bean
      */
-    private Movie copyMovieInfo(MovieDB moviedb, Movie movie) {
+    private void copyMovieInfo(MovieDB moviedb, Movie movie) {
 
         // Title
         if (overwriteCheck(moviedb.getTitle(), movie.getTitle())) {
@@ -148,7 +149,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         // rating
         if (overwriteCheck(moviedb.getRating(), String.valueOf(movie.getRating()))) {
-            movie.setRating(Integer.valueOf(moviedb.getRating()));
+            try {
+                float rating = Float.valueOf(moviedb.getRating()) * 10; // Convert rating to integer
+                movie.setRating(Integer.valueOf(Float.toString(rating)));
+            } catch (Exception error) {
+                
+            }
         }
 
         // Release Date
@@ -164,15 +170,29 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // people section
         if (!moviedb.getPeople().isEmpty()) {
             for (Person person : moviedb.getPeople()) {
-                logger.fine("Name: " + person.getName());
-                logger.fine("Job : " + person.getJob());
-                logger.fine("URL : " + person.getUrl());
+                // Save the information to the cast/actor/writers sections
+                if ("Actor".equalsIgnoreCase(person.getJob())) {
+                    //logger.fine(person.getName() + " is an Actor/Cast");
+                    movie.addActor(person.getName());
+                    continue;
+                }
+
+                if ("Director".equalsIgnoreCase(person.getJob())) {
+                    //logger.fine(person.getName() + " is a Director");
+                    movie.addDirector(person.getName());
+                    continue;
+                }
+
+                if ("Author".equalsIgnoreCase(person.getJob())) {
+                    //logger.fine(person.getName() + " is a Writer");
+                    movie.addWriter(person.getName());
+                    continue;
+                }
+                //logger.fine("Skipped job " + job + " for " +person.getName());
             }
-        } else {
-            logger.fine(">>No people");
         }
 
-        return movie;
+        return;
     }
 
     /**
@@ -186,9 +206,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      */
     private boolean overwriteCheck(String sourceString, String targetString) {
         // false if the source is null or UNKNOWN
-        if (sourceString != null && !sourceString.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (FileTools.isValidString(sourceString)) {
             // sourceString is valid, check target string IS null OR UNKNOWN
-            if (targetString == null || targetString.equalsIgnoreCase(Movie.UNKNOWN) || targetString.equals("-1")) {
+            if (!FileTools.isValidString(targetString) || targetString.equals("-1")) {
                 return true;
             } else {
                 return false;

@@ -210,7 +210,7 @@ public class MovieJukeboxXMLWriter {
                     movie.setQuote(parseCData(r));
                 }
                 if (tag.toLowerCase().startsWith("<director ") || tag.equalsIgnoreCase("<director>")) {
-                    movie.setDirector(parseCData(r));
+                    movie.addDirector(parseCData(r));
                 }
                 if (tag.toLowerCase().startsWith("<country ") || tag.equalsIgnoreCase("<country>")) {
                     movie.setCountry(parseCData(r));

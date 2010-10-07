@@ -285,7 +285,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                 // Director
                 for (String director : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
-                    movie.setDirector(director);
+                    movie.addDirector(director);
                     break;
                 }
 
