@@ -89,13 +89,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             ThreadExecutor.leaveIO();
         }
 
-        if (moviedb.getId() != null && !moviedb.getId().equalsIgnoreCase(MovieDB.UNKNOWN)) {
+        if (FileTools.isValidString(moviedb.getId())) {
             movie.setMovieType(Movie.TYPE_MOVIE);
         }
-        // Removing Poster info from plugins. Use of PosterScanner routine instead.
-        // if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-        // movie.setPosterURL(locatePosterURL(movie));
-        // }
 
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
@@ -129,12 +125,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private void copyMovieInfo(MovieDB moviedb, Movie movie) {
 
         // Title
-        if (overwriteCheck(moviedb.getTitle(), movie.getTitle())) {
+        //if (overwriteCheck(moviedb.getTitle(), movie.getTitle())) {
             movie.setTitle(moviedb.getTitle());
             
             // We're overwriting the title, so we should do the original name too
             movie.setOriginalTitle(moviedb.getOriginalName());
-        }
+        //}
 
         // TMDb ID
         if (overwriteCheck(moviedb.getId(), movie.getId(TMDB_PLUGIN_ID))) {
@@ -160,8 +156,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (overwriteCheck(moviedb.getRating(), String.valueOf(movie.getRating()))) {
             try {
                 float rating = Float.valueOf(moviedb.getRating()) * 10; // Convert rating to integer
-                movie.setRating(Integer.valueOf(Float.toString(rating)));
+                movie.setRating((int) rating);
             } catch (Exception error) {
+                logger.finer("TheMovieDbPlugin: Error converting rating for " + movie.getBaseName());
                 movie.setRating(-1);
             }
         }
@@ -270,9 +267,20 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     @Override
     public void scanNFO(String nfo, Movie movie) {
-        // TODO Scan the NFO for TMDb ID
-        logger.finest("Scanning NFO for Imdb Id");
-        int beginIndex = nfo.indexOf("/tt");
+        int beginIndex;
+        
+        logger.finest("Scanning NFO for TheMovieDb Id");
+        beginIndex = nfo.indexOf("/movie/");
+        if (beginIndex != -1) {
+            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
+            movie.setId(TMDB_PLUGIN_ID, st.nextToken());
+            logger.finer("TheMovieDb Id found in nfo = " + movie.getId(TMDB_PLUGIN_ID));
+        } else {
+            logger.finer("No TheMovieDb Id found in nfo!");
+        }
+        
+        // We might as well look for the IMDb ID as well
+        beginIndex = nfo.indexOf("/tt");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
@@ -282,8 +290,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
-            } else {
-                logger.finer("No Imdb Id found in nfo !");
+                logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             }
         }
     }
