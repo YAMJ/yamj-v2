@@ -23,16 +23,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -58,12 +55,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class SratimPlugin extends ImdbPlugin {
 
     public static String SRATIM_PLUGIN_ID = "sratim";
-
-    private static final String ARGUMENT_VIEWSTATE = "__VIEWSTATE";
-    private static final String SEASON_FORM_NAME = "__EVENTTARGET";
-    private static final String SEASON_FORM_VALUE = "ctl00$ctl00$Body$Body$Box$Menu_";
-    private static final String ARGUMENT_FORM_NAME = "__EVENTARGUMENT";
-    private static final String ARGUMENT_FORM_VALUE = "lbl";
 
     private static AbstractStringMetric metric = new MongeElkan();
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -155,15 +146,15 @@ public class SratimPlugin extends ImdbPlugin {
 
             String sratimUrl;
 
-            String xml = webBrowser.request("http://www.sratim.co.il/movies/search.aspx?Keyword=" + imdbId);
+            String xml = webBrowser.request("http://www.sratim.co.il/browse.php?q=imdb%3A" + imdbId, Charset.forName("UTF-8"));
 
-            String detailsUrl = HTMLTools.extractTag(xml, "cellpadding=\"0\" cellspacing=\"0\" onclick=\"document.location='", 0, "'");
+            String detailsUrl = HTMLTools.extractTag(xml, "<div style=\"\"><a href=\"", 0, "\"");
 
             if (detailsUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
                 return Movie.UNKNOWN;
             }
 
-            sratimUrl = "http://www.sratim.co.il" + detailsUrl;
+            sratimUrl = "http://www.sratim.co.il/" + detailsUrl;
 
             return sratimUrl;
 
@@ -618,9 +609,9 @@ public class SratimPlugin extends ImdbPlugin {
 
             String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
 
-            String xml = webBrowser.request(sratimUrl);
+            String xml = webBrowser.request(sratimUrl, Charset.forName("UTF-8"));
 
-            if (sratimUrl.contains("series")) {
+            if (xml.contains("צפייה בפרופיל סדרה")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                 }
@@ -635,20 +626,21 @@ public class SratimPlugin extends ImdbPlugin {
 
             // Prefer IMDB rating
             if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.extractTag(xml, "<span style=\"font-size:12pt;font-weight:bold\"><img alt=\"", 0, "/")));
+                movie.setRating(parseRating(HTMLTools.extractTag(xml, "width=\"120\" height=\"12\" title=\"", 0, " ")));
             }
 
-            movie.addDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "במאי:")));
-            movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "תאריך יציאה לקולנוע בחו\"ל:"));
+            movie.addDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:")));
+
+            movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "י' בעולם:"));
             // Issue 1176 - Prevent lost of NFO Data
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך:"))));
+                movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך זמן:"))));
             }
             movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")));
 
             // Prefer IMDB genres
             if (movie.getGenres().isEmpty()) {
-                String genres = HTMLTools.getTextAfterElem(xml, "ז'אנר:");
+                String genres = HTMLTools.getTextAfterElem(xml, "ז'אנרים:");
                 if (!Movie.UNKNOWN.equals(genres)) {
                     for (String genre : genres.split(" *, *")) {
                         movie.addGenre(logicalToVisual(Library.getIndexingGenre(genre)));
@@ -656,20 +648,17 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
-            String tmpPlot = removeHtmlTags(extractTag(xml, "<b><u>תקציר:</u></b><br />", "</div>"));
+            String tmpPlot = removeHtmlTags(extractTag(xml, "<div style=\"font-size:14px;text-align:justify;\">", "</div>"));
 
             movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
 
             if (!movie.isOverrideYear()) {
-
-                if (sratimUrl.contains("series")) {
-                    movie.setYear(HTMLTools.extractTag(xml, "<span style=\"font-weight:normal\">(", 0, ")"));
-                } else {
-                    movie.setYear(HTMLTools.getTextAfterElem(xml, "<span id=\"ctl00_ctl00_Body_Body_Box_ProductionYear\">"));
+            	if (!movie.isTVShow()) {
+                    movie.setYear(HTMLTools.getTextAfterElem(xml, "<td class=\"prod_year\" style=\"padding-left:10px;\">"));
                 }
             }
 
-            movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "<br />", "<a href", "</a>"))));
+            movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))));
 
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
@@ -715,18 +704,90 @@ public class SratimPlugin extends ImdbPlugin {
             return;
         }
 
-        // in sratim.co.il website, seasons are displayed in tabs and since
-        // on page load only the last season is displayed, we need to get the correct
-        // season according to movie details.
+        String seasonXML = null;
+        
         try {
-            String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
-            String html = webBrowser.request(sratimUrl);
-            String viewState = HTMLTools.extractTag(html, "<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"", 0, "\"");
+            if (mainXML == null) {
+                String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);           	
+            	mainXML = webBrowser.request(sratimUrl, Charset.forName("UTF-8"));
+            }
+
             int season = movie.getSeason();
-            String seasonUrl = buildSeasonUrl(sratimUrl, season, viewState);
-            // season details needs to be retrieved using POST submission.
-            // in case of exception use the xml retrieved by the parent plugin (imdb or thetvdb)
-            mainXML = postRequest(seasonUrl);
+
+            int index = 0;
+            int endIndex = 0;
+            
+            String seasonUrl;
+            String seasonYear;
+
+            // Find the season URL
+            while (true) {
+                index = mainXML.indexOf("<span class=\"smtext\"><a href=\"", index);
+                if (index == -1) {
+                	return;
+                }
+                
+                index += 30;
+                
+                endIndex = mainXML.indexOf("\"", index);
+                if (endIndex == -1) {
+                	return;
+                }
+                
+                String scanUrl = mainXML.substring(index, endIndex);
+
+                
+                index = mainXML.indexOf("class=\"smtext\">עונה ", index);
+                if (index == -1) {
+                	return;
+                }
+                
+                index += 20;
+                
+                endIndex = mainXML.indexOf("</a>", index);
+                if (endIndex == -1) {
+                    return;
+                }
+                
+                String scanSeason = mainXML.substring(index, endIndex);
+
+                
+                index = mainXML.indexOf("class=\"smtext\">", index);
+                if (index == -1) {
+                	return;
+                }
+                
+                index += 15;
+                
+                endIndex = mainXML.indexOf("<", index);
+                if (endIndex == -1) {
+                    return;
+                }
+                
+                String scanYear = mainXML.substring(index, endIndex);
+                
+                
+                int scanSeasontInt = 0;
+                try {
+                	scanSeasontInt = Integer.parseInt(scanSeason);
+                } catch (Exception error) {
+                	scanSeasontInt = 0;
+                }
+
+                if (scanSeasontInt == season) {
+                	seasonYear = scanYear;
+                	seasonUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
+                	break;
+                }
+            }
+
+            
+            if (!movie.isOverrideYear()) {
+            	movie.setYear(seasonYear);
+            }
+            
+        	seasonXML = webBrowser.request(seasonUrl, Charset.forName("UTF-8"));
+            
 
         } catch (Exception error) {
             logger.severe("Sratim Plugin: Failed retreiving information for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
@@ -739,6 +800,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
         }
 
+        
         for (MovieFile file : movie.getMovieFiles()) {
             if (!file.isNewFile()) {
                 // don't scan episode title if it exists in XML data
@@ -753,36 +815,52 @@ public class SratimPlugin extends ImdbPlugin {
 
                 // Go over the page and sacn for episode links
                 while (true) {
-                    index = mainXML.indexOf("<a href=\"/movies/view.aspx?id=", index);
-                    if (index == -1) {
-                        break;
-                    }
+				    index = seasonXML.indexOf("<td style=\"padding-right:6px;font-size:15px;\"><a href=\"", index);
+				    if (index == -1) {
+				    	return;
+				    }
+				    
+				    index += 55;
+				    
+				    endIndex = seasonXML.indexOf("\"", index);
+				    if (endIndex == -1) {
+				    	return;
+				    }
+				    
+				    String scanUrl = seasonXML.substring(index, endIndex);
+				
+				    
+				    index = seasonXML.indexOf("<b>פרק ", index);
+				    if (index == -1) {
+				    	return;
+				    }
+				    
+				    index += 7;
+				    
+				    endIndex = seasonXML.indexOf(":", index);
+				    if (endIndex == -1) {
+				        return;
+				    }
+				    
+				    String scanPart = seasonXML.substring(index, endIndex);
 
-                    index += 30;
+				    
+				    index = seasonXML.indexOf("</b> ", index);
+				    if (index == -1) {
+				    	return;
+				    }
+				    
+				    index += 5;
+				    
+				    endIndex = seasonXML.indexOf("</a>", index);
+				    if (endIndex == -1) {
+				        return;
+				    }
+				    
+				    String scanName = seasonXML.substring(index, endIndex);
+				    
 
-                    endIndex = mainXML.indexOf("\"", index);
-                    if (endIndex == -1) {
-                        break;
-                    }
-
-                    String scanID = mainXML.substring(index, endIndex);
-
-                    index = endIndex + 9;
-
-                    endIndex = mainXML.indexOf("</b> - ", index);
-                    if (endIndex == -1) {
-                        break;
-                    }
-
-                    String scanPart = mainXML.substring(index, endIndex);
-
-                    index = endIndex + 7;
-
-                    endIndex = mainXML.indexOf("<", index);
-
-                    String scanName = mainXML.substring(index, endIndex);
-
-                    if (scanPart.equals(Integer.toString(part))) {
+				    if (scanPart.equals(Integer.toString(part))) {
                         if (first) {
                             first = false;
                         } else {
@@ -791,22 +869,21 @@ public class SratimPlugin extends ImdbPlugin {
                         sb.append(logicalToVisual(HTMLTools.decodeHtml(scanName)));
 
                         try {
-
+                        	String episodeUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
+                        	
                             // Get the episode page url
-                            String xml = webBrowser.request("http://www.sratim.co.il/movies/view.aspx?id=" + scanID);
-                            // System.err.println("http://www.sratim.co.il/movies/view.aspx?id=" + scanID);
-                            // System.err.println(xml);
+                            String xml = webBrowser.request(episodeUrl, Charset.forName("UTF-8"));
 
                             // Update Plot
                             // TODO Be sure this is enough to go straight to the plot ...
-                            String plotStart = "<u>תקציר:</u></b><br />";
+                            String plotStart = "<div style=\"font-size:14px;text-align:justify;\">";
                             int plotStartIndex = xml.indexOf(plotStart);
                             if (plotStartIndex > -1) {
                                 int endPlotIndex = xml.indexOf("</div>", plotStartIndex + plotStart.length());
                                 if (endPlotIndex > -1) {
                                     String tmpPlot = removeHtmlTags(xml.substring(plotStartIndex + plotStart.length(), endPlotIndex));
                                     file.setPlot(part, breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
-                                    logger.finest("Sratim Plugin: Plot found : http://www.sratim.co.il/movies/view.aspx?id=" + scanID + " - " + file.getPlot(part));
+                                    logger.finest("Sratim Plugin: Plot found : http://www.sratim.co.il/" + scanUrl + " - " + file.getPlot(part));
                                 }
                             }
 
@@ -835,7 +912,8 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     public void downloadSubtitle(Movie movie, MovieFile mf, String mainXML) {
-
+//TODO: Fix the subtitle download for the new site as well
+    	
         if (subtitleDownload == false) {
             mf.setSubtitlesExchange(true);
             return;
@@ -1194,7 +1272,8 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     public void loadSratimCookie() {
-
+//TODO: Fix the subtitle download for the new site as well
+    	
         // Check if we already logged in and got the correct cookie
         if (!cookieHeader.equals("")) {
             return;
@@ -1453,9 +1532,9 @@ public class SratimPlugin extends ImdbPlugin {
 
     protected String extractMovieTitle(String xml) {
         String result;
-        int start = xml.indexOf("<td valign=\"top\" style=\"width:100%\"");
-        int end = xml.indexOf("</td>", start);
-        String title = xml.substring(start + 36, end);
+        int start = xml.indexOf("<h1 class=\"subtext_view\">");
+        int end = xml.indexOf("</h1>", start);
+        String title = xml.substring(start + 25, end);
         result = HTMLTools.decodeHtml(title);
         return removeTrailBracket(result);
     }
@@ -1472,82 +1551,7 @@ public class SratimPlugin extends ImdbPlugin {
         return srtFile.exists() || subFile.exists();
     }
 
-    protected String buildSeasonUrl(String baseUrl, int i, String viewState) throws UnsupportedEncodingException {
-        StringBuilder surl = new StringBuilder();
 
-        surl.append(baseUrl);
-        if (baseUrl.indexOf('?') > -1) {
-            surl.append('&');
-        } else {
-            surl.append('?');
-        }
-
-        surl.append("ctl00$ctl00$Body$ScriptManager=ctl00$ctl00$Body$Body$Box$UpdatePanel|");
-        surl.append(SEASON_FORM_VALUE);
-        surl.append(i);
-
-        surl.append('&').append(SEASON_FORM_NAME).append('=').append(SEASON_FORM_VALUE).append(i);
-        surl.append('&').append(ARGUMENT_FORM_NAME).append('=').append(ARGUMENT_FORM_VALUE);
-        surl.append("&ctl00$ctl00$Body$Body$Box$Comments$Header=");
-        surl.append("&ctl00$ctl00$Body$Body$Box$Comments$Body=");
-        surl.append("&__LASTFOCUS=");
-        surl.append('&').append(ARGUMENT_VIEWSTATE).append('=').append(URLEncoder.encode(viewState, "UTF-8"));
-        surl.append("&ctl00$ctl00$Body$Body$Box$SubtitlesLanguage=1"); // hebrew subtitles
-        surl.append("&__ASYNCPOST=true");
-
-        return surl.toString();
-    }
-
-    protected String postRequest(String url) {
-        StringBuilder content = new StringBuilder();
-        try {
-            int queryStart = url.indexOf('&');
-            if (queryStart == -1) {
-                queryStart = url.length();
-            }
-            String baseUrl = url.substring(0, queryStart);
-            URL ourl = new URL(baseUrl);
-            String data = "";
-            if (queryStart > -1) {
-                data = url.substring(queryStart + 1);
-            }
-
-            // Send data
-            URLConnection conn = ourl.openConnection();
-            conn.setDoOutput(true);
-
-            conn.setRequestProperty("Host", "www.sratim.co.il");
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.2; en-US; rv:1.9.0.11) Gecko/2009060215 Firefox/3.0.11");
-            conn.setRequestProperty("Accept", "*/*");
-            conn.setRequestProperty("Accept-Language", "he");
-            conn.setRequestProperty("Accept-Encoding", "deflate");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-            conn.setRequestProperty("Accept-Charset", "utf-8");
-            conn.setRequestProperty("Referer", baseUrl);
-
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.write(data); // post data
-            wr.flush();
-
-            conn.getHeaderFields(); // unused
-            // Get the response
-            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-            String line;
-
-            while ((line = rd.readLine()) != null) {
-                content.append(line);
-            }
-            wr.close();
-            rd.close();
-        } catch (Exception error) {
-            logger.severe("Sratim Plugin: Failed retrieving sratim season episodes information.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
-        }
-        return content.toString();
-    }
 
     protected static boolean containsHebrew(char[] chars) {
         if (chars == null) {
