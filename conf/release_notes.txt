@@ -15,6 +15,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1623 Custom Fanart not found when 'mjb.scanner.hashpathdepth' enabled
   - Fixed defect #1627 ImdbPlugin - bug with plot
   - Fixed defect #1628 NFO Premiered date error
+  - Fixed defect #1633 Updated Sratim plugin for new website design
 
 MovieJukebox 2.1
 ----------------
