@@ -23,6 +23,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
+import com.moviejukebox.themoviedb.model.Category;
 import com.moviejukebox.themoviedb.model.Country;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
@@ -66,21 +67,26 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         ThreadExecutor.enterIO(webhost);
         try {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
-            if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (FileTools.isValidString(tmdbID)) {
                 // Search based on TMdb ID
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
-            } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            } else if (FileTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
                 moviedb = TMDb.moviedbImdbLookup(imdbID, language);
                 tmdbID = moviedb.getId();
-                if (tmdbID != null && !tmdbID.equals("")) {
+                if (FileTools.isValidString(tmdbID)) {
                     moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
                 } else {
                     logger.fine("Error: No TMDb ID found for movie!");
                 }
             } else {
+                String yearSuffix = "";
+                if (FileTools.isValidString(movie.getYear())) {
+                    yearSuffix = " " + movie.getYear();
+                }
+                
                 // Search using movie name
-                moviedb = TMDb.moviedbSearch(movie.getTitle(), language);
+                moviedb = TMDb.moviedbSearch(movie.getTitle() + yearSuffix, language);
                 tmdbID = moviedb.getId();
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
             }
@@ -237,6 +243,18 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (overwriteCheck(moviedb.getLanguage(), movie.getLanguage())) {
             String language = MovieFilenameScanner.determineLanguage(moviedb.getLanguage());
             movie.setLanguage(language);
+        }
+        
+        // Genres
+        List<Category> genres = moviedb.getCategories();
+        if (!genres.isEmpty()) {
+            if (movie.getGenres().isEmpty()) {
+                for (Category genre : genres) {
+                    if (genre.getType().equalsIgnoreCase("genre")) {
+                        movie.addGenre(genre.getName());
+                    }
+                }
+            }
         }
 
         return;
