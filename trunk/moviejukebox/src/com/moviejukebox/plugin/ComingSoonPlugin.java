@@ -128,8 +128,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
     
     protected String getComingSoonId(String movieName, String year) {
-        //return getComingSoonIdFromGoogle(movieName, year);
-        return getComingSoonIdFromComingSoon(movieName, year);
+        return getComingSoonIdFromGoogle(movieName, year);
+        //return getComingSoonIdFromComingSoon(movieName, year);
     }
 
     protected String getComingSoonIdFromGoogle(String movieName, String year) {
