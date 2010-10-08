@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="lib/tvrageapi.jar"/>
 	<classpathentry kind="lib" path="lib/saxon9he.jar"/>
 	<classpathentry kind="lib" path="lib/pojava-2.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/javaanidbapi-0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
