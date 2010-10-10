@@ -13,13 +13,14 @@
 
 package com.moviejukebox.plugin.poster;
 
+import java.util.List;
 import java.util.logging.Logger;
 
+import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
@@ -44,14 +45,25 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         theMovieDb = new TheMovieDb(API_KEY);
-        MovieDB moviedb = theMovieDb.moviedbSearch(title, language);
-        if (moviedb != null) {
-            return moviedb.getId();
-        } else {
+        List<MovieDB> movieList = theMovieDb.moviedbSearch(title, language);
+        
+        if (movieList.isEmpty()) {
             return Movie.UNKNOWN;
+        } else {
+            if (movieList.size() == 1) {
+                // Only one movie so return that id
+                return movieList.get(0).getId();
+            }
+            
+            for (MovieDB moviedb : movieList) {
+                if (TheMovieDb.compareMovies(moviedb, title, year)) {
+                    return moviedb.getId();
+                }
+            }
         }
+        return Movie.UNKNOWN;
     }
-
+    
     @Override
     public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
