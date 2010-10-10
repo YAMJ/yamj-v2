@@ -42,6 +42,7 @@ import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -90,7 +91,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String plot = UNKNOWN;
     private String outline = UNKNOWN;
     private String quote = UNKNOWN;
-    private String director = UNKNOWN;
     private String country = UNKNOWN;
     private String company = UNKNOWN;
     private String runtime = UNKNOWN;
@@ -98,6 +98,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String videoType = UNKNOWN;
     private int season = -1;
     private String subtitles = UNKNOWN;
+    // private String director = UNKNOWN;
+    private Set<String> directors = new LinkedHashSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private SortedSet<String> genres = new TreeSet<String>();
     private Set<String> cast = new LinkedHashSet<String>();
@@ -416,10 +418,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public String getCountry() {
         return country;
-    }
-
-    public String getDirector() {
-        return director;
     }
 
     public Collection<MovieFile> getFiles() {
@@ -800,11 +798,27 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     /**
+     * Get just one director from the collection
+     * @return
+     */
+    public String getDirector() {
+        if (directors != null && !directors.isEmpty()) {
+            return directors.iterator().next();
+        } else {
+            return UNKNOWN;
+        }
+    }
+    
+    public Collection<String> getDirectors() {
+        return directors;
+    }
+    
+    /**
      * Take a collection of directors and just use the first
      * WARNING: This may take a random director from the list because it's a collection!
      * @param directors
      */
-    public void setDirector(Collection<String> directors) {
+    public void setDirectors(Collection<String> directors) {
         if (directors != null && !directors.isEmpty()) {
             try {
                 addDirector(directors.iterator().next());
@@ -817,15 +831,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
     
     public void addDirector(String director) {
-        if (director == null) {
-            director = UNKNOWN;
+        if (FileTools.isValidString(director)) {
+            directors.add(director);
         }
-
-        if (!director.equalsIgnoreCase(this.director)) {
-            this.isDirty = true;
-            this.director = director;
-        }
-        this.director = director;
     }
 
     public void setDirty(boolean isDirty) {
@@ -1201,7 +1209,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         sb.append("[fanartURL=").append(fanartURL).append("]");
         sb.append("[plot=").append(plot).append("]");
         sb.append("[outline=").append(outline).append("]");
-        sb.append("[director=").append(director).append("]");
+        sb.append("[director=").append(directors).append("]");
         sb.append("[country=").append(country).append("]");
         sb.append("[company=").append(company).append("]");
         sb.append("[runtime=").append(runtime).append("]");

@@ -209,9 +209,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getDirector().equals(Movie.UNKNOWN)) {
+        if (movie.getDirector().isEmpty()) {
             // Note this is a hack for the change to IMDB for Issue 875
-            // TODO: Change the directors into a collection for better processing.
             ArrayList<String> tempDirectors = null;
             // Issue 1261 : Allow multiple text matching for one "element".
             String[] directorMatches = siteDef.getDirector().split("\\|");
@@ -219,15 +218,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             for (String directorMatch : directorMatches) {
                 tempDirectors = HTMLTools.extractTags(xml, "<h5>" + directorMatch, "</div>", "<a href=\"/name/", "</a>");
                 if (!tempDirectors.isEmpty()) {
-                    // We match stop search.
+                    // We found a match, so stop search.
                     break;
                 }
             }
 
-            if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
-                if (!tempDirectors.isEmpty()) {
-                    movie.addDirector(tempDirectors.get(0));
-                }
+            if (!tempDirectors.isEmpty()) {
+                movie.setDirectors(tempDirectors);
             }
         }
 
@@ -642,9 +639,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // DIRECTOR(S) (Working)
-        if (movie.getDirector().equals(Movie.UNKNOWN)) {
+        if (movie.getDirectors().isEmpty()) {
             peopleList = parseNewPeople(xml, siteDef2.getDirector().split("\\|"));
-            movie.setDirector(peopleList);
+            movie.setDirectors(peopleList);
         }
 
         // WRITER(S)

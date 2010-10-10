@@ -24,6 +24,7 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
@@ -230,14 +231,14 @@ public class FanartScanner {
         imdbID = movie.getId("imdb");
         tmdbID = movie.getId("themoviedb");
 
-        if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            //moviedb = TMDb.moviedbGetInfo(tmdbID, language);
-            moviedb = TMDb.moviedbGetImages(tmdbID, language);
-        } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
-            //moviedb = TMDb.moviedbImdbLookup(imdbID, language);
-            moviedb = TMDb.moviedbGetImages(imdbID, language);
+        if (FileTools.isValidString(tmdbID)) {
+            moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+        } else if (FileTools.isValidString(imdbID)) {
+            // The ImdbLookup contains images
+            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
         } else {
-            moviedb = TMDb.moviedbSearch(movie.getOriginalTitle(), language);
+            List<MovieDB> movieList = TMDb.moviedbSearch(movie.getOriginalTitle(), language);
+            moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
         }
 
         // Check that the returned movie bean isn't null
