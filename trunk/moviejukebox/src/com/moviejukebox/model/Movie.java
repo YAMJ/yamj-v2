@@ -23,10 +23,10 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -42,7 +42,6 @@ import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -831,9 +830,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
     
     public void addDirector(String director) {
-        if (FileTools.isValidString(director)) {
-            directors.add(director);
-        }
+        directors.add(director);
     }
 
     public void setDirty(boolean isDirty) {

@@ -45,6 +45,9 @@ public class WebBrowser {
     private String mjbProxyUsername;
     private String mjbProxyPassword;
     private String mjbEncodedPassword;
+    private static int mjbTimeoutConnect = 10000;
+    private static int mjbTimeoutRead = 90000;
+    
     private int imageRetryCount;
 
     public WebBrowser() {
@@ -57,6 +60,20 @@ public class WebBrowser {
         mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
         mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
 
+        try {        
+            mjbTimeoutConnect = Integer.parseInt(PropertiesUtil.getProperty("mjb.Timeout", "10000"));
+        } catch (Exception ignore) {
+            // If the conversion fails use the default value
+            mjbTimeoutConnect = 10000;
+        }
+
+        try {
+            mjbTimeoutRead = Integer.parseInt(PropertiesUtil.getProperty("mjb.Timeout.Read", "90000"));
+        } catch (Exception ignore) {
+            // If the conversion fails use the default value
+            mjbTimeoutRead = 90000;
+        }
+        
         imageRetryCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.imageRetryCount", "3"));
         if (imageRetryCount < 1) {
             imageRetryCount = 1;
@@ -89,6 +106,9 @@ public class WebBrowser {
         if (mjbProxyUsername != null) {
             cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
         }
+        
+        cnx.setConnectTimeout(mjbTimeoutConnect);
+        cnx.setReadTimeout(mjbTimeoutRead);
 
         return cnx;
     }
