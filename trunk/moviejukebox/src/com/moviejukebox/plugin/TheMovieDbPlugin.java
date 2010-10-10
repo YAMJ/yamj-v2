@@ -52,7 +52,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         TMDb = new TheMovieDb(API_KEY);
-        language = PropertiesUtil.getProperty("themoviedb.language", "en");
+        language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
@@ -61,7 +61,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public boolean scan(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         String tmdbID = movie.getId(TMDB_PLUGIN_ID);
-        MovieDB moviedb = null;
+        List<MovieDB> movieList;
+        MovieDB moviedb = new MovieDB();
         boolean retval = false;
 
         ThreadExecutor.enterIO(webhost);
@@ -86,34 +87,40 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 }
                 
                 // Search using movie name
-                moviedb = TMDb.moviedbSearch(movie.getTitle() + yearSuffix, language);
-                tmdbID = moviedb.getId();
-                moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
+                movieList = TMDb.moviedbSearch(movie.getTitle() + yearSuffix, language);
+                moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
+                if (moviedb != null) {
+                    tmdbID = moviedb.getId();
+                    moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
+                }
             }
         } finally {
             // the rest is not web search anymore
             ThreadExecutor.leaveIO();
         }
 
-        if (FileTools.isValidString(moviedb.getId())) {
-            movie.setMovieType(Movie.TYPE_MOVIE);
+        if (moviedb != null) {
+            if (FileTools.isValidString(moviedb.getId())) {
+                movie.setMovieType(Movie.TYPE_MOVIE);
+            }
+    
+            if (FileTools.isValidString(moviedb.getTitle())) {
+                copyMovieInfo(moviedb, movie);
+                retval = true;
+            } else {
+                retval = false;
+            }
+        } else {
+            retval = false;
         }
-
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
-        if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+        if (downloadFanart && !FileTools.isValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
             }
-        }
-
-        if (moviedb.getTitle() != null && !moviedb.getTitle().equalsIgnoreCase(MovieDB.UNKNOWN)) {
-            copyMovieInfo(moviedb, movie);
-            retval = true;
-        } else {
-            retval = false;
         }
 
         return retval;
@@ -173,8 +180,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (overwriteCheck(moviedb.getReleaseDate(), movie.getReleaseDate())) {
             movie.setReleaseDate(moviedb.getReleaseDate());
             try {
-                String year = (new DateTime(moviedb.getReleaseDate())).toString("yyyy");
-                movie.setYear(year);
+                String year = moviedb.getReleaseDate();
+                // Check if this is the default year and skip it
+                if (!"1900-01-01".equals(year)) {
+                    year = (new DateTime(year)).toString("yyyy");
+                    movie.setYear(year);
+                } else {
+                    movie.setYear(Movie.UNKNOWN);
+                }
             } catch (Exception ignore) {
                 // Don't set the year
             }

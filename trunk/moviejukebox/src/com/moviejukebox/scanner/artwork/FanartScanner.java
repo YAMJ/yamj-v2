@@ -241,11 +241,12 @@ public class FanartScanner {
             moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
         }
 
-        // Check that the returned movie bean isn't null
+        // Check that the returned movie isn't null
         if (moviedb == null) {
             logger.finer("FanartScanner: Error getting fanart for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
         }
+        
         try {
             Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
             if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
@@ -256,7 +257,7 @@ public class FanartScanner {
                 return fanartArtwork.getUrl();
             }
         } catch (Exception error) {
-            logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
+            logger.severe("FanartScanner: TheMovieDB.org API Error: " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }

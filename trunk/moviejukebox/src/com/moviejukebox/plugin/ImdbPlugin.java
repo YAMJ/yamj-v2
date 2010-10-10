@@ -170,7 +170,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
             // TODO: Move this check out of here, it doesn't belong.
-            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            if (downloadFanart && !FileTools.isValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
