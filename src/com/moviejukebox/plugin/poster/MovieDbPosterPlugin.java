@@ -25,6 +25,7 @@ import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
+import com.moviejukebox.thetvdb.tools.WebBrowser;
 import com.moviejukebox.tools.PropertiesUtil;
 
 public class MovieDbPosterPlugin implements IMoviePosterPlugin {
@@ -40,6 +41,12 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         language = PropertiesUtil.getProperty("themoviedb.language", "en");
         posterPosition = Integer.parseInt(PropertiesUtil.getProperty("themoviedb.posterPosition", "1"));
         theMovieDb = new TheMovieDb(API_KEY);
+        
+        // Set the proxy
+        theMovieDb.setProxy(WebBrowser.getProxyHost(), WebBrowser.getProxyPort(), WebBrowser.getProxyUsername(), WebBrowser.getProxyPassword());
+        
+        // Set the timeouts
+        theMovieDb.setTimeout(WebBrowser.getWebTimeoutConnect(), WebBrowser.getWebTimeoutRead());
     }
 
     @Override
