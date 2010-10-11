@@ -693,7 +693,7 @@ public class MovieJukebox {
         
         if (parseBoolean(PropertiesUtil.getProperty("mjb.monitorJukeboxProperties", "false"))) {
             // Create or Read the mjbDetails file that stores the jukebox properties we want to watch
-            File mjbDetails = new File(jukebox.getJukeboxRootLocationFile(), "jukebox_details.xml");
+            File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
             FileTools.addJukeboxFile(mjbDetails.getName());
             try {
                 if (mjbDetails.exists()) {
