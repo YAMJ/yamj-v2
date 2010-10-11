@@ -321,7 +321,7 @@ public class PosterScanner {
                 posterImage = Image.UNKNOWN;
             } else {
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
-                    logger.finest("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterImage);
+                    logger.finest("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterImage.getUrl());
                 }
             }
         }

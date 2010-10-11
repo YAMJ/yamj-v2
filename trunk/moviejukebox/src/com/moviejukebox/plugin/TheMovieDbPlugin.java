@@ -28,6 +28,7 @@ import com.moviejukebox.themoviedb.model.Country;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
 import com.moviejukebox.themoviedb.model.Studio;
+import com.moviejukebox.thetvdb.tools.WebBrowser;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
@@ -52,6 +53,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         TMDb = new TheMovieDb(API_KEY);
+        // Set the proxy
+        TMDb.setProxy(WebBrowser.getProxyHost(), WebBrowser.getProxyPort(), WebBrowser.getProxyUsername(), WebBrowser.getProxyPassword());
+        
+        // Set the timeouts
+        TMDb.setTimeout(WebBrowser.getWebTimeoutConnect(), WebBrowser.getWebTimeoutRead());
+
         language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
         downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
