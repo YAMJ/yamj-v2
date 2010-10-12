@@ -514,7 +514,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // OUTLINE (Working)
         if (movie.getOutline().equals(Movie.UNKNOWN)) {
             // The new outline is at the end of the review section with no preceding text
-            String imdbOutline = HTMLTools.extractTag(xml, "reviews</a></span>", "<div class=\"txt-block\">");
+            String imdbOutline = HTMLTools.extractTag(xml, "reviews</a>", "<div class=\"txt-block\">");
             imdbOutline = HTMLTools.removeHtmlTags(imdbOutline).trim();
             
             if (FileTools.isValidString(imdbOutline)) {
