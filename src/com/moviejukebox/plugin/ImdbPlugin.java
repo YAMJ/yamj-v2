@@ -105,6 +105,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             } else {
                 if (country.equals(preferredCountry)) {
                     value = text;
+                    // No need to continue scanning
+                    break;
                 }
             }
         }
@@ -452,7 +454,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
             // Load the release page from IMDb
             if (releaseInfoXML.equals(Movie.UNKNOWN)) {
-                releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef2.getCharset());
+                releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "releaseinfo", siteDef2.getCharset());
             }
             movie.setReleaseDate(HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, "\">" + preferredCountry, "</a></td>")).trim());
         }
@@ -561,7 +563,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // CERTIFICATION (Working)
         String certification = movie.getCertification();
         if (certification.equals(Movie.UNKNOWN)) {
-            String certXML = webBrowser.request(getImdbUrl(movie) + "parentalguide#certification", siteDef2.getCharset());
+            String certXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "parentalguide#certification", siteDef2.getCharset());
             if (extractCertificationFromMPAA) {
                 String mpaa = HTMLTools.extractTag(certXML, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>", 1);
                 if (!mpaa.equals(Movie.UNKNOWN)) {
@@ -771,8 +773,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } catch (IOException error) {
-            logger.severe("Failed retreiving episodes titles for movie : " + movie.getTitle());
-            logger.severe("Error : " + error.getMessage());
+            logger.severe("Failed retreiving episodes titles for: " + movie.getTitle());
+            logger.severe("Error: " + error.getMessage());
         }
     }
 
@@ -787,7 +789,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Retrieves the long plot description from IMDB if it exists, else "None"
+     * Retrieves the long plot description from IMDB if it exists, else "UNKNOWN"
      * 
      * @param movie
      * @return long plot
@@ -845,6 +847,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
     }
 
+    /**
+     * Search for the IMDB Id in the NFO file
+     * @param nfo
+     * @param movie
+     * @return
+     */
     private String searchIMDB(String nfo, Movie movie) {
         final int flags = Pattern.CASE_INSENSITIVE | Pattern.DOTALL;
         String imdbPattern = ")[\\W].*?(tt\\d{7})";
@@ -881,6 +889,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return id;
     }
 
+    /**
+     * Remove the "see more" or "more" values from the end of a string
+     * @param uncleanString
+     * @return
+     */
     protected static String cleanSeeMore(String uncleanString) {
         int pos = uncleanString.indexOf("more");
         
@@ -901,7 +914,22 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return uncleanString;
     }
 
+    /**
+     * Get the IMDb URL with the default site definition
+     * @param movie
+     * @return
+     */
     protected String getImdbUrl(Movie movie) {
-        return siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/";
+       return getImdbUrl(movie, siteDef);
+    }
+    
+    /**
+     * Get the IMDb URL with a specific site definition
+     * @param movie
+     * @param siteDefinition
+     * @return
+     */
+    protected String getImdbUrl(Movie movie, ImdbSiteDataDefinition siteDefinition) {
+        return siteDefinition.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/";
     }
 }
