@@ -22,6 +22,7 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
+import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
@@ -32,14 +33,12 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String API_KEY;
     private String language;
-    private int posterPosition;
     private TheMovieDb theMovieDb;
 
     public MovieDbPosterPlugin() {
         super();
         API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-        language = PropertiesUtil.getProperty("themoviedb.language", "en");
-        posterPosition = Integer.parseInt(PropertiesUtil.getProperty("themoviedb.posterPosition", "1"));
+        language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
         theMovieDb = new TheMovieDb(API_KEY);
         
         // Set the proxy
@@ -87,10 +86,22 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
 
         try {
             if (moviedb != null) {
-                Artwork artwork = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL, posterPosition);
-                if (!(artwork == null || artwork.getUrl() == null || artwork.getUrl().equals(MovieDB.UNKNOWN))) {
-                    logger.finest("MovieDbPosterPlugin : Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
-                    posterURL = artwork.getUrl();
+                List<Artwork> artworkList = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL);
+                if (artworkList.size() > 0) {
+                    Image image;
+                    boolean validImage = false;
+                    
+                    for (Artwork artwork : artworkList) {
+                        posterURL = artwork.getUrl();
+                        image = new Image(posterURL);
+                        validImage = PosterScanner.validatePoster(image);
+                        if (validImage) {
+                            logger.finest("MovieDbPosterPlugin : Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
+                            break;
+                        }
+                    }
+                } else {
+                    logger.finer("MovieDbPosterPlugin: Unable to find posters for " + id);
                 }
             } else {
                 logger.finer("MovieDbPosterPlugin: Unable to find posters for " + id);
@@ -98,10 +109,12 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         } catch (Exception error) {
             logger.severe("MovieDbPosterPlugin: TheMovieDB.org API Error: " + error.getMessage());
         }
+        
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
+        } else {
+            return Image.UNKNOWN;
         }
-        return Image.UNKNOWN;
     }
 
     @Override
