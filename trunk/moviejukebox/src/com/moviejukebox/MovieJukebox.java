@@ -829,7 +829,7 @@ public class MovieJukebox {
                         if (xmlExists) {
                             logger.fine("Checking existing video: " + movieTitleExt);
                         } else {
-                            logger.fine("Processing new video   : " + movieTitleExt);
+                            logger.fine("Processing new video: " + movieTitleExt);
                         }
 
                         // First get movie data (title, year, director, genre, etc...)
