@@ -4,7 +4,7 @@
 
 MovieJukebox 2.2 BETA
 ---------------------
-  - Enhanvement   #323 TheMovieDB plugin created
+  - Enhancement   #323 TheMovieDB plugin created
   - Enhancement  #1560 Rescanning based on Jukebox Property changes
   - Fixed defect #1605 New IMDb site format breaks IMDb scanner (Updated for additional plot formats)
   - Fixed defect #1609 Only one fanart downloaded
@@ -16,6 +16,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1627 ImdbPlugin - bug with plot
   - Fixed defect #1628 NFO Premiered date error
   - Fixed defect #1633 Updated Sratim plugin for new website design
+  - Fixed defect #1639 CdonPosterPlugin not working after site restructure
 
 MovieJukebox 2.1
 ----------------
