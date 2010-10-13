@@ -57,80 +57,113 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
 
         // Search CDON to get an URL to the movie page
         // if title starts with "the" -> remove it to get better results
-        if (title.startsWith("the")) {
+        if (title.toLowerCase().startsWith("the")) {
         	title = title.substring(4, title.length());
         }
         try {
-            //first make a search string
+            //try getting the search results from cdon.se
         	StringBuffer sb = new StringBuffer("");
        		sb = new StringBuffer("http://cdon.se/search?q=");
-       		sb.append(URLEncoder.encode(title, "UTF-8"));
+       		String searchTitle = URLEncoder.encode(title, "UTF-8");
            	if (tvSeason >= 0) {
-       			sb.append("+").append(URLEncoder.encode("s\u0229song", "UTF-8"));
-       			sb.append("+" + tvSeason);
+       			searchTitle +=("+" + URLEncoder.encode("säsong", "UTF-8"));
+       			searchTitle +=("+" + tvSeason);
         	}
+       		sb.append(searchTitle);
+       		//new search url format 2010-10-11
+       		//category=2 results in only movies being shown
+           	sb.append("#q=" + searchTitle);
+           	sb.append("&category=2");
            	//get the result page from the search
             xml = webBrowser.request(sb.toString());
-            //check that the result page contains some movie info
-            if (xml.contains("/section-movie.gif\" alt=\"\" />")) {
-            	//get moviedetail page WITH year
-            	if (year != null) {
-            		// find the movie url in the search result page
-            		//remove unused parts of resulting web page
-            		int beginIndex = xml.indexOf("<th colspan=\"5\">Filmtitel");
-            		int endIndex = xml.indexOf("<div id=\"banner-content-wrapper\">");
-                    String xmlPart = xml.substring(beginIndex, endIndex);
-                    //the result is in a table split it on td elements to search for year
-                    String[] splitXmlPart = xmlPart.split("<td");
-                    //loop through the result array and find the table cell containing the year specified
-                    //just looking for the first match, should be good enough
-                    int yearFoundAtIndex = 0;
-                    for (int i = 0; i < splitXmlPart.length; i++) {
-                    	if (splitXmlPart[i].contains(year)) {
-                    		yearFoundAtIndex = i;
-                    		break;
-                    	}
-                    	if (splitXmlPart[i].contains("</table>")) {
-                    		//end of table indicates that we have no movie matches
-                    		break;
-                    	}
-                    }
-                    //if we found a match return it without further ado
-                    if (yearFoundAtIndex > 0) {
-                    	//find the movie detail page that is in the td before the year
-                    	response = extractMovieDetailUrl(title, splitXmlPart[yearFoundAtIndex-1], true);
-                    	return response;
-                    }
-            	}
-            	//if no match with year try finding the movie without using year
-                int beginIndex = xml.indexOf("/section-movie.gif\" alt=\"\" />") + 28;
-                response = HTMLTools.extractTag(xml.substring(beginIndex), "<td class=\"title\">", 0);
-                response = extractMovieDetailUrl(title, response, false);                
-            //else there was no results matching, return Movie.UNKNOWN
-            } else {
-                response = Movie.UNKNOWN;
-                logger.warning("CdonPosterPlugin: could not find movie: " + title);
-            } 
-        //there was an error getting the webpage, catch the exception
         } catch (Exception error) {
+           	//there was an error getting the web page, catch the exception
             logger.severe("CdonPosterPlugin: An exception happened while retreiving CDON id for movie : " + title);
             logger.severe("CdonPosterPlugin: the exception was caused by: " + error.getCause());
         }
+         
+        //check that the result page contains some movie info
+        if (xml.contains("<table class=\"product-list\"")) {
+        	//find the movie url in the search result page
+        	response = findMovieFromProductList(xml, title, year);
+
+       	//else there was no results matching, return Movie.UNKNOWN
+       	} else {
+       		response = Movie.UNKNOWN;
+       		logger.warning("CdonPosterPlugin: could not find movie: " + title);
+       	} 
         return response;
     }
+    /* function that takes the search result page from cdon and loops 
+     * through the products in that page searching for a match
+    */
+	private String findMovieFromProductList(String xml, String title, String year) {
+    	//remove unused parts of resulting web page
+    	int beginIndex = xml.indexOf("class=\"product-list\"")+53;
+    	int endIndex = xml.indexOf("</table>");
+    	String xmlPart = xml.substring(beginIndex, endIndex);
+    	//the result is in a table split it on tr elements
+    	String[] productList = xmlPart.split("<tr>");
+
+    	//loop through the product list
+    	int foundAtIndex = 0;
+    	int firstTitleFind = 0;
+    	for (int i = 1; i < productList.length; i++) {
+    		String[] productInfo = productList[i].split("<td");
+    		boolean isMovie = false;
+    		if ( productInfo[2].toLowerCase().contains("dvd")||productInfo[2].toLowerCase().contains("blu-ray") ){
+    			isMovie = true;
+    		}
+    		//only check for matches for movies
+    		if( isMovie ) {
+	    		//movieInfo[3] contains title
+	    		//movieInfo[6] contains year
+	    		String foundTitle = HTMLTools.removeHtmlTags(productInfo[3].substring(15));
+	    		foundTitle = foundTitle.replaceAll("\\t", ""); 
+	    		if (foundTitle.toLowerCase().contains(title.toLowerCase())) {
+	    			//save first title find to fallback to if nothing else is found
+	    			if (firstTitleFind == 0) {
+	    				firstTitleFind = i;
+	    			}
+	    			//check if year matches
+	    			if(year != null) {
+	    				//year is in position 13-17
+	    				String date = productInfo[6].substring(14, 18);
+	    				if(year.equals(date)) {
+	    					foundAtIndex = i;
+	    					break;
+	    				}
+	    			}
+	    			//year not set - we found a match
+	    			else {
+	    				foundAtIndex = i;
+	    				break;
+	    			}
+	    		} //end for found title
+    		} //end isMovie
+    	}
+    	//if we found a match return it without further ado
+    	if (foundAtIndex > 0 || firstTitleFind > 0) {
+    		//if no match with year use the first title find
+    		if (foundAtIndex == 0) {
+    			foundAtIndex = firstTitleFind;
+    		}
+    		//find the movie detail page that is in the td before the year
+    		return extractMovieDetailUrl(title, productList[foundAtIndex]);
+    	} else {
+    		//we got a productList but the matching of titles did not result in a match
+    		//take a chance and return the first product in the list
+    		return extractMovieDetailUrl(title, productList[1]);
+    	}		
+	}
+    
     //function to extract the url of a movie detail page from the td it is in
-	private String extractMovieDetailUrl(String title, String response, boolean withYear) {
+	private String extractMovieDetailUrl(String title, String response) {
 		// Split string to extract the url
 		if (response.contains("http")) {
 		    String[] splitMovieURL = response.split("\\s");
-		    //check withYear because the url is different positions
-		    //depending on where it is called from
-		    if(withYear) {
-		    	response = splitMovieURL[2].replaceAll("href|=|\"", "");
-		    } 
-		    else {
-		    	response = splitMovieURL[1].replaceAll("href|=|\"", "");	
-		    }
+		    //movieDetailPage is in splitMovieURL[13]
+		    response = splitMovieURL[13].replaceAll("href|=|\"", "");
 		    logger.finest("CDonPosterPlugin: found cdon movie url = " + response);
 		} else {
 		    //something went wrong and we do not have an url in the result
@@ -295,7 +328,7 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
             logger.finest("CdonPosterPlugin:  found cdon cover: " + result);
             return result;
         } else {
-            logger.info("CdonPosterPlugin: error in finding poster url");
+            logger.info("CdonPosterPlugin: error in finding poster url.");
             return Movie.UNKNOWN;
         }
     }
