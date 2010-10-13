@@ -288,7 +288,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
         return comingSoonId;
     }
     
-    
     private int compareTitles(String searchedTitle, String returnedTitle) {
         
         /*
@@ -346,7 +345,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
         return difference;
 
     }
-    
     
     protected boolean updateComingSoonMediaInfo(Movie movie) {
         
@@ -447,4 +445,19 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
         
     }
+
+    @Override
+    public void scanNFO(String nfo, Movie movie) {
+        super.scanNFO(nfo, movie); // use IMDB as basis
+
+        int beginIndex = nfo.indexOf("?key=");
+        if (beginIndex != -1) {
+            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 5), "/ \n,:!&é\"'(--è_çà)=$");
+            movie.setId(COMINGSOON_PLUGIN_ID, st.nextToken());
+            logger.finer("ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
+        } else {
+            logger.finer("No ComingSoon Id found in nfo!");
+        }
+    }
+
 }

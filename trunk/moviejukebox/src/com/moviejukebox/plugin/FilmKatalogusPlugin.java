@@ -194,6 +194,5 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 logger.finest("FilmKatalogusPlugin: Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
             }
         }
-
     }
 }
