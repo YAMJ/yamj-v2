@@ -423,14 +423,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         ImdbSiteDataDefinition siteDef2;
         
         // If we are using sitedef=labs, there's no need to change it
-        if (imdbInfo.getSiteDef().equals("labs")) {
+        
+        if (imdbInfo.getImdbSite().equals("labs")) {
             siteDef2 = this.siteDef;
         } else {
             // Overwrite the normal siteDef with a v2 siteDef if it exists
-            siteDef2 = imdbInfo.getSiteDef(imdbInfo.getImdbsite() + "2");
+            siteDef2 = imdbInfo.getSiteDef(imdbInfo.getImdbSite() + "2");
             if (siteDef2 == null) {
                 // c2 siteDef doesn't exist, so use labs to atleast return something
-                logger.severe("ImdbPlugin: No new format definition found for language '" + imdbInfo.getImdbsite() + "' using default language instead.");
+                logger.severe("ImdbPlugin: No new format definition found for language '" + imdbInfo.getImdbSite() + "' using default language instead.");
                 siteDef2 = imdbInfo.getSiteDef("labs");
             }
         }

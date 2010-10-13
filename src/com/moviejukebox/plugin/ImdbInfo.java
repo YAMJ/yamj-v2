@@ -338,7 +338,7 @@ public class ImdbInfo {
         return preferredSearchEngine;
     }
 
-    public String getImdbsite() {
+    public String getImdbSite() {
         return imdbSite;
     }
     
