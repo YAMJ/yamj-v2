@@ -53,6 +53,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         TMDb = new TheMovieDb(API_KEY);
+        //TMDb.setLogger("moviejukebox");
         // Set the proxy
         TMDb.setProxy(WebBrowser.getProxyHost(), WebBrowser.getProxyPort(), WebBrowser.getProxyUsername(), WebBrowser.getProxyPassword());
         
