@@ -23,6 +23,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1636 TheMovieDbPlugin better handling of non-English languages and movies
   - Fixed defect #1639 CdonPosterPlugin not working after site restructure
   - Fixed defect #1641 HDDVDs are identified incorrectly in <videoSouce> tag in XML
+  - Fixed defect #1643 No director info in xml file
 
 MovieJukebox 2.1
 ----------------
