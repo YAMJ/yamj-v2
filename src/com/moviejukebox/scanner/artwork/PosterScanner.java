@@ -296,12 +296,15 @@ public class PosterScanner {
             posterSearchToken = st.nextToken();
 
             IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
+            
             // Check that plugin is register even on movie or tv
             if (iPosterPlugin == null) {
                 logger.severe("Posterscanner: '" + posterSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : "
                                 + getPluginsCode());
             }
+            
             String msg = null;
+            
             if (movie.isTVShow()) {
                 iPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
                 msg = "TvShow";
@@ -311,8 +314,9 @@ public class PosterScanner {
             }
             
             if (iPosterPlugin == null) {
-                logger.info("Posterscanner: " + posterSearchToken + " is not a " + msg + " Poster plugin - skipping");
+                logger.info("PosterScanner: " + posterSearchToken + " is not a " + msg + " Poster plugin - skipping");
             } else {
+                logger.finest("PosterScanner: Using " + posterSearchToken + " to search for a " + msg + " poster for " + movie.getTitle());
                 posterImage = iPosterPlugin.getPosterUrl(movie, movie);
             }
 
