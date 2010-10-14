@@ -858,35 +858,44 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         final int flags = Pattern.CASE_INSENSITIVE | Pattern.DOTALL;
         String imdbPattern = ")[\\W].*?(tt\\d{7})";
         String title = movie.getTitle();
-        String id = null;
+        String id = Movie.UNKNOWN;
 
-        Pattern patternTitle = Pattern.compile("(" + title + imdbPattern, flags);
-        Matcher matchTitle = patternTitle.matcher(nfo);
-        if (matchTitle.find()) {
-            id = matchTitle.group(2);
-        } else {
-            String dir = FileTools.getParentFolderName(movie.getFile());
-            Pattern patternDir = Pattern.compile("(" + dir + imdbPattern, flags);
-            Matcher matchDir = patternDir.matcher(nfo); 
-            if (matchDir.find()) {
-                id = matchDir.group(2);
+        Pattern patternTitle;
+        Matcher matchTitle;
+        
+        try {
+            patternTitle = Pattern.compile("(" + title + imdbPattern, flags);
+            matchTitle = patternTitle.matcher(nfo);
+            if (matchTitle.find()) {
+                id = matchTitle.group(2);
             } else {
-                String strippedNfo = nfo.replaceAll("(?is)[^\\w\\r\\n]", "");
-                String strippedTitle = title.replaceAll("(?is)[^\\w\\r\\n]", "");
-                Pattern patternStrippedTitle = Pattern.compile("(" + strippedTitle + imdbPattern, flags);
-                Matcher matchStrippedTitle = patternStrippedTitle.matcher(strippedNfo);
-                if (matchStrippedTitle.find()) {
-                    id = matchTitle.group(2);
+                String dir = FileTools.getParentFolderName(movie.getFile());
+                Pattern patternDir = Pattern.compile("(" + dir + imdbPattern, flags);
+                Matcher matchDir = patternDir.matcher(nfo); 
+                if (matchDir.find()) {
+                    id = matchDir.group(2);
                 } else {
-                    String strippedDir = dir.replaceAll("(?is)[^\\w\\r\\n]", "");
-                    Pattern patternStrippedDir = Pattern.compile("(" + strippedDir + imdbPattern, flags);
-                    Matcher matchStrippedDir = patternStrippedDir.matcher(strippedNfo);
-                    if (matchStrippedDir.find()) {
+                    String strippedNfo = nfo.replaceAll("(?is)[^\\w\\r\\n]", "");
+                    String strippedTitle = title.replaceAll("(?is)[^\\w\\r\\n]", "");
+                    Pattern patternStrippedTitle = Pattern.compile("(" + strippedTitle + imdbPattern, flags);
+                    Matcher matchStrippedTitle = patternStrippedTitle.matcher(strippedNfo);
+                    if (matchStrippedTitle.find()) {
                         id = matchTitle.group(2);
+                    } else {
+                        String strippedDir = dir.replaceAll("(?is)[^\\w\\r\\n]", "");
+                        Pattern patternStrippedDir = Pattern.compile("(" + strippedDir + imdbPattern, flags);
+                        Matcher matchStrippedDir = patternStrippedDir.matcher(strippedNfo);
+                        if (matchStrippedDir.find()) {
+                            id = matchTitle.group(2);
+                        }
                     }
                 }
             }
+        } catch (Exception error) {
+            logger.severe("ImdbPlugin: Error locating the IMDb ID in the nfo file for " + movie.getBaseFilename());
+            logger.severe(error.getMessage());
         }
+        
         return id;
     }
 
