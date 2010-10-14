@@ -211,7 +211,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getDirector().isEmpty()) {
+        if (movie.getDirectors().isEmpty()) {
             // Note this is a hack for the change to IMDB for Issue 875
             ArrayList<String> tempDirectors = null;
             // Issue 1261 : Allow multiple text matching for one "element".
