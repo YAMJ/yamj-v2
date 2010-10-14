@@ -70,7 +70,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         String tmdbID = movie.getId(TMDB_PLUGIN_ID);
         List<MovieDB> movieList;
-        MovieDB moviedb = new MovieDB();
+        MovieDB moviedb = null;
         boolean retval = false;
 
         ThreadExecutor.enterIO(webhost);
@@ -83,10 +83,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Search based on IMDb ID
                 moviedb = TMDb.moviedbImdbLookup(imdbID, language);
                 tmdbID = moviedb.getId();
-                if (FileTools.isValidString(tmdbID)) {
-                    moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
-                } else {
-                    logger.fine("Error: No TMDb ID found for movie!");
+                if (!FileTools.isValidString(tmdbID)) {
+                    logger.finer("TheMovieDbPlugin: No TMDb ID found for movie!");
                 }
             } else {
                 String yearSuffix = "";
@@ -99,7 +97,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
                 if (moviedb != null) {
                     tmdbID = moviedb.getId();
-                    moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
+                } else {
+                    logger.finer("TheMovieDbPlugin: Movie " + movie.getTitle() + yearSuffix + " not found!");
+                    logger.finest("Try using a NFO file to specify the movie");
                 }
             }
         } finally {
@@ -115,12 +115,19 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             if (FileTools.isValidString(moviedb.getTitle())) {
                 copyMovieInfo(moviedb, movie);
                 retval = true;
-            } else {
-                retval = false;
             }
-        } else {
-            retval = false;
+            
+            // Update TheMovieDb Id if needed
+            if (!FileTools.isValidString(movie.getId(TMDB_PLUGIN_ID))) {
+                movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
+            }
+            
+            // Update IMDb Id if needed
+            if (!FileTools.isValidString(movie.getId(IMDB_PLUGIN_ID))) {
+                movie.setId(IMDB_PLUGIN_ID, moviedb.getImdb());
+            }
         }
+        
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
