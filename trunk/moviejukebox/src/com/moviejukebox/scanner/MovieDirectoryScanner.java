@@ -351,8 +351,11 @@ public class MovieDirectoryScanner {
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                     movie.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
                 }
-                movie.setContainer("BluRay");
-                movie.setVideoSource("BluRay");
+                
+                if (!movie.getVideoSource().equalsIgnoreCase("HDDVD")) {                
+                    movie.setContainer("BluRay");
+                    movie.setVideoSource("BluRay");
+                }
             }
 
             library.addMovie(movie);

@@ -17,6 +17,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1628 NFO Premiered date error
   - Fixed defect #1633 Updated Sratim plugin for new website design
   - Fixed defect #1639 CdonPosterPlugin not working after site restructure
+  - Fixed defect #1641 HDDVDs are identified incorrectly in <videoSouce> tag in XML
 
 MovieJukebox 2.1
 ----------------
