@@ -421,6 +421,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 movie.setGenres(genres);
             }
             
+            // DIRECTOR
+            if (movie.getDirectors().isEmpty()) {
+                String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, "REGIA: </span>", "</a>"));
+                
+                if (directorList.contains(",")) {
+                    StringTokenizer st = new StringTokenizer(directorList,",");
+                    while (st.hasMoreTokens()) {
+                        movie.addDirector(st.nextToken());
+                    }
+                } else {
+                    movie.addDirector(directorList);
+                }
+            }
+            
             return true;
             
         } catch (Exception error) {
