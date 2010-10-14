@@ -90,7 +90,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
@@ -117,7 +117,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         return response;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Override
     public IImage getPosterUrl(String id) {
         // <td><img src="

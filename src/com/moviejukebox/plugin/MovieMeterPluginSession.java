@@ -113,10 +113,17 @@ public class MovieMeterPluginSession {
      * @param API_KEY
      * @throws XmlRpcException
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     private void createNewSession(String API_KEY) throws XmlRpcException {
+        HashMap session = null;
         Object[] params = new Object[]{API_KEY};
-        HashMap session = (HashMap) client.execute("api.startSession", params);
+        
+        try {
+            session = (HashMap) client.execute("api.startSession", params);
+        } catch (Exception error) {
+            logger.warning("MovieMeterPluginSession: Unable to contact website");
+        }
+        
         if (session != null) {
             if (session.size() > 0) {
                 logger.finest("MovieMeterPluginSession: Created new session with moviemeter.nl");
@@ -137,7 +144,7 @@ public class MovieMeterPluginSession {
      * @param movieName
      * @return the first summary result as a HashMap
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public HashMap getMovieByTitle(String movieName) {
 
         HashMap result = null;
@@ -173,7 +180,7 @@ public class MovieMeterPluginSession {
      * @param year The year of the movie. If no year is known, specify null
      * @return the summary result as a HashMap
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public HashMap getMovieByTitleAndYear(String movieName, String year) {
 
         HashMap result = null;
@@ -216,7 +223,7 @@ public class MovieMeterPluginSession {
      * @param year
      * @return the detailed result as a HashMap
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public HashMap getMovieDetailsByTitleAndYear(String movieName, String year) {
 
         HashMap result = null;
@@ -234,7 +241,7 @@ public class MovieMeterPluginSession {
      * @param moviemeterId
      * @return the detailed result as a HashMap
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public HashMap getMovieDetailsById(Integer moviemeterId) {
 
         HashMap result = null;
