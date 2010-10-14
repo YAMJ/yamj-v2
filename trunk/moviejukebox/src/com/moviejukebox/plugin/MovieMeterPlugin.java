@@ -60,7 +60,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean scan(Movie mediaFile) {
         logger.finest("MovieMeterPlugin: Start fetching info from moviemeter.nl for : year=" + mediaFile.getYear() + ", title=" + mediaFile.getTitle());
