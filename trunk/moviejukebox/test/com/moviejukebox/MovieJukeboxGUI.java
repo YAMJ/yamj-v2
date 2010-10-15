@@ -207,13 +207,17 @@ public class MovieJukeboxGUI implements Runnable {
 			logger.info("Movies loaded: " + jukeboxXml.movies.size());
 			oldMoviesTable.setModel(new AbstractTableModel() {
 				
-				@Override
+                private static final long serialVersionUID = 1L; // Default serial UID
+
+                @Override
 				public String getColumnName(int column) {
 					return properties.get(column);
 				}
 
 				private final List<String> properties = new ArrayList<String>()	{
-					{
+                    private static final long serialVersionUID = 1L; // Default serial UID
+
+                    {
 						add("getTitle");
 						add("getBaseFilename");
 						add("getPlot");
