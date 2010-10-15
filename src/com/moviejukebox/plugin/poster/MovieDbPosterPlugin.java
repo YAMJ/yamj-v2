@@ -26,6 +26,7 @@ import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -78,7 +79,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
-        if (id.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (!FileTools.isValidString(id)) {
             return Image.UNKNOWN;
         }
 
