@@ -29,6 +29,7 @@ import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * @author styles
@@ -80,8 +81,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
         textBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("banners.addText.season", "false"));
 
         // We need to set the proxy parameters if set.
-        tvDB.setProxy(PropertiesUtil.getProperty("mjb.ProxyHost", null), PropertiesUtil.getProperty("mjb.ProxyPort", null),
-                        PropertiesUtil.getProperty("mjb.ProxyUsername", null), PropertiesUtil.getProperty("mjb.ProxyPassword", null));
+        tvDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+
+        // Set the timeout values
+        tvDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     @Override
