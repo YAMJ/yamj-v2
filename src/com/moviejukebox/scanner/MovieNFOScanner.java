@@ -113,7 +113,7 @@ public class MovieNFOScanner {
      */
     public static void scan(Movie movie, List<File> nfoFiles) {
         for (File nfoFile : nfoFiles) {
-            logger.finest("Scanning NFO file for Infos: " + nfoFile.getName());
+            logger.finest("Scanning NFO file for IDs: " + nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirtyNFO(true);
 
@@ -327,8 +327,15 @@ public class MovieNFOScanner {
         }
     }
 
+    /**
+     * Check the NFO file for any of the XML triggers that indicate it's a XML file
+     * If found, process the NFO file as a XML NFO
+     * @param nfo
+     * @param movie
+     * @param nfoFile
+     * @return
+     */
     private static boolean parseXMLNFO(String nfo, Movie movie, File nfoFile) {
-        boolean retval = true;
         if (nfo.indexOf("<movie") > -1 && parseMovieNFO(nfoFile, movie, nfo)) {
             return true;
         } else if (nfo.indexOf("<tvshow") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
@@ -336,9 +343,8 @@ public class MovieNFOScanner {
         } else if (nfo.indexOf("<episodedetails") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
             return true;
         } else {
-            retval = false;
+            return false;
         }
-        return retval;
     }
 
     /**
