@@ -26,7 +26,7 @@ import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
-import com.moviejukebox.thetvdb.tools.WebBrowser;
+import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.PropertiesUtil;
 
 public class MovieDbPosterPlugin implements IMoviePosterPlugin {
@@ -42,10 +42,10 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         theMovieDb = new TheMovieDb(API_KEY);
         
         // Set the proxy
-        theMovieDb.setProxy(WebBrowser.getProxyHost(), WebBrowser.getProxyPort(), WebBrowser.getProxyUsername(), WebBrowser.getProxyPassword());
+        theMovieDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
         
         // Set the timeouts
-        theMovieDb.setTimeout(WebBrowser.getWebTimeoutConnect(), WebBrowser.getWebTimeoutRead());
+        theMovieDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     @Override

@@ -29,6 +29,7 @@ import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -43,6 +44,13 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     public TheTvDBPosterPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
+
+        // We need to set the proxy parameters if set.
+        tvDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+
+        // Set the timeout values
+        tvDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+
         language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage);
         language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage);
         // We do not need use the same secondary language... So clearing when equal.

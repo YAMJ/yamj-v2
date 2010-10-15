@@ -40,11 +40,11 @@ public class WebBrowser {
 
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;
-    private String mjbProxyHost;
-    private String mjbProxyPort;
-    private String mjbProxyUsername;
-    private String mjbProxyPassword;
-    private String mjbEncodedPassword;
+    private static String mjbProxyHost;
+    private static String mjbProxyPort;
+    private static String mjbProxyUsername;
+    private static String mjbProxyPassword;
+    private static String mjbEncodedPassword;
     private static int mjbTimeoutConnect = 25000;
     private static int mjbTimeoutRead = 90000;
     
@@ -349,4 +349,35 @@ public class WebBrowser {
         }
         return response;
     }
+
+    
+    public static String getMjbProxyHost() {
+        return mjbProxyHost;
+    }
+    
+
+    public static String getMjbProxyPort() {
+        return mjbProxyPort;
+    }
+    
+
+    public static String getMjbProxyUsername() {
+        return mjbProxyUsername;
+    }
+    
+
+    public static String getMjbProxyPassword() {
+        return mjbProxyPassword;
+    }
+    
+
+    public static int getMjbTimeoutConnect() {
+        return mjbTimeoutConnect;
+    }
+    
+
+    public static int getMjbTimeoutRead() {
+        return mjbTimeoutRead;
+    }
+    
 }
