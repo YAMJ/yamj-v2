@@ -100,10 +100,7 @@ public class TVRagePlugin extends ImdbPlugin {
           for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
-                    Episode episode = new Episode();
-                    if (episode == null) {
-                        episode = showInfo.getEpisode(movie.getSeason(), part);
-                    }
+                    Episode episode = showInfo.getEpisode(movie.getSeason(), part);
 
                     if (episode != null) {
                         // Set the title of the episode
