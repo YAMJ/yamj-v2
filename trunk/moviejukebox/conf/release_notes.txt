@@ -25,6 +25,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1641 HDDVDs are identified incorrectly in <videoSouce> tag in XML
   - Fixed defect #1643 No director info in XML file
   - Fixed defect #1646 IMDb NFO not being read correctly
+  - Fixed defect #1648 Problem with MovieDbPosterPlugin
 
 MovieJukebox 2.1
 ----------------
