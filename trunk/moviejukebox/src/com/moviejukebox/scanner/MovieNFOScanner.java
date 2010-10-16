@@ -804,6 +804,12 @@ public class MovieNFOScanner {
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setCompany(val);
                             }
+                        } else if (tag.equalsIgnoreCase("Country")) {
+                            // Issue 1173 - Even though it's not strictly XBMC standard
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setCountry(val);
+                            }
                         }
                     }
                 } else if (e.isEndElement()) {
@@ -952,6 +958,16 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
                                 movie.setCompany(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("company")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setCompany(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("country")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setCountry(val);
                             }
                         } else if (tag.equalsIgnoreCase("thumb")) {
                             String val = XMLHelper.getCData(r);
