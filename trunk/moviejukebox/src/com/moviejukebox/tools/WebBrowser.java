@@ -135,7 +135,15 @@ public class WebBrowser {
                 if (charset == null) {
                     charset = getCharset(cnx);
                 }
-                in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
+                
+                try {
+                    // If we fail to get the URL information we need to exit gracefully
+                    in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
+                } catch (Exception error) {
+                    logger.severe("WebBrowser: Error getting URL " + url.toString());
+                    return content.toString();
+                }
+                
                 String line;
                 while ((line = in.readLine()) != null) {
                     content.write(line);
