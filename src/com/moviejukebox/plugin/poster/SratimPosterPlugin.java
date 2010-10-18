@@ -32,11 +32,11 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
         try {
-            String xml = webBrowser.request(id);
-            posterURL = HTMLTools.extractTag(xml, "<img src=\"/movies/", 0, "\"");
+            String xml = webBrowser.request("http://sratim.co.il/album.php?mid=" + id);
+            posterURL = HTMLTools.extractTag(xml, "<a href=\"photos/normal/", 0, "\"");
 
             if (!Movie.UNKNOWN.equals(posterURL)) {
-                posterURL = "http://www.sratim.co.il/movies/" + posterURL;
+                posterURL = "http://sratim.co.il/photos/normal/" + posterURL;
             }
         } catch (Exception error) {
             logger.severe("sratim: Failed retreiving poster for movie : " + id);
