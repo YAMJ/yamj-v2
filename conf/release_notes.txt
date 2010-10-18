@@ -20,13 +20,13 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1627 ImdbPlugin - bug with plot
   - Fixed defect #1628 NFO Premiered date error
   - Fixed defect #1633 Updated Sratim plugin for new website design
+  - Fixed defect #1634 SratimPlugin - download subtitles does not work due to website redesign
   - Fixed defect #1636 TheMovieDbPlugin better handling of non-English languages and movies
   - Fixed defect #1639 CdonPosterPlugin not working after site restructure
   - Fixed defect #1641 HDDVDs are identified incorrectly in <videoSouce> tag in XML
   - Fixed defect #1643 No director info in XML file
   - Fixed defect #1646 IMDb NFO not being read correctly
   - Fixed defect #1648 Problem with MovieDbPosterPlugin
-  - Fixed defect #1634 SratimPlugin - download subtitles does not work due to website redesign
 
 MovieJukebox 2.1
 ----------------
