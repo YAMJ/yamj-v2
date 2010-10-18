@@ -36,7 +36,7 @@ import com.moviejukebox.tools.ThreadExecutor;
 
 /**
  * @author Stuart.Boston
- * @version 1.0 (20th July 2009)
+ * @version 2.0 (18th October 2010)
  */
 public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
@@ -97,6 +97,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
                 if (moviedb != null) {
                     tmdbID = moviedb.getId();
+                    // Get the full information on the film
+                    moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
                 } else {
                     logger.finer("TheMovieDbPlugin: Movie " + movie.getTitle() + yearSuffix + " not found!");
                     logger.finest("Try using a NFO file to specify the movie");
@@ -154,21 +156,17 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         // Title
         //if (overwriteCheck(moviedb.getTitle(), movie.getTitle())) {
-            movie.setTitle(moviedb.getTitle());
-            
-            // We're overwriting the title, so we should do the original name too
-            movie.setOriginalTitle(moviedb.getOriginalName());
+        movie.setTitle(moviedb.getTitle());
+        
+        // We're overwriting the title, so we should do the original name too
+        movie.setOriginalTitle(moviedb.getOriginalName());
         //}
 
         // TMDb ID
-        if (overwriteCheck(moviedb.getId(), movie.getId(TMDB_PLUGIN_ID))) {
-            movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
-        }
+        movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
 
         // IMDb ID
-        if (overwriteCheck(moviedb.getImdb(), movie.getId(IMDB_PLUGIN_ID))) {
-            movie.setId(IMDB_PLUGIN_ID, moviedb.getImdb());
-        }
+        movie.setId(IMDB_PLUGIN_ID, moviedb.getImdb());
 
         // plot
         if (overwriteCheck(moviedb.getOverview(), movie.getPlot())) {
