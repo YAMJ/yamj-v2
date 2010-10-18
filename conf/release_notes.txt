@@ -27,6 +27,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1643 No director info in XML file
   - Fixed defect #1646 IMDb NFO not being read correctly
   - Fixed defect #1648 Problem with MovieDbPosterPlugin
+  - Fixed defect #1649 TheMovieDb Plugin: Plot & Director aren't displayed
 
 MovieJukebox 2.1
 ----------------
