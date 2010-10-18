@@ -394,7 +394,7 @@ public class MediaInfoScanner {
                 if (infoValue != null) {
                     movie.setVideoCodec(infoValue);
                 } else {
-                    infoValue = infosMainVideo.get("Codec ID");
+                    infoValue = infosMainVideo.get("Codec");
                     if (infoValue != null) {
                         movie.setVideoCodec(infoValue);
                     } else {
@@ -402,7 +402,7 @@ public class MediaInfoScanner {
                         if (infoValue != null) {
                             movie.setVideoCodec(infoValue);
                         } else {
-                            infoValue = infosMainVideo.get("Codec");
+                            infoValue = infosMainVideo.get("Codec ID");
                             if (infoValue != null) {
                                 movie.setVideoCodec(infoValue);
                             }
