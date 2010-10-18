@@ -15,8 +15,11 @@ package com.moviejukebox.plugin;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 
+import java.util.List;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tvrage.TVRage;
@@ -51,34 +54,35 @@ public class TVRagePlugin extends ImdbPlugin {
     @Override
     public boolean scan(Movie movie) {
         ShowInfo showInfo = new ShowInfo();
+        List<ShowInfo> showList = null;
 
         String id = movie.getId(TVRAGE_PLUGIN_ID);
 
-        if (id == null || id.equals(TVRage.UNKNOWN)) {
+        if (!FileTools.isValidString(id)) {
             ThreadExecutor.enterIO(webhost);
             try{
                 if (!movie.getTitle().equals(TVRage.UNKNOWN)) {
-                    showInfo = tvRage.searchShow(movie.getTitle());
+                    showList = tvRage.searchShow(movie.getTitle());
                 }
                 
-                if (showInfo == null) {
-                    showInfo = tvRage.searchShow(movie.getBaseName());
+                if (showList == null || showList.isEmpty()) {
+                    showList = tvRage.searchShow(movie.getBaseName());
                 }
                 
-                if (showInfo != null) {
-                    showInfo = tvRage.searchShowInfo(showInfo, showInfo.getShowID());
+                if (showList != null && !showList.isEmpty()) {
+                    showInfo = tvRage.getShowInfo(showInfo.getShowID());
                 }
-            }finally{
+            } finally {
                 ThreadExecutor.leaveIO();
             }
             
-            if (showInfo != null) {
+            if (showInfo == null || showInfo.getShowID() == 0) {
+                logger.finer("TVRage Plugin: Show '" + movie.getTitle() + "' not found");
+                return false;
+            } else {
                 movie.setId(TVRAGE_PLUGIN_ID, id);
-
                 movie.setPlot(showInfo.getSummary());
-                
                 movie.setGenres(showInfo.getGenres());
-                
                 scanTVShowTitles(movie);
             }
             
@@ -93,11 +97,27 @@ public class TVRagePlugin extends ImdbPlugin {
             return;
         }
 
-        ThreadExecutor.enterIO(webhost);
-        try{
-          ShowInfo showInfo = tvRage.searchShowInfo(id);
-
-          for (MovieFile file : movie.getMovieFiles()) {
+        ShowInfo showInfo = null;
+        List<Episode> episodeList = null;
+        
+        try {
+            ThreadExecutor.enterIO(webhost);
+            showInfo = tvRage.getShowInfo(id);
+            
+            if (showInfo != null && showInfo.getShowID() > 0) {
+                episodeList = tvRage.getEpisodeList(Integer.toString(showInfo.getShowID()));
+            }
+            
+        } finally {
+            ThreadExecutor.leaveIO();
+        }
+        
+        if (episodeList == null) {
+            logger.finer("TVRage Plugin: Episodes not found for '" + movie.getTitle() + "'");
+            return;
+        }
+        
+        for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
                     Episode episode = showInfo.getEpisode(movie.getSeason(), part);
@@ -136,9 +156,6 @@ public class TVRagePlugin extends ImdbPlugin {
                     }
                 }
             }
-          }
-        }finally{
-            ThreadExecutor.leaveIO();
         }
     }
 
