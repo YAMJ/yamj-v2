@@ -55,6 +55,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class SratimPlugin extends ImdbPlugin {
 
     public static String SRATIM_PLUGIN_ID = "sratim";
+    public static String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
 
     private static AbstractStringMetric metric = new MongeElkan();
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -116,7 +117,6 @@ public class SratimPlugin extends ImdbPlugin {
             translateGenres(mediaFile);
 
             sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
-            mediaFile.setId(SRATIM_PLUGIN_ID, sratimUrl);
         }
 
         if (!sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -132,14 +132,7 @@ public class SratimPlugin extends ImdbPlugin {
     public String getSratimUrl(Movie mediaFile, String movieName, String year) {
 
         try {
-            String imdbId = mediaFile == null ? null : mediaFile.getId(IMDB_PLUGIN_ID);
-            if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-                imdbId = imdbInfo.getImdbId(movieName, year);
-                if (mediaFile != null) {
-                    mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
-                }
-            }
-
+            String imdbId = updateImdbId(mediaFile);
             if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
                 return Movie.UNKNOWN;
             }
@@ -148,13 +141,26 @@ public class SratimPlugin extends ImdbPlugin {
 
             String xml = webBrowser.request("http://www.sratim.co.il/browse.php?q=imdb%3A" + imdbId, Charset.forName("UTF-8"));
 
-            String detailsUrl = HTMLTools.extractTag(xml, "<div style=\"\"><a href=\"", 0, "\"");
+            String detailsUrl = HTMLTools.extractTag(xml, "<a href=\"view.php?", 0, "\"");
+            String subtitlesID = HTMLTools.extractTag(xml, "<a href=\"subtitles.php?", 0, "\"");
 
             if (detailsUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
                 return Movie.UNKNOWN;
             }
 
-            sratimUrl = "http://www.sratim.co.il/" + detailsUrl;
+            //update movie ids
+            int id = detailsUrl.lastIndexOf("id=");
+            if(id>-1 && detailsUrl.length()>id) {
+                String movieId = detailsUrl.substring(id+3);
+                mediaFile.setId(SRATIM_PLUGIN_ID, movieId);
+            }
+            int subid = subtitlesID.lastIndexOf("mid=");
+            if(subid>-1 && subtitlesID.length()>subid) {
+                String subtitle = subtitlesID.substring(subid+4);
+                mediaFile.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
+            }
+
+            sratimUrl = "http://www.sratim.co.il/view.php?" + detailsUrl;
 
             return sratimUrl;
 
@@ -607,7 +613,7 @@ public class SratimPlugin extends ImdbPlugin {
     protected boolean updateMediaInfo(Movie movie) {
         try {
 
-            String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);
+            String sratimUrl = "http://www.sratim.co.il/view.php?id=" + movie.getId(SRATIM_PLUGIN_ID);
 
             String xml = webBrowser.request(sratimUrl, Charset.forName("UTF-8"));
 
@@ -664,7 +670,7 @@ public class SratimPlugin extends ImdbPlugin {
                 updateTVShowInfo(movie, xml);
             } else {
                 // Download subtitle from the page
-                downloadSubtitle(movie, movie.getFirstFile(), xml);
+                downloadSubtitle(movie, movie.getFirstFile());
             }
 
         } catch (Exception error) {
@@ -708,8 +714,8 @@ public class SratimPlugin extends ImdbPlugin {
         
         try {
             if (mainXML == null) {
-                String sratimUrl = movie.getId(SRATIM_PLUGIN_ID);           	
-            	mainXML = webBrowser.request(sratimUrl, Charset.forName("UTF-8"));
+                String sratimId = movie.getId(SRATIM_PLUGIN_ID);
+            	mainXML = webBrowser.request("http://www.sratim.co.il/view.php?id=" + sratimId, Charset.forName("UTF-8"));
             }
 
             int season = movie.getSeason();
@@ -888,7 +894,11 @@ public class SratimPlugin extends ImdbPlugin {
                             }
 
                             // Download subtitles
-                            downloadSubtitle(movie, file, xml);
+                            // store the subtitles id in the movie ids map, make sure to remove the prefix "1" from the id
+                            int findId = scanUrl.indexOf("id=");
+                            String subId = scanUrl.substring(findId + 4);
+                            movie.setId(SRATIM_PLUGIN_SUBTITLE_ID, subId);
+                            downloadSubtitle(movie, file);
 
                         } catch (Exception error) {
                             logger.severe("Sratim Plugin: Error - " + error.getMessage());
@@ -911,10 +921,9 @@ public class SratimPlugin extends ImdbPlugin {
         scanTVShowTitles(movie, mainXML);
     }
 
-    public void downloadSubtitle(Movie movie, MovieFile mf, String mainXML) {
-//TODO: Fix the subtitle download for the new site as well
-    	
-        if (subtitleDownload == false) {
+    public void downloadSubtitle(Movie movie, MovieFile mf) throws IOException {
+
+        if ( !subtitleDownload ) {
             mf.setSubtitlesExchange(true);
             return;
         }
@@ -961,6 +970,11 @@ public class SratimPlugin extends ImdbPlugin {
         String bestFileID = "";
         String bestSimilar = "";
 
+        //retrieve subtitles page
+
+        String subID = movie.getId(SRATIM_PLUGIN_SUBTITLE_ID);
+        String mainXML = webBrowser.request("http://www.sratim.co.il/subtitles.php?mid=" + subID, Charset.forName("UTF-8"));
+
         int index = 0;
         int endIndex = 0;
 
@@ -968,12 +982,12 @@ public class SratimPlugin extends ImdbPlugin {
         int endHebrewSubsIndex = findEndOfHebrewSubtitlesSection(mainXML);
 
         // Check that hebrew subtitle exist
-        String hebrewSub = HTMLTools.getTextAfterElem(mainXML, "<img src=\"/images/flags/Hebrew.gif\" alt=\"");
+        String hebrewSub = HTMLTools.getTextAfterElem(mainXML, "<img src=\"images/Flags/1.png");
 
         logger.finest("Sratim Plugin: hebrewSub: " + hebrewSub);
 
         // Check that there is no 0 hebrew sub
-        if (Movie.UNKNOWN.equals(hebrewSub) || hebrewSub.startsWith("0 ")) {
+        if (Movie.UNKNOWN.equals(hebrewSub)) {
             logger.finest("Sratim Plugin: No Hebrew subtitles");
             return;
         }
@@ -982,12 +996,16 @@ public class SratimPlugin extends ImdbPlugin {
         float matchThreshold = Float.parseFloat(PropertiesUtil.getProperty("sratim.textMatchSimilarity", "0.8"));
 
         while (index < endHebrewSubsIndex) {
-            index = mainXML.indexOf("<a href=\"/movies/subtitles/download.aspx?", index);
+
+            //
+            // scanID
+            //
+            index = mainXML.indexOf("href=\"downloadsubtitle.php?id=", index);
             if (index == -1) {
                 break;
             }
 
-            index += 41;
+            index += 30;
 
             endIndex = mainXML.indexOf("\"", index);
             if (endIndex == -1) {
@@ -996,26 +1014,15 @@ public class SratimPlugin extends ImdbPlugin {
 
             String scanID = mainXML.substring(index, endIndex);
 
-            index = mainXML.indexOf("<br />", index);
+            //
+            // scanDiscs
+            //
+            index = mainXML.indexOf("src=\"images/cds/cd", index);
             if (index == -1) {
                 break;
             }
 
-            index += 6;
-
-            endIndex = mainXML.indexOf(" ", index);
-            if (endIndex == -1) {
-                break;
-            }
-
-            String scanCount = removeChar(mainXML.substring(index, endIndex), ',');
-
-            index = mainXML.indexOf("<img src=\"/images/discs_", index);
-            if (index == -1) {
-                break;
-            }
-
-            index += 24;
+            index += 18;
 
             endIndex = mainXML.indexOf(".", index);
             if (endIndex == -1) {
@@ -1024,26 +1031,15 @@ public class SratimPlugin extends ImdbPlugin {
 
             String scanDiscs = mainXML.substring(index, endIndex);
 
-            index = mainXML.indexOf("> (", index);
+            //
+            // scanFileName
+            //
+            index = mainXML.indexOf("subtitle_title\" style=\"direction:ltr;\" title=\"", index);
             if (index == -1) {
                 break;
             }
 
-            index += 3;
-
-            endIndex = mainXML.indexOf(")", index);
-            if (endIndex == -1) {
-                break;
-            }
-
-            String scanFormat = mainXML.substring(index, endIndex);
-
-            index = mainXML.indexOf("direction:ltr;text-align:left\" title=\"", index);
-            if (index == -1) {
-                break;
-            }
-
-            index += 38;
+            index += 46;
 
             endIndex = mainXML.indexOf("\"", index);
             if (endIndex == -1) {
@@ -1052,9 +1048,29 @@ public class SratimPlugin extends ImdbPlugin {
 
             String scanFileName = mainXML.substring(index, endIndex).toUpperCase().replace('.', ' ');
             // removing all characters causing metric to hang.
-            scanFileName=scanFileName.replaceAll("-|\u00A0"," ").replaceAll(" ++"," ");
+            scanFileName = scanFileName.replaceAll("-|\u00A0"," ").replaceAll(" ++"," ");
 
-            index = mainXML.indexOf("</b> ", index);
+            //
+            // scanFormat
+            //
+            index = mainXML.indexOf("\u05e4\u05d5\u05e8\u05de\u05d8", index); //the hebrew letters for the word "format"
+            if (index == -1) {
+                break;
+            }
+
+            index += 6;
+
+            endIndex = mainXML.indexOf(",", index);
+            if (endIndex == -1) {
+                break;
+            }
+
+            String scanFormat = mainXML.substring(index, endIndex);
+
+            //
+            // scanFPS
+            //
+            index = mainXML.indexOf("\u05dc\u05e9\u05e0\u0027\u003a", index); //the hebrew letters for the word "for sec':"    lamed shin nun ' :
             if (index == -1) {
                 break;
             }
@@ -1067,6 +1083,23 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             String scanFPS = mainXML.substring(index, endIndex);
+
+            //
+            //scanCount
+            //
+            index = mainXML.indexOf("subt_date\"><span class=\"smGray\">", index);
+            if (index == -1) {
+                break;
+            }
+
+            index += 32;
+
+            endIndex = mainXML.indexOf(" ", index);
+            if (endIndex == -1) {
+                break;
+            }
+
+            String scanCount = mainXML.substring(index, endIndex);
 
             // Check for best text similarity
             float result = metric.getSimilarity(basename, scanFileName);
@@ -1172,7 +1205,7 @@ public class SratimPlugin extends ImdbPlugin {
         // reconstruct movie filename with full path
         String orgName = mf.getFile().getAbsolutePath();
         File subtitleFile = new File(orgName.substring(0, orgName.lastIndexOf(".")));
-        if (!downloadSubtitleZip(movie, "http://www.sratim.co.il/movies/subtitles/download.aspx?" + bestID, subtitleFile)) {
+        if (!downloadSubtitleZip(movie, "http://www.sratim.co.il/downloadsubtitle.php?id=" + bestID, subtitleFile)) {
             logger.severe("Sratim Plugin: Error - Subtitle download failed");
             return;
         }
@@ -1198,7 +1231,7 @@ public class SratimPlugin extends ImdbPlugin {
             logger.finest("Sratim Plugin: contentType:" + contentType);
 
             // Check that the content iz zip and that the site did not blocked the download
-            if (!contentType.equals("application/x-zip-compressed")) {
+            if (!contentType.equals("application/octet-stream")) {
                 logger.severe("Sratim Plugin: ********** Error - Sratim subtitle download limit may have been reached. Suspending subtitle download.");
 
                 subtitleDownload = false;
@@ -1272,17 +1305,24 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     public void loadSratimCookie() {
-//TODO: Fix the subtitle download for the new site as well
-    	
+
+        //TODO: Fix the login process, by capturing the captcha image and saving it
+        // we need to catch the captcha image ans save it, until then,
+        // the limitation is to manually login by a browser,
+        // get the cookie value (the PHPSESSID value) and manually save it to the "sratim.session" file
+        // for example the content of the sratim.session file should be: PHPSESSID=a3b0ed6dc98723e10407cd100ab92d18
+        // for now, most of the code is commented out !!
+
         // Check if we already logged in and got the correct cookie
         if (!cookieHeader.equals("")) {
             return;
         }
 
+        /*
         // Check if cookie file exist
         try {
-            FileReader cookieFile = new FileReader("sratim.cookie");
-            BufferedReader in = new BufferedReader(cookieFile);
+            File cookieFile = new File("sratim.cookie");
+            BufferedReader in = new BufferedReader(new FileReader(cookieFile));
             cookieHeader = in.readLine();
             in.close();
         } catch (Exception error) {
@@ -1323,6 +1363,7 @@ public class SratimPlugin extends ImdbPlugin {
             File dcookieFile = new File("sratim.cookie");
             dcookieFile.delete();
         }
+        */
 
         // Check if session file exist
         try {
@@ -1330,10 +1371,14 @@ public class SratimPlugin extends ImdbPlugin {
             BufferedReader in = new BufferedReader(sessionFile);
             cookieHeader = in.readLine();
             in.close();
+            logger.finer("found session cookie for sratim.co.il");
         } catch (Exception error) {
-            // Ignored
+            logger.severe("In order to download subtitles you need to login to sratim.co.il with a browser and get the " +
+                    "cookie value (PHPSESSID value) and save into the file \"sratim.session\". you can do that by using firefox, " +
+                    "after logging in to sratim.co.il, type this in the address bar: javascript:alert(document.cookie) and click enter.");
         }
 
+        /* removed for now
         // Check if we don't have the verification code yet
         if (!cookieHeader.equals("")) {
             try {
@@ -1345,7 +1390,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 logger.finest("Sratim Plugin: post: " + post);
 
-                URL url = new URL("http://www.sratim.co.il/users/login.aspx");
+                URL url = new URL("http://www.sratim.co.il/login.php");
                 HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -1479,6 +1524,7 @@ public class SratimPlugin extends ImdbPlugin {
             logger.severe("Sratim Plugin: Error - " + error.getMessage());
             return;
         }
+        */
 
     }
 
@@ -1515,16 +1561,10 @@ public class SratimPlugin extends ImdbPlugin {
         int result = mainXML.length();
         boolean onlyHeb = Boolean.parseBoolean(PropertiesUtil.getProperty("sratim.downloadOnlyHebrew", "false"));
         if (onlyHeb) {
-            String pattern = "id=\"(Subtitles_[0-9][0-9]?)\"";
-            Pattern p = Pattern.compile(pattern);
-            Matcher m = p.matcher(mainXML);
-            while (m.find()) {
-                String g = m.group(1);
-                if (g.endsWith("_1")) {
-                    // hebrew subtitles has id 'Subtitles_1'
-                    result = m.start();
-                    break;
-                }
+            String pattern = "images/Flags/2.png";
+            int nonHeb = mainXML.indexOf(pattern);
+            if(nonHeb == -1) {
+                result = mainXML.length();
             }
         }
         return result;
