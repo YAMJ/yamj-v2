@@ -14,6 +14,7 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -53,6 +54,9 @@ import com.moviejukebox.tools.PropertiesUtil;
  */
 @XmlType
 public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovieBasicInformation {
+    public static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
+    public static final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
+    
     // Preparing to JAXB
 
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -1009,6 +1013,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (!releaseDate.equalsIgnoreCase(this.releaseDate)) {
             this.isDirty = true;
             this.releaseDate = releaseDate;
+        }
+    }
+    
+    public void setReleaseDate(Date releaseDate) {
+        try {
+            setReleaseDate(dateFormat.format(releaseDate));
+        } catch (Exception ignore) {
+            logger.finest("Error setting release date for " + title);
         }
     }
 

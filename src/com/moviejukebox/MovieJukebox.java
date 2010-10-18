@@ -1558,12 +1558,22 @@ public class MovieJukebox {
                     fin = oldsrc;
                 }
 
-                BufferedImage bi = GraphicTools.loadJPEGImage(fin);
+                BufferedImage bi = null;
+                try {
+                    bi = GraphicTools.loadJPEGImage(fin);
+                } catch (Exception error) {
+                    logger.warning("Error reading the thumbnail file: " + fin.getAbsolutePath());
+                }
+                
                 if (bi == null) {
                     logger.info("Using dummy thumbnail image for " + movie.getOriginalTitle());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), 
                                        new File(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename));
-                    bi = GraphicTools.loadJPEGImage(src);
+                    try {
+                        bi = GraphicTools.loadJPEGImage(src);
+                    } catch (Exception error) {
+                        logger.warning("Error reading the dummy image file: " + src.getAbsolutePath());
+                    }
                 }
 
                 // Perspective code.
@@ -1645,7 +1655,12 @@ public class MovieJukebox {
                     fin = oldsrc;
                 }
 
-                BufferedImage bi = GraphicTools.loadJPEGImage(fin);
+                BufferedImage bi = null;
+                try {
+                    bi = GraphicTools.loadJPEGImage(fin);
+                } catch (Exception error) {
+                    logger.warning("Error reading the poster file: " + fin.getAbsolutePath());
+                }
 
                 if (bi == null) {
                     logger.info("Using dummy poster image for " + movie.getOriginalTitle());

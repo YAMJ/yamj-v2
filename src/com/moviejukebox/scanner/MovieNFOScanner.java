@@ -61,7 +61,6 @@ public class MovieNFOScanner {
     private static Logger logger = Logger.getLogger("moviejukebox");
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
-    private static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static String fanartToken;
     private static String forceNFOEncoding;
     private static String NFOdirectory;
@@ -438,7 +437,7 @@ public class MovieNFOScanner {
                                     
                                     DateTime dateTime = new DateTime(val);
 
-                                    movie.setReleaseDate(dateTime.toString(dateFormatString));
+                                    movie.setReleaseDate(dateTime.toString(Movie.dateFormatString));
                                     movie.setOverrideYear(true);
                                     movie.setYear(dateTime.toString("yyyy"));
                                 } catch (Exception error) {
@@ -946,7 +945,7 @@ public class MovieNFOScanner {
                                 try {
                                     DateTime dateTime = new DateTime(val);
 
-                                    movie.setReleaseDate(dateTime.toString(dateFormatString));
+                                    movie.setReleaseDate(dateTime.toString(Movie.dateFormatString));
                                     movie.setOverrideYear(true);
                                     movie.setYear(dateTime.toString("yyyy"));
                                 } catch (Exception ignore) {
