@@ -25,6 +25,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1639 CdonPosterPlugin not working after site restructure
   - Fixed defect #1641 HDDVDs are identified incorrectly in <videoSouce> tag in XML
   - Fixed defect #1643 No director info in XML file
+  - Fixes defect #1645 Mediainfo not scraping codec info for .m2ts files but ok with .mkv files 
   - Fixed defect #1646 IMDb NFO not being read correctly
   - Fixed defect #1648 Problem with MovieDbPosterPlugin
   - Fixed defect #1649 TheMovieDb Plugin: Plot & Director aren't displayed
