@@ -30,6 +30,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1646 IMDb NFO not being read correctly
   - Fixed defect #1648 Problem with MovieDbPosterPlugin
   - Fixed defect #1649 TheMovieDb Plugin: Plot & Director aren't displayed
+  - Fixed defect #1652 File dates are not updated correctly when scanning files
 
 MovieJukebox 2.1
 ----------------
