@@ -14,14 +14,10 @@
 package com.moviejukebox.plugin;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -33,8 +29,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -70,7 +64,9 @@ public class SratimPlugin extends ImdbPlugin {
 
     private static boolean subtitleDownload = false;
     private static String login = "";
+    @SuppressWarnings("unused")
     private static String pass = "";
+    @SuppressWarnings("unused")
     private static String code = "";
 
     protected int plotLineMaxChar;
@@ -691,7 +687,6 @@ public class SratimPlugin extends ImdbPlugin {
         }
     }
 
-    @SuppressWarnings("unused")
     private String updateImdbId(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {

@@ -47,6 +47,7 @@ import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.XMLHelper;
 
 /**
@@ -273,7 +274,7 @@ public class MovieNFOScanner {
                  if (!path.isEmpty()) {
                      // Path is not the root
                      if (!path.endsWith(File.separator)) {
-                         checkNFO(nfos, FileTools.appendToPath(path, currentDir.getName()));
+                         checkNFO(nfos, StringTools.appendToPath(path, currentDir.getName()));
                      }
                  }
              }

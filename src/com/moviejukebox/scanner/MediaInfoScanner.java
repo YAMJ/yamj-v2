@@ -35,6 +35,7 @@ import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.XMLHelper;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
@@ -609,7 +610,7 @@ public class MediaInfoScanner {
             }
 
             // Make sure we have a codec & language before continuing
-            if (FileTools.isValidString(infoFormat) && FileTools.isValidString(infoLanguage)) { 
+            if (StringTools.isValidString(infoFormat) && StringTools.isValidString(infoLanguage)) { 
                 if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE") || infoFormat.equals("PGS")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
                     if (oldInfo.equalsIgnoreCase(Movie.UNKNOWN) || oldInfo.equalsIgnoreCase("NO")) {

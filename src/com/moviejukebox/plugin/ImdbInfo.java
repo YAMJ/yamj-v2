@@ -23,9 +23,9 @@ import java.util.regex.Pattern;
 
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbInfo {
@@ -219,8 +219,8 @@ public class ImdbInfo {
             
             String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>" , "</b>").toLowerCase();
             String formattedMovieName;
-            if (FileTools.isValidString(otherMovieName)) {
-                if (FileTools.isValidString(year) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
+            if (StringTools.isValidString(otherMovieName)) {
+                if (StringTools.isValidString(year) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
                     otherMovieName = otherMovieName.substring(0,otherMovieName.lastIndexOf("(")-1);
                     formattedMovieName = otherMovieName + "</a> (" + year + ")";
                 } else {

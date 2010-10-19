@@ -10,7 +10,6 @@
  *      For any reuse or distribution, you must make clear to others the 
  *      license terms of this work.  
  */
-
 package com.moviejukebox.tools;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
@@ -793,35 +792,4 @@ public class FileTools {
     
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
  
-    /**
-     * Check the string passed to see if it contains a value.
-     * @param testString The string to test
-     * @return False if the string is empty, null or UNKNOWN, True otherwise
-     */
-    public static boolean isValidString(String testString) {
-        if (testString == null) {
-            return false;
-        }
-        
-        if (testString.equalsIgnoreCase(Movie.UNKNOWN)) {
-            return false;
-        }
-        
-        if (testString.trim().equals("")) {
-            return false;
-        }
-        
-        return true;
-    }
-
-    /**
-     * Append a string to the end of a path ensuring that there are the correct number of File.separators
-     * @param basePath
-     * @param additionalPath
-     * @return
-     */
-    public static String appendToPath(String basePath, String additionalPath) {
-        return (basePath.trim() + (basePath.trim().endsWith(File.separator)?"":File.separator) + additionalPath.trim());
-    }
-    
 }

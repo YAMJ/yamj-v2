@@ -37,6 +37,7 @@ import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Scanner for fanart files in local directory
@@ -231,9 +232,9 @@ public class FanartScanner {
         imdbID = movie.getId("imdb");
         tmdbID = movie.getId("themoviedb");
 
-        if (FileTools.isValidString(tmdbID)) {
+        if (StringTools.isValidString(tmdbID)) {
             moviedb = TMDb.moviedbGetInfo(tmdbID, language);
-        } else if (FileTools.isValidString(imdbID)) {
+        } else if (StringTools.isValidString(imdbID)) {
             // The ImdbLookup contains images
             moviedb = TMDb.moviedbImdbLookup(imdbID, language);
         } else {

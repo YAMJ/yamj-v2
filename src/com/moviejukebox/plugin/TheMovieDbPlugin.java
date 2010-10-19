@@ -28,10 +28,10 @@ import com.moviejukebox.themoviedb.model.Country;
 import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.themoviedb.model.Person;
 import com.moviejukebox.themoviedb.model.Studio;
-import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 
 
 /**
@@ -76,19 +76,19 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         ThreadExecutor.enterIO(webhost);
         try {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
-            if (FileTools.isValidString(tmdbID)) {
+            if (StringTools.isValidString(tmdbID)) {
                 // Search based on TMdb ID
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
-            } else if (FileTools.isValidString(imdbID)) {
+            } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
                 moviedb = TMDb.moviedbImdbLookup(imdbID, language);
                 tmdbID = moviedb.getId();
-                if (!FileTools.isValidString(tmdbID)) {
+                if (!StringTools.isValidString(tmdbID)) {
                     logger.finer("TheMovieDbPlugin: No TMDb ID found for movie!");
                 }
             } else {
                 String yearSuffix = "";
-                if (FileTools.isValidString(movie.getYear())) {
+                if (StringTools.isValidString(movie.getYear())) {
                     yearSuffix = " " + movie.getYear();
                 }
                 
@@ -110,22 +110,22 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         }
 
         if (moviedb != null) {
-            if (FileTools.isValidString(moviedb.getId())) {
+            if (StringTools.isValidString(moviedb.getId())) {
                 movie.setMovieType(Movie.TYPE_MOVIE);
             }
     
-            if (FileTools.isValidString(moviedb.getTitle())) {
+            if (StringTools.isValidString(moviedb.getTitle())) {
                 copyMovieInfo(moviedb, movie);
                 retval = true;
             }
             
             // Update TheMovieDb Id if needed
-            if (!FileTools.isValidString(movie.getId(TMDB_PLUGIN_ID))) {
+            if (!StringTools.isValidString(movie.getId(TMDB_PLUGIN_ID))) {
                 movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
             }
             
             // Update IMDb Id if needed
-            if (!FileTools.isValidString(movie.getId(IMDB_PLUGIN_ID))) {
+            if (!StringTools.isValidString(movie.getId(IMDB_PLUGIN_ID))) {
                 movie.setId(IMDB_PLUGIN_ID, moviedb.getImdb());
             }
         }
@@ -133,7 +133,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
-        if (downloadFanart && !FileTools.isValidString(movie.getFanartURL())) {
+        if (downloadFanart && !StringTools.isValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
@@ -297,9 +297,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      */
     private boolean overwriteCheck(String sourceString, String targetString) {
         // false if the source is null or UNKNOWN
-        if (FileTools.isValidString(sourceString)) {
+        if (StringTools.isValidString(sourceString)) {
             // sourceString is valid, check target string IS null OR UNKNOWN
-            if (!FileTools.isValidString(targetString) || targetString.equals("-1")) {
+            if (!StringTools.isValidString(targetString) || targetString.equals("-1")) {
                 return true;
             } else {
                 return false;

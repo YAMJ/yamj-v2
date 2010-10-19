@@ -20,8 +20,8 @@ import java.util.StringTokenizer;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tvrage.TVRage;
 import com.moviejukebox.tvrage.model.CountryDetail;
@@ -64,7 +64,7 @@ public class TVRagePlugin extends ImdbPlugin {
         int tvrageID = 0;
         
         try {
-            if (FileTools.isValidString(id)) {
+            if (StringTools.isValidString(id)) {
                 tvrageID = Integer.parseInt(id); 
             }
         } catch (Exception ignore) {
@@ -81,13 +81,13 @@ public class TVRagePlugin extends ImdbPlugin {
             }
             
             // Try using the vanity ID
-            if (!showInfo.isValid() && (tvrageID == 0 && FileTools.isValidString(id))) {
+            if (!showInfo.isValid() && (tvrageID == 0 && StringTools.isValidString(id))) {
                 logger.finest("TVRagePlugin: Searching using Vanity URL '" + id + "'");
                 showList = tvRage.searchShow(id);
             }
 
             // Try using the title
-            if ((showList == null || showList.isEmpty()) && (FileTools.isValidString(movie.getTitle()))) {
+            if ((showList == null || showList.isEmpty()) && (StringTools.isValidString(movie.getTitle()))) {
                 logger.finest("TVRagePlugin: Searching using title '" + movie.getTitle() + "'");
                 showList = tvRage.searchShow(movie.getTitle());
             }
@@ -203,7 +203,7 @@ public class TVRagePlugin extends ImdbPlugin {
                         if (includeEpisodePlots) {
                             if (file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 String episodePlot = episode.getSummary();
-                                if (FileTools.isValidString(episodePlot)) {
+                                if (StringTools.isValidString(episodePlot)) {
                                     if (episodePlot.length() > preferredPlotLength) {
                                         episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
                                     }
@@ -215,7 +215,7 @@ public class TVRagePlugin extends ImdbPlugin {
                         if (includeVideoImages) {
                             if (file.getVideoImageFilename(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 String episodeImage = episode.getScreenCap();
-                                if (FileTools.isValidString(episodeImage)) {
+                                if (StringTools.isValidString(episodeImage)) {
                                     file.setVideoImageURL(part, episodeImage);
                                 }
                             }
