@@ -303,10 +303,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param library
      */
     public void generate(Jukebox jukebox, Library library) {
-        String tempJukeboxRoot = jukebox.getJukeboxTempLocation();
-        String jukeboxRoot = jukebox.getJukeboxRootLocation();
-        
-        initialize(jukeboxRoot);
+        initialize(jukebox);
         String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
         initFields(fields);
         mDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.delimiter", ",");
@@ -322,7 +319,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         }
 
         String filename = baseFilename + ".csv";
-        File csvFile = new File(tempJukeboxRoot, filename);
+        File csvFile = new File(jukebox.getJukeboxTempLocation(), filename);
 
         ArrayList<String> alTypes = getSelectedTypes();
         try {
