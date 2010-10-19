@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * 
@@ -311,9 +312,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             plot = xml.substring(firstindex, lastindex);
             plot = plot.replaceAll("<br />", " ");
 
-            if (plot.length() > preferredPlotLength) {
-                plot = plot.substring(0, preferredPlotLength - 3) + "...";
-            }
+            plot = StringTools.trimToLength(plot, preferredPlotLength, true, "...");
 
         } catch (Exception error) {
             plot = Movie.UNKNOWN;

@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se Modified from imdb plugin and Kinopoisk plugin written by Yury Sidorov.
@@ -267,16 +268,11 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         //strip remaining html tags
         plot = HTMLTools.stripTags(plot);
         if (!plot.equals(Movie.UNKNOWN)) {
-            if (plot.length() > preferredPlotLength) {
-                plot = plot.substring(0, preferredPlotLength - 3) + "...";
-            }
+            plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
             movie.setPlot(plot);
             //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
             int preferredOutlineLength = 300;
-            if (preferredPlotLength > preferredOutlineLength && plot.length() > preferredOutlineLength) {
-            	int outlineLength = (plot.length() > preferredOutlineLength) ? preferredOutlineLength-3 : plot.length()-3; 
-            	plot = plot.substring(0, outlineLength) + "...";
-            }
+            plot = StringTools.trimToLength(plot, preferredOutlineLength, true, plotEnding);
             movie.setOutline(plot);
         }
         else {

@@ -408,10 +408,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 String rawPlot = xml.substring(beginIndex + 7, endIndex - 1).trim();
                 String plot = HTMLTools.stripTags(rawPlot).trim();
                 
-                if (plot.length() > preferredPlotLength) {
-                    plot = plot.substring(0, Math.min(plot.length(), preferredPlotLength - 3)) + "...";
-                }
-                
+                plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(plot);
             }
 

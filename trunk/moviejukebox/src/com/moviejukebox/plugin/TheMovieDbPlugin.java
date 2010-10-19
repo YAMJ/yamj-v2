@@ -171,9 +171,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // plot
         if (overwriteCheck(moviedb.getOverview(), movie.getPlot())) {
             String plot = moviedb.getOverview();
-            if (plot.length() > preferredPlotLength) {
-                plot = plot.substring(0, Math.min(plot.length(), preferredPlotLength - 3)) + "...";
-            }
+            plot = StringTools.trimToLength(plot, preferredPlotLength, true, "...");
             movie.setPlot(plot);
             movie.setOutline(plot);
         }
