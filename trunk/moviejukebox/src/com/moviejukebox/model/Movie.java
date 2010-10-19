@@ -1520,7 +1520,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setFileDate(Date fileDate) {
-        if (fileDate.after(this.fileDate)) {
+        if (this.fileDate == null) {
+            this.fileDate = fileDate;
+        } else if (fileDate.after(this.fileDate)) {
             this.fileDate = fileDate;
         }
     }
