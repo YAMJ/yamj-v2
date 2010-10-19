@@ -38,8 +38,8 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * User: nmn Date: Aug 15, 2010
@@ -203,11 +203,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "SubTitles?")) {
                 sb.append(prep(movie.getSubtitles()));
             } else if (checkHeaderField(header, "Poster?")) {
-                sb.append(prep("" + (FileTools.isValidString(movie.getPosterFilename()) ? "True" : "False")));
+                sb.append(prep("" + (StringTools.isValidString(movie.getPosterFilename()) ? "True" : "False")));
             } else if (checkHeaderField(header, "Poster Filename")) {
                 sb.append(prep(movie.getPosterFilename()));
             } else if (checkHeaderField(header, "Fanart?")) {
-                sb.append(prep("" + (FileTools.isValidString(movie.getFanartFilename()) ? "True" : "False")));
+                sb.append(prep("" + (StringTools.isValidString(movie.getFanartFilename()) ? "True" : "False")));
             } else if (checkHeaderField(header, "Fanart Filename")) {
                 sb.append(prep(movie.getFanartFilename()));
             } else if (checkHeaderField(header, "Rating #")) {
@@ -329,7 +329,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     public void generate(Jukebox jukebox, Library library) {
         initialize(jukebox);
         String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
-        if (!FileTools.isValidString(fields)) {
+        if (!StringTools.isValidString(fields)) {
             // If the "fields" is blank, populate it with the default
             fields = DEFAULT_FIELDS;
         }

@@ -87,6 +87,7 @@ import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -384,7 +385,7 @@ public class MovieJukebox {
         if (Boolean.parseBoolean(getProperty("mjb.appendLibraryToLogFile", "false"))) {
             renameFile = true;
             for (final MediaLibraryPath mediaLibrary : movieLibraryPaths) {
-                if (FileTools.isValidString(mediaLibrary.getDescription())) {
+                if (StringTools.isValidString(mediaLibrary.getDescription())) {
                     libraryName = "_" + mediaLibrary.getDescription();
                     libraryName = FileTools.makeSafeFilename(libraryName);
                     break;
@@ -1128,7 +1129,7 @@ public class MovieJukebox {
             }
 
             logger.fine("Clean up temporary files");
-            File rootIndex = new File(FileTools.appendToPath(jukebox.getJukeboxTempLocation(), index));
+            File rootIndex = new File(StringTools.appendToPath(jukebox.getJukeboxTempLocation(), index));
             rootIndex.delete();
 
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
@@ -1276,20 +1277,20 @@ public class MovieJukebox {
             MovieNFOScanner.scan(movie, nfoFiles);
 
             // Added forceXMLOverwrite for issue 366
-            if (!FileTools.isValidString(movie.getPosterURL()) || movie.isDirtyPoster()) {
+            if (!StringTools.isValidString(movie.getPosterURL()) || movie.isDirtyPoster()) {
                 PosterScanner.scan(jukebox, movie);
             }
             
             DatabasePluginController.scan(movie);
             // Issue 1323:      Posters not picked up from NFO file
             // Only search for poster if we didn't have already
-            if (!FileTools.isValidString(movie.getPosterURL())) {
+            if (!StringTools.isValidString(movie.getPosterURL())) {
                 PosterScanner.scan(movie);
             }
             
             // Check for new fanart if we need to (Issue 1563)
             if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                if (!FileTools.isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
+                if (!StringTools.isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
                     FanartScanner.scan(backgroundPlugin, jukebox, movie);
                 }
             }

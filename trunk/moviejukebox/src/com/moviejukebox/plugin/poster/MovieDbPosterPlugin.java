@@ -26,9 +26,9 @@ import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.WebBrowser;
 
 public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -79,7 +79,7 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
-        if (!FileTools.isValidString(id)) {
+        if (!StringTools.isValidString(id)) {
             return Image.UNKNOWN;
         }
 

@@ -16,8 +16,6 @@ package com.moviejukebox.plugin;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
-import org.pojava.datetime.DateTime;
-
 import net.anidb.Anime;
 import net.anidb.udp.AniDbException;
 import net.anidb.udp.UdpConnection;
@@ -26,9 +24,11 @@ import net.anidb.udp.UdpConnectionFactory;
 import net.anidb.udp.UdpReturnCodes;
 import net.anidb.udp.mask.AnimeMask;
 
+import org.pojava.datetime.DateTime;
+
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * AniDB Plugin
@@ -121,7 +121,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         Anime anime = null;
         String id = movie.getId(ANIDB_PLUGIN_ID);
         long animeId = 0;
-        if (FileTools.isValidString(id)) {
+        if (StringTools.isValidString(id)) {
             animeId = Long.parseLong(id);
         }
 

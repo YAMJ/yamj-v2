@@ -17,14 +17,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-import java.util.ArrayList;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * @author iuk
@@ -132,7 +132,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     protected String getComingSoonId(String movieName, String year) {
         String id;
         id = getComingSoonIdFromSearch("http://search.yahoo.com/search?vc=&p=", movieName, year);
-        if (!FileTools.isValidString(id)) {
+        if (!StringTools.isValidString(id)) {
             // Try a Google search
             id = getComingSoonIdFromSearch("http://www.google.com/search?hl=it&q=", movieName, year);
         }
@@ -417,7 +417,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             // GENRES
             String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE: ", "<br />"));
-            if (FileTools.isValidString(genreList)) {
+            if (StringTools.isValidString(genreList)) {
                 Collection<String> genres = new ArrayList<String>();
                 
                 StringTokenizer st = new StringTokenizer(genreList, ",");
