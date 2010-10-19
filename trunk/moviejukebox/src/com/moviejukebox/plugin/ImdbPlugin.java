@@ -69,16 +69,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
-    public boolean scan(Movie mediaFile) {
-        String imdbId = mediaFile.getId(IMDB_PLUGIN_ID);
-        if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            imdbId = imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear());
-            mediaFile.setId(IMDB_PLUGIN_ID, imdbId);
+    public boolean scan(Movie movie) {
+        String imdbId = movie.getId(IMDB_PLUGIN_ID);
+        if (!FileTools.isValidString(imdbId)) {
+            imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear());
+            movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
 
         boolean retval = true;
         if (!imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            retval = updateImdbMediaInfo(mediaFile);
+            retval = updateImdbMediaInfo(movie);
         }
         return retval;
     }
@@ -147,7 +147,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // We can work out if this is the new site by looking for " - IMDb" at the end of the title
             String title = HTMLTools.extractTag(xml, "<title>");
             title = title.replaceAll(" \\([VG|V]\\)$", ""); // Remove the (VG) or (V) tags from the title
-            title = title.replaceAll(" \\((\\d{4})(?:/[^\\)]+)?\\)", ""); // Remove the Date identifier
+
+            String yearPattern = " \\((?:TV )?(\\d{4})(?:/[^\\)]+)?\\)";
+            Pattern pattern = Pattern.compile(yearPattern);
+            Matcher matcher = pattern.matcher(title);
+            if (matcher.find()) {
+                // If we've found a year, set it in the movie
+                movie.setYear(matcher.group(1));
+                
+                // Remove the year from the title. Removes "(TV)" and "(TV YEAR)"
+                title = title.replaceAll(yearPattern, "");
+            }
             
             // Check for the new version and correct the title if found.
             if (title.toLowerCase().endsWith(" - imdb")) {
@@ -603,17 +613,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             Matcher m = getYear.matcher(xml);
             if (m.find()) {
                 String Year = m.group(1);
-                if (Year == null || Year.isEmpty()) {
+                if (!FileTools.isValidString(Year)) {
                     Year = m.group(2);
                 }
 
-                if (Year != null && !Year.isEmpty()) {
+                if (FileTools.isValidString(Year) && !FileTools.isValidString(movie.getYear())) {
                     movie.setYear(Year);
                 }
             }
         }
 
-        if (!movie.isOverrideYear() && (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN))) {
+        if (!movie.isOverrideYear() && (!FileTools.isValidString(movie.getYear()))) {
             movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1));
             if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
                 String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef2.getOriginalAirDate() + ":</h5>", 0);
