@@ -66,12 +66,26 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                 StringTokenizer st;
 
                 // Use cast token to avoid internalization trouble
-                int castIndex = imdbXML.indexOf("<h3>" + imdbInfo.getSiteDef().getCast() + "</h3>");
-                int beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
-
+                int castIndex, beginIndex ;
+                castIndex = imdbXML.indexOf("<h3>" + imdbInfo.getSiteDef().getCast() + "</h3>");
+                
+                if (castIndex > -1) {
+                    logger.fine("Cast Index1: " + castIndex);
+                    // Use the old format
+                    beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
+                    st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
+                    logger.fine("BeginIndex: " + beginIndex);
+                } else {
+                    // Try the new format
+                    castIndex = imdbXML.indexOf("<h2>" + imdbInfo.getSiteDef().getCast() + "</h2>");
+                    logger.fine("Cast Index2: " + castIndex);
+                    beginIndex = imdbXML.indexOf("href='http://ia.media-imdb.com/images");
+                    st = new StringTokenizer(imdbXML.substring(beginIndex + 6), "'");
+                    logger.fine("BeginIndex: " + beginIndex);
+                } 
+                
                 // Search the XML from IMDB for a poster
                 if ((beginIndex < castIndex) && (beginIndex != -1)) {
-                    st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
                     posterURL = st.nextToken();
                     int index = posterURL.indexOf("_SX");
                     if (index != -1) {
@@ -81,6 +95,8 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                     }
                     logger.finer("PosterScanner: Imdb found poster @: " + posterURL);
                 }
+                
+                
             }
         } catch (Exception error) {
             logger.severe("PosterScanner: Imdb Error: " + error.getMessage());
