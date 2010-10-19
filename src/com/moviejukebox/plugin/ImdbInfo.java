@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -111,7 +112,7 @@ public class ImdbInfo {
      */
     private String getImdbIdFromYahoo(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://fr.search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
+            StringBuffer sb = new StringBuffer("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -212,14 +213,14 @@ public class ImdbInfo {
             Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "title/") + "(tt\\d+)/\"");
             Matcher titlematch = titleregex.matcher(xml);
             if (titlematch.find()) {
-               // logger.finer("ImdbInfo direct found " + titlematch.group(1));
+               logger.finer("ImdbInfo: IMDb returned one match " + titlematch.group(1));
                return titlematch.group(1);
             }
             
             String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>" , "</b>").toLowerCase();
             String formattedMovieName;
-            if (!otherMovieName.equals("")) {
-                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
+            if (FileTools.isValidString(otherMovieName)) {
+                if (FileTools.isValidString(year) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
                     otherMovieName = otherMovieName.substring(0,otherMovieName.lastIndexOf("(")-1);
                     formattedMovieName = otherMovieName + "</a> (" + year + ")";
                 } else {
@@ -253,36 +254,8 @@ public class ImdbInfo {
             // If we don't have an ID try google
             logger.finer("Failed to find an exact match on IMDb, trying Google");
             return getImdbIdFromGoogle(movieName, year);
-/*            
-            // Check if first "popular title" match
-            titleregex = Pattern.compile(Pattern.quote("find-title-1/title_popular/images/b.gif?link=/title/") + "(tt\\d+)" + Pattern.quote("/';\">"+ sb));
-            titlematch = titleregex.matcher(xml);
-            logger.finer("ImdbInfo compare first \"popular title\" match " + titleregex);
-            if (titlematch.find()) {
-                logger.finer("ImdbInfo first \"popular title\" match " + titlematch.group(1));
-               return titlematch.group(1);
-            }
-            
-            // Check for an exact match in the results list, based on given name better as the "exact titles" list
-//            titleregex = Pattern.compile("title_exact/images/b.gif\\?link=/title/(tt\\d+)/';\">"+ sb);
-            titleregex = Pattern.compile(Pattern.quote("title_exact/images/b.gif?link=/title/") + "(tt\\d+)" + Pattern.quote("/';\">"+ sb));
-            // Pattern titleregex = Pattern.compile("/images/b.gif\\?link=/title/(tt\\d+)/';\">"+ movieName +"</a>");
-            titlematch = titleregex.matcher(xml);
-            logger.finer("ImdbInfo search \"exact title\" matches " + titleregex);
-            if (titlematch.find()) {
-                logger.finer("ImdbInfo \"exact title\" match " + titlematch.group(1));
-                return titlematch.group(1);
-            }
-*/
-            /*
-             * This is what the wiki says imdb.perfect.match is supposed to do, but the result doesn't make a lot of sense to me. See the discussion for issue
-             * 567. if (perfectMatch) { // Reorder the titles so that the "Exact Matches" section gets scanned first int exactStart =
-             * xml.indexOf("Titles (Exact Matches)"); if (-1 != exactStart) { int exactEnd = xml.indexOf("Titles (Partial Matches)"); if (-1 == exactEnd) {
-             * exactEnd = xml.indexOf("Titles (Approx Matches)"); } if (-1 != exactEnd) { xml = xml.substring(exactStart, exactEnd) + xml.substring(0,
-             * exactStart) + xml.substring(exactEnd); } else { xml = xml.substring(exactStart) + xml.substring(0, exactStart); } } }
-             */
 
- //           return searchForTitle(xml, movieName);
+            // return searchForTitle(xml, movieName);
         } catch (Exception error) {
             logger.severe("ImdbInfo Failed retreiving IMDb Id for movie : " + movieName);
             logger.severe("ImdbInfo Error : " + error.getMessage());
