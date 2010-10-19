@@ -30,6 +30,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class AllocinePlugin extends ImdbPlugin {
 
@@ -226,9 +227,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
                 String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Synopsis :", "</p>")).trim();
                 // logger.finest("AllocinePlugin: tmpPlot = [" + tmpPlot + "]");
-                if (tmpPlot.length() > preferredPlotLength) {
-                    tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
-                }
+                tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(tmpPlot);
                 // logger.finest("AllocinePlugin: Movie Plot = " + movie.getPlot());
             }

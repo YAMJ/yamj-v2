@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class KinopoiskPlugin extends ImdbPlugin {
 
@@ -238,9 +239,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 plot = movie.getPlot();
             }
 
-            if (plot.length() > preferredPlotLength) {
-                plot = plot.substring(0, preferredPlotLength - 3) + "...";
-            }
+            plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
             movie.setPlot(plot);
 
             // Cast

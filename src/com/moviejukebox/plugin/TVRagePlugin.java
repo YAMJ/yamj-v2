@@ -204,9 +204,7 @@ public class TVRagePlugin extends ImdbPlugin {
                             if (file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 String episodePlot = episode.getSummary();
                                 if (StringTools.isValidString(episodePlot)) {
-                                    if (episodePlot.length() > preferredPlotLength) {
-                                        episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
-                                    }
+                                    episodePlot = StringTools.trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
                                     file.setPlot(part, episodePlot);
                                 }
                             }

@@ -30,6 +30,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class FilmwebPlugin extends ImdbPlugin {
 
@@ -236,9 +237,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (Movie.UNKNOWN.equals(movie.getOutline())) {
                 String outline = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "<span class=\"filmDescrBg\">", "</span>"));
-                if (outline.length() > preferredPlotLength) {
-                    outline = outline.substring(0, Math.min(outline.length(), preferredPlotLength - 3)) + "...";
-                }
+                outline = StringTools.trimToLength(outline, preferredPlotLength, true, plotEnding);
                 movie.setOutline(outline);
             }
 

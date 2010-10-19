@@ -25,6 +25,7 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class FilmUpITPlugin extends ImdbPlugin {
 
@@ -50,9 +51,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             // limit plot to FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT char
             if (movie.getPlot().equals(Movie.UNKNOWN)) {
                 String tmpPlot = removeHtmlTags(extractTag(xml, "Trama:<br>", "</font><br>"));
-                if (tmpPlot.length() > preferredPlotLength) {
-                    tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
-                }
+                tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(tmpPlot);
             }
 

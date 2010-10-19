@@ -53,6 +53,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private int preferredPlotLength;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
+    protected static final String plotEnding = "...";
 
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
@@ -308,9 +309,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                     imdbOutline = outline.trim();
                     if (StringTools.isValidString(imdbOutline)) {
-                        if (imdbOutline.length() > preferredPlotLength) {
-                            imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
-                        }
+                        imdbOutline = StringTools.trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
                     } else {
                         // Ensure the outline isn't blank or null
                         imdbOutline = Movie.UNKNOWN;
@@ -537,9 +536,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     imdbOutline = imdbOutline.substring(beginIndex + 8);
                 }
                 
-                if (imdbOutline.length() > preferredPlotLength) {
-                    imdbOutline = imdbOutline.substring(0, Math.min(imdbOutline.length(), preferredPlotLength - 3)) + "...";
-                }
+                imdbOutline = StringTools.trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
             } else {
                 // ensure the outline is set to unknown if it's blank or null
                 imdbOutline = Movie.UNKNOWN;
@@ -561,9 +558,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             
             // Check the length of the plot is OK
             if (StringTools.isValidString(imdbPlot)) {
-                if  (imdbPlot.length() > preferredPlotLength) {
-                    imdbPlot = imdbPlot.substring(0, Math.min(imdbPlot.length(), preferredPlotLength - 3)) + "...";
-                }
+                imdbPlot = StringTools.trimToLength(imdbPlot, preferredPlotLength, true, plotEnding);
             } else {
                 // The plot might be blank or null so set it to UNKNOWN
                 imdbPlot = Movie.UNKNOWN;
@@ -832,9 +827,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             plot = Movie.UNKNOWN;
         }
 
-        if (plot.length() > preferredPlotLength) {
-            plot = plot.substring(0, Math.min(plot.length(), preferredPlotLength - 3)) + "...";
-        }
+        plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
 
         return plot;
     }

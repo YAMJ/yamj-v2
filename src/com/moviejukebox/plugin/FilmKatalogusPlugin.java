@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Film Katalogus Plugin for Hungarian language
@@ -127,9 +128,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                     String plot = Movie.UNKNOWN;
                     plot = xml.substring((beginIndex + 19), endIndex);
 
-                    if (plot.length() > maxLength) {
-                        plot = plot.substring(0, Math.min(plot.length(), maxLength - 3)) + "...";
-                    }
+                    plot = StringTools.trimToLength(plot, maxLength, true, plotEnding);
                     movie.setPlot(plot);
 
                     // movie.setPlot(xml.substring((beginIndex + 19), endIndex));
@@ -162,9 +161,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                         String plot = Movie.UNKNOWN;
                         plot = xml.substring((beginIndex + 19), endIndex);
 
-                        if (plot.length() > maxLength) {
-                            plot = plot.substring(0, Math.min(plot.length(), maxLength - 3)) + "...";
-                        }
+                        plot = StringTools.trimToLength(plot, maxLength, true, plotEnding);
                         movie.setPlot(plot);
 
                         // movie.setPlot(xml.substring((beginIndex + 19), endIndex));

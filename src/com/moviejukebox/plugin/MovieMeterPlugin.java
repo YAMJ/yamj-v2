@@ -25,6 +25,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * The MovieMeterPlugin uses the XML-RPC API of www.moviemeter.nl (http://wiki.moviemeter.nl/index.php/API).
@@ -153,9 +154,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (mediaFile.getPlot().equals(Movie.UNKNOWN)) {
                 if (filmInfo.get("plot") != null) {
                     String tmpPlot = filmInfo.get("plot").toString();
-                    if (tmpPlot.length() > preferredPlotLength) {
-                        tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
-                    }
+                    tmpPlot= StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
                     mediaFile.setPlot(tmpPlot);
                 }
             }

@@ -22,6 +22,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.poster.FilmAffinityPosterPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class FilmaffinityPlugin extends ImdbPlugin {
 
@@ -89,43 +90,9 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
                 String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|", false);
-                if (plot.length() > preferredPlotLength) {
-                    plot = plot.substring(0, preferredPlotLength - 3) + "...";
-                }
-
+                plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(plot);
             }
-
-            // Removing Poster info from plugins. Use of PosterScanner routine instead.
-
-            // Get Poster from http://www.caratulasdecine.com/
-            // if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-            // String posterURL = caraPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.isTVShow());
-            // // FallBack on FilmAffinity.
-            // if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-            // posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
-            // }
-            // logger.finest("FilmAffinity Poster: " + posterURL);
-            // movie.setPosterURL(posterURL);
-            // }
-            // if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
-            // String posterURL = caraPosterPlugin.getPosterUrl(movie.getTitle(), movie.getYear(), movie.isTVShow());
-            // // FallBack on FilmAffinity.
-            // if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-            // // If title has changed check with previous title
-            // if (!Movie.UNKNOWN.equalsIgnoreCase(previousTitle) && !movie.getTitle().equalsIgnoreCase(previousTitle)) {
-            // logger.info("Poster not found with filmaffinity title :'" + movie.getTitle() + "', searching with previous title '" + previousTitle
-            // + "'");
-            // posterURL = caraPosterPlugin.getPosterUrl(previousTitle, movie.getYear(), movie.isTVShow());
-            // }
-            // if (Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-            // logger.info("Poster not found on http://www.caratulasdecine.com/ falling back to filmaffinity");
-            // posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
-            // }
-            // }
-            // logger.finest("FilmAffinity Poster: " + posterURL);
-            // movie.setPosterURL(posterURL);
-            // }
 
         } catch (Exception error) {
             logger.severe("Failed retreiving filmaffinity data movie : " + movie.getId(IMDB_PLUGIN_ID));

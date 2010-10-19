@@ -28,6 +28,7 @@ import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -333,9 +334,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             if (includeEpisodePlots) {
                                 if (file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                     String episodePlot = episode.getOverview();
-                                    if (episodePlot.length() > preferredPlotLength) {
-                                        episodePlot = episodePlot.substring(0, Math.min(episodePlot.length(), preferredPlotLength - 3)) + "...";
-                                    }
+                                    episodePlot = StringTools.trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
                                     file.setPlot(part, episodePlot);
                                 }
                             }

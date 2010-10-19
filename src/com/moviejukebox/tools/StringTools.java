@@ -13,6 +13,7 @@
 package com.moviejukebox.tools;
 
 import java.io.File;
+import java.text.BreakIterator;
 
 import com.moviejukebox.model.Movie;
 
@@ -48,4 +49,35 @@ public class StringTools {
         return (basePath.trim() + (basePath.trim().endsWith(File.separator)?"":File.separator) + additionalPath.trim());
     }
 
+    public static String trimToLength(String sourceString, int requiredLength) {
+        return trimToLength(sourceString, requiredLength, true, "...");
+    }
+    
+    /**
+     * Check that the passed string is no longer than the required length and trim it if necessary
+     * @param sourceString      The string to check
+     * @param requiredLength    The required length (Maximum)
+     * @param trimToWord        Trim the source string to the last space to avoid partial words
+     * @param endingSuffix      The ending to append if the string is longer than the required length
+     * @return
+     */
+    public static String trimToLength(String sourceString, int requiredLength, boolean trimToWord, String endingSuffix) {
+        if (isValidString(sourceString)) {
+            if (sourceString.length() <= requiredLength) {
+                // No need to do anything
+                return sourceString;
+            } else {
+                if (trimToWord) {
+                    BreakIterator bi = BreakIterator.getWordInstance();
+                    bi.setText(sourceString);
+                    int biLength = bi.preceding(requiredLength - endingSuffix.length());
+                    return sourceString.substring(0, biLength).trim() + endingSuffix;
+                } else {
+                    // We know that the source string is longer that the required length, so trim it to size
+                    return sourceString.substring(0, requiredLength - endingSuffix.length()).trim() + endingSuffix;
+                }
+            }
+        }
+        return sourceString;
+    }
 }

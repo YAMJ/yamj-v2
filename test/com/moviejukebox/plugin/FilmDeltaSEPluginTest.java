@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class FilmDeltaSEPluginTest {
@@ -122,7 +123,8 @@ public class FilmDeltaSEPluginTest {
 		assertEquals(70, movie.getRating());
 		assertEquals("78", movie.getRuntime());
 		String    expectedPlot = "I hjärtat av Paris bor den tjusiga katten Duchesse med sina tre kattungar hos den vänliga miljonärskan Madame Bonfamille. När den girige betjänten Edgar råkar få höra att att katterna skall få ärva alla pengar, bestämmer han sig för att kidnappa dem!Han söver ner Duchess och hennes ungar, tar med sig dem långt ut på landet och överger dem där...Plötsligt dyker den coola vildkatten Thomas O'Malley upp till deras undsättning.";
-		String expectedOutline = "I hjärtat av Paris bor den tjusiga katten Duchesse med sina tre kattungar hos den vänliga miljonärskan Madame Bonfamille. När den girige betjänten Edgar råkar få höra att att katterna skall få ärva alla pengar, bestämmer han sig för att kidnappa dem!Han söver ner Duchess och hennes ungar, tar med...";
+		//String expectedOutline = "I hjärtat av Paris bor den tjusiga katten Duchesse med sina tre kattungar hos den vänliga miljonärskan Madame Bonfamille. När den girige betjänten Edgar råkar få höra att att katterna skall få ärva alla pengar, bestämmer han sig för att kidnappa dem!Han söver ner Duchess och hennes ungar, tar med...";
+		String expectedOutline = StringTools.trimToLength(expectedPlot, 300);
 		
 		assertEquals(expectedPlot, movie.getPlot());
 		assertEquals(expectedOutline, movie.getOutline());
@@ -132,7 +134,8 @@ public class FilmDeltaSEPluginTest {
 	public void testSetOutline550() {
 		movie.setTitle("Testing outlines-550chars");
 		String plot550 = "<div class=\"text\"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada. Sed quam ligula, adipiscing non euismod quis, luctus a dui. Maecenas pulvinar dui nec velit aliquam a gravida risus faucibus. Nulla sit amet arcu nisl. <br />Sed pulvinar volutpat erat id.</p>";		
-		String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";			
+		//String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";
+		String expectedOutline550 = StringTools.trimToLength("Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada. Sed quam ligula, adipiscing non euismod quis, luctus a dui. Maecenas pulvinar dui nec velit aliquam a gravida risus faucibus. Nulla sit amet arcu nisl. Sed pulvinar volutpat erat id.", 300);
 		toTest.getFilmdeltaPlot(movie, plot550);
 		assertEquals(expectedOutline550, movie.getOutline());
 	}
@@ -141,7 +144,8 @@ public class FilmDeltaSEPluginTest {
 	public void testSetOutline350() {
 		movie.setTitle("Testing outlines-350chars");
 		String plot350 = "<div class=\"text\"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada.</p>";
-		String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";
+		//String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";
+		String expectedOutline550 = StringTools.trimToLength("Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada.", 300);
 		toTest.getFilmdeltaPlot(movie, plot350);
 		//expect same result as with 550 characters cause outlines are cut at 300 chars
 		assertEquals(expectedOutline550, movie.getOutline());
