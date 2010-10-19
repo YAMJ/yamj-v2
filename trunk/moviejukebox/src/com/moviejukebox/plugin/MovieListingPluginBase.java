@@ -38,11 +38,11 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     /**
      * @param jukeboxRoot
      */
-    protected void initialize(String jukeboxRoot) {
+    protected void initialize(Jukebox jukebox) {
         groupByType = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.GroupByType", "true"));
         blankUNKNOWN = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.clear.UNKNOWN", "true"));
         baseFilename = PropertiesUtil.getProperty("mjb.listing.output.filename", "MovieJukebox-listing");
-        destination = PropertiesUtil.getProperty("mjb.listing.output.destination", jukeboxRoot);
+        destination = PropertiesUtil.getProperty("mjb.listing.output.destination", jukebox.getJukeboxRootLocation());
     } // initialize()
 
     /**
@@ -82,8 +82,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     } // copyListingFile()
 
     /**
-     * @param tempJukeboxRoot
-     * @param JukeboxRoot
+     * @param Jukebox
      * @param library
      */
     public void generate(Jukebox jukebox, Library library) {

@@ -13,6 +13,7 @@
 
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.ExtraFile;
@@ -196,13 +197,12 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      * @param jukeboxRoot
      * @param library
      */
-    public void generate(String tempJukeboxRoot, String jukeboxRoot, Library library) {
-//    logger.fine("rootPath='" + rootPath +"'");
-
-        initialize(jukeboxRoot);
+//    public void generate(String tempJukeboxRoot, String jukeboxRoot, Library library) {
+    public void generate(Jukebox jukebox, Library library) {
+        initialize(jukebox);
 
         String filename = baseFilename + ".csv";
-        File csvFile = new File(tempJukeboxRoot, filename);
+        File csvFile = new File(jukebox.getJukeboxTempLocation(), filename);
 
         ArrayList<String> alTypes = getSelectedTypes();
         try {
