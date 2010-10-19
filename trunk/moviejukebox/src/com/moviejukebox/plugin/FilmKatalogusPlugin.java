@@ -76,14 +76,20 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     @Override
     public boolean scan(Movie mediaFile) {
         boolean result;
-
+        // If Plot  is already filled from XML based NFO dont overwrite
+        if (!mediaFile.getPlot().equals(Movie.UNKNOWN)) {
+            getplot = false;
+        }
+        
         result = super.scan(mediaFile); // use IMDB as basis
         if (result == false && mediaFile.isTVShow()) {
             result = tvdb.scan(mediaFile);
         }
 
-        logger.fine("FilmKatalogusPlugin: Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
-        getHunPlot(mediaFile);
+        if (getplot || gettitle) {
+            logger.fine("FilmKatalogusPlugin: Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+            getHunPlot(mediaFile);
+        }
 
         return result;
     }
@@ -96,7 +102,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             
             if (movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
                 filmKatURL = "http://filmkatalogus.hu/kereses?keres0=1&szo0=";
-                filmKatURL = filmKatURL.concat(URLEncoder.encode(movie.getTitle(), "UTF-8"));
+                filmKatURL = filmKatURL.concat(URLEncoder.encode(movie.getTitle(), "ISO-8859-2"));
             } else {
                 filmKatURL = "http://filmkatalogus.hu/f";
                 filmKatURL = filmKatURL.concat(movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));

@@ -23,7 +23,6 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-
 public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
@@ -47,8 +46,10 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) + 1), "iso-8859-1"));
             }
             sb.append("&slow=0&tri=Titre&listes=1");
+            logger.finer("MovieCoversPosterPlugin: Searching for: " + sb.toString());
+
             String content = webBrowser.request(sb.toString());
-            // logger.finer("MovieCoversPosterPlugin: Searching for: " + sb.toString());
+            
             if (content != null) {
                 String formattedTitle = Normalizer.normalize(title.replace("\u0153", "oe").toUpperCase(), Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
                 if (formattedTitle.endsWith(" (TV)")) {
@@ -61,28 +62,28 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                         break;
                     }
                 }
-//                logger.finer("MovieCoversPosterPlugin: Looking for a poster for: " + formattedTitleNormalized);
-       // Checking for "no result" message...
+                // logger.finer("MovieCoversPosterPlugin: Looking for a poster for: " + formattedTitleNormalized);
+                // Checking for "no result" message...
                 if (!content.contains("/forum/index.html?forum=MovieCovers&vue=demande")) {
-       // There is some results
+                    // There is some results
                     for (String filmURL : HTMLTools.extractTags(content, "<TD bgcolor=\"#339900\"", "<FORM action=\"/multicrit.html\"", "<LI><A href=\"/film/titre", "</A>", false)) {
                         if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
                             returnString = HTMLTools.extractTag(filmURL, "_", ".html\">");
-//                            logger.finer("MovieCoversPosterPlugin: Seems to find something: " + returnString + " - " + filmURL);
+                            // logger.finer("MovieCoversPosterPlugin: Seems to find something: " + returnString + " - " + filmURL);
                             break;
                         }
                     }
                 }
-        // Search the forum if no answer
+                // Search the forum if no answer
                 if (returnString == Movie.UNKNOWN) {
                     sb = new StringBuffer("http://www.moviecovers.com/forum/search-mysql.html?forum=MovieCovers&query=");
                     sb.append(URLEncoder.encode(formattedTitle, "iso-8859-1"));
-//                    logger.finer("MovieCoversPosterPlugin: We have to explore the forums: " + sb);
+                    // logger.finer("MovieCoversPosterPlugin: We have to explore the forums: " + sb);
                     content = webBrowser.request(sb.toString());
                     if (content != null) {
-        // Loop through the search results
+                        // Loop through the search results
                         for (String filmURL : HTMLTools.extractTags(content, "<TABLE border=\"0\" cellpadding=\"0\" cellspacing=\"0\">", "<FORM action=\"search-mysql.html\">", "<TD><A href=\"fil.html?query=", "</A></TD>", false)) {
-//                            logger.finer("MovieCoversPosterPlugin: examining: " + filmURL);
+                            // logger.finer("MovieCoversPosterPlugin: examining: " + filmURL);
                             if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
                                 content = webBrowser.request("http://www.moviecovers.com/forum/fil.html?query=" + filmURL.substring(0,filmURL.length()-formattedTitle.length()-2));
                                 if (content != null) {
@@ -93,7 +94,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                                     if (indexFR != -1) {
                                         content = "</STRONG></B></FONT>" + content.substring(indexFR);
                                     }
-        // Search the biggest picture
+                                    // Search the biggest picture
                                     for (String poster : HTMLTools.extractTags(content, "</STRONG></B></FONT>", ">MovieCovers Team<", "<LI><A TARGET=\"affiche\" ", "Ko)", false)) {
                                         sizePoster = Integer.parseInt(HTMLTools.extractTag(poster, ".jpg\">Image .JPG</A> ("));
                                         if (sizePoster > oldSizePoster) {
@@ -129,15 +130,16 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
         try {
-        if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            logger.finer("MovieCoversPosterPlugin : Movie found on moviecovers.com" + id);
-            posterURL = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
-        } else {
-            logger.finer("MovieCoversPosterPlugin: Unable to find posters for " + id);
-        }
+            if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
+                logger.finer("MovieCoversPosterPlugin : Movie found on moviecovers.com" + id);
+                posterURL = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
+            } else {
+                logger.finer("MovieCoversPosterPlugin: Unable to find posters for " + id);
+            }
         } catch (Exception error) {
             logger.finer("MovieCoversPosterPlugin: MovieCovers.com API Error: " + error.getMessage());
         }
+        
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
         }
