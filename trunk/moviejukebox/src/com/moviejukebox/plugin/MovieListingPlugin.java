@@ -15,6 +15,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
 
 /**
  * User: JDGJr
@@ -28,7 +29,7 @@ public interface MovieListingPlugin {
   public static String typeExtra = "Extra";
   public static String typeAll = "All";
 
-  public static String UNKNOWN = "UNKNOWN";
+  public static String UNKNOWN = Movie.UNKNOWN;
 
   public void generate(Jukebox jukebox, Library library);
 

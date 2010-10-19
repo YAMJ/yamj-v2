@@ -10,6 +10,7 @@ MovieJukebox 2.2 BETA
   - Enhancement  #1560 Rescanning based on Jukebox Property changes
   - Fixed defect #1567 Download of French cover doesn't work properly
   - Fixed defect #1605 New IMDb site format breaks IMDb scanner (Updated for additional plot formats)
+  - Enhancement  #1606 New fields for MovieListingPluginCustomCsv and limits for Cast and Genres fields
   - Fixed defect #1609 Only one fanart downloaded
   - Fixed defect #1616 KinoPoisk's plugin has problems when filename contains media-tags (like 'BLU-RAY')
   - Fixed defect #1617 Error when finding braces ({ or }) in filename

@@ -38,6 +38,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 /**
@@ -52,15 +53,18 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     private SimpleDateFormat mDateFormatter = null;
     private Double mRatingFactor = null;
     private NumberFormat mRatingFormatter = null;
+    private int limitCast;
+    private int limitGenres;
 
     // The default list of fields
-    private static final String DEFAULT_FIELDS = "Type," + "Title," + "TitleSort," + "IMDB ID," + "Director," + "Company," + "Country," + "Language,"
-                    + "Runtime," + "Release Date," + "Year," + "Certification," + "Season #," + "TheTVDB ID," + "VideoSource," + "Container," + "File,"
-                    + "Audio Codec," + "Audio Channels," + "Resolution," + "Video Codec," + "Video Output," + "FPS," + "# Files," + "# Extras," + "# Genres,"
-                    + "# Cast," + "SubTitles?," + "Poster?," + "Detail Poster Filename," + "Rating #," + "Top 250 #," + "Library Description,"
-                    + "Library Path," + "Allocine ID," + "FilmDelta ID," + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Sratim ID,"
-                    + "Last Modified Date," + "File Size";
-
+    private static final String DEFAULT_FIELDS = "Type," + "Title," + "TitleSort," + "IMDB ID," + "TheTVDB ID," + "Director," 
+        + "Company," + "Country," + "Language," + "Runtime," + "Release Date," + "Year," + "Certification," + "Season #," + "VideoSource," 
+        + "Container," + "File," + "Audio Codec," + "Audio Channels," + "Resolution," + "Video Codec," + "Video Output," + "FPS," 
+        + "# Files," + "# Extras," + "# Genres," + "# Cast," + "SubTitles?," + "Poster?," + "Poster Filename," + "Fanart?," 
+        + "Fanart Filename," + "Rating #," + "Top 250 #," + "Library Description," + "Library Path," + "Allocine ID," + "FilmDelta ID," 
+        + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Sratim ID," + "Last Modified Date," + "File Size," + "Genres," + "Cast," 
+        + "Plot," + "Outline,"; 
+    
     /**
      * Take a comma-separated list of field names and split them into separate fields
      * 
@@ -103,9 +107,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @return true if we got a match
      */
     private boolean checkHeaderField(String field, String knownType) {
+        // See if we want all the header fields or not
         if (field == null || knownType == null) {
             return false; // no need to compare
         }
+        
         if (field.equalsIgnoreCase(knownType)) {
             return true; // it matched
         }
@@ -115,9 +121,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         if (type.endsWith("?") || type.endsWith("#")) {
             type = type.substring(0, type.length() - 1).trim();
         }
+        
         if (field.equalsIgnoreCase(type)) {
             return true;
         }
+        
         return false;
     } // checkHeaderField()
 
@@ -146,6 +154,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getTitleSort()));
             } else if (checkHeaderField(header, "IMDB ID")) {
                 sb.append(prep(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "TheTVDB ID")) {
+                sb.append(prep(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID)));
             } else if (checkHeaderField(header, "Director")) {
                 sb.append(prep(movie.getDirector()));
             } else if (checkHeaderField(header, "Company")) {
@@ -164,8 +174,6 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getCertification()));
             } else if (checkHeaderField(header, "Season #")) {
                 sb.append(prep(blankNegatives(movie.getSeason())));
-            } else if (checkHeaderField(header, "TheTVDB ID")) {
-                sb.append(prep(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID)));
             } else if (checkHeaderField(header, "VideoSource")) {
                 sb.append(prep(movie.getVideoSource()));
             } else if (checkHeaderField(header, "Container")) {
@@ -195,9 +203,13 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "SubTitles?")) {
                 sb.append(prep(movie.getSubtitles()));
             } else if (checkHeaderField(header, "Poster?")) {
-                sb.append(prep("" + (null != movie.getPosterURL() ? "True" : "False")));
-            } else if (checkHeaderField(header, "Detail Poster Filename")) {
-                sb.append(prep("" + (null != movie.getDetailPosterFilename() ? "True" : "False")));
+                sb.append(prep("" + (FileTools.isValidString(movie.getPosterFilename()) ? "True" : "False")));
+            } else if (checkHeaderField(header, "Poster Filename")) {
+                sb.append(prep(movie.getPosterFilename()));
+            } else if (checkHeaderField(header, "Fanart?")) {
+                sb.append(prep("" + (FileTools.isValidString(movie.getFanartFilename()) ? "True" : "False")));
+            } else if (checkHeaderField(header, "Fanart Filename")) {
+                sb.append(prep(movie.getFanartFilename()));
             } else if (checkHeaderField(header, "Rating #")) {
                 if (mRatingFactor != null) {
                     double fr = mRatingFactor.doubleValue() * movie.getRating();
@@ -233,8 +245,13 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getFileSizeString()));
             } else if (checkHeaderField(header, "Genres")) {
                 if (null != genres) {
+                    int counter = 1;
                     StringBuffer tmp = new StringBuffer();
                     for (String string : genres) {
+                        if (counter++ > limitGenres) {
+                            break;
+                        }
+                        
                         if (tmp.length() > 0) {
                             tmp.append(mSecondDelimiter);
                         }
@@ -244,8 +261,13 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 }
             } else if (checkHeaderField(header, "Cast")) {
                 if (null != cast) {
+                    int counter = 1;
                     StringBuffer tmp = new StringBuffer();
                     for (String string : cast) {
+                        if (counter++ > limitCast) {
+                            break;
+                        }
+
                         if (tmp.length() > 0) {
                             tmp.append(mSecondDelimiter);
                         }
@@ -253,9 +275,10 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                     }
                     sb.append(prep(tmp.toString()));
                 }
-            }
-            else if (checkHeaderField(header, "Plot")) {
+            } else if (checkHeaderField(header, "Plot")) {
                 sb.append(prep(movie.getPlot()));
+            } else if (checkHeaderField(header, "Outline")) {
+                sb.append(prep(movie.getOutline()));
             }
         }
         return sb.toString();
@@ -277,7 +300,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param str
      * @return String cleaned up, NEVER comma appended
      */
-    String prep(String input) {
+    private String prep(String input) {
         String str = input;
         
         if (null == str || (blankUNKNOWN && UNKNOWN.equals(str))) {
@@ -299,19 +322,37 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     } // prepOutput()
 
     /**
+     * Generate the listing file
      * @param jukebox
      * @param library
      */
     public void generate(Jukebox jukebox, Library library) {
         initialize(jukebox);
         String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
+        if (!FileTools.isValidString(fields)) {
+            // If the "fields" is blank, populate it with the default
+            fields = DEFAULT_FIELDS;
+        }
         initFields(fields);
+        
         mDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.delimiter", ",");
         mSecondDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.secondDelimiter", "|");
         String dateFormat = PropertiesUtil.getProperty("mjb.listing.csv.dateFormat", "");
         String ratingFactor = PropertiesUtil.getProperty("mjb.listing.csv.ratingFactor", "1.00");
         DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.US);
         mRatingFormatter = new DecimalFormat("#0.00", decimalFormatSymbols);
+        
+        try {
+            limitCast = Integer.parseInt(PropertiesUtil.getProperty("mjb.listing.csv.limitCast", "100"));
+        } catch (Exception ignore) {
+            limitCast = 100;
+        }
+
+        try {
+            limitGenres = Integer.parseInt(PropertiesUtil.getProperty("mjb.listing.csv.limitGenres", "100"));
+        } catch (Exception ignore) {
+            limitGenres = 100;
+        }
 
         mRatingFactor = new Double(ratingFactor);
         if (dateFormat.length() > 1) {
