@@ -5,7 +5,9 @@
 MovieJukebox 2.2 BETA
 ---------------------
   - Enhancement   #323 TheMovieDB plugin created
+  - Fixed defect  #558 New episodes from TV series didn't appear in the NEW Category.
   - Enhancement  #1497 Timeouts added for TheTVDb and TheMovieDb
+  - Fixed defect #1546 New index not updating correctly
   - Fixed defect #1555 Genres added to ComingSoon plugin
   - Enhancement  #1560 Rescanning based on Jukebox Property changes
   - Fixed defect #1567 Download of French cover doesn't work properly

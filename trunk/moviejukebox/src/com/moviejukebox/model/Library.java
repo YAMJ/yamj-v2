@@ -330,6 +330,9 @@ public class Library implements Map<String, Movie> {
                     if (mf_col != null) {
                         master_mf_col.addAll(mf_col);
                     }
+                    
+                    // Update the master fileDate to be the latest of all the members so this indexes correctly in the New category
+                    indexMaster.setFileDate(m.getFileDate());
                 }
 
                 indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
@@ -338,6 +341,7 @@ public class Library implements Map<String, Movie> {
                                 + " - top250: " + indexMaster.getTop250());
                 indexMaster.setTop250(top250);
                 indexMaster.setMovieFiles(master_mf_col);
+                
                 masters.put(index_name, indexMaster);
             } catch (CloneNotSupportedException error) {
                 logger.severe("Failed building index masters");

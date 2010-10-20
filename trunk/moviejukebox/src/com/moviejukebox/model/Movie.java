@@ -1180,17 +1180,24 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private Long tmstmp = null; // cache value
 
     public long getLastModifiedTimestamp() {
-        if (tmstmp == null) {
-            synchronized (this) {
-                if (tmstmp == null) {
-                    tmstmp = new Long(0);
-                    for (MovieFile mf : getMovieFiles()) {
-                        tmstmp = Math.max(tmstmp, mf.getLastModified());
+        if (!isSetMaster()) {
+            if (tmstmp == null) {
+                synchronized (this) {
+                    if (tmstmp == null) {
+                        tmstmp = new Long(0);
+                        for (MovieFile mf : getMovieFiles()) {
+                            tmstmp = Math.max(tmstmp, mf.getLastModified());
+                        }
                     }
                 }
             }
+            //make sure the fileDate is correct too
+            setFileDate(new Date(tmstmp));
+            return tmstmp;
+        } else {
+            // Set processing
+            return getFileDate().getTime();
         }
-        return tmstmp;
     }
 
     @Override
@@ -1511,7 +1518,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.setSize = size;
     }
 
-    public void setFileDate(Date fileDate) {
+    /**
+     * Store the latest filedate for a set of movie files.
+     * Synchronized so that the comparisons don't overlap
+     * @param fileDate
+     */
+    synchronized public void setFileDate(Date fileDate) {
         if (this.fileDate == null) {
             this.fileDate = fileDate;
         } else if (fileDate.after(this.fileDate)) {
