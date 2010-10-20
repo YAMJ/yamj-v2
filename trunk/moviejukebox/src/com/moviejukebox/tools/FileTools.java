@@ -747,6 +747,10 @@ public class FileTools {
          */
         public void addDir(File dir, int depth) {
            File[] files = dir.listFiles();
+           if (files == null) {
+               return;
+           }
+           
            if (files.length == 0) {
                return;
            }
