@@ -893,12 +893,11 @@ public class MovieJukebox {
 
             logger.fine("Indexing masters...");
             /*
-             * This is kind of a hack -- library.values() are the movies that were found in the library and library.getMoviesList() are the ones that are there
-             * now. So the movies that are in getMoviesList but not in values are the index masters.
+             * This is kind of a hack -- library.values() are the movies that were found in the library and library.getMoviesList() 
+             * are the ones that are there now. So the movies that are in getMoviesList but not in values are the index masters.
              */
-            Collection<Movie> movies = library.values();
             List<Movie> indexMasters = new ArrayList<Movie>(library.getMoviesList());
-            indexMasters.removeAll(movies);
+            indexMasters.removeAll(library.values());
 
             JAXBContext context = JAXBContext.newInstance(JukeboxXml.class);
             final JukeboxXml jukeboxXml = new JukeboxXml();
@@ -988,7 +987,7 @@ public class MovieJukebox {
             logger.fine("Writing movie data...");
             // Multi-thread: Parallel Executor
             tasks.restart();
-            for (final Movie movie : movies) {
+            for (final Movie movie : library.values()) {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
