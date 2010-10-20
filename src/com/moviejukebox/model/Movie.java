@@ -1016,15 +1016,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
     
-    @XmlTransient
-    public void setReleaseDate(Date releaseDate) {
-        try {
-            setReleaseDate(dateFormat.format(releaseDate));
-        } catch (Exception ignore) {
-            logger.finest("Error setting release date for " + title);
-        }
-    }
-
     public void setResolution(String resolution) {
         if (resolution == null) {
             resolution = UNKNOWN;

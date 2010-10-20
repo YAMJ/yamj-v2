@@ -14,6 +14,7 @@ package com.moviejukebox.tools;
 
 import java.io.File;
 import java.text.BreakIterator;
+import java.util.Date;
 
 import com.moviejukebox.model.Movie;
 
@@ -80,4 +81,18 @@ public class StringTools {
         }
         return sourceString;
     }
+
+    /**
+     * Convert a date to a string using the Movie dateFormat
+     * @param convertDate
+     * @return converted date in the format specified in Movie.dateFormatString
+     */
+    public static String convertDateToString(Date convertDate) {
+        try {
+            return Movie.dateFormat.format(convertDate);
+        } catch (Exception ignore) {
+            return Movie.UNKNOWN;
+        }
+    }
+
 }

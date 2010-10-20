@@ -145,7 +145,7 @@ public class TVRagePlugin extends ImdbPlugin {
             }
             
             if (movie.getReleaseDate().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setReleaseDate(showInfo.getStartDate());
+                movie.setReleaseDate(StringTools.convertDateToString(showInfo.getStartDate()));
             }
             
             scanTVShowTitles(movie);
