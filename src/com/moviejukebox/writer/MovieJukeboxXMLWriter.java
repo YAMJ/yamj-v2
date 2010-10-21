@@ -52,6 +52,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.XMLWriter;
 
@@ -79,12 +80,15 @@ public class MovieJukeboxXMLWriter {
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     private static Logger logger = Logger.getLogger("moviejukebox");
+    private static boolean writeNfoFiles;
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
+        
+        writeNfoFiles = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.writeFiles", "false"));
    }
 
     public MovieJukeboxXMLWriter() {
@@ -1145,6 +1149,51 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
             writer.writeEndDocument();
             writer.close();
+
+            if (writeNfoFiles) {
+                writeNfoFile(jukebox, movie);
+            }
         }
     }
+
+    public void writeNfoFile(Jukebox jukebox, Movie movie) {
+        if (movie.isSetMaster()) {
+            return;
+        }
+        
+        if (movie.getIdMap().isEmpty()) {
+            logger.finer("MovieJukeboxXMLWriter: No IDs found for " + movie.getBaseName() + ", NFO file won't be created.");
+            return;
+        }
+        
+        String nfoFolder = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), "NFO");
+        (new File(nfoFolder)).mkdirs();
+        //File rootNfoFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), nfoBaseName));
+        File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
+        
+        logger.finest("MovieJukeboxXMLWriter: Writing NFO file for " + movie.getBaseName() + ".nfo");
+        XMLWriter writer = null;
+            
+        try {
+            writer = new XMLWriter(tempNfoFile);
+            
+            writer.writeStartDocument("UTF-8", "1.0");
+            writer.writeStartElement("movie");
+            for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
+                writer.writeStartElement("id");
+                writer.writeAttribute("moviedb", e.getKey());
+                writer.writeCharacters(e.getValue());
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+            writer.writeEndDocument();
+        } catch (Exception ignore) {
+            logger.finer("MovieJukeboxXMLWriter: Error creating the NFO file: " + movie.getBaseName() + ".nfo");
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+    }
+    
 }
