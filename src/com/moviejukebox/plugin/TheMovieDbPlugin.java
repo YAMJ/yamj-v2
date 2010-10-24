@@ -234,9 +234,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
         }
         
-        // quote / tagline
-        if (overwriteCheck(moviedb.getTagline(), movie.getQuote())) {
-            movie.setQuote(moviedb.getTagline());
+        // tagline
+        if (overwriteCheck(moviedb.getTagline(), movie.getTagline())) {
+            movie.setTagline(moviedb.getTagline());
         }
         
         // Country

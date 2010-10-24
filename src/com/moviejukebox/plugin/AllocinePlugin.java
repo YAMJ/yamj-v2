@@ -510,8 +510,8 @@ public class AllocinePlugin extends ImdbPlugin {
 //            logger.finest("AllocinePlugin: Allocine found via Google : " + allocineId);
             return allocineId;
         } catch (Exception error) {
-            logger.severe("ImdbInfo Failed retreiving AlloCine Id for movie : " + movieName);
-            logger.severe("ImdbInfo Error : " + error.getMessage());
+            logger.severe("AllocinePlugin Failed retreiving AlloCine Id for movie : " + movieName);
+            logger.severe("AllocinePlugin Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }

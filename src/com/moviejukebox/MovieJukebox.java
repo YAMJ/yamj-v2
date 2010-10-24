@@ -134,12 +134,16 @@ public class MovieJukebox {
     private static int recheckCount = 0;
     private static boolean skipIndexGeneration = false;
     private static boolean dumpLibraryStructure = false;
+    private static boolean showMemory = false;
 
     // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
     public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
 
+    int MaxThreadsProcess = 1;
+    int MaxThreadsDownload = 1;
+    
     public static void main(String[] args) throws Throwable {
         String logFilename = "moviejukebox.log";
         LogFormatter mjbFormatter = new LogFormatter();
@@ -177,6 +181,10 @@ public class MovieJukebox {
         logger.fine("See this page: http://code.google.com/p/moviejukebox/wiki/License");
         logger.fine("");
 
+        if (showMemory) {
+            StringTools.showMemory();
+        }
+        
         // Print the revision information if it was populated by Hudson CI
         if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             if (mjbRevision.equals("0000")) {
@@ -215,6 +223,8 @@ public class MovieJukebox {
                     skipIndexGeneration = true;
                 } else if ("-dump".equalsIgnoreCase(arg)) {
                     dumpLibraryStructure = true;
+                } else if ("-memory".equalsIgnoreCase(arg)) {
+                    showMemory = true;
                 } else if (arg.startsWith("-D")) {
                     String propLine = arg.length() > 2 ? arg.substring(2) : args[++i];
                     int propDiv = propLine.indexOf("=");
@@ -653,12 +663,12 @@ public class MovieJukebox {
         bannerDownload = parseBoolean(getProperty("mjb.includeWideBanners", "false"));
 
         // Multi-thread: Processing thread settings
-        int MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0")); 
+        MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0")); 
         if (MaxThreadsProcess <= 0) {
             MaxThreadsProcess = Runtime.getRuntime().availableProcessors();
         }
         
-        int MaxThreadsDownload = Integer.parseInt(getProperty("mjb.MaxThreadsDownload", "0"));
+        MaxThreadsDownload = Integer.parseInt(getProperty("mjb.MaxThreadsDownload", "0"));
         if (MaxThreadsDownload <= 0) {
             MaxThreadsDownload = MaxThreadsProcess;
         }
@@ -676,6 +686,10 @@ public class MovieJukebox {
          * PART 1 : Preparing the temporary environment
          * 
          */
+        if (showMemory) {
+            StringTools.showMemory();
+        }
+
         logger.fine("Preparing environment...");
         
         // Create the ".mjbignore" file in the jukebox folder
@@ -747,6 +761,10 @@ public class MovieJukebox {
             }
         }
 
+        if (showMemory) {
+            StringTools.showMemory();
+        }
+        
         logger.fine("Initializing...");
         try {
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
@@ -774,6 +792,10 @@ public class MovieJukebox {
          * PART 2 : Scan movie libraries for files...
          * 
          */
+        if (showMemory) {
+            StringTools.showMemory();
+        }
+        
         logger.fine("Scanning library directory " + mediaLibraryRoot);
         logger.fine("Jukebox output goes to " + jukebox.getJukeboxRootLocation());
         FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
@@ -795,6 +817,9 @@ public class MovieJukebox {
             });
         }
         tasks.waitFor();
+        if (showMemory) {
+            StringTools.showMemory();
+        }
 
         // If the user asked to preserve the existing movies, scan the output directory as well
         if (isJukeboxPreserve()) {
@@ -815,6 +840,7 @@ public class MovieJukebox {
             int movieCounter = 0;
             for (final Movie movie : library.values()) {
                 final int count = ++movieCounter;
+
                 final String movieTitleExt = movie.getOriginalTitle() + (movie.isTVShow() ? (" [Season " + movie.getSeason() + "]") : "")
                                 + (movie.isExtra() ? " [Extra]" : "");
 
@@ -865,7 +891,11 @@ public class MovieJukebox {
                         tools.trailerPlugin.generate(movie);
 
                         logger.fine("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
-
+                        // Show memory every (processing count) movies
+                        if (showMemory && (count % MaxThreadsProcess) == 0) {
+                            StringTools.showMemory();
+                        }
+                        
                         return null;
                     };
                 });
@@ -883,6 +913,9 @@ public class MovieJukebox {
              * 
              */
 
+            if (showMemory) {
+                StringTools.showMemory();
+            }
             // This is for programs like NMTServer where they don't need the indexes.
             if (skipIndexGeneration) {
                 logger.fine("Indexing of libraries skipped.");
@@ -891,6 +924,9 @@ public class MovieJukebox {
                 library.buildIndex(tasks);
             }
 
+            if (showMemory) {
+                StringTools.showMemory();
+            }
             logger.fine("Indexing masters...");
             /*
              * This is kind of a hack -- library.values() are the movies that were found in the library and library.getMoviesList() 
@@ -984,6 +1020,10 @@ public class MovieJukebox {
             }
             tasks.waitFor();
 
+            if (showMemory) {
+                StringTools.showMemory();
+            }
+
             logger.fine("Writing movie data...");
             // Multi-thread: Parallel Executor
             tasks.restart();
@@ -991,7 +1031,6 @@ public class MovieJukebox {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
-
                         ToolSet tools = threadTools.get();
                         // Update movie XML files with computed index information
                         logger.finest("Writing index data to movie: " + movie.getBaseName());
@@ -1020,6 +1059,10 @@ public class MovieJukebox {
                 });
             }
             tasks.waitFor();
+
+            if (showMemory) {
+                StringTools.showMemory();
+            }
 
             if (!skipIndexGeneration) {
                 logger.fine("Writing Indexes XML...");
@@ -1055,6 +1098,10 @@ public class MovieJukebox {
              * PART 4 : Copy files to target directory
              * 
              */
+            if (showMemory) {
+                StringTools.showMemory();
+            }
+            
             logger.fine("Copying new files to Jukebox directory...");
             String index = getProperty("mjb.indexFile", "index.htm");
             FileTools.copyDir(jukebox.getJukeboxTempLocationDetails(), jukebox.getJukeboxRootLocationDetails(), true);
@@ -1085,6 +1132,10 @@ public class MovieJukebox {
              * PART 5: Clean-up the jukebox directory
              * 
              */
+            if (showMemory) {
+                StringTools.showMemory();
+            }
+            
             if (jukeboxClean) {
                 logger.fine("Cleaning up the jukebox directory...");
                 Collection<String> generatedFileNames = FileTools.getJukeboxFiles();

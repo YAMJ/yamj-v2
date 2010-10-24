@@ -45,6 +45,7 @@ import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Movie bean
@@ -94,6 +95,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String plot = UNKNOWN;
     private String outline = UNKNOWN;
     private String quote = UNKNOWN;
+    private String tagline = UNKNOWN;
     private String country = UNKNOWN;
     private String company = UNKNOWN;
     private String runtime = UNKNOWN;
@@ -1544,36 +1546,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public String getFileSizeString() {
-        String returnSize = UNKNOWN;
-        long calcFileSize = this.fileSize;
-
-        if (calcFileSize > 1024) {
-            calcFileSize = calcFileSize / 1024;
-            if (calcFileSize > 1024) {
-                calcFileSize = calcFileSize / 1024;
-                if (calcFileSize > 1024) {
-                    calcFileSize = calcFileSize / 1024;
-                    if (calcFileSize > 1024) {
-                        calcFileSize = calcFileSize / 1024;
-                        if (calcFileSize > 1024) {
-                            calcFileSize = calcFileSize / 1024;
-                        } else {
-                            returnSize = calcFileSize + "TB";
-                        }
-                    } else {
-                        returnSize = calcFileSize + "GB";
-                    }
-                } else {
-                    returnSize = calcFileSize + "MB";
-                }
-            } else {
-                returnSize = calcFileSize + "KB";
-            }
-        } else {
-            returnSize = calcFileSize + "Bytes";
-        }
-
-        return returnSize;
+        return StringTools.formatFileSize(fileSize);
     }
 
     public void setAspectRatio(String aspect) {
@@ -1744,5 +1717,19 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setOverrideYear(boolean overrideYear) {
         this.overrideYear = overrideYear;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        if (tagline == null) {
+            tagline = UNKNOWN;
+        }
+        if (!tagline.equalsIgnoreCase(this.tagline)) {
+            this.isDirty = true;
+            this.tagline = tagline;
+        }
     }
 }

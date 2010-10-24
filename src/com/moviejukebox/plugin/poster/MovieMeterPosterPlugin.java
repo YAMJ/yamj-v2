@@ -13,9 +13,6 @@
 
 package com.moviejukebox.plugin.poster;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
@@ -23,9 +20,9 @@ import java.util.logging.Logger;
 
 import org.apache.xmlrpc.XmlRpcException;
 
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
@@ -45,10 +42,11 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         try {
             session = new MovieMeterPluginSession();
         } catch (XmlRpcException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            //final Writer eResult = new StringWriter();
+            //final PrintWriter printWriter = new PrintWriter(eResult);
+            //error.printStackTrace(printWriter);
+            //logger.severe(eResult.toString());
+            logger.finer("MovieMeterPosterPlugin: Failed to create session");
         }
     }
 

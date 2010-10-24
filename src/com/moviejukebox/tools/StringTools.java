@@ -94,5 +94,67 @@ public class StringTools {
             return Movie.UNKNOWN;
         }
     }
+    
+    /**
+     * Format the file size
+     */
+    public static String formatFileSize(long fileSize) {
+        long calcFileSize = fileSize;
+        String returnSize = Movie.UNKNOWN;
+        
+        if (calcFileSize > 1024) {
+            calcFileSize = calcFileSize / 1024;
+            if (calcFileSize > 1024) {
+                calcFileSize = calcFileSize / 1024;
+                if (calcFileSize > 1024) {
+                    calcFileSize = calcFileSize / 1024;
+                    if (calcFileSize > 1024) {
+                        calcFileSize = calcFileSize / 1024;
+                        if (calcFileSize > 1024) {
+                            calcFileSize = calcFileSize / 1024;
+                        } else {
+                            returnSize = calcFileSize + "TB";
+                        }
+                    } else {
+                        returnSize = calcFileSize + "GB";
+                    }
+                } else {
+                    returnSize = calcFileSize + "MB";
+                }
+            } else {
+                returnSize = calcFileSize + "KB";
+            }
+        } else {
+            returnSize = calcFileSize + "Bytes";
+        }
+        
+        return returnSize;
+    }
 
+    /**
+     * Show the memory available to the program
+     */
+    public static void showMemory(boolean showAll) {
+        // Show the long output
+        if (showAll) {
+            /* This will return Long.MAX_VALUE if there is no preset limit */
+            long maxMemory = Runtime.getRuntime().maxMemory();
+            
+            /* Maximum amount of memory the JVM will attempt to use */
+            System.out.println("  Max memory: " + (maxMemory == Long.MAX_VALUE ? "no limit" : formatFileSize(maxMemory)));
+        
+            /* Total memory currently in use by the JVM */
+            System.out.println("Total memory: " + formatFileSize(Runtime.getRuntime().totalMemory()));
+    
+            /* Total amount of free memory available to the JVM */
+            System.out.println(" Free memory: " + formatFileSize(Runtime.getRuntime().freeMemory()));
+        } else {
+            System.out.printf("Total: %s, Free: %s\n", formatFileSize(Runtime.getRuntime().totalMemory()), formatFileSize(Runtime.getRuntime().freeMemory()));
+        }
+    }
+    
+    public static void showMemory() {
+        showMemory(false);
+    }
+    
 }
