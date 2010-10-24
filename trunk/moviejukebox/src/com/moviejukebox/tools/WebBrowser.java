@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -152,6 +153,8 @@ public class WebBrowser {
                 // We have HTTP connections, so these are always valid
                 content.flush();
                 in.close();
+            } catch (SocketTimeoutException error) {
+                logger.severe("Timeout Error with " + url.toString());
             } finally {
                 if (in != null) {
                     in.close();
