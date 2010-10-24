@@ -81,6 +81,7 @@ public class MovieJukeboxXMLWriter {
     private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean writeNfoFiles;
+    private boolean extractCertificationFromMPAA;
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
@@ -89,7 +90,7 @@ public class MovieJukeboxXMLWriter {
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
         
         writeNfoFiles = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.writeFiles", "false"));
-   }
+    }
 
     public MovieJukeboxXMLWriter() {
         forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
@@ -104,6 +105,7 @@ public class MovieJukeboxXMLWriter {
         includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
         isPlayOnHD = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.PlayOnHD", "false"));
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
+        extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -212,6 +214,9 @@ public class MovieJukeboxXMLWriter {
                 }
                 if (tag.equalsIgnoreCase("<quote>")) {
                     movie.setQuote(parseCData(r));
+                }
+                if (tag.equalsIgnoreCase("<tagline>")) {
+                    movie.setTagline(parseCData(r));
                 }
                 if (tag.toLowerCase().startsWith("<director ") || tag.equalsIgnoreCase("<director>")) {
                     movie.addDirector(parseCData(r));
@@ -910,6 +915,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("quote");
         writer.writeCharacters(movie.getQuote());
         writer.writeEndElement();
+        writer.writeStartElement("tagline");
+        writer.writeCharacters(movie.getTagline());
+        writer.writeEndElement();
         writer.writeStartElement("director");
         writeIndexAttribute(writer, library, "Director", movie.getDirector());
         writer.writeCharacters(movie.getDirector());
@@ -1161,11 +1169,6 @@ public class MovieJukeboxXMLWriter {
             return;
         }
         
-        if (movie.getIdMap().isEmpty()) {
-            logger.finer("MovieJukeboxXMLWriter: No IDs found for " + movie.getBaseName() + ", NFO file won't be created.");
-            return;
-        }
-        
         String nfoFolder = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), "NFO");
         (new File(nfoFolder)).mkdirs();
         //File rootNfoFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), nfoBaseName));
@@ -1178,13 +1181,142 @@ public class MovieJukeboxXMLWriter {
             writer = new XMLWriter(tempNfoFile);
             
             writer.writeStartDocument("UTF-8", "1.0");
-            writer.writeStartElement("movie");
+            if (movie.isTVShow()) {
+                writer.writeStartElement("tvshow");
+            } else {
+                writer.writeStartElement("movie");
+            }
             for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
                 writer.writeStartElement("id");
                 writer.writeAttribute("moviedb", e.getKey());
                 writer.writeCharacters(e.getValue());
                 writer.writeEndElement();
             }
+            
+            if (StringTools.isValidString(movie.getTitle())) {
+                writer.writeStartElement("title");
+                writer.writeCharacters(movie.getTitle());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getOriginalTitle())) {
+                writer.writeStartElement("originaltitle");
+                writer.writeCharacters(movie.getOriginalTitle());
+                writer.writeEndElement();
+            }
+            
+            if (movie.getRating() > -1) {
+                writer.writeStartElement("rating");
+                writer.writeCharacters("" + movie.getRating());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getYear())) {
+                writer.writeStartElement("year");
+                writer.writeCharacters(movie.getYear());
+                writer.writeEndElement();
+            }
+            
+            if (movie.getTop250() > -1) {
+                writer.writeStartElement("top250");
+                writer.writeCharacters("" + movie.getTop250());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getOutline())) {
+                writer.writeStartElement("outline");
+                writer.writeCharacters(movie.getOutline());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getPlot())) {
+                writer.writeStartElement("plot");
+                writer.writeCharacters(movie.getPlot());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getTagline())) {
+                writer.writeStartElement("tagline");
+                writer.writeCharacters(movie.getTagline());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getRuntime())) {
+                writer.writeStartElement("runtime");
+                writer.writeCharacters(movie.getRuntime());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getReleaseDate())) {
+                writer.writeStartElement("premiered");
+                writer.writeCharacters(movie.getReleaseDate());
+                writer.writeEndElement();
+            }
+            
+            
+            if (StringTools.isValidString(movie.getCertification())) {
+                if (extractCertificationFromMPAA) {
+                    writer.writeStartElement("mpaa");
+                } else {
+                    writer.writeStartElement("certification");
+                }
+                writer.writeCharacters(movie.getCertification());
+                writer.writeEndElement();
+            }
+            
+            if (!movie.getGenres().isEmpty()) {
+                for (String genre : movie.getGenres()) {
+                    writer.writeStartElement("genre");
+                    writer.writeCharacters(genre);
+                    writer.writeEndElement();
+                }
+            }
+            
+            if (!movie.getWriters().isEmpty()) {
+                writer.writeStartElement("credits");
+                for (String writerCredit : movie.getWriters()) {
+                    writer.writeStartElement("writer");
+                    writer.writeCharacters(writerCredit);
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement(); // credits
+            }
+            
+            if (!movie.getDirectors().isEmpty()) {
+                writer.writeStartElement("directors");
+                for (String director : movie.getDirectors()) {
+                    writer.writeStartElement("director");
+                    writer.writeCharacters(director);
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getCompany())) {
+                writer.writeStartElement("company");
+                writer.writeCharacters(movie.getCompany());
+                writer.writeEndElement();
+            }
+            
+            if (StringTools.isValidString(movie.getCountry())) {
+                writer.writeStartElement("country");
+                writer.writeCharacters(movie.getCountry());
+                writer.writeEndElement();
+            }
+            
+            if (!movie.getCast().isEmpty()) {
+                writer.writeStartElement("actor");
+                for (String actor : movie.getCast()) {
+                    writer.writeStartElement("name");
+                    writer.writeCharacters(actor);
+                    writer.writeEndElement();
+                    writer.writeStartElement("role");
+                    writer.writeCharacters("");
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+            }
+            
             writer.writeEndElement();
             writer.writeEndDocument();
         } catch (Exception ignore) {

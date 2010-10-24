@@ -164,9 +164,13 @@ public class ImdbInfo {
             logger.finest("ImdbInfo Google search: " + sb.toString());
             
             String xml = webBrowser.request(sb.toString());
+            String imdbId = Movie.UNKNOWN;
+            
             int beginIndex = xml.indexOf("/title/tt");
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
-            String imdbId = st.nextToken();
+            if (beginIndex > -1) {
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
+                imdbId = st.nextToken();
+            }
 
             if (imdbId.startsWith("tt")) {
                 logger.finer("Found IMDb ID: " + imdbId);

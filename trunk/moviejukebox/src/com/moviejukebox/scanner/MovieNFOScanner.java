@@ -449,6 +449,16 @@ public class MovieNFOScanner {
                                     logger.severe(eResult.toString());
                                 }
                             }
+                        } else if (tag.equalsIgnoreCase("quote")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setQuote(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("tagline")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setTagline(val);
+                            }
                         } else if (tag.equalsIgnoreCase("top250")) {
                             int val = XMLHelper.parseInt(r);
                             if (val > 0) {
@@ -953,6 +963,16 @@ public class MovieNFOScanner {
                                     // Set the release date if there is an exception
                                     movie.setReleaseDate(val);
                                 }
+                            }
+                        } else if (tag.equalsIgnoreCase("quote")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setQuote(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("tagline")) {
+                            String val = XMLHelper.getCData(r);
+                            if (!val.isEmpty() && !val.equalsIgnoreCase(Movie.UNKNOWN)) {
+                                movie.setTagline(val);
                             }
                         } else if (tag.equalsIgnoreCase("studio")) {
                             String val = XMLHelper.getCData(r);
