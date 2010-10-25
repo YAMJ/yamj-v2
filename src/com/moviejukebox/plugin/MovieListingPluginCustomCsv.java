@@ -63,7 +63,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         + "# Files," + "# Extras," + "# Genres," + "# Cast," + "SubTitles?," + "Poster?," + "Poster Filename," + "Fanart?," 
         + "Fanart Filename," + "Rating #," + "Top 250 #," + "Library Description," + "Library Path," + "Allocine ID," + "FilmDelta ID," 
         + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Sratim ID," + "Last Modified Date," + "File Size," + "Genres," + "Cast," 
-        + "Plot," + "Outline,"; 
+        + "Plot," + "Outline," + "Thumbnail Filename," + "Detail Poster Filename"; 
     
     /**
      * Take a comma-separated list of field names and split them into separate fields
@@ -279,6 +279,10 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getPlot()));
             } else if (checkHeaderField(header, "Outline")) {
                 sb.append(prep(movie.getOutline()));
+            } else if (checkHeaderField(header, "Thumbnail Filename")) {
+                sb.append(prep(movie.getThumbnailFilename()));
+            } else if (checkHeaderField(header, "Detail Poster Filename")) {
+                sb.append(prep(movie.getDetailPosterFilename()));
             }
         }
         return sb.toString();
