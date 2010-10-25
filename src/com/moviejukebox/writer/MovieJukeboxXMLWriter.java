@@ -78,7 +78,7 @@ public class MovieJukeboxXMLWriter {
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
-    private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
+    private static int categoryMinCountMaster = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean writeNfoFiles;
     private boolean extractCertificationFromMPAA;
@@ -501,11 +501,12 @@ public class MovieJukeboxXMLWriter {
 
         // Issue 1148, generate category in the order specified in properties
         logger.fine("  Indexing Categories");
-        for (String categorie : categoriesDisplayList) {
+        for (String categoryName : categoriesDisplayList) {
+            int categoryMinCount = calcMinCategoryCount(categoryName);
             boolean openedCategory = false;
             for (Entry<String, Index> category : library.getIndexes().entrySet()) {
                 // Category not empty and match the current cat.
-                if (!category.getValue().isEmpty() && categorie.equalsIgnoreCase(category.getKey())) {
+                if (!category.getValue().isEmpty() && categoryName.equalsIgnoreCase(category.getKey())) {
                     openedCategory = true;
                     writer.writeStartElement("category");
                     writer.writeAttribute("name", category.getKey());
@@ -514,7 +515,7 @@ public class MovieJukeboxXMLWriter {
                         List<Movie> value = index.getValue();
                         int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
                         logger.finest("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
-                        if (countMovieCat < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
+                        if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
                             logger.finest("Category " + category.getKey() + " " + index.getKey()
                                             + " does not contain enough movies, not adding to categories.xml");
                             continue;
@@ -568,6 +569,7 @@ public class MovieJukeboxXMLWriter {
         for (final Map.Entry<String, Index> category : library.getIndexes().entrySet()) {            
             final String categoryName = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
+            final int categoryMinCount = calcMinCategoryCount(categoryName);
 
             logger.fine("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes");
             for (final Map.Entry<String, List<Movie>> group : index.entrySet()) {
@@ -579,7 +581,7 @@ public class MovieJukeboxXMLWriter {
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categorieCount = library.getMovieCountForIndex(categoryName, key);
-                        if (categorieCount < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                        if (categorieCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
                             logger.finer("Category " + category_path + " does not contain enough movies(" + categorieCount
                                             + "), skipping XML generation.");
                             return null;
@@ -697,18 +699,20 @@ public class MovieJukeboxXMLWriter {
                     writer.writeAttribute("current", "true");
                 }
 
-                for (String akey : index.keySet()) {
-                    String encakey = FileTools.createCategoryKey(akey);
+                for (String categoryName : index.keySet()) {
+                    String encakey = FileTools.createCategoryKey(categoryName);
+                    
+                    int categoryMinCount = calcMinCategoryCount(categoryName);
 
                     // FIXME This is horrible! Issue 735 will get rid of it.
-                    if (index.get(akey).size() < categoriesMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+                    if (index.get(categoryName).size() < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
                         continue;
                     }
 
                     prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
 
                     writer.writeStartElement("index");
-                    writer.writeAttribute("name", akey);
+                    writer.writeAttribute("name", categoryName);
 
                     // if currently writing this page then add current attribute with value true
                     if (encakey.equalsIgnoreCase(idx.key)) {
@@ -811,14 +815,31 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
-    private String createIndexAttribute(Library l, String cat, String val) throws XMLStreamException {
-        Index i = l.getIndexes().get(cat);
-        if (null != i) {
-            if (l.getMovieCountForIndex(cat, val) >= categoriesMinCount) {
-                return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(cat, val)) + 1);
+    private String createIndexAttribute(Library library, String categoryName, String val) throws XMLStreamException {
+        Index index = library.getIndexes().get(categoryName);
+        if (null != index) {
+            int categoryMinCount = calcMinCategoryCount(categoryName);
+
+            if (library.getMovieCountForIndex(categoryName, val) >= categoryMinCount) {
+                return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, val)) + 1);
             }
         }
         return null;
+    }
+
+    /**
+     * Calculate the minimum count for a category based on it's property value.
+     * @param categoryName
+     * @return
+     */
+    private int calcMinCategoryCount(String categoryName) {
+        int categoryMinCount = categoryMinCountMaster;
+        try {
+            categoryMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount." + categoryName, "" + categoryMinCountMaster));
+        } catch (Exception ignore) {
+            categoryMinCount = categoryMinCountMaster;
+        }
+        return categoryMinCount;
     }
 
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
