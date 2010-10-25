@@ -6,6 +6,7 @@ MovieJukebox 2.2 BETA
 ---------------------
   - Enhancement   #323 TheMovieDB plugin created
   - Fixed defect  #558 New episodes from TV series didn't appear in the NEW Category.
+  - Enhancement   #735 Allow users to tune category parameters on a per-category basis
   - Enhancement   #773 Save NFO files
   - Enhancement  #1497 Timeouts added for TheTVDb and TheMovieDb
   - Fixed defect #1546 New index not updating correctly
