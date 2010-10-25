@@ -516,8 +516,8 @@ public class MovieJukeboxXMLWriter {
                         int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
                         logger.finest("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
                         if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
-                            logger.finest("Category " + category.getKey() + " " + index.getKey()
-                                            + " does not contain enough movies, not adding to categories.xml");
+                            logger.finer("Category " + category.getKey() + " " + index.getKey() + " does not contain enough movies (" + countMovieCat
+                                            + "/" + categoryMinCount + "), not adding to categories.xml.");
                             continue;
                         }
 
@@ -580,10 +580,10 @@ public class MovieJukeboxXMLWriter {
                         String category_path = categoryName + " " + key;
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
-                        int categorieCount = library.getMovieCountForIndex(categoryName, key);
-                        if (categorieCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                            logger.finer("Category " + category_path + " does not contain enough movies(" + categorieCount
-                                            + "), skipping XML generation.");
+                        int categoryCount = library.getMovieCountForIndex(categoryName, key);
+                        if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                            logger.finer("Category " + category_path + " does not contain enough movies (" + categoryCount
+                                            + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
                         }
                         boolean skipindex = !forceIndexOverwrite;

@@ -758,6 +758,11 @@ public class MovieJukebox {
                         logger.finer("Setting 'forceXmlOverwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.forceXmlOverwrite", "true");
                     }
+                    
+                    if (pi.isIndexOverwrite()) {
+                        logger.finer("Setting 'forceIndexOverwrite = true' due to property file changes");
+                        PropertiesUtil.setProperty("mjb.forceIndexOverwrite", "true");
+                    }
                 } else {
                     mjbDetails.createNewFile();
                     JukeboxProperties.createFile(mjbDetails, jukebox);
