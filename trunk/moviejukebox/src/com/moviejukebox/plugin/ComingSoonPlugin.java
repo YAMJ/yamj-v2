@@ -131,6 +131,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
     
     protected String getComingSoonId(String movieName, String year) {
         String id;
+        id = getComingSoonIdFromComingSoon(movieName, year);
+        if (StringTools.isValidString(id)) {
+            return id;
+        }
+        
         id = getComingSoonIdFromSearch("http://search.yahoo.com/search?vc=&p=", movieName, year);
         if (!StringTools.isValidString(id)) {
             // Try a Google search
@@ -141,9 +146,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     protected String getComingSoonIdFromSearch(String searchUrl, String movieName, String year) {
-        
         try {
-            
             String comingSoonId = Movie.UNKNOWN;
                         
             StringBuffer sb = new StringBuffer(searchUrl);
@@ -183,9 +186,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
         
     protected String getComingSoonIdFromComingSoon(String movieName, String year, int scoreToBeat) {
-        
         try {
-            
             if (scoreToBeat == 0) {
                 return Movie.UNKNOWN;
             }
