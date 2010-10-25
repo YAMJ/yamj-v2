@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.moviejukebox.tools.SystemTools.Base64;
 
 /**
  * Web browser with simple cookies support
