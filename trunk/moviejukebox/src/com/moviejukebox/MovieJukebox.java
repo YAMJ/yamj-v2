@@ -86,6 +86,7 @@ import com.moviejukebox.tools.JukeboxProperties.PropertyInformation;
 import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
@@ -182,7 +183,7 @@ public class MovieJukebox {
         logger.fine("");
 
         if (showMemory) {
-            StringTools.showMemory();
+            SystemTools.showMemory();
         }
         
         // Print the revision information if it was populated by Hudson CI
@@ -554,6 +555,9 @@ public class MovieJukebox {
         System.out.println();
         System.out.println("  -p propertiesFile : OPTIONAL");
         System.out.println("                      The properties file to use instead of moviejukebox.properties");
+        System.out.println("");
+        System.out.println("  -memory           : OPTIONAL");
+        System.out.println("                      Display and log the memory used by moviejukebox");
     }
 
     public MovieJukebox(String source, String jukeboxRoot) {
@@ -580,6 +584,12 @@ public class MovieJukebox {
         
         this.recheckXML = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.XML", "true"));
 
+        // Look for the parameter in the properties file if it's not been set on the command line
+        // This way we don't overwrite the setting if it's not found and defaults to "false"
+        if (!showMemory) {
+            MovieJukebox.showMemory = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.showMemory", "false"));
+        }
+        
         fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
         posterToken = getProperty("mjb.scanner.posterToken", "_large");
@@ -687,7 +697,7 @@ public class MovieJukebox {
          * 
          */
         if (showMemory) {
-            StringTools.showMemory();
+            SystemTools.showMemory();
         }
 
         logger.fine("Preparing environment...");
@@ -762,7 +772,7 @@ public class MovieJukebox {
         }
 
         if (showMemory) {
-            StringTools.showMemory();
+            SystemTools.showMemory();
         }
         
         logger.fine("Initializing...");
@@ -793,7 +803,7 @@ public class MovieJukebox {
          * 
          */
         if (showMemory) {
-            StringTools.showMemory();
+            SystemTools.showMemory();
         }
         
         logger.fine("Scanning library directory " + mediaLibraryRoot);
@@ -818,7 +828,7 @@ public class MovieJukebox {
         }
         tasks.waitFor();
         if (showMemory) {
-            StringTools.showMemory();
+            SystemTools.showMemory();
         }
 
         // If the user asked to preserve the existing movies, scan the output directory as well
@@ -893,7 +903,7 @@ public class MovieJukebox {
                         logger.fine("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         // Show memory every (processing count) movies
                         if (showMemory && (count % MaxThreadsProcess) == 0) {
-                            StringTools.showMemory();
+                            SystemTools.showMemory();
                         }
                         
                         return null;
@@ -914,7 +924,7 @@ public class MovieJukebox {
              */
 
             if (showMemory) {
-                StringTools.showMemory();
+                SystemTools.showMemory();
             }
             // This is for programs like NMTServer where they don't need the indexes.
             if (skipIndexGeneration) {
@@ -925,7 +935,7 @@ public class MovieJukebox {
             }
 
             if (showMemory) {
-                StringTools.showMemory();
+                SystemTools.showMemory();
             }
             logger.fine("Indexing masters...");
             /*
@@ -1021,7 +1031,7 @@ public class MovieJukebox {
             tasks.waitFor();
 
             if (showMemory) {
-                StringTools.showMemory();
+                SystemTools.showMemory();
             }
 
             logger.fine("Writing movie data...");
@@ -1061,7 +1071,7 @@ public class MovieJukebox {
             tasks.waitFor();
 
             if (showMemory) {
-                StringTools.showMemory();
+                SystemTools.showMemory();
             }
 
             if (!skipIndexGeneration) {
@@ -1099,7 +1109,7 @@ public class MovieJukebox {
              * 
              */
             if (showMemory) {
-                StringTools.showMemory();
+                SystemTools.showMemory();
             }
             
             logger.fine("Copying new files to Jukebox directory...");
@@ -1133,7 +1143,7 @@ public class MovieJukebox {
              * 
              */
             if (showMemory) {
-                StringTools.showMemory();
+                SystemTools.showMemory();
             }
             
             if (jukeboxClean) {
