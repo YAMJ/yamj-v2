@@ -1226,21 +1226,9 @@ public class MovieJukeboxXMLWriter {
                 writer.writeEndElement();
             }
             
-            if (movie.getRating() > -1) {
-                writer.writeStartElement("rating");
-                writer.writeCharacters("" + movie.getRating());
-                writer.writeEndElement();
-            }
-            
             if (StringTools.isValidString(movie.getYear())) {
                 writer.writeStartElement("year");
                 writer.writeCharacters(movie.getYear());
-                writer.writeEndElement();
-            }
-            
-            if (movie.getTop250() > -1) {
-                writer.writeStartElement("top250");
-                writer.writeCharacters("" + movie.getTop250());
                 writer.writeEndElement();
             }
             
