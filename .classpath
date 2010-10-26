@@ -6,22 +6,22 @@
 	<classpathentry excluding="*.bat|*.ch" kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="lib/commons-configuration-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/filters.jar" sourcepath="C:/Users/Julien/workspace/Filters/src"/>
 	<classpathentry kind="lib" path="lib/mucommanderlight.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="lib/thetvdbapi.jar"/>
 	<classpathentry kind="lib" path="lib/themoviedbapi.jar"/>
 	<classpathentry kind="lib" path="lib/ws-commons-util-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-client-3.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-common-3.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/simmetrics.jar"/>
 	<classpathentry kind="lib" path="lib/tvrageapi.jar"/>
 	<classpathentry kind="lib" path="lib/saxon9he.jar"/>
 	<classpathentry kind="lib" path="lib/pojava-2.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/javaanidbapi-0.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/xmlrpc-client-3.1.3.jar"/>
+	<classpathentry kind="lib" path="lib/xmlrpc-common-3.1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
