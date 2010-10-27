@@ -12,7 +12,7 @@
  */
 
 /**
- *  FanartScanner
+ *  Fanart Scanner
  *
  * Routines for locating and downloading Fanart for videos
  *
@@ -25,8 +25,6 @@ import static java.lang.Boolean.parseBoolean;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URLDecoder;
-import java.util.List;
-import java.util.logging.Logger;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -37,7 +35,6 @@ import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
 
 /**
  * Scanner for fanart files in local directory
@@ -46,7 +43,8 @@ import com.moviejukebox.tools.StringTools;
  * @version 1.0, 10th December 2008 - Initial code
  * @version 1.1, 19th July 2009 - Added Internet search
  */
-public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
+public class FanartScanner extends ArtworkScanner {
+    
     public FanartScanner() {
         super(ArtworkScanner.FANART);
         
@@ -60,14 +58,12 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
     public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
         String movieArtwork = super.scan(jukebox, movie, artworkImagePlugin);
         File localFanartFile = new File(movieArtwork);
-        
-        String fullFanartFilename = super.scan(jukebox, movie, artworkImagePlugin);
 
         boolean foundLocalFanart = FileTools.fileCache.fileExists(localFanartFile);
         
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
         if (foundLocalFanart) {
-            fullFanartFilename = localFanartFile.getAbsolutePath();
+            String fullFanartFilename = localFanartFile.getAbsolutePath();
             logger.finest("FanartScanner: File " + fullFanartFilename + " found");
 
             if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -108,7 +104,7 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
                 logger.finer("FanartScanner: " + finalDestinationFileName + " already exists");
             }
         } else {
-            // logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseFilename() + " attempting to download");
+            // logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseName() + " attempting to download");
             downloadFanart(artworkImagePlugin, jukebox, movie);
         }
         
@@ -128,7 +124,7 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
                 fanartFile.getParentFile().mkdirs();
 
                 try {
-                    logger.finest("FanartScanner: Downloading fanart for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.finest("Fanart Scanner: Downloading fanart for " + movie.getBaseName() + " to " + tmpDestFileName + " [calling plugin]");
 
                     FileTools.downloadImage(tmpDestFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(tmpDestFile);
@@ -141,12 +137,12 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.finer("FanartScanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
+                    logger.finer("Fanart Scanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
                     movie.setFanartFilename(Movie.UNKNOWN);
                     movie.setFanartURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.finest("FanartScanner: Fanart exists for " + movie.getBaseFilename());
+                logger.finest("Fanart Scanner: Fanart exists for " + movie.getBaseName());
             }
         }
     }
@@ -173,33 +169,32 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
         imdbID = movie.getId("imdb");
         tmdbID = movie.getId("themoviedb");
 
-        if (StringTools.isValidString(tmdbID)) {
-            moviedb = TMDb.moviedbGetInfo(tmdbID, language);
-        } else if (StringTools.isValidString(imdbID)) {
-            // The ImdbLookup contains images
-            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+        if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            //moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+            moviedb = TMDb.moviedbGetImages(tmdbID, language);
+        } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            //moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+            moviedb = TMDb.moviedbGetImages(imdbID, language);
         } else {
-            List<MovieDB> movieList = TMDb.moviedbSearch(movie.getOriginalTitle(), language);
-            moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
+            moviedb = TMDb.moviedbSearch(movie.getOriginalTitle(), language);
         }
 
-        // Check that the returned movie isn't null
+        // Check that the returned movie bean isn't null
         if (moviedb == null) {
-            logger.finer("FanartScanner: Error getting fanart for " + movie.getBaseFilename());
+            logger.finer("FanartScanner: Error getting fanart for " + movie.getBaseName());
             return Movie.UNKNOWN;
         }
-        
         try {
             Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
             if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
-                logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseFilename());
+                logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseName());
                 return Movie.UNKNOWN;
             } else {
                 movie.setDirtyFanart(true);
                 return fanartArtwork.getUrl();
             }
         } catch (Exception error) {
-            logger.severe("FanartScanner: TheMovieDB.org API Error: " + error.getMessage());
+            logger.severe("PosterScanner: TheMovieDB.org API Error: " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -228,48 +223,12 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
     public void setArtworkImagePlugin() {
         setImagePlugin(PropertiesUtil.getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
     }
+
     
     @Override
     public boolean isDirtyArtwork(Movie movie) {
         return movie.isDirtyFanart();
     }
 
-    @Override
-    public void setDirtyArtwork(Movie movie, boolean dirty) {
-        movie.setDirtyFanart(dirty);
-    }
 
-    /**
-     * Checks for older fanart property in case the skin hasn't been updated. 
-     * TODO: Remove this procedure at some point
-     * 
-     * @return true if the fanart is to be downloaded, or false otherwise
-     */
-    public static boolean checkDownloadFanart(boolean isTvShow) {
-        String fanartProperty = null;
-        boolean downloadFanart = false;
-        Logger staticLogger = Logger.getLogger("moviejukebox");
-
-        if (isTvShow) {
-            fanartProperty = PropertiesUtil.getProperty("fanart.tv.download", null);
-        } else {
-            fanartProperty = PropertiesUtil.getProperty("fanart.movie.download", null);
-        }
-        
-
-        // If this is null, then the property wasn't found, so look for the original
-        if (fanartProperty == null) {
-            staticLogger.severe("The property moviedb.fanart.download needs to be changed to 'fanart.tv.download' AND 'fanart.movie.download' ");
-            downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
-        } else {
-            try {
-                downloadFanart = Boolean.parseBoolean(fanartProperty);
-            } catch (Exception ignore) {
-                staticLogger.severe("ImdbPlugin: Error with fanart property, should be true/false and not '" + fanartProperty + "'");
-                downloadFanart = false;
-            }
-        }
-
-        return downloadFanart;
-    }
 }

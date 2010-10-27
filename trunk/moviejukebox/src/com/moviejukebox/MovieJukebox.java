@@ -86,9 +86,9 @@ import com.moviejukebox.tools.JukeboxProperties.PropertyInformation;
 import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -141,6 +141,11 @@ public class MovieJukebox {
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
     public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
+    
+    PosterScanner posterscanner = new PosterScanner();
+    FanartScanner fanartscanner = new FanartScanner();
+    BannerScanner bannerscanner = new BannerScanner();
+    VideoImageScanner videoimagescanner = new VideoImageScanner();
 
     int MaxThreadsProcess = 1;
     int MaxThreadsDownload = 1;
@@ -645,10 +650,10 @@ public class MovieJukebox {
          *  - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
          * 
          */
+        
         class ToolSet {
             public MovieImagePlugin imagePlugin = getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
-            public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin",
-                            "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
+            public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
             public MediaInfoScanner miScanner = new MediaInfoScanner();
             public AppleTrailersPlugin trailerPlugin = new AppleTrailersPlugin();
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
@@ -781,6 +786,7 @@ public class MovieJukebox {
         }
         
         logger.fine("Initializing...");
+
         try {
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
         } catch (Exception error) {
@@ -850,6 +856,7 @@ public class MovieJukebox {
         logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
         tasks.restart();
+
         if (library.size() > 0) {
             logger.fine("Searching for information on the video files...");
             int movieCounter = 0;
@@ -863,10 +870,9 @@ public class MovieJukebox {
                 tasks.submit(new Callable<Void>() {
 
                     public Void call() throws FileNotFoundException, XMLStreamException {
-
                         ToolSet tools = threadTools.get();
                         
-                        // Change the output message depending on the existance of the XML file
+                        // Change the output message depending on the existence of the XML file
                         boolean xmlExists = FileTools.fileCache.fileExists(jukebox.getJukeboxRootLocationDetails() + File.separator + movie.getBaseName() + ".xml");
                         if (xmlExists) {
                             logger.fine("Checking existing video: " + movieTitleExt);
@@ -883,18 +889,19 @@ public class MovieJukebox {
 
                         // Download episode images if required
                         if (videoimageDownload) {
-                            VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
+                            logger.finer("Updating video images for: " + movieTitleExt);
+                            videoimagescanner.scanLocalArtwork(jukebox, movie);
                         }
 
                         // Get Fanart only if requested
                         // Note that the FanartScanner will check if the file is newer / different
                         if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                            FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
+                            fanartscanner.scanLocalArtwork(jukebox, movie);
                         }
 
                         // Get Banner if requested and is a TV show
                         if (bannerDownload && movie.isTVShow()) {
-                            if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
+                            if (!bannerscanner.scanLocalArtwork(jukebox, movie).equals(Movie.UNKNOWN)) {
                                 updateTvBanner(jukebox, movie);
                             }
                         }
@@ -974,23 +981,30 @@ public class MovieJukebox {
                         logger.finer("Updating poster for index master: " + movie.getOriginalTitle() + "...");
 
                         // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
-                        String oldPosterFilename = movie.getPosterFilename();
+                        String oldArtworkFilename = movie.getPosterFilename();
+                        String foundArtworkFilename = Movie.UNKNOWN;
 
                         // Set a default poster name in case it's not found during the scan
                         movie.setPosterFilename(safeSetMasterBaseName + "." + getProperty("posters.format", "jpg"));
-                        if (PosterScanner.scan(jukebox, movie).equalsIgnoreCase(Movie.UNKNOWN)) {
-                            logger.finest("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldPosterFilename);
-                            movie.setPosterFilename(oldPosterFilename);
+                        foundArtworkFilename = posterscanner.scanLocalArtwork(jukebox, movie);
+                        
+                        if (foundArtworkFilename.equalsIgnoreCase(Movie.UNKNOWN)) {
+                            logger.finest("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldArtworkFilename);
+                            movie.setPosterFilename(oldArtworkFilename);
+                        } else {
+                            movie.setPosterURL(foundArtworkFilename);
+                            logger.finest("Local set poster found, using " + movie.getPosterFilename());                            
                         }
                         
                         // If this is a TV Show and we want to download banners, then also check for a banner Set file
                         if (movie.isTVShow() && bannerDownload) {
+                            oldArtworkFilename = movie.getBannerFilename();
                             // Set a default banner filename in case it's not found during the scan
                             movie.setBannerFilename(safeSetMasterBaseName + bannerToken + ".jpg");
-                            if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
+                            if (!bannerscanner.scanLocalArtwork(jukebox, movie).equals(Movie.UNKNOWN)) {
                                 updateTvBanner(jukebox, movie);
                                 logger.finest("Local set banner (" + safeSetMasterBaseName + bannerToken + ") not found, using "
-                                                + oldPosterFilename);
+                                                + oldArtworkFilename);
                             } else {
                                 logger.finest("Local set banner found, using " + movie.getBannerFilename());
                             }
@@ -998,17 +1012,18 @@ public class MovieJukebox {
 
                         // Check for Set Fanart
                         if (setIndexFanart) {
+                            oldArtworkFilename = movie.getFanartFilename();
                             // Set a default fanart filename in case it's not found during the scan
                             movie.setFanartFilename(safeSetMasterBaseName + fanartToken + ".jpg");
-                            if (!FanartScanner.scan(tools.backgroundPlugin, jukebox, movie)) {
+                            if (!fanartscanner.scanLocalArtwork(jukebox, movie).equals(Movie.UNKNOWN)) {
                                 logger.finest("Local set fanart (" + safeSetMasterBaseName + fanartToken + ") not found, using "
-                                                + oldPosterFilename);
+                                                + oldArtworkFilename);
                             } else {
                                 logger.finest("Local set fanart found, using " + movie.getFanartFilename());
                             }
                         }
 
-                        String thumbnailExtension = getProperty("thumbnails.format", "png");
+                        String thumbnailExtension = getProperty("thumbnail.format", "png");
                         movie.setThumbnailFilename(safeSetMasterBaseName + thumbnailToken + "." + thumbnailExtension);
                         String posterExtension = getProperty("posters.format", "png");
                         movie.setDetailPosterFilename(safeSetMasterBaseName + posterToken + "." + posterExtension);
@@ -1317,15 +1332,14 @@ public class MovieJukebox {
             DatabasePluginController.scanTVShowTitles(movie);
 
             // Update thumbnails format if needed
-            String thumbnailExtension = getProperty("thumbnails.format", "png");
+            String thumbnailExtension = getProperty("thumbnail.format", "png");
             movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailExtension);
             // Update poster format if needed
             String posterExtension = getProperty("posters.format", "png");
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
-            // Check for local CoverArt
-            PosterScanner.scan(jukebox, movie);
-
+            // Check for local Posters
+            posterscanner.scanLocalArtwork(jukebox, movie);
         } else {
             // No XML file for this movie. 
             // We've got to find movie information where we can (filename, IMDb, NFO, etc...) Add here extra scanners if needed.
@@ -1343,20 +1357,20 @@ public class MovieJukebox {
 
             // Added forceXMLOverwrite for issue 366
             if (!StringTools.isValidString(movie.getPosterURL()) || movie.isDirtyPoster()) {
-                PosterScanner.scan(jukebox, movie);
+                posterscanner.scanLocalArtwork(jukebox, movie);
             }
             
             DatabasePluginController.scan(movie);
-            // Issue 1323:      Posters not picked up from NFO file
+            // Issue 1323: Posters not picked up from NFO file
             // Only search for poster if we didn't have already
             if (!StringTools.isValidString(movie.getPosterURL())) {
-                PosterScanner.scan(movie);
+                posterscanner.scanOnlineArtwork(movie);
             }
             
             // Check for new fanart if we need to (Issue 1563)
             if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
                 if (!StringTools.isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
-                    FanartScanner.scan(backgroundPlugin, jukebox, movie);
+                    fanartscanner.scan(jukebox, movie, backgroundPlugin);
                 }
             }
         }
@@ -1373,11 +1387,6 @@ public class MovieJukebox {
         String posterFilename = movie.getPosterFilename();
         File posterFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + posterFilename);
         File tmpDestFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + posterFilename);
-
-        // Check to see if there is a local poster.
-        // Check to see if there are posters in the jukebox directories (target and temp)
-        // Check to see if the local poster is newer than either of the jukebox posters
-        // Download poster
 
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster()) || forcePosterOverwrite) {
@@ -1529,48 +1538,6 @@ public class MovieJukebox {
         return mlp;
     }
 
-    public static MovieImagePlugin getImagePlugin(String className) {
-        MovieImagePlugin imagePlugin;
-
-        try {
-            Thread t = Thread.currentThread();
-            ClassLoader cl = t.getContextClassLoader();
-            Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
-            imagePlugin = pluginClass.newInstance();
-        } catch (Exception error) {
-            imagePlugin = new DefaultImagePlugin();
-            logger.severe("Failed instanciating imagePlugin: " + className);
-            logger.severe("Default poster plugin will be used instead.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
-        }
-
-        return imagePlugin;
-    }
-
-    public static MovieImagePlugin getBackgroundPlugin(String className) {
-        MovieImagePlugin backgroundPlugin;
-
-        try {
-            Thread t = Thread.currentThread();
-            ClassLoader cl = t.getContextClassLoader();
-            Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
-            backgroundPlugin = pluginClass.newInstance();
-        } catch (Exception error) {
-            backgroundPlugin = new DefaultBackgroundPlugin();
-            logger.severe("Failed instanciating BackgroundPlugin: " + className);
-            logger.severe("Default background plugin will be used instead.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
-        }
-
-        return backgroundPlugin;
-    }
-
     public static MovieListingPlugin getListingPlugin(String className) {
         MovieListingPlugin listingPlugin;
         try {
@@ -1641,7 +1608,7 @@ public class MovieJukebox {
                         logger.warning("Error reading the dummy image file: " + src.getAbsolutePath());
                     }
                 }
-
+                
                 // Perspective code.
                 String perspectiveDirection = getProperty("thumbnails.perspectiveDirection", "right");
 
@@ -1934,6 +1901,48 @@ public class MovieJukebox {
         jukeboxPreserve = bJukeboxPreserve;
     }
 
+    public MovieImagePlugin getImagePlugin(String className) {
+        MovieImagePlugin imagePlugin;
+
+        try {
+            Thread t = Thread.currentThread();
+            ClassLoader cl = t.getContextClassLoader();
+            Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
+            imagePlugin = pluginClass.newInstance();
+        } catch (Exception error) {
+            imagePlugin = new DefaultImagePlugin();
+            logger.severe("Failed instanciating imagePlugin: " + className);
+            logger.severe("Default poster plugin will be used instead.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+
+        return imagePlugin;
+    }
+
+    public MovieImagePlugin getBackgroundPlugin(String className) {
+        MovieImagePlugin backgroundPlugin;
+
+        try {
+            Thread t = Thread.currentThread();
+            ClassLoader cl = t.getContextClassLoader();
+            Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
+            backgroundPlugin = pluginClass.newInstance();
+        } catch (Exception error) {
+            backgroundPlugin = new DefaultBackgroundPlugin();
+            logger.severe("Failed instanciating BackgroundPlugin: " + className);
+            logger.severe("Default background plugin will be used instead.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+
+        return backgroundPlugin;
+    }
+
     /**
      * Return the Jukebox object
      * @return the jukebox
@@ -1941,4 +1950,5 @@ public class MovieJukebox {
     public static final Jukebox getJukebox() {
         return jukebox;
     }
+
 }

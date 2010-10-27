@@ -351,6 +351,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @return The URL of the fanart
      */
     protected String getFanartURL(Movie movie) {
-        return FanartScanner.getFanartURL(movie);
+        FanartScanner fanartscanner = new FanartScanner();
+        return fanartscanner.scanOnlineArtwork(movie);
     }
 }

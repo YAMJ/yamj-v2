@@ -747,7 +747,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @return
      */
     protected String getFanartURL(Movie movie) {
-        return FanartScanner.getFanartURL(movie);
+        // TODO This needs to be moved from here
+        FanartScanner fanartscanner = new FanartScanner();
+        return fanartscanner.scanOnlineArtwork(movie);
     }
 
     @Override
