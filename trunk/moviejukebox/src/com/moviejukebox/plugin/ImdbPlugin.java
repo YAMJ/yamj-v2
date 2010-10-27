@@ -468,6 +468,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "releaseinfo", siteDef2.getCharset());
             }
             movie.setReleaseDate(HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, "\">" + preferredCountry, "</a></td>")).trim());
+            
+            // Check to see if there's a 4 digit year in the release date and terminate at that point
+            Matcher m = Pattern.compile(".*?\\d{4}+").matcher(movie.getReleaseDate());
+            if (m.find()) {
+                movie.setReleaseDate(m.group(0));
+            }
         }
 
         // RUNTIME
