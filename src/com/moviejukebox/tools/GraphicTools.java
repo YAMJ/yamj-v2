@@ -72,7 +72,7 @@ public class GraphicTools {
         return loadJPEGImage(new File(filename));
     }
 
-    public static BufferedImage loadJPEGImage(File f) throws IOException{
+    public static BufferedImage loadJPEGImage(File f) throws IOException {
         InputStream in = FileTools.createFileInputStream(f);
         BufferedImage b = loadJPEGImage(in);
         in.close();

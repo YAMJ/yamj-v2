@@ -30,17 +30,9 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
 
-    // private int nbRetry;
-
     public GooglePosterPlugin() {
         super();
         webBrowser = new WebBrowser();
-        // String retry = PropertiesUtil.getProperty("poster.scanner.google.retry", "3");
-        // try {
-        // nbRetry = Integer.parseInt(retry);
-        // } catch (Exception ex) {
-        // nbRetry = 3;
-        // }
     }
 
     @Override
@@ -52,6 +44,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(String title, String year) {
         Image posterImage = new Image();
+        PosterScanner posterscanner = new PosterScanner();
         try {
             StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
@@ -70,7 +63,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
                 // QuickFix to "too much translation issue" space char -> %20 -> %2520
                 posterImage.setUrl(st.nextToken().replace("%2520", "%20"));
-                if (!PosterScanner.validatePoster(posterImage)) {
+                if (!posterscanner.validateArtwork(posterImage)) {
                     posterImage.setUrl(Movie.UNKNOWN);
                 }
             }
