@@ -1219,7 +1219,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         sb.append("[fanartURL=").append(fanartURL).append("]");
         sb.append("[plot=").append(plot).append("]");
         sb.append("[outline=").append(outline).append("]");
-        sb.append("[director=").append(directors).append("]");
+        sb.append("[director=").append(directors.toString()).append("]");
         sb.append("[country=").append(country).append("]");
         sb.append("[company=").append(company).append("]");
         sb.append("[runtime=").append(runtime).append("]");
