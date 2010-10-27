@@ -84,27 +84,27 @@ public class Library implements Map<String, Movie> {
         }
     }
 
-    private static Logger                       logger = Logger.getLogger("moviejukebox");
-    private static boolean                      filterGenres;
-    private static boolean                      singleSeriesPage;
-    private static List<String>                 certificationOrdering = new ArrayList<String>();
-    private static Map<String, String>          genresMap             = new HashMap<String, String>();
-    private static Map<String, String>          categoriesMap         = new LinkedHashMap<String, String>();
-    private static Map<Character, Character>    charReplacementMap    = new HashMap<Character, Character>();
-    private static boolean                      charGroupEnglish      = false;
-    private TreeMap<String, Movie>              library               = new TreeMap<String, Movie>();
-    private Map<String, Movie>                  extras                = new TreeMap<String, Movie>();
-    private List<Movie>                         moviesList            = new ArrayList<Movie>();
-    private Map<String, Index>                  indexes               = new LinkedHashMap<String, Index>();
-    private Map<String, Index>                  unCompressedIndexes   = new LinkedHashMap<String, Index>();
-    private static DecimalFormat                paddedFormat          = new DecimalFormat("000"); // Issue 190
-    private static int                          maxGenresPerMovie = 3;
-    private static int                          newCount;
-    private static long                         newDays;
-    private static int                          minSetCount = 2;
-    private static boolean                      setsRequireAll = false;
-    private static String                       indexList;
-    private static boolean                      splitHD = false;
+    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static boolean filterGenres;
+    private static boolean singleSeriesPage;
+    private static List<String> certificationOrdering = new ArrayList<String>();
+    private static Map<String, String> genresMap = new HashMap<String, String>();
+    private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
+    private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
+    private static boolean charGroupEnglish = false;
+    private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
+    private Map<String, Movie> extras = new TreeMap<String, Movie>();
+    private List<Movie> moviesList = new ArrayList<Movie>();
+    private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
+    private Map<String, Index> unCompressedIndexes = new LinkedHashMap<String, Index>();
+    private static DecimalFormat paddedFormat = new DecimalFormat("000"); // Issue 190
+    private static int maxGenresPerMovie = 3;
+    private static int newCount;
+    private static long newDays;
+    private static int minSetCount = 2;
+    private static boolean setsRequireAll = false;
+    private static String indexList;
+    private static boolean splitHD = false;
 
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);

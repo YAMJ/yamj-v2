@@ -44,18 +44,12 @@ public class MovieDirectoryScanner {
 
     private int mediaLibraryRootPathIndex; // always includes path delimiter
     private final Set<String> supportedExtensions = new HashSet<String>();
-    private String detailFormat;
-    private String thumbnailFormat;
-    private String posterFormat;
-    private String bannerFormat;
-    private String fanartFormat;
-
-    private String detailToken;
-    private String thumbnailToken;
+    private String thumbnailsFormat;
+    private String postersFormat;
     private String posterToken;
+    private String thumbnailToken;
+    private String bannersFormat;
     private String bannerToken;
-    private String fanartToken;
-
     private String opensubtitles;
     private int hashpathdepth;
     private Boolean excludeFilesWithoutExternalSubtitles;
@@ -72,19 +66,12 @@ public class MovieDirectoryScanner {
         for (String ext : PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")) {
             supportedExtensions.add(ext);
         }
-
-        detailFormat     = PropertiesUtil.getProperty("posters.format",    "png");
-        thumbnailFormat  = PropertiesUtil.getProperty("thumbnails.format", "png");
-        posterFormat     = "jpg"; // Default to JPG 
-        bannerFormat     = PropertiesUtil.getProperty("banners.format",    "jpg");
-        fanartFormat     = PropertiesUtil.getProperty("fanart.format",     "jpg");
-
-        detailToken      = PropertiesUtil.getProperty("artwork.token.detail",        "_large");
-        thumbnailToken   = PropertiesUtil.getProperty("artwork.token.thumbnail",     "_small");
-        posterToken      = PropertiesUtil.getProperty("poster.scanner.artworkToken", "");
-        bannerToken      = PropertiesUtil.getProperty("banner.scanner.artworkToken", ".banner");
-        fanartToken      = PropertiesUtil.getProperty("fanart.scanner.artworkToken", ".fanart");
-
+        thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
+        postersFormat = PropertiesUtil.getProperty("posters.format", "png");
+        bannersFormat = PropertiesUtil.getProperty("banners.format", "png");
+        thumbnailToken = PropertiesUtil.getProperty("mjb.scanner.thumbnailToken", "_small");
+        posterToken = PropertiesUtil.getProperty("mjb.scanner.posterToken", "_large");
+        bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
         excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
         excludeMultiPartBluRay = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.excludeMultiPartBluRay", "false"));
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
@@ -335,11 +322,10 @@ public class MovieDirectoryScanner {
             movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + hashstr);
 
             movie.setLibraryPath(srcPath.getPath());
-            movie.setPosterFilename(movie.getBaseName() + posterToken + "." + posterFormat);
-            movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailFormat);
-            movie.setDetailPosterFilename(movie.getBaseName() + detailToken + "." + detailFormat);
-            movie.setBannerFilename(movie.getBaseName() + bannerToken + "." + bannerFormat);
-            movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartFormat);
+            movie.setPosterFilename(movie.getBaseName() + ".jpg");
+            movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailsFormat);
+            movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + postersFormat);
+            movie.setBannerFilename(movie.getBaseName() + bannerToken + "." + bannersFormat);
             movie.setSubtitles(hasSubtitles(movie.getFile())==true?"YES":"NO");
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());

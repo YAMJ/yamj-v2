@@ -19,9 +19,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static java.lang.Boolean.parseBoolean;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -43,32 +40,39 @@ import com.moviejukebox.tools.PropertiesUtil;
  * @version 1.0, 25th August 2009 - Initial code copied from FanartScanner.java
  * 
  */
-public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
+public class BannerScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Collection<String> bannerExtensions = new ArrayList<String>();
+    protected static String bannerToken;
+    protected static boolean bannerOverwrite;
     protected static boolean useFolderBanner;
     protected static Collection<String> bannerImageName;
 
-    public BannerScanner() {
-        super(ArtworkScanner.BANNER);
-        
-        try {
-            artworkOverwrite = parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
-        } catch (Exception ignore) {
-            artworkOverwrite = false;
+    static {
+
+        // We get valid extensions
+        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.bannerExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
+        while (st.hasMoreTokens()) {
+            bannerExtensions.add(st.nextToken());
         }
 
+        bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
+
+        bannerOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceBannersOverwrite", "false"));
+        
         // See if we use the folder banner artwork
         useFolderBanner = Boolean.parseBoolean(PropertiesUtil.getProperty("banner.scanner.useFolderImage", "false"));
         if (useFolderBanner) {
-            StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
+            st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
             bannerImageName = new ArrayList<String>();
             while (st.hasMoreTokens()) {
                 bannerImageName.add(st.nextToken());
             }
         }
+
     }
-    
+
     /**
      * Scan for local banners and download if necessary
      * 
@@ -77,7 +81,7 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
+    public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         String localBannerBaseFilename = movie.getBaseFilename();
         String fullBannerFilename = null;
         String parentPath = FileTools.getParentFolder(movie.getFile());
@@ -85,8 +89,8 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
         boolean foundLocalBanner = false;
 
         // Look for the banner.bannerToken.Extension
-        fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + artworkToken;
-        localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, artworkExtensions);
+        fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + bannerToken;
+        localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
         foundLocalBanner = localBannerFile.exists();
 
         // if no banner has been found, try the foldername.bannerToken.Extension
@@ -94,8 +98,8 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
             localBannerBaseFilename = FileTools.getParentFolderName(movie.getFile());
 
             // Checking for the MovieFolderName.*
-            fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + artworkToken;
-            localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, artworkExtensions);
+            fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + bannerToken;
+            localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
             foundLocalBanner = localBannerFile.exists();
         }
         
@@ -104,13 +108,14 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
             // Check for each of the farnartImageName.* files
             for (String fanartFilename : bannerImageName) {
                 fullBannerFilename = parentPath + File.separator + fanartFilename;
-                localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, artworkExtensions);
+                localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
                 foundLocalBanner = localBannerFile.exists();
 
                 if (!foundLocalBanner && movie.isTVShow()) {
                     // Get the parent directory and check that
                     fullBannerFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + fanartFilename;
-                    localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, artworkExtensions);
+                    System.out.println("SCANNER: " + fullBannerFilename);
+                    localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
                     foundLocalBanner = localBannerFile.exists();
                     if (foundLocalBanner) {
                         break;   // We found the artwork so quit the loop
@@ -126,7 +131,7 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
             fullBannerFilename = localBannerFile.getAbsolutePath();
             logger.finest("BannerScanner: File " + fullBannerFilename + " found");
             if (movie.getBannerFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setBannerFilename(movie.getBaseName() + artworkToken + "." + artworkFormat);
+                movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
             }
             if (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setBannerURL(localBannerFile.toURI().toString());
@@ -141,11 +146,11 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
             // Local Banner is newer OR ForcePosterOverwrite OR DirtyPoster
             // Can't check the file size because the jukebox banner may have been re-sized
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
-            if (artworkOverwrite || movie.isDirtyPoster() || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
+            if (bannerOverwrite || movie.isDirtyPoster() || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
                 try {
                     BufferedImage bannerImage = GraphicTools.loadJPEGImage(fullBannerFile);
                     if (bannerImage != null) {
-                        bannerImage = artworkImagePlugin.generate(movie, bannerImage, "banners", null);
+                        bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
                         logger.finer("BannerScanner: " + fullBannerFilename + " has been copied to " + destFileName);
                     } else {
@@ -163,10 +168,10 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
             
             // Don't download banners for sets as they will use the first banner from the set
             if (!movie.isSetMaster()) {
-                downloadBanner(artworkImagePlugin, jukebox, movie);
+                downloadBanner(imagePlugin, jukebox, movie);
             }
         }
-        return getArtworkUrl(movie);
+        return foundLocalBanner;
     }
 
     /**
@@ -178,7 +183,7 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    private void downloadBanner(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
+    private static void downloadBanner(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         if (movie.getBannerURL() != null && !movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             String safeBannerFilename = movie.getBannerFilename();
             String bannerFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeBannerFilename;
@@ -187,7 +192,7 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing banner unless ForceBannerOverwrite = true
-            if (artworkOverwrite || movie.isDirtyBanner() || (!bannerFile.exists() && !tmpDestFile.exists())) {
+            if (bannerOverwrite || movie.isDirtyBanner() || (!bannerFile.exists() && !tmpDestFile.exists())) {
                 bannerFile.getParentFile().mkdirs();
 
                 try {
@@ -215,51 +220,4 @@ public class BannerScanner extends ArtworkScanner implements IArtworkScanner {
         return;
     }
 
-    
-    @Override
-    public String getArtworkFilename(Movie movie) {
-        return movie.getBannerFilename();
-    }
-
-    
-    @Override
-    public String getArtworkUrl(Movie movie) {
-        return movie.getBannerURL();
-    }
-
-    
-    @Override
-    public void setArtworkFilename(Movie movie, String artworkFilename) {
-        movie.setBannerFilename(artworkFilename);
-    }
-
-    
-    @Override
-    public void setArtworkUrl(Movie movie, String artworkUrl) {
-        movie.setBannerURL(artworkUrl);
-    }
-
-    @Override
-    public String scanOnlineArtwork(Movie movie) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    
-    @Override
-    public void setArtworkImagePlugin() {
-        setImagePlugin(PropertiesUtil.getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
-    }
-
-    @Override
-    public boolean isDirtyArtwork(Movie movie) {
-        return movie.isDirtyBanner();
-    }
-
-    @Override
-    public void setDirtyArtwork(Movie movie, boolean dirty) {
-        // TODO Auto-generated method stub
-        
-    }
-    
 }

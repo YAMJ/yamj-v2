@@ -19,12 +19,11 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static java.lang.Boolean.parseBoolean;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Jukebox;
@@ -42,22 +41,25 @@ import com.moviejukebox.tools.PropertiesUtil;
  * @version 1.0, 25th August 2009 - Initial code copied from FanartScanner.java
  * 
  */
-public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner {
-    
+public class VideoImageScanner {
+
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected static String skinHome;
+    protected static Collection<String> videoimageExtensions = new ArrayList<String>();
+    protected static String videoimageToken;
+    protected static boolean videoimageOverwrite;
 
-    public VideoImageScanner() {
-        super("videoimage");
-        
-        try {
-            artworkOverwrite = parseBoolean(getProperty("mjb.forceVideoImagesOverwrite", "false"));
-        } catch (Exception ignore) {
-            artworkOverwrite = false;
+    static {
+
+        // We get valid extensions
+        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("videoimage.scanner.videoimageExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
+        while (st.hasMoreTokens()) {
+            videoimageExtensions.add(st.nextToken());
         }
-
         
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        videoimageToken = PropertiesUtil.getProperty("videoimage.scanner.videoimageToken", ".videoimage");
+        videoimageOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceVideoImagesOverwrite", "false"));
     }
 
     /**
@@ -68,10 +70,10 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
+    public static void scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         // Check to see if this is a TV show.
         if (!movie.isTVShow()) {
-            return Movie.UNKNOWN;
+            return;
         }
 
         String genericVideoImageFilename = null;
@@ -91,10 +93,10 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
         localVideoImageBaseFilename = FileTools.getParentFolder(movie.getFile());
        
         localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator) + 1);
-        genericVideoImageFilename = movie.getFile().getParent() + File.separator + localVideoImageBaseFilename + artworkToken;
+        genericVideoImageFilename = movie.getFile().getParent() + File.separator + localVideoImageBaseFilename + videoimageToken;
 
         // Look for the various versions of the file with different image extensions
-        videoimageExtension = findVideoImageFile(genericVideoImageFilename, artworkExtensions);
+        videoimageExtension = findVideoImageFile(genericVideoImageFilename, videoimageExtensions);
 
         if (videoimageExtension != null) {             // The filename and extension was found
             genericVideoImageFilename += videoimageExtension;
@@ -120,14 +122,14 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
                 
                 if (mf.getFile().isDirectory()) {
                     localVideoImageBaseFilename = mf.getFile().getPath();
-                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + artworkToken;
+                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
                 } else if (mf.getFile().getParent().toString().contains("BDMV" + File.separator + "STREAM")) {
                     localVideoImageBaseFilename = mf.getFile().getPath().toString();
                     localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.indexOf("BDMV" + File.separator + "STREAM") - 1); 
-                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + artworkToken;
+                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
                 } else {
                     localVideoImageBaseFilename = mf.getFile().getName();
-                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + artworkToken;
+                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;
                 }
                 
                 fullVideoImageFilename = FileTools.getParentFolder(mf.getFile()) + File.separator + localVideoImageBaseFilename;
@@ -140,7 +142,7 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
                     String suffixFullVideoImageFilename = originalFullVideoImageFilename + partSuffix;
                     
                     // Check for the videoimage filename with the "_part" suffix
-                    videoimageExtension = findVideoImageFile(suffixFullVideoImageFilename, artworkExtensions);
+                    videoimageExtension = findVideoImageFile(suffixFullVideoImageFilename, videoimageExtensions);
                     
                     if (videoimageExtension != null) {
                         // The filename and extension was found
@@ -162,7 +164,7 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
                 // If the wasn't a specific "videoimage_{part}" then look for a more generic videoimage filename
                 if (!foundLocalVideoImage) {
                     // Check for the videoimage filename without the "_part" suffix
-                    videoimageExtension = findVideoImageFile(fullVideoImageFilename, artworkExtensions);
+                    videoimageExtension = findVideoImageFile(fullVideoImageFilename, videoimageExtensions);
                     
                     if (videoimageExtension != null) {
                         // The filename and extension was found
@@ -180,7 +182,7 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
                 // If we don't have a filename, then fill it in here.
                 if (mf.getVideoImageFilename(part) == null || mf.getVideoImageFilename(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                     if (videoimageExtension == null) {
-                        videoimageExtension = "." + artworkFormat;
+                        videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
                         
                         if (firstPart < lastPart) {
                             localVideoImageBaseFilename += partSuffix + videoimageExtension;
@@ -233,8 +235,8 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
                     // Local VideoImage is newer OR ForceVideoImageOverwrite OR DirtyVideoImage
                     // Can't check the file size because the jukebox videoimage may have been re-sized
                     // This may mean that the local art is different to the jukebox art even if the local file date is newer
-                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || artworkOverwrite || localOverwrite || movie.isDirty()) {
-                        if (processImage(artworkImagePlugin, movie, fullVideoImageFilename, tmpDestFilename)) {
+                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty()) {
+                        if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename)) {
                             logger.finer("VideoImageScanner: " + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
                         } else {
                             // Processing failed, so try backup image
@@ -244,7 +246,7 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
                             FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"), tmpDestFile);
                             
                             // Process the dummy videoimage in the temp folder
-                            if (processImage(artworkImagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
+                            if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
                                 logger.finest("VideoImage Scanner: Using default videoimage");
                                 mf.setVideoImageURL(part, Movie.UNKNOWN);   // So we know this is a dummy videoimage
                             } else {
@@ -259,12 +261,10 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
                     }
                 } else {
                     // logger.finer("VideoImageScanner : No local VideoImage found for " + movie.getBaseName() + " attempting to download");
-                    downloadVideoImage(artworkImagePlugin, jukebox, movie, mf, part);
+                    downloadVideoImage(imagePlugin, jukebox, movie, mf, part);
                 }
             }
         }
-        
-        return getArtworkUrl(movie);
     }
 
     /**
@@ -300,7 +300,7 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
-    private void downloadVideoImage(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie, MovieFile mf, int part) {
+    private static void downloadVideoImage(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie, MovieFile mf, int part) {
 
         if (mf.getVideoImageURL(part) != null && !mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
             String safeVideoImageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
@@ -311,7 +311,7 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
             boolean fileOK = true;
             
             // Do not overwrite existing videoimage unless ForceVideoImageOverwrite = true
-            if ((!videoimageFile.exists() && !tmpDestFile.exists()) || artworkOverwrite) {
+            if ((!videoimageFile.exists() && !tmpDestFile.exists()) || videoimageOverwrite) {
                 videoimageFile.getParentFile().mkdirs();
 
                 // Download the videoimage using the proxy save downloadImage
@@ -352,12 +352,12 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
      * @param extensions
      * @return extension of videoimage that was found
      */
-    private static String findVideoImageFile(String fullVideoImageFilename, Collection<String> artworkExtensions) {
+    private static String findVideoImageFile(String fullVideoImageFilename, Collection<String> videoimageExtensions) {
         File localVideoImageFile;
         String videoimageExtension = null;
         boolean foundLocalVideoImage = false;
 
-        for (String extension : artworkExtensions) {
+        for (String extension : videoimageExtensions) {
             localVideoImageFile = new File(fullVideoImageFilename + "." + extension);
             if (localVideoImageFile.exists()) {
                 //logger.finest("The file " + fullVideoImageFilename + "." + extension + " found");
@@ -374,50 +374,4 @@ public class VideoImageScanner extends ArtworkScanner implements IArtworkScanner
             return null;
         }
     }
-
-    @Override
-    public String getArtworkFilename(Movie movie) {
-        logger.severe(logMessage + this.getClass() + " NOT USED!!!");
-        return Movie.UNKNOWN;
-    }
-
-    @Override
-    public String getArtworkUrl(Movie movie) {
-        logger.severe(logMessage + this.getClass() + " NOT USED!!!");
-        return Movie.UNKNOWN;
-    }
-
-    @Override
-    public void setArtworkFilename(Movie movie, String artworkFilename) {
-        logger.severe(logMessage + this.getClass() + " NOT USED!!!");
-    }
-
-    @Override
-    public void setArtworkUrl(Movie movie, String artworkUrl) {
-        logger.severe(logMessage + this.getClass() + " NOT USED!!!");
-    }
-
-    @Override
-    public String scanOnlineArtwork(Movie movie) {
-        logger.severe(logMessage + this.getClass() + " NOT USED!!!");
-        return Movie.UNKNOWN;
-    }
-
-    @Override
-    public void setArtworkImagePlugin() {
-        setImagePlugin(PropertiesUtil.getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
-    }
-
-    
-    @Override
-    public boolean isDirtyArtwork(Movie movie) {
-        return false;
-    }
-
-    @Override
-    public void setDirtyArtwork(Movie movie, boolean dirty) {
-        // TODO Auto-generated method stub
-        
-    }
-
 }

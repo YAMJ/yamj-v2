@@ -91,12 +91,11 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
                 if (artworkList.size() > 0) {
                     Image image;
                     boolean validImage = false;
-                    PosterScanner ps = new PosterScanner();
                     
                     for (Artwork artwork : artworkList) {
                         posterURL = artwork.getUrl();
                         image = new Image(posterURL);
-                        validImage = ps.validateArtwork(image);
+                        validImage = PosterScanner.validatePoster(image);
                         if (validImage) {
                             logger.finest("MovieDbPosterPlugin : Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
                             break;
