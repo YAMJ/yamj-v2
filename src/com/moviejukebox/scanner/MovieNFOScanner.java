@@ -322,7 +322,7 @@ public class MovieNFOScanner {
             } else {
                 // We put this here, even though, technically, we've already searched for the file
                 // so the user will see where they COULD place the file.
-                //logger.finest("Checking for NFO: " + checkNFOfilename + "." + ext);
+                logger.finest("Checking for NFO: " + checkNFOfilename + "." + ext);
             }
         }
     }

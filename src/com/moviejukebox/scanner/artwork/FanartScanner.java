@@ -19,13 +19,13 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static java.lang.Boolean.parseBoolean;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.Jukebox;
@@ -46,32 +46,91 @@ import com.moviejukebox.tools.StringTools;
  * @version 1.0, 10th December 2008 - Initial code
  * @version 1.1, 19th July 2009 - Added Internet search
  */
-public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
-    public FanartScanner() {
-        super(ArtworkScanner.FANART);
-        
-        try {
-            artworkOverwrite = parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
-        } catch (Exception ignore) {
-            artworkOverwrite = false;
-        }
-    }
-    
-    public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
-        String movieArtwork = super.scan(jukebox, movie, artworkImagePlugin);
-        File localFanartFile = new File(movieArtwork);
-        
-        String fullFanartFilename = super.scan(jukebox, movie, artworkImagePlugin);
+public class FanartScanner {
 
-        boolean foundLocalFanart = FileTools.fileCache.fileExists(localFanartFile);
+    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Collection<String> fanartExtensions = new ArrayList<String>();
+    protected static String fanartToken;
+    protected static boolean fanartOverwrite;
+    protected static boolean useFolderBackground;
+    protected static Collection<String> fanartImageName;
+
+    static {
+
+        // We get valid extensions
+        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.fanartExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
+        while (st.hasMoreTokens()) {
+            fanartExtensions.add(st.nextToken());
+        }
+
+        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+
+        fanartOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceFanartOverwrite", "false"));
         
+        // See if we use background.* or fanart.*
+        useFolderBackground = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.useFolderImage", "false"));
+        if (useFolderBackground) {
+            st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
+            fanartImageName = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                fanartImageName.add(st.nextToken());
+            }
+        }
+
+    }
+
+    public static boolean scan(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
+        String localFanartBaseFilename = movie.getBaseFilename();
+        String fullFanartFilename = null;
+        String parentPath = FileTools.getParentFolder(movie.getFile());
+        File localFanartFile = null;
+        boolean foundLocalFanart = false;
+
+        // Look for the videoname.fanartToken.Extension
+        fullFanartFilename = parentPath + File.separator + localFanartBaseFilename + fanartToken;
+        localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
+        foundLocalFanart = localFanartFile.exists();
+
+        // if no fanart has been found, try the foldername.fanartToken.Extension
+        if (!foundLocalFanart) {
+            localFanartBaseFilename = FileTools.getParentFolderName(movie.getFile());
+
+            // Checking for the MovieFolderName.*
+            fullFanartFilename = parentPath + File.separator + localFanartBaseFilename + fanartToken;
+            localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
+            foundLocalFanart = localFanartFile.exists();
+        }
+
+        // Check for fanart.* and background.* fanart.
+        if (!foundLocalFanart && useFolderBackground) {
+            // Check for each of the farnartImageName.* files
+            for (String fanartFilename : fanartImageName) {
+                fullFanartFilename = parentPath + File.separator + fanartFilename;
+                localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
+                foundLocalFanart = localFanartFile.exists();
+
+                if (!foundLocalFanart && movie.isTVShow()) {
+                    // Get the parent directory and check that
+                    fullFanartFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + fanartFilename;
+                    System.out.println("SCANNER: " + fullFanartFilename);
+                    localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
+                    foundLocalFanart = localFanartFile.exists();
+                    if (foundLocalFanart) {
+                        break;   // We found the artwork so quit the loop
+                    }
+                } else {
+                    break;    // We found the artwork so quit the loop
+                }
+            }
+        }
+
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
         if (foundLocalFanart) {
             fullFanartFilename = localFanartFile.getAbsolutePath();
             logger.finest("FanartScanner: File " + fullFanartFilename + " found");
 
             if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setFanartFilename(movie.getBaseName() + artworkToken + "." + FileTools.getFileExtension(localFanartFile.getName()));
+                movie.setFanartFilename(movie.getBaseFilename() + fanartToken + "." + FileTools.getFileExtension(localFanartFile.getName()));
             }
             if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
@@ -86,11 +145,11 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
             // Local Fanart is newer OR ForceFanartOverwrite OR DirtyFanart
             // Can't check the file size because the jukebox fanart may have been re-sized
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
-            if (FileTools.isNewer(fullFanartFile, finalDestinationFile) || artworkOverwrite || movie.isDirtyFanart()) {
+            if (FileTools.isNewer(fullFanartFile, finalDestinationFile) || fanartOverwrite || movie.isDirtyFanart()) {
                 try {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(fullFanartFile);
                     if (fanartImage != null) {
-                        fanartImage = artworkImagePlugin.generate(movie, fanartImage, "fanart", null);
+                        fanartImage = backgroundPlugin.generate(movie, fanartImage, "fanart", null);
                         if (Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.perspective", "false"))) {
                             destFileName = destFileName.subSequence(0, destFileName.lastIndexOf(".") + 1) + "png";
                             movie.setFanartFilename(destFileName);
@@ -109,13 +168,13 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
             }
         } else {
             // logger.finer("FanartScanner : No local Fanart found for " + movie.getBaseFilename() + " attempting to download");
-            downloadFanart(artworkImagePlugin, jukebox, movie);
+            downloadFanart(backgroundPlugin, jukebox, movie);
         }
         
-        return getArtworkUrl(movie);
+        return foundLocalFanart;
     }
 
-    private void downloadFanart(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
+    private static void downloadFanart(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
         if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
             String safeFanartFilename = movie.getFanartFilename();
             String fanartFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeFanartFilename;
@@ -124,7 +183,7 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing fanart unless ForceFanartOverwrite = true
-            if (artworkOverwrite || (!fanartFile.exists() && !tmpDestFile.exists())) {
+            if (fanartOverwrite || (!fanartFile.exists() && !tmpDestFile.exists())) {
                 fanartFile.getParentFile().mkdirs();
 
                 try {
@@ -159,7 +218,7 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
      *            The movie bean to get the fanart for
      * @return A string URL pointing to the fanart
      */
-    public String scanOnlineArtwork(Movie movie) {
+    public static String getFanartURL(Movie movie) {
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
         String language = PropertiesUtil.getProperty("themoviedb.language", "en");
         String imdbID = null;
@@ -204,41 +263,6 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
         }
     }
 
-    @Override
-    public String getArtworkFilename(Movie movie) {
-        return movie.getFanartFilename();
-    }
-
-    @Override
-    public String getArtworkUrl(Movie movie) {
-        return movie.getFanartURL();
-    }
-
-    @Override
-    public void setArtworkFilename(Movie movie, String artworkFilename) {
-        movie.setFanartFilename(artworkFilename);
-    }
-
-    @Override
-    public void setArtworkUrl(Movie movie, String artworkUrl) {
-        movie.setFanartURL(artworkUrl);
-    }
-    
-    @Override
-    public void setArtworkImagePlugin() {
-        setImagePlugin(PropertiesUtil.getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
-    }
-    
-    @Override
-    public boolean isDirtyArtwork(Movie movie) {
-        return movie.isDirtyFanart();
-    }
-
-    @Override
-    public void setDirtyArtwork(Movie movie, boolean dirty) {
-        movie.setDirtyFanart(dirty);
-    }
-
     /**
      * Checks for older fanart property in case the skin hasn't been updated. 
      * TODO: Remove this procedure at some point
@@ -248,7 +272,6 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
     public static boolean checkDownloadFanart(boolean isTvShow) {
         String fanartProperty = null;
         boolean downloadFanart = false;
-        Logger staticLogger = Logger.getLogger("moviejukebox");
 
         if (isTvShow) {
             fanartProperty = PropertiesUtil.getProperty("fanart.tv.download", null);
@@ -259,13 +282,13 @@ public class FanartScanner extends ArtworkScanner implements IArtworkScanner {
 
         // If this is null, then the property wasn't found, so look for the original
         if (fanartProperty == null) {
-            staticLogger.severe("The property moviedb.fanart.download needs to be changed to 'fanart.tv.download' AND 'fanart.movie.download' ");
+            logger.severe("The property moviedb.fanart.download needs to be changed to 'fanart.tv.download' AND 'fanart.movie.download' ");
             downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
         } else {
             try {
                 downloadFanart = Boolean.parseBoolean(fanartProperty);
             } catch (Exception ignore) {
-                staticLogger.severe("ImdbPlugin: Error with fanart property, should be true/false and not '" + fanartProperty + "'");
+                logger.severe("ImdbPlugin: Error with fanart property, should be true/false and not '" + fanartProperty + "'");
                 downloadFanart = false;
             }
         }
