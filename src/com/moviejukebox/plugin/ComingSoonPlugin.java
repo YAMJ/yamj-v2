@@ -38,6 +38,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private static String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
     private static String COMINGSOON_KEY_PARAM= "key=";
     private static int COMINGSOON_MAX_DIFF = 1000;
+    private static final String POSTER_BASE_URL = "http://www.comingsoon.it/imgdb/locandine/big/";
 
     protected int preferredPlotLength;
 
@@ -48,30 +49,30 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     @Override
-    public boolean scan(Movie mediaFile) {
+    public boolean scan(Movie movie) {
 
-        String comingSoonId = mediaFile.getId(COMINGSOON_PLUGIN_ID);
+        String comingSoonId = movie.getId(COMINGSOON_PLUGIN_ID);
 
         // First we try on comingsoon.it
         
-        if (comingSoonId == null || comingSoonId.equalsIgnoreCase(Movie.UNKNOWN)) {
-            comingSoonId = getComingSoonId(mediaFile.getTitle(), mediaFile.getYear());
-            mediaFile.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
+        if (!StringTools.isValidString(comingSoonId)) {
+            comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear());
+            movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
         }
 
         // Then we use IMDB to get complete information. We back up outline and plot, since ImdbPlugin will overwrite them.
         
-        String bkPlot = mediaFile.getPlot();
+        String bkPlot = movie.getPlot();
 
         logger.finest("ComingSoon: Checking IMDB");
-        boolean firstScanImdb = super.scan(mediaFile);      
+        boolean firstScanImdb = super.scan(movie);      
         if (comingSoonId.equalsIgnoreCase(Movie.UNKNOWN)) {
             // First run wasn't successful
             if (firstScanImdb) {
                 // We try to fetch again ComingSoon, hopefully with more info
                 logger.finest("ComingSoon: First search on ComingSoon was KO, retrying after succesful query to IMDB");
-                comingSoonId = getComingSoonId(mediaFile.getTitle(), mediaFile.getYear());
-                mediaFile.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
+                comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear());
+                movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
             }
         }
 
@@ -80,13 +81,13 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             logger.finest("ComingSoon: Fetching movie data from ComingSoon");
             
-            String bkPlot2 = mediaFile.getPlot();
-            mediaFile.setPlot(bkPlot);
+            String bkPlot2 = movie.getPlot();
+            movie.setPlot(bkPlot);
             
-            firstScanComingSoon = updateComingSoonMediaInfo(mediaFile);
+            firstScanComingSoon = updateComingSoonMediaInfo(movie);
             
-            if (mediaFile.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setPlot(bkPlot2);
+            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+                movie.setPlot(bkPlot2);
             }
         }
         
@@ -95,28 +96,32 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             logger.finest("ComingSoon: First scan on IMDB KO, retrying after succesful scan on ComingSoon");
             
-            String bkTitle = mediaFile.getTitle();
-            String bkOriginalTitle = mediaFile.getOriginalTitle();
+            String bkTitle = movie.getTitle();
+            String bkOriginalTitle = movie.getOriginalTitle();
 
-            super.scan(mediaFile);
+            super.scan(movie);
             
 
             if (!bkOriginalTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setTitle(bkOriginalTitle);
+                movie.setTitle(bkOriginalTitle);
             } else if (!bkTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setTitle(bkTitle);
+                movie.setTitle(bkTitle);
             }
             
             if (!bkOriginalTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
-                mediaFile.setOriginalTitle(bkOriginalTitle);
+                movie.setOriginalTitle(bkOriginalTitle);
             }
 
         }
         
-        if (mediaFile.getOriginalTitle().equalsIgnoreCase(Movie.UNKNOWN)) {
-            mediaFile.setOriginalTitle(mediaFile.getTitle());
+        if (movie.getOriginalTitle().equalsIgnoreCase(Movie.UNKNOWN)) {
+            movie.setOriginalTitle(movie.getTitle());
         }
         
+        // Quick and dirty set the poster URL if it's blank
+        if (StringTools.isValidString(comingSoonId) && !StringTools.isValidString(movie.getPosterURL())) {
+            movie.setPosterURL(POSTER_BASE_URL + comingSoonId + ".jpg");
+        }
         
         /*logger.fine("------- FINAL RESULTS");
         logger.fine("TITLE:" + mediaFile.getTitle());
@@ -204,7 +209,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
             String xml = webBrowser.request(sb.toString());
             
             ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
-
             
             for (int i = 0; i < movieList.size() && scoreToBeat > 0; i++) {
                 String lId = (String) movieList.get(i)[0];
