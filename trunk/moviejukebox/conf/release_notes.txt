@@ -37,6 +37,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect #1652 File dates are not updated correctly when scanning files
   - Fixed defect #1656 Incorrect character encoding for non-English TV Shows
   - Fixed defect #1674 Remove transient info from YAMJ generated NFO file
+  - Enhancement  #1675 Recheck now checks for missing poster and banner artwork
 
 MovieJukebox 2.1
 ----------------

@@ -125,10 +125,10 @@ public class MovieJukebox {
     private static String videoimageToken;
     private static String fanartToken;
 
-    private boolean fanartMovieDownload;
-    private boolean fanartTvDownload;
-    private boolean videoimageDownload;
-    private boolean bannerDownload;
+    private static boolean fanartMovieDownload;
+    private static boolean fanartTvDownload;
+    private static boolean videoimageDownload;
+    private static boolean bannerDownload;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
     private boolean recheckXML;
@@ -485,7 +485,7 @@ public class MovieJukebox {
                         // Make an empty one.
                         newFile.createNewFile();
 
-                        // Copy nfo / properties / .xml
+                        // Copy NFO / properties / .XML
                         if (ArrayUtils.contains(extensionToCopy, fileName.substring(fileName.length() - 3))) {
                             logger.info("Coyping " + file + " to " + newFile);
                             FileTools.copyFile(file, newFile);
@@ -577,8 +577,8 @@ public class MovieJukebox {
         // This is what these properties should look like
         // this.fanartMovieDownload = parseBoolean(getProperty("fanart.movie.download", "false"));
         // this.fanartTvDownload = parseBoolean(getProperty("fanart.tv.download", "false"));
-        this.fanartMovieDownload = FanartScanner.checkDownloadFanart(false);
-        this.fanartTvDownload = FanartScanner.checkDownloadFanart(true);
+        fanartMovieDownload = FanartScanner.checkDownloadFanart(false);
+        fanartTvDownload = FanartScanner.checkDownloadFanart(true);
 
         this.setIndexFanart = parseBoolean(getProperty("mjb.sets.indexFanart", "false"));
         
@@ -1871,9 +1871,28 @@ public class MovieJukebox {
                 return true;
             }
             
+            if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                logger.finest("Recheck: " + movie.getBaseName() + " is missing poster, will rescan");
+                recheckCount++;
+                return true;
+            }
+            
+            if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
+                    logger.finest("Recheck: " + movie.getBaseName() + " is missing fanart, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+            }
+            
             if (movie.isTVShow()) {
                 boolean recheckEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
-                boolean recheckVideoImages  = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+                
+                if (bannerDownload && movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    logger.finest("Recheck: " + movie.getBaseName() + " is missing banner artwork, will rescan");
+                    recheckCount++;
+                    return true;
+                }
                 
                 // scan the TV episodes
                 for (MovieFile mf : movie.getMovieFiles()) {
@@ -1883,8 +1902,8 @@ public class MovieJukebox {
                         recheckCount++;
                         return true;
                     }
-                    
-                    if (recheckEpisodePlots || recheckVideoImages) {
+
+                    if (recheckEpisodePlots || videoimageDownload) {
                         for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                             if (recheckEpisodePlots && mf.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV plot, will rescan");
@@ -1893,7 +1912,7 @@ public class MovieJukebox {
                                 return true;
                             } // plots
                             
-                            if (recheckVideoImages && mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (videoimageDownload && mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV video image, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
