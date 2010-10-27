@@ -120,10 +120,16 @@ public class MovieJukeboxHTMLWriter {
                 }
                 Result xmlResult = new StreamResult(tempHtmlFile);
 
-                transformer.transform(xmlSource, xmlResult);
+                if (xmlSource != null && xmlResult != null) {
+                    transformer.transform(xmlSource, xmlResult);
+                } else {
+                    logger.severe("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + 
+                                    " source: " + (xmlSource == null ? true : false) + 
+                                    " result: " + (xmlResult == null ? true : false));
+                }
             }
         } catch (Exception error) {
-            logger.severe("HTMLWriter: Failed generating HTML for movie " + movie);
+            logger.severe("HTMLWriter: Failed generating HTML for movie " + movie.getBaseFilename());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
