@@ -611,7 +611,11 @@ public class MediaInfoScanner {
 
             // Make sure we have a codec & language before continuing
             if (StringTools.isValidString(infoFormat) && StringTools.isValidString(infoLanguage)) { 
-                if (infoFormat.equals("SRT") || infoFormat.equals("UTF-8") || infoFormat.equals("RLE") || infoFormat.equals("PGS")) {
+                if (infoFormat.equalsIgnoreCase("SRT") || 
+                        infoFormat.equalsIgnoreCase("UTF-8") || 
+                        infoFormat.equalsIgnoreCase("RLE") || 
+                        infoFormat.equalsIgnoreCase("PGS") || 
+                        infoFormat.equalsIgnoreCase("VobSub")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
                     if (oldInfo.equalsIgnoreCase(Movie.UNKNOWN) || oldInfo.equalsIgnoreCase("NO")) {
                         movie.setSubtitles(infoLanguage);

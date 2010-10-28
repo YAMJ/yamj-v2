@@ -8,6 +8,7 @@ MovieJukebox 2.2 BETA
   - Fixed defect  #558 New episodes from TV series didn't appear in the NEW Category.
   - Enhancement   #735 Allow users to tune category parameters on a per-category basis
   - Enhancement   #773 Save NFO files
+  - Enhancement  #1440 Detect VOBSUB tracks in MKV files
   - Enhancement  #1497 Timeouts added for TheTVDb and TheMovieDb
   - Fixed defect #1546 New index not updating correctly
   - Fixed defect #1555 Genres added to ComingSoon plugin
