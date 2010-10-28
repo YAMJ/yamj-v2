@@ -38,9 +38,11 @@ import com.jhlabs.image.PerspectiveFilter;
 public class GraphicTools {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    /// Loading / Saving
-    //
+    /**
+     * Load a JPG image from a file (input stream)
+     * @param fis
+     * @return
+     */
     private static BufferedImage loadJPEGImage(InputStream fis) {
         // Create BufferedImage
         BufferedImage bi = null;
@@ -68,10 +70,22 @@ public class GraphicTools {
         return bi;
     }
 
+    /**
+     * Load a JPG image from a filename
+     * @param filename
+     * @return
+     * @throws IOException
+     */
     public static BufferedImage loadJPEGImage(String filename) throws IOException {
         return loadJPEGImage(new File(filename));
     }
 
+    /**
+     * Load a JPG image from a file
+     * @param f
+     * @return
+     * @throws IOException
+     */
     public static BufferedImage loadJPEGImage(File f) throws IOException{
         InputStream in = FileTools.createFileInputStream(f);
         BufferedImage b = loadJPEGImage(in);
@@ -79,6 +93,11 @@ public class GraphicTools {
         return b;
     }
 
+    /**
+     * Load a JPG image from an URL
+     * @param url
+     * @return
+     */
     public static BufferedImage loadJPEGImage(URL url) {
         BufferedImage bi = null;
         try {
@@ -145,9 +164,13 @@ public class GraphicTools {
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    /// Bicubic image scaling
-    //
+    /**
+     * Bi-cubic image scaling
+     * @param nMaxWidth
+     * @param nMaxHeight
+     * @param imgSrc
+     * @return
+     */
     public static BufferedImage scaleToSize(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
         /* determine thumbnail size from WIDTH and HEIGHT */
         int imageWidth = imgSrc.getWidth(null);

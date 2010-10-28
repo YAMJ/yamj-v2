@@ -34,6 +34,7 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
 
@@ -50,6 +51,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addHDLogo;
     private boolean addTVLogo;
     private boolean addSetLogo;
+    private boolean addSubTitle;
     private boolean addLanguage;
     private int imageWidth;
     private int imageHeight;
@@ -85,25 +87,26 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         // Specific Properties (dependent upon the imageType)
-        imageWidth = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".width", "400"));
-        imageHeight = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".height", "600"));
+        imageWidth          = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".width", "400"));
+        imageHeight         = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".height", "600"));
         addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".reflection", "false"));
-        addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));
-        imageNormalize = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".normalize", "false"));
-        addHDLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoHD", "false"));
-        addTVLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoTV", "false"));
-        addSetLogo = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
-        addLanguage = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
+        addPerspective      = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));
+        imageNormalize      = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".normalize", "false"));
+        addHDLogo           = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoHD", "false"));
+        addTVLogo           = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoTV", "false"));
+        addSetLogo          = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
+        addSubTitle         = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSubTitle", "false"));
+        addLanguage         = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
 
-        addTextTitle = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.title", "false"));
-        addTextSeason = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.season", "false"));
-        addTextSetSize = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.setSize", "false")); // Note: This should only be for thumbnails
-        textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
-        textFont = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
-        textFontSize = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.fontSize", "36"));
-        textFontColor = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
-        textFontShadow = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
-        textOffset = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.offset", "10"));
+        addTextTitle        = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.title", "false"));
+        addTextSeason       = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.season", "false"));
+        addTextSetSize      = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.setSize", "false")); // Note: This should only be for thumbnails
+        textAlignment       = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
+        textFont            = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
+        textFontSize        = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.fontSize", "36"));
+        textFontColor       = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
+        textFontShadow      = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
+        textOffset          = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.offset", "10"));
 
         roundCorners = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".roundCorners", "false"));
         cornerRadius = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".cornerRadius", "25"));
@@ -232,10 +235,44 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (addLanguage) {
             bi = drawLanguage(movie, bi);
         }
+        
+        if (addSubTitle) {
+            bi = drawSubTitle(movie, bi);
+        }
 
         return bi;
     }
 
+    /**
+     * Draw the SubTitle logo on the image
+     * @param movie
+     * @param bi
+     * @return
+     */
+    private BufferedImage drawSubTitle(Movie movie, BufferedImage bi) {
+        // If the doesn't have subtitles, then quit
+        if (!StringTools.isValidString(movie.getSubtitles())) {
+            return bi;
+        }
+
+        String logoName = "subtitle.png";
+        File logoFile = new File(getResourcesPath() + logoName);
+
+        if (!logoFile.exists()) {
+            logger.finest("Missing SubTitle logo (" + logoName + ") unable to draw logo");
+            return bi;
+        }
+
+        try {
+            BufferedImage biSubTitle = GraphicTools.loadJPEGImage(getResourcesPath() + logoName);
+            Graphics g = bi.getGraphics();
+            g.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
+        } catch (IOException error) {
+            logger.warning("Failed drawing SubTitle logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
+        }
+
+        return bi;    }
+    
     /**
      * Draw the appropriate HD logo onto the image file
      * 
