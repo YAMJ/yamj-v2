@@ -6,6 +6,7 @@ MovieJukebox 2.2 BETA
 ---------------------
   - Enhancement   #323 TheMovieDB plugin created
   - Fixed defect  #558 New episodes from TV series didn't appear in the NEW Category.
+  - Enhancement   #617 Add logo to cover art to indicate the presence of subtitle
   - Enhancement   #735 Allow users to tune category parameters on a per-category basis
   - Enhancement   #773 Save NFO files
   - Enhancement  #1440 Detect VOBSUB tracks in MKV files
