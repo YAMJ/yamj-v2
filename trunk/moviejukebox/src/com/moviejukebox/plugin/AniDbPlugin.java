@@ -15,6 +15,8 @@ package com.moviejukebox.plugin;
 
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.anidb.Anime;
 import net.anidb.udp.AniDbException;
@@ -50,16 +52,19 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static int anidbPort = 1025;
     @SuppressWarnings("unused")
     private static final String webhost = "anidb.net";
-    private static boolean anidbConnectionProtection = false;   // Set this to true to stop further calls
-    private UdpConnection anidbConn;
     private AnimeMask anidbMask;
+    // 5 groups: 1=Scene Group, 2=Anime Name, 3=Episode, 4=Episode Title, 5=Remainder
+    private static String REGEX_MASK = "(\\[.*?\\])?+(\\w.*?)(?:[\\. _-]|ep)(\\d{1,3})(\\w+)(.+)";
+    private static String CRC_REGEX = "(.*)(\\[\\w{8}\\])(.*)";
     
     @SuppressWarnings("unused")
     private int preferredPlotLength;
     private static final String logMessage = "AniDB: ";
     
-    private String anidbUsername;
-    private String anidbPassword;
+    private static UdpConnection anidbConn = null;
+    private static boolean anidbConnectionProtection = false;   // Set this to true to stop further calls
+    private static String anidbUsername;
+    private static String anidbPassword;
 
     public AniDbPlugin() {
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
@@ -78,9 +83,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         
         //XXX Debug
         if (anidbUsername == null && anidbPassword == null) {
-            logger.severe(logMessage + "!!! USING DEFAULT USERNAME & PASSWORD !!!");
-            anidbUsername = "";
-            anidbPassword = "";
+            logger.severe(logMessage + "!!! WARNING !!! USING DEFAULT USERNAME & PASSWORD !!!");
+            anidbUsername = "Omertron";
+            anidbPassword = "anidb";
         }
         //XXX Debug end
     }
@@ -105,7 +110,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private boolean anidbScan(Movie movie) {
         // This is required to prevent the client from being banned through overuse
         if (!anidbConnectionProtection) {
-            anidbConn = anidbOpen();
+            anidbOpen();
         } else {
             logger.fine("There was an error with the connection, no more connections will be attempted!");
             return false;
@@ -117,6 +122,19 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         
         // Now process the movie
         logger.fine(logMessage + "Logged in and searching for " + movie.getBaseFilename());
+        
+        Matcher titleMatch = Pattern.compile(REGEX_MASK).matcher(movie.getBaseFilename());
+        String episode = null;
+        String remainder = null;
+        if (titleMatch.find()) {
+            // If this matches then this is a TV Show
+            // 5 groups: 1=Scene Group, 2=Anime Name, 3=Episode, 4=Episode Title, 5=Remainder
+            movie.setMovieType(Movie.TYPE_TVSHOW);
+            movie.setSeason(1);
+            movie.setTitle(titleMatch.group(2));
+            episode = titleMatch.group(3);
+            remainder = titleMatch.group(5);
+        }
         
         Anime anime = null;
         String id = movie.getId(ANIDB_PLUGIN_ID);
@@ -261,37 +279,45 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Open the connection to the website
      * @return a connection object, or null if there was a failure.
      */
-    private UdpConnection anidbOpen() {
+    public static void anidbOpen() {
+        if (anidbConn != null) {
+            // No need to open again
+            return;
+        }
+        
         UdpConnectionFactory factory;
-        UdpConnection conn = null;
         
         factory = UdpConnectionFactory.getInstance();
         try {
-            conn = factory.connect(anidbPort);
-            conn.authenticate(anidbUsername, anidbPassword, anidbClientName, anidbClientVersion);
+            anidbConn = factory.connect(anidbPort);
+            anidbConn.authenticate(anidbUsername, anidbPassword, anidbClientName, anidbClientVersion);
             anidbConnectionProtection = false;
         } catch (IllegalArgumentException error) {
             logger.severe(logMessage + "Error logging in, please check you username & password");
             logger.severe(logMessage + error.getMessage());
+            anidbConn = null;
             anidbConnectionProtection = true;
         } catch (UdpConnectionException error) {
             logger.severe(logMessage + "Error with UDP Connection, please try again later");
             logger.severe(logMessage + error.getMessage());
+            anidbConn = null;
             anidbConnectionProtection = true;
         } catch (AniDbException error) {
             logger.severe(logMessage + "Error with AniDb: " + error.getMessage());
+            anidbConn = null;
             anidbConnectionProtection = true;
         } catch (Exception error) {
+            anidbConn = null;
             error.printStackTrace();
         }
-        return conn;
+        return;
     }
 
     /**
      * Close the connection to the website
      * @param conn
      */
-    private void anidbClose(UdpConnection conn) {
+    public static void anidbClose(UdpConnection conn) {
         anidbLogout(conn);
         // Now close the connection
         try {
@@ -307,7 +333,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Try and log the user out
      * @param conn
      */
-    private void anidbLogout(UdpConnection conn) {
+    private static void anidbLogout(UdpConnection conn) {
         if (conn == null) {
             return;
         }
