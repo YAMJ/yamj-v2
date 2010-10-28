@@ -1194,7 +1194,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                 }
             }
             //make sure the fileDate is correct too
-            setFileDate(new Date(tmstmp));
+            addFileDate(new Date(tmstmp));
             return tmstmp;
         } else {
             // Set processing
@@ -1525,14 +1525,22 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      * Synchronized so that the comparisons don't overlap
      * @param fileDate
      */
-    synchronized public void setFileDate(Date fileDate) {
+    synchronized public void addFileDate(Date fileDate) {
         if (this.fileDate == null) {
             this.fileDate = fileDate;
         } else if (fileDate.after(this.fileDate)) {
             this.fileDate = fileDate;
         }
     }
-
+    
+    /**
+     * Overwrite the file date
+     * @param fileDate
+     */
+    public void setFileDate(Date fileDate) {
+        this.fileDate = fileDate;
+    }
+    
     public Date getFileDate() {
         return fileDate;
     }

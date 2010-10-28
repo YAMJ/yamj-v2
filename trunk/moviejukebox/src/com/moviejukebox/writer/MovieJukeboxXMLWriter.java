@@ -1186,7 +1186,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     public void writeNfoFile(Jukebox jukebox, Movie movie) {
-        if (movie.isSetMaster()) {
+        if (movie.isSetMaster() || movie.isExtra()) {
             return;
         }
         

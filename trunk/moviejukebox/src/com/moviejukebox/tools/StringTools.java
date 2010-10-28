@@ -131,4 +131,13 @@ public class StringTools {
         return returnSize;
     }
 
+    public static String cleanString(String sourceString) {
+        String returnString = sourceString;
+        
+        returnString.replaceAll("[^a-zA-Z0-9]", " ");
+        returnString.replaceAll("  ", " ").trim();
+        
+        return returnString;
+    }
+    
 }

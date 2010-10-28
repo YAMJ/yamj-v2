@@ -266,7 +266,7 @@ public class Library implements Map<String, Movie> {
                 // Update these counters
                 existingMovie.setFileSize(movie.getFileSize());
             }
-            existingMovie.setFileDate(movie.getFileDate());
+            existingMovie.addFileDate(movie.getFileDate());
         }
     }
 
@@ -332,7 +332,7 @@ public class Library implements Map<String, Movie> {
                     }
                     
                     // Update the master fileDate to be the latest of all the members so this indexes correctly in the New category
-                    indexMaster.setFileDate(m.getFileDate());
+                    indexMaster.addFileDate(m.getFileDate());
                 }
 
                 indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);

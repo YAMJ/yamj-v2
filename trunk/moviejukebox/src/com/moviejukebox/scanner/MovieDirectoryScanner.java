@@ -269,6 +269,7 @@ public class MovieDirectoryScanner {
 
             if (!file.isDirectory()) {
                 baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
+                movie.setFormatType(Movie.TYPE_FILE);
             }
             
             // Compute the relative filename
@@ -329,7 +330,9 @@ public class MovieDirectoryScanner {
             movie.setSubtitles(hasSubtitles(movie.getFile())==true?"YES":"NO");
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());
-            movie.setFileDate(new Date(file.lastModified()));
+            
+            movie.addFileDate(new Date(file.lastModified()));
+            
             // Issue 1241 - Take care of directory for size.
             movie.setFileSize(this.calculateFileSize(file));
             
@@ -352,10 +355,19 @@ public class MovieDirectoryScanner {
                     movie.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
                 }
                 
+                // Pretend that HDDVD is also BluRay
                 if (!movie.getVideoSource().equalsIgnoreCase("HDDVD")) {                
                     movie.setContainer("BluRay");
                     movie.setVideoSource("BluRay");
+                    movie.setFormatType(Movie.TYPE_BLURAY);
                 }
+            }
+
+            // Issue 1679: Determine the file date of the movie by the VIDEO_TS or BDMV folders
+            if (movie.isDVD()) {
+                movie.setFileDate(new Date((new File(file, "/VIDEO_TS")).lastModified()));
+            } else if (movie.isBluray()) {
+                movie.setFileDate(new Date((new File(file, "/BDMV")).lastModified()));
             }
 
             library.addMovie(movie);
@@ -365,6 +377,7 @@ public class MovieDirectoryScanner {
                 break;
             }
         }
+
     }
 
     /**
