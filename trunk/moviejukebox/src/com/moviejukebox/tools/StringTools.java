@@ -15,10 +15,13 @@ package com.moviejukebox.tools;
 import java.io.File;
 import java.text.BreakIterator;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
 
 public class StringTools {
+    private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
+    
     /**
      * Check the string passed to see if it contains a value.
      * @param testString The string to test
@@ -132,12 +135,7 @@ public class StringTools {
     }
 
     public static String cleanString(String sourceString) {
-        String returnString = sourceString;
-        
-        returnString.replaceAll("[^a-zA-Z0-9]", " ");
-        returnString.replaceAll("  ", " ").trim();
-        
-        return returnString;
+        return CLEAN_STRING_PATTERN.matcher(sourceString).replaceAll(" ").trim();
     }
     
 }

@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.anidb.Anime;
+import net.anidb.Episode;
 import net.anidb.udp.AniDbException;
 import net.anidb.udp.UdpConnection;
 import net.anidb.udp.UdpConnectionException;
@@ -29,8 +30,10 @@ import net.anidb.udp.mask.AnimeMask;
 import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.*;
 
 /**
  * AniDB Plugin
@@ -54,8 +57,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static final String webhost = "anidb.net";
     private AnimeMask anidbMask;
     // 5 groups: 1=Scene Group, 2=Anime Name, 3=Episode, 4=Episode Title, 5=Remainder
-    private static String REGEX_MASK = "(\\[.*?\\])?+(\\w.*?)(?:[\\. _-]|ep)(\\d{1,3})(\\w+)(.+)";
+    private static String REGEX_TVSHOW = "(?i)(\\[.*?\\])?+(\\w.*?)(?:[\\. _-]|ep)(\\d{1,3})(\\w+)(.+)";
+    // 4 groups: 1=Scene Group, 2=Anime Name, 3=CRC, 4=Remainder
+    private static String REGEX_MOVIE = "(\\[.*?\\])?+([\\w-]+)(\\[\\w{8}\\])?+(.*)";
     private static String CRC_REGEX = "(.*)(\\[\\w{8}\\])(.*)";
+    
+    private static String PICTURE_URL_BASE = "http://1.2.3.12/bmi/img7.anidb.net/pics/anime/";
     
     @SuppressWarnings("unused")
     private int preferredPlotLength;
@@ -123,23 +130,50 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         // Now process the movie
         logger.fine(logMessage + "Logged in and searching for " + movie.getBaseFilename());
         
-        Matcher titleMatch = Pattern.compile(REGEX_MASK).matcher(movie.getBaseFilename());
-        String episode = null;
-        String remainder = null;
+        Matcher titleMatch = Pattern.compile(REGEX_TVSHOW).matcher(movie.getBaseFilename());
+        String episode = Movie.UNKNOWN;
+        String remainder = Movie.UNKNOWN;
+        String crc = Movie.UNKNOWN;
+        
         if (titleMatch.find()) {
             // If this matches then this is a TV Show
-            // 5 groups: 1=Scene Group, 2=Anime Name, 3=Episode, 4=Episode Title, 5=Remainder
+            logger.fine("Matched as a TV Show");
             movie.setMovieType(Movie.TYPE_TVSHOW);
             movie.setSeason(1);
-            movie.setTitle(titleMatch.group(2));
+            movie.setTitle(cleanString(titleMatch.group(2)));
+            movie.setOriginalTitle(movie.getTitle());
             episode = titleMatch.group(3);
             remainder = titleMatch.group(5);
+
+            if (isValidString(remainder)) {
+                Matcher crcMatch = Pattern.compile(CRC_REGEX).matcher(remainder);
+                if (crcMatch.find()) {
+                    crc = crcMatch.group(2);
+                    remainder = remainder.replace(crc, "");
+                }
+            }
+        } else {
+            logger.fine("Assuming a movie");
+            titleMatch = Pattern.compile(REGEX_MOVIE).matcher(movie.getBaseFilename());
+            if (titleMatch.find()) {
+                // 4 groups: 1=Scene Group, 2=Anime Name, 3=CRC, 4=Remainder
+                movie.setTitle(cleanString(titleMatch.group(2)));
+                movie.setOriginalTitle(movie.getTitle());
+                crc = titleMatch.group(3);
+                remainder = titleMatch.group(4);
+            }
+            movie.setMovieType(Movie.TYPE_MOVIE);
         }
+        
+        logger.fine("Title  : " + movie.getTitle());
+        logger.fine("Episode: " + (isValidString(episode)? episode : Movie.UNKNOWN));
+        logger.fine("CRC    : " + (isValidString(crc)? crc : Movie.UNKNOWN));
+        logger.fine("Remain : " + (isValidString(remainder)? remainder : Movie.UNKNOWN));
         
         Anime anime = null;
         String id = movie.getId(ANIDB_PLUGIN_ID);
         long animeId = 0;
-        if (StringTools.isValidString(id)) {
+        if (isValidString(id)) {
             animeId = Long.parseLong(id);
         }
 
@@ -167,14 +201,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
         
         if (anime != null) {
-            /*
+            logger.fine("getAnimeId         : " + anime.getAnimeId());
             logger.fine("getEnglishName     : " + anime.getEnglishName());
             logger.fine("getPicname         : " + anime.getPicname());
             logger.fine("getType            : " + anime.getType());
             logger.fine("getYear            : " + anime.getYear());
             logger.fine("getAirDate         : " + anime.getAirDate());
-            logger.fine("Date: " + new DateTime(anime.getAirDate()).toString("dd-MM-yyyy"));
-            logger.fine("getAnimeId         : " + anime.getAnimeId());
+            logger.fine("Date               : " + new DateTime(anime.getAirDate()).toString("dd-MM-yyyy"));
             logger.fine("getAwardList       : " + anime.getAwardList());
             logger.fine("getCategoryList    : " + anime.getCategoryList());
             logger.fine("getCharacterIdList : " + anime.getCharacterIdList());
@@ -182,28 +215,52 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.fine("getEpisodes        : " + anime.getEpisodes());
             logger.fine("getProducerNameList: " + anime.getProducerNameList());
             logger.fine("getRating          : " + anime.getRating());
-            */
             
-            movie.setOriginalTitle(anime.getEnglishName());
-            movie.setYear(anime.getYear().substring(0, 4));
-            movie.setGenres(anime.getCategoryList());
-            DateTime rDate = new DateTime(anime.getAirDate());
-            movie.setReleaseDate(rDate.toString("yyyy-MM-dd"));
-            movie.setRating((int) (anime.getRating() / 10));
+            movie.setId(ANIDB_PLUGIN_ID, "" + anime.getAnimeId());
             
-            String plot = getAnimeDescription(animeId);
+            if (isValidString(anime.getPicname())) {
+                movie.setPosterURL(PICTURE_URL_BASE + anime.getPicname());
+            }
+            
+            if (isValidString(anime.getEnglishName())) {
+                movie.setOriginalTitle(anime.getEnglishName());
+            }
+            
+            if (isValidString(anime.getYear())) {
+                movie.setYear(anime.getYear().substring(0, 4));
+            }
+            
+            if (!anime.getCategoryList().isEmpty()) {
+                movie.setGenres(anime.getCategoryList());
+            }
+            
+            if (!(anime.getAirDate() == null) && anime.getAirDate() > 0) {
+                DateTime rDate = new DateTime(anime.getAirDate());
+                movie.setReleaseDate(rDate.toString("yyyy-MM-dd"));
+            }
+
+            if (!(anime.getRating() == null) && anime.getRating() > 0) {
+                movie.setRating((int) (anime.getRating() / 10));
+            }
+            
+            String plot = HTMLTools.stripTags(getAnimeDescription(animeId));
             // This plot may contain the information on the director and this needs to be stripped from the plot
             logger.fine("Plot: " + plot);
             
             movie.setPlot(plot);
             movie.setOutline(plot);
+            
+            for (MovieFile mf : movie.getFiles()) {
+                logger.fine("File : " + mf.getFilename());
+                logger.fine("First: " + mf.getFirstPart());
+                logger.fine("Last : " + mf.getLastPart());
+            }
+            
         } else {
             logger.fine("Anime not found: " + movie.getTitle());
         }
         
-        // Not sure we should close this here just yet
-        anidbClose(anidbConn);
-        logger.fine(logMessage + "Logged out and leaving now.");
+        logger.fine("AniDbPlugin: Finished " + movie.getBaseFilename());
         return true;
     }
     
@@ -232,6 +289,41 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     public Anime getAnimeByName(String animeName) throws UdpConnectionException, AniDbException {
         Anime anime = anidbConn.getAnime(animeName, anidbMask);
         return anime;
+    }
+    
+    /**
+     * Get the episode details by Episode ID
+     * @param episodeId
+     * @return
+     * @throws UdpConnectionException
+     * @throws AniDbException
+     */
+    public Episode get(long episodeId) throws UdpConnectionException, AniDbException {
+        return anidbConn.getEpisode(episodeId);
+    }
+    
+    /**
+     * Get the episode details by AnimeID and Episode Number
+     * @param animeId
+     * @param episodeNumber
+     * @return
+     * @throws UdpConnectionException
+     * @throws AniDbException
+     */
+    public Episode getEpisode(long animeId, long episodeNumber) throws UdpConnectionException, AniDbException {
+        return anidbConn.getEpisode(animeId, episodeNumber);
+    }
+    
+    /**
+     * Get the episode details by Anime Name and Episode Number
+     * @param animeName
+     * @param episodeNumber
+     * @return
+     * @throws UdpConnectionException
+     * @throws AniDbException
+     */
+    public Episode getEpisode(String animeName, long episodeNumber) throws UdpConnectionException, AniDbException {
+        return anidbConn.getEpisode(animeName, episodeNumber);
     }
     
     /**
@@ -317,15 +409,16 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Close the connection to the website
      * @param conn
      */
-    public static void anidbClose(UdpConnection conn) {
-        anidbLogout(conn);
+    public static void anidbClose() {
+        anidbLogout(anidbConn);
         // Now close the connection
         try {
-            if (conn != null) {
-                conn.close();
+            if (anidbConn != null) {
+                anidbConn.close();
+                logger.fine(logMessage + "Logged out and leaving now.");
             }
         } catch (Exception error) {
-            error.printStackTrace();
+            error.printStackTrace();    // XXX Debug
         }
     }
 
@@ -346,4 +439,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
 
+    /**
+     * Hold information about the AniDb video file
+     * @author stuart.boston
+     *
+     */
+    @SuppressWarnings("unused")
+    private class AniDbVideo {
+        String  originalFilename;   // The unedited filename
+        String  sceneGroup;         // The scene group (probably unused)
+        String  title;              // The derived title of the video
+        int     episodeNumber;      // An episode number (optional)
+        String  episodeName;        // The derived episode name
+        String  crc;                // CRC number (optional)
+        String  otherTags;          // Any other information from the filename, e.g. resolution
+        int     anidbID;            // The AniDb ID (from NFO)
+    }
 }
