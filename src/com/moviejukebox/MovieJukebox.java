@@ -62,6 +62,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.plugin.AniDbPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
@@ -921,6 +922,7 @@ public class MovieJukebox {
             library.mergeExtras();
 
             OpenSubtitlesPlugin.logOut();
+            AniDbPlugin.anidbClose();
 
             /********************************************************************************
              * 

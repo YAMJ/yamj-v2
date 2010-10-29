@@ -90,7 +90,7 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
        	//else there was no results matching, return Movie.UNKNOWN
        	} else {
        		response = Movie.UNKNOWN;
-       		logger.warning("CdonPosterPlugin: could not find movie: " + title);
+       		logger.finer("CdonPosterPlugin: could not find movie: " + title);
        	} 
         return response;
     }
@@ -111,7 +111,7 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
     	for (int i = 1; i < productList.length; i++) {
     		String[] productInfo = productList[i].split("<td");
     		boolean isMovie = false;
-    		if ( productInfo[2].toLowerCase().contains("dvd")||productInfo[2].toLowerCase().contains("blu-ray") ){
+    		if (productInfo.length >= 2 && (productInfo[2].toLowerCase().contains("dvd") || productInfo[2].toLowerCase().contains("blu-ray")) ){
     			isMovie = true;
     		}
     		//only check for matches for movies
@@ -169,7 +169,7 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
 		    //something went wrong and we do not have an url in the result
 			//set response to Movie.UNKNOWN and write to the log
 			response = Movie.UNKNOWN;
-		    logger.warning("CdonPosterPlugin: error extracting movie url for: " + title);
+		    logger.finer("CdonPosterPlugin: error extracting movie url for: " + title);
 		}
 		return response;
 	}
@@ -210,7 +210,7 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
         	return new Image(posterURL);
         }
-        logger.warning(" CdonPosterPlugin: No poster found for movie: " + id);
+        logger.finer(" CdonPosterPlugin: No poster found for movie: " + id);
         return Image.UNKNOWN;
     }
     
