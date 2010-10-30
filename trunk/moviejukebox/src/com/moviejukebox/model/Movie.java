@@ -1060,6 +1060,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (subtitles == null) {
             subtitles = UNKNOWN;
         }
+        
         if (!subtitles.equals(this.subtitles)) {
             this.isDirty = true;
             this.subtitles = subtitles;
