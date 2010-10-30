@@ -2,6 +2,10 @@
 ** MovieJukebox Release note
 ***************************************************************
 
+MovieJukebox 2.3 BETA
+---------------------
+
+
 MovieJukebox 2.2
 ----------------
   - Enhancement   #323 TheMovieDB plugin created
