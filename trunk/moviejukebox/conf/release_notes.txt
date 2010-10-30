@@ -2,8 +2,8 @@
 ** MovieJukebox Release note
 ***************************************************************
 
-MovieJukebox 2.2 BETA
----------------------
+MovieJukebox 2.2
+----------------
   - Enhancement   #323 TheMovieDB plugin created
   - Fixed defect  #558 New episodes from TV series didn't appear in the NEW Category.
   - Enhancement   #617 Add logo to cover art to indicate the presence of subtitle
