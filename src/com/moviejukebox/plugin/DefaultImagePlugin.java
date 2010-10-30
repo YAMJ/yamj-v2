@@ -251,7 +251,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      */
     private BufferedImage drawSubTitle(Movie movie, BufferedImage bi) {
         // If the doesn't have subtitles, then quit
-        if (!StringTools.isValidString(movie.getSubtitles())) {
+        if (!StringTools.isValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO")) {
             return bi;
         }
 
