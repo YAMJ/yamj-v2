@@ -47,7 +47,7 @@ public class SystemTools {
     }
     
     /**
-     * Show the memory available to the program
+     * Show the memory available to the program and optionally try to force a garbage collection
      */
     public static void showMemory(boolean showAll) {
         // Show the long output
@@ -66,6 +66,9 @@ public class SystemTools {
         } else {
             logger.fine("Memory - Total: " + formatFileSize(Runtime.getRuntime().totalMemory()) + ", Free: " + formatFileSize(Runtime.getRuntime().freeMemory()));
         }
+        
+        // Run garbage collection (if needed)
+        System.gc();
     }
     
     public static void showMemory() {
