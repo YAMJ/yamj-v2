@@ -1135,7 +1135,8 @@ public class MovieJukebox {
                 if (skinFile.exists()) {
                     skinFile.setLastModified(timeStart);
                 } else {
-                    new File(skinDate).createNewFile();
+                    skinFile.getParentFile().mkdirs();
+                    skinFile.createNewFile();
                 }
             } else {
                 logger.fine("Skin copying skipped.");
