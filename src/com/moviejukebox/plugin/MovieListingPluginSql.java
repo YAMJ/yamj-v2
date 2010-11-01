@@ -50,8 +50,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
             try {
                 videoID = mjbDAO.getLastVideoId() + 1;
-                logger.fine("Adding video #" + videoID);
-            } catch (Throwable e) {
+            } catch (Throwable error) {
                 logger.severe("SQL: Error getting next videoID");
                 continue; // XXX Should we break and quit?
             }
@@ -90,28 +89,48 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             
             try {
                 videoDAO.insertVideo(videoDTO);
-            } catch (Throwable e) {
-                logger.severe("SQL: Error adding the video to the database: " + e.getMessage());
+            } catch (Throwable error) {
+                logger.severe("SQL: Error adding the video to the database: " + error.getMessage());
             }
         }
         
         try {
+            int id;
             // Write the Artwork to the database
             for (ArtworkDTO artwork : artworkList.values()) {
-                videoDAO.insertArtwork(artwork);
+                id = videoDAO.getArtworkId(artwork.getFilename());
+                
+                // If we didn't find the artwork, add it
+                if (id == 0) {
+                    if (artwork.getId() == 0) {
+                        artwork.setId(mjbDAO.getLastArtworkId() + 1);
+                    }
+                    videoDAO.insertArtwork(artwork);
+                }
             }
             
             // Write the Genres to the database
             for (GenreDTO genre : genreList.values()) {
-                videoDAO.insertGenre(genre);
+                id = videoDAO.getGenreId(genre.getName());
+                
+                // If we didn't find the genre, add it
+                if (id == 0) {
+                    if (genre.getId() == 0) {
+                        genre.setId(mjbDAO.getLastGenreId() + 1);
+                    }
+                    videoDAO.insertGenre(genre);
+                }
             }
             
             // Write the People to the database
             for (PersonDTO person : personList.values()) {
+                if (person.getId() == 0) {
+                    person.setId(mjbDAO.getLastPersonId() + 1);
+                }
                 videoDAO.insertPerson(person);
             }
-        } catch (Throwable e) {
-            logger.severe("SQL: Error adding data to the database: " + e.getMessage());
+        } catch (Throwable error) {
+            logger.severe("SQL: Error adding data to the database: " + error.getMessage());
         }
         
         mjbSqlDb.close();
