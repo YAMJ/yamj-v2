@@ -1461,7 +1461,7 @@ public class MovieJukebox {
                 boolean scrapeLibrary = true;
 
                 String scrapeLibraryString = sub.getString("scrapeLibrary");
-                if (scrapeLibraryString != null && !scrapeLibraryString.isEmpty()) {
+                if (StringTools.isValidString(scrapeLibraryString)) {
                     try {
                         scrapeLibrary = sub.getBoolean("scrapeLibrary");
                     } catch (Exception ignore) {
@@ -1584,7 +1584,7 @@ public class MovieJukebox {
         } catch (Exception error) {
             listingPlugin = new MovieListingPluginBase();
             logger.severe("Failed instantiating ListingPlugin: " + className);
-            logger.severe("NULL listing plugin will be used instead.");
+            logger.severe("No listing plugin will be used.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
