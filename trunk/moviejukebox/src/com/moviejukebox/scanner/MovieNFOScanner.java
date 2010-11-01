@@ -178,10 +178,17 @@ public class MovieNFOScanner {
         if (currentDir == null) {
             return nfos;
         }
-
+        
         String baseFileName = currentDir.getName();
         String pathFileName = currentDir.getAbsolutePath();
-
+        
+        // Get the folder if it's a BluRay disk
+        if (pathFileName.toUpperCase().contains(File.separator + "BDMV" + File.separator)) {
+            currentDir = new File(FileTools.getParentFolder(currentDir));
+            baseFileName = currentDir.getName();
+            pathFileName = currentDir.getAbsolutePath();
+        }
+        
         // If "pathFileName" is a file then strip the extension from the file.
         if (currentDir.isFile()) {
             pathFileName = pathFileName.substring(0, pathFileName.lastIndexOf("."));
@@ -220,7 +227,7 @@ public class MovieNFOScanner {
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
         checkNFO(nfos, pathFileName);
 
-        if (!NFOdirectory.equals("")) {
+        if (StringTools.isValidString(NFOdirectory)) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
             String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + NFOdirectory;

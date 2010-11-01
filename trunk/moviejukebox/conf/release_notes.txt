@@ -46,6 +46,7 @@ MovieJukebox 2.2
   - Enhancement  #1675 Recheck now checks for missing poster and banner artwork
   - Fixed defect #1678 ComingSoon not found movie and not read file NFO
   - Fixed defect #1679 The New Category Should Sort DVD Rips based on Video_TS folder modified date
+  - Fixed defect #1686 BluRay NFO Files not picked up 
 
 MovieJukebox 2.1
 ----------------
