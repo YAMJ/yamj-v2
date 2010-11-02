@@ -13,10 +13,14 @@
 
 package com.moviejukebox.plugin;
 
-import static com.moviejukebox.tvrage.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.processRuntime;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.mjbsqldb.MjbSqlDb;
 import com.moviejukebox.mjbsqldb.dao.VideoDAOSQLite;
@@ -49,18 +53,37 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             videoDTO = new VideoDTO();
 
             try {
-                videoID = mjbDAO.getLastVideoId() + 1;
+                videoID = mjbDAO.getNextVideoId();
             } catch (Throwable error) {
                 logger.severe("SQL: Error getting next videoID");
                 continue; // XXX Should we break and quit?
             }
             
             videoDTO.setId(videoID);
+            videoDTO.setMjbVersion(movie.getMjbVersion());
+            videoDTO.setMjbRevision(Integer.parseInt(movie.getMjbRevision()));
+            videoDTO.setMjbUpdateDate(new Date());
+            videoDTO.setBaseFilename(movie.getBaseFilename());
             videoDTO.setTitle(movie.getTitle());
-            videoDTO.setCertification(movie.getCertification());
-            videoDTO.setPlot(movie.getPlot());
+            videoDTO.setTitleSort(movie.getTitleSort());
+            videoDTO.setTitleOriginal(movie.getOriginalTitle());
+            
+            if (isValidString(movie.getReleaseDate())) {
+                // A bit kludgy, but it works. Use DateTime to parse the string date into a Date
+                videoDTO.setReleaseDate((new DateTime(movie.getReleaseDate())).toDate());
+            }
+            
             videoDTO.setRating(movie.getRating());
-            videoDTO.setRuntime(100);
+            videoDTO.setTop250(movie.getTop250());
+            videoDTO.setPlot(movie.getPlot());
+            videoDTO.setOutline(movie.getOutline());
+            videoDTO.setQuote(movie.getQuote());
+            videoDTO.setTagline(movie.getTagline());
+            videoDTO.setRuntime(processRuntime(movie.getRuntime()));
+            videoDTO.setSeason(movie.getSeason());
+            videoDTO.setSubtitles(movie.getSubtitles());
+            videoDTO.setLibraryDescription(movie.getLibraryDescription());
+            
             if (movie.isTVShow()) {
                 videoDTO.setVideoType(VideoDTO.TYPE_TVSHOW);
             } else {
@@ -103,7 +126,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 // If we didn't find the artwork, add it
                 if (id == 0) {
                     if (artwork.getId() == 0) {
-                        artwork.setId(mjbDAO.getLastArtworkId() + 1);
+                        artwork.setId(mjbDAO.getNextArtworkId());
                     }
                     videoDAO.insertArtwork(artwork);
                 }
@@ -116,7 +139,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 // If we didn't find the genre, add it
                 if (id == 0) {
                     if (genre.getId() == 0) {
-                        genre.setId(mjbDAO.getLastGenreId() + 1);
+                        genre.setId(mjbDAO.getNextGenreId());
                     }
                     videoDAO.insertGenre(genre);
                 }
@@ -125,7 +148,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             // Write the People to the database
             for (PersonDTO person : personList.values()) {
                 if (person.getId() == 0) {
-                    person.setId(mjbDAO.getLastPersonId() + 1);
+                    person.setId(mjbDAO.getNextPersonId());
                 }
                 videoDAO.insertPerson(person);
             }
