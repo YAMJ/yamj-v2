@@ -39,11 +39,12 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
     private static HashMap<String, GenreDTO> genreList = new HashMap<String, GenreDTO>();
     private static HashMap<String, PersonDTO> personList = new HashMap<String, PersonDTO>();
     
+    private static VideoDAOSQLite videoDAO = MjbSqlDb.getVideoDAO();
+    private static mjbDAOSQLite mjbDAO = MjbSqlDb.getMjbDAO();
+    
     public void generate(Jukebox jukebox, Library library) {
 
         MjbSqlDb mjbSqlDb = new MjbSqlDb("./", "listing.db");
-        VideoDAOSQLite videoDAO = MjbSqlDb.getVideoDAO();
-        mjbDAOSQLite mjbDAO = MjbSqlDb.getMjbDAO();
         
         int videoID = 0;
         VideoDTO videoDTO;
@@ -159,11 +160,13 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         mjbSqlDb.close();
     }
 
-    private void addGenre(String genre) {
+    private int addGenre(String genre) {
         if (!isValidString(genre)) {
-            return;
+            return 0;
         }
 
+        videoDAO.insertGenre();
+        
         if (genreList.containsKey(genre.toUpperCase())) {
             return;
         }
