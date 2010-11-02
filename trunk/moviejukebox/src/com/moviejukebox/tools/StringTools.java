@@ -15,6 +15,7 @@ package com.moviejukebox.tools;
 import java.io.File;
 import java.text.BreakIterator;
 import java.util.Date;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
@@ -137,5 +138,56 @@ public class StringTools {
     public static String cleanString(String sourceString) {
         return CLEAN_STRING_PATTERN.matcher(sourceString).replaceAll(" ").trim();
     }
-    
+ 
+    /**
+     * Take a string runtime in various formats and try to output this in minutes
+     * @param runtime
+     * @return
+     */
+    public static int processRuntime(String runtime) {
+        int returnValue = -1;
+        // See if we can convert this to a number and assume it's correct if we can
+        try {
+            returnValue = Integer.parseInt(runtime);
+            return returnValue;
+        } catch (Exception ignore) {
+            returnValue = -1;
+        }
+
+        // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
+        Pattern hrmnPattern = Pattern.compile("(?i)(\\d+)(\\D*)(\\d*)(.*?)");
+        
+        Matcher matcher = hrmnPattern.matcher(runtime);
+        if (matcher.find()) {
+            String first = matcher.group(1);
+            String divide = matcher.group(2);
+            String second = matcher.group(3);
+            
+            if (isValidString(second)) {
+                // Assume that this is HH(text)MM
+                returnValue = (Integer.parseInt(first) * 60) + Integer.parseInt(second);
+                return returnValue;
+            }
+            
+            if (!isValidString(divide)) {
+                // No divider value, so assume this is a straight minute value
+                returnValue = Integer.parseInt(first);
+                return returnValue;
+            }
+            
+            if (!isValidString(second) && isValidString(divide)) {
+                // this is xx(text) so we need to work out what the (text) is
+                if (divide.toLowerCase().contains("h")) {
+                    // Assume it is a form of "hours", so convert to minutes
+                    returnValue = Integer.parseInt(first) * 60;
+                } else {
+                    // Assume it's a form of "minutes"
+                    returnValue = Integer.parseInt(first);
+                }
+                return returnValue;
+            }
+        }
+        
+        return returnValue;
+    }
 }
