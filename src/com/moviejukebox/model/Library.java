@@ -105,6 +105,7 @@ public class Library implements Map<String, Movie> {
     private static boolean setsRequireAll = false;
     private static String indexList;
     private static boolean splitHD = false;
+    private static boolean processExtras = true;
 
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -118,6 +119,7 @@ public class Library implements Map<String, Movie> {
         singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         splitHD = Boolean.parseBoolean(PropertiesUtil.getProperty("highdef.differentiate", "false"));
+        processExtras = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.extras.process","true"));
         String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres.xml");
         fillGenreMap(xmlGenreFile);
 
@@ -676,7 +678,8 @@ public class Library implements Map<String, Movie> {
         Index index = new Index();
         long now = System.currentTimeMillis();
         for (Movie movie : moviesList) {
-            if (movie.isExtra()) {
+            // Issue 997: Skip the processing of extras
+            if (movie.isExtra() && processExtras) {
                 if (categoriesMap.get("Extras") != null) {
                     index.addMovie(categoriesMap.get("Extras"), movie);
                     movie.addIndex("Property", categoriesMap.get("Extras"));
