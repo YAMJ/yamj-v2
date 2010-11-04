@@ -17,6 +17,7 @@ import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.processRuntime;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -27,12 +28,21 @@ import com.moviejukebox.mjbsqldb.MjbSqlDb;
 import com.moviejukebox.mjbsqldb.dbWriter;
 import com.moviejukebox.mjbsqldb.dto.ArtworkDTO;
 import com.moviejukebox.mjbsqldb.dto.CertificationDTO;
+import com.moviejukebox.mjbsqldb.dto.CodecDTO;
+import com.moviejukebox.mjbsqldb.dto.CompanyDTO;
+import com.moviejukebox.mjbsqldb.dto.CountryDTO;
 import com.moviejukebox.mjbsqldb.dto.GenreDTO;
+import com.moviejukebox.mjbsqldb.dto.LanguageDTO;
 import com.moviejukebox.mjbsqldb.dto.PersonDTO;
 import com.moviejukebox.mjbsqldb.dto.VideoDTO;
+import com.moviejukebox.mjbsqldb.dto.VideoFileDTO;
+import com.moviejukebox.mjbsqldb.dto.VideoFilePartDTO;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.StringTools;
 
 public class MovieListingPluginSql extends MovieListingPluginBase implements MovieListingPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -60,7 +70,11 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             
             videoDTO.setId(0);  // Set the ID to 0 to get the database to generate the next available ID
             videoDTO.setMjbVersion(movie.getMjbVersion());
-            videoDTO.setMjbRevision(Integer.parseInt(movie.getMjbRevision()));
+            if (StringTools.isValidString(movie.getMjbRevision())) {
+                videoDTO.setMjbRevision(Integer.parseInt(movie.getMjbRevision()));
+            } else {
+                videoDTO.setMjbRevision(0);
+            }
             videoDTO.setMjbUpdateDate(new Date());
             videoDTO.setBaseFilename(movie.getBaseFilename());
             videoDTO.setTitle(movie.getTitle());
@@ -132,6 +146,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             }
             
             // Use the video id to write the other data to the tables
+            // TODO: Break this down into individual try/catch commits
             try {
                 // Write the Artwork to the database
                 for (ArtworkDTO artwork : artworkList.values()) {
@@ -154,8 +169,94 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 }
                 mjbConn.commit();
                 
+                // Add the country
+                if (StringTools.isValidString(movie.getCountry())) {
+                    joinId = dbWriter.insertCountry(mjbConn, new CountryDTO(0, movie.getCountry(), ""));
+                    dbWriter.joinCountry(mjbConn, videoId, joinId);
+                }
+
+                // Add the company
+                if (StringTools.isValidString(movie.getCompany())) {
+                    joinId = dbWriter.insertCompany(mjbConn, new CompanyDTO(0, movie.getCompany(), ""));
+                    dbWriter.joinCompany(mjbConn, videoId, joinId);
+                }
+                
+                // Add the language
+                if (StringTools.isValidString(movie.getLanguage())) {
+                    joinId = dbWriter.insertLanguage(mjbConn, determineLanguage(movie.getLanguage()));
+                    dbWriter.joinLanguage(mjbConn, videoId, joinId);
+                }
+                
             } catch (Throwable error) {
+                try {
+                    mjbConn.commit();
+                } catch (SQLException ignore) {
+                }
                 logger.severe("SQL: Error adding data to the database: " + error.getMessage());
+            }
+            
+            VideoFileDTO vfDTO;
+            VideoFilePartDTO vfpDTO;
+            int videoFileId = 0;
+            int audioCodecId = 0;
+            int videoCodecId = 0;
+            
+            try {
+                // Add the audio codec
+                if (StringTools.isValidString(movie.getAudioCodec())) {
+                    audioCodecId = dbWriter.insertCodec(mjbConn, new CodecDTO(0, movie.getAudioCodec(), CodecDTO.TYPE_AUDIO));
+                }
+                
+                // Add the video codec
+                if (StringTools.isValidString(movie.getVideoCodec())) {
+                    videoCodecId = dbWriter.insertCodec(mjbConn, new CodecDTO(0, movie.getVideoCodec(), CodecDTO.TYPE_VIDEO));
+                }
+                
+                for (MovieFile mf : movie.getFiles()) {
+                    vfDTO = new VideoFileDTO();
+                    vfDTO.setId(0);
+                    vfDTO.setVideoId(videoId);
+                    vfDTO.setContainer(movie.getContainer());
+                    if (StringTools.isValidString(movie.getAudioChannels())) {
+                        vfDTO.setAudioChannels(Integer.parseInt(movie.getAudioChannels()));
+                    } else {
+                        vfDTO.setAudioChannels(0);
+                    }
+                    vfDTO.setVideoCodecId(videoCodecId);
+                    vfDTO.setAudioCodecId(audioCodecId);
+                    vfDTO.setResolution(movie.getResolution());
+                    vfDTO.setVideoSource(movie.getVideoSource());
+                    vfDTO.setVideoOutput(movie.getVideoOutput());
+                    vfDTO.setAspect(movie.getAspectRatio());
+                    vfDTO.setFps(movie.getFps());
+                    vfDTO.setFileDate(new Date(mf.getLastModified()));
+                    vfDTO.setFileSize(mf.getSize());
+                    vfDTO.setFileLocation(mf.getFile().getAbsolutePath());
+                    vfDTO.setFileUrl(mf.getFilename());
+                    vfDTO.setNumberParts(mf.getLastPart() - mf.getFirstPart() + 1);
+                    vfDTO.setFirstPart(mf.getFirstPart());
+                    vfDTO.setLastPart(mf.getLastPart());
+                    
+                    videoFileId = dbWriter.insertVideoFile(mjbConn, vfDTO);
+                    mjbConn.commit();
+                    
+                    // Process the video file parts
+                    for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
+                        vfpDTO = new VideoFilePartDTO();
+                        vfpDTO.setId(0);
+                        vfpDTO.setFileId(videoFileId);
+                        vfpDTO.setPart(part);
+                        vfpDTO.setTitle(mf.getTitle(part));
+                        vfpDTO.setPlot(mf.getPlot(part));
+                        vfpDTO.setSeason(movie.getSeason());
+                        dbWriter.insertVideoFilePart(mjbConn, vfpDTO);
+                    }
+                    mjbConn.commit();
+                }
+                mjbConn.commit();
+                
+            } catch (Throwable error) {
+                logger.severe("SQL: Error updating VideoFile & VideoFilePart: " + error.getMessage());
             }
             
         } // For movie loop
@@ -170,6 +271,37 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         return certDTO;
     }
 
+    private LanguageDTO determineLanguage(String language) {
+        LanguageDTO lang = new LanguageDTO();
+        lang.setId(0);
+        lang.setLanguage(language);
+        
+        String short_code = "", medium_code = "", long_code = "";
+        
+        for (String langStr : MovieFilenameScanner.getLanguageList(language).split(" ")) {
+            if (langStr.length() == 2) {
+                short_code = langStr;
+                continue;
+            }
+            
+            if (langStr.length() == 3) {
+                medium_code = langStr;
+                continue;
+            }
+            
+            long_code = langStr;
+        }
+        
+        lang.setShort_code(short_code);
+        lang.setMedium_code(medium_code);
+        lang.setLong_code(long_code);
+        return lang;
+    }
+    
+    /**
+     * Add a genre to the genre list
+     * @param genre
+     */
     private void addGenre(String genre) {
         if (!isValidString(genre)) {
             return;
@@ -188,6 +320,13 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         return;
     }
     
+    /**
+     * Add an artwork to the artwork list
+     * @param artwork
+     * @param url
+     * @param type
+     * @param videoID
+     */
     private void addArtwork(String artwork, String url, String type, int videoID) {
         if (!isValidString(artwork) || !isValidString(url) || !isValidString(type)) {
             return;
@@ -209,7 +348,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
     }
 
     /**
-     * Check to see if a person is in the database and add them
+     * Add a person to the person list
      * @param person
      * @param job
      */
