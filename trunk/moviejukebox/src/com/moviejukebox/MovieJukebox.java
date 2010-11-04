@@ -673,6 +673,8 @@ public class MovieJukebox {
         videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
         bannerDownload = parseBoolean(getProperty("mjb.includeWideBanners", "false"));
 
+        boolean processExtras = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.extras.process","true"));
+
         // Multi-thread: Processing thread settings
         MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0")); 
         if (MaxThreadsProcess <= 0) {
@@ -855,6 +857,10 @@ public class MovieJukebox {
             logger.fine("Searching for information on the video files...");
             int movieCounter = 0;
             for (final Movie movie : library.values()) {
+                // Issue 997: Skip the processing of extras if not required
+                if (movie.isExtra() && !processExtras) {
+                    continue;
+                }
                 final int count = ++movieCounter;
 
                 final String movieTitleExt = movie.getOriginalTitle() + (movie.isTVShow() ? (" [Season " + movie.getSeason() + "]") : "")
@@ -1045,6 +1051,10 @@ public class MovieJukebox {
             // Multi-thread: Parallel Executor
             tasks.restart();
             for (final Movie movie : library.values()) {
+                // Issue 997: Skip the processing of extras if not required
+                if (movie.isExtra() && !processExtras) {
+                    continue;
+                }
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {

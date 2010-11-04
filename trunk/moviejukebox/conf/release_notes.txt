@@ -4,7 +4,7 @@
 
 MovieJukebox 2.3 BETA
 ---------------------
-
+ - Enhancement    #997 Ability to turn off 'EXTRAS' processing
 
 MovieJukebox 2.2
 ----------------

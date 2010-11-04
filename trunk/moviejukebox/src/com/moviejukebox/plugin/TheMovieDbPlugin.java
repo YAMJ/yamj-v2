@@ -102,7 +102,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     tmdbID = moviedb.getId();
                     // Get the full information on the film
                     moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
-                    logger.fine("TheMovieDbPlugin: Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
+                    logger.finer("TheMovieDbPlugin: Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
                 } else {
                     logger.finer("TheMovieDbPlugin: Movie " + movie.getTitle() + yearSuffix + " not found!");
                     logger.finest("Try using a NFO file to specify the movie");
