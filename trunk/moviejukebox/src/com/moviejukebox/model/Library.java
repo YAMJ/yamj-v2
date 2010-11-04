@@ -678,11 +678,13 @@ public class Library implements Map<String, Movie> {
         Index index = new Index();
         long now = System.currentTimeMillis();
         for (Movie movie : moviesList) {
-            // Issue 997: Skip the processing of extras
-            if (movie.isExtra() && processExtras) {
-                if (categoriesMap.get("Extras") != null) {
-                    index.addMovie(categoriesMap.get("Extras"), movie);
-                    movie.addIndex("Property", categoriesMap.get("Extras"));
+            if (movie.isExtra()) {
+                // Issue 997: Skip the processing of extras
+                if (processExtras) {
+                    if (categoriesMap.get("Extras") != null) {
+                        index.addMovie(categoriesMap.get("Extras"), movie);
+                        movie.addIndex("Property", categoriesMap.get("Extras"));
+                    }
                 }
             } else {
                 if (movie.isHD()) {
