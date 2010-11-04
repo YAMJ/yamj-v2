@@ -1852,16 +1852,19 @@ public class MovieJukebox {
             return true;
         }
         
-        // Check the revision of YAMJ that wrote the XML file vs the current revisions
-        //System.out.println("- mjbRevision: " + movie.getMjbRevision() + " (" + movie.getCurrentMjbRevision() + ")");
-        //System.out.println("- Difference : " + (Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision())) );
-        String currentRevision = movie.getCurrentMjbRevision();
-        String mjbRevision = movie.getMjbRevision();
-        int revDiff = Integer.parseInt(currentRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : currentRevision) - Integer.parseInt(mjbRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : mjbRevision); 
-        if (revDiff > recheckRevision) {
-            logger.finest("Recheck: " + movie.getBaseName() + " XML is " + revDiff + " revisions old, will rescan");
-            recheckCount++;
-            return true;
+        // If we don't recheck the version, we don't want to recheck the revision either
+        if (recheckVersion) {
+            // Check the revision of YAMJ that wrote the XML file vs the current revisions
+            //System.out.println("- mjbRevision: " + movie.getMjbRevision() + " (" + movie.getCurrentMjbRevision() + ")");
+            //System.out.println("- Difference : " + (Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision())) );
+            String currentRevision = movie.getCurrentMjbRevision();
+            String mjbRevision = movie.getMjbRevision();
+            int revDiff = Integer.parseInt(currentRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : currentRevision) - Integer.parseInt(mjbRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : mjbRevision); 
+            if (revDiff > recheckRevision) {
+                logger.finest("Recheck: " + movie.getBaseName() + " XML is " + revDiff + " revisions old (" + recheckRevision + " maximum), will rescan");
+                recheckCount++;
+                return true;
+            }
         }
         
         // Check for "UNKNOWN" values in the XML
