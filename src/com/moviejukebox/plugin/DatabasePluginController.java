@@ -64,6 +64,7 @@ public class DatabasePluginController {
         }
 
         if (ignore) {
+            logger.finer("Skipping internet search for " + movie.getBaseFilename());
             return;
         } else {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan

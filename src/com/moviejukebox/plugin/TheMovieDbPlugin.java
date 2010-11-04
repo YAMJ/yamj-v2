@@ -53,7 +53,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         TMDb = new TheMovieDb(API_KEY);
-        //TMDb.setLogger("moviejukebox");
+        
         // Set the proxy
         TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
         
@@ -78,15 +78,18 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (StringTools.isValidString(tmdbID)) {
                 // Search based on TMdb ID
+                logger.finer("TheMovieDbPlugin: Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
             } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
+                logger.finer("TheMovieDbPlugin: Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
                 moviedb = TMDb.moviedbImdbLookup(imdbID, language);
                 tmdbID = moviedb.getId();
                 if (!StringTools.isValidString(tmdbID)) {
                     logger.finer("TheMovieDbPlugin: No TMDb ID found for movie!");
                 }
             } else {
+                logger.finer("TheMovieDbPlugin: Search using title & year: " + movie.getTitle() + " (" + movie.getYear() + ")");
                 String yearSuffix = "";
                 if (StringTools.isValidString(movie.getYear())) {
                     yearSuffix = " " + movie.getYear();
@@ -99,6 +102,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     tmdbID = moviedb.getId();
                     // Get the full information on the film
                     moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
+                    logger.fine("TheMovieDbPlugin: Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
                 } else {
                     logger.finer("TheMovieDbPlugin: Movie " + movie.getTitle() + yearSuffix + " not found!");
                     logger.finest("Try using a NFO file to specify the movie");
