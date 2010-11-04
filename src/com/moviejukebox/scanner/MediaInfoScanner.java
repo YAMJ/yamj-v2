@@ -106,7 +106,7 @@ public class MediaInfoScanner {
                 scan(currentMovie, mainMovieIFO.getLocation());
                 // Issue 1176 - Prevent lost of NFO Data
                 if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
-                    currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
+                    currentMovie.setRuntime(StringTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
         } else if ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img"))) {
@@ -150,7 +150,7 @@ public class MediaInfoScanner {
                 scan(currentMovie, mainMovieIFO.getLocation());
                 // Issue 1176 - Prevent lost of NFO Data
                 if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
-                    currentMovie.setRuntime(formatDuration(mainMovieIFO.getDuration()));
+                    currentMovie.setRuntime(StringTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
 
@@ -364,7 +364,7 @@ public class MediaInfoScanner {
             duration = Integer.parseInt(infoValue) / 1000;
             // Issue 1176 - Prevent lost of NFO Data
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(formatDuration(duration));
+                movie.setRuntime(StringTools.formatDuration(duration));
             }
         }
         // get Info from first Video Stream
@@ -383,7 +383,7 @@ public class MediaInfoScanner {
                         duration = Integer.parseInt(infoValue) / 1000;
                         // Issue 1176 - Prevent lost of NFO Data
                         if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                            movie.setRuntime(formatDuration(duration));
+                            movie.setRuntime(StringTools.formatDuration(duration));
                         }
                     }
                 }
@@ -630,22 +630,4 @@ public class MediaInfoScanner {
         }
     }
 
-    public static String formatDuration(int duration) {
-        StringBuffer returnString = new StringBuffer("");
-
-        int nbHours = duration / 3600;
-        if (nbHours != 0) {
-            returnString.append(nbHours).append("h");
-        }
-
-        int nbMinutes = (duration - (nbHours * 3600)) / 60;
-        if (nbMinutes != 0) {
-            if (nbHours != 0) {
-                returnString.append(" ");
-            }
-            returnString.append(nbMinutes).append("m");
-        }
-
-        return returnString.toString();
-    }
 }

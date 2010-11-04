@@ -32,6 +32,7 @@ import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * DirectoryScanner
@@ -352,7 +353,7 @@ public class MovieDirectoryScanner {
                 // Set duration for BD disks using the data in the playlist + mark Bluray source and container
                 // Issue 1176 - Prevent lost of NFO Data
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                    movie.setRuntime(MediaInfoScanner.formatDuration(bdDuration));
+                    movie.setRuntime(StringTools.formatDuration(bdDuration));
                 }
                 
                 // Pretend that HDDVD is also BluRay

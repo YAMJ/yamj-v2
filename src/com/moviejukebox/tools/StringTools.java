@@ -190,4 +190,23 @@ public class StringTools {
         
         return returnValue;
     }
+
+    public static String formatDuration(int duration) {
+        StringBuffer returnString = new StringBuffer("");
+
+        int nbHours = duration / 3600;
+        if (nbHours != 0) {
+            returnString.append(nbHours).append("h");
+        }
+
+        int nbMinutes = (duration - (nbHours * 3600)) / 60;
+        if (nbMinutes != 0) {
+            if (nbHours != 0) {
+                returnString.append(" ");
+            }
+            returnString.append(nbMinutes).append("m");
+        }
+
+        return returnString.toString();
+    }
 }
