@@ -618,6 +618,21 @@ public class MovieFilenameScanner {
         }
         return language;
     }
+    
+    /**
+     * Get the list of loose languages associated with a language
+     * @param language
+     * @return
+     */
+    //TODO : Extract this from here, it's not specific on MovieFileNameScanner
+    public static String getLanguageList(String language) {
+        if (looseLanguageMap.containsKey(language)) {
+            Pattern langPatt = looseLanguageMap.get(language);
+            return langPatt.toString().toLowerCase();
+        } else {
+            return "";
+        }
+    }
 
     /**
      * Replace all dividers with spaces and trim trailing spaces and redundant 
