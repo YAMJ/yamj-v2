@@ -89,7 +89,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -397,7 +397,7 @@ public class MovieJukebox {
         if (Boolean.parseBoolean(getProperty("mjb.appendLibraryToLogFile", "false"))) {
             renameFile = true;
             for (final MediaLibraryPath mediaLibrary : movieLibraryPaths) {
-                if (StringTools.isValidString(mediaLibrary.getDescription())) {
+                if (isValidString(mediaLibrary.getDescription())) {
                     libraryName = "_" + mediaLibrary.getDescription();
                     libraryName = FileTools.makeSafeFilename(libraryName);
                     break;
@@ -1207,7 +1207,7 @@ public class MovieJukebox {
             }
 
             logger.fine("Clean up temporary files");
-            File rootIndex = new File(StringTools.appendToPath(jukebox.getJukeboxTempLocation(), index));
+            File rootIndex = new File(appendToPath(jukebox.getJukeboxTempLocation(), index));
             rootIndex.delete();
 
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
@@ -1338,6 +1338,12 @@ public class MovieJukebox {
 
             // Check for local CoverArt
             PosterScanner.scan(jukebox, movie);
+            
+            // If we don't have local coverart, look online
+            // And even though we do "recheck" for a poster URL we should always try and get one
+            if (!isValidString(movie.getPosterURL())) {
+                PosterScanner.scan(movie);
+            }
 
         } else {
             // No XML file for this movie. 
@@ -1355,20 +1361,20 @@ public class MovieJukebox {
             MovieNFOScanner.scan(movie, nfoFiles);
 
             // Added forceXMLOverwrite for issue 366
-            if (!StringTools.isValidString(movie.getPosterURL()) || movie.isDirtyPoster()) {
+            if (!isValidString(movie.getPosterURL()) || movie.isDirtyPoster()) {
                 PosterScanner.scan(jukebox, movie);
             }
             
             DatabasePluginController.scan(movie);
             // Issue 1323:      Posters not picked up from NFO file
             // Only search for poster if we didn't have already
-            if (!StringTools.isValidString(movie.getPosterURL())) {
+            if (!isValidString(movie.getPosterURL())) {
                 PosterScanner.scan(movie);
             }
             
             // Check for new fanart if we need to (Issue 1563)
             if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                if (!StringTools.isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
+                if (!isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
                     FanartScanner.scan(backgroundPlugin, jukebox, movie);
                 }
             }
@@ -1396,7 +1402,7 @@ public class MovieJukebox {
         if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster()) || forcePosterOverwrite) {
             posterFile.getParentFile().mkdirs();
 
-            if (movie.getPosterURL() == null || movie.getPosterURL().equals(Movie.UNKNOWN)) {
+            if (!isValidString(movie.getPosterURL())) {
                 logger.finest("Dummy image used for " + movie.getBaseName());
                 FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
             } else {
@@ -1471,7 +1477,7 @@ public class MovieJukebox {
                 boolean scrapeLibrary = true;
 
                 String scrapeLibraryString = sub.getString("scrapeLibrary");
-                if (StringTools.isValidString(scrapeLibraryString)) {
+                if (isValidString(scrapeLibraryString)) {
                     try {
                         scrapeLibrary = sub.getBoolean("scrapeLibrary");
                     } catch (Exception ignore) {
@@ -1727,10 +1733,10 @@ public class MovieJukebox {
             if (forcePosterOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()){
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (src.exists()) {
-                    logger.finest("New file exists (" + src + ")");
+                    logger.finest("CreatePoster: New file exists (" + src + ")");
                     fin = src;
                 } else {
-                    logger.finest("Using old file (" + oldsrc + ")");
+                    logger.finest("CreatePoster: Using old file (" + oldsrc + ")");
                     fin = oldsrc;
                 }
 
@@ -1835,7 +1841,7 @@ public class MovieJukebox {
         }
         
         // Check the date the XML file was last written to and skip if it's less than minDays
-        if ((recheckMinDays > 0) && (dateDiff <= recheckDays)) {
+        if ((recheckMinDays > 0) && (dateDiff <= recheckMinDays)) {
             return false;
         }
         
