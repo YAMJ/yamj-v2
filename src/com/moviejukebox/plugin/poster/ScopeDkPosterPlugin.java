@@ -31,6 +31,12 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
 
     public ScopeDkPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
     }
 

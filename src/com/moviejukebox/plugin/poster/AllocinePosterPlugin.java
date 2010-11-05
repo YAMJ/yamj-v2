@@ -33,6 +33,12 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     public AllocinePosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
         allocinePlugin = new AllocinePlugin();
     }

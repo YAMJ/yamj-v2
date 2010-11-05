@@ -37,6 +37,12 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
 
     public MovieMeterPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
         preferredSearchEngine = PropertiesUtil.getProperty("moviemeter.id.search", "moviemeter");
         try {

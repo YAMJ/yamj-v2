@@ -30,7 +30,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class MovieDbPosterPlugin implements IMoviePosterPlugin {
+public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String API_KEY;
     private String language;
@@ -38,6 +38,12 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
 
     public MovieDbPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
         language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
         theMovieDb = new TheMovieDb(API_KEY);
@@ -164,4 +170,5 @@ public class MovieDbPosterPlugin implements IMoviePosterPlugin {
         }
         return response;
     }
+
 }

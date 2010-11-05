@@ -19,6 +19,12 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
 
     public SratimPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
         sratimPlugin = new SratimPlugin();
     }

@@ -20,6 +20,12 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
 
     public MotechnetPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
     }
 

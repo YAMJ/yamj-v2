@@ -29,6 +29,12 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
 
     public MovieCoversPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
     }
 

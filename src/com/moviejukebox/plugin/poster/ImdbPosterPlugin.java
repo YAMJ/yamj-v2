@@ -29,6 +29,12 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
     public ImdbPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
         imdbInfo = new ImdbInfo();
     }
