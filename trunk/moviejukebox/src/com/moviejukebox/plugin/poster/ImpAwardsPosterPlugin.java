@@ -26,6 +26,12 @@ public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
 
     public ImpAwardsPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
     }
 

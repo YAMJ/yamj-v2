@@ -27,13 +27,20 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 
-public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin {
+public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
+    // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin 
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     protected WebBrowser webBrowser;
 
     public CdonPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
     }
     /* Implements getName for IPosterPlugin
@@ -343,4 +350,5 @@ public class CdonPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin
         }
         return response;
     }
+    
 }

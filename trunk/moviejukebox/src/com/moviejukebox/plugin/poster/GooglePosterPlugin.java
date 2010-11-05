@@ -34,6 +34,12 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
 
     public GooglePosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
         // String retry = PropertiesUtil.getProperty("poster.scanner.google.retry", "3");
         // try {

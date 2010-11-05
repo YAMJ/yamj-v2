@@ -61,23 +61,23 @@ public class PosterScanner {
     private static Map<String, IMoviePosterPlugin> moviePosterPlugins = new HashMap<String, IMoviePosterPlugin>();
     private static Map<String, ITvShowPosterPlugin> tvShowPosterPlugins = new HashMap<String, ITvShowPosterPlugin>();
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger     logger = Logger.getLogger("moviejukebox");
     protected static Collection<String> posterExtensions  = new ArrayList<String>();
-    protected static String searchForExistingPoster;
-    protected static String fixedPosterName;
-    protected static String posterDirectory;
-    protected static Boolean useFolderImage;
+    protected static String     searchForExistingPoster;
+    protected static String     fixedPosterName;
+    protected static String     posterDirectory;
+    protected static Boolean    useFolderImage;
     protected static Collection<String> posterImageName;
     protected static WebBrowser webBrowser;
-    protected static String preferredPosterSearchEngine;
-    protected static String posterSearchPriority;
-    protected static boolean posterValidate;
-    protected static int posterValidateMatch;
-    protected static boolean posterValidateAspect;
-    protected static int posterWidth;
-    protected static int posterHeight;
-    private static String tvShowPosterSearchPriority;
-    private static String moviePosterSearchPriority;
+    protected static String     preferredPosterSearchEngine;
+    protected static String     posterSearchPriority;
+    protected static boolean    posterValidate;
+    protected static int        posterValidateMatch;
+    protected static boolean    posterValidateAspect;
+    protected static int        posterWidth;
+    protected static int        posterHeight;
+    private static String       tvShowPosterSearchPriority;
+    private static String       moviePosterSearchPriority;
 
     static {
         StringTokenizer st;
@@ -113,7 +113,7 @@ public class PosterScanner {
         posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
         tvShowPosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "thetvdb,cdon,filmaffinity");
         moviePosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie",
-                        "moviedb,impawards,imdb,moviecovers,google,yahoo,motechnet");
+                        "themoviedb,impawards,imdb,moviecovers,google,yahoo,motechnet");
         posterValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
         posterValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
         posterValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
@@ -417,19 +417,27 @@ public class PosterScanner {
     }
 
     private static void register(String key, IMoviePosterPlugin posterPlugin) {
-        logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " register as Movie Poster Plugin with key " + key);
-        moviePosterPlugins.put(key, posterPlugin);
-        register(key, (IPosterPlugin)posterPlugin);
+        if (posterPlugin.isNeeded()) {
+            logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " registered as Movie Poster Plugin with key '" + key + "'");
+            moviePosterPlugins.put(key, posterPlugin);
+            register(key, (IPosterPlugin)posterPlugin);
+        } else {
+            logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
+        }
     }
 
     public static void register(String key, ITvShowPosterPlugin posterPlugin) {
-        logger.finest("PosterScanner: " + posterPlugin.getClass().getName() + " register as TvShow Poster Plugin with key " + key);
-        tvShowPosterPlugins.put(key, posterPlugin);
-        register(key, (IPosterPlugin)posterPlugin);
+        if (posterPlugin.isNeeded()) {
+            logger.finest("PosterScanner: " + posterPlugin.getClass().getName() + " registered as TvShow Poster Plugin with key '" + key + "'");
+            tvShowPosterPlugins.put(key, posterPlugin);
+            register(key, (IPosterPlugin)posterPlugin);
+        } else {
+            logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
+        }
     }
 
     public static void scan(Movie movie) {
-        logger.finer("PosterScanner: Searching for " + movie.getBaseFilename());
+        logger.finer("PosterScanner: Searching online for " + movie.getBaseFilename());
         IImage posterImage = getPosterURL(movie);
         if (!Movie.UNKNOWN.equals(posterImage.getUrl())) {
             movie.setPosterURL(posterImage.getUrl());

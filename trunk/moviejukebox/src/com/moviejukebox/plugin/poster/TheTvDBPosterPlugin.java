@@ -43,6 +43,12 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
     public TheTvDBPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         tvDB = new TheTVDB(API_KEY);
 
         // We need to set the proxy parameters if set.
@@ -209,4 +215,14 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         }
         return null;
     }
+
+    @Override
+    public boolean isNeeded() {
+        String searchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv","");
+    if (searchPriority.toLowerCase().contains(this.getName())) {
+        return true;
+    } else {
+        return false;
+    }
+}
 }

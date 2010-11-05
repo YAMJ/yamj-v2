@@ -34,6 +34,12 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
     public FilmwebPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         try {
             webBrowser = new WebBrowser();
             filmwebPlugin = new FilmwebPlugin();

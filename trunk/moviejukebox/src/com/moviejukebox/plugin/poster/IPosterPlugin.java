@@ -21,5 +21,11 @@ public interface IPosterPlugin {
 
     public String getName();
 
+    /**
+     * Check to see if the class is needed by reading the appropriate searchPriority property
+     * @return true if the class is needed (in the searchPriority)
+     */
+    public boolean isNeeded();
+    
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation);
 }

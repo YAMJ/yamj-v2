@@ -33,6 +33,12 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
     public SubBabaPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
     }
 

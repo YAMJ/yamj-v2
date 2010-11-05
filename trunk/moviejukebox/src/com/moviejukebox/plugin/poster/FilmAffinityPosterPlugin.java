@@ -27,7 +27,8 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
 
-public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPosterPlugin {
+public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
+    // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern yearMatcher = Pattern.compile(".*\\((\\d{4})\\).*", Pattern.CASE_INSENSITIVE);
     private WebBrowser webBrowser;
@@ -35,6 +36,12 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
 
     public FilmAffinityPosterPlugin() {
         super();
+        
+        // Check to see if we are needed
+        if (!isNeeded()) {
+            return;
+        }
+        
         webBrowser = new WebBrowser();
     }
 
@@ -197,7 +204,6 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
         }
         return Image.UNKNOWN;
     }
-    
 
     public String getId(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
@@ -225,4 +231,5 @@ public class FilmAffinityPosterPlugin implements IMoviePosterPlugin, ITvShowPost
         }
         return response;
     }
+
 }

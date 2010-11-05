@@ -5,6 +5,7 @@
 MovieJukebox 2.3 BETA
 ---------------------
  - Enhancement    #997 Ability to turn off 'EXTRAS' processing
+ - Enhancement   #1687 Only load the required poster scanner plugins 
 
 MovieJukebox 2.2
 ----------------

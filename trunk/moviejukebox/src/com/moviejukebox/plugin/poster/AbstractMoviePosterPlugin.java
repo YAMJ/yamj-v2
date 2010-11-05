@@ -20,10 +20,24 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static String searchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie","").toLowerCase();
 
+    public AbstractMoviePosterPlugin() {
+    }
+    
+    @Override
+    public boolean isNeeded() {
+        if (searchPriority.contains(this.getName())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
