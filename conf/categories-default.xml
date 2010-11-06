@@ -26,6 +26,14 @@
     <enable>true</enable>
     <rename>New</rename>
   </category>
+  <category name="New-TV">
+    <enable>true</enable>
+    <rename>New: TV</rename>
+  </category>
+  <category name="New-Movie">
+    <enable>true</enable>
+    <rename>New: Movies</rename>
+  </category>
   <category name="Movies">
     <enable>true</enable>
     <rename>Movies</rename>

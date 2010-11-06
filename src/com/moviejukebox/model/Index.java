@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 
+import com.moviejukebox.tvrage.tools.StringTools;
+
 public class Index extends TreeMap<String, List<Movie>> {
     private int maxCategories = -1;
     private boolean display = true;
@@ -29,7 +31,7 @@ public class Index extends TreeMap<String, List<Movie>> {
     }
 
     protected void addMovie(String category, Movie movie) {
-        if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (!StringTools.isValidString(category)) {
             return;
         }
 
