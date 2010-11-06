@@ -306,14 +306,16 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         if (!isValidString(genre)) {
             return;
         }
+        
+        String indexGenre = Library.getIndexingGenre(genre);
 
-        if (genreList.containsKey(genre.toUpperCase())) {
+        if (genreList.containsKey(indexGenre.toUpperCase())) {
             return;
         }
         
         GenreDTO g = new GenreDTO();
         g.setId(0);
-        g.setName(genre);
+        g.setName(indexGenre);
         g.setForeignKey("");
         
         genreList.put(genre.toUpperCase(), g);

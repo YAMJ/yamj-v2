@@ -77,6 +77,36 @@ public class PropertiesUtil {
         return props.getProperty(
                 key, defaultValue);
     }
+    
+    /**
+     * Return the key property as an integer
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public static int getIntProperty(String key, String defaultValue) {
+        String property = getProperty(key, defaultValue).trim();
+        try {
+            return Integer.parseInt(property);
+        } catch (NumberFormatException nfe) {
+            return Integer.parseInt(defaultValue);
+        }
+    }
+
+    /**
+     * Return the key property as an long
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public static long getLongProperty(String key, String defaultValue) {
+        String property = getProperty(key, defaultValue).trim();
+        try {
+            return Long.parseLong(property);
+        } catch (NumberFormatException nfe) {
+            return Long.parseLong(defaultValue);
+        }
+    }
 
     // Issue 309
     public static Set<Entry<Object, Object>> getEntrySet() {
