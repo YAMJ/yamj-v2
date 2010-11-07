@@ -523,7 +523,7 @@ public class Library implements Map<String, Movie> {
                 List<Movie> newList = new ArrayList<Movie>();
                 
                 if ((categoriesMap.get("New-Movie") != null)  && (otherIndexes.get(categoriesMap.get("New-Movie")) != null)){
-                    newList.addAll(otherIndexes.get("New-Movie"));
+                    newList.addAll(otherIndexes.get(categoriesMap.get("New-Movie")));
                     masterCategoryNeeded++;
                 }
                 
