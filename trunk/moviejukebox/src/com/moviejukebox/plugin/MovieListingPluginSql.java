@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.pojava.datetime.DateTime;
@@ -37,6 +38,7 @@ import com.moviejukebox.mjbsqldb.dto.PersonDTO;
 import com.moviejukebox.mjbsqldb.dto.VideoDTO;
 import com.moviejukebox.mjbsqldb.dto.VideoFileDTO;
 import com.moviejukebox.mjbsqldb.dto.VideoFilePartDTO;
+import com.moviejukebox.mjbsqldb.dto.VideoSiteDTO;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
@@ -119,10 +121,6 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 addPerson(person, "Writer");
             }
             
-            addArtwork(movie.getPosterFilename(), movie.getPosterURL(), ArtworkDTO.TYPE_POSTER, videoId);
-            addArtwork(movie.getFanartFilename(), movie.getFanartURL(), ArtworkDTO.TYPE_FANART, videoId);
-            addArtwork(movie.getBannerFilename(), movie.getBannerURL(), ArtworkDTO.TYPE_BANNER, videoId);
-
             // Certification
             try {
                 if (isValidString(movie.getCertification())) {
@@ -144,10 +142,25 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 logger.severe("SQL: Error adding the video to the database: " + error.getMessage());
                 continue;
             }
+
+            // Save the artwork
+            try {
+                addArtwork(movie.getPosterFilename(), movie.getPosterURL(), ArtworkDTO.TYPE_POSTER, videoId);
+                addArtwork(movie.getFanartFilename(), movie.getFanartURL(), ArtworkDTO.TYPE_FANART, videoId);
+                addArtwork(movie.getBannerFilename(), movie.getBannerURL(), ArtworkDTO.TYPE_BANNER, videoId);
+            } catch (Throwable tw) {
+                logger.severe("SQL: Error adding artwork to the database: " + tw.getMessage());
+            }
             
             // Use the video id to write the other data to the tables
             // TODO: Break this down into individual try/catch commits
             try {
+                // Create the video site IDs
+                for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
+                    VideoSiteDTO vsDTO = new VideoSiteDTO(videoId, e.getKey(), e.getValue());
+                    dbWriter.insertVideoSite(mjbConn, vsDTO);
+                }
+                
                 // Write the Artwork to the database
                 for (ArtworkDTO artwork : artworkList.values()) {
                     joinId = dbWriter.insertArtwork(mjbConn, artwork);
