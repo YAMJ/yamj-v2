@@ -522,17 +522,18 @@ public class Library implements Map<String, Movie> {
                 Index otherIndexes = indexes.get("Other");
                 List<Movie> newList = new ArrayList<Movie>();
                 
-                if (categoriesMap.get("New-Movie") != null) {
-                    newList.addAll(otherIndexes.get(categoriesMap.get("New-Movie")));
+                if ((categoriesMap.get("New-Movie") != null)  && (otherIndexes.get(categoriesMap.get("New-Movie")) != null)){
+                    newList.addAll(otherIndexes.get("New-Movie"));
                     masterCategoryNeeded++;
                 }
                 
-                if (categoriesMap.get("New-TV") != null) {
+                if ((categoriesMap.get("New-TV") != null)  && (otherIndexes.get(categoriesMap.get("New-TV")) != null)){
                     newList.addAll(otherIndexes.get(categoriesMap.get("New-TV")));
                     masterCategoryNeeded++;
                 }
                 
                 if (masterCategoryNeeded > 1) {
+                    logger.fine("Creating new catagory with latest Movies and TV Shows");
                     otherIndexes.put(categoriesMap.get("New"), newList);
                     Collections.sort(otherIndexes.get(categoriesMap.get("New")), cmpLast);
                 }
