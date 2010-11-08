@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  */
 public class FilePropertiesMovie {
 
-    static Logger log = Logger.getLogger("moviejukebox");
+    static Logger logger = Logger.getLogger("moviejukebox");
     /**
      * The filesize.
      */
@@ -103,7 +103,7 @@ public class FilePropertiesMovie {
             dataStream.close();
 
         } catch (Exception error) {
-            log.info("Exception: " + error.getMessage());
+            logger.info("Error processing - " + filePath + " : " + error.getMessage());
 
             /*
              * The file is corrupted, tries to save the info that may have been
@@ -115,8 +115,7 @@ public class FilePropertiesMovie {
 
                 fileName = new File(filePath).getName();
             }
-            throw new Exception(
-                    "File could be corrupted. Some info may have been saved.");
+            throw new Exception("File could be corrupted. Some info may have been saved.");
         }
     }
 
