@@ -32,6 +32,7 @@ public abstract class WebStats {
     public void bytes(int length) {
         totalBytes += length;
     }
+    
     public void print() {
         System.out.print("\r");
         System.out.printf(statusString());
@@ -51,6 +52,7 @@ public abstract class WebStats {
             return "???";
         }
     }
+    
     public static class WebStatsProgress extends WebStats {
         private long contentLength;
         public WebStatsProgress(long contentLength) {

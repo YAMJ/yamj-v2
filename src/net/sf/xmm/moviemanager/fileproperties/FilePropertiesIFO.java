@@ -38,7 +38,7 @@ class FilePropertiesIFO extends FileProperties {
      * Processes a file from the given DataInputStream.
      */
     protected void process(RandomAccessFile dataStream) throws Exception {
-        log.finest("Start processing IFO file.");
+        //log.finest("Start processing IFO file.");
 
         byte[] ifoFile = new byte[SIZE + 10];
 
@@ -56,7 +56,7 @@ class FilePropertiesIFO extends FileProperties {
             supported = true;
             processIfoFile(ifoFile);
 
-            log.finest("Processing IFO file done.");
+            //log.finest("Processing IFO file done.");
         } else {
             log.finest("IFO type (" + Integer.toString(streamType) + ") not supported. Expecting (" + Integer.toString(DVDVIDEO_VTS) + ")");
         }

@@ -202,7 +202,7 @@ public class PosterScanner {
                     if (!foundLocalPoster && movie.isTVShow()) {
                         // Get the parent directory and check that
                         fullPosterFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + imageFileName;
-                        System.out.println("SCANNER: " + fullPosterFilename);
+                        //System.out.println("SCANNER: " + fullPosterFilename);
                         localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
                         foundLocalPoster = localPosterFile.exists();
                         if (foundLocalPoster) {
