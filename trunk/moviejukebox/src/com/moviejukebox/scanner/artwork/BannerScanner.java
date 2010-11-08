@@ -114,7 +114,7 @@ public class BannerScanner {
                 if (!foundLocalBanner && movie.isTVShow()) {
                     // Get the parent directory and check that
                     fullBannerFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + fanartFilename;
-                    System.out.println("SCANNER: " + fullBannerFilename);
+                    //System.out.println("SCANNER: " + fullBannerFilename);
                     localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
                     foundLocalBanner = localBannerFile.exists();
                     if (foundLocalBanner) {
