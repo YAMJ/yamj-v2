@@ -14,6 +14,7 @@ package com.moviejukebox.tools;
 
 import java.io.File;
 import java.text.BreakIterator;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -92,8 +93,29 @@ public class StringTools {
      * @return converted date in the format specified in Movie.dateFormatString
      */
     public static String convertDateToString(Date convertDate) {
+        return convertDateToString(convertDate, Movie.dateFormat);
+    }
+    
+    /**
+     * Convert a date to a string using a String date format
+     * @param convertDate
+     * @param dateFormatString
+     * @return
+     */
+    public static String convertDateToString(Date convertDate, String dateFormatString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
+        return convertDateToString(convertDate, dateFormat);
+    }
+    
+    /**
+     * Convert a date to a string using a Simple Date Format
+     * @param convertDate
+     * @param dateFormat
+     * @return
+     */
+    public static String convertDateToString(Date convertDate, SimpleDateFormat dateFormat) {
         try {
-            return Movie.dateFormat.format(convertDate);
+            return dateFormat.format(convertDate);
         } catch (Exception ignore) {
             return Movie.UNKNOWN;
         }

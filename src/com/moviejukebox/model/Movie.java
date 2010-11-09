@@ -57,6 +57,7 @@ import com.moviejukebox.tools.StringTools;
 public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovieBasicInformation {
     public static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
+    public static final SimpleDateFormat dateFormatLong = new SimpleDateFormat(dateFormatString + " HH:mm:ss");
     
     // Preparing to JAXB
 
