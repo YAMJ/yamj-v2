@@ -17,9 +17,7 @@ import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.processRuntime;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -44,18 +42,18 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 
 public class MovieListingPluginSql extends MovieListingPluginBase implements MovieListingPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
-    private static HashMap<String, ArtworkDTO> artworkList = new HashMap<String, ArtworkDTO>();
-    private static HashMap<String, GenreDTO> genreList = new HashMap<String, GenreDTO>();
-    private static HashMap<String, PersonDTO> personList = new HashMap<String, PersonDTO>();
+    private static Connection mjbConn = null;
+    private static String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
+    private static String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
     
     public void generate(Jukebox jukebox, Library library) {
-
-        MjbSqlDb mjbSqlDb = new MjbSqlDb("./", "listing.db");
-        Connection mjbConn = MjbSqlDb.getConnection();
+        MjbSqlDb mjbSqlDb = new MjbSqlDb(dbLocation, dbName);
+        mjbConn = MjbSqlDb.getConnection();
         
         int videoId = 0;
         int joinId = 0;
@@ -66,10 +64,6 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             videoDTO = new VideoDTO();
             videoId = 0;
 
-            artworkList.clear();
-            genreList.clear();
-            personList.clear();
-            
             videoDTO.setId(0);  // Set the ID to 0 to get the database to generate the next available ID
             videoDTO.setMjbVersion(movie.getMjbVersion());
             if (StringTools.isValidString(movie.getMjbRevision())) {
@@ -77,7 +71,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             } else {
                 videoDTO.setMjbRevision(0);
             }
-            videoDTO.setMjbUpdateDate(new Date());
+            videoDTO.setMjbUpdateDate(StringTools.convertDateToString(new Date(), Movie.dateFormatLong));
             videoDTO.setBaseFilename(movie.getBaseFilename());
             videoDTO.setTitle(movie.getTitle());
             videoDTO.setTitleSort(movie.getTitleSort());
@@ -85,7 +79,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             
             if (isValidString(movie.getReleaseDate())) {
                 // A bit kludgy, but it works. Use DateTime to parse the string date into a Date
-                videoDTO.setReleaseDate((new DateTime(movie.getReleaseDate())).toDate());
+                videoDTO.setReleaseDate(movie.getReleaseDate());
             }
             
             videoDTO.setRating(movie.getRating());
@@ -105,36 +99,10 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 videoDTO.setVideoType(VideoDTO.TYPE_MOVIE);
             }
 
-            for (String genre : movie.getGenres()) {
-                addGenre(genre);
-            }
-            
-            for (String person : movie.getCast()) {
-                addPerson(person, "Actor");
-            }
-            
-            for (String person : movie.getDirectors()) {
-                addPerson(person, "Director");
-            }
-
-            for (String person : movie.getWriters()) {
-                addPerson(person, "Writer");
-            }
-            
             // Certification
-            try {
-                if (isValidString(movie.getCertification())) {
-                    joinId = dbWriter.insertCertification(mjbConn, addCertification(movie.getCertification()));
-                    videoDTO.setCertificationId(joinId);
-                } else {
-                    videoDTO.setCertificationId(0);
-                }
-            } catch (Throwable tw) {
-                // We can't write the certification, so set to 0 (Zero)
-                videoDTO.setCertificationId(0);
-            }
-            
-            // Commit the Video to the database and get the Video ID
+            videoDTO.setCertificationId(addCertification(movie.getCertification()));
+
+            // *** Commit the Video to the database and get the Video ID
             try {
                 videoId = dbWriter.insertVideo(mjbConn, videoDTO);
                 mjbConn.commit();
@@ -143,70 +111,77 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 continue;
             }
 
-            // Save the artwork
-            try {
-                addArtwork(movie.getPosterFilename(), movie.getPosterURL(), ArtworkDTO.TYPE_POSTER, videoId);
-                addArtwork(movie.getFanartFilename(), movie.getFanartURL(), ArtworkDTO.TYPE_FANART, videoId);
-                addArtwork(movie.getBannerFilename(), movie.getBannerURL(), ArtworkDTO.TYPE_BANNER, videoId);
-            } catch (Throwable tw) {
-                logger.severe("SQL: Error adding artwork to the database: " + tw.getMessage());
+            // Save the artwork to the DB
+            addArtwork(movie.getPosterFilename(), movie.getPosterURL(), ArtworkDTO.TYPE_POSTER, videoId);
+            addArtwork(movie.getFanartFilename(), movie.getFanartURL(), ArtworkDTO.TYPE_FANART, videoId);
+            addArtwork(movie.getBannerFilename(), movie.getBannerURL(), ArtworkDTO.TYPE_BANNER, videoId);
+            
+            // Add the genres to the database
+            for (String genre : movie.getGenres()) {
+                addGenre(genre, videoId);
+            }
+
+            // Add the actors to the database
+            for (String person : movie.getCast()) {
+                addPerson(person, "Actor", videoId);
+            }
+            
+            // Add the directors to the database
+            for (String person : movie.getDirectors()) {
+                addPerson(person, "Director", videoId);
+            }
+
+            // Add the writers to the database
+            for (String person : movie.getWriters()) {
+                addPerson(person, "Writer", videoId);
             }
             
             // Use the video id to write the other data to the tables
-            // TODO: Break this down into individual try/catch commits
             try {
                 // Create the video site IDs
                 for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
                     VideoSiteDTO vsDTO = new VideoSiteDTO(videoId, e.getKey(), e.getValue());
                     dbWriter.insertVideoSite(mjbConn, vsDTO);
                 }
-                
-                // Write the Artwork to the database
-                for (ArtworkDTO artwork : artworkList.values()) {
-                    joinId = dbWriter.insertArtwork(mjbConn, artwork);
-                    dbWriter.joinArtwork(mjbConn, videoId, joinId);
-                }
                 mjbConn.commit();
-                
-                // Write the Genres to the database
-                for (GenreDTO genre : genreList.values()) {
-                    joinId = dbWriter.insertGenre(mjbConn, genre);
-                    dbWriter.joinGenre(mjbConn, videoId, joinId);
-                }
-                mjbConn.commit();
-
-                // Write the People to the database
-                for (PersonDTO person : personList.values()) {
-                    joinId = dbWriter.insertPerson(mjbConn, person);
-                    dbWriter.joinPerson(mjbConn, videoId, joinId);
-                }
-                mjbConn.commit();
-                
+            } catch (Throwable tw) {
+                logger.severe("SQL: Error adding Video Site IDs to the database: " + tw.getMessage());
+            }
+            
+            try {    
                 // Add the country
                 if (StringTools.isValidString(movie.getCountry())) {
                     joinId = dbWriter.insertCountry(mjbConn, new CountryDTO(0, movie.getCountry(), ""));
                     dbWriter.joinCountry(mjbConn, videoId, joinId);
                 }
-
+                mjbConn.commit();
+            } catch (Throwable tw) {
+                logger.severe("SQL: Error adding Country to the database: " + tw.getMessage());
+            }
+            
+            try {    
                 // Add the company
                 if (StringTools.isValidString(movie.getCompany())) {
                     joinId = dbWriter.insertCompany(mjbConn, new CompanyDTO(0, movie.getCompany(), ""));
                     dbWriter.joinCompany(mjbConn, videoId, joinId);
                 }
-                
+                mjbConn.commit();
+            } catch (Throwable tw) {
+                logger.severe("SQL: Error adding Company to the database: " + tw.getMessage());
+            }
+            
+            try {    
                 // Add the language
                 if (StringTools.isValidString(movie.getLanguage())) {
                     joinId = dbWriter.insertLanguage(mjbConn, determineLanguage(movie.getLanguage()));
                     dbWriter.joinLanguage(mjbConn, videoId, joinId);
                 }
-                
-            } catch (Throwable error) {
-                try {
-                    mjbConn.commit();
-                } catch (SQLException ignore) {
-                }
-                logger.severe("SQL: Error adding data to the database: " + error.getMessage());
+                mjbConn.commit();
+            } catch (Throwable tw) {
+                logger.severe("SQL: Error adding Languages to the database: " + tw.getMessage());
             }
+            
+            // Process the video files
             
             VideoFileDTO vfDTO;
             VideoFilePartDTO vfpDTO;
@@ -242,7 +217,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     vfDTO.setVideoOutput(movie.getVideoOutput());
                     vfDTO.setAspect(movie.getAspectRatio());
                     vfDTO.setFps(movie.getFps());
-                    vfDTO.setFileDate(new Date(mf.getLastModified()));
+                    vfDTO.setFileDate((new DateTime(mf.getLastModified())).toString(Movie.dateFormatLongString));
                     vfDTO.setFileSize(mf.getSize());
                     vfDTO.setFileLocation(mf.getFile().getAbsolutePath());
                     vfDTO.setFileUrl(mf.getFilename());
@@ -277,11 +252,24 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         mjbSqlDb.close();
     }
     
-    private CertificationDTO addCertification(String certification) {
-        CertificationDTO certDTO = new CertificationDTO();
-        certDTO.setId(0);
-        certDTO.setCertification(certification);
-        return certDTO;
+    private int addCertification(String certification) {
+        int joinId = 0;
+        
+        if (!isValidString(certification)) {
+            return joinId;
+        }
+        
+        CertificationDTO certDTO = new CertificationDTO(0, certification);
+        
+        try {
+            joinId = dbWriter.insertCertification(mjbConn, certDTO);
+            mjbConn.commit();
+            
+            return joinId;
+        } catch (Throwable tw) {
+            return joinId;
+        }
+
     }
 
     private LanguageDTO determineLanguage(String language) {
@@ -305,61 +293,63 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             long_code = langStr;
         }
         
-        lang.setShort_code(short_code);
-        lang.setMedium_code(medium_code);
-        lang.setLong_code(long_code);
+        lang.setShortCode(short_code);
+        lang.setMediumCode(medium_code);
+        lang.setLongCode(long_code);
         return lang;
     }
     
     /**
-     * Add a genre to the genre list
+     * Add a genre to the database
      * @param genre
      */
-    private void addGenre(String genre) {
+    private int addGenre(String genre, int videoId) {
+        int joinId = 0;
+        
         if (!isValidString(genre)) {
-            return;
+            return joinId;
         }
         
-        String indexGenre = Library.getIndexingGenre(genre);
-
-        if (genreList.containsKey(indexGenre.toUpperCase())) {
-            return;
+        GenreDTO genreDTO = new GenreDTO(0, Library.getIndexingGenre(genre), "");
+        
+        try {    
+            // Write the Genres to the database
+            joinId = dbWriter.insertGenre(mjbConn, genreDTO);
+            dbWriter.joinGenre(mjbConn, videoId, joinId);
+            mjbConn.commit();
+        } catch (Throwable tw) {
+            logger.severe("SQL: Error adding Genres to the database: " + tw.getMessage());
         }
         
-        GenreDTO g = new GenreDTO();
-        g.setId(0);
-        g.setName(indexGenre);
-        g.setForeignKey("");
-        
-        genreList.put(genre.toUpperCase(), g);
-        return;
+        return joinId;
     }
     
     /**
-     * Add an artwork to the artwork list
-     * @param artwork
-     * @param url
-     * @param type
-     * @param videoID
+     * Add an artwork to the database
+     * @param artworkFilename
+     * @param artworkUrl
+     * @param artworkType
+     * @param videoId
+     * @return The ID of the created artwork if new, 0 if a failure or the existing ID number 
      */
-    private void addArtwork(String artwork, String url, String type, int videoID) {
-        if (!isValidString(artwork) || !isValidString(url) || !isValidString(type)) {
-            return;
+    private int addArtwork(String artworkFilename, String artworkUrl, String artworkType, int videoId) {
+        int joinId = 0;
+        
+        if (!isValidString(artworkFilename)) {
+            return joinId;
         }
         
-        if (artworkList.containsKey(artwork.toUpperCase())) {
-            return;
+        ArtworkDTO artwork = new ArtworkDTO(0, artworkFilename, artworkUrl, artworkType, videoId, "");
+
+        try {
+            // Write the Artwork to the database
+            joinId = dbWriter.updateArtwork(mjbConn, artwork);
+            
+            mjbConn.commit();
+        } catch (Throwable tw) {
+            logger.severe("SQL: Error adding Artwork to the database: " + tw.getMessage());
         }
-        
-        ArtworkDTO a = new ArtworkDTO();
-        a.setId(0);
-        a.setFilename(artwork);
-        a.setType(type);
-        a.setForeignKey("");
-        a.setRelatedKey(videoID);
-        a.setUrl(url);
-        
-        artworkList.put(artwork.toUpperCase(), a);
+        return joinId;
     }
 
     /**
@@ -367,24 +357,30 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
      * @param person
      * @param job
      */
-    private void addPerson(String person, String job) {
+    private int addPerson(String person, String job, int videoId) {
         if (!isValidString(person) || !isValidString(job)) {
-            return;
+            return 0;
         }
         
-        if (personList.containsKey((person+job).toUpperCase())) {
-            return;
+        int joinId = 0;
+        
+        PersonDTO personDTO = new PersonDTO();
+        personDTO.setId(0);
+        personDTO.setName(person);
+        personDTO.setJob(job);
+        personDTO.setBiography("");
+        personDTO.setBirthday("1970-01-01");
+        personDTO.setForeignKey("");
+        personDTO.setUrl("");
+        
+        try {    
+            // Write the People to the database
+            joinId = dbWriter.insertPerson(mjbConn, personDTO);
+            dbWriter.joinPerson(mjbConn, videoId, joinId);
+            mjbConn.commit();
+        } catch (Throwable tw) {
+            logger.severe("SQL: Error adding People to the database: " + tw.getMessage());
         }
-        
-        PersonDTO p = new PersonDTO();
-        p.setId(0);
-        p.setName(person);
-        p.setJob(job);
-        p.setBiography("");
-        p.setBirthday("1970-01-01");
-        p.setForeignKey("");
-        p.setUrl("");
-        
-        personList.put((person+job).toUpperCase(), p);
+        return joinId;
     }
 }
