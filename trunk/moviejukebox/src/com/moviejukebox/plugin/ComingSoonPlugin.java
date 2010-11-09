@@ -100,7 +100,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
             String bkOriginalTitle = movie.getOriginalTitle();
 
             super.scan(movie);
-            
 
             if (!bkOriginalTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
                 movie.setTitle(bkOriginalTitle);
@@ -410,11 +409,39 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     return false;
                 }
                 
-                String rawPlot = xml.substring(beginIndex + 7, endIndex - 1).trim();
-                String plot = HTMLTools.stripTags(rawPlot).trim();
+                String xmlPlot = xml.substring(beginIndex + 7, endIndex - 1).trim();
+                xmlPlot = HTMLTools.stripTags(xmlPlot).trim();
+                
+                /*
+                 *  There are sometimes two markers in the plot to differentiate between the 
+                 *  plot (TRAMA LUNGA) and the outline (TRAMA BREVE). We should extract these
+                 *  and use them appropriately
+                 */
+                
+                String plot = "";
+                String outline = "";
+                int plotStart = xmlPlot.toUpperCase().indexOf("TRAMA LUNGA");
+                int outlineStart = xmlPlot.toUpperCase().indexOf("TRAMA BREVE");
+                
+                if (plotStart == -1 && outlineStart == -1) {
+                    // We've found neither, so the plot stays the same
+                    plot = xmlPlot;
+                } else {
+                    // We've found at least one of the plots
+                    if (outlineStart == -1 && plotStart > 0) {
+                        // We'll assume that the outline is at the beginning of the plot
+                        outline = xmlPlot.substring(0, plotStart);
+                    } else {
+                        outline = xmlPlot.substring(11, plotStart);
+                    }
+                    plot = xmlPlot.substring(plotStart + 11);
+                }
                 
                 plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
+                outline = StringTools.trimToLength(outline, preferredPlotLength, true, plotEnding);
+
                 movie.setPlot(plot);
+                movie.setOutline(outline);
             }
 
             // GENRES
