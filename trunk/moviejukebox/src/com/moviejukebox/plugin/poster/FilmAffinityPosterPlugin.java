@@ -46,6 +46,15 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
     }
 
     @Override
+    public boolean isNeeded() {
+        if ((searchPriorityMovie + "," + searchPriorityTv).contains(this.getName())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
         String firstResponse = response;

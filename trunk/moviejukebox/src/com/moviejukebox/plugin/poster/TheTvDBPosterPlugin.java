@@ -219,10 +219,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public boolean isNeeded() {
         String searchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv","");
-    if (searchPriority.toLowerCase().contains(this.getName())) {
-        return true;
-    } else {
-        return false;
+        if (searchPriority.toLowerCase().contains(this.getName())) {
+            return true;
+        } else {
+            return false;
+        }
     }
-}
 }

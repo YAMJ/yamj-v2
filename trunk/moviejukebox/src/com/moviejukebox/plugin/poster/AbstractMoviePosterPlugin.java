@@ -24,14 +24,15 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected static String searchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie","").toLowerCase();
+    protected static String searchPriorityMovie = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie","").toLowerCase();
+    protected static String searchPriorityTv = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv","").toLowerCase();
 
     public AbstractMoviePosterPlugin() {
     }
     
     @Override
     public boolean isNeeded() {
-        if (searchPriority.contains(this.getName())) {
+        if (searchPriorityMovie.contains(this.getName())) {
             return true;
         } else {
             return false;

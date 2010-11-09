@@ -43,6 +43,16 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         
         webBrowser = new WebBrowser();
     }
+    
+    @Override
+    public boolean isNeeded() {
+        if ((searchPriorityMovie + "," + searchPriorityTv).contains(this.getName())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     /* Implements getName for IPosterPlugin
      * @return String posterPluginName
      * @see com.moviejukebox.plugin.poster.IPosterPlugin#getName()
@@ -101,6 +111,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
        	} 
         return response;
     }
+    
     /* function that takes the search result page from cdon and loops 
      * through the products in that page searching for a match
     */
