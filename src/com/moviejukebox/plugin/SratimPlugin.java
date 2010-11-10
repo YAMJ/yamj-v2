@@ -13,23 +13,13 @@
 
 package com.moviejukebox.plugin;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +40,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     public static String SRATIM_PLUGIN_ID = "sratim";
     public static String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
+    protected static String PHPSESSID = "COOKIE";
 
     private static AbstractStringMetric metric = new MongeElkan();
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -60,7 +51,7 @@ public class SratimPlugin extends ImdbPlugin {
     private static String[] genereStringHebrew = { "הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
                     "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
                     "חתמ", "המחלמ", "ןוברעמ" };
-    private static String cookieHeader = "";
+    private static Properties sessionDetails = new Properties();
 
     private static boolean subtitleDownload = false;
     private static String login = "";
@@ -68,12 +59,18 @@ public class SratimPlugin extends ImdbPlugin {
     private static String pass = "";
     @SuppressWarnings("unused")
     private static String code = "";
+    @SuppressWarnings("unused")
+    private static String challenge_field = "";
+
+    protected static final String RECAPTCHA_URL = "http://www.google.com/recaptcha/api/challenge?k=6LfK1LsSAAAAACdKnQfBi_xCdaMxyd2I9qL5PRH8";
+    protected static final Pattern CHALLENGE_ID = Pattern.compile("challenge : '([^']+)'");
 
     protected int plotLineMaxChar;
     protected int plotLineMax;
     protected TheTvDBPlugin tvdb;
     protected static String preferredPosterSearchEngine;
     protected static String lineBreak;
+    private static boolean LOGGED_IN = false;
 
     public SratimPlugin() {
         super(); // use IMDB if sratim doesn't know movie
@@ -91,7 +88,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
         
-        if (subtitleDownload == true && !login.equals("")) {
+        if (!SratimPlugin.LOGGED_IN  &&  subtitleDownload == true && !login.equals("")) {
             loadSratimCookie();
         }
     }
@@ -1215,9 +1212,8 @@ public class SratimPlugin extends ImdbPlugin {
         try {
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
+            String cookieHeader = sessionDetails.getProperty(PHPSESSID);
             connection.setRequestProperty("Cookie", cookieHeader);
-
-            logger.finest("Sratim Plugin: cookieHeader:" + cookieHeader);
 
             InputStream inputStream = connection.getInputStream();
 
@@ -1301,213 +1297,54 @@ public class SratimPlugin extends ImdbPlugin {
 
     public void loadSratimCookie() {
 
-        //TODO: Fix the login process, by capturing the captcha image and saving it
-        // we need to catch the captcha image ans save it, until then,
-        // the limitation is to manually login by a browser,
-        // get the cookie value (the PHPSESSID value) and manually save it to the "sratim.session" file
-        // for example the content of the sratim.session file should be: PHPSESSID=a3b0ed6dc98723e10407cd100ab92d18
-        // for now, most of the code is commented out !!
+        // Check if session file exist
+        String cookieHeader = "";
+        try {
+            sessionDetails.clear();
+            sessionDetails.load(new FileReader("sratim.session"));
+            cookieHeader = sessionDetails.getProperty(PHPSESSID);
+            logger.finer("found session cookie for sratim.co.il");
+        } catch (Exception error) {
+            logger.severe("file 'sratim.session' not found. need to fetch login details and captcha image in order to login");
+        }
 
         // Check if we already logged in and got the correct cookie
-        if (!cookieHeader.equals("")) {
+        if (isLoggedIn(cookieHeader)) {
+            SratimPlugin.LOGGED_IN = true;
             return;
         }
 
-        /*
-        // Check if cookie file exist
-        try {
-            File cookieFile = new File("sratim.cookie");
-            BufferedReader in = new BufferedReader(new FileReader(cookieFile));
-            cookieHeader = in.readLine();
-            in.close();
-        } catch (Exception error) {
-            // Ignored
+        //try to login
+        if (!submitLoginDetails()) {
+            //we are not logged in, fetch all login details for user to decypher captcha image manually
+            fetchLoginDetails();
         }
 
-        if (!cookieHeader.equals("")) {
-            // Verify cookie by loading main page
-            try {
-                URL url = new URL("http://www.sratim.co.il/");
-                HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
-                connection.setRequestProperty("Cookie", cookieHeader);
 
-                // Get Response
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line;
-                StringBuffer response = new StringBuffer();
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                }
-                rd.close();
-                String xml = response.toString();
+    }
 
-                if (xml.indexOf("logout=1") != -1) {
-                    logger.finest("Sratim Plugin: Subtitles Cookies Valid");
-                    return;
-                }
-
-            } catch (Exception error) {
-                logger.severe("Sratim Plugin: Error - " + error.getMessage());
-                return;
+    private void fetchLoginDetails() {
+        try {
+            /*
+            in order to get the recaptcha image we need to fetch the captcha details of sratim site
+            from it we need to get the "challenge" id value and using it,
+            fetch the image from "http://www.google.com/recaptcha/api/image?c=" + challenge id
+            and save this image
+             */
+            String captchaJson = webBrowser.request(RECAPTCHA_URL);
+            Matcher matcher = CHALLENGE_ID.matcher(captchaJson);
+            if(matcher.find()) {
+                challenge_field = matcher.group(1);
             }
-
-            logger.severe("Sratim Plugin: Cookie Use Failed - Creating new session and jpg files");
-
-            cookieHeader = "";
-            File dcookieFile = new File("sratim.cookie");
-            dcookieFile.delete();
-        }
-        */
-
-        // Check if session file exist
-        try {
-            FileReader sessionFile = new FileReader("sratim.session");
-            BufferedReader in = new BufferedReader(sessionFile);
-            cookieHeader = in.readLine();
-            in.close();
-            logger.finer("found session cookie for sratim.co.il");
-        } catch (Exception error) {
-            logger.severe("In order to download subtitles you need to login to sratim.co.il with a browser and get the " +
-                    "cookie value (PHPSESSID value) and save into the file \"sratim.session\". you can do that by using firefox, " +
-                    "after logging in to sratim.co.il, type this in the address bar: javascript:alert(document.cookie) and click enter.");
-        }
-
-        /* removed for now
-        // Check if we don't have the verification code yet
-        if (!cookieHeader.equals("")) {
-            try {
-                logger.finest("Sratim Plugin: cookieHeader: " + cookieHeader);
-
-                // Build the post request
-                String post;
-                post = "Username=" + login + "&Password=" + pass + "&VerificationCode=" + code + "&Referrer=%2Fdefault.aspx%3F";
-
-                logger.finest("Sratim Plugin: post: " + post);
-
-                URL url = new URL("http://www.sratim.co.il/login.php");
-                HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                connection.setRequestProperty("Content-Length", "" + Integer.toString(post.getBytes().length));
-                connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
-                connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-                connection.setRequestProperty("Referer", "http://www.sratim.co.il/users/login.aspx");
-
-                connection.setRequestProperty("Cookie", cookieHeader);
-                connection.setUseCaches(false);
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setInstanceFollowRedirects(false);
-
-                // Send request
-                DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-                wr.writeBytes(post);
-                wr.flush();
-                wr.close();
-
-                cookieHeader = "";
-
-                // read new cookies and update our cookies
-                for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
-                    if ("Set-Cookie".equals(header.getKey())) {
-                        for (String rcookieHeader : header.getValue()) {
-                            String[] cookieElements = rcookieHeader.split(" *; *");
-                            if (cookieElements.length >= 1) {
-                                String[] firstElem = cookieElements[0].split(" *= *");
-                                String cookieName = firstElem[0];
-                                String cookieValue = firstElem.length > 1 ? firstElem[1] : null;
-
-                                logger.finest("Sratim Plugin: cookieName:" + cookieName);
-                                logger.finest("Sratim Plugin: cookieValue:" + cookieValue);
-
-                                if (!cookieHeader.equals("")) {
-                                    cookieHeader = cookieHeader + "; ";
-                                }
-                                cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
-                            }
-                        }
-                    }
-                }
-
-                // Get Response
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line;
-                StringBuffer response = new StringBuffer();
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                }
-                rd.close();
-                String xml = response.toString();
-
-                if (xml.indexOf("<h2>Object moved to <a href=\"%2fdefault.aspx%3f\">here</a>.</h2>") != -1) {
-
-                    // write the session cookie to a file
-                    FileWriter cookieFile = new FileWriter("sratim.cookie");
-                    cookieFile.write(cookieHeader);
-                    cookieFile.close();
-
-                    // delete the old session and jpg files
-                    File dimageFile = new File("sratim.jpg");
-                    dimageFile.delete();
-
-                    File dsessionFile = new File("sratim.session");
-                    dsessionFile.delete();
-
-                    return;
-                }
-
-                logger.severe("Sratim Plugin: Login Failed - Creating new session and jpg files");
-
-            } catch (Exception error) {
-                logger.severe("Sratim Plugin: Error - " + error.getMessage());
-                return;
-            }
-
-        }
-
-        try {
-            URL url = new URL("http://www.sratim.co.il/users/login.aspx");
+            URL url = new URL("http://www.google.com/recaptcha/api/image?c=" + challenge_field);
             HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
-
-            cookieHeader = "";
-
-            // read new cookies and update our cookies
-            for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
-                if ("Set-Cookie".equals(header.getKey())) {
-                    for (String rcookieHeader : header.getValue()) {
-                        String[] cookieElements = rcookieHeader.split(" *; *");
-                        if (cookieElements.length >= 1) {
-                            String[] firstElem = cookieElements[0].split(" *= *");
-                            String cookieName = firstElem[0];
-                            String cookieValue = firstElem.length > 1 ? firstElem[1] : null;
-
-                            logger.finest("Sratim Plugin: cookieName:" + cookieName);
-                            logger.finest("Sratim Plugin: cookieValue:" + cookieValue);
-
-                            if (!cookieHeader.equals("")) {
-                                cookieHeader = cookieHeader + "; ";
-                            }
-                            cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
-                        }
-                    }
-                }
-            }
-
-            // write the session cookie to a file
-            FileWriter sessionFile = new FileWriter("sratim.session");
-            sessionFile.write(cookieHeader);
-            sessionFile.close();
-
-            // Get the jpg code
-            url = new URL("http://www.sratim.co.il/verificationimage.aspx");
-            connection = (HttpURLConnection)(url.openConnection());
-            connection.setRequestProperty("Cookie", cookieHeader);
 
             // Write the jpg code to the file
             File imageFile = new File("sratim.jpg");
             FileTools.copy(connection.getInputStream(), new FileOutputStream(imageFile));
+
+            sessionDetails.put("challenge_field",challenge_field);
+            sessionDetails.store(new FileWriter("sratim.session"), "login details for sratim.co.il");
 
             // Exit and wait for the user to type the jpg code
             logger.severe("#############################################################################");
@@ -1519,8 +1356,116 @@ public class SratimPlugin extends ImdbPlugin {
             logger.severe("Sratim Plugin: Error - " + error.getMessage());
             return;
         }
-        */
+    }
 
+    private void updateCookies(HttpURLConnection connection) {
+        String cookieHeader = "";
+        for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
+            if ("Set-Cookie".equals(header.getKey())) {
+                for (String rcookieHeader : header.getValue()) {
+                    String[] cookieElements = rcookieHeader.split(" *; *");
+                    if (cookieElements.length >= 1) {
+                        String[] firstElem = cookieElements[0].split(" *= *");
+                        String cookieName = firstElem[0];
+                        String cookieValue = firstElem.length > 1 ? firstElem[1] : null;
+
+                        logger.finest("Sratim Plugin: cookie:" + cookieName + '=' + cookieValue);
+
+                        if (!cookieHeader.equals("")) {
+                            cookieHeader = cookieHeader + "; ";
+                        }
+                        cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
+                    }
+                }
+            }
+        }
+        sessionDetails.put(PHPSESSID, cookieHeader );
+    }
+
+    private boolean isLoggedIn(String cookieHeader)  {
+
+        if(cookieHeader == null || cookieHeader.length()==0) {
+            return false;
+        }
+
+        StringWriter content;
+
+        try {
+            URL url = new URL("http://www.sratim.co.il/index.php");
+            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
+            connection.setRequestProperty("Cookie", cookieHeader);
+            content = getContent(connection);
+        } catch (Exception error) {
+            logger.severe("SratimPlugin.isLoggedIn(): Error getting URL of index.php");
+            return false;
+        }
+
+        return content.toString().indexOf("preferences.php")>-1;
+    }
+
+    protected StringWriter getContent(URLConnection connection) throws IOException {
+        StringWriter content = new StringWriter(10*1024);
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charset.defaultCharset()));
+        String line;
+        while ((line = in.readLine()) != null) {
+            content.write(line);
+        }
+        content.flush();
+        in.close();
+        return content;
+    }
+
+    private boolean submitLoginDetails() {
+
+        challenge_field = sessionDetails.getProperty("challenge_field");
+
+        try {
+            // Build the post request
+            String post;
+            post = "email=" + login + "&password=" + pass + "&recaptcha_challenge_field=" + challenge_field + "&recaptcha_response_field=" + code + "&Login=התחבר";
+
+            logger.finest("Sratim Plugin: post: " + post);
+
+            URL url = new URL("http://www.sratim.co.il/login.php");
+            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Host", "sratim.co.il");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-Length", "" + Integer.toString(post.getBytes().length));
+            connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
+            connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+            connection.setRequestProperty("Accept", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+            connection.setRequestProperty("Referer", "http://sratim.co.il/login.php");
+            connection.setRequestProperty("Cookie", sessionDetails.getProperty(PHPSESSID));
+
+            connection.setUseCaches(false);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setInstanceFollowRedirects(false);
+
+            // Send request
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes(post);
+            wr.flush();
+            wr.close();
+
+            // read new cookies and update our cookies
+            updateCookies(connection);
+
+            // Get Response redirect
+            //StringWriter response = getContent(connection);
+            boolean loggedIn = connection.getResponseCode() == 302;
+            if(loggedIn) {
+                sessionDetails.store(new FileWriter("sratim.session"), "login details for sratim.co.il");
+            }
+            logger.info("Sratim Plugin: is logged in = " + loggedIn);
+            return loggedIn;
+
+        } catch (Exception error) {
+            logger.severe("Sratim Plugin: Error - " + error.getMessage());
+            return false;
+        }
     }
 
     public static String removeChar(String s, char c) {
