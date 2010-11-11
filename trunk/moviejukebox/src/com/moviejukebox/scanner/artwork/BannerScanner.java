@@ -93,6 +93,14 @@ public class BannerScanner {
         localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
         foundLocalBanner = localBannerFile.exists();
 
+        // Try searching the fileCache for the filename.
+        if (!foundLocalBanner) {
+            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, "BannerScanner: ");
+            if (localBannerFile != null) {
+                foundLocalBanner = true;
+            }
+        }
+
         // if no banner has been found, try the foldername.bannerToken.Extension
         if (!foundLocalBanner) {
             localBannerBaseFilename = FileTools.getParentFolderName(movie.getFile());

@@ -91,6 +91,14 @@ public class FanartScanner {
         localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
         foundLocalFanart = localFanartFile.exists();
 
+        // Try searching the fileCache for the filename.
+        if (!foundLocalFanart) {
+            localFanartFile = FileTools.findFilenameInCache(localFanartBaseFilename + fanartToken, fanartExtensions, jukebox, "FanartScanner: ");
+            if (localFanartFile != null) {
+                foundLocalFanart = true;
+            }
+        }
+
         // if no fanart has been found, try the foldername.fanartToken.Extension
         if (!foundLocalFanart) {
             localFanartBaseFilename = FileTools.getParentFolderName(movie.getFile());
