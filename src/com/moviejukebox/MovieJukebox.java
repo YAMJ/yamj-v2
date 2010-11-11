@@ -719,7 +719,19 @@ public class MovieJukebox {
             return;
         }
         
-        if (parseBoolean(PropertiesUtil.getProperty("mjb.monitorJukeboxProperties", "false"))) {
+        // Delete the existing filecache.txt
+        try {
+            (new File("filecache.txt")).delete();
+        } catch (Exception error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe("Failed to delete the filecache.txt file.");
+            logger.finer(eResult.toString());
+            return;
+        }
+        
+        if (PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false")) {
             // Create or Read the mjbDetails file that stores the jukebox properties we want to watch
             File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
             FileTools.addJukeboxFile(mjbDetails.getName());

@@ -143,7 +143,7 @@ public class PosterScanner {
         String parentPath = FileTools.getParentFolder(movie.getFile());
         String fullPosterFilename = parentPath;
         File localPosterFile = null;
-
+        
         if (searchForExistingPoster.equalsIgnoreCase("moviename")) {
             // Encode the basename to ensure that non-usable file system characters are replaced
             // Issue 1155 : YAMJ refuses to pickup fanart and poster for a movie -
@@ -166,6 +166,14 @@ public class PosterScanner {
         fullPosterFilename += (fullPosterFilename.endsWith(File.separator)?"":File.separator) + localPosterBaseFilename;
         localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
         boolean foundLocalPoster = localPosterFile.exists();               
+
+        // Try searching the fileCache for the filename.
+        if (!foundLocalPoster) {
+            localPosterFile = FileTools.findFilenameInCache(localPosterBaseFilename, posterExtensions, jukebox, "PosterScanner: ");
+            if (localPosterFile != null) {
+                foundLocalPoster = true;
+            }
+        }
 
         /**
          * This part will look for a filename with the same name as the directory for the poster or for folder.* poster The intention is for you to be able

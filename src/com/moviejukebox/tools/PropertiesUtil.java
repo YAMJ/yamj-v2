@@ -107,6 +107,21 @@ public class PropertiesUtil {
             return Long.parseLong(defaultValue);
         }
     }
+    
+    /**
+     * Return the key property as a boolean
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public static boolean getBooleanProperty(String key, String defaultValue) {
+        String property = getProperty(key, defaultValue).trim();
+        try {
+            return Boolean.parseBoolean(property);
+        } catch (NumberFormatException nfe) {
+            return Boolean.parseBoolean(defaultValue);
+        }
+    }
 
     // Issue 309
     public static Set<Entry<Object, Object>> getEntrySet() {
