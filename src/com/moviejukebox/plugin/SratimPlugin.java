@@ -55,11 +55,8 @@ public class SratimPlugin extends ImdbPlugin {
 
     private static boolean subtitleDownload = false;
     private static String login = "";
-    @SuppressWarnings("unused")
     private static String pass = "";
-    @SuppressWarnings("unused")
     private static String code = "";
-    @SuppressWarnings("unused")
     private static String challenge_field = "";
 
     protected static final String RECAPTCHA_URL = "http://www.google.com/recaptcha/api/challenge?k=6LfK1LsSAAAAACdKnQfBi_xCdaMxyd2I9qL5PRH8";
