@@ -978,13 +978,17 @@ public class MovieJukebox {
             // Multi-thread: Parallel Executor
             tasks.restart();
 
+            /********************************************************************************
+             * 
+             * PART 3B - Indexing masters
+             */
             for (final Movie movie : indexMasters) {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
 
-                        String safeSetMasterBaseName = movie.getBaseName();
+                        String safeSetMasterBaseName = FileTools.makeSafeFilename(movie.getBaseName());
 
                         // The master's movie XML is used for generating the
                         // playlist it will be overwritten by the index XML
@@ -1068,6 +1072,7 @@ public class MovieJukebox {
                 if (movie.isExtra() && !processExtras) {
                     continue;
                 }
+                
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws FileNotFoundException, XMLStreamException {
