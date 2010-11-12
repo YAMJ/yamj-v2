@@ -66,15 +66,15 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         // if IMDB id is specified in the NFO scan imdb first
         // (to get a valid movie title and improve detection rate
         // for getFilmdeltaId-function)
-        if (!imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(imdbId)) {
             super.scan(mediaFile);
             imdbScanned = true;
         }
         // get filmdeltaId (if not already set in nfo)
-        if (filmdeltaId == null || filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(filmdeltaId)) {
             // find a filmdeltaId (url) from google
             filmdeltaId = getFilmdeltaId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.getSeason());
-            if (!filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(filmdeltaId)) {
                 mediaFile.setId(FILMDELTA_PLUGIN_ID, filmdeltaId);
             }
         }
@@ -88,7 +88,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
         // only scrape filmdelta if a valid filmdeltaId was found
         // and the movie is not a tvshow
-        if (filmdeltaId != null && !filmdeltaId.equalsIgnoreCase(Movie.UNKNOWN) && !mediaFile.isTVShow()) {
+        if (StringTools.isValidString(filmdeltaId) && !mediaFile.isTVShow()) {
             retval = updateFilmdeltaMediaInfo(mediaFile, filmdeltaId);
         }
 
@@ -128,7 +128,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         try {
             StringBuffer sb = new StringBuffer("http://www.google.se/search?hl=sv&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+").append(year);
             }
             sb.append(URLEncoder.encode("+site:filmdelta.se/filmer", "UTF-8"));

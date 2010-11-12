@@ -20,6 +20,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.ImdbInfo;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
@@ -45,7 +46,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
         try {
             String imdbId = imdbInfo.getImdbId(title, year);
-            if (!Movie.UNKNOWN.equals(imdbId)) {
+            if (StringTools.isValidString(imdbId)) {
                 response = imdbId;
             }
         } catch (Exception error) {
@@ -66,7 +67,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
         String imdbXML;
 
         try {
-            if (!Movie.UNKNOWN.equals(id)) {
+            if (StringTools.isValidString(id)) {
                 imdbXML = webBrowser.request(imdbInfo.getSiteDef().getSite() + "title/" + id + "/", imdbInfo.getSiteDef().getCharset());
 
                 StringTokenizer st;
@@ -104,9 +105,11 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
             logger.severe("PosterScanner: Imdb Error: " + error.getMessage());
             return Image.UNKNOWN;
         }
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+        
+        if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         }
+        
         return Image.UNKNOWN;
     }
 

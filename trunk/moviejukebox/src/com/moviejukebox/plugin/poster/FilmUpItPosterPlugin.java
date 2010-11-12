@@ -24,6 +24,7 @@ import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.StringTools;
 
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -80,7 +81,7 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             String baseUrl = "http://filmup.leonardo.it/posters/locp/";
             xml = webBrowser.request(baseUrl + posterPageUrl);
             String tmpPosterURL = HTMLTools.extractTag(xml, "\"../loc/", "\"");
-            if (!tmpPosterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(tmpPosterURL)) {
                 posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
                 logger.finest("Movie PosterURL : " + posterPageUrl);
             }
@@ -92,7 +93,8 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
         }
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+
+        if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         }
         return Image.UNKNOWN;

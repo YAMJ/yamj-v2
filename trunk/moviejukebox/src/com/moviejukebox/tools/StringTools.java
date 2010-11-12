@@ -19,32 +19,13 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.moviejukebox.model.Movie;
 
 public class StringTools {
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
     
-    /**
-     * Check the string passed to see if it contains a value.
-     * @param testString The string to test
-     * @return False if the string is empty, null or UNKNOWN, True otherwise
-     */
-    public static boolean isValidString(String testString) {
-        if (testString == null) {
-            return false;
-        }
-        
-        if (testString.equalsIgnoreCase(Movie.UNKNOWN)) {
-            return false;
-        }
-        
-        if (testString.trim().equals("")) {
-            return false;
-        }
-        
-        return true;
-    }
-
     /**
      * Append a string to the end of a path ensuring that there are the correct number of File.separators
      * @param basePath
@@ -55,36 +36,8 @@ public class StringTools {
         return (basePath.trim() + (basePath.trim().endsWith(File.separator)?"":File.separator) + additionalPath.trim());
     }
 
-    public static String trimToLength(String sourceString, int requiredLength) {
-        return trimToLength(sourceString, requiredLength, true, "...");
-    }
-    
-    /**
-     * Check that the passed string is no longer than the required length and trim it if necessary
-     * @param sourceString      The string to check
-     * @param requiredLength    The required length (Maximum)
-     * @param trimToWord        Trim the source string to the last space to avoid partial words
-     * @param endingSuffix      The ending to append if the string is longer than the required length
-     * @return
-     */
-    public static String trimToLength(String sourceString, int requiredLength, boolean trimToWord, String endingSuffix) {
-        if (isValidString(sourceString)) {
-            if (sourceString.length() <= requiredLength) {
-                // No need to do anything
-                return sourceString;
-            } else {
-                if (trimToWord) {
-                    BreakIterator bi = BreakIterator.getWordInstance();
-                    bi.setText(sourceString);
-                    int biLength = bi.preceding(requiredLength - endingSuffix.length());
-                    return sourceString.substring(0, biLength).trim() + endingSuffix;
-                } else {
-                    // We know that the source string is longer that the required length, so trim it to size
-                    return sourceString.substring(0, requiredLength - endingSuffix.length()).trim() + endingSuffix;
-                }
-            }
-        }
-        return sourceString;
+    public static String cleanString(String sourceString) {
+        return CLEAN_STRING_PATTERN.matcher(sourceString).replaceAll(" ").trim();
     }
 
     /**
@@ -94,17 +47,6 @@ public class StringTools {
      */
     public static String convertDateToString(Date convertDate) {
         return convertDateToString(convertDate, Movie.dateFormat);
-    }
-    
-    /**
-     * Convert a date to a string using a String date format
-     * @param convertDate
-     * @param dateFormatString
-     * @return
-     */
-    public static String convertDateToString(Date convertDate, String dateFormatString) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
-        return convertDateToString(convertDate, dateFormat);
     }
     
     /**
@@ -119,6 +61,36 @@ public class StringTools {
         } catch (Exception ignore) {
             return Movie.UNKNOWN;
         }
+    }
+
+    /**
+     * Convert a date to a string using a String date format
+     * @param convertDate
+     * @param dateFormatString
+     * @return
+     */
+    public static String convertDateToString(Date convertDate, String dateFormatString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
+        return convertDateToString(convertDate, dateFormat);
+    }
+    
+    public static String formatDuration(int duration) {
+        StringBuffer returnString = new StringBuffer("");
+
+        int nbHours = duration / 3600;
+        if (nbHours != 0) {
+            returnString.append(nbHours).append("h");
+        }
+
+        int nbMinutes = (duration - (nbHours * 3600)) / 60;
+        if (nbMinutes != 0) {
+            if (nbHours != 0) {
+                returnString.append(" ");
+            }
+            returnString.append(nbMinutes).append("m");
+        }
+
+        return returnString.toString();
     }
     
     /**
@@ -156,9 +128,33 @@ public class StringTools {
         
         return returnSize;
     }
+    
+    /**
+     * Check the string passed to see if it is invalid.
+     * Invalid strings are "UNKNOWN", null or blank
+     * @param testString The string to test
+     * @return True if the string is invalid, false otherwise
+     */
+    public static boolean isNotValidString(String testString) {
+        return !isValidString(testString);
+    }
 
-    public static String cleanString(String sourceString) {
-        return CLEAN_STRING_PATTERN.matcher(sourceString).replaceAll(" ").trim();
+    /**
+     * Check the string passed to see if it contains a value.
+     * @param testString The string to test
+     * @return False if the string is empty, null or UNKNOWN, True otherwise
+     */
+    public static boolean isValidString(String testString) {
+        // Checks if a String is whitespace, empty ("") or null.
+        if (StringUtils.isBlank(testString)) {
+            return false;
+        }
+        
+        if (testString.equalsIgnoreCase(Movie.UNKNOWN)) {
+            return false;
+        }
+        
+        return true;
     }
  
     /**
@@ -213,22 +209,35 @@ public class StringTools {
         return returnValue;
     }
 
-    public static String formatDuration(int duration) {
-        StringBuffer returnString = new StringBuffer("");
+    public static String trimToLength(String sourceString, int requiredLength) {
+        return trimToLength(sourceString, requiredLength, true, "...");
+    }
 
-        int nbHours = duration / 3600;
-        if (nbHours != 0) {
-            returnString.append(nbHours).append("h");
-        }
-
-        int nbMinutes = (duration - (nbHours * 3600)) / 60;
-        if (nbMinutes != 0) {
-            if (nbHours != 0) {
-                returnString.append(" ");
+    /**
+     * Check that the passed string is no longer than the required length and trim it if necessary
+     * @param sourceString      The string to check
+     * @param requiredLength    The required length (Maximum)
+     * @param trimToWord        Trim the source string to the last space to avoid partial words
+     * @param endingSuffix      The ending to append if the string is longer than the required length
+     * @return
+     */
+    public static String trimToLength(String sourceString, int requiredLength, boolean trimToWord, String endingSuffix) {
+        if (isValidString(sourceString)) {
+            if (sourceString.length() <= requiredLength) {
+                // No need to do anything
+                return sourceString;
+            } else {
+                if (trimToWord) {
+                    BreakIterator bi = BreakIterator.getWordInstance();
+                    bi.setText(sourceString);
+                    int biLength = bi.preceding(requiredLength - endingSuffix.length());
+                    return sourceString.substring(0, biLength).trim() + endingSuffix;
+                } else {
+                    // We know that the source string is longer that the required length, so trim it to size
+                    return sourceString.substring(0, requiredLength - endingSuffix.length()).trim() + endingSuffix;
+                }
             }
-            returnString.append(nbMinutes).append("m");
         }
-
-        return returnString.toString();
+        return sourceString;
     }
 }

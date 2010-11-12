@@ -21,6 +21,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
@@ -45,7 +46,8 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
         try {
             StringBuffer sb = new StringBuffer("http://www.moviecovers.com/multicrit.html?titre=");
             sb.append(URLEncoder.encode(title.replace("\u0153", "oe"), "iso-8859-1"));
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isValidString(year)) {
                 sb.append("&anneemin=");
                 sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) - 1), "iso-8859-1"));
                 sb.append("&anneemax=");

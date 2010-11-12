@@ -985,7 +985,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement(); // 1280x528
         writer.writeStartElement("videoSource");
         // If the source is unknown, use the default source
-        if (movie.getVideoSource().equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getVideoSource())) {
             writer.writeCharacters(defaultSource);
         } else {
             writer.writeCharacters(movie.getVideoSource());

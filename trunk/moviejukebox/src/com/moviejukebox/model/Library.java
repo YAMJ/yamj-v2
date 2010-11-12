@@ -44,6 +44,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 
 public class Library implements Map<String, Movie> {
@@ -1153,7 +1154,7 @@ public class Library implements Map<String, Movie> {
      */
     public static String getYearCategory(String filmYear) {
         String yearCat = Movie.UNKNOWN;
-        if (filmYear != null && !filmYear.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(filmYear)) {
             try {
                 if (filmYear.equals("" + currentYear)) {
                     yearCat = "This Year";

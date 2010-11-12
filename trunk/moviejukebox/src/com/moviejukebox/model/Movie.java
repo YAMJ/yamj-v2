@@ -820,25 +820,17 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return directors;
     }
     
-    /**
-     * Take a collection of directors and just use the first
-     * WARNING: This may take a random director from the list because it's a collection!
-     * @param directors
-     */
     public void setDirectors(Collection<String> directors) {
         if (directors != null && !directors.isEmpty()) {
-            try {
-                addDirector(directors.iterator().next());
-            } catch (Exception ignore) {
-                addDirector(UNKNOWN);
-            }
-        } else {
-            addDirector(UNKNOWN);
+            this.directors.clear();
+            this.directors.addAll(directors);
         }
     }
     
     public void addDirector(String director) {
-        directors.add(director);
+        if (!directors.contains(director)) {
+            directors.add(director);
+        }
     }
 
     public void setDirty(boolean isDirty) {
@@ -1425,7 +1417,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             setVideoType(TYPE_VIDEO_HD);
 
             // Check if the videoOutput is UNKNOWN and clear it if it is
-            if (videoOutput.equals(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(videoOutput)) {
                 videoOutput = "";
             }
 

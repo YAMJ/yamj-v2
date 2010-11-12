@@ -533,7 +533,7 @@ public class MediaInfoScanner {
 
             if (infoValue != null) { // Make sure we have a codec before continuing
                 // String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
-                if (tmpAudioCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isNotValidString(tmpAudioCodec)) {
                     tmpAudioCodec = infoValue + infoLanguage;
                 } else {
                     tmpAudioCodec = tmpAudioCodec + " / " + infoValue + infoLanguage;
@@ -543,7 +543,7 @@ public class MediaInfoScanner {
             infoValue = infosCurAudio.get("Channel(s)");
             if (infoValue != null) {
                 // String oldInfo = movie.getAudioChannels();
-                if (tmpAudioChannels.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isNotValidString(tmpAudioChannels)) {
                     tmpAudioChannels = infoValue;
                 } else {
                     tmpAudioChannels = tmpAudioChannels + " / " + infoValue;
@@ -551,16 +551,16 @@ public class MediaInfoScanner {
             }
         }
 
-        if (!tmpAudioChannels.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(tmpAudioChannels)) {
             movie.setAudioChannels(tmpAudioChannels);
         }
 
-        if (!tmpAudioCodec.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(tmpAudioCodec)) {
             movie.setAudioCodec(tmpAudioCodec);
         }
 
         // TODO Add an option to choose to override FileName language info.
-        if (foundLanguages.size() > 0) {// && movie.getLanguage().equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (foundLanguages.size() > 0) {
             int index = 0;
             for (String language : foundLanguages) {
                 if (index++ > 0) {
@@ -617,7 +617,7 @@ public class MediaInfoScanner {
                         infoFormat.equalsIgnoreCase("PGS") || 
                         infoFormat.equalsIgnoreCase("VobSub")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
-                    if (oldInfo.equalsIgnoreCase(Movie.UNKNOWN) || oldInfo.equalsIgnoreCase("NO")) {
+                    if (StringTools.isNotValidString(oldInfo) || oldInfo.equalsIgnoreCase("NO")) {
                         movie.setSubtitles(infoLanguage);
                     } else {
                         // Don't overwrite what is there currently

@@ -109,15 +109,15 @@ public class FilmUpITPlugin extends ImdbPlugin {
             // }
 
             String opinionsPageID = extractTag(xml, "/opinioni/op.php?uid=", "\"");
-            if (!opinionsPageID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(opinionsPageID)) {
                 int PageID = Integer.parseInt(opinionsPageID);
                 updateRate(movie, PageID);
                 logger.finest("Opinions page UID = " + PageID);
             }
 
-            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
-                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(movie.getFanartURL())) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }

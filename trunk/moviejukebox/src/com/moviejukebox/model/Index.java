@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 
-import com.moviejukebox.tvrage.tools.StringTools;
+import com.moviejukebox.tools.StringTools;
 
 public class Index extends TreeMap<String, List<Movie>> {
     private int maxCategories = -1;

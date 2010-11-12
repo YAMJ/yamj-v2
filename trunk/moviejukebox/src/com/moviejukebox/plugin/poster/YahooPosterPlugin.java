@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
@@ -63,9 +64,11 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
             logger.severe("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);
             logger.severe("Error : " + error.getMessage());
         }
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+        
+        if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         }
+        
         return Image.UNKNOWN;
     }
 

@@ -22,6 +22,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
@@ -58,7 +59,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
 
                 if (startIndex > -1 && endIndex > -1) {
                     // Take care of the year.
-                    if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (StringTools.isValidString(year)) {
                         // Found the same year. Ok
                         if (year.equalsIgnoreCase(tmp.get(i + 1).trim())) {
                             response = tmp.get(i).substring(startIndex + strRef.length(), endIndex);
@@ -93,7 +94,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                 String posterPageUrl = HTMLTools.extractTag(xml, "<div id=\"film-top-left\">", "</div>");
                 posterPageUrl = HTMLTools.extractTag(posterPageUrl, "<a href=\"#\"", "</a>");
                 posterPageUrl = posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2);
-                if (!posterPageUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(posterPageUrl)) {
                     posterURL = posterPageUrl;
                 }
 

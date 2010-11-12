@@ -44,6 +44,7 @@ import com.moviejukebox.plugin.poster.IPosterPlugin;
 import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 /**
@@ -300,7 +301,7 @@ public class PosterScanner {
             st = new StringTokenizer(moviePosterSearchPriority, ",");
         }
 
-        while (st.hasMoreTokens() && posterImage.getUrl().equalsIgnoreCase(Movie.UNKNOWN)) {
+        while (st.hasMoreTokens() && StringTools.isNotValidString(posterImage.getUrl())) {
             posterSearchToken = st.nextToken();
 
             IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
@@ -369,7 +370,7 @@ public class PosterScanner {
             return true;
         }
 
-        if (posterImage.getUrl().equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(posterImage.getUrl())) {
             return false;
         }
 
@@ -386,7 +387,7 @@ public class PosterScanner {
         }
 
         // Check if we need to cut the poster into a sub image
-        if (!posterImage.getSubimage().equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(posterImage.getSubimage())) {
             StringTokenizer st = new StringTokenizer(posterImage.getSubimage(), ", ");
             int x = Integer.parseInt(st.nextToken());
             int y = Integer.parseInt(st.nextToken());

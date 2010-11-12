@@ -89,6 +89,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
+
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
@@ -998,7 +999,7 @@ public class MovieJukebox {
 
                         // Set a default poster name in case it's not found during the scan
                         movie.setPosterFilename(safeSetMasterBaseName + "." + getProperty("posters.format", "jpg"));
-                        if (PosterScanner.scan(jukebox, movie).equalsIgnoreCase(Movie.UNKNOWN)) {
+                        if (isNotValidString(PosterScanner.scan(jukebox, movie))) {
                             logger.finest("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
                         }
@@ -1451,7 +1452,7 @@ public class MovieJukebox {
         if ((!tmpDestFile.exists() && !bannerFile.exists()) || (movie.isDirtyBanner()) || forceBannerOverwrite) {
             bannerFile.getParentFile().mkdirs();
 
-            if (movie.getBannerURL() == null || movie.getBannerURL().equals(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getBannerURL())) {
                 logger.finest("Dummy banner used for " + movie.getBaseName());
                 FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
             } else {
@@ -1871,7 +1872,7 @@ public class MovieJukebox {
             //System.out.println("- Difference : " + (Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision())) );
             String currentRevision = movie.getCurrentMjbRevision();
             String mjbRevision = movie.getMjbRevision();
-            int revDiff = Integer.parseInt(currentRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : currentRevision) - Integer.parseInt(mjbRevision.equalsIgnoreCase(Movie.UNKNOWN) ? "0" : mjbRevision); 
+            int revDiff = Integer.parseInt(isNotValidString(currentRevision) ? "0" : currentRevision) - Integer.parseInt(isNotValidString(mjbRevision) ? "0" : mjbRevision); 
             if (revDiff > recheckRevision) {
                 logger.finest("Recheck: " + movie.getBaseName() + " XML is " + revDiff + " revisions old (" + recheckRevision + " maximum), will rescan");
                 recheckCount++;
@@ -1881,19 +1882,19 @@ public class MovieJukebox {
         
         // Check for "UNKNOWN" values in the XML
         if (recheckUnknown) {
-            if (movie.getTitle().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getTitle())) {
                 logger.finest("Recheck: " + movie.getBaseName() + " XML is missing the title, will rescan");
                 recheckCount++;
                 return true;
             }
             
-            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getPlot())) {
                 logger.finest("Recheck: " + movie.getBaseName() + " XML is missing plot, will rescan");
                 recheckCount++;
                 return true;
             }
             
-            if (movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getYear())) {
                 logger.finest("Recheck: " + movie.getBaseName() + " XML is missing year, will rescan");
                 recheckCount++;
                 return true;
@@ -1905,13 +1906,13 @@ public class MovieJukebox {
                 return true;
             }
             
-            if (movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getPosterURL())) {
                 logger.finest("Recheck: " + movie.getBaseName() + " is missing poster, will rescan");
                 recheckCount++;
                 return true;
             }
             
-            if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getFanartURL())) {
                 if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
                     logger.finest("Recheck: " + movie.getBaseName() + " is missing fanart, will rescan");
                     recheckCount++;
@@ -1922,7 +1923,7 @@ public class MovieJukebox {
             if (movie.isTVShow()) {
                 boolean recheckEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
                 
-                if (bannerDownload && movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (bannerDownload && isNotValidString(movie.getBannerURL())) {
                     logger.finest("Recheck: " + movie.getBaseName() + " is missing banner artwork, will rescan");
                     recheckCount++;
                     return true;
@@ -1930,7 +1931,7 @@ public class MovieJukebox {
                 
                 // scan the TV episodes
                 for (MovieFile mf : movie.getMovieFiles()) {
-                    if (mf.getTitle().equals(Movie.UNKNOWN)) {
+                    if (isNotValidString(mf.getTitle())) {
                         logger.finest("Recheck: " + movie.getBaseName() + " - Part " + mf.getFirstPart() + " XML is missing Title, will rescan");
                         mf.setNewFile(true); // This forces the episodes to be rechecked
                         recheckCount++;
@@ -1939,14 +1940,14 @@ public class MovieJukebox {
 
                     if (recheckEpisodePlots || videoimageDownload) {
                         for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
-                            if (recheckEpisodePlots && mf.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (recheckEpisodePlots && isNotValidString(mf.getPlot(part))) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV plot, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
                             } // plots
                             
-                            if (videoimageDownload && mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (videoimageDownload && isNotValidString(mf.getVideoImageURL(part))) {
                                 logger.finest("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV video image, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;

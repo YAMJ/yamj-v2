@@ -33,6 +33,7 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Scanner for video image files in local directory
@@ -180,7 +181,7 @@ public class VideoImageScanner {
                 }
 
                 // If we don't have a filename, then fill it in here.
-                if (mf.getVideoImageFilename(part) == null || mf.getVideoImageFilename(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isNotValidString(mf.getVideoImageFilename(part))) {
                     if (videoimageExtension == null) {
                         videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
                         
@@ -208,12 +209,12 @@ public class VideoImageScanner {
                     // Check to see if the URL is UNKNOWN and the local file is found, in which case 
                     // the videoimage in the jukebox should be overwritten with this file
                     localOverwrite = false; // first reset the check variable
-                    if (mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (StringTools.isNotValidString(mf.getVideoImageURL(part))) {
                         localOverwrite = true;  // Means the file will be overwritten regardless of any other checks
                     }
                     
                     // Derive the URL to the local file
-                    if (mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (StringTools.isNotValidString(mf.getVideoImageURL(part))) {
                         // This occurs when there isn't a videoimage URL in the XML
                         if (localVideoImageFile != null)  {
                             mf.setVideoImageURL(part, localVideoImageFile.toURI().toString());
@@ -302,7 +303,7 @@ public class VideoImageScanner {
      */
     private static void downloadVideoImage(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie, MovieFile mf, int part) {
 
-        if (mf.getVideoImageURL(part) != null && !mf.getVideoImageURL(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(mf.getVideoImageURL(part))) {
             String safeVideoImageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
             String videoimageFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeVideoImageFilename;
             File videoimageFile = FileTools.fileCache.getFile(videoimageFilename);
