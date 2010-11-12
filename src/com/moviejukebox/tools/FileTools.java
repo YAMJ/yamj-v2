@@ -479,12 +479,14 @@ public class FileTools {
      */
     public static File findFilenameInCache(String searchFilename, Collection<String> artworkExtensions, Jukebox jukebox, String logPrefix) {
         File searchFile = null;
-        Collection<File> files = FileTools.fileCache.searchFilename(searchFilename, true);
-        logger.finer(logPrefix + "Scanning fileCache for " + searchFilename);
+        String safeFilename = makeSafeFilename(searchFilename);
+        
+        Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
+        logger.finer(logPrefix + "Scanning fileCache for " + safeFilename);
         
         if (files.size() > 0) {
             // Copy the synchronized list to avoid ConcurrentModificationException
-            Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(searchFilename, true)).iterator();
+            Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(safeFilename, true)).iterator();
             
             while (iter.hasNext()) {
                 File file = iter.next();
@@ -497,7 +499,7 @@ public class FileTools {
                 
                 // Loop round the filename+extension to see if any exist and add them to the array
                 for (String extension : artworkExtensions) {
-                    if (abPath.endsWith((searchFilename + "." + extension).toLowerCase())) {
+                    if (abPath.endsWith((safeFilename + "." + extension).toLowerCase())) {
                         files.add(file);
                         
                         logger.finest(logPrefix + "Found: " + file.getAbsolutePath());
@@ -515,7 +517,7 @@ public class FileTools {
             if (searchFile != null) {
                 logger.finest(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
             } else {
-                logger.finest(logPrefix + "No matching files found for " + searchFilename);
+                logger.finest(logPrefix + "No matching files found for " + safeFilename);
             }
         } else {
             logger.finest(logPrefix + "No scanned files found...");
