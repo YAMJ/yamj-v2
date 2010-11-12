@@ -137,10 +137,11 @@ public class FanartScanner {
             fullFanartFilename = localFanartFile.getAbsolutePath();
             logger.finest("FanartScanner: File " + fullFanartFilename + " found");
 
-            if (movie.getFanartFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(movie.getFanartFilename())) {
                 movie.setFanartFilename(movie.getBaseFilename() + fanartToken + "." + FileTools.getFileExtension(localFanartFile.getName()));
             }
-            if (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
             }
             String fanartFilename = movie.getFanartFilename();
@@ -183,7 +184,7 @@ public class FanartScanner {
     }
 
     private static void downloadFanart(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
-        if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(movie.getFanartURL())) {
             String safeFanartFilename = movie.getFanartFilename();
             String fanartFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeFanartFilename;
             File fanartFile = FileTools.fileCache.getFile(fanartFilename);

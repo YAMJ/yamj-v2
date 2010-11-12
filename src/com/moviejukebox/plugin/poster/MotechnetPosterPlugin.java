@@ -13,6 +13,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tvrage.tools.StringTools;
 
 public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
@@ -79,7 +80,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                     }
                 }
                 
-                if (!response.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(response)) {
                     int pos = response.indexOf("/");
                     if (pos > -1) {
                         response = response.substring(0, pos);

@@ -66,7 +66,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         logger.finest("ComingSoon: Checking IMDB");
         boolean firstScanImdb = super.scan(movie);      
-        if (comingSoonId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(comingSoonId)) {
             // First run wasn't successful
             if (firstScanImdb) {
                 // We try to fetch again ComingSoon, hopefully with more info
@@ -77,7 +77,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
 
         boolean firstScanComingSoon = false;
-        if (!comingSoonId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(comingSoonId)) {
 
             logger.finest("ComingSoon: Fetching movie data from ComingSoon");
             
@@ -86,7 +86,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
             firstScanComingSoon = updateComingSoonMediaInfo(movie);
             
-            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(movie.getPlot())) {
                 movie.setPlot(bkPlot2);
             }
         }
@@ -101,19 +101,19 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             super.scan(movie);
 
-            if (!bkOriginalTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(bkOriginalTitle)) {
                 movie.setTitle(bkOriginalTitle);
-            } else if (!bkTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
+            } else if (StringTools.isValidString(bkTitle)) {
                 movie.setTitle(bkTitle);
             }
             
-            if (!bkOriginalTitle.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(bkOriginalTitle)) {
                 movie.setOriginalTitle(bkOriginalTitle);
             }
 
         }
         
-        if (movie.getOriginalTitle().equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getOriginalTitle())) {
             movie.setOriginalTitle(movie.getTitle());
         }
         
@@ -156,11 +156,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer(searchUrl);
             sb.append("\"" + URLEncoder.encode(movieName, "UTF-8") + "\"");              
 
-            /*
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                // No year search as for now
-            }*/
-
             sb.append("+site%3Acomingsoon.it");
 
             logger.finest("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
@@ -200,7 +195,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer("http://www.comingsoon.it/Film/Database/?titoloFilm=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));              
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("&anno=" + year);
             }
 
@@ -228,10 +223,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
             }
             
-            if (!year.equalsIgnoreCase(Movie.UNKNOWN) && scoreToBeat > 0) {
+            if (StringTools.isValidString(year) && scoreToBeat > 0) {
                 logger.finest("ComingSoon: Perfect match not found, trying removing by year...");
                 String newComingSoonId = getComingSoonIdFromComingSoon(movieName, Movie.UNKNOWN, scoreToBeat);
-                comingSoonId = (newComingSoonId.equalsIgnoreCase(Movie.UNKNOWN) ? comingSoonId : newComingSoonId);
+                comingSoonId = (StringTools.isNotValidString(newComingSoonId) ? comingSoonId : newComingSoonId);
             }
             
             return comingSoonId;
@@ -375,7 +370,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
             }
             
-            if (title == null || title.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(title)) {
                 logger.severe("ComingSoon: No title found at ComingSoon page. HTML layout has changed?");
                 return false;
             }
@@ -389,7 +384,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 movie.setOriginalTitle(originalTitle);
             }
 
-            if (movie.getPlot().equals(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(movie.getPlot())) {
             
                 int beginIndex = xml.indexOf("<span class='vociFilm'>Trama del film");
                 if (beginIndex < 0) {

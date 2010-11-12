@@ -117,7 +117,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             logger.severe("MovieDbPosterPlugin: TheMovieDB.org API Error: " + error.getMessage());
         }
         
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+        if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         } else {
             return Image.UNKNOWN;
@@ -132,15 +132,16 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
-        if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
+        
+        if (StringTools.isNotValidString(id)) {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // Id found
-            if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (StringTools.isValidString(id)) {
                 ident.setId(getName(), id);
             }
         }
 
-        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+        if (StringTools.isValidString(id)) {
             return getPosterUrl(id);
         }
         return Image.UNKNOWN;
@@ -153,9 +154,9 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             String tmdbID = ident.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
             MovieDB moviedb;
             // First look to see if we have a TMDb ID as this will make looking the film up easier
-            if (tmdbID != null && !tmdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(tmdbID)) {
                 response = tmdbID;
-            } else if (imdbID != null && !imdbID.equalsIgnoreCase(Movie.UNKNOWN)) {
+            } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
                 moviedb = theMovieDb.moviedbImdbLookup(imdbID, language);
                 if (moviedb != null) {

@@ -32,6 +32,7 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Scanner for banner files in local directory
@@ -138,10 +139,12 @@ public class BannerScanner {
         if (foundLocalBanner) {
             fullBannerFilename = localBannerFile.getAbsolutePath();
             logger.finest("BannerScanner: File " + fullBannerFilename + " found");
-            if (movie.getBannerFilename().equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isNotValidString(movie.getBannerFilename())) {
                 movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
             }
-            if (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isNotValidString(movie.getBannerURL())) {
                 movie.setBannerURL(localBannerFile.toURI().toString());
             }
             String bannerFilename = movie.getBannerFilename();
@@ -192,7 +195,7 @@ public class BannerScanner {
      * @param movie
      */
     private static void downloadBanner(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
-        if (movie.getBannerURL() != null && !movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(movie.getBannerURL())) {
             String safeBannerFilename = movie.getBannerFilename();
             String bannerFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeBannerFilename;
             File bannerFile = FileTools.fileCache.getFile(bannerFilename);

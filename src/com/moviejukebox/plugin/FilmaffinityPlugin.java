@@ -42,7 +42,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     public boolean scan(Movie mediaFile) {
         boolean retval = true;
         String filmAffinityId = mediaFile.getId(FILMAFFINITY_PLUGIN_ID);
-        if (filmAffinityId == null || filmAffinityId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(filmAffinityId)) {
             filmAffinityId = posterPlugin.getId(mediaFile,mediaFile);
         } else {
             // Not already have the .html at the end ?
@@ -88,7 +88,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 movie.setTitle(HTMLTools.extractTag(xml, "<img src=\"http://www.filmaffinity.com/images/movie.gif\" border=\"0\">", "</span></div></div>"));
             }
 
-            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(movie.getPlot())) {
                 String plot = HTMLTools.extractTag(xml, "SINOPSIS", 4, "><|", false);
                 plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(plot);

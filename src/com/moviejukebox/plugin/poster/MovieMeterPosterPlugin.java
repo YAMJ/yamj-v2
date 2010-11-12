@@ -25,6 +25,7 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
@@ -61,7 +62,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
             StringBuffer sb = new StringBuffer("http://www.google.nl/search?hl=nl&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
 
@@ -126,7 +127,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     public IImage getPosterUrl(String id) {
         // <td><img src="
         String posterURL = Movie.UNKNOWN;
-        if (!Movie.UNKNOWN.equals(id)) {
+        if (StringTools.isValidString(id)) {
             try {
                 HashMap filmInfo = session.getMovieDetailsById(Integer.valueOf(id));
                 posterURL = filmInfo.get("thumbnail").toString().replaceAll("thumbs/", "");
@@ -136,7 +137,8 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
                 logger.severe("Error : " + e.getMessage());
             }
         }
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+        
+        if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         }
         return Image.UNKNOWN;

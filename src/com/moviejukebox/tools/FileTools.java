@@ -404,6 +404,7 @@ public class FileTools {
         for (ReplaceEntry rep : unsafeChars) {
             newFilename = rep.check(newFilename);
         }
+        
         if (!newFilename.equals(filename)) {
             logger.finest("Encoded filename string " + filename + " to " + newFilename);
         }
@@ -536,7 +537,6 @@ public class FileTools {
         webBrowser.downloadImage(imageFile, imageURL);
     }
     
-
     /**
      * Find the parent directory of the movie file.
      * @param movie
@@ -559,7 +559,6 @@ public class FileTools {
 
         return parentFolder;
     }
-
     
     /**
      * Recursively delete a directory
@@ -570,7 +569,6 @@ public class FileTools {
         return deleteDir(new File(dir));
     }
     
-   
     /**
      * Recursively delete a directory 
      * @param dir
@@ -591,7 +589,6 @@ public class FileTools {
         // System.out.println("Deleting: " + dir.getAbsolutePath());
         return dir.delete();
     }
-
    
     /**
      * Add a list of files to the jukebox filenames
@@ -600,18 +597,16 @@ public class FileTools {
     public static void addJukeboxFiles(Collection<String> filenames) {
         generatedFileNames.addAll(filenames);
     }
-    
    
     /**
      * Add an individual filename to the jukebox cleaning exclusion list
      * @param filename
      */
     public static void addJukeboxFile(String filename) {
-        if (!filename.equalsIgnoreCase(Movie.UNKNOWN) && filename != null) {
+        if (StringTools.isValidString(filename)) {
             generatedFileNames.add(filename);
         }
     }
-    
    
     /**
      * Process the movie and add all the files to the jukebox cleaning exclusion list
@@ -635,7 +630,6 @@ public class FileTools {
     public static Collection<String> getJukeboxFiles() {
         return generatedFileNames;
     }
-    
    
     /**
      * special file with "cached" attributes
@@ -777,7 +771,6 @@ public class FileTools {
 
     }
 
-
     /**
      * cached File instances
      * the key is always absolute path in upper-case, so it will NOT work for case only differences
@@ -886,7 +879,6 @@ public class FileTools {
             p.close();
         }
     }
-    
     
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
  

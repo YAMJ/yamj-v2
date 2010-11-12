@@ -13,6 +13,10 @@
 
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.trimToLength;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,7 +34,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
 
 public class AllocinePlugin extends ImdbPlugin {
 
@@ -94,9 +97,9 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Get Fanart
-            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            if (downloadFanart && isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
-                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (isValidString(movie.getFanartURL())) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
@@ -132,7 +135,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
     public void scanTVShowTitles(Movie movie) {
         String allocineId = movie.getId(ALLOCINE_PLUGIN_ID);
-        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || allocineId == null || allocineId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || isNotValidString(allocineId)) {
             return;
         }
 
@@ -214,7 +217,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setTitle(HTMLTools.extractTag(xml, "<h1>", "</h1>"));
             }
 
-            if (movie.getOriginalTitle().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getOriginalTitle())) {
                 movie.setOriginalTitle(removeHtmlTags(HTMLTools.extractTag(xml, "Titre original :", "</em>")));
             }
 
@@ -223,21 +226,17 @@ public class AllocinePlugin extends ImdbPlugin {
                 // logger.finest("AllocinePlugin: Movie rating = " + movie.getRating());
             }
 
-            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getPlot())) {
                 // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
                 String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Synopsis :", "</p>")).trim();
                 // logger.finest("AllocinePlugin: tmpPlot = [" + tmpPlot + "]");
-                tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
+                tmpPlot = trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(tmpPlot);
                 // logger.finest("AllocinePlugin: Movie Plot = " + movie.getPlot());
             }
 
-/*            if (movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setDirector(removeHtmlTags(HTMLTools.extractTag(xml, "Réalisé par ", "</span>")));
-                // logger.finest("AllocinePlugin: Movie Director = " + movie.getDirector());
-            }*/
 
-            if ( (movie.getReleaseDate().equals(Movie.UNKNOWN)) && (xml.indexOf("Date de sortie cinéma : <span>inconnue</span>") == -1) ) {
+            if (isNotValidString(movie.getReleaseDate()) && (xml.indexOf("Date de sortie cinéma : <span>inconnue</span>") == -1)) {
                 Pattern yearRegex = Pattern.compile(".*(\\d{4})$");
                 String releaseDate = removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "<br />"));
                 Matcher match = yearRegex.matcher(releaseDate);
@@ -247,20 +246,15 @@ public class AllocinePlugin extends ImdbPlugin {
                 // logger.finest("AllocinePlugin: Movie Theater release date = [" + movie.getReleaseDate()+"]");
             }
 
-            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getRuntime())) {
                 movie.setRuntime(HTMLTools.extractTag(xml, "Durée :", "Année"));
                 // logger.finest("AllocinePlugin: Durée = " + movie.getRuntime());
             }
 
-            if (movie.getCountry().equals(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getCountry())) {
                 movie.setCountry(removeHtmlTags(HTMLTools.extractTag(xml, "Long-métrage", "</a>")).trim());
                 // logger.finest("AllocinePlugin: Movie Country = " + movie.getCountry());
             }
-
-            // if (movie.getCompany().equals(Movie.UNKNOWN)) {
-            // movie.setCompany(removeHtmlTags(HTMLTools.extractTag(xml, "Distribué par ", "</h3>")));
-            // logger.finest("AllocinePlugin: Movie Company = " + movie.getCompany());
-            // }
 
             if (movie.getGenres().isEmpty()) {
                 for (String genre : HTMLTools.extractTags(xml, "Genre", "<br />", "/film/tous/genre-", "</a>", false)) {
@@ -282,14 +276,14 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setCertification(HTMLTools.extractTag(xml, "Interdit aux moins de ", " ans"));
             }
 
-            if (!movie.isOverrideYear() && movie.getYear().equals(Movie.UNKNOWN)) {
+            if (!movie.isOverrideYear() && isNotValidString(movie.getYear())) {
 
                 Pattern yearRegex = Pattern.compile(".*(\\d{4})$");
 
                 
                 String aYear = movie.getReleaseDate();
                 // Looking for the release date
-                if (aYear.equals(Movie.UNKNOWN)) {
+                if (isNotValidString(aYear)) {
                     aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>"));
                     Matcher match = yearRegex.matcher(aYear);
                     if (!match.find()) {
@@ -299,16 +293,17 @@ public class AllocinePlugin extends ImdbPlugin {
                             aYear = Movie.UNKNOWN;
                         }
                     }
-                } 
-                if (!aYear.equals(Movie.UNKNOWN)) {
+                }
+                
+                if (isValidString(aYear)) {
                     movie.setYear(aYear.substring(aYear.length() - 4));
                 }
             }
 
             // Get Fanart
-            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            if (downloadFanart && isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
-                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (isValidString(movie.getFanartURL())) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
@@ -331,7 +326,7 @@ public class AllocinePlugin extends ImdbPlugin {
             
             // Check for director
             ArrayList<String> tempDirectors = HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id='direction'></a>", "</div><!-- /rubric !-->", "<div class=\"datablock\">", "</div><!-- /datablock -->", false);
-            if (movie.getDirector() == null || movie.getDirector().isEmpty() || movie.getDirector().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (movie.getDirectors().isEmpty()) {
                 if (!tempDirectors.isEmpty()) {
                     movie.addDirector(removeHtmlTags(HTMLTools.extractTag(tempDirectors.get(0),"<h3>","</h3>")));
                 }
@@ -387,17 +382,17 @@ public class AllocinePlugin extends ImdbPlugin {
         boolean retval = true;
         try {
             String allocineId = mediaFile.getId(ALLOCINE_PLUGIN_ID);
-            if (allocineId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(allocineId)) {
                 allocineId = getAllocineId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.isTVShow() ? 0 : -1);
             }
             
             // we also get imdb Id for extra infos
-            if (mediaFile.getId(IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getOriginalTitle(), mediaFile.getYear()));
                 logger.finest("AllocinePlugin: Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
-            
-            if (!allocineId.equalsIgnoreCase(Movie.UNKNOWN)) {
+
+            if (isValidString(allocineId)) {
                 mediaFile.setId(ALLOCINE_PLUGIN_ID, allocineId);
                 if (mediaFile.isTVShow()) {
                     updateTVShowInfo(mediaFile);
@@ -423,7 +418,7 @@ public class AllocinePlugin extends ImdbPlugin {
      * @throws ParseException
      */
     public String getAllocineId(String movieName, String year, int tvSeason) throws ParseException {
-        if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (isValidString(year)) {
             return getAllocineIdFromGoogle(movieName, year);
         } else {
             String allocineId = Movie.UNKNOWN;
@@ -464,7 +459,7 @@ public class AllocinePlugin extends ImdbPlugin {
                         // Issue #1265: to prevent some strange layout where tags <b></b> are inside the movie year
                         searchResultYear = removeHtmlTags(searchResultYear);
                         logger.finest("AllocinePlugin: searchResultYear = [" + searchResultYear+"] while year=["+year+"]");
-                        if (year == null || year.equalsIgnoreCase(Movie.UNKNOWN) || year.equalsIgnoreCase(searchResultYear)) {
+                        if (isNotValidString(year) || year.equalsIgnoreCase(searchResultYear)) {
                             int allocineIndexBegin = 0;
                             int allocineIndexEnd = searchResult.indexOf(".html");
 
@@ -500,7 +495,7 @@ public class AllocinePlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
             sb.append("+site%3Awww.allocine.fr&meta=");

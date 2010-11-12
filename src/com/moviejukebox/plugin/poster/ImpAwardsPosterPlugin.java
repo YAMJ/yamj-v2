@@ -18,6 +18,7 @@ import java.net.URLEncoder;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
@@ -71,12 +72,14 @@ public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
-        if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
+        
+        if (StringTools.isValidString(id)) {
             if (id.endsWith(".html")) {
                 posterURL = "http://www.impawards.com/" + id.substring(0, id.length() - 4) + "jpg";
             }
         }
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+        
+        if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         }
         return Image.UNKNOWN;

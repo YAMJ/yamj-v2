@@ -101,7 +101,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             
             String filmKatURL;
             
-            if (movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(movie.getId(FILMKAT_PLUGIN_ID))) {
                 filmKatURL = "http://filmkatalogus.hu/kereses?keres0=1&szo0=";
                 filmKatURL = filmKatURL.concat(URLEncoder.encode(movie.getTitle(), "ISO-8859-2"));
             } else {

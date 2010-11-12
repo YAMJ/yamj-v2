@@ -126,7 +126,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             // Check if we need to cut the poster into a sub image
             String posterSubimage = movie.getPosterSubimage();
 
-            if (posterSubimage != null && !posterSubimage.isEmpty() && !posterSubimage.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(posterSubimage)) {
                 StringTokenizer st = new StringTokenizer(posterSubimage, ", ");
                 int x = Integer.parseInt(st.nextToken());
                 int y = Integer.parseInt(st.nextToken());
@@ -383,7 +383,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private BufferedImage drawLanguage(IMovieBasicInformation movie, BufferedImage bi) {
         String lang = movie.getLanguage();
 
-        if (lang != null && !lang.isEmpty() && !lang.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(lang)) {
             String[] languages = lang.split("/");
 
             String fullLanguage = "";

@@ -25,6 +25,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
@@ -68,9 +69,6 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
                 if (tvSeason > -1) {
                     sb.append("+TV");
                 }
-                // if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
-                // sb.append("+").append(year);
-                // }
 
                 sb.append("&stype=title");
             } else {
@@ -84,7 +82,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
                 if (tvSeason > -1) {
                     sb.append("+TV");
                 } else {
-                    if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (StringTools.isValidString(year)) {
                         sb.append("+(").append(year).append(")");
                     }
                 }

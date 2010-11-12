@@ -28,6 +28,7 @@ import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -72,7 +73,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         try {
             List<Series> seriesList = null;
 
-            if (!title.equals(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(title)) {
                 seriesList = tvDB.searchSeries(title, language);
                 // Try Alternative Language
                 if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
@@ -84,7 +85,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 Series series = null;
                 for (Series s : seriesList) {
                     if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
-                        if (year != null && !year.equals(Movie.UNKNOWN)) {
+                        if (StringTools.isValidString(year)) {
                             try {
                                 DateTime firstAired = DateTime.parse(s.getFirstAired());
                                 if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(year)) {
@@ -149,7 +150,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 }
             }
             ThreadExecutor.leaveIO();
-            if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
+            if (StringTools.isValidString(posterURL)) {
                 logger.finer("TheTvDBPosterPlugin: Used poster " + posterURL);
                 return new Image(posterURL);
             }
@@ -173,17 +174,18 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
-        if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
+        
+        if (StringTools.isNotValidString(id)) {
             if (movieInformation.isTVShow()) {
                 id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear(), movieInformation.getSeason());
             }
             // Id found
-            if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            if (StringTools.isValidString(id)) {
                 ident.setId(getName(), id);
             }
         }
 
-        if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
+        if (StringTools.isValidString(id)) {
             if (movieInformation.isTVShow()) {
                 return getPosterUrl(id, movieInformation.getSeason());
             }

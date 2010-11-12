@@ -19,11 +19,12 @@ import java.io.Writer;
 import java.text.ParseException;
 import java.util.logging.Logger;
 
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
@@ -75,7 +76,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
                     // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
                     posterURL = HTMLTools.extractTag(posterURLTag, "<img src=\"", "\"");
 
-                    if (!posterURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (StringTools.isValidString(posterURL)) {
                         logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
                     }
                 }
