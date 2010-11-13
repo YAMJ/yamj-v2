@@ -333,7 +333,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     public void generate(Jukebox jukebox, Library library) {
         initialize(jukebox);
         String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
-        if (!StringTools.isValidString(fields)) {
+        if (StringTools.isNotValidString(fields)) {
             // If the "fields" is blank, populate it with the default
             fields = DEFAULT_FIELDS;
         }

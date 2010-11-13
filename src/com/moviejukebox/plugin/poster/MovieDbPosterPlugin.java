@@ -85,7 +85,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
-        if (!StringTools.isValidString(id)) {
+        if (StringTools.isNotValidString(id)) {
             return Image.UNKNOWN;
         }
 

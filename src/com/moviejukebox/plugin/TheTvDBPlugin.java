@@ -28,7 +28,7 @@ import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -207,7 +207,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setCast(series.getActors());
                     }
 
-                    if (includeWideBanners && (movie.getBannerURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceBannerOverwrite) || movie.isDirtyBanner()) {
+                    if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirtyBanner()) {
                         final int season = movie.getSeason();
                         String urlBanner = null;
 
@@ -253,7 +253,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 // TODO remove this once all skins are using the new fanart properties
                 downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
-                if (downloadFanart && (movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) || (forceFanartOverwrite) || (movie.isDirtyFanart())) {
+                if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || (movie.isDirtyFanart())) {
                     String url = null;
                     if (!banners.getFanartList().isEmpty()) {
                         int index = movie.getSeason();
@@ -273,7 +273,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setFanartURL(url);
                     }
 
-                    if (movie.getFanartURL() != null && !movie.getFanartURL().isEmpty() && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (isValidString(movie.getFanartURL())) {
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                     }
                 }
@@ -327,14 +327,14 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             }
 
                             // Set the title of the episode
-                            if (file.getTitle(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (isNotValidString(file.getTitle(part))) {
                                 file.setTitle(part, episode.getEpisodeName());
                             }
 
                             if (includeEpisodePlots) {
-                                if (file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                                if (isNotValidString(file.getPlot(part))) {
                                     String episodePlot = episode.getOverview();
-                                    episodePlot = StringTools.trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
+                                    episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
                                     file.setPlot(part, episodePlot);
                                 }
                             }
@@ -346,7 +346,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             }
                         } else {
                             // This occurs if the episode is not found
-                            if (movie.getSeason() > 0 && file.getFirstPart() == 0 && file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
                                 // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
                                 file.setTitle(part, "Special");
                             }

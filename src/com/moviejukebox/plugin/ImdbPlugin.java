@@ -36,7 +36,7 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
@@ -73,13 +73,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     @Override
     public boolean scan(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
-        if (!StringTools.isValidString(imdbId)) {
+        if (isNotValidString(imdbId)) {
             imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear());
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
 
         boolean retval = true;
-        if (!imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (isValidString(imdbId)) {
             retval = updateImdbMediaInfo(movie);
         }
         return retval;
@@ -184,9 +184,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
             // TODO: Move this check out of here, it doesn't belong.
-            if (downloadFanart && !StringTools.isValidString(movie.getFanartURL())) {
+            if (downloadFanart && isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
-                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (isValidString(movie.getFanartURL())) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
@@ -308,8 +308,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
 
                     imdbOutline = outline.trim();
-                    if (StringTools.isValidString(imdbOutline)) {
-                        imdbOutline = StringTools.trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
+                    if (isValidString(imdbOutline)) {
+                        imdbOutline = trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
                     } else {
                         // Ensure the outline isn't blank or null
                         imdbOutline = Movie.UNKNOWN;
@@ -355,13 +355,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
-            if (certification.equals(Movie.UNKNOWN)) {
+            
+            if (isNotValidString(certification)) {
                 certification = getPreferredValue(HTMLTools.extractTags(xml, "<h5>" + siteDef.getCertification() + ":</h5>", "</div>",
                                 "<a href=\"/search/title?certificates=", "</a>"));
             }
-            if (certification == null || certification.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (isNotValidString(certification)) {
                 certification = Movie.NOTRATED;
             }
+            
             movie.setCertification(certification);
         }
 
@@ -381,11 +384,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (!movie.isOverrideYear() && (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN))) {
+        if (!movie.isOverrideYear() && isNotValidString(movie.getYear())) {
             movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1));
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getYear())) {
                 String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef.getOriginalAirDate() + ":</h5>", 0);
-                if (!fullReleaseDate.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (isValidString(fullReleaseDate)) {
                     movie.setYear(fullReleaseDate.split(" ")[2]);
                 }
                 // HTMLTools.extractTag(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 2, " ")
@@ -408,9 +411,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
-        if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+        if (downloadFanart && isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
-            if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isValidString(movie.getFanartURL())) {
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
             }
         }
@@ -536,13 +539,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String imdbOutline = HTMLTools.extractTag(xml, "reviews</a>", "<div class=\"txt-block\">");
             imdbOutline = HTMLTools.removeHtmlTags(imdbOutline).trim();
             
-            if (StringTools.isValidString(imdbOutline)) {
+            if (isValidString(imdbOutline)) {
                 int beginIndex = imdbOutline.indexOf(" reviews");
                 if (beginIndex > 0) {
                     imdbOutline = imdbOutline.substring(beginIndex + 8);
                 }
                 
-                imdbOutline = StringTools.trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
+                imdbOutline = trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
             } else {
                 // ensure the outline is set to unknown if it's blank or null
                 imdbOutline = Movie.UNKNOWN;
@@ -557,21 +560,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
             
             // This plot didn't work, look for another version
-            if (!StringTools.isValidString(imdbPlot)) {
+            if (isNotValidString(imdbPlot)) {
                 imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<span class=\"");
                 imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
             }
             
             // Check the length of the plot is OK
-            if (StringTools.isValidString(imdbPlot)) {
-                imdbPlot = StringTools.trimToLength(imdbPlot, preferredPlotLength, true, plotEnding);
+            if (isValidString(imdbPlot)) {
+                imdbPlot = trimToLength(imdbPlot, preferredPlotLength, true, plotEnding);
             } else {
                 // The plot might be blank or null so set it to UNKNOWN
                 imdbPlot = Movie.UNKNOWN;
             }
             
             // Update the plot with the found plot, or the outline if not found
-            if (StringTools.isValidString(imdbPlot)) {
+            if (isValidString(imdbPlot)) {
                 movie.setPlot(imdbPlot);
             } else {
                 movie.setPlot(movie.getOutline());
@@ -599,13 +602,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
-            if (certification.equals(Movie.UNKNOWN)) {
+            
+            if (isNotValidString(certification)) {
                 certification = getPreferredValue(HTMLTools.extractTags(certXML, "<h5>" + siteDef2.getCertification() + ":</h5>", "</div>",
                                 "<a href=\"/search/title?certificates=", "</a>"));
             }
-            if (certification == null || certification.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (isNotValidString(certification)) {
                 certification = Movie.NOTRATED;
             }
+            
             movie.setCertification(certification);
         }
 
@@ -615,21 +621,23 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             Matcher m = getYear.matcher(xml);
             if (m.find()) {
                 String Year = m.group(1);
-                if (!StringTools.isValidString(Year)) {
+                if (isNotValidString(Year)) {
                     Year = m.group(2);
                 }
 
-                if (StringTools.isValidString(Year) && !StringTools.isValidString(movie.getYear())) {
+                if (isValidString(Year) && isNotValidString(movie.getYear())) {
                     movie.setYear(Year);
                 }
             }
         }
 
-        if (!movie.isOverrideYear() && (!StringTools.isValidString(movie.getYear()))) {
+        if (!movie.isOverrideYear() && (isNotValidString(movie.getYear()))) {
             movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1));
-            if (movie.getYear() == null || movie.getYear().isEmpty() || movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (isNotValidString(movie.getYear())) {
                 String fullReleaseDate = HTMLTools.getTextAfterElem(xml, "<h5>" + siteDef2.getOriginalAirDate() + ":</h5>", 0);
-                if (!fullReleaseDate.equalsIgnoreCase(Movie.UNKNOWN)) {
+                
+                if (isValidString(fullReleaseDate)) {
                     movie.setYear(fullReleaseDate.split(" ")[2]);
                 }
                 // HTMLTools.extractTag(xml, "<h5>" + siteDef.getOriginal_air_date() + ":</h5>", 2, " ")
@@ -706,7 +714,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
             
-            if (foundAka && StringTools.isValidString(previousEntry)) {
+            if (foundAka && isValidString(previousEntry)) {
                 movie.setOriginalTitle(HTMLTools.stripTags(previousEntry).trim());
             }
         }
@@ -759,7 +767,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     @Override
     public void scanTVShowTitles(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
-        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        
+        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || isNotValidString(imdbId)) {
             return;
         }
 
@@ -819,13 +828,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String xml = webBrowser.request(siteDef.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary", siteDef.getCharset());
 
             String result = HTMLTools.extractTag(xml, "<p class=\"plotpar\">");
-            if (!result.equalsIgnoreCase(Movie.UNKNOWN) && result.indexOf("This plot synopsis is empty") < 0) {
+            if (isValidString(result) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = result;
             }
 
-            // Second parsing other site (fr/ es / ect ...)
+            // Second parsing other site (fr/ es / etc ...)
             result = HTMLTools.getTextAfterElem(xml, "<div id=\"swiki.2.1\">");
-            if (!result.equalsIgnoreCase(Movie.UNKNOWN) && result.indexOf("This plot synopsis is empty") < 0) {
+            if (isValidString(result) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = result;
             }
 
@@ -833,7 +842,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             plot = Movie.UNKNOWN;
         }
 
-        plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
+        plot = trimToLength(plot, preferredPlotLength, true, plotEnding);
 
         return plot;
     }
@@ -842,7 +851,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     public void scanNFO(String nfo, Movie movie) {
         logger.finest("Scanning NFO for Imdb Id");
         String id = searchIMDB(nfo, movie);
-        if (StringTools.isValidString(id)) {
+        if (isValidString(id)) {
             movie.setId(IMDB_PLUGIN_ID, id);
             logger.finer("IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
         } else {

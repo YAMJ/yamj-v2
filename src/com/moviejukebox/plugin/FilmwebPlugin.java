@@ -61,13 +61,13 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     public boolean scan(Movie mediaFile) {
         String filmwebUrl = mediaFile.getId(FILMWEB_PLUGIN_ID);
-        if (filmwebUrl == null || filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(filmwebUrl)) {
             filmwebUrl = getFilmwebUrl(mediaFile.getTitle(), mediaFile.getYear());
             mediaFile.setId(FILMWEB_PLUGIN_ID, filmwebUrl);
         }
 
         boolean retval;
-        if (!filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(filmwebUrl)) {
             retval = updateMediaInfo(mediaFile);
         } else {
             // use IMDB if filmweb doesn't know movie
@@ -99,7 +99,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer("http://search.yahoo.com/search?p=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
 
@@ -128,7 +128,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer("http://www.google.pl/search?hl=pl&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
 
@@ -156,7 +156,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer("http://www.filmweb.pl/search/film?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("&startYear=").append(year).append("&endYear=").append(year);
             }
             String xml = webBrowser.request(sb.toString());
@@ -257,9 +257,9 @@ public class FilmwebPlugin extends ImdbPlugin {
                 updateTVShowInfo(movie, xml);
             }
 
-            if (downloadFanart && (movie.getFanartURL() == null || movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
-                if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(movie.getFanartURL())) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
@@ -284,7 +284,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     private String updateImdbId(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
-        if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(imdbId)) {
             imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear());
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
@@ -302,7 +302,8 @@ public class FilmwebPlugin extends ImdbPlugin {
             return;
         }
         String filmwebUrl = movie.getId(FILMWEB_PLUGIN_ID);
-        if (filmwebUrl == null || filmwebUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+        
+        if (StringTools.isNotValidString(filmwebUrl)) {
             // use IMDB if filmweb doesn't know episodes titles
             super.scanTVShowTitles(movie);
             return;

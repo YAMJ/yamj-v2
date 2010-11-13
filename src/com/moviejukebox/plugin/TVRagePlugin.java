@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tvrage.TVRage;
 import com.moviejukebox.tvrage.model.CountryDetail;
@@ -64,7 +64,7 @@ public class TVRagePlugin extends ImdbPlugin {
         int tvrageID = 0;
         
         try {
-            if (StringTools.isValidString(id)) {
+            if (isValidString(id)) {
                 tvrageID = Integer.parseInt(id); 
             }
         } catch (Exception ignore) {
@@ -81,13 +81,13 @@ public class TVRagePlugin extends ImdbPlugin {
             }
             
             // Try using the vanity ID
-            if (!showInfo.isValid() && (tvrageID == 0 && StringTools.isValidString(id))) {
+            if (!showInfo.isValid() && (tvrageID == 0 && isValidString(id))) {
                 logger.finest("TVRagePlugin: Searching using Vanity URL '" + id + "'");
                 showList = tvRage.searchShow(id);
             }
 
             // Try using the title
-            if ((showList == null || showList.isEmpty()) && (StringTools.isValidString(movie.getTitle()))) {
+            if ((showList == null || showList.isEmpty()) && (isValidString(movie.getTitle()))) {
                 logger.finest("TVRagePlugin: Searching using title '" + movie.getTitle() + "'");
                 showList = tvRage.searchShow(movie.getTitle());
             }
@@ -115,7 +115,7 @@ public class TVRagePlugin extends ImdbPlugin {
             showInfo = tvRage.getShowInfo(id);
 
             // Update the plot & outline
-            if (movie.getPlot().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getPlot())) {
                 movie.setPlot(showInfo.getSummary());
                 movie.setOutline(showInfo.getSummary());
             }
@@ -127,25 +127,25 @@ public class TVRagePlugin extends ImdbPlugin {
                 }
             }
             
-            if (movie.getYear().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getYear())) {
                 movie.setYear("" + showInfo.getStarted());
             }
             
-            if (movie.getCompany().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getCompany())) {
                 CountryDetail cd = showInfo.getNetwork().get(0);
                 movie.setCountry(cd.getDetail());
             }
             
-            if (movie.getCountry().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getCountry())) {
                 movie.setCountry(showInfo.getCountry());
             }
             
-            if (movie.getRuntime().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (isNotValidString(movie.getRuntime())) {
                 movie.setRuntime("" + showInfo.getRuntime());
             }
             
-            if (movie.getReleaseDate().equalsIgnoreCase(Movie.UNKNOWN)) {
-                movie.setReleaseDate(StringTools.convertDateToString(showInfo.getStartDate()));
+            if (isNotValidString(movie.getReleaseDate())) {
+                movie.setReleaseDate(convertDateToString(showInfo.getStartDate()));
             }
             
             scanTVShowTitles(movie);
@@ -190,30 +190,30 @@ public class TVRagePlugin extends ImdbPlugin {
                     if (episode == null) {
                         logger.finer("Episode not found!");
                         // This occurs if the episode is not found
-                        if (movie.getSeason() > 0 && file.getFirstPart() == 0 && file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                        if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
                             // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
                             file.setTitle(part, "Special");
                         }
                     } else {
                         // Set the title of the episode
-                        if (file.getTitle(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                        if (isNotValidString(file.getTitle(part))) {
                             file.setTitle(part, episode.getTitle());
                         }
 
                         if (includeEpisodePlots) {
-                            if (file.getPlot(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (isNotValidString(file.getPlot(part))) {
                                 String episodePlot = episode.getSummary();
-                                if (StringTools.isValidString(episodePlot)) {
-                                    episodePlot = StringTools.trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
+                                if (isValidString(episodePlot)) {
+                                    episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
                                     file.setPlot(part, episodePlot);
                                 }
                             }
                         }
 
                         if (includeVideoImages) {
-                            if (file.getVideoImageFilename(part).equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (isNotValidString(file.getVideoImageFilename(part))) {
                                 String episodeImage = episode.getScreenCap();
-                                if (StringTools.isValidString(episodeImage)) {
+                                if (isValidString(episodeImage)) {
                                     file.setVideoImageURL(part, episodeImage);
                                 }
                             }
