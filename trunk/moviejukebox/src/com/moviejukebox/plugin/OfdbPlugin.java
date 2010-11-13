@@ -60,7 +60,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         boolean plotBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getPlot()); // Issue 797 - we don't want to override plot from NFO
         imdbp.scan(mediaFile); // Grab data from imdb
 
-        if (mediaFile.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(mediaFile.getId(OFDB_PLUGIN_ID))) {
             getOfdbId(mediaFile);
         }
 
@@ -69,8 +69,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     public void getOfdbId(Movie mediaFile) {
-        if (mediaFile.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
-            if (!mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(mediaFile.getId(OFDB_PLUGIN_ID))) {
+            if (StringTools.isValidString(mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID))) {
                 mediaFile.setId(OFDB_PLUGIN_ID, getOfdbIdFromOfdb(mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
             } else {
                 mediaFile.setId(OFDB_PLUGIN_ID, getofdbIDfromGoogle(mediaFile.getTitle(), mediaFile.getYear()));
@@ -133,7 +133,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             StringBuffer sb = new StringBuffer("http://www.google.de/search?hl=de&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
 
@@ -163,7 +163,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
      */
     private void updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
         try {
-            if (movie.getId(OFDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
                 return;
             }
             String xml = request(new URL(movie.getId(OFDB_PLUGIN_ID)));

@@ -55,7 +55,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // First we try on comingsoon.it
         
-        if (!StringTools.isValidString(comingSoonId)) {
+        if (StringTools.isNotValidString(comingSoonId)) {
             comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear());
             movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
         }
@@ -118,7 +118,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
         
         // Quick and dirty set the poster URL if it's blank
-        if (StringTools.isValidString(comingSoonId) && !StringTools.isValidString(movie.getPosterURL())) {
+        if (StringTools.isValidString(comingSoonId) && StringTools.isNotValidString(movie.getPosterURL())) {
             movie.setPosterURL(POSTER_BASE_URL + comingSoonId + ".jpg");
         }
         
@@ -141,7 +141,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
         
         id = getComingSoonIdFromSearch("http://search.yahoo.com/search?vc=&p=", movieName, year);
-        if (!StringTools.isValidString(id)) {
+        if (StringTools.isNotValidString(id)) {
             // Try a Google search
             id = getComingSoonIdFromSearch("http://www.google.com/search?hl=it&q=", movieName, year);
         }

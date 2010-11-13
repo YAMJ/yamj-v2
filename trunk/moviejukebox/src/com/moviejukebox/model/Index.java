@@ -31,7 +31,7 @@ public class Index extends TreeMap<String, List<Movie>> {
     }
 
     protected void addMovie(String category, Movie movie) {
-        if (!StringTools.isValidString(category)) {
+        if (StringTools.isNotValidString(category)) {
             return;
         }
 

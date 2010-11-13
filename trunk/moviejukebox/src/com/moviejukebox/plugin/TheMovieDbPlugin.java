@@ -85,7 +85,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 logger.finer("TheMovieDbPlugin: Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
                 moviedb = TMDb.moviedbImdbLookup(imdbID, language);
                 tmdbID = moviedb.getId();
-                if (!StringTools.isValidString(tmdbID)) {
+                if (StringTools.isNotValidString(tmdbID)) {
                     logger.finer("TheMovieDbPlugin: No TMDb ID found for movie!");
                 }
             } else {
@@ -124,12 +124,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
             
             // Update TheMovieDb Id if needed
-            if (!StringTools.isValidString(movie.getId(TMDB_PLUGIN_ID))) {
+            if (StringTools.isNotValidString(movie.getId(TMDB_PLUGIN_ID))) {
                 movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
             }
             
             // Update IMDb Id if needed
-            if (!StringTools.isValidString(movie.getId(IMDB_PLUGIN_ID))) {
+            if (StringTools.isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
                 movie.setId(IMDB_PLUGIN_ID, moviedb.getImdb());
             }
         }
@@ -137,9 +137,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
-        if (downloadFanart && !StringTools.isValidString(movie.getFanartURL())) {
+        if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
-            if (movie.getFanartURL() != null && !movie.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(movie.getFanartURL())) {
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
             }
         }
@@ -301,7 +301,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // false if the source is null or UNKNOWN
         if (StringTools.isValidString(sourceString)) {
             // sourceString is valid, check target string IS null OR UNKNOWN
-            if (!StringTools.isValidString(targetString) || targetString.equals("-1")) {
+            if (StringTools.isNotValidString(targetString) || targetString.equals("-1")) {
                 return true;
             } else {
                 return false;

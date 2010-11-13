@@ -58,7 +58,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     public boolean scan(Movie mediaFile) {
         boolean retval = true;
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
-        if (kinopoiskId == null || kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(kinopoiskId)) {
             // It's better to remove everything after dash (-) before call of English plugins...
             final String previousTitle = mediaFile.getTitle();
             int dash = previousTitle.indexOf('-');
@@ -77,7 +77,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String name = mediaFile.getTitle();
             name.replace('-', ' ');
             kinopoiskId = getKinopoiskId(name, year, mediaFile.getSeason());
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN) && kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isValidString(year) && StringTools.isNotValidString(kinopoiskId)) {
                 // Trying without specifying the year
                 kinopoiskId = getKinopoiskId(name, Movie.UNKNOWN, mediaFile.getSeason());
             }
@@ -86,7 +87,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // If ID is specified in NFO, set original title to unknown
             mediaFile.setTitle(Movie.UNKNOWN);
         }
-        if (kinopoiskId != null && !kinopoiskId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        
+        if (StringTools.isValidString(kinopoiskId)) {
             // Replace some movie data by data from Kinopoisk
             retval = updateKinopoiskMediaInfo(mediaFile, kinopoiskId);
         }
@@ -123,7 +125,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (season != -1) {
                 sb = sb + "&m_act[content_find]=serial";
             } else {
-                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(year)) {
                     try {
                         // Search for year +/-1, since the year is not always correct
                         int y = Integer.parseInt(year);
@@ -371,7 +373,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             movie.setRating(r);
 
             // Poster
-            if (movie.getPosterURL() == null || movie.getPosterURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(movie.getPosterURL())) {
                 movie.setTitle(originalTitle);
                 // Removing Poster info from plugins. Use of PosterScanner routine instead.
                 // movie.setPosterURL(locatePosterURL(movie, ""));
@@ -390,22 +392,23 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Fanart
             String fanURL = movie.getFanartURL();
-            if (fanURL == null || fanURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(fanURL)) {
                 try {
                     fanURL = Movie.UNKNOWN;
                     // Load page with all fanarts
                     String wholeArts = webBrowser.request("http://www.kinopoisk.ru/level/13/film/" + kinopoiskId + "/");
-                    if (wholeArts != null && !wholeArts.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (StringTools.isValidString(wholeArts)) {
                         // Looking for photos table
                         int photosInd = wholeArts.indexOf("\"fotos\"");
                         if (photosInd != -1) {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"/images/kadr/sm_", 0, "\"");
-                            if (picture != null && !picture.equalsIgnoreCase(Movie.UNKNOWN)) {
+                            if (StringTools.isValidString(picture)) {
                                 fanURL = "http://www.kinopoisk.ru/images/kadr/" + picture;
                             }
                         }
                     }
-                    if (!fanURL.equalsIgnoreCase(Movie.UNKNOWN)) {
+
+                    if (StringTools.isValidString(fanURL)) {
                         movie.setFanartURL(fanURL);
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                         logger.finest("KinoPoisk Plugin: Set fanart URL to " + fanURL + " for " + movie.getBaseName());

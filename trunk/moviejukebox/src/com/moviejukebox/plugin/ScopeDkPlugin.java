@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class ScopeDkPlugin extends FilmUpITPlugin {
     public static String SCOPEDK_PLUGIN_ID = "scopedk";
@@ -74,14 +75,6 @@ public class ScopeDkPlugin extends FilmUpITPlugin {
                 }
             }
 
-            // Removing Poster info from plugins. Use of PosterScanner routine instead.
-            
-            // String posterPageUrl = extractTag(xml, "<div id=\"film-top-left\">", "</div>");
-            // posterPageUrl = extractTag(posterPageUrl, "<a href=\"#\"", "</a>");
-            // posterPageUrl = posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2);
-            // if (!posterPageUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-            // movie.setPosterURL(posterPageUrl);
-            // }
         } catch (IOException error) {
             logger.severe("Failed retreiving ScopeDk infos for movie : " + movie.getId(SCOPEDK_PLUGIN_ID));
             final Writer eResult = new StringWriter();
@@ -97,15 +90,18 @@ public class ScopeDkPlugin extends FilmUpITPlugin {
         boolean retval = true;
         try {
             String scopeDkId = mediaFile.getId(SCOPEDK_PLUGIN_ID);
-            if (scopeDkId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isNotValidString(scopeDkId)) {
                 scopeDkId = getScopeDkId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile);
             }
+            
             // we also get imdb Id for extra infos
-            if (mediaFile.getId(IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
                 logger.finest("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
-            if (!scopeDkId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isValidString(scopeDkId)) {
                 mediaFile.setId(SCOPEDK_PLUGIN_ID, scopeDkId);
                 logger.finer("Scope.dk Id available (" + scopeDkId + "), updating media info");
                 retval = updateMovieInfo(mediaFile);
@@ -143,7 +139,7 @@ public class ScopeDkPlugin extends FilmUpITPlugin {
 
                 if (startIndex > -1 && endIndex > -1) {
                     // Take care of the year.
-                    if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                    if (StringTools.isValidString(year)) {
                         // Found the same year. Ok
                         if (year.equalsIgnoreCase(tmp.get(i + 1).trim())) {
                             return tmp.get(i).substring(startIndex + strRef.length(), endIndex);

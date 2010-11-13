@@ -31,8 +31,8 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * The MovieMeterPluginSession communicates with XML-RPC webservice of www.moviemeter.nl.
@@ -194,7 +194,8 @@ public class MovieMeterPluginSession {
             increaseCounter();
             if (films != null && films.length>0) {
                 logger.finest("MovieMeterPluginSession: Searching for " + movieName + " returned " + films.length + " results");
-                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+
+                if (StringTools.isValidString(year)) {
                     for (int i=0; i<films.length; i++){
                         HashMap film = (HashMap) films[i];
                         if (film.get("year").toString().equals(year)) {

@@ -69,7 +69,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
         HashMap filmInfo = null;
 
-        if (moviemeterId == null || moviemeterId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(moviemeterId)) {
             logger.finest("MovieMeterPlugin: Preferred search engine for moviemeter id: " + preferredSearchEngine);
             if ("google".equalsIgnoreCase(preferredSearchEngine)) {
                 // Get moviemeter website from google
@@ -190,9 +190,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 }
             }
 
-            if (downloadFanart && (mediaFile.getFanartURL() == null || mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN))) {
+            if (downloadFanart && StringTools.isNotValidString(mediaFile.getFanartURL())) {
                 mediaFile.setFanartURL(getFanartURL(mediaFile));
-                if (mediaFile.getFanartURL() != null && !mediaFile.getFanartURL().equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(mediaFile.getFanartURL())) {
                     mediaFile.setFanartFilename(mediaFile.getBaseName() + fanartToken + ".jpg");
                 }
             }
@@ -218,7 +218,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             StringBuffer sb = new StringBuffer("http://www.google.nl/search?hl=nl&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
 

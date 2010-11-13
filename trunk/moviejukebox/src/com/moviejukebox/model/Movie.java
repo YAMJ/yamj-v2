@@ -1553,7 +1553,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setAspectRatio(String aspect) {
-        if (!StringTools.isValidString(aspect)) {
+        if (StringTools.isNotValidString(aspect)) {
             return;
         }
         // Format the aspect slightly and change "16/9" to "16:9"

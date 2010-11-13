@@ -35,6 +35,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class SratimPlugin extends ImdbPlugin {
 
@@ -95,8 +96,7 @@ public class SratimPlugin extends ImdbPlugin {
         boolean retval = true;
 
         String sratimUrl = mediaFile.getId(SRATIM_PLUGIN_ID);
-        if (sratimUrl == null || sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-
+        if (StringTools.isNotValidString(sratimUrl)) {
             // collect missing information from IMDB or TVDB before sratim
             if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                 retval = super.scan(mediaFile);
@@ -109,7 +109,7 @@ public class SratimPlugin extends ImdbPlugin {
             sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
         }
 
-        if (!sratimUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+        if (StringTools.isValidString(sratimUrl)) {
             retval = updateMediaInfo(mediaFile);
         }
 
@@ -123,7 +123,8 @@ public class SratimPlugin extends ImdbPlugin {
 
         try {
             String imdbId = updateImdbId(mediaFile);
-            if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isNotValidString(imdbId)) {
                 return Movie.UNKNOWN;
             }
 
@@ -134,18 +135,18 @@ public class SratimPlugin extends ImdbPlugin {
             String detailsUrl = HTMLTools.extractTag(xml, "<a href=\"view.php?", 0, "\"");
             String subtitlesID = HTMLTools.extractTag(xml, "<a href=\"subtitles.php?", 0, "\"");
 
-            if (detailsUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(detailsUrl)) {
                 return Movie.UNKNOWN;
             }
 
             //update movie ids
             int id = detailsUrl.lastIndexOf("id=");
-            if(id>-1 && detailsUrl.length()>id) {
+            if(id > -1 && detailsUrl.length() > id) {
                 String movieId = detailsUrl.substring(id+3);
                 mediaFile.setId(SRATIM_PLUGIN_ID, movieId);
             }
             int subid = subtitlesID.lastIndexOf("mid=");
-            if(subid>-1 && subtitlesID.length()>subid) {
+            if(subid > -1 && subtitlesID.length() > subid) {
                 String subtitle = subtitlesID.substring(subid+4);
                 mediaFile.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
             }
@@ -683,7 +684,8 @@ public class SratimPlugin extends ImdbPlugin {
 
     private String updateImdbId(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
-        if (imdbId == null || imdbId.equalsIgnoreCase(Movie.UNKNOWN)) {
+        
+        if (StringTools.isNotValidString(imdbId)) {
             imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear());
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }

@@ -101,12 +101,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
                     movie.addActor(actor.trim());
                 }
             }
-            // Removing Poster info from plugins. Use of PosterScanner routine instead.
-            
-            // String posterPageUrl = extractTag(xml, "href=\"posters/locp/", "\"");
-            // if (!posterPageUrl.equalsIgnoreCase(Movie.UNKNOWN)) {
-            // updatePoster(movie, posterPageUrl);
-            // }
 
             String opinionsPageID = extractTag(xml, "/opinioni/op.php?uid=", "\"");
             if (StringTools.isValidString(opinionsPageID)) {
@@ -159,15 +153,17 @@ public class FilmUpITPlugin extends ImdbPlugin {
         boolean retval = true;
         try {
             String FilmUpITId = mediaFile.getId(FILMUPIT_PLUGIN_ID);
-            if (FilmUpITId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(FilmUpITId)) {
                 FilmUpITId = getFilmUpITId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile);
             }
+            
             // we also get imdb Id for extra infos
-            if (mediaFile.getId(IMDB_PLUGIN_ID).equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
                 logger.finest("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
-            if (!FilmUpITId.equalsIgnoreCase(Movie.UNKNOWN)) {
+            
+            if (StringTools.isValidString(FilmUpITId)) {
                 mediaFile.setId(FILMUPIT_PLUGIN_ID, FilmUpITId);
                 if (mediaFile.isTVShow()) {
                     super.scan(mediaFile);

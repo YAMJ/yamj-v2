@@ -115,7 +115,7 @@ public class ImdbInfo {
             StringBuffer sb = new StringBuffer("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
 
@@ -155,7 +155,7 @@ public class ImdbInfo {
             StringBuffer sb = new StringBuffer("http://www.google.com/search?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
 
@@ -205,7 +205,7 @@ public class ImdbInfo {
             StringBuffer sb = new StringBuffer(siteDef.getSite() + "find?q=");
             sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
 
-            if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+            if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
             sb.append(";s=tt;site=aka");
@@ -232,7 +232,7 @@ public class ImdbInfo {
                 }
             } else {
                 sb = new StringBuffer(URLEncoder.encode(movieName, "iso-8859-1").replace("+"," ")+"</a>");
-                if (year != null && !year.equalsIgnoreCase(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(year)) {
                     sb.append(" (").append(year).append(")");
                 }
                 otherMovieName = sb.toString();

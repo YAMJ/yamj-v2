@@ -37,6 +37,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class OpenSubtitlesPlugin {
 
@@ -110,7 +111,7 @@ public class OpenSubtitlesPlugin {
 
     public void generate(Movie movie) {
 
-        if (movie.getSubtitles().equalsIgnoreCase(Movie.UNKNOWN) || movie.getSubtitles().equalsIgnoreCase("NO") || movie.isTVShow()) {
+        if (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO") || movie.isTVShow()) {
             // Check if subtitle language was selected
             if (sublanguageid.equals("")) {
                 return;
