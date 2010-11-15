@@ -28,8 +28,9 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.HTMLTools.*;
 
-public class ScopeDkPlugin extends FilmUpITPlugin {
+public class ScopeDkPlugin extends ImdbPlugin {
     public static String SCOPEDK_PLUGIN_ID = "scopedk";
 
     private final static Pattern patternScopeDkIp = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
