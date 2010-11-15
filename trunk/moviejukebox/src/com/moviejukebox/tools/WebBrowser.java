@@ -128,6 +128,7 @@ public class WebBrowser {
         try {
             BufferedReader in = null;
             URLConnection cnx = null;
+            
             try {
                 cnx = openProxiedConnection(url);
                 
@@ -160,6 +161,7 @@ public class WebBrowser {
                 if (in != null) {
                     in.close();
                 }
+                
                 if (cnx != null) {
                     if(cnx instanceof HttpURLConnection) {
                         ((HttpURLConnection)cnx).disconnect();
