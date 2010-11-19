@@ -10,6 +10,7 @@ MovieJukebox 2.3 BETA
  - Enhancement   #1671 Add New:TV and New:Movies categories
  - Enhancement   #1687 Only load the required poster scanner plugins
  - Fixed defect  #1702 ComingSoon plot and outline have TRAMA LUNGA & TRAMA BREVA in them
+ - Enhancement   #1710 Ability to use tvdbid field in NFO files
 
 MovieJukebox 2.2
 ----------------

@@ -550,6 +550,11 @@ public class MovieNFOScanner {
                             // Not currently used
                         //} else if (tag.equalsIgnoreCase("watched")) {
                             // Not currently used
+                        } else if (tag.equalsIgnoreCase("tvdbid")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, val);
+                            }
                         } else if (tag.equalsIgnoreCase("id")) {
                             Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
                             String val = XMLHelper.getCData(r);
@@ -892,6 +897,11 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 movie.setTitle(val);
                                 movie.setOverrideTitle(true);
+                            }
+                        } else if (tag.equalsIgnoreCase("tvdbid")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, val);
                             }
                         } else if (tag.equalsIgnoreCase("id")) {
                             Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
