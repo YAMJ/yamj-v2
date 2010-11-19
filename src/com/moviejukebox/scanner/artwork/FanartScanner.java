@@ -21,16 +21,28 @@ package com.moviejukebox.scanner.artwork;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.Artwork;
 import com.moviejukebox.themoviedb.model.MovieDB;
@@ -55,6 +67,12 @@ public class FanartScanner {
     protected static boolean useFolderBackground;
     protected static Collection<String> fanartImageName;
 
+    protected static boolean    artworkValidate;
+    protected static int        artworkValidateMatch;
+    protected static boolean    artworkValidateAspect;
+    protected static int        artworkWidth;
+    protected static int        artworkHeight;
+
     static {
 
         // We get valid extensions
@@ -76,6 +94,12 @@ public class FanartScanner {
                 fanartImageName.add(st.nextToken());
             }
         }
+
+        artworkWidth = Integer.parseInt(PropertiesUtil.getProperty("fanart.width", "0"));
+        artworkHeight = Integer.parseInt(PropertiesUtil.getProperty("fanart.height", "0"));
+        artworkValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.Validate", "true"));
+        artworkValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("fanart.scanner.ValidateMatch", "75"));
+        artworkValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.ValidateAspect", "true"));
 
     }
 
@@ -237,9 +261,8 @@ public class FanartScanner {
 
         TMDb = new TheMovieDb(API_KEY);
 
-        //TODO move these Ids to a preferences file.
-        imdbID = movie.getId("imdb");
-        tmdbID = movie.getId("themoviedb");
+        imdbID = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
+        tmdbID = movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
 
         if (StringTools.isValidString(tmdbID)) {
             moviedb = TMDb.moviedbGetInfo(tmdbID, language);
@@ -258,18 +281,27 @@ public class FanartScanner {
         }
         
         try {
-            Artwork fanartArtwork = moviedb.getFirstArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
-            if (fanartArtwork == null || fanartArtwork.getUrl() == null || fanartArtwork.getUrl().equalsIgnoreCase(MovieDB.UNKNOWN)) {
+            List<Artwork> artworkList = moviedb.getArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
+
+            if (artworkList == null || artworkList.isEmpty()) {
                 logger.finer("FanartScanner: Error no fanart found for " + movie.getBaseFilename());
                 return Movie.UNKNOWN;
-            } else {
-                movie.setDirtyFanart(true);
-                return fanartArtwork.getUrl();
+            }
+            
+            for (Artwork fanartArtwork : artworkList) {
+                IImage imageFanart = new Image(fanartArtwork.getUrl());
+                if (validateArtwork(imageFanart, artworkWidth, artworkHeight, true)) {
+                    movie.setDirtyFanart(true);
+                    return fanartArtwork.getUrl();
+                } else {
+                    logger.finest("FanartScanner: Skipped invalid artwork " + fanartArtwork.getUrl());
+                }
             }
         } catch (Exception error) {
             logger.severe("FanartScanner: TheMovieDB.org API Error: " + error.getMessage());
             return Movie.UNKNOWN;
         }
+        return Movie.UNKNOWN;
     }
 
     /**
@@ -304,4 +336,63 @@ public class FanartScanner {
 
         return downloadFanart;
     }
+    
+    public static boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect) {
+        @SuppressWarnings("rawtypes")
+        Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
+        ImageReader reader = (ImageReader)readers.next();
+        int urlWidth = 0, urlHeight = 0;
+        float urlAspect;
+
+        if (!artworkValidate) {
+            return true;
+        }
+
+        if (StringTools.isNotValidString(artworkImage.getUrl())) {
+            return false;
+        }
+
+        try {
+            URL url = new URL(artworkImage.getUrl());
+            InputStream in = url.openStream();
+            ImageInputStream iis = ImageIO.createImageInputStream(in);
+            reader.setInput(iis, true);
+            urlWidth = reader.getWidth(0);
+            urlHeight = reader.getHeight(0);
+
+            if (in != null) {
+                in.close();
+            }
+            
+            if (iis != null) {
+                iis.close();
+            }
+        } catch (IOException error) {
+            logger.finest("FanartScanner: ValidateFanart error: " + error.getMessage() + ": can't open url");
+            return false; // Quit and return a false fanart
+        }
+
+        urlAspect = (float)urlWidth / (float)urlHeight;
+
+        if (checkAspect && urlAspect < 1.0) {
+            logger.finest("FanartScanner: ValidateFanart " + artworkImage + " rejected: URL is portrait format");
+            return false;
+        }
+
+        // Adjust fanart width / height by the ValidateMatch figure
+        artworkWidth = artworkWidth * (artworkValidateMatch / 100);
+        artworkHeight = artworkHeight * (artworkValidateMatch / 100);
+
+        if (urlWidth < artworkWidth) {
+            logger.finest("FanartScanner: " + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than fanart width (" + artworkWidth + ")");
+            return false;
+        }
+
+        if (urlHeight < artworkHeight) {
+            logger.finest("FanartScanner: " + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than fanart height (" + artworkHeight + ")");
+            return false;
+        }
+        return true;
+    }
+
 }

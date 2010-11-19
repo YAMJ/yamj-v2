@@ -110,11 +110,12 @@ public class PosterScanner {
 
         webBrowser = new WebBrowser();
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
-        posterWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
-        posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
         tvShowPosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "thetvdb,cdon,filmaffinity");
         moviePosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie",
                         "themoviedb,impawards,imdb,moviecovers,google,yahoo,motechnet");
+
+        posterWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
+        posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
         posterValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
         posterValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
         posterValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
@@ -381,8 +382,16 @@ public class PosterScanner {
             reader.setInput(iis, true);
             urlWidth = reader.getWidth(0);
             urlHeight = reader.getHeight(0);
-        } catch (IOException ignore) {
-            logger.finest("PosterScanner: ValidatePoster error: " + ignore.getMessage() + ": can't open url");
+            
+            if (in != null) {
+                in.close();
+            }
+            
+            if (iis != null) {
+                iis.close();
+            }
+        } catch (IOException error) {
+            logger.finest("PosterScanner: ValidatePoster error: " + error.getMessage() + ": can't open url");
             return false; // Quit and return a false poster
         }
 
