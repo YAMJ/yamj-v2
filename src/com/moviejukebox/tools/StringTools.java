@@ -14,6 +14,7 @@ package com.moviejukebox.tools;
 
 import java.io.File;
 import java.text.BreakIterator;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -25,7 +26,12 @@ import com.moviejukebox.model.Movie;
 
 public class StringTools {
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
-    
+    private static final long KB = 1024;
+    private static final long MB = KB*KB;
+    private static final long GB = KB*KB*KB;
+    private static final DecimalFormat FILESIZE_FORMAT_0 = new DecimalFormat("0");
+    private static final DecimalFormat FILESIZE_FORMAT_1 = new DecimalFormat("0.#");
+    private static final DecimalFormat FILESIZE_FORMAT_2 = new DecimalFormat("0.##");
     /**
      * Append a string to the end of a path ensuring that there are the correct number of File.separators
      * @param basePath
@@ -97,33 +103,39 @@ public class StringTools {
      * Format the file size
      */
     public static String formatFileSize(long fileSize) {
-        long calcFileSize = fileSize;
-        String returnSize = Movie.UNKNOWN;
         
-        if (calcFileSize > 1024) {
-            calcFileSize = calcFileSize / 1024;
-            if (calcFileSize > 1024) {
-                calcFileSize = calcFileSize / 1024;
-                if (calcFileSize > 1024) {
-                    calcFileSize = calcFileSize / 1024;
-                    if (calcFileSize > 1024) {
-                        calcFileSize = calcFileSize / 1024;
-                        if (calcFileSize > 1024) {
-                            calcFileSize = calcFileSize / 1024;
-                        } else {
-                            returnSize = calcFileSize + "TB";
-                        }
-                    } else {
-                        returnSize = calcFileSize + "GB";
-                    }
-                } else {
-                    returnSize = calcFileSize + "MB";
-                }
-            } else {
-                returnSize = calcFileSize + "KB";
-            }
+        String returnSize = Movie.UNKNOWN;
+        if (fileSize < KB) {
+            returnSize = fileSize + " Bytes";
         } else {
-            returnSize = calcFileSize + "Bytes";
+            String appendText;
+            long divider;
+
+            // resolve text to append and divider
+            if (fileSize < MB) {
+                appendText = " KB";
+                divider = KB;
+            } else if (fileSize < GB) {
+            appendText = " MB";
+                divider = MB;
+            } else {
+                appendText = " GB";
+                divider = GB;
+            }
+            
+            // resolve decimal format
+            DecimalFormat df;
+            long checker = (fileSize / divider);
+            if (checker < 10) {
+                df = FILESIZE_FORMAT_2;
+            } else if (checker < 100) {
+                df = FILESIZE_FORMAT_1;
+            } else {
+                df = FILESIZE_FORMAT_0;
+            }
+            
+            // build string
+            returnSize = df.format( (float) ((float) fileSize / (float) divider)) + appendText;  
         }
         
         return returnSize;

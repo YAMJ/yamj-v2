@@ -11,6 +11,7 @@ MovieJukebox 2.3 BETA
  - Enhancement   #1687 Only load the required poster scanner plugins
  - Fixed defect  #1702 ComingSoon plot and outline have TRAMA LUNGA & TRAMA BREVA in them
  - Enhancement   #1710 Ability to use tvdbid field in NFO files
+ - Enhancement   #1713 Better output for method file size
 
 MovieJukebox 2.2
 ----------------
