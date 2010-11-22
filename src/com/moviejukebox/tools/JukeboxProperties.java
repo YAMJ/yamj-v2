@@ -192,17 +192,15 @@ public class JukeboxProperties {
         if (nDetails.getNodeType() == Node.ELEMENT_NODE) {
             Element eJukebox = (Element) nDetails;
             String propName, propValue, propCurrent;
-            boolean propTest = false;
             
             Iterator<PropertyInformation> iterator = propInfo.iterator();
             while (iterator.hasNext()) {
                 PropertyInformation pi = iterator.next();
                 propName = pi.getPropertyName();
                 propValue = DOMHelper.getValueFromElement(eJukebox, propName);
-                propCurrent = PropertiesUtil.getProperty(propName);
+                propCurrent = PropertiesUtil.getProperty(propName, "");
                 
-                propTest = propValue.equalsIgnoreCase(propCurrent);
-                if (!propTest) {
+                if (!propValue.equalsIgnoreCase(propCurrent)) {
                     // Update the return value with the information from this property
                     piReturn.mergePropertyInformation(pi);
                 }
@@ -220,7 +218,12 @@ public class JukeboxProperties {
      * @param propertyName
      */
     private static void appendProperty(Document doc, Element element, String propertyName) {
-        DOMHelper.appendChild(doc, element, propertyName, PropertiesUtil.getProperty(propertyName));
+        String propValue = PropertiesUtil.getProperty(propertyName);
+        
+        // Only write valid values
+        if (StringTools.isValidString(propValue)) {
+            DOMHelper.appendChild(doc, element, propertyName, propValue);
+        }
     }
 
     /**
