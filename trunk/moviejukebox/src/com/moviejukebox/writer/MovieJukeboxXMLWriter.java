@@ -559,8 +559,6 @@ public class MovieJukeboxXMLWriter {
      * @throws Throwable
      */
     public void writeIndexXML(final Jukebox jukebox, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
-        //rootPath == TEMP
-        //OriginalPath == ROOT
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
         
