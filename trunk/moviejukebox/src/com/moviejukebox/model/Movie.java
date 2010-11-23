@@ -146,6 +146,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
+    private boolean watched = false;    // Watched / Unwatched
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
@@ -1737,5 +1738,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             this.isDirty = true;
             this.tagline = tagline;
         }
+    }
+
+    // Read the watched flag
+    public boolean isWatched() {
+        return watched;
+    }
+
+    // Set the watched flag
+    public void setWatched(boolean watched) {
+        this.watched = watched;
     }
 }
