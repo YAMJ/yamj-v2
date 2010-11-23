@@ -18,7 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -600,14 +599,16 @@ public class MovieJukeboxXMLWriter {
                         List<Movie> tmpMovieList = movies;
                         int moviepos = 0;
                         for (Movie movie : movies) {
-                            if(movie.isDirty()) {
+                            // Don't skip the index if the movie is dirty
+                            if (movie.isDirty()) {
                                 skipindex = false;
                             }
+                            
                             // Issue 1263 - Allow explode of Set in category .
                             if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
                                 List<Movie> boxedSetMovies = library.getIndexes().get("Set").get(movie.getTitle());
                                 boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
-                                logger.finest("Exploding set for " + category_path+ "[" + movie.getTitle() + "] " + boxedSetMovies.size());
+                                logger.finest("Exploding set for " + category_path + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
                                 //delay new instance
                                 if(tmpMovieList == movies) {
                                     tmpMovieList = new ArrayList<Movie>(movies);
@@ -616,7 +617,7 @@ public class MovieJukeboxXMLWriter {
                                 //do we want to keep the set?
                                 //tmpMovieList.remove(moviepos);
                                 tmpMovieList.addAll(moviepos, boxedSetMovies);
-                                moviepos += boxedSetMovies.size()-1; 
+                                moviepos += boxedSetMovies.size() - 1; 
                             }
                             moviepos++;
                         }
@@ -628,6 +629,11 @@ public class MovieJukeboxXMLWriter {
                         moviepos = 0;
                         IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipindex); 
 
+                        // Don't skip the indexing for sets as this overwrites the set files
+                        if ("Set".equalsIgnoreCase(categoryName)) {
+                            skipindex = false;
+                        }
+                        
                         for (current = 1 ; current <= last; current ++) {
                             idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
                             skipindex = skipindex && idx.canSkip;
@@ -841,9 +847,6 @@ public class MovieJukeboxXMLWriter {
     }
 
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
-        // Date format used later
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
         writer.writeAttribute("isSet", Boolean.toString(movie.isSetMaster()));
@@ -865,7 +868,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getCurrentMjbRevision());
         writer.writeEndElement();
         writer.writeStartElement("xmlGenerationDate");
-        writer.writeCharacters(dateFormat.format(new Date()));
+        writer.writeCharacters(Movie.dateFormatLong.format(new Date()));
         writer.writeEndElement();
         writer.writeStartElement("baseFilenameBase");
         writer.writeCharacters(movie.getBaseFilename());
@@ -1002,7 +1005,7 @@ public class MovieJukeboxXMLWriter {
         if (movie.getFileDate() == null) {
             writer.writeCharacters(Movie.UNKNOWN);
         } else {
-            writer.writeCharacters(dateFormat.format(movie.getFileDate()));
+            writer.writeCharacters(Movie.dateFormat.format(movie.getFileDate()));
         }
         writer.writeEndElement();
         writer.writeStartElement("fileSize");
@@ -1183,7 +1186,13 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
+    /**
+     * Write a NFO file for the movie using the data gathered
+     * @param jukebox
+     * @param movie
+     */
     public void writeNfoFile(Jukebox jukebox, Movie movie) {
+        // Don't write NFO files for sets or extras
         if (movie.isSetMaster() || movie.isExtra()) {
             return;
         }

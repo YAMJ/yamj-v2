@@ -88,6 +88,10 @@ public class XMLWriter {
         indentCount++;
         wasPrevElement = true;
     }
+    
+    public void writeComment(String comment) throws XMLStreamException {
+        writer.writeComment(comment);
+    }
 
     public void writeEndElement() throws XMLStreamException {
         indentCount--;
