@@ -548,8 +548,14 @@ public class MovieNFOScanner {
                             }
                         //} else if (tag.equalsIgnoreCase("playcount")) {
                             // Not currently used
-                        //} else if (tag.equalsIgnoreCase("watched")) {
-                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("watched")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                try {
+                                    movie.setWatched(Boolean.parseBoolean(val));
+                                } catch (Exception ignore) {
+                                }
+                            }
                         } else if (tag.equalsIgnoreCase("tvdbid")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
@@ -913,6 +919,14 @@ public class MovieNFOScanner {
                                 } else {
                                     movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, val); // without attribute we assume it's a TheTVDB Id
                                     logger.finest("In parseTVNFO Id=" + val + " found for default TheTVDB");
+                                }
+                            }
+                        } else if (tag.equalsIgnoreCase("watched")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                try {
+                                    movie.setWatched(Boolean.parseBoolean(val));
+                                } catch (Exception ignore) {
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("set")) {
