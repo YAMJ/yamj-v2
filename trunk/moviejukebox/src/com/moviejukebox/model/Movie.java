@@ -261,7 +261,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     @XmlElement
     public String getMjbGenerationDateString() {
-        return getMjbGenerationDate().toString("yyyy-MM-dd HH:mm:ss");
+        return getMjbGenerationDate().toString(dateFormatLongString);
     }
 
     public DateTime getMjbGenerationDate() {
@@ -1749,4 +1749,32 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setWatched(boolean watched) {
         this.watched = watched;
     }
+
+    @XmlElement
+    public String getWatchedDateString() {
+        long returnDate = getWatchedDate();
+        
+        if (returnDate == 0) {
+            return Movie.UNKNOWN;
+        } else {
+            return new DateTime(returnDate).toString(dateFormatLongString);
+        }
+    }
+
+    /**
+     * Look at the associated movie files and return the latest date a file was watched
+     * @return
+     */
+    public long getWatchedDate() {
+        long returnDate = 0;
+        
+        for (MovieFile mf : movieFiles) {
+            if (mf.isWatched() && mf.getWatchedDate() > returnDate) {
+                returnDate = mf.getWatchedDate();
+            }
+        }
+
+        return returnDate;
+    }
+
 }

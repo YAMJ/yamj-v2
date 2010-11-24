@@ -354,6 +354,11 @@ public class MovieJukeboxXMLWriter {
                             mf.setSubtitlesExchange(attr.getValue().equalsIgnoreCase("YES"));
                             continue;
                         }
+                        
+                        if (ns.equalsIgnoreCase("watched")) {
+                            mf.setWatched(Boolean.parseBoolean(attr.getValue()));
+                            continue;
+                        }
                     }
 
                     while (!r.peek().toString().equalsIgnoreCase("</file>")) {
@@ -378,7 +383,9 @@ public class MovieJukeboxXMLWriter {
                                 continue;
                             }
                         } else if (tag.equalsIgnoreCase("<fileURL>")) {
-                                mf.setFilename(parseCData(r));
+                            mf.setFilename(parseCData(r));
+                        } else if (tag.equalsIgnoreCase("<watchedDate>")) {
+                            mf.setWatchedDateString(parseCData(r));
                         } else if (tag.toLowerCase().startsWith("<filetitle")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
@@ -901,6 +908,11 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("watched");
         writer.writeCharacters(Boolean.toString(movie.isWatched()));
         writer.writeEndElement();
+        if (movie.isWatched()) {
+            writer.writeStartElement("watchedDate");
+            writer.writeCharacters(movie.getWatchedDateString());
+            writer.writeEndElement();
+        }
         writer.writeStartElement("top250");
         writer.writeCharacters(Integer.toString(movie.getTop250()));
         writer.writeEndElement();
@@ -1098,6 +1110,8 @@ public class MovieJukeboxXMLWriter {
             for (Map.Entry<String, String> e : mf.getPlayLink().entrySet()) {
                 writer.writeAttribute(e.getKey().toLowerCase(), e.getValue());
             }
+            
+            writer.writeAttribute("watched", mf.isWatched()?"true":"false");
 
             if (mf.getFile() != null) {
                 writer.writeStartElement("fileLocation");
@@ -1115,13 +1129,19 @@ public class MovieJukeboxXMLWriter {
             }
             writer.writeCharacters(filename); // should already be a URL
             writer.writeEndElement();
-
+            
             for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
                 writer.writeStartElement("fileTitle");
                 writer.writeAttribute("part", Integer.toString(part));
                 writer.writeCharacters(mf.getTitle(part));
                 writer.writeEndElement();
                 
+                if (StringTools.isValidString(mf.getWatchedDateString())) {
+                    writer.writeStartElement("watchedDate");
+                    writer.writeCharacters(mf.getWatchedDateString());
+                    writer.writeEndElement();
+                }
+
                 if (includeEpisodePlots) {
                     writer.writeStartElement("filePlot");
                     writer.writeAttribute("part", Integer.toString(part));
