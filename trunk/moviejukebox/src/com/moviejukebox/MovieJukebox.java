@@ -2002,7 +2002,7 @@ public class MovieJukebox {
         
         for (MovieFile mf : movie.getFiles()) {
             fileWatched = false;
-            foundFile = FileTools.findFilenameInCache(mf.getFile().getName(), extensions, jukebox, "Watched Scanner");
+            foundFile = FileTools.findFilenameInCache(mf.getFile().getName(), extensions, jukebox, "Watched Scanner: ");
             if (foundFile != null) {
                 fileWatchedCount++;
                 if (foundFile.getName().toLowerCase().endsWith(".watched")) {

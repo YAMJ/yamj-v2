@@ -481,9 +481,11 @@ public class FileTools {
         File searchFile = null;
         String safeFilename = makeSafeFilename(searchFilename);
         
-        Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
         logger.finer(logPrefix + "Scanning fileCache for " + safeFilename);
+        safeFilename = File.separator + safeFilename;
         
+        Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
+
         if (files.size() > 0) {
             // Copy the synchronized list to avoid ConcurrentModificationException
             Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(safeFilename, true)).iterator();

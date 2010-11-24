@@ -4,15 +4,16 @@
 
 MovieJukebox 2.3 BETA
 ---------------------
- - Enhancement    #997 Ability to turn off 'EXTRAS' processing
- - Enhancement   #1131 Smarter location of set artwork
- - Fixed defect  #1604 Set poster is not picked up correctly for series with ":" in the name
- - Enhancement   #1671 Add New:TV and New:Movies categories
- - Enhancement   #1687 Only load the required poster scanner plugins
- - Fixed defect  #1702 ComingSoon plot and outline have TRAMA LUNGA & TRAMA BREVA in them
- - Fixed defect  #1707 SET XML not correct (Looks like a movie XML)
- - Enhancement   #1710 Ability to use tvdbid field in NFO files
- - Enhancement   #1713 Better output for method file size
+ - Enhancement   #997 Ability to turn off 'EXTRAS' processing
+ - Enhancement  #1131 Smarter location of set artwork
+ - Fixed defect #1604 Set poster is not picked up correctly for series with ":" in the name
+ - Enhancement  #1671 Add New:TV and New:Movies categories
+ - Enhancement  #1687 Only load the required poster scanner plugins
+ - Fixed defect #1702 ComingSoon plot and outline have TRAMA LUNGA & TRAMA BREVA in them
+ - Fixed defect #1707 SET XML not correct (Looks like a movie XML)
+ - Enhancement  #1710 Ability to use tvdbid field in NFO files
+ - Enhancement  #1713 Better output for method file size
+ - Fixed defect #1719 Incorrect fanart retrieved from cache
 
 MovieJukebox 2.2
 ----------------
