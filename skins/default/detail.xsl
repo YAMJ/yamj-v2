@@ -278,11 +278,20 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                   Library
                 </xsl:if>
               </td>
-              <td class="normal" width="45%" valign="top">
-                <xsl:if test="libraryDescription != 'UNKNOWN'">
+              
+                <xsl:choose>
+                <xsl:when test="libraryDescription != 'UNKNOWN'">
+                  <td class="normal" width="45%" valign="top">
                   <xsl:value-of select="libraryDescription" />
-                </xsl:if>
-              </td>
+                  </td>
+                  <td class="title3" width="5%" valign="top">Watched:</td>
+                  <td class="normal" width="45%" valign="top"><xsl:value-of select="watched" /></td> 
+                </xsl:when>
+                <xsl:otherwise>
+                  <td class="title3" width="5%" valign="top">Watched:</td>
+                  <td class="normal" width="45%" valign="top"><xsl:value-of select="watched" /></td> 
+                </xsl:otherwise>
+                </xsl:choose>
             </tr>
           </table></center>
           </td>
