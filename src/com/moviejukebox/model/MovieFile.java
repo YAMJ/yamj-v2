@@ -33,9 +33,12 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.pojava.datetime.DateTime;
+
 import com.moviejukebox.model.Movie.BooleanYesNoAdapter;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 @SuppressWarnings("serial")
 @XmlType
@@ -54,6 +57,8 @@ public class MovieFile implements Comparable<MovieFile> {
     private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
+    private boolean watched = false;
+    private long watchedDate = 0;
     private boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "true"));
     private boolean includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
     private boolean includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
@@ -482,5 +487,43 @@ public class MovieFile implements Comparable<MovieFile> {
         }
         return "";
     }
-    
+ 
+    // Read the watched flag
+    public boolean isWatched() {
+        return watched;
+    }
+
+    // Set the watched flag
+    public void setWatched(boolean watched) {
+        this.watched = watched;
+    }
+
+    public void setWatchedDateString(String watchedDate) {
+        try {
+            if (StringTools.isNotValidString(watchedDate)) {
+                this.watchedDate = 0;
+            } else {
+                this.watchedDate = DateTime.parse(watchedDate).toMillis();
+            }
+        } catch (Exception error) {
+            this.watchedDate = 0;
+        }
+    }
+
+    public void setWatchedDate(long watchedDate) {
+        this.watchedDate = watchedDate;
+    }
+
+    public String getWatchedDateString() {
+        if (watchedDate == 0) {
+            return Movie.UNKNOWN;
+        } else {
+            return new DateTime(watchedDate).toString(Movie.dateFormatLongString);
+        }
+    }
+
+    public long getWatchedDate() {
+        return this.watchedDate;
+    }
+
 }
