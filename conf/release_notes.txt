@@ -14,6 +14,7 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1710 Ability to use tvdbid field in NFO files
  - Enhancement  #1713 Better output for method file size
  - Fixed defect #1719 Incorrect fanart retrieved from cache
+ - Fixed defect #1720 MKVs with unmarked subtitles are falsely flagged as "NO"
 
 MovieJukebox 2.2
 ----------------

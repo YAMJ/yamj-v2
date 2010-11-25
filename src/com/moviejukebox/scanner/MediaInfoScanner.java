@@ -578,15 +578,15 @@ public class MediaInfoScanner {
             String infoLanguage = "";
             infoValue = infosCurText.get("Language");
             
-            // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an UNKNOWN value to make it appear
-            if(infoValue==null || infoValue.trim().length()==0){
-                infoValue= Movie.UNKNOWN;
+            // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an value of "UNDEFINED" to make it appear
+            if (StringTools.isNotValidString(infoValue)) {
+                infoValue = "UNDEFINED";
             }
             
-            if (infoValue != null) {
+            if (StringTools.isValidString(infoValue)) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
-                    infoValue = infoValue.substring(0, infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
+                    infoValue = infoValue.substring(0, infoValue.indexOf("/")).trim(); // In this case, languages are "doubled", just take the first one.
                 }
                 infoLanguage = infoValue;
             }
@@ -595,7 +595,7 @@ public class MediaInfoScanner {
             infoValue = infosCurText.get("Format");
 
             // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an UNKNOWN value to make it appear
-            if(infoValue==null || infoValue.trim().length()==0){
+            if (infoValue == null || infoValue.trim().length() == 0) {
                 infoValue= Movie.UNKNOWN;
             }
             
