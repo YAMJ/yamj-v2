@@ -615,6 +615,7 @@ public class MediaInfoScanner {
                         infoFormat.equalsIgnoreCase("UTF-8") || 
                         infoFormat.equalsIgnoreCase("RLE") || 
                         infoFormat.equalsIgnoreCase("PGS") || 
+                        infoFormat.equalsIgnoreCase("ASS") || 
                         infoFormat.equalsIgnoreCase("VobSub")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
                     if (StringTools.isNotValidString(oldInfo) || oldInfo.equalsIgnoreCase("NO")) {
