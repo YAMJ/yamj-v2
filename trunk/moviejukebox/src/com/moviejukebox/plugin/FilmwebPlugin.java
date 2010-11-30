@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -236,7 +237,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (Movie.UNKNOWN.equals(movie.getOutline())) {
-                String outline = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "<span class=\"filmDescrBg\">", "</span>"));
+                String outline = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
                 outline = StringTools.trimToLength(outline, preferredPlotLength, true, plotEnding);
                 movie.setOutline(outline);
             }
@@ -250,7 +251,11 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (movie.getCast().isEmpty()) {
-                movie.setCast(HTMLTools.extractTags(xml, "castListWrapper", "</ul>", "<span property", "</span>"));
+                List<String> cast = HTMLTools.extractTags(xml, "castListWrapper", "</ul>", "v:starring", "</a>");
+                for (int i = 0; i < cast.size(); i++) {
+                    cast.set(i, HTMLTools.removeHtmlTags(cast.get(i)).trim());
+                }
+                movie.setCast(cast);
             }
 
             if (movie.isTVShow()) {
@@ -302,7 +307,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             return;
         }
         String filmwebUrl = movie.getId(FILMWEB_PLUGIN_ID);
-        
+
         if (StringTools.isNotValidString(filmwebUrl)) {
             // use IMDB if filmweb doesn't know episodes titles
             super.scanTVShowTitles(movie);
