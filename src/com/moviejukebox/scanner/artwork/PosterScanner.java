@@ -39,6 +39,7 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
 import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
@@ -309,7 +310,7 @@ public class PosterScanner {
             
             // Check that plugin is register even on movie or tv
             if (iPosterPlugin == null) {
-                logger.severe("Posterscanner: '" + posterSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : "
+                logger.severe("PosterScanner: '" + posterSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : "
                                 + getPluginsCode());
             }
             
@@ -436,11 +437,11 @@ public class PosterScanner {
 
     private static void register(String key, IMoviePosterPlugin posterPlugin) {
         if (posterPlugin.isNeeded()) {
-            logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " registered as Movie Poster Plugin with key '" + key + "'");
+            logger.finest("PosterScanner: " + posterPlugin.getClass().getName() + " registered as Movie Poster Plugin with key '" + key + "'");
             moviePosterPlugins.put(key, posterPlugin);
             register(key, (IPosterPlugin)posterPlugin);
         } else {
-            logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
+            logger.finest("PosterScanner: " + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
         }
     }
 
@@ -450,11 +451,18 @@ public class PosterScanner {
             tvShowPosterPlugins.put(key, posterPlugin);
             register(key, (IPosterPlugin)posterPlugin);
         } else {
-            logger.finest("Posterscanner: " + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
+            logger.finest("PosterScanner: " + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
         }
     }
 
     public static void scan(Movie movie) {
+        // check the default ID for a 0 or -1 and skip poster processing
+        String id = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
+        if (!movie.isScrapeLibrary() || id.equals("0") || id.equals("-1")) {
+            logger.finer("PosterScanner: Skipping online poster search for " + movie.getBaseFilename());
+            return;
+        }
+        
         logger.finer("PosterScanner: Searching online for " + movie.getBaseFilename());
         IImage posterImage = getPosterURL(movie);
         if (!Movie.UNKNOWN.equals(posterImage.getUrl())) {
