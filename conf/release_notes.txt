@@ -15,6 +15,8 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1713 Better output for method file size
  - Fixed defect #1719 Incorrect fanart retrieved from cache
  - Fixed defect #1720 MKVs with unmarked subtitles are falsely flagged as "NO"
+ - Fixed defect #1726 Movie poster is still downloaded even with ID of -1 in NFO file.
+ - Fixed defect #1727 scrapeLibrary in library.xml is not honored
  - Fixed defect #1729 Filmweb plugin doesn't work after filmweb site has been changed
 
 MovieJukebox 2.2
