@@ -150,7 +150,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String title = HTMLTools.extractTag(xml, "<title>");
             title = title.replaceAll(" \\([VG|V]\\)$", ""); // Remove the (VG) or (V) tags from the title
 
-            String yearPattern = " \\((?:TV )?(\\d{4})(?:/[^\\)]+)?\\)";
+            //String yearPattern = ".\\((?:TV )?(\\d{4})(?:/[^\\)]+)?\\)";
+            String yearPattern = ".\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
             Pattern pattern = Pattern.compile(yearPattern);
             Matcher matcher = pattern.matcher(title);
             if (matcher.find()) {
