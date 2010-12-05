@@ -49,15 +49,18 @@ public class SratimPlugin extends ImdbPlugin {
     private static String[] genereStringEnglish = { "Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
                     "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
                     "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western" };
-    private static String[] genereStringHebrew = { "הלועפ", "םירגובמ", "תואקתפרה", "היצמינא", "היפרגויב", "הידמוק", "עשפ", "ידועית", "המרד", "החפשמ", "היזטנפ",
-                    "לפא", "ןועושעש", "הירוטסיה", "המיא", "הקיזומ", "רמזחמ", "ןירותסימ", "תושדח", "יטילאיר", "הקיטנמור", "ינוידב עדמ", "רצק", "טרופס", "חוריא",
-                    "חתמ", "המחלמ", "ןוברעמ" };
+    private static String[] genereStringHebrew = { "פעולה", "מבוגרים", "הרפתקאות", "אנימציה", "ביוגרפיה", "קומדיה", "פשע", "תיעודי", "דרמה", "משפחה", "פנטזיה",
+                    "אפל", "שעשועון", "היסטוריה", "אימה", "מוזיקה", "מחזמר", "מיסתורין", "חדשות", "ריאליטי", "רומנטיקה", "מדע בדיוני", "קצר", "ספורט", "אירוח",
+                    "מתח", "מלחמה", "מערבון" };
     private static Properties sessionDetails = new Properties();
 
     private static boolean subtitleDownload = false;
     private static String login = "";
     private static String pass = "";
     private static String code = "";
+    private static boolean keepEnglishTitle = false;
+    private static boolean keepEnglishGenres = false;
+    private static boolean bidiSupport = true;
     private static String challenge_field = "";
 
     protected static final String RECAPTCHA_URL = "http://www.google.com/recaptcha/api/challenge?k=6LfK1LsSAAAAACdKnQfBi_xCdaMxyd2I9qL5PRH8";
@@ -75,24 +78,26 @@ public class SratimPlugin extends ImdbPlugin {
 
         tvdb = new TheTvDBPlugin(); // use TVDB if sratim doesn't know series
 
-        plotLineMaxChar = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMaxChar", "50"));
-        plotLineMax = Integer.parseInt(PropertiesUtil.getProperty("sratim.plotLineMax", "2"));
+        plotLineMaxChar = PropertiesUtil.getIntProperty("sratim.plotLineMaxChar", "50");
+        plotLineMax = PropertiesUtil.getIntProperty("sratim.plotLineMax", "2");
 
-        subtitleDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("sratim.subtitle", "false"));
+        subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", "false");
         login = PropertiesUtil.getProperty("sratim.username", "");
         pass = PropertiesUtil.getProperty("sratim.password", "");
         code = PropertiesUtil.getProperty("sratim.code", "");
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
+        keepEnglishTitle = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishTitles", "false");
+        keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", "false");
+        bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", "true");
 
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
         
-        if (!SratimPlugin.LOGGED_IN  &&  subtitleDownload == true && !login.equals("")) {
+        if (!SratimPlugin.LOGGED_IN && subtitleDownload == true && !login.equals("")) {
             loadSratimCookie();
         }
     }
 
     public boolean scan(Movie mediaFile) {
-
         boolean retval = true;
 
         String sratimUrl = mediaFile.getId(SRATIM_PLUGIN_ID);
@@ -104,7 +109,9 @@ public class SratimPlugin extends ImdbPlugin {
                 retval = tvdb.scan(mediaFile);
             }
 
-            translateGenres(mediaFile);
+            if(!keepEnglishGenres){ //Translate genres to Hebrew 
+            	translateGenres(mediaFile);
+            }
 
             sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
         }
@@ -141,11 +148,14 @@ public class SratimPlugin extends ImdbPlugin {
 
             //update movie ids
             int id = detailsUrl.lastIndexOf("id=");
+            
             if(id > -1 && detailsUrl.length() > id) {
                 String movieId = detailsUrl.substring(id+3);
                 mediaFile.setId(SRATIM_PLUGIN_ID, movieId);
             }
+            
             int subid = subtitlesID.lastIndexOf("mid=");
+            
             if(subid > -1 && subtitlesID.length() > subid) {
                 String subtitle = subtitlesID.substring(subid+4);
                 mediaFile.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
@@ -162,11 +172,11 @@ public class SratimPlugin extends ImdbPlugin {
         }
     }
 
-    // Translate IMDB genres to hebrew
+    // Translate IMDB genres to Hebrew
     protected void translateGenres(Movie movie) {
         TreeSet<String> genresHeb = new TreeSet<String>();
 
-        // Translate genres to hebrew
+        // Translate genres to Hebrew
         for (String genre : movie.getGenres()) {
 
             int i;
@@ -177,9 +187,17 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             if (i < genereStringEnglish.length) {
-                genresHeb.add(genereStringHebrew[i]);
+                if (bidiSupport){ //flip genres to for visual Hebrew display
+                    genresHeb.add(genereStringHebrew[i]);
+            	} else {
+                    genresHeb.add(logicalToVisual(genereStringHebrew[i]));
+                }
             } else {
-                genresHeb.add("רחא");
+            	if (bidiSupport){
+                    genresHeb.add("אחר");
+            	} else {
+                    genresHeb.add("רחא");
+            	}
             }
         }
 
@@ -196,7 +214,7 @@ public class SratimPlugin extends ImdbPlugin {
     public static final int BCT_ET = 5;
     public static final int BCT_CS = 6;
 
-    // Return the type of a specific charcter
+    // Return the type of a specific character
     private static int getCharType(char charToCheck) {
         if (((charToCheck >= 'א') && (charToCheck <= 'ת'))) {
             return BCT_R;
@@ -480,6 +498,9 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     private static String logicalToVisual(String text) {
+        if (!bidiSupport){
+            return text; // resolves issue #1706. model >A110 Bidi support imlemented - no need to flip hebrew chars 
+        }
         char[] ret;
 
         ret = text.toCharArray();
@@ -614,11 +635,15 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
-            if (!movie.isOverrideTitle()) {
-                String title = extractMovieTitle(xml);
-
-                movie.setTitle(logicalToVisual(title));
-                movie.setTitleSort(title);
+            if(!keepEnglishTitle) { //Translate Title to Hebrew
+                if (!movie.isOverrideTitle()) {
+                    String title = extractMovieTitle(xml);
+    
+                    if (!movie.isOverrideTitle()) { 
+                        movie.setTitle(logicalToVisual(title));
+                        movie.setTitleSort(title);
+                    }
+                }
             }
 
             // Prefer IMDB rating
