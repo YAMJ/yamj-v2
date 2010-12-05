@@ -498,7 +498,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     private static String logicalToVisual(String text) {
-        if (!bidiSupport){
+        if (bidiSupport){
             return text; // resolves issue #1706. model >A110 Bidi support imlemented - no need to flip hebrew chars 
         }
         char[] ret;
