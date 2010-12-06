@@ -161,12 +161,12 @@ public class PosterScanner {
         }
 
         if (!posterDirectory.equals("")) {
-            fullPosterFilename += File.separator + posterDirectory;
+            fullPosterFilename = StringTools.appendToPath(fullPosterFilename, posterDirectory);
         }
 
         // Check to see if the fullPosterFilename ends with a "\/" and only add it if needed
         // Usually this occurs because the files are at the root of a folder
-        fullPosterFilename += (fullPosterFilename.endsWith(File.separator)?"":File.separator) + localPosterBaseFilename;
+        fullPosterFilename = StringTools.appendToPath(fullPosterFilename, localPosterBaseFilename);
         localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
         boolean foundLocalPoster = localPosterFile.exists();               
 
@@ -200,19 +200,19 @@ public class PosterScanner {
             }
 
             // Check for the directory name with extension for poster
-            fullPosterFilename = parentPath + File.separator + localPosterBaseFilename;
+            fullPosterFilename = StringTools.appendToPath(parentPath, localPosterBaseFilename);
             localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
             foundLocalPoster = localPosterFile.exists();
             if(!foundLocalPoster && useFolderImage){
                 for (String imageFileName : posterImageName) {
                     // logger.finest("Checking for '" + imageFileName + ".*' poster");
-                    fullPosterFilename = FileTools.getParentFolder(movie.getFile()) + File.separator + imageFileName;
+                    fullPosterFilename = StringTools.appendToPath(FileTools.getParentFolder(movie.getFile()), imageFileName);
                     localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
                     foundLocalPoster = localPosterFile.exists();
                     
                     if (!foundLocalPoster && movie.isTVShow()) {
                         // Get the parent directory and check that
-                        fullPosterFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + imageFileName;
+                        fullPosterFilename = StringTools.appendToPath(FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()), imageFileName);
                         //System.out.println("SCANNER: " + fullPosterFilename);
                         localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
                         foundLocalPoster = localPosterFile.exists();
@@ -234,8 +234,8 @@ public class PosterScanner {
             logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
 
             String safePosterFilename = movie.getPosterFilename();
-            String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename;
-            String destFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename;
+            String finalDestinationFileName = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename);
+            String destFileName = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), safePosterFilename);
 
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File destFile = new File(destFileName);
