@@ -94,8 +94,8 @@ public class MovieFilenameScanner {
     protected static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
     protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
 
-    // Last 4 digits or last 4 digits in parenthesis. The "." at the start stops 4 numeric films being picked up
-    protected static final Pattern MOVIE_YEAR_PATTERN = patt(".\\({0,1}(\\d{4})(?:/|\\\\|\\||-){0,1}(I*)\\){0,1}$");
+    // Last 4 digits or last 4 digits in parenthesis.
+    protected static final Pattern MOVIE_YEAR_PATTERN = patt("\\({0,1}(\\d{4})(?:/|\\\\|\\||-){0,1}(I*)\\){0,1}$");
 
     // One or more '.[]_ '
     protected static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
