@@ -1482,6 +1482,7 @@ public class SratimPlugin extends ImdbPlugin {
             boolean loggedIn = connection.getResponseCode() == 302;
             if(loggedIn) {
                 sessionDetails.store(new FileWriter("sratim.session"), "login details for sratim.co.il");
+                LOGGED_IN = true;
             }
             logger.info("Sratim Plugin: is logged in = " + loggedIn);
             return loggedIn;
