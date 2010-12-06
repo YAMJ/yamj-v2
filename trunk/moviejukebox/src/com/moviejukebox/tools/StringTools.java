@@ -32,6 +32,7 @@ public class StringTools {
     private static final DecimalFormat FILESIZE_FORMAT_0 = new DecimalFormat("0");
     private static final DecimalFormat FILESIZE_FORMAT_1 = new DecimalFormat("0.#");
     private static final DecimalFormat FILESIZE_FORMAT_2 = new DecimalFormat("0.##");
+    
     /**
      * Append a string to the end of a path ensuring that there are the correct number of File.separators
      * @param basePath

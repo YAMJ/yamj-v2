@@ -111,7 +111,7 @@ public class FanartScanner {
         boolean foundLocalFanart = false;
 
         // Look for the videoname.fanartToken.Extension
-        fullFanartFilename = parentPath + File.separator + localFanartBaseFilename + fanartToken;
+        fullFanartFilename = StringTools.appendToPath(parentPath, localFanartBaseFilename + fanartToken);
         localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
         foundLocalFanart = localFanartFile.exists();
 
@@ -128,7 +128,7 @@ public class FanartScanner {
             localFanartBaseFilename = FileTools.getParentFolderName(movie.getFile());
 
             // Checking for the MovieFolderName.*
-            fullFanartFilename = parentPath + File.separator + localFanartBaseFilename + fanartToken;
+            fullFanartFilename = StringTools.appendToPath(parentPath, localFanartBaseFilename + fanartToken);
             localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
             foundLocalFanart = localFanartFile.exists();
         }
@@ -137,13 +137,13 @@ public class FanartScanner {
         if (!foundLocalFanart && useFolderBackground) {
             // Check for each of the farnartImageName.* files
             for (String fanartFilename : fanartImageName) {
-                fullFanartFilename = parentPath + File.separator + fanartFilename;
+                fullFanartFilename = StringTools.appendToPath(parentPath, fanartFilename);
                 localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
                 foundLocalFanart = localFanartFile.exists();
 
                 if (!foundLocalFanart && movie.isTVShow()) {
                     // Get the parent directory and check that
-                    fullFanartFilename = FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()) + File.separator + fanartFilename;
+                    fullFanartFilename = StringTools.appendToPath(FileTools.getParentFolder(movie.getFile().getParentFile().getParentFile()), fanartFilename);
                     //System.out.println("SCANNER: " + fullFanartFilename);
                     localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
                     foundLocalFanart = localFanartFile.exists();
@@ -169,8 +169,8 @@ public class FanartScanner {
                 movie.setFanartURL(localFanartFile.toURI().toString());
             }
             String fanartFilename = movie.getFanartFilename();
-            String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + fanartFilename;
-            String destFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + fanartFilename;
+            String finalDestinationFileName = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), fanartFilename);
+            String destFileName = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), fanartFilename);
 
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullFanartFile = new File(fullFanartFilename);
@@ -210,9 +210,9 @@ public class FanartScanner {
     private static void downloadFanart(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
         if (StringTools.isValidString(movie.getFanartURL())) {
             String safeFanartFilename = movie.getFanartFilename();
-            String fanartFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeFanartFilename;
+            String fanartFilename = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), safeFanartFilename);
             File fanartFile = FileTools.fileCache.getFile(fanartFilename);
-            String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + safeFanartFilename;
+            String tmpDestFileName = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), safeFanartFilename);
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing fanart unless ForceFanartOverwrite = true
