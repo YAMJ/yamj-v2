@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
@@ -61,7 +62,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
 
         // Then we use IMDB to get complete information. We back up outline and plot, since ImdbPlugin will overwrite them.
-        
+               
         String bkPlot = movie.getPlot();
 
         logger.finest("ComingSoon: Checking IMDB");
@@ -193,14 +194,14 @@ public class ComingSoonPlugin extends ImdbPlugin {
             String comingSoonId = Movie.UNKNOWN;
             
             StringBuffer sb = new StringBuffer("http://www.comingsoon.it/Film/Database/?titoloFilm=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));              
+            sb.append(URLEncoder.encode(movieName, "iso-8859-1"));              
 
             if (StringTools.isValidString(year)) {
                 sb.append("&anno=" + year);
             }
 
             logger.finest("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
-            String xml = webBrowser.request(sb.toString());
+            String xml = webBrowser.request(sb.toString(), Charset.forName("iso-8859-1"));
             
             ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
             
@@ -216,7 +217,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     if (difference == 0) {
                         logger.finest("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
                     } else {
-                        logger.finest("ComingSoon: Found a match for: " + lTitle + ", " + lOrig);
+                        logger.finest("ComingSoon: Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
                     }
                     comingSoonId = lId;
                     scoreToBeat = difference;
@@ -243,27 +244,52 @@ public class ComingSoonPlugin extends ImdbPlugin {
     
     private ArrayList<String[]> parseComingSoonSearchResults(String xml) {
         
-        int beginIndex = xml.indexOf("class=\"titoloFilm\"");
+        /* Search results end with "Trovati NNN Film" (found NNN movies). 
+           After this string, more movie URL are found, so we have to set a boundary
+        */
+
         ArrayList<String[]> listaFilm = new ArrayList<String[]>();
+        int trovatiIndex = xml.indexOf("Trovati");
+        int moviesFound = -1;
         
-        while (beginIndex > 0) {
-            int urlIndex = xml.lastIndexOf(COMINGSOON_SEARCH_URL, beginIndex);
-            int beginLinkTextIndex = xml.indexOf(">", urlIndex) + 1;
-            int endLinkTextIndex = xml.indexOf("</a>", urlIndex);
-            
+        while (trovatiIndex >= 0 && moviesFound < 0) {
+            int filmIndex = xml.indexOf("Film", trovatiIndex);
+            if (filmIndex - trovatiIndex < 15 && filmIndex > 0) {
+                moviesFound = Integer.parseInt(xml.substring(trovatiIndex + 8, filmIndex - 1));
+            } else {
+                trovatiIndex = xml.indexOf("Trovati", trovatiIndex + 1);
+            }
+        }
+        
+        if (moviesFound < 0) {
+            logger.severe("ComingSoon: couldn't find 'Trovati NNN Film' string. Search page layout probably changed");
+            return listaFilm;
+        } else {
+            logger.finest("ComingSoon: search found " + moviesFound + " movies");
+        }
+        
+        if (moviesFound == 0) {
+            return listaFilm;
+        }
+        
+        int beginIndex = xml.indexOf("<div id=\"BoxFilm\">");
+        
+        while (beginIndex >= 0 && beginIndex < trovatiIndex) {
+            int urlIndex = xml.indexOf(COMINGSOON_SEARCH_URL, beginIndex);
+            logger.finest("ComingSoon: Found movie URL " + xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
             String comingSoonId = getComingSoonIdFromURL (xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
-
-            int nextIndex = xml.indexOf("class=\"titoloFilm\"", beginIndex + 1);
-            String title = HTMLTools.stripTags(xml.substring(beginLinkTextIndex, endLinkTextIndex)).replaceAll("&nbsp;", " ").trim();
-
+            
+            int nextIndex = xml.indexOf("<div id=\"BoxFilm\">", beginIndex + 1);
+            
             String search;
-            if (nextIndex > 0) {
+            if (nextIndex > 0 && nextIndex < trovatiIndex) {
                 search = xml.substring(beginIndex, nextIndex);
             } else {
-                search = xml.substring(beginIndex);
+                search = xml.substring(beginIndex, trovatiIndex);
             }
-            
-            String originalTitle = HTMLTools.extractTag(search, "<span class=\"titoloFilm2\"").trim();
+
+            String title = HTMLTools.extractTag(search, "class=\"titoloFilm\"", 0, "<>", false).trim();
+            String originalTitle = HTMLTools.extractTag(search, "class=\"titoloFilm2\">", "<").trim();
             if (originalTitle.startsWith("(")) {
                 originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
             } else if (originalTitle.length() == 0) {
@@ -280,8 +306,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
             listaFilm.add(movieData);
 
             beginIndex = nextIndex;
+            
         }
-
+        
         return listaFilm;
         
     }
@@ -305,11 +332,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
      * @return
      */
     private int compareTitles(String searchedTitle, String returnedTitle) {
-        if (returnedTitle.equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(returnedTitle)) {
             return COMINGSOON_MAX_DIFF;
         }
         
-        logger.finest("ComingSoon: Comparing: " + searchedTitle + " and : " + returnedTitle);
+        logger.finest("ComingSoon: Comparing " + searchedTitle + " and " + returnedTitle);
         
         StringTokenizer st1 = new StringTokenizer(searchedTitle);
         int lastMatchedWord = -1;
@@ -362,10 +389,14 @@ public class ComingSoonPlugin extends ImdbPlugin {
         try {
             String movieURL = COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL +  COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
             logger.finest("ComingSoon: Querying ComingSoon for " + movieURL);
-            String xml = webBrowser.request(movieURL);
+            String xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
             
-            String title = HTMLTools.extractTag(xml, "<h1 class='titoloFilm'").trim();
-            String originalTitle = HTMLTools.extractTag(xml, "<h1 class='titoloFilm2'").trim();
+            String title = HTMLTools.extractTag(xml, "<h1 class='titoloFilm'", 0, "<>", false).trim();
+            String originalTitle = HTMLTools.extractTag(xml, "<h1 class='titoloFilm2'", 0, "<>", false).trim();
+            if (StringTools.isNotValidString(originalTitle)) {
+                // Comingsoon layout slightly changed at some point and original title became h2
+                originalTitle = HTMLTools.extractTag(xml, "<h2 class='titoloFilm2'", 0, "<>", false).trim();
+            }
             if (originalTitle.startsWith("(")) {
                 originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
             }

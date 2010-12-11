@@ -8,6 +8,7 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1131 Smarter location of set artwork
  - Fixed defect #1267 Titles from IMDB may include their (year/roman numeral) format
  - Fixed defect #1604 Set poster is not picked up correctly for series with ":" in the name
+ - Fixed defect #1655 ComingSoon plugin not run properly
  - Enhancement  #1671 Add New:TV and New:Movies categories
  - Enhancement  #1687 Only load the required poster scanner plugins
  - Fixed defect #1700 Local fanart in root directory not being used
@@ -16,12 +17,14 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1707 SET XML not correct (Looks like a movie XML)
  - Enhancement  #1710 Ability to use tvdbid field in NFO files
  - Enhancement  #1713 Better output for method file size
+ - Fixed defect #1714 ComingSoon not work on new movie
  - Fixed defect #1719 Incorrect fanart retrieved from cache
  - Fixed defect #1720 MKVs with unmarked subtitles are falsely flagged as "NO"
  - Fixed defect #1726 Movie poster is still downloaded even with ID of -1 in NFO file.
  - Fixed defect #1727 scrapeLibrary in library.xml is not honored
  - Fixed defect #1729 Filmweb plugin doesn't work after filmweb site has been changed
  - Fixed defect #1735 IMDb adding "Video" to some titles
+ - Fixed defect #1740 ComingSoon plugin: wrong movie matched when movie is not found in search
 
 MovieJukebox 2.2
 ----------------
