@@ -39,6 +39,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private static String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
     private static String COMINGSOON_KEY_PARAM= "key=";
     private static int COMINGSOON_MAX_DIFF = 1000;
+    private static int COMINGSOON_MAX_SEARCH_PAGES = 5;
     private static final String POSTER_BASE_URL = "http://www.comingsoon.it/imgdb/locandine/big/";
 
     protected int preferredPlotLength;
@@ -118,19 +119,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
             movie.setOriginalTitle(movie.getTitle());
         }
         
-        // Quick and dirty set the poster URL if it's blank
-        if (StringTools.isValidString(comingSoonId) && StringTools.isNotValidString(movie.getPosterURL())) {
-            movie.setPosterURL(POSTER_BASE_URL + comingSoonId + ".jpg");
-        }
-        
-        /*logger.fine("------- FINAL RESULTS");
-        logger.fine("TITLE:" + mediaFile.getTitle());
-        logger.fine("ORIGINAL TITLE:" + mediaFile.getOriginalTitle());
-        //logger.fine("OUTLINE:" + mediaFile.getOutline());
-        logger.fine("PLOT:" + mediaFile.getPlot());
-        logger.fine("----------------------------------");
-        */
-     
         return firstScanComingSoon || firstScanImdb; 
     }
     
@@ -199,28 +187,44 @@ public class ComingSoonPlugin extends ImdbPlugin {
             if (StringTools.isValidString(year)) {
                 sb.append("&anno=" + year);
             }
+            
+            int searchPage = 0;
+            
+            while (searchPage++ < COMINGSOON_MAX_SEARCH_PAGES) {
+                
+                StringBuffer sbPage = new StringBuffer(sb);
+                if (searchPage > 1) {
+                    sbPage.append("&p="+searchPage);
+                }
 
-            logger.finest("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
-            String xml = webBrowser.request(sb.toString(), Charset.forName("iso-8859-1"));
-            
-            ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
-            
-            for (int i = 0; i < movieList.size() && scoreToBeat > 0; i++) {
-                String lId = (String) movieList.get(i)[0];
-                String lTitle = (String) movieList.get(i)[1];
-                String lOrig = (String) movieList.get(i)[2];
-                //String lYear = (String) movieList.get(i)[3];
-                int difference = compareTitles(movieName, lTitle);
-                int differenceOrig = compareTitles(movieName, lOrig);
-                difference = (differenceOrig < difference ? differenceOrig : difference);
-                if (difference < scoreToBeat) {
-                    if (difference == 0) {
-                        logger.finest("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
-                    } else {
-                        logger.finest("ComingSoon: Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
+                logger.finest("ComingSoon: Fetching ComingSoon search URL: " + sbPage.toString());
+                String xml = webBrowser.request(sbPage.toString(), Charset.forName("iso-8859-1"));
+                
+                ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
+                
+                if (movieList.size() > 0) {
+                
+                    for (int i = 0; i < movieList.size() && scoreToBeat > 0; i++) {
+                        String lId = (String) movieList.get(i)[0];
+                        String lTitle = (String) movieList.get(i)[1];
+                        String lOrig = (String) movieList.get(i)[2];
+                        //String lYear = (String) movieList.get(i)[3];
+                        int difference = compareTitles(movieName, lTitle);
+                        int differenceOrig = compareTitles(movieName, lOrig);
+                        difference = (differenceOrig < difference ? differenceOrig : difference);
+                        if (difference < scoreToBeat) {
+                            if (difference == 0) {
+                                logger.finest("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
+                                searchPage = COMINGSOON_MAX_SEARCH_PAGES; //End loop
+                            } else {
+                                logger.finest("ComingSoon: Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
+                            }
+                            comingSoonId = lId;
+                            scoreToBeat = difference;
+                        }
                     }
-                    comingSoonId = lId;
-                    scoreToBeat = difference;
+                } else {
+                    searchPage = COMINGSOON_MAX_SEARCH_PAGES; //End loop
                 }
             }
             
