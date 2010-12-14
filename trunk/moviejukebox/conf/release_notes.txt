@@ -25,6 +25,8 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1729 Filmweb plugin doesn't work after filmweb site has been changed
  - Fixed defect #1735 IMDb adding "Video" to some titles
  - Fixed defect #1740 ComingSoon plugin: wrong movie matched when movie is not found in search
+ - Enhancement  #1742 ComingSoonPosterPlugin
+ - Enhancement  #1744 Parse more search pages in ComingSoon results
 
 MovieJukebox 2.2
 ----------------
