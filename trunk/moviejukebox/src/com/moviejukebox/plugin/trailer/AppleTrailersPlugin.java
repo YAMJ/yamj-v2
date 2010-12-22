@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Timer;
@@ -208,7 +209,7 @@ public class AppleTrailersPlugin {
     
     private String getTrailerPageUrl(String movieName) {
         try {
-            String searchURL = "http://www.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q=" + URLEncoder.encode(movieName, "UTF-8");
+            String searchURL = "http://trailers.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q=" + URLEncoder.encode(movieName, "UTF-8");
 
             String xml = webBrowser.request(searchURL);
 
@@ -283,45 +284,56 @@ public class AppleTrailersPlugin {
             // Try to find the movie link on the main page
             getTrailerMovieUrl(xml, trailersUrl);
 
-            String trailerPageUrlHD = getAbsUrl(trailerPageUrl, "hd");
-            String xmlHD = getSubPage(trailerPageUrlHD);
+            // New URL
+            String trailerPageUrlNew = trailerPageUrl.replace("//www.apple.com/","//trailers.apple.com/");
 
+            String trailerPageUrlHD = getAbsUrl(trailerPageUrlNew, "hd");
+            String xmlHD = getSubPage(trailerPageUrlHD);
             // Try to find the movie link on the HD page
             getTrailerMovieUrl(xmlHD, trailersUrl);
 
-            // Go over the href links and check the sub pages
-            
-            int index = 0;
-            int endIndex = 0;
-            while (true) {
-                index = xml.indexOf("href=\"", index);
-                if (index == -1) {
-                    break;
-                }
+            String trailerPageUrlWebInc = getAbsUrl(trailerPageUrlNew, "includes/playlists/web.inc");
+            String xmlWebInc = getSubPage(trailerPageUrlWebInc);
+            // Try to find the movie link on the WebInc page
+            getTrailerMovieUrl(xmlWebInc, trailersUrl);
 
-                index += 6;
+            String trailerPageUrlHDWebInc = getAbsUrl(trailerPageUrlNew, "hd/includes/playlists/web.inc");
+            String xmlHDWebInc = getSubPage(trailerPageUrlHDWebInc);
+            // Try to find the movie link on the WebInc HD page
+            getTrailerMovieUrl(xmlHDWebInc, trailersUrl);
 
-                endIndex = xml.indexOf("\"", index);
-                if (endIndex == -1) {
-                    break;
-                }
-
-                String href = xml.substring(index, endIndex);
-
-                index = endIndex + 1;
-                
-                String absHref = getAbsUrl(trailerPageUrl, href);
-                
-                // Check if this href is a sub page of this trailer
-                if (absHref.startsWith(trailerPageUrl)) {
-
-                    String subXml = getSubPage(absHref);
-                    
-                    // Try to find the movie link on the sub page
-                    getTrailerMovieUrl(subXml, trailersUrl);
-                }
-            }
-
+            // // Go over the href links and check the sub pages
+            // 
+            // int index = 0;
+            // int endIndex = 0;
+            // while (true) {
+            //     index = xml.indexOf("href=\"", index);
+            //     if (index == -1) {
+            //         break;
+            //     }
+            // 
+            //     index += 6;
+            // 
+            //     endIndex = xml.indexOf("\"", index);
+            //     if (endIndex == -1) {
+            //         break;
+            //     }
+            // 
+            //     String href = xml.substring(index, endIndex);
+            // 
+            //     index = endIndex + 1;
+            //     
+            //     String absHref = getAbsUrl(trailerPageUrl, href);
+            //     
+            //     // Check if this href is a sub page of this trailer
+            //     if (absHref.startsWith(trailerPageUrl)) {
+            // 
+            //         String subXml = getSubPage(absHref);
+            //         
+            //         // Try to find the movie link on the sub page
+            //         getTrailerMovieUrl(subXml, trailersUrl);
+            //     }
+            // }
 
         } catch (Exception error) {
             logger.severe("AppleTrailers Plugin: Error : " + error.getMessage());
@@ -337,18 +349,22 @@ public class AppleTrailersPlugin {
     private String getSubPage(String url) {
     
         String ret = "";
-        
+        Level oldlevel = logger.getLevel();
+
         try {
+            // Don't log error getting URL
+            logger.setLevel(Level.OFF);
             ret = webBrowser.request(url);
+            logger.setLevel(oldlevel);
             return ret;
         } catch (Exception error) {
+            logger.setLevel(oldlevel);
             return ret;
         }
     }
 
     private void getTrailerMovieUrl(String xml, ArrayList<String> trailersUrl) {
-
-        Matcher m = Pattern.compile("http://(movies|images|trailers).apple.com/movies/[^\"]+?-(tlr|trailer)[^\"]+?\\.(mov|m4v)(\")").matcher(xml);
+        Matcher m = Pattern.compile("http://(movies|images|trailers).apple.com/movies/[^\"]+?-(tlr|trailer)[^\"]+?\\.(mov|m4v)").matcher(xml);
         while (m.find()) {
             String movieUrl = m.group();
             boolean duplicate = false;
@@ -362,7 +378,7 @@ public class AppleTrailersPlugin {
             }
         
             if (!duplicate) {
-                trailersUrl.add(movieUrl.substring(0, movieUrl.lastIndexOf("\"")));
+                trailersUrl.add(movieUrl);
             }
         }
     }
