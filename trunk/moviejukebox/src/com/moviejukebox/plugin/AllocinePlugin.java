@@ -222,7 +222,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.extractTag(xml, "Note Moyenne:", "</span>")));
+                movie.setRating(parseRating(HTMLTools.extractTag(xml, "property=\"v:rating\"", "</span>")));
                 // logger.finest("AllocinePlugin: Movie rating = " + movie.getRating());
             }
 
@@ -365,12 +365,12 @@ public class AllocinePlugin extends ImdbPlugin {
     private int parseRating(String rating) {
 
         try {
-            int ratingBegin = rating.indexOf("(");
-            int ratingEnd = rating.indexOf(")");
+            int ratingBegin = rating.indexOf("\"");
+            int ratingEnd   = rating.indexOf("\"", ratingBegin + 1);
             String floatRating = rating.substring(ratingBegin + 1, ratingEnd).replace(',', '.');
             // logger.finest("AllocinePlugin: String floatRating =[" + floatRating + "]");
 
-            return (int)(Float.parseFloat(floatRating) / 4.0 * 100);
+            return (int)(Float.parseFloat(floatRating) / 5.0 * 100);
         } catch (Exception error) {
             logger.finer("AllocinePlugin: AllocinePlugin.parseRating no rating found in [" + rating + "]");
             return -1;
