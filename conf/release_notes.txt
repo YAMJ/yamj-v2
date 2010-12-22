@@ -7,6 +7,7 @@ MovieJukebox 2.3 BETA
  - Enhancement   #997 Ability to turn off 'EXTRAS' processing
  - Enhancement  #1131 Smarter location of set artwork
  - Fixed defect #1267 Titles from IMDB may include their (year/roman numeral) format
+ - Fixed defect #1416 Trailer doesn't download
  - Fixed defect #1629 Rating problem with allocine plugin
  - Fixed defect #1604 Set poster is not picked up correctly for series with ":" in the name
  - Fixed defect #1655 ComingSoon plugin not run properly
@@ -14,6 +15,7 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1687 Only load the required poster scanner plugins
  - Fixed defect #1700 Local fanart in root directory not being used
  - Fixed defect #1702 ComingSoon plot and outline have TRAMA LUNGA & TRAMA BREVA in them
+ - Fixed defect #1705 Apple Trailers URL is wrong, trailers don't download
  - Enhancement  #1706 Adding a property to toggle logical\visual Hebrew for new 200 series firmwares 
  - Fixed defect #1707 SET XML not correct (Looks like a movie XML)
  - Enhancement  #1710 Ability to use tvdbid field in NFO files
