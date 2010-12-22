@@ -214,7 +214,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideTitle()) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<h1>", "</h1>"));
+                movie.setTitle(HTMLTools.extractTag(xml, "<h1 property=\"v:itemreviewed\">", "</h1>"));
             }
 
             if (isNotValidString(movie.getOriginalTitle())) {
