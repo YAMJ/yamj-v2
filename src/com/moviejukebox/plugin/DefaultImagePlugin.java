@@ -16,7 +16,6 @@ package com.moviejukebox.plugin;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
@@ -53,6 +52,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addSetLogo;
     private boolean addSubTitle;
     private boolean addLanguage;
+    private boolean addOverlay;
     private int imageWidth;
     private int imageHeight;
     private float ratio;
@@ -66,6 +66,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static String textFontColor;
     private static String textFontShadow;
     private static int textOffset;
+    private static int overlayOffsetX;
+    private static int overlayOffsetY;
+    private static String overlayFilename;
     private String imageType;
     private boolean roundCorners;
     private int cornerRadius;
@@ -73,7 +76,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public DefaultImagePlugin() {
         // Generic properties
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        highdefDiff = Boolean.parseBoolean(PropertiesUtil.getProperty("highdef.differentiate", "false"));
+        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
     }
 
     @Override
@@ -87,29 +90,35 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         // Specific Properties (dependent upon the imageType)
-        imageWidth          = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".width", "400"));
-        imageHeight         = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".height", "600"));
-        addReflectionEffect = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".reflection", "false"));
-        addPerspective      = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));
-        imageNormalize      = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".normalize", "false"));
-        addHDLogo           = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoHD", "false"));
-        addTVLogo           = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoTV", "false"));
-        addSetLogo          = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSet", "false")); // Note: This should only be for thumbnails
-        addSubTitle         = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".logoSubTitle", "false"));
-        addLanguage         = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".language", "false"));
+        imageWidth          = PropertiesUtil.getIntProperty(imageType + ".width", "400");
+        imageHeight         = PropertiesUtil.getIntProperty(imageType + ".height", "600");
+        addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", "false");
+        addPerspective      = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
+        imageNormalize      = PropertiesUtil.getBooleanProperty(imageType + ".normalize", "false");
+        addHDLogo           = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", "false");
+        addTVLogo           = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", "false");
+        addSetLogo          = PropertiesUtil.getBooleanProperty(imageType + ".logoSet", "false"); // Note: This should only be for thumbnails
+        addSubTitle         = PropertiesUtil.getBooleanProperty(imageType + ".logoSubTitle", "false");
+        addLanguage         = PropertiesUtil.getBooleanProperty(imageType + ".language", "false");
+        addOverlay          = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
 
-        addTextTitle        = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.title", "false"));
-        addTextSeason       = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.season", "false"));
-        addTextSetSize      = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".addText.setSize", "false")); // Note: This should only be for thumbnails
+        addTextTitle        = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", "false");
+        addTextSeason       = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", "false");
+        addTextSetSize      = PropertiesUtil.getBooleanProperty(imageType + ".addText.setSize", "false"); // Note: This should only be for thumbnails
         textAlignment       = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
         textFont            = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
-        textFontSize        = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.fontSize", "36"));
+        textFontSize        = PropertiesUtil.getIntProperty(imageType + ".addText.fontSize", "36");
         textFontColor       = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
         textFontShadow      = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
-        textOffset          = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".addText.offset", "10"));
+        textOffset          = PropertiesUtil.getIntProperty(imageType + ".addText.offset", "10");
+        
+        overlayOffsetX      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
+        overlayOffsetY      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
+        // TODO: This should probably be configurable based on some parameters, such as BluRay, Set, SD, DVD, etc.
+        overlayFilename     = PropertiesUtil.getProperty(imageType + ".overlay.filename", "overlay_" + imageType + ".png");
 
-        roundCorners = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".roundCorners", "false"));
-        cornerRadius = Integer.parseInt(PropertiesUtil.getProperty(imageType + ".cornerRadius", "25"));
+        roundCorners = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
+        cornerRadius = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
         
         ratio = (float)imageWidth / (float)imageHeight;
 
@@ -187,6 +196,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             }
 
+            if (addOverlay) {
+                bi = drawOverlay(movie, bi, overlayFilename, overlayOffsetX, overlayOffsetY);
+            }
+            
             if (addReflectionEffect) {
                 bi = GraphicTools.createReflectedPicture(bi, imageType);
             }
@@ -203,6 +216,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return bi;
     }
     
+    /**
+     * Draw rounded corners on the image
+     * @param bi
+     * @return
+     */
     protected BufferedImage roundCorners(BufferedImage bi) {
         BufferedImage newImg = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D newGraphics = newImg.createGraphics();
@@ -211,6 +229,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius, cornerRadius);
         newGraphics.setClip(rect);
         newGraphics.drawImage(bi, 0, 0, null);
+        
+        newGraphics.dispose();
         return newImg;
     }
 
@@ -265,8 +285,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         try {
             BufferedImage biSubTitle = GraphicTools.loadJPEGImage(getResourcesPath() + logoName);
-            Graphics g = bi.getGraphics();
-            g.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
+            Graphics2D g2d = bi.createGraphics();
+            g2d.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
+            g2d.dispose();
         } catch (IOException error) {
             logger.warning("Failed drawing SubTitle logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
@@ -315,17 +336,19 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         try {
             BufferedImage biHd = GraphicTools.loadJPEGImage(getResourcesPath() + logoName);
-            Graphics g = bi.getGraphics();
+            Graphics2D g2d = bi.createGraphics();
 
             if (addOtherLogo && (movie.isTVShow())) {
                 // Both logos are required, so put the HD logo on the LEFT
-                g.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
+                g2d.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
                 logger.finest("Drew HD logo (" + logoName + ") on the left");
             } else {
                 // Only the HD logo is required so set it in the centre
-                g.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
+                g2d.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
                 logger.finest("Drew HD logo (" + logoName + ") in the middle");
             }
+            
+            g2d.dispose();
         } catch (IOException error) {
             logger.warning("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
@@ -348,17 +371,19 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (movie.isTVShow()) {
             try {
                 BufferedImage biTV = GraphicTools.loadJPEGImage(getResourcesPath() + "tv.png");
-                Graphics2D g = bi.createGraphics();
+                Graphics2D g2d = bi.createGraphics();
 
                 if (addOtherLogo && movie.isHD()) {
                     // Both logos are required, so put the TV logo on the RIGHT
-                    g.drawImage(biTV, bi.getWidth() - biTV.getWidth() - 5, bi.getHeight() - biTV.getHeight() - 5, null);
+                    g2d.drawImage(biTV, bi.getWidth() - biTV.getWidth() - 5, bi.getHeight() - biTV.getHeight() - 5, null);
                     logger.finest("Drew TV logo on the right");
                 } else {
                     // Only the TV logo is required so set it in the centre
-                    g.drawImage(biTV, bi.getWidth() / 2 - biTV.getWidth() / 2, bi.getHeight() - biTV.getHeight() - 5, null);
+                    g2d.drawImage(biTV, bi.getWidth() / 2 - biTV.getWidth() / 2, bi.getHeight() - biTV.getHeight() - 5, null);
                     logger.finest("Drew TV logo in the middle");
                 }
+                
+                g2d.dispose();
             } catch (IOException error) {
                 logger.warning("Failed drawing TV logo to thumbnail file: Please check that tv.png is in the resources directory.");
                 final Writer eResult = new StringWriter();
@@ -371,6 +396,41 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return bi;
     }
 
+    /**
+     * Draw an overlay on the image, such as a box cover
+     * @param movie
+     * @param bi
+     * @param offsetY 
+     * @param offsetX 
+     * @return
+     */
+    private BufferedImage drawOverlay(IMovieBasicInformation movie, BufferedImage bi, String overlayFilename, int offsetX, int offsetY) {
+        try {
+            BufferedImage biOverlay = GraphicTools.loadJPEGImage(getResourcesPath() + overlayFilename);
+            
+            BufferedImage returnBI = new BufferedImage(biOverlay.getWidth(), biOverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);  
+            Graphics2D g2BI = returnBI.createGraphics();
+            g2BI.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            g2BI.drawImage(bi, 
+                            offsetX, offsetY, offsetX + bi.getWidth(), offsetY + bi.getHeight(), 
+                            0, 0, bi.getWidth(), bi.getHeight(), 
+                            null);
+            g2BI.drawImage(biOverlay, 0, 0, null);
+
+            g2BI.dispose();
+            return returnBI;
+        } catch (IOException error) {
+            logger.warning("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + overlayFilename + " is in the resources directory.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+        
+        return bi;
+    }
+    
     /**
      * Draw the language logo to the image
      * 
@@ -395,11 +455,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
             try {
 
-                Graphics g = bi.getGraphics();
+                Graphics2D g2d = bi.createGraphics();
                 File imageFile = new File(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + fullLanguage + ".png");
                 if (imageFile.exists()) {
                     BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
-                    g.drawImage(biLang, 1, 1, null);
+                    g2d.drawImage(biLang, 1, 1, null);
                 } else {
                     if (languages.length == 1) {
                         logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
@@ -437,10 +497,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         for (int i = 0; i < imageFiles.length; i++) {
                             int indexCol = (i) % nbCols;
                             int indexRow = (i / nbCols);
-                            g.drawImage(imageFiles[i], 1 + (width * indexCol), 1 + (height * indexRow), width, height, null);
+                            g2d.drawImage(imageFiles[i], 1 + (width * indexCol), 1 + (height * indexRow), width, height, null);
                         }
                     }
                 }
+                
+                g2d.dispose();
             } catch (IOException e) {
                 logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
                 logger.warning("Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
@@ -464,8 +526,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         try {
             BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + "set.png");
 
-            Graphics g = bi.getGraphics();
-            g.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
+            Graphics2D g2d = bi.createGraphics();
+            g2d.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
+            g2d.dispose();
         } catch (IOException error) {
             logger.warning("Failed drawing set logo to thumbnail file:" + "Please check that set graphic (set.png) is in the resources directory.");
         }
@@ -487,9 +550,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     private static BufferedImage drawText(BufferedImage bi, String outputText, boolean verticalAlign) {
-        Graphics2D g2 = bi.createGraphics();
-        g2.setFont(new Font(textFont, Font.BOLD, textFontSize));
-        FontMetrics fm = g2.getFontMetrics();
+        Graphics2D g2d = bi.createGraphics();
+        g2d.setFont(new Font(textFont, Font.BOLD, textFontSize));
+        FontMetrics fm = g2d.getFontMetrics();
         int textWidth = fm.stringWidth(outputText);
         int imageWidth = bi.getWidth();
         int imageHeight = bi.getHeight();
@@ -514,14 +577,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         // Create the drop shadow
         if (!textFontShadow.equalsIgnoreCase("")) {
-            g2.setColor(getColor(textFontShadow, Color.DARK_GRAY));
-            g2.drawString(outputText, leftAlignment + 2, topAlignment + 2);
+            g2d.setColor(getColor(textFontShadow, Color.DARK_GRAY));
+            g2d.drawString(outputText, leftAlignment + 2, topAlignment + 2);
         }
 
         // Create the text itself
-        g2.setColor(getColor(textFontColor, Color.LIGHT_GRAY));
-        g2.drawString(outputText, leftAlignment, topAlignment);
+        g2d.setColor(getColor(textFontColor, Color.LIGHT_GRAY));
+        g2d.drawString(outputText, leftAlignment, topAlignment);
 
+        g2d.dispose();
         return bi;
     }
 
