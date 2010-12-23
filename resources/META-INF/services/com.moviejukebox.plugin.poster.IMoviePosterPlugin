@@ -12,6 +12,7 @@ com.moviejukebox.plugin.poster.MotechnetPosterPlugin
 com.moviejukebox.plugin.poster.MovieCoversPosterPlugin
 com.moviejukebox.plugin.poster.MovieDbPosterPlugin
 com.moviejukebox.plugin.poster.MovieMeterPosterPlugin
+com.moviejukebox.plugin.poster.PassionXbmcPosterPlugin
 com.moviejukebox.plugin.poster.ScopeDkPosterPlugin
 com.moviejukebox.plugin.poster.SratimPosterPlugin
 com.moviejukebox.plugin.poster.SubBabaPosterPlugin
