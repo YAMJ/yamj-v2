@@ -217,8 +217,9 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setTitle(HTMLTools.extractTag(xml, "<h1 property=\"v:itemreviewed\">", "</h1>"));
             }
 
-            if (isNotValidString(movie.getOriginalTitle())) {
-                movie.setOriginalTitle(removeHtmlTags(HTMLTools.extractTag(xml, "Titre original :", "</em>")));
+            String originalTitle = removeHtmlTags(HTMLTools.extractTag(xml, "Titre original :", "</em>"));
+            if (!originalTitle.equals(Movie.UNKNOWN)) {
+              movie.setOriginalTitle(originalTitle);
             }
 
             if (movie.getRating() == -1) {
