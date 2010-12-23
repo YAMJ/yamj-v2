@@ -231,44 +231,39 @@ public class PosterScanner {
 
         if (foundLocalPoster) {
             fullPosterFilename = localPosterFile.getAbsolutePath();
-            logger.finest("PosterScanner: Poster file " + fullPosterFilename + " found");
+            logger.finer("PosterScanner: Local poster file " + fullPosterFilename + " found");
 
-            String safePosterFilename = movie.getPosterFilename();
-            String finalDestinationFileName = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename);
-            String destFileName = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), safePosterFilename);
+            String safePosterFilename         = movie.getPosterFilename();
+            String finalJukeboxPosterFileName = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename);
+            String tempJukeboxPosterFileName  = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), safePosterFilename);
 
-            File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
-            File destFile = new File(destFileName);
-            boolean checkAgain = false;
+            File finalJukeboxFile = FileTools.fileCache.getFile(finalJukeboxPosterFileName);
+            File tempJukeboxFile  = new File(tempJukeboxPosterFileName);
+            boolean copyLocalPoster = false;
 
-            // Overwrite the jukebox files if the local file is newer
-            // First check the temp jukebox file
-            if (localPosterFile.exists() && destFile.exists()) {
-                if (FileTools.isNewer(localPosterFile, destFile)) {
-                    checkAgain = true;
-                }
-            } else if (localPosterFile.exists() && finalDestinationFile.exists()) {
-                // Check the target jukebox file
-                if (FileTools.isNewer(localPosterFile, finalDestinationFile)) {
-                    checkAgain = true;
-                }
+            if ( ! finalJukeboxFile.exists() ||
+                 // temp jukebox file exists and is newer ?
+                 (tempJukeboxFile.exists() && FileTools.isNewer(localPosterFile, tempJukeboxFile)) ||
+                 // file size is different ?
+                 (localPosterFile.length() != finalJukeboxFile.length()) ||
+                 // local file is newer ?
+                 (FileTools.isNewer(localPosterFile, finalJukeboxFile))
+                ) {
+              // Force copy of local poster file
+              copyLocalPoster = true;
             }
 
-            if ((localPosterFile.length() != finalDestinationFile.length()) || (FileTools.isNewer(localPosterFile, finalDestinationFile))) {
-                // Poster size is different OR Local Poster is newer
-                checkAgain = true;
+            // logger.fine("PosterScanner: tempJukeboxPosterFileName:"+tempJukeboxPosterFileName);
+            // logger.fine("PosterScanner: finalJukeboxPosterFileName:"+finalJukeboxPosterFileName);
+            // logger.fine("copyLocalPoster:" + copyLocalPoster);
+            if ( copyLocalPoster ) {
+                 FileTools.copyFile(localPosterFile, tempJukeboxFile);
+                 logger.finer("PosterScanner: " + fullPosterFilename + " has been copied to " + tempJukeboxPosterFileName);
             }
-
-            if (!finalDestinationFile.exists() || checkAgain) {
-                FileTools.copyFile(localPosterFile, destFile);
-                logger.finer("PosterScanner: " + fullPosterFilename + " has been copied to " + destFileName);
-            } else {
-                logger.finer("PosterScanner: " + finalDestinationFileName + " is different to " + fullPosterFilename);
-            }
-
             // Update poster url with local poster
-            movie.setPosterURL(localPosterFile.toURI().toString());
-            return localPosterFile.toURI().toString();
+            String posterURI = localPosterFile.toURI().toString();
+            movie.setPosterURL(posterURI);
+            return posterURI;
         } else {
             logger.finer("PosterScanner: No local poster found for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
