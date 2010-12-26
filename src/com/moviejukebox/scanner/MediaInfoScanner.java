@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -54,8 +55,8 @@ public class MediaInfoScanner {
 
     // mediaInfo command line, depend on OS
     private static String[] mediaInfoExe;
-    private static String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f", null };
-    private static String[] mediaInfoExeLinux = { "./mediainfo", "-f", null };
+    private static String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f" };
+    private static String[] mediaInfoExeLinux = { "./mediainfo", "-f" };
     public final static String OS_NAME = System.getProperty("os.name");
     public final static String OS_VERSION = System.getProperty("os.version");
     public final static String OS_ARCH = System.getProperty("os.arch");
@@ -168,8 +169,9 @@ public class MediaInfoScanner {
         }
 
         try {
-            String[] commandMedia = mediaInfoExe;
-            commandMedia[commandMedia.length - 1] = movieFilePath;
+            // Create the command line
+            ArrayList<String> commandMedia = new ArrayList<String>(Arrays.asList(mediaInfoExe));;
+            commandMedia.add(movieFilePath);
 
             ProcessBuilder pb = new ProcessBuilder(commandMedia);
 
