@@ -37,7 +37,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
-
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.XMLAllocineAPIHelper;
 import com.moviejukebox.jaxb.allocine.*;
 
@@ -270,8 +270,11 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Check Runtime
-            if (isNotValidString(movie.getRuntime()) && isValidString(movieInfos.getRuntime())) {
-                movie.setRuntime(movieInfos.getRuntime());
+            if (isNotValidString(movie.getRuntime())) {
+                int runtime = movieInfos.getRuntime().intValue();
+                if (runtime > 0) {
+                    movie.setRuntime(StringTools.formatDuration(runtime));
+                }
             }
 
             // Check country

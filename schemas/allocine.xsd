@@ -12,7 +12,7 @@
   <xs:element name="originalTitle" type="xs:string" />
   <xs:element name="productionYear" type="xs:string" />
   <xs:element name="synopsis" type="xs:string" />
-  <xs:element name="runtime" type="xs:string" />
+  <xs:element name="runtime" type="xs:integer" />
   <xs:element name="movieCertificate" type="xs:string" />
   <xs:element name="nationality" type="xs:string" />
   <xs:element name="genre" type="xs:string" />
