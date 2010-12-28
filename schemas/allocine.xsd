@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema targetNamespace="http://www.allocine.net/v6/ns/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+  jaxb:extensionBindingPrefixes="xjc"
+  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0"
+  elementFormDefault="qualified"
+  xmlns="http://www.allocine.net/v6/ns/">
+
+  <!-- definition of simple elements -->
+  <xs:element name="title" type="xs:string" />
+  <xs:element name="originalTitle" type="xs:string" />
+  <xs:element name="productionYear" type="xs:string" />
+  <xs:element name="synopsis" type="xs:string" />
+  <xs:element name="runtime" type="xs:string" />
+  <xs:element name="movieCertificate" type="xs:string" />
+  <xs:element name="nationality" type="xs:string" />
+  <xs:element name="genre" type="xs:string" />
+  <xs:element name="releaseDate" type="xs:string" />
+  <xs:element name="person" type="xs:string" />
+
+  <!-- definition of complex elements -->
+  <xs:element name="error">
+    <xs:complexType>
+      <xs:attribute name="code" type="xs:nonNegativeInteger" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="movie">
+    <xs:annotation>
+      <xs:appinfo>
+        <jaxb:class name="MovieInfos" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title" />
+        <xs:element ref="originalTitle" />
+        <xs:element ref="productionYear" />
+        <xs:element ref="synopsis" />
+        <xs:element ref="runtime" />
+        <xs:element ref="movieCertificate" />
+        <xs:element ref="nationalityList" />
+        <xs:element ref="genreList" />
+        <xs:element ref="release" />
+        <xs:element ref="casting" />
+        <xs:element ref="statistics" />
+      </xs:sequence>
+      <xs:attribute name="code" type="xs:nonNegativeInteger" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="nationalityList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="nationality" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="genreList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="genre" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="release">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="releaseDate" />
+        <xs:element ref="distributor" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="distributor" >
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="casting">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="castMember" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="castMember">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="person" />
+        <xs:element ref="activity" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="activity" >
+    <xs:complexType>
+      <xs:attribute name="code" type="xs:nonNegativeInteger" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="statistics">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ratingStats" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ratingStats">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="rating" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rating">
+    <xs:complexType mixed="true">
+      <xs:attribute name="note" type="xs:decimal" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

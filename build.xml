@@ -35,7 +35,15 @@
         <mkdir dir="dist" />
     </target>
 
-    <target name="compile" depends="prepare">
+    <target name="compile" depends="prepare,jaxb">
+        <!-- Compile jaxb source files -->
+        <javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="build/jaxb">
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
         <javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="src">
             <classpath>
                 <fileset dir="lib">
@@ -128,6 +136,48 @@
         </fail>
     </target>
 
+    <!-- =====================================================
+          target: jaxb
+
+          Generate code from schema (xsd) files.
+
+          This illustrates the usage of the XmlElementWrapper
+          plugin for JAXB xjc.
+         ===================================================== -->
+    <target name="jaxb" depends="prepare" description="Build code from schema files...">
+
+        <mkdir dir="build/jaxb/com/moviejukebox/jaxb/allocine" />
+
+        <!-- classpath for jaxb library -->
+        <path id="cp.jaxb">
+            <fileset dir="lib/jaxb" includes="*.jar" />
+        </path>
+        <!-- classpath for xew plugin -->
+        <path id="cp.plugin">
+            <fileset dir="lib" includes="xew.jar" />
+        </path>
+
+        <!-- Ant task definition for the xjc tool -->
+        <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+          <classpath>
+            <path refid="cp.jaxb" />
+            <path refid="cp.plugin" />
+          </classpath>
+        </taskdef>
+
+        <xjc destdir="build/jaxb" package="com.moviejukebox.jaxb.allocine" extension="Yes">
+            <!-- <arg value="-debug" /> -->
+            <!-- <arg value="-verbose" /> -->
+            <arg value="-Xxew" />
+            <arg value="-summary build/allocine-xew-summary.txt" />
+            <arg value="-instantiate lazy" />
+            <arg value="-delete" />
+            <schema dir="schemas" includes="allocine.xsd" />
+            <!-- <binding dir="${etc}" includes="allocine.xjb" /> -->
+            <produces dir="build/jaxb/com/moviejukebox/jaxb/allocine" includes="*" />
+        </xjc>
+    </target>
+
     <target name="delivery" depends="clean, compile">
         <mkdir dir="dist/lib" />
 
@@ -152,10 +202,12 @@
 
         <jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class,META-INF/**" manifest="MANIFEST.MF" />
 
-        <copy todir="dist/lib">
+        <copy todir="dist/lib" includeEmptyDirs="No">
             <fileset dir="lib">
                 <include name="**/*" />
                 <exclude name="junit*.jar" />
+                <exclude name="jaxb/*" />
+                <exclude name="xew.jar" />
             </fileset>
         </copy>
 
@@ -181,5 +233,4 @@
     	
         <zip basedir="dist" destfile="dist/yamj-svn-r${revision}.zip" excludes="mediaInfo/" followsymlinks="false" />
     </target>
-
 </project>

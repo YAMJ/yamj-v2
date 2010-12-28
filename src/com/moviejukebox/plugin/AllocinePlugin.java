@@ -26,14 +26,20 @@ import java.text.Normalizer;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.bind.JAXBException;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+
+import com.moviejukebox.tools.XMLAllocineAPIHelper;
+import com.moviejukebox.jaxb.allocine.*;
 
 public class AllocinePlugin extends ImdbPlugin {
 
@@ -203,121 +209,156 @@ public class AllocinePlugin extends ImdbPlugin {
      * Scan Allocine html page for the specified movie
      */
     private boolean updateMovieInfo(Movie movie) {
+
+        String AllocineId = movie.getId(ALLOCINE_PLUGIN_ID);
+
         try {
-            String xml = webBrowser.request("http://www.allocine.fr/film/fichefilm_gen_cfilm=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
 
-            if (xml.contains("Série créée")) {
-                if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-                    movie.setMovieType(Movie.TYPE_TVSHOW);
-                    return false;
+            XMLAllocineAPIHelper allocineHelper = new XMLAllocineAPIHelper();
+            MovieInfos movieInfos = allocineHelper.getMovieInfos(AllocineId);
+
+            if (movieInfos == null) {
+                logger.severe("AllocinePlugin: Can't find informations for movie with id: " + AllocineId);
+                return false;
+            }
+
+            // Check Title
+            if (!movie.isOverrideTitle() && isValidString(movieInfos.getTitle())) {
+                movie.setTitle(movieInfos.getTitle());
+            }
+
+            // Check OriginalTitle
+            if (isValidString(movieInfos.getOriginalTitle())) {
+                movie.setOriginalTitle(movieInfos.getOriginalTitle());
+            }
+
+            // Check Rating
+            if (movie.getRating() == -1 && movieInfos.getStatistics() != null) {
+                float note = 0;
+                int   sum  = 0;
+                for ( Rating rating : movieInfos.getStatistics().getRatingStats() ) {
+                    Integer count = Integer.parseInt(rating.getContent());
+                    note += rating.getNote().floatValue() * count;
+                    sum  += count;
+                }
+                if (sum > 0) {
+                    int rating = (int) ((note / sum) / 5.0 * 100);
+                    movie.setRating(rating);
                 }
             }
 
-            if (!movie.isOverrideTitle()) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<h1 property=\"v:itemreviewed\">", "</h1>"));
+            // Check Year
+            if (!movie.isOverrideYear() && isNotValidString(movie.getYear()) && isValidString(movieInfos.getProductionYear())) {
+                movie.setYear(movieInfos.getProductionYear());
             }
 
-            String originalTitle = removeHtmlTags(HTMLTools.extractTag(xml, "Titre original :", "</em>"));
-            if (!originalTitle.equals(Movie.UNKNOWN)) {
-              movie.setOriginalTitle(originalTitle);
+            // Check Plot
+            if (isNotValidString(movie.getPlot()) && isValidString(movieInfos.getSynopsis())) {
+                String plot = trimToLength(movieInfos.getSynopsis(), preferredPlotLength, true, plotEnding);
+                movie.setPlot(plot);
             }
 
-            if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.extractTag(xml, "property=\"v:rating\"", "</span>")));
-                // logger.finest("AllocinePlugin: Movie rating = " + movie.getRating());
-            }
-
-            if (isNotValidString(movie.getPlot())) {
-                // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
-                String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Synopsis :", "</p>")).trim();
-                // logger.finest("AllocinePlugin: tmpPlot = [" + tmpPlot + "]");
-                tmpPlot = trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
-                movie.setPlot(tmpPlot);
-                // logger.finest("AllocinePlugin: Movie Plot = " + movie.getPlot());
-            }
-
-
-            if (isNotValidString(movie.getReleaseDate()) && (xml.indexOf("Date de sortie cinéma : <span>inconnue</span>") == -1)) {
-                Pattern yearRegex = Pattern.compile(".*(\\d{4})$");
-                String releaseDate = removeHtmlTags(HTMLTools.extractTag(xml, "Date de sortie cinéma : ", "<br />"));
-                Matcher match = yearRegex.matcher(releaseDate);
-                if (match.find()) {
-                    movie.setReleaseDate(releaseDate);
+            // Check ReleaseDate and Company
+            if (movieInfos.getRelease() != null) {
+                if (isNotValidString(movie.getReleaseDate()) && isValidString(movieInfos.getRelease().getReleaseDate())) {
+                    movie.setReleaseDate(movieInfos.getRelease().getReleaseDate());
                 }
-                // logger.finest("AllocinePlugin: Movie Theater release date = [" + movie.getReleaseDate()+"]");
+                if (isNotValidString(movie.getCompany()) && movieInfos.getRelease().getDistributor() != null &&
+                    isValidString(movieInfos.getRelease().getDistributor().getName())) {
+                    movie.setCompany(movieInfos.getRelease().getDistributor().getName());
+                }
             }
 
-            if (isNotValidString(movie.getRuntime())) {
-                movie.setRuntime(HTMLTools.extractTag(xml, "Durée :", "Année"));
-                // logger.finest("AllocinePlugin: Durée = " + movie.getRuntime());
+            // Check Runtime
+            if (isNotValidString(movie.getRuntime()) && isValidString(movieInfos.getRuntime())) {
+                movie.setRuntime(movieInfos.getRuntime());
             }
 
-            if (isNotValidString(movie.getCountry())) {
-                movie.setCountry(removeHtmlTags(HTMLTools.extractTag(xml, "Long-métrage", "</a>")).trim());
-                // logger.finest("AllocinePlugin: Movie Country = " + movie.getCountry());
+            // Check country
+            if (isNotValidString(movie.getCountry()) && !movieInfos.getNationalityList().isEmpty()) {
+                String firstCountry = movieInfos.getNationalityList().get(0);
+                movie.setCountry(firstCountry);
             }
 
+            // Check Genres
             if (movie.getGenres().isEmpty()) {
-                for (String genre : HTMLTools.extractTags(xml, "Genre", "<br />", "/film/tous/genre-", "</a>", false)) {
-                    movie.addGenre(removeOpenedHtmlTags(genre));
+                for (String genre : movieInfos.getGenreList()) {
+                    movie.addGenre(genre);
                 }
             }
 
-            /*
-             * Per user request Issue 1389
-             * If a film does not have a certification - The phrase "Interdit aux moins de" is not found the "All" will be used
-             * Otherwise the "??" value from "Interdit aux moins de ??" will be used 
-             */
-            int pos = xml.indexOf("Interdit aux moins de"); 
-            if (pos == -1) {
-                // Not found, so use "All"
-                movie.setCertification("All");
-            } else {
-                // extract the age and use that as the certification
-                movie.setCertification(HTMLTools.extractTag(xml, "Interdit aux moins de ", " ans"));
+            // Check certification
+            String certification = "All"; // Default value
+            if (isValidString(movieInfos.getMovieCertificate())) {
+                Pattern ageRegex = Pattern.compile(" (\\d{1,2}) an");
+                Matcher match    = ageRegex.matcher(movieInfos.getMovieCertificate());
+                if (match.find()) {
+                    certification=match.group(1);
+                }
             }
+            movie.setCertification(certification);
 
-            if (!movie.isOverrideYear() && isNotValidString(movie.getYear())) {
-
-                Pattern yearRegex = Pattern.compile(".*(\\d{4})$");
-
-                
-                String aYear = movie.getReleaseDate();
-                // Looking for the release date
-                if (isNotValidString(aYear)) {
-                    aYear = removeHtmlTags(HTMLTools.extractTag(xml, "Année de production : ", "</a>"));
-                    Matcher match = yearRegex.matcher(aYear);
-                    if (!match.find()) {
-                        aYear = removeHtmlTags(HTMLTools.extractTag(HTMLTools.extractTag(xml, "Film déjà disponible en ", "<br />"), "</a> depuis le : "));
-                        match = yearRegex.matcher(aYear);
-                        if (!match.find()) {
-                            aYear = Movie.UNKNOWN;
-                        }
+            // Check Casting
+            if (movie.getDirectors().isEmpty() || movie.getWriters().isEmpty() || movie.getCast().isEmpty()) {
+                LinkedHashSet<String> actors    = new LinkedHashSet<String>();
+                LinkedHashSet<String> writers   = new LinkedHashSet<String>();
+                LinkedHashSet<String> scripts   = new LinkedHashSet<String>();
+                LinkedHashSet<String> directors = new LinkedHashSet<String>();
+                for (CastMember member : movieInfos.getCasting()) {
+                    if (member.getActivity().getCode().intValue() == 8001) {        // actor
+                        actors.add(member.getPerson());
+                    } else if (member.getActivity().getCode().intValue() == 8002) { // director
+                        directors.add(member.getPerson());
+                    } else if (member.getActivity().getCode().intValue() == 8004) { // writer
+                        writers.add(member.getPerson());
+                    } else if (member.getActivity().getCode().intValue() == 8043) { // script
+                        scripts.add(member.getPerson());
                     }
                 }
-                
-                if (isValidString(aYear)) {
-                    movie.setYear(aYear.substring(aYear.length() - 4));
+                // Update informations if needed
+                // Actors
+                if (movie.getCast().isEmpty() && !actors.isEmpty()) {
+                    movie.setCast(actors);
+                }
+                // Director
+                if (movie.getDirectors().isEmpty() && !directors.isEmpty()) {
+                    movie.setDirectors(directors);
+                }
+                // Writers
+                if (movie.getWriters().isEmpty()) {
+                    writers.addAll(scripts);
+                    if (!writers.isEmpty()) {
+                        movie.setWriters(writers);
+                    }
                 }
             }
 
             // Get Fanart
-            if (downloadFanart && isNotValidString(movie.getFanartURL())) {
+            if (isNotValidString(movie.getFanartURL()) && downloadFanart) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (isValidString(movie.getFanartURL())) {
                     movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
                 }
             }
-
-            // Get Casting
-            parseCasting(movie);
-        } catch (IOException error) {
-            logger.severe("AllocinePlugin: Failed retreiving allocine infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
+        }
+        catch (JAXBException error) {
+             logger.severe("AllocinePlugin: Failed retrieving allocine infos for movie "
+                           + AllocineId + ". Perhaps the allocine XML API has changed ...");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
+            return false;
         }
+        catch (Exception error) {
+            logger.severe("AllocinePlugin: Failed retrieving allocine infos for movie : " + AllocineId);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+            return false;
+        }
+
         return true;
     }
 
@@ -341,7 +382,7 @@ public class AllocinePlugin extends ImdbPlugin {
                     movie.addWriter(removeHtmlTags(writer));
                 }
             }
-            
+
             // Check for company 
             if (movie.getCompany().equals(Movie.UNKNOWN)) {
                 movie.setCompany(removeHtmlTags(HTMLTools.extractTag(xmlCasting, "Film distribué par ", "</a>")));
