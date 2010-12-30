@@ -142,7 +142,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String xml = webBrowser.request(sb);
 
             // Checking for zero results
-            if (xml.indexOf("найдено 0 результатов") >= 0) {
+            //if (xml.indexOf("найдено 0 результатов") >= 0) {
+            if (xml.indexOf("class=\"search_results\"") < 0) {
                 return Movie.UNKNOWN;
             }
 
@@ -150,15 +151,20 @@ public class KinopoiskPlugin extends ImdbPlugin {
             int beginIndex = xml.indexOf("id_film = ");
             if (beginIndex == -1) {
                 // It's search results page, searching a link to the movie page
-                beginIndex = xml.indexOf("<!-- результаты поиска");
+                //beginIndex = xml.indexOf("<!-- результаты поиска");
+                beginIndex = xml.indexOf("class=\"search_results\"");
                 if (beginIndex == -1) {
                     return Movie.UNKNOWN;
                 }
-                beginIndex = xml.indexOf("href=\"/level/1/film/", beginIndex);
+                
+                //beginIndex = xml.indexOf("href=\"/level/1/film/", beginIndex);
+                beginIndex = xml.indexOf("/level/1/film/", beginIndex);
                 if (beginIndex == -1) {
                     return Movie.UNKNOWN;
                 }
-                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
+                
+                //StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 14), "/\"");
                 kinopoiskId = st.nextToken();
             } else {
                 // It's the movie page
@@ -285,9 +291,17 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Director
-                for (String director : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
-                    movie.addDirector(director);
-                    break;
+                //for (String director : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
+                //    movie.addDirector(director);
+                //    break;
+                //}
+                Collection<String> newDirectors = new ArrayList<String>();
+                for (String writer : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
+                    newDirectors.add(writer);
+                }
+                
+                if (newDirectors.size() > 0) {
+                    movie.setDirectors(newDirectors);
                 }
 
                 // Writers
