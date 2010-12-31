@@ -35,6 +35,7 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1748 Title of movies are UNKNOW when using Allocine plugin
  - Enhancement  #1750 New PassionXbmc Movie Poster plugin
  - Fixed defect #1755 Movie length incorrect
+ - Fixed defect #1760 New issue with Allocine plugin (plot)
 
 MovieJukebox 2.2
 ----------------

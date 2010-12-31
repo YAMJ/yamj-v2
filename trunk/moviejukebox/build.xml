@@ -138,7 +138,7 @@
          ===================================================== -->
     <target name="jaxb" depends="prepare" description="Build code from schema files...">
 
-        <mkdir dir="build/jaxb/com/moviejukebox/jaxb/allocine" />
+        <mkdir dir="build/jaxb/com/moviejukebox/allocine/jaxb" />
 
         <!-- classpath for jaxb library -->
         <path id="cp.jaxb">
@@ -157,7 +157,7 @@
           </classpath>
         </taskdef>
 
-        <xjc destdir="build/jaxb" package="com.moviejukebox.jaxb.allocine" extension="Yes">
+        <xjc destdir="build/jaxb" package="com.moviejukebox.allocine.jaxb" extension="Yes">
             <!-- <arg value="-debug" /> -->
             <!-- <arg value="-verbose" /> -->
             <arg value="-Xxew" />
@@ -166,7 +166,7 @@
             <arg value="-delete" />
             <schema dir="schemas" includes="allocine.xsd" />
             <!-- <binding dir="${etc}" includes="allocine.xjb" /> -->
-            <produces dir="build/jaxb/com/moviejukebox/jaxb/allocine" includes="*" />
+            <produces dir="build/jaxb/com/moviejukebox/allocine/jaxb" includes="*" />
         </xjc>
     </target>
 

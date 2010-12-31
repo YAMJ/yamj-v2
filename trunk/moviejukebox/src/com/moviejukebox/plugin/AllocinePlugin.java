@@ -26,9 +26,6 @@ import java.text.Normalizer;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 
@@ -38,13 +35,11 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.XMLAllocineAPIHelper;
-import com.moviejukebox.jaxb.allocine.*;
+import com.moviejukebox.allocine.*;
 
 public class AllocinePlugin extends ImdbPlugin {
 
     public static String ALLOCINE_PLUGIN_ID = "allocine";
-    public static final Pattern DIACRITICS_AND_FRIENDS = Pattern.compile("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
 
     public AllocinePlugin() {
         super();
@@ -214,8 +209,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
         try {
 
-            XMLAllocineAPIHelper allocineHelper = new XMLAllocineAPIHelper();
-            MovieInfos movieInfos = allocineHelper.getMovieInfos(AllocineId);
+            MovieInfos movieInfos = XMLAllocineAPIHelper.getMovieInfos(AllocineId);
 
             if (movieInfos == null) {
                 logger.severe("AllocinePlugin: Can't find informations for movie with id: " + AllocineId);
@@ -233,16 +227,9 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Check Rating
-            if (movie.getRating() == -1 && movieInfos.getStatistics() != null) {
-                float note = 0;
-                int   sum  = 0;
-                for ( Rating rating : movieInfos.getStatistics().getRatingStats() ) {
-                    Integer count = Integer.parseInt(rating.getContent());
-                    note += rating.getNote().floatValue() * count;
-                    sum  += count;
-                }
-                if (sum > 0) {
-                    int rating = (int) ((note / sum) / 5.0 * 100);
+            if (movie.getRating() == -1) {
+                int rating = movieInfos.getRating();
+                if (rating >= 0) {
                     movie.setRating(rating);
                 }
             }
@@ -253,9 +240,12 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Check Plot
-            if (isNotValidString(movie.getPlot()) && isValidString(movieInfos.getSynopsis())) {
-                String plot = trimToLength(movieInfos.getSynopsis(), preferredPlotLength, true, plotEnding);
-                movie.setPlot(plot);
+            if (isNotValidString(movie.getPlot())) {
+                String synopsis = movieInfos.getSynopsis();
+                if (isValidString(synopsis)) {
+                    String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
+                    movie.setPlot(plot);
+                }
             }
 
             // Check ReleaseDate and Company
@@ -271,7 +261,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
             // Check Runtime
             if (isNotValidString(movie.getRuntime())) {
-                int runtime = movieInfos.getRuntime().intValue();
+                int runtime = movieInfos.getRuntime();
                 if (runtime > 0) {
                     movie.setRuntime(StringTools.formatDuration(runtime));
                 }
@@ -291,49 +281,19 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Check certification
-            String certification = "All"; // Default value
-            if (isValidString(movieInfos.getMovieCertificate())) {
-                Pattern ageRegex = Pattern.compile(" (\\d{1,2}) an");
-                Matcher match    = ageRegex.matcher(movieInfos.getMovieCertificate());
-                if (match.find()) {
-                    certification=match.group(1);
-                }
+            if (isNotValidString(movie.getCertification())) {
+                movie.setCertification(movieInfos.getCertification());
             }
-            movie.setCertification(certification);
 
             // Check Casting
-            if (movie.getDirectors().isEmpty() || movie.getWriters().isEmpty() || movie.getCast().isEmpty()) {
-                LinkedHashSet<String> actors    = new LinkedHashSet<String>();
-                LinkedHashSet<String> writers   = new LinkedHashSet<String>();
-                LinkedHashSet<String> scripts   = new LinkedHashSet<String>();
-                LinkedHashSet<String> directors = new LinkedHashSet<String>();
-                for (CastMember member : movieInfos.getCasting()) {
-                    if (member.getActivity().getCode().intValue() == 8001) {        // actor
-                        actors.add(member.getPerson());
-                    } else if (member.getActivity().getCode().intValue() == 8002) { // director
-                        directors.add(member.getPerson());
-                    } else if (member.getActivity().getCode().intValue() == 8004) { // writer
-                        writers.add(member.getPerson());
-                    } else if (member.getActivity().getCode().intValue() == 8043) { // script
-                        scripts.add(member.getPerson());
-                    }
-                }
-                // Update informations if needed
-                // Actors
-                if (movie.getCast().isEmpty() && !actors.isEmpty()) {
-                    movie.setCast(actors);
-                }
-                // Director
-                if (movie.getDirectors().isEmpty() && !directors.isEmpty()) {
-                    movie.setDirectors(directors);
-                }
-                // Writers
-                if (movie.getWriters().isEmpty()) {
-                    writers.addAll(scripts);
-                    if (!writers.isEmpty()) {
-                        movie.setWriters(writers);
-                    }
-                }
+            if (movie.getDirectors().isEmpty()) {
+                movie.setDirectors(movieInfos.getDirectors());
+            }
+            if (movie.getCast().isEmpty()) {
+                movie.setCast(movieInfos.getActors());
+            }
+            if (movie.getWriters().isEmpty()) {
+                movie.setWriters(movieInfos.getWriters());
             }
 
             // Get Fanart
