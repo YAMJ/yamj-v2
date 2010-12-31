@@ -11,8 +11,7 @@
   <xs:element name="title" type="xs:string" />
   <xs:element name="originalTitle" type="xs:string" />
   <xs:element name="productionYear" type="xs:string" />
-  <xs:element name="synopsis" type="xs:string" />
-  <xs:element name="runtime" type="xs:integer" />
+  <xs:element name="runtime" type="xs:int" />
   <xs:element name="movieCertificate" type="xs:string" />
   <xs:element name="nationality" type="xs:string" />
   <xs:element name="genre" type="xs:string" />
@@ -29,15 +28,21 @@
   <xs:element name="movie">
     <xs:annotation>
       <xs:appinfo>
-        <jaxb:class name="MovieInfos" />
+        <jaxb:class implClass="com.moviejukebox.allocine.MovieInfos"/>
       </xs:appinfo>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence>
+      <xs:all>
         <xs:element ref="title" />
         <xs:element ref="originalTitle" />
         <xs:element ref="productionYear" />
-        <xs:element ref="synopsis" />
+        <xs:element name="synopsis" type="htmlSynopsisType">
+          <xs:annotation>
+            <xs:appinfo>
+              <jaxb:property name="htmlSynopsis"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
         <xs:element ref="runtime" />
         <xs:element ref="movieCertificate" />
         <xs:element ref="nationalityList" />
@@ -45,10 +50,18 @@
         <xs:element ref="release" />
         <xs:element ref="casting" />
         <xs:element ref="statistics" />
-      </xs:sequence>
-      <xs:attribute name="code" type="xs:nonNegativeInteger" use="required" />
+      </xs:all>
+      <xs:attribute name="code" type="xs:int" use="required" />
     </xs:complexType>
   </xs:element>
+
+  <!-- need to define sysnopsis as complex type because
+       it can contains other tags (html) -->
+  <xs:complexType name="htmlSynopsisType" mixed="true">
+    <xs:sequence>
+      <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
 
   <xs:element name="nationalityList">
     <xs:complexType>
@@ -68,10 +81,10 @@
 
   <xs:element name="release">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all>
         <xs:element ref="releaseDate" />
         <xs:element ref="distributor" />
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 
@@ -91,39 +104,41 @@
 
   <xs:element name="castMember">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all>
         <xs:element ref="person" />
-        <xs:element ref="activity" />
-      </xs:sequence>
+        <xs:element name="activity" type="activityType" />
+      </xs:all>
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="activity" >
-    <xs:complexType>
-      <xs:attribute name="code" type="xs:nonNegativeInteger" />
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="activityType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="code" type="xs:int"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
 
   <xs:element name="statistics">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="ratingStats" />
-      </xs:sequence>
+      <xs:all>
+        <xs:element name="ratingStats" type="ratingStatsType"/>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="ratingStats">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="rating" maxOccurs="unbounded" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="ratingStatsType">
+    <xs:sequence>
+      <xs:element name="rating" type="ratingType" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
 
-  <xs:element name="rating">
-    <xs:complexType mixed="true">
-      <xs:attribute name="note" type="xs:decimal" />
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="ratingType" mixed="true">
+    <xs:simpleContent>
+      <xs:extension base="xs:int">
+        <xs:attribute name="note" type="xs:float" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
 
 </xs:schema>
