@@ -36,15 +36,7 @@
     </target>
 
     <target name="compile" depends="prepare,jaxb">
-        <!-- Compile jaxb source files -->
-        <javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="build/jaxb">
-            <classpath>
-                <fileset dir="lib">
-                    <include name="**/*.jar" />
-                </fileset>
-            </classpath>
-        </javac>
-        <javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="src">
+        <javac debug="true" encoding="utf-8" nowarn="true" source="1.6" destdir="build/classes" srcdir="build/jaxb:src">
             <classpath>
                 <fileset dir="lib">
                     <include name="**/*.jar" />
@@ -154,7 +146,7 @@
         </path>
         <!-- classpath for xew plugin -->
         <path id="cp.plugin">
-            <fileset dir="lib" includes="xew.jar" />
+            <fileset dir="lib/xjc-plugin" includes="*.jar" />
         </path>
 
         <!-- Ant task definition for the xjc tool -->
@@ -199,7 +191,6 @@
             </fileset>
         </copy>
 
-
         <jar destfile="dist/lib/${ant.project.name}.jar" basedir="build/classes" includes="**/*.class,META-INF/**" manifest="MANIFEST.MF" />
 
         <copy todir="dist/lib" includeEmptyDirs="No">
@@ -207,7 +198,16 @@
                 <include name="**/*" />
                 <exclude name="junit*.jar" />
                 <exclude name="jaxb/*" />
-                <exclude name="xew.jar" />
+                <exclude name="xjc-plugin/*" />
+            </fileset>
+        </copy>
+
+        <copy todir="dist/lib" includeEmptyDirs="No">
+            <fileset dir="lib/jaxb">
+                <include name="jaxb-impl.jar" />
+                <include name="jaxb-api.jar" />
+                <include name="jsr173_1.0_api.jar" />
+                <include name="activation.jar" />
             </fileset>
         </copy>
 
