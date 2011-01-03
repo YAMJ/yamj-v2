@@ -36,6 +36,7 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1750 New PassionXbmc Movie Poster plugin
  - Fixed defect #1755 Movie length incorrect
  - Fixed defect #1760 New issue with Allocine plugin (plot)
+ - Enhancement  #1768 ComingSoon plugin enhancements
 
 MovieJukebox 2.2
 ----------------
