@@ -31,6 +31,7 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1735 IMDb adding "Video" to some titles
  - Fixed defect #1740 ComingSoon plugin: wrong movie matched when movie is not found in search
  - Enhancement  #1742 ComingSoonPosterPlugin
+ - Fixed defect #1743 poster.scanner.ValidateMatch not working
  - Enhancement  #1744 Parse more search pages in ComingSoon results
  - Fixed defect #1748 Title of movies are UNKNOW when using Allocine plugin
  - Enhancement  #1750 New PassionXbmc Movie Poster plugin
