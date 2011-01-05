@@ -411,8 +411,8 @@ public class PosterScanner {
         }
 
         // Adjust poster width / height by the ValidateMatch figure
-        posterWidth = posterWidth * (posterValidateMatch / 100);
-        posterHeight = posterHeight * (posterValidateMatch / 100);
+        posterWidth = (posterWidth * posterValidateMatch) / 100;
+        posterHeight = (posterHeight * posterValidateMatch) / 100;
 
         if (urlWidth < posterWidth) {
             logger.finest("PosterScanner: " + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + posterWidth + ")");
