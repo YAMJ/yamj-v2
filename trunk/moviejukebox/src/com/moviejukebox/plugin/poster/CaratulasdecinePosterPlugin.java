@@ -132,6 +132,6 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getName() {
-        return "Caratulasdecine";
+        return "caratulasdecine";
     }
 }
