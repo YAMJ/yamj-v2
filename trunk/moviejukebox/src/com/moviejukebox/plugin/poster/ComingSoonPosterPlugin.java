@@ -13,27 +13,16 @@
 
 package com.moviejukebox.plugin.poster;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.URLEncoder;
-import java.util.logging.Logger;
-
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tools.StringTools;
-
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ComingSoonPlugin;
+import com.moviejukebox.tools.StringTools;
 
 public class ComingSoonPosterPlugin extends AbstractMoviePosterPlugin {
     
     private static final String POSTER_BASE_URL = "http://www.comingsoon.it/imgdb/locandine/big/";
     
-    private static Logger logger = Logger.getLogger("moviejukebox");
-
     public ComingSoonPosterPlugin() {
         super();
         

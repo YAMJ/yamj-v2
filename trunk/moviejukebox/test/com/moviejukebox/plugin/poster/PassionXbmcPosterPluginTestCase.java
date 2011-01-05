@@ -15,7 +15,6 @@ package com.moviejukebox.plugin.poster;
 
 import junit.framework.TestCase;
 
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 
 public class PassionXbmcPosterPluginTestCase extends TestCase {
