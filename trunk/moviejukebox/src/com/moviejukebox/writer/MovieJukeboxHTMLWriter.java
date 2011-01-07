@@ -51,6 +51,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.XMLWriter;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -305,6 +306,143 @@ public class MovieJukeboxHTMLWriter {
         return baseName + fileSuffix;
     }
 
+    /**
+     * Generate the mjb.indexFile page from a template.
+     * If the template is not found, then create a default index page 
+     * @param jukebox
+     * @param library
+     * @param indexFilename
+     */
+    public void generateMainIndexHTML(Jukebox jukebox, Library library) {
+        File jukeboxIndexFile = new File(skinHome, "jukebox-index.xsl");
+        
+        if (jukeboxIndexFile.exists()) {
+            generateTransformedIndexHTML(jukebox, library);
+        } else {
+            generateDefaultIndexHTML(jukebox, library);
+        }
+    }
+    
+    /**
+     * Use an xsl file to generate the jukebox index file
+     * @param jukebox
+     * @param library
+     */
+    private void generateTransformedIndexHTML(Jukebox jukebox, Library library) {
+        logger.fine("Generating Index file from jukebox-index.xsl");
+        
+        XMLWriter writer = null;
+
+        String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
+        if (homePage.length() == 0) {
+            String defCat = library.getDefaultCategory();
+            if (defCat != null) {
+                homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
+            } else {
+                // figure out something better to do here
+                logger.fine("HTMLWriter: No categories were found, so you should specify mjb.homePage in the config file.");
+            }
+        }
+
+        try {
+            // Create the index.xml file with some properties in it.
+            File indexFile = new File(jukebox.getJukeboxTempLocation(), "index.xml");
+            indexFile.getParentFile().mkdirs();
+            writer = new XMLWriter(indexFile);
+            
+            writer.writeStartDocument("UTF-8", "1.0");
+            writer.writeStartElement("index");
+
+            writer.writeStartElement("detailsDirName");
+            writer.writeCharacters(jukebox.getDetailsDirName());
+            writer.writeEndElement();
+            
+            writer.writeStartElement("homePage");
+            writer.writeCharacters(homePage);
+            writer.writeEndElement();
+
+            writer.writeEndElement(); // index
+            writer.writeEndDocument();
+            writer.close();
+            
+            // Now generate the HTML from the XLST
+            File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
+            FileTools.addJukeboxFile(indexFile.getName());
+            FileTools.addJukeboxFile(htmlFile.getName());
+            
+            Transformer transformer = getTransformer(new File(skinHome, "jukebox-index.xsl"), jukebox.getJukeboxTempLocation());
+            
+            Source xmlSource = new StreamSource(indexFile);
+            Result xmlResult = new StreamResult(htmlFile);
+            
+            transformer.transform(xmlSource, xmlResult);
+            
+        } catch (Exception error) {
+            logger.severe("HTMLWriter: Failed generating jukebox index.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+    }
+    
+    /**
+     * Generate a simple jukebox index file from scratch
+     * @param jukebox
+     * @param library
+     */
+    private void generateDefaultIndexHTML(Jukebox jukebox, Library library) {
+        try {
+            File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
+            htmlFile.getParentFile().mkdirs();
+
+            OutputStream fos = FileTools.createFileOutputStream(htmlFile);
+            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+            XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
+
+            String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
+            if (homePage.length() == 0) {
+                String defCat = library.getDefaultCategory();
+                if (defCat != null) {
+                    homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
+                } else {
+                    // figure out something better to do here
+                    logger.fine("HTMLWriter: No categories were found, so you should specify mjb.homePage in the config file.");
+                }
+            }
+
+            writer.writeStartDocument();
+            writer.writeStartElement("html");
+            writer.writeStartElement("head");
+
+            writer.writeStartElement("meta");
+            writer.writeAttribute("name", "YAMJ");
+            writer.writeAttribute("content", "MovieJukebox");
+            writer.writeEndElement();
+
+            writer.writeStartElement("meta");
+            writer.writeAttribute("HTTP-EQUIV", "Content-Type");
+            writer.writeAttribute("content", "text/html; charset=UTF-8");
+            writer.writeEndElement();
+
+            writer.writeStartElement("meta");
+            writer.writeAttribute("HTTP-EQUIV", "REFRESH");
+            writer.writeAttribute("content", "0; url=" + jukebox.getDetailsDirName() + '/' + homePage + ".html");
+            writer.writeEndElement();
+
+            writer.writeEndElement();
+            writer.writeEndElement();
+            writer.close();
+            fos.close();
+        } catch (Exception error) {
+            logger.severe("HTMLWriter: Failed generating HTML library index.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+        }
+    }
+    
     public void generateMoviesCategoryHTML(Jukebox jukebox, Library library) {
         try {
             File detailsFolder = jukebox.getJukeboxTempLocationDetailsFile();
@@ -357,55 +495,6 @@ public class MovieJukeboxHTMLWriter {
 
         tasks.waitFor();
 
-        try {
-            File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
-            htmlFile.getParentFile().mkdirs();
-
-            OutputStream fos = FileTools.createFileOutputStream(htmlFile);
-            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
-
-            String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
-            if (homePage.length() == 0) {
-                String defCat = library.getDefaultCategory();
-                if (defCat != null) {
-                    homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
-                } else {
-                    // figure out something better to do here
-                    logger.fine("No categories were found, so you should specify mjb.homePage in the config file.");
-                }
-            }
-
-            writer.writeStartDocument();
-            writer.writeStartElement("html");
-            writer.writeStartElement("head");
-
-            writer.writeStartElement("meta");
-            writer.writeAttribute("name", "Author");
-            writer.writeAttribute("content", "MovieJukebox");
-            writer.writeEndElement();
-
-            writer.writeStartElement("meta");
-            writer.writeAttribute("HTTP-EQUIV", "Content-Type");
-            writer.writeAttribute("content", "text/html; charset=UTF-8");
-            writer.writeEndElement();
-
-            writer.writeStartElement("meta");
-            writer.writeAttribute("HTTP-EQUIV", "REFRESH");
-            writer.writeAttribute("content", "0; url=" + jukebox.getDetailsDirName() + '/' + homePage + ".html");
-            writer.writeEndElement();
-
-            writer.writeEndElement();
-            writer.writeEndElement();
-            writer.close();
-            fos.close();
-        } catch (Exception error) {
-            logger.severe("HTMLWriter: Failed generating HTML library index.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
-        }
     }
 
     private void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page)

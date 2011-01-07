@@ -137,6 +137,7 @@ public class MovieJukebox {
     private boolean recheckXML;
     private static int recheckCount = 0;
     private static boolean skipIndexGeneration = false;
+    private static boolean skipHtmlGeneration = false;
     private static boolean dumpLibraryStructure = false;
     private static boolean showMemory = false;
 
@@ -225,6 +226,8 @@ public class MovieJukebox {
                     userPropertiesName = args[++i];
                 } else if ("-i".equalsIgnoreCase(arg)) {
                     skipIndexGeneration = true;
+                } else if ("-h".equalsIgnoreCase(arg)) {
+                    skipHtmlGeneration = true;
                 } else if ("-dump".equalsIgnoreCase(arg)) {
                     dumpLibraryStructure = true;
                 } else if ("-memory".equalsIgnoreCase(arg)) {
@@ -298,6 +301,16 @@ public class MovieJukebox {
         sb.replace(sb.length() - 1, sb.length(), "}");
         logger.finer("Properties: " + sb.toString());
 
+        // Check for mjb.skipIndexGeneration and set as necessary
+        if (PropertiesUtil.getBooleanProperty("mjb.skipIndexGeneration", "false")) {
+            skipIndexGeneration = true;
+        }
+        
+        // Check for mjb.skipHtmlGeneration and set as necessary
+        if (PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", "false")) {
+            skipHtmlGeneration = true;
+        }
+        
         MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "),
                 Boolean.parseBoolean(getProperty("filename.scanner.skip.caseSensitive", "true")));
         MovieFilenameScanner.setSkipRegexKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords.regex", ""), ","),
@@ -1093,7 +1106,7 @@ public class MovieJukebox {
                         logger.finest("Creating thumbnails for movie: " + movie.getBaseName());
                         createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, forceThumbnailOverwrite);
 
-                        if (!skipIndexGeneration) {
+                        if (!skipIndexGeneration && !skipHtmlGeneration) {
                             // write the movie details HTML
                             htmlWriter.generateMovieDetailsHTML(jukebox, movie);
 
@@ -1118,10 +1131,20 @@ public class MovieJukebox {
                 xmlWriter.writeIndexXML(jukebox, library, tasks);
                 logger.fine("Writing Category XML...");
                 xmlWriter.writeCategoryXML(jukebox, library);
-                logger.fine("Writing Indexes HTML...");
-                htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
-                logger.fine("Writing Category HTML...");
-                htmlWriter.generateMoviesCategoryHTML(jukebox, library);
+                
+                if (!skipHtmlGeneration) {
+                    logger.fine("Writing Indexes HTML...");
+                    htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
+                    logger.fine("Writing Category HTML...");
+                    htmlWriter.generateMoviesCategoryHTML(jukebox, library);
+                }
+                
+                /*
+                 * Generate the index file.
+                 * Do not skip this part as it's the index that starts the jukebox
+                 */
+                htmlWriter.generateMainIndexHTML(jukebox, library);
+                
             }
 
             try {
@@ -1153,6 +1176,7 @@ public class MovieJukebox {
             
             logger.fine("Copying new files to Jukebox directory...");
             String index = getProperty("mjb.indexFile", "index.htm");
+            
             FileTools.copyDir(jukebox.getJukeboxTempLocationDetails(), jukebox.getJukeboxRootLocationDetails(), true);
             FileTools.copyFile(new File(jukebox.getJukeboxTempLocation() + File.separator + index), new File(jukebox.getJukeboxRootLocation() + File.separator + index));
 
