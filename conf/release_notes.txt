@@ -5,6 +5,7 @@
 MovieJukebox 2.3 BETA
 ---------------------
  - Enhancement   #997 Ability to turn off 'EXTRAS' processing
+ - Enhancement  #1012 Separate index.htm XSL file
  - Enhancement  #1131 Smarter location of set artwork
  - Fixed defect #1267 Titles from IMDB may include their (year/roman numeral) format
  - Fixed defect #1416 Trailer doesn't download
