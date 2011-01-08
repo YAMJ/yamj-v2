@@ -57,10 +57,10 @@ public class PropertiesUtil {
         } catch (IOException error) {
             // Output a warning if moviejukebox.properties isn't found. Otherwise it's an error
             if (streamName.contains("moviejukebox.properties")) {
-                logger.warning("Warning (non-fatal): User properties file: moviejukebox.properties, not found.");
+                logger.warning("Warning (non-fatal): User properties file '" + streamName + "', not found.");
             } else if (streamName.contains("skin-user.properties")) {
                 // We don't want this warning printed on the screen every time
-                logger.finer("Warning (non-fatal): User properties file: skin-user.properties, not found.");
+                logger.finer("Warning (non-fatal): User properties file: '" + streamName + "', not found.");
             } else {
                 logger.severe("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
             }
