@@ -378,10 +378,10 @@ public class MovieJukebox {
         }
 
         if (!f.exists()) {
-            logger.severe("Directory not found : " + movieLibraryRoot);
+            logger.severe("Directory or library configuration file '" + movieLibraryRoot + "', not found.");
             return;
         }
-        
+
         // make canonical names
         jukeboxRoot = FileTools.getCanonicalPath(jukeboxRoot);
         movieLibraryRoot = FileTools.getCanonicalPath(movieLibraryRoot); 
