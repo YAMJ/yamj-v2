@@ -17,14 +17,12 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.xml.bind.JAXBException;
@@ -322,48 +320,6 @@ public class AllocinePlugin extends ImdbPlugin {
             return false;
         }
 
-        return true;
-    }
-
-    private boolean parseCasting(Movie movie) {
-        try {
-            String xmlCasting = webBrowser.request("http://www.allocine.fr/film/casting_gen_cfilm=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
-            
-            // Check for director
-            ArrayList<String> tempDirectors = HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id='direction'></a>", "</div><!-- /rubric !-->", "<div class=\"datablock\">", "</div><!-- /datablock -->", false);
-            if (movie.getDirectors().isEmpty()) {
-                if (!tempDirectors.isEmpty()) {
-                    movie.addDirector(removeHtmlTags(HTMLTools.extractTag(tempDirectors.get(0),"<h3>","</h3>")));
-                }
-            }
-
-            // Check for writers
-            // logger.finer("AllocinePlugin: Check for writers");
-            if (movie.getWriters().isEmpty()) {
-                for (String writer : HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id=\"scenario\"></a>", "</table>", ".html\">", "</a>", false)) {
-                    // logger.finer("AllocinePlugin: Writer found : " + writer);
-                    movie.addWriter(removeHtmlTags(writer));
-                }
-            }
-
-            // Check for company 
-            if (movie.getCompany().equals(Movie.UNKNOWN)) {
-                movie.setCompany(removeHtmlTags(HTMLTools.extractTag(xmlCasting, "Film distribué par ", "</a>")));
-            }
-
-            // Check for actors
-            if (movie.getCast().isEmpty()) {
-                for (String actor : HTMLTools.extractTags(xmlCasting, "<a class=\"anchor\" id='actors'></a>", "</div><!-- /rubric !-->", "<div class=\"datablock\">", "</div><!-- /datablock -->", false)) {
-                    movie.addActor(removeHtmlTags(HTMLTools.extractTag(actor,"<h3>","</h3>")));
-                }
-            }
-        } catch (IOException error) {
-            logger.severe("AllocinePlugin: Failed retreiving allocine casting infos for movie : " + movie.getId(ALLOCINE_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
-        }
         return true;
     }
 
