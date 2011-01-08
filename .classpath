@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="src" path="build/jaxb"/>
 	<classpathentry excluding="*.bat|*.ch" kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
@@ -26,5 +27,7 @@
 	<classpathentry kind="lib" path="lib/mjbSQL.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jaxb/jaxb-api.jar"/>
+	<classpathentry kind="lib" path="lib/jaxb/jaxb-impl.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
