@@ -302,13 +302,20 @@ public class MovieJukebox {
         logger.finer("Properties: " + sb.toString());
 
         // Check for mjb.skipIndexGeneration and set as necessary
+        // This duplicates the "-i" functionality, but allows you to have it in the property file
         if (PropertiesUtil.getBooleanProperty("mjb.skipIndexGeneration", "false")) {
             skipIndexGeneration = true;
         }
         
         // Check for mjb.skipHtmlGeneration and set as necessary
+        // This duplicates the "-h" functionality, but allows you to have it in the property file
         if (PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", "false")) {
             skipHtmlGeneration = true;
+        }
+        
+        // This duplicates the "-c" functionality, but allows you to have it in the property file
+        if (PropertiesUtil.getBooleanProperty("mjb.jukeboxClean", "false")) {
+            jukeboxClean = true;
         }
         
         MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "),
@@ -707,7 +714,6 @@ public class MovieJukebox {
             // these parameters as they aren't set to the minimum
             logger.fine("See README.TXT for increasing performance using these settings.");
         }
-        int nbFiles = 0;
 
         /********************************************************************************
          * 
@@ -1210,43 +1216,9 @@ public class MovieJukebox {
                 SystemTools.showMemory();
             }
             
-            if (jukeboxClean) {
-                logger.fine("Cleaning up the jukebox directory...");
-                Collection<String> generatedFileNames = FileTools.getJukeboxFiles();
-
-                File[] cleanList = jukebox.getJukeboxRootLocationDetailsFile().listFiles();
-                int cleanDeletedTotal = 0;
-                boolean skip = false;
-
-                String skipPattStr = getProperty("mjb.clean.skip");
-                Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
-
-                for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
-                    // Scan each file in here
-                    if (cleanList[nbFiles].isFile() && !generatedFileNames.contains(cleanList[nbFiles].getName())) {
-                        skip = false;
-
-                        // If the file is in the skin's exclusion regex, skip it
-                        if (skipPatt != null) {
-                            skip = skipPatt.matcher(cleanList[nbFiles].getName()).matches();
-                        }
-
-                        // If the file isn't skipped and it's not part of the library, delete it
-                        if (!skip) {
-                            logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
-                            cleanDeletedTotal++;
-                            cleanList[nbFiles].delete();
-                        }
-                    }
-                }
-                logger.fine(Integer.toString(nbFiles) + " files in the jukebox directory");
-                if (cleanDeletedTotal > 0 ) {
-                    logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " unused " + (cleanDeletedTotal==1?"file":"files") + " from the jukebox directory");
-                }
-            } else {
-                logger.fine("Jukebox cleaning skipped");
-            }
-
+            // Clean the jukebox folder of unneeded files
+            cleanJukeboxFolder();
+            
             if (moviejukeboxListing) {
                 logger.fine("Generating listing output...");
                 listingPlugin.generate(jukebox, library);
@@ -1266,6 +1238,68 @@ public class MovieJukebox {
         logger.fine("");
         logger.fine("MovieJukebox process completed at " + new Date());
         logger.fine("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
+
+        return;
+    }
+
+    /**
+     * Clean up the jukebox folder of any extra files that are not needed.
+     * 
+     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
+     */
+    private void cleanJukeboxFolder() {
+        boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", "false");
+        
+        if (jukeboxClean) {
+            logger.fine("Cleaning up the jukebox directory...");
+        } else if (cleanReport) {
+            logger.fine("Jukebox cleaning skipped, the following files are orphaned (not used anymore):");
+        } else {
+            logger.fine("Jukebox cleaning skipped.");
+            return;
+        }
+        
+        Collection<String> generatedFileNames = FileTools.getJukeboxFiles();
+
+        File[] cleanList = jukebox.getJukeboxRootLocationDetailsFile().listFiles();
+        int nbFiles = 0;
+        int cleanDeletedTotal = 0;
+        boolean skip = false;
+
+        String skipPattStr = getProperty("mjb.clean.skip");
+        Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
+
+        for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
+            // Scan each file in here
+            if (cleanList[nbFiles].isFile() && !generatedFileNames.contains(cleanList[nbFiles].getName())) {
+                skip = false;
+
+                // If the file is in the skin's exclusion regex, skip it
+                if (skipPatt != null) {
+                    skip = skipPatt.matcher(cleanList[nbFiles].getName()).matches();
+                }
+
+                // If the file isn't skipped and it's not part of the library, delete it
+                if (!skip) {
+                    if (jukeboxClean) {
+                        logger.finest("Deleted: " + cleanList[nbFiles].getName() + " from library");
+                        cleanList[nbFiles].delete();
+                    } else {
+                        logger.finest("Unused: " + cleanList[nbFiles].getName());
+                    }
+                    cleanDeletedTotal++;
+                }
+            }
+        }
+        
+        logger.fine(Integer.toString(nbFiles) + " files in the jukebox directory");
+        if (cleanDeletedTotal > 0 ) {
+            if (jukeboxClean) {
+                logger.fine("Deleted " + Integer.toString(cleanDeletedTotal) + " unused " + (cleanDeletedTotal==1?"file":"files") + " from the jukebox directory");
+            } else {
+                logger.fine("There " + (cleanDeletedTotal==1?"is ":"are ") + Integer.toString(cleanDeletedTotal) + " orphaned " + (cleanDeletedTotal==1?"file":"files") + " in the jukebox directory");
+            }
+        }
 
         return;
     }
