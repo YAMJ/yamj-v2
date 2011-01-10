@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.tools.WebBrowser;
 
@@ -81,6 +83,15 @@ public class XMLHelper {
             f = Float.parseFloat(val);
         }
         return f;
+    }
+
+    public static String parseCData(XMLEventReader r) throws XMLStreamException {
+        StringBuffer sb = new StringBuffer();
+        XMLEvent e;
+        while ((e = r.nextEvent()) instanceof Characters) {
+            sb.append(e.toString());
+        }
+        return HTMLTools.decodeHtml(sb.toString());
     }
 
     public static List<String> parseList(String input, String delim) {
