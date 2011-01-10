@@ -16,6 +16,9 @@ package com.moviejukebox;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import static com.moviejukebox.tools.PropertiesUtil.setPropertiesStreamName;
 import static com.moviejukebox.tools.PropertiesUtil.setProperty;
+import static com.moviejukebox.tools.StringTools.appendToPath;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.writer.MovieJukeboxHTMLWriter.getTransformer;
 import static java.lang.Boolean.parseBoolean;
 
@@ -84,14 +87,11 @@ import com.moviejukebox.scanner.artwork.VideoImageScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.JukeboxProperties;
-import com.moviejukebox.tools.JukeboxProperties.PropertyInformation;
 import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
-
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
@@ -752,66 +752,9 @@ public class MovieJukebox {
             return;
         }
         
-        if (PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false")) {
-            // Create or Read the mjbDetails file that stores the jukebox properties we want to watch
-            File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
-            FileTools.addJukeboxFile(mjbDetails.getName());
-            try {
-                if (mjbDetails.exists()) {
-                    PropertyInformation pi = JukeboxProperties.readFile(mjbDetails);
-                    
-                    if (pi.isBannerOverwrite()) {
-                        logger.finer("Setting 'forceBannerOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forceBannersOverwrite", "true");
-                    }
-                    
-                    if (pi.isFanartOverwrite()) {
-                        logger.finer("Setting 'forceFanartOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forceFanartOverwrite", "true");
-                    }
-                    
-                    if (pi.isHtmlOverwrite()) {
-                        logger.finer("Setting 'forceHtmlOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forceHtmlOverwrite", "true");
-                    }
-                    
-                    if (pi.isPosterOverwrite()) {
-                        logger.finer("Setting 'forcePosterOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forcePosterOverwrite", "true");
-                    }
-                    
-                    if (pi.isThumbnailOverwrite()) {
-                        logger.finer("Setting 'forceThumbnailOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forceThumbnailOverwrite", "true");
-                    }
-                    
-                    if (pi.isVideoimageOverwrite()) {
-                        logger.finer("Setting 'forceVideoimageOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forceVideoimageOverwrite", "true");
-                    }
-                    
-                    if (pi.isXmlOverwrite()) {
-                        logger.finer("Setting 'forceXmlOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forceXmlOverwrite", "true");
-                    }
-                    
-                    if (pi.isIndexOverwrite()) {
-                        logger.finer("Setting 'forceIndexOverwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.forceIndexOverwrite", "true");
-                    }
-                } else {
-                    mjbDetails.createNewFile();
-                    JukeboxProperties.createFile(mjbDetails, jukebox);
-                }
-            } catch (Exception error) {
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.severe("Failed creating " + mjbDetails.getName() + " file!");
-                logger.severe(eResult.toString());
-            }
-        }
-
+        // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
+       JukeboxProperties.generateDetailsFile(jukebox);
+       
         if (showMemory) {
             SystemTools.showMemory();
         }
