@@ -13,6 +13,8 @@
 
 package com.moviejukebox.writer;
 
+import static com.moviejukebox.tools.XMLHelper.parseCData;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -34,7 +36,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -476,15 +477,6 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    private String parseCData(XMLEventReader r) throws XMLStreamException {
-        StringBuffer sb = new StringBuffer();
-        XMLEvent e;
-        while ((e = r.nextEvent()) instanceof Characters) {
-            sb.append(e.toString());
-        }
-        return HTMLTools.decodeHtml(sb.toString());
-    }
-
     public void writeCategoryXML(Jukebox jukebox, Library library) throws FileNotFoundException, XMLStreamException {
         jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
 
@@ -498,6 +490,9 @@ public class MovieJukeboxXMLWriter {
 
         List<Movie> allMovies = library.getMoviesList();
 
+        // Add the movie count to the library
+        writer.writeAttribute("count", "" + allMovies.size());
+        
         if (includeMoviesInCategories) {
             for (Movie movie : library.getMoviesList()) {
                 if (fullMovieInfoInIndexes) {
@@ -519,6 +514,7 @@ public class MovieJukeboxXMLWriter {
                     openedCategory = true;
                     writer.writeStartElement("category");
                     writer.writeAttribute("name", category.getKey());
+                    writer.writeAttribute("count", "" + category.getValue().size());
 
                     for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                         List<Movie> value = index.getValue();
@@ -694,6 +690,8 @@ public class MovieJukeboxXMLWriter {
         File xmlFile = null;
         XMLWriter writer = null;
 
+        //FIXME: The categories are listed even if there are no entries, perhaps we should remove the empty categories at some point
+        
         try {
             xmlFile = new File(rootPath, prefix + current + ".xml");
             FileTools.addJukeboxFile(xmlFile.getName());
@@ -702,6 +700,7 @@ public class MovieJukeboxXMLWriter {
 
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("library");
+            writer.writeAttribute("count", "" + library.getIndexes().size());
 
             for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
                 String categoryKey = category.getKey();
@@ -712,6 +711,7 @@ public class MovieJukeboxXMLWriter {
                 if (categoryKey.equalsIgnoreCase(idx.categoryName)) {
                     writer.writeAttribute("current", "true");
                 }
+                writer.writeAttribute("count", "" + category.getValue().size());
 
                 for (String categoryName : index.keySet()) {
                     String encakey = FileTools.createCategoryKey(categoryName);

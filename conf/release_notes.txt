@@ -10,7 +10,7 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1267 Titles from IMDB may include their (year/roman numeral) format
  - Fixed defect #1416 Trailer doesn't download
  - Fixed defect #1499 Allocine plugin should use new XML API
- - Fixed defect #1629 Rating problem with allocine plugin
+ - Fixed defect #1629 Rating problem with Allocine plugin
  - Fixed defect #1604 Set poster is not picked up correctly for series with ":" in the name
  - Fixed defect #1655 ComingSoon plugin not run properly
  - Enhancement  #1671 Add New:TV and New:Movies categories
@@ -41,6 +41,7 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1760 New issue with Allocine plugin (plot)
  - Enhancement  #1768 ComingSoon plugin enhancements
  - Enhancement  #1770 ComingSoon trailer download
+ - Enhancement  #1778 Add total number of titles to the XML files
 
 MovieJukebox 2.2
 ----------------
