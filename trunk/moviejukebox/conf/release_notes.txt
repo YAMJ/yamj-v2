@@ -39,6 +39,7 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1755 Movie length incorrect
  - Fixed defect #1757 caratulasdecine plugin cannot be used
  - Fixed defect #1760 New issue with Allocine plugin (plot)
+ - Enhancement  #1763 Orphaned File in Jukebox Folder Finder
  - Enhancement  #1768 ComingSoon plugin enhancements
  - Enhancement  #1770 ComingSoon trailer download
  - Enhancement  #1778 Add total number of titles to the XML files
