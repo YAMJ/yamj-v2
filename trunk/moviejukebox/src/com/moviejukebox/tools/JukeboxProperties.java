@@ -13,6 +13,9 @@
 package com.moviejukebox.tools;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -85,7 +88,80 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("posters.logoTV",                      false, true,  false, true,  false, false, false, false));
         propInfo.add(new PropertyInformation("posters.language",                    false, true,  false, true,  false, false, false, false));
     }
-    
+
+    /**
+     * Check to see if the file needs to be processed (if it exists) or just created
+     * Note: This *MIGHT* cause issues with some programs that assume all XML files in the jukebox folder are
+     * videos or indexes. However, they should just deal with this themselves :-)
+     * 
+     * @param jukebox
+     */
+    public static void generateDetailsFile(Jukebox jukebox) {
+        boolean monitor = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false"); 
+        
+        // Create or Read the mjbDetails file that stores the jukebox properties we want to watch
+        File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
+        FileTools.addJukeboxFile(mjbDetails.getName());
+        try {
+            // If we are monitoring the file and it exists, then read and check, otherwise create the file
+            if (monitor && mjbDetails.exists()) {
+                PropertyInformation pi = readFile(mjbDetails);
+                
+                if (pi.isBannerOverwrite()) {
+                    logger.finer("Setting 'forceBannerOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceBannersOverwrite", "true");
+                }
+                
+                if (pi.isFanartOverwrite()) {
+                    logger.finer("Setting 'forceFanartOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceFanartOverwrite", "true");
+                }
+                
+                if (pi.isHtmlOverwrite()) {
+                    logger.finer("Setting 'forceHtmlOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceHtmlOverwrite", "true");
+                }
+                
+                if (pi.isPosterOverwrite()) {
+                    logger.finer("Setting 'forcePosterOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forcePosterOverwrite", "true");
+                }
+                
+                if (pi.isThumbnailOverwrite()) {
+                    logger.finer("Setting 'forceThumbnailOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceThumbnailOverwrite", "true");
+                }
+                
+                if (pi.isVideoimageOverwrite()) {
+                    logger.finer("Setting 'forceVideoimageOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceVideoimageOverwrite", "true");
+                }
+                
+                if (pi.isXmlOverwrite()) {
+                    logger.finer("Setting 'forceXmlOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceXmlOverwrite", "true");
+                }
+                
+                if (pi.isIndexOverwrite()) {
+                    logger.finer("Setting 'forceIndexOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceIndexOverwrite", "true");
+                }
+            } else {
+                // Create a blank file
+                mjbDetails.createNewFile();
+            }
+            // Write the settings to the file
+            createFile(mjbDetails, jukebox);
+        } catch (Exception error) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe("Failed creating " + mjbDetails.getName() + " file!");
+            logger.severe(eResult.toString());
+        }
+        return;
+    }
+
     /**
      * Create the mjbDetails file and populate with the attributes
      * @param mjbDetails
@@ -119,6 +195,9 @@ public class JukeboxProperties {
             //create child element, add an attribute, and add to root
             eJukebox = docMjbDetails.createElement(JUKEBOX);
             eRoot.appendChild(eJukebox);
+            
+            // Save the run date
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", dateFormat.format(System.currentTimeMillis()));
             
             // Save the details directory name
             DOMHelper.appendChild(docMjbDetails, eJukebox, "DetailsDirName", jukebox.getDetailsDirName());
@@ -377,4 +456,6 @@ public class JukeboxProperties {
             this.indexOverwrite = indexOverwrite;
         }
     }
+    
+
 }
