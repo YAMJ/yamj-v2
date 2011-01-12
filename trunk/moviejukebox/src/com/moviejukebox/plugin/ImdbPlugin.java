@@ -541,9 +541,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             imdbOutline = HTMLTools.removeHtmlTags(imdbOutline).trim();
             
             if (isValidString(imdbOutline)) {
-                int beginIndex = imdbOutline.indexOf(" reviews");
+                String searchText = " reviews";
+                int beginIndex = imdbOutline.indexOf(searchText);
                 if (beginIndex > 0) {
-                    imdbOutline = imdbOutline.substring(beginIndex + 8);
+                    imdbOutline = imdbOutline.substring(beginIndex + searchText.length());
+                }
+                
+                // See if the outline has the "metacritic" text and remove it
+                searchText = "Metacritic.com)";
+                beginIndex = imdbOutline.indexOf(searchText);
+                if (beginIndex > 0) {
+                    imdbOutline = imdbOutline.substring(beginIndex + searchText.length());
                 }
                 
                 imdbOutline = trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
@@ -564,6 +572,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (isNotValidString(imdbPlot)) {
                 imdbPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<span class=\"");
                 imdbPlot = HTMLTools.removeHtmlTags(imdbPlot).trim();
+            }
+            
+            // See if the plot has the "metacritic" text and remove it
+            int pos = imdbPlot.indexOf("Metacritic.com)");
+            if (pos > 0) {
+                imdbPlot = imdbPlot.substring(pos + "Metacritic.com)".length());
             }
             
             // Check the length of the plot is OK
