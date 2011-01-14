@@ -146,6 +146,7 @@ public class MovieJukebox {
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
     public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
 
+    private static boolean trailersScannerEnable;
     private static long trailersRescanDaysMillis;
 
     int MaxThreadsProcess = 1;
@@ -622,6 +623,7 @@ public class MovieJukebox {
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
         videoimageToken = getProperty("mjb.scanner.videoimageToken", ".videoimage");
 
+        trailersScannerEnable = parseBoolean(getProperty("trailers.scanner.enable", "true"));
         try {
             trailersRescanDaysMillis = Integer.parseInt(PropertiesUtil.getProperty("trailers.rescan.Days", "15"));
             // Convert trailers.rescan.Days from DAYS to MILLISECONDS for comparison purposes
@@ -901,7 +903,7 @@ public class MovieJukebox {
                         tools.subtitlePlugin.generate(movie);
 
                         // Get Trailers
-                        if (movie.canHaveTrailers() && isTrailersNeedRescan(movie)) {
+                        if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
                             boolean status = tools.trailerPlugin.generate(movie);
                             // Update trailerExchange
                             if (status == false) {
