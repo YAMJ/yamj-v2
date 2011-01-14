@@ -213,7 +213,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public String getCurrentMjbVersion() {
-        return MovieJukebox.class.getPackage().getSpecificationVersion();
+        String specificationVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
+        if (specificationVersion == null) {
+            specificationVersion = UNKNOWN;
+        }
+        return specificationVersion;
     }
 
     public void setMjbRevision(String mjbRevision) {
