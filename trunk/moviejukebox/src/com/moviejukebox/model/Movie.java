@@ -123,7 +123,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String certification = UNKNOWN;
     // TODO Move extra flag to movie file
     private boolean extra = false;
+    // Trailers
     private boolean trailerExchange = false;
+    private long trailerLastScan = 0;
+
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
     private String formatType = TYPE_FILE;
@@ -1258,9 +1261,57 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    /**
+     * This function will return true if the movie can have trailers.
+     * 
+     * @param movie
+     * @return
+     */
+    public boolean canHaveTrailers() {
+        if (isExtra() || getMovieType().equals(Movie.TYPE_TVSHOW)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public void setTrailerExchange(Boolean trailerExchange) {
         this.isDirty = true;
         this.trailerExchange = trailerExchange;
+    }
+
+    /**
+     * Set the date of the last trailers scan
+     * 
+     * @param lastScan
+     *            date of the last trailers scan
+     */
+    public void setTrailerLastScan(String lastScan) {
+        try {
+            setTrailerLastScan(dateFormat.parse(lastScan).getTime());
+        } catch (Exception error) {
+            setTrailerLastScan(0);
+        }
+    }
+
+    /**
+     * Set the date of the last trailers scan
+     * 
+     * @param lastScan
+     *            date of the last trailers scan (milliseconds offset from the Epoch)
+     */
+    public void setTrailerLastScan(long lastScan) {
+        this.isDirty = true;
+        this.trailerLastScan = lastScan;
+    }
+
+    /**
+     * Get the date of the last trailers scan
+     * 
+     * @return the date of the last trailers scan (milliseconds offset from the Epoch)
+     */
+    public long getTrailerLastScan() {
+        return trailerLastScan;
     }
 
     /**

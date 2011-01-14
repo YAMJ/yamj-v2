@@ -146,9 +146,12 @@ public class MovieJukebox {
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
     public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
 
+    private static long trailersRescanDaysMillis;
+
     int MaxThreadsProcess = 1;
     int MaxThreadsDownload = 1;
     
+
     public static void main(String[] args) throws Throwable {
         String logFilename = "moviejukebox.log";
         LogFormatter mjbFormatter = new LogFormatter();
@@ -583,7 +586,7 @@ public class MovieJukebox {
         System.out.println("                      Display and log the memory used by moviejukebox");
     }
 
-    public MovieJukebox(String source, String jukeboxRoot) {
+    public MovieJukebox(String source, String jukeboxRoot) throws Exception {
         this.movieLibraryRoot = source;
         String jukeboxTempLocation = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"));
 
@@ -618,6 +621,15 @@ public class MovieJukebox {
         posterToken = getProperty("mjb.scanner.posterToken", "_large");
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
         videoimageToken = getProperty("mjb.scanner.videoimageToken", ".videoimage");
+
+        try {
+            trailersRescanDaysMillis = Integer.parseInt(PropertiesUtil.getProperty("trailers.rescan.Days", "15"));
+            // Convert trailers.rescan.Days from DAYS to MILLISECONDS for comparison purposes
+            trailersRescanDaysMillis *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+        } catch (Exception e) {
+            logger.severe("Error trailers.rescan.Days property, should be an integer");
+            throw e;
+        }
 
         File f = new File(source);
         if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -888,8 +900,16 @@ public class MovieJukebox {
                         // Get subtitle
                         tools.subtitlePlugin.generate(movie);
 
-                        // Get Trailer
-                        tools.trailerPlugin.generate(movie);
+                        // Get Trailers
+                        if (movie.canHaveTrailers() && isTrailersNeedRescan(movie)) {
+                            boolean status = tools.trailerPlugin.generate(movie);
+                            // Update trailerExchange
+                            if (status == false) {
+                                // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
+                                status = trailersRescanDaysMillis < 0 ? true : false;
+                            }
+                            movie.setTrailerExchange(status);
+                        }
 
                         logger.fine("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         // Show memory every (processing count) movies
@@ -1969,6 +1989,33 @@ public class MovieJukebox {
             } // isTVShow
         }
         return false;
+    }
+
+    /**
+     * This function will check movie trailers and return true if trailers needs to be re-scanned.
+     * @param movie
+     * @return
+     */
+    private static boolean isTrailersNeedRescan(Movie movie) {
+
+        boolean trailersOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceTrailersOverwrite", "false"));
+        if (trailersOverwrite) {
+            return true;
+        }
+
+        // Check if this movie was already checked for trailers
+        if (movie.isTrailerExchange()) {
+            logger.finest("Trailers Plugin: Movie " + movie.getTitle() + " has previously been checked for trailers, skipping.");
+            return false;
+        }
+
+        // Check if we need to scan or rescan for trailers
+        long now = new Date().getTime();
+        if ((now - movie.getTrailerLastScan()) < trailersRescanDaysMillis) {
+            return false;
+        }
+
+        return true;
     }
 
     public static boolean isJukeboxPreserve() {
