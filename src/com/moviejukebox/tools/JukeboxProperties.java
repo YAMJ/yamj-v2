@@ -45,48 +45,50 @@ public class JukeboxProperties {
     private final static String PROPERTIES = "properties";
     
     static {
-        // Set up the properties to watch:                                          xml           thumbnail     fanart        videoimage
+        // Set up the properties to watch:                                          xml           thumbnail     fanart        videoimage    trailers
         //                                                                                 html          poster        banner        index
-        propInfo.add(new PropertyInformation("userPropertiesName",                  false, false, false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("mjb.skin.dir",                        false, true,  true,  true,  false, false, false, true));
-        propInfo.add(new PropertyInformation("fanart.movie.download",               false, false, false, false, true,  false, false, false));
-        propInfo.add(new PropertyInformation("fanart.tv.download",                  false, false, false, false, true,  false, false, false));
+        propInfo.add(new PropertyInformation("userPropertiesName",                  false, false, false, false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("mjb.skin.dir",                        false, true,  true,  true,  false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("fanart.movie.download",               false, false, false, false, true,  false, false, false, false));
+        propInfo.add(new PropertyInformation("fanart.tv.download",                  false, false, false, false, true,  false, false, false, false));
         
-        propInfo.add(new PropertyInformation("mjb.includeEpisodePlots",             true,  false, false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("mjb.includeVideoImages",              true,  false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.includeWideBanners",              false, false, false, false, false, true,  false, false));
-        propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle",  true,  true,  false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("mjb.includeEpisodePlots",             true,  false, false, false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("mjb.includeVideoImages",              true,  false, false, false, false, false, true,  false, false));
+        propInfo.add(new PropertyInformation("mjb.includeWideBanners",              false, false, false, false, false, true,  false, false, false));
+        propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle",  true,  true,  false, false, false, false, false, false, false));
         
-        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerPage",             false, true,  true,  false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerLine",             false, true,  true,  false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage",           false, true,  true,  false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerLine",           false, true,  true,  false, false, false, false, true));
+        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerPage",             false, true,  true,  false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerLine",             false, true,  true,  false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage",           false, true,  true,  false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerLine",           false, true,  true,  false, false, false, false, true,  false));
 
-        propInfo.add(new PropertyInformation("mjb.categories.minCount",             false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Other",       false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Genres",      false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Title",       false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Rating",      false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Year",        false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Library",     false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Set",         false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Cast",        false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Director",    false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Writer",      false, false, false, false, false, false, false, true));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Country",     false, false, false, false, false, false, false, true));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount",             false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Other",       false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Genres",      false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Title",       false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Rating",      false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Year",        false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Library",     false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Set",         false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Cast",        false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Director",    false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Writer",      false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Country",     false, false, false, false, false, false, false, true,  false));
 
-        propInfo.add(new PropertyInformation("thumbnails.width",                    false, true,  true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.height",                   false, true,  true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.logoHD",                   false, true,  true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.logoTV",                   false, true,  true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.logoSet",                  false, true,  true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.language",                 false, true,  true,  false, false, false, false, false));
+        propInfo.add(new PropertyInformation("thumbnails.width",                    false, true,  true,  false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("thumbnails.height",                   false, true,  true,  false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("thumbnails.logoHD",                   false, true,  true,  false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("thumbnails.logoTV",                   false, true,  true,  false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("thumbnails.logoSet",                  false, true,  true,  false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("thumbnails.language",                 false, true,  true,  false, false, false, false, false, false));
         
-        propInfo.add(new PropertyInformation("posters.width",                       false, true,  false, true,  false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.height",                      false, true,  false, true,  false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.logoHD",                      false, true,  false, true,  false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.logoTV",                      false, true,  false, true,  false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.language",                    false, true,  false, true,  false, false, false, false));
+        propInfo.add(new PropertyInformation("posters.width",                       false, true,  false, true,  false, false, false, false, false));
+        propInfo.add(new PropertyInformation("posters.height",                      false, true,  false, true,  false, false, false, false, false));
+        propInfo.add(new PropertyInformation("posters.logoHD",                      false, true,  false, true,  false, false, false, false, false));
+        propInfo.add(new PropertyInformation("posters.logoTV",                      false, true,  false, true,  false, false, false, false, false));
+        propInfo.add(new PropertyInformation("posters.language",                    false, true,  false, true,  false, false, false, false, false));
+
+        propInfo.add(new PropertyInformation("trailers.rescan.Days",                false, false, false, false, false, false, false, false, true));
     }
 
     /**
@@ -145,6 +147,11 @@ public class JukeboxProperties {
                 if (pi.isIndexOverwrite()) {
                     logger.finer("Setting 'forceIndexOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceIndexOverwrite", "true");
+                }
+
+                if (pi.isTrailersOverwrite()) {
+                    logger.finer("Setting 'forceTrailersOverwrite = true' due to property file changes");
+                    PropertiesUtil.setProperty("mjb.forceTrailersOverwrite", "true");
                 }
             } else {
                 // Create a blank file
@@ -226,7 +233,7 @@ public class JukeboxProperties {
      * @return PropertyInformation Containing the merged overwrite values
      */
     public static PropertyInformation readFile(File mjbDetails) {
-        PropertyInformation piReturn = new PropertyInformation("RETURN", false, false, false, false, false, false, false, false);
+        PropertyInformation piReturn = new PropertyInformation("RETURN", false, false, false, false, false, false, false, false, false);
         Document docMjbDetails;
         // Try to open and read the document file
         try {
@@ -321,6 +328,7 @@ public class JukeboxProperties {
         private boolean bannerOverwrite     = false;
         private boolean videoimageOverwrite = false;
         private boolean indexOverwrite      = false;
+        private boolean trailersOverwrite   = false;
         
         public PropertyInformation(String property,
                                     boolean xml,
@@ -330,7 +338,8 @@ public class JukeboxProperties {
                                     boolean fanart,
                                     boolean banner,
                                     boolean videoimage,
-                                    boolean index) {
+                                    boolean index,
+                                    boolean trailers) {
             this.propertyName        = property;
             this.xmlOverwrite        = xml;
             this.htmlOverwrite       = html;
@@ -340,6 +349,7 @@ public class JukeboxProperties {
             this.bannerOverwrite     = banner;
             this.videoimageOverwrite = videoimage;
             this.indexOverwrite      = index;
+            this.trailersOverwrite   = trailers;
         }
 
         public String getPropertyName() {
@@ -368,6 +378,10 @@ public class JukeboxProperties {
 
         public boolean isBannerOverwrite() {
             return bannerOverwrite;
+        }
+
+        public boolean isTrailersOverwrite() {
+            return trailersOverwrite;
         }
 
         public boolean isVideoimageOverwrite() {
@@ -402,6 +416,10 @@ public class JukeboxProperties {
             this.bannerOverwrite = bannerOverwrite;
         }
 
+        public void setTrailersOverwrite(boolean trailersOverwrite) {
+            this.trailersOverwrite = trailersOverwrite;
+        }
+
         public void setVideoimagesOverwrite(boolean videoimageOverwrite) {
             this.videoimageOverwrite = videoimageOverwrite;
         }
@@ -419,6 +437,7 @@ public class JukeboxProperties {
             this.bannerOverwrite     = bannerOverwrite     || newPI.isBannerOverwrite();
             this.videoimageOverwrite = videoimageOverwrite || newPI.isVideoimageOverwrite();
             this.indexOverwrite      = indexOverwrite      || newPI.isIndexOverwrite();
+            this.trailersOverwrite   = trailersOverwrite   || newPI.isTrailersOverwrite();
         }
         
         public String toString() {

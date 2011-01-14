@@ -88,6 +88,7 @@
     <xsl:param name="mjb.forceNFOEncoding">AUTO</xsl:param>
     <xsl:param name="mjb.forcePostersOverwrite">true</xsl:param>
     <xsl:param name="mjb.forceThumbnailsOverwrite">false</xsl:param>
+    <xsl:param name="mjb.forceTrailersOverwrite">false</xsl:param>
     <xsl:param name="mjb.forceVideoImagesOverwrite">false</xsl:param>
     <xsl:param name="mjb.forceXMLOverwrite">false</xsl:param>
     <xsl:param name="mjb.fullMovieInfoInIndexes">true</xsl:param>

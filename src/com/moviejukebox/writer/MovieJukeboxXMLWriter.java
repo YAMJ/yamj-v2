@@ -275,6 +275,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<trailerExchange>")) {
                     movie.setTrailerExchange(parseCData(r).equalsIgnoreCase("YES"));
                 }
+                if (tag.equalsIgnoreCase("<trailerLastScan>")) {
+                    movie.setTrailerLastScan(parseCData(r));
+                }
                 if (tag.equalsIgnoreCase("<container>")) {
                     movie.setContainer(parseCData(r));
                 }
@@ -986,6 +989,13 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("trailerExchange");
         writer.writeCharacters(movie.isTrailerExchange() ? "YES" : "NO");
+        writer.writeEndElement();
+        writer.writeStartElement("trailerLastScan");
+        if (movie.getTrailerLastScan() == 0) {
+            writer.writeCharacters(Movie.UNKNOWN);
+        } else {
+            writer.writeCharacters(Movie.dateFormat.format(movie.getTrailerLastScan()));
+        }
         writer.writeEndElement();
         writer.writeStartElement("container");
         writer.writeCharacters(movie.getContainer());

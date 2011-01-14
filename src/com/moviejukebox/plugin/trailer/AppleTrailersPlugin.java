@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -46,13 +47,13 @@ public class AppleTrailersPlugin {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
 
-
-    private static String  configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
-    private static boolean configDownload = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.download", "false"));
+    private static String  configResolution   = PropertiesUtil.getProperty("appletrailers.resolution", "");
+    private static boolean configDownload     = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.download", "false"));
     private static String  configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
     private static int     configMax;
     private static boolean configTypesInclude = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.typesinclude", "true"));
-    private static String  configReplaceUrl = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
+    private static String  configReplaceUrl   = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
+
     static {
         try {
             configMax = Integer.parseInt(PropertiesUtil.getProperty("appletrailers.max", "0"));
@@ -67,38 +68,24 @@ public class AppleTrailersPlugin {
         webBrowser = new WebBrowser();
     }
 
-    // TODO Check to see any previously downloaded trailers physically exist and then recheck them
-    public void generate(Movie movie) {
+    public boolean generate(Movie movie) {
 
         // Check if trailer resolution was selected
         if (configResolution.equals("")) {
-            return;
+            return false;
         }
-
-        // Check if this movie was already checked for trailers
-        if (movie.isTrailerExchange()) {
-            logger.finest("AppleTrailers Plugin: Movie has previously been checked for trailers, skipping.");
-            return;
-        }
-
-        if (movie.isExtra()) {
-            return;
-        }
-
-        if (movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-            return;
-        }
-
-        String movieName = movie.getOriginalTitle();
         
+        String movieName = movie.getOriginalTitle();
+
         String trailerPageUrl = getTrailerPageUrl(movieName);
         
+        movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
+
         if (trailerPageUrl == Movie.UNKNOWN) {
             logger.finer("AppleTrailers Plugin: Trailer not found for " + movie.getBaseName());
-            movie.setTrailerExchange(true);
-            return;
+            return false;
         }
-        
+
         ArrayList<String> trailersUrl = new ArrayList<String>();
         ArrayList<String> bestTrailersUrl = new ArrayList<String>();
         
@@ -108,16 +95,18 @@ public class AppleTrailersPlugin {
 
         int trailerCnt = bestTrailersUrl.size();
         int trailerDownloadCnt = 0;
-        
+
         if (trailerCnt == 0) {
             logger.finest("AppleTrailers Plugin: No trailers found for " + movie.getBaseName());
-            return;
+            return false;
         }
+
+        boolean isExchangeOk = false;
 
         for (int i=0; i < trailerCnt; i++) {            
         
             if (trailerDownloadCnt >= configMax) {
-                logger.finest("AppleTrailers Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? "trailer" : "trailers"));
+                logger.finest("AppleTrailers Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
                 break;
             }
         
@@ -183,11 +172,11 @@ public class AppleTrailersPlugin {
                 
                     tmf.setFilename(trailerPlayFileName);
                     movie.addExtraFile(new ExtraFile(tmf));
-                    //movie.setTrailer(true);
+                    isExchangeOk = true;
                 } else if (trailerDownload(movie, trailerRealUrl, trailerFile)) {
                     tmf.setFilename(trailerPlayFileName);
                     movie.addExtraFile(new ExtraFile(tmf));
-                    //movie.setTrailer(true);
+                    isExchangeOk = true;
                 }
             } else {
                 // Just link to the trailer
@@ -200,11 +189,11 @@ public class AppleTrailersPlugin {
                 }
                 tmf.setFilename(trailerRealUrl);
                 movie.addExtraFile(new ExtraFile(tmf));
-                //movie.setTrailer(true);
+                isExchangeOk = true;
             }
         }
         
-        movie.setTrailerExchange(true);
+        return isExchangeOk;
     }
     
     private String getTrailerPageUrl(String movieName) {
@@ -631,7 +620,7 @@ public class AppleTrailersPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.severe("AppleTrailers Plugin: Download Exception");
+            logger.severe("AppleTrailers Plugin: Download Exception: " + error);
             return false;
         } finally {
             timer.cancel();         // Close the timer
