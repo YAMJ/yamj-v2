@@ -1157,7 +1157,16 @@ public class MovieJukebox {
             
             // If forceSkinOverwrite is set, the user properties file doesn't exist or is newer than the skin.date file
             if (forceSkinOverwrite || !propFile.exists() || FileTools.isNewer(propFile, skinFile)) {
-                logger.fine("Copying skin files to Jukebox directory...");
+                if (forceSkinOverwrite) {
+                    logger.fine("Copying skin files to Jukebox directory (forceSkinOverwrite)...");
+                } else if (!propFile.exists()) {
+                    logger.fine("Copying skin files to Jukebox directory (No property file)...");
+                } else if (FileTools.isNewer(propFile, skinFile)) {
+                    logger.fine("Copying skin files to Jukebox directory (" + propFile.getName() + " is newer)...");
+                } else {
+                    logger.fine("Copying skin files to Jukebox directory...");
+                }
+                
                 FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxRootLocationDetails(), true);
                 if (skinFile.exists()) {
                     skinFile.setLastModified(timeStart);
