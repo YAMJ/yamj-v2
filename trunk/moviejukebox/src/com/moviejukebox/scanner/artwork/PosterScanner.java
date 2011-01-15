@@ -17,6 +17,7 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -231,7 +232,8 @@ public class PosterScanner {
 
         if (foundLocalPoster) {
             fullPosterFilename = localPosterFile.getAbsolutePath();
-            logger.finer("PosterScanner: Local poster file " + fullPosterFilename + " found");
+            Dimension imageSize = getFileImageSize(localPosterFile);
+            logger.finer("PosterScanner: Local poster file " + fullPosterFilename + " found, size " + imageSize.width + " x " + imageSize.height);
 
             String safePosterFilename         = movie.getPosterFilename();
             String finalJukeboxPosterFileName = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename);
@@ -465,4 +467,45 @@ public class PosterScanner {
             movie.setPosterSubimage(posterImage.getSubimage());
         }
     }
+
+    /**
+     * Return the dimensions of a local image file
+     * @param imageFile
+     * @return Dimension
+     */
+    public static Dimension getFileImageSize(File imageFile) {
+        Dimension imageSize = new Dimension(0, 0);
+        
+        ImageInputStream in = null;
+        try {
+            in = ImageIO.createImageInputStream(imageFile);
+            @SuppressWarnings("rawtypes")
+            Iterator readers = ImageIO.getImageReaders(in);
+            if (readers.hasNext()) {
+                ImageReader reader = (ImageReader) readers.next();
+                try {
+                    reader.setInput(in);
+                    return new Dimension(reader.getWidth(0), reader.getHeight(0));
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } finally {
+                    reader.dispose();
+                }
+            }
+        } catch (IOException e) {
+            return imageSize;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
+        
+        return imageSize;
+    }
+
 }
