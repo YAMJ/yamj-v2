@@ -625,11 +625,11 @@ public class MovieJukebox {
 
         trailersScannerEnable = parseBoolean(getProperty("trailers.scanner.enable", "true"));
         try {
-            trailersRescanDaysMillis = Integer.parseInt(PropertiesUtil.getProperty("trailers.rescan.Days", "15"));
-            // Convert trailers.rescan.Days from DAYS to MILLISECONDS for comparison purposes
+            trailersRescanDaysMillis = Integer.parseInt(PropertiesUtil.getProperty("trailers.rescan.days", "15"));
+            // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
             trailersRescanDaysMillis *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         } catch (Exception e) {
-            logger.severe("Error trailers.rescan.Days property, should be an integer");
+            logger.severe("Error trailers.rescan.days property, should be an integer");
             throw e;
         }
 

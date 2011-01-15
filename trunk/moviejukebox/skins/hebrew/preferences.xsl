@@ -26,6 +26,8 @@
 
 <xsl:param name="mjb.forceBannersOverwrite"/>
 
+<xsl:param name="mjb.forceTrailersOverwrite"/>
+
 <xsl:param name="mjb.forceVideoImagesOverwrite"/>
 
 <xsl:param name="mjb.nmtRootPath"/>
