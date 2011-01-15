@@ -32,12 +32,18 @@ import com.moviejukebox.allocine.jaxb.*;
 
 public class MovieInfos extends Movie {
 
-    private static final Pattern ageRegex = Pattern.compile("\\s(\\d{1,2})\\san");
-    private LinkedHashSet<String> actors;
-    private LinkedHashSet<String> writers;
-    private LinkedHashSet<String> directors;
+    private static final Pattern AGE_REGEXP             = Pattern.compile("\\s(\\d{1,2})\\san");
+    private Set<String>          actors;
+    private Set<String>          writers;
+    private Set<String>          directors;
 
-    public String getSynopsis() {
+    // Constants
+    private static final int     ACTOR_ACTIVITY_CODE    = 8001;
+    private static final int     DIRECTOR_ACTIVITY_CODE = 8002;
+    private static final int     WRITER_ACTIVITY_CODE   = 8004;
+    private static final int     SCRIPT_ACTIVITY_CODE   = 8043;
+
+    public final String getSynopsis() {
         String synopsis = "";
         for (Object obj : getHtmlSynopsis().getContent()) {
             String str = "";
@@ -56,7 +62,7 @@ public class MovieInfos extends Movie {
         return synopsis;
     }
 
-    public int getRating() {
+    public final int getRating() {
         float note   = 0;
         int   sum    = 0;
         int   result = -1;
@@ -74,10 +80,10 @@ public class MovieInfos extends Movie {
         return result;
     }
 
-    public String getCertification() {
+    public final String getCertification() {
         String certification = "All"; // Default value
         if (!StringUtils.isBlank(getMovieCertificate())) {
-            Matcher match    = ageRegex.matcher(getMovieCertificate());
+            Matcher match    = AGE_REGEXP.matcher(getMovieCertificate());
             if (match.find()) {
                 certification=match.group(1);
             }
@@ -85,7 +91,7 @@ public class MovieInfos extends Movie {
         return certification;
     }
 
-    protected void parseCasting() {
+    protected final void parseCasting() {
         if (actors == null) {
             actors = new LinkedHashSet<String>();
         }
@@ -98,13 +104,13 @@ public class MovieInfos extends Movie {
         LinkedHashSet<String> scripts = new LinkedHashSet<String>();
 
         for (CastMember member : getCasting()) {
-            if (member.getActivity().getCode() == 8001) {        // actor
+            if (member.getActivity().getCode() == ACTOR_ACTIVITY_CODE) {
                 actors.add(member.getPerson());
-            } else if (member.getActivity().getCode() == 8002) { // director
+            } else if (member.getActivity().getCode() == DIRECTOR_ACTIVITY_CODE) {
                 directors.add(member.getPerson());
-            } else if (member.getActivity().getCode() == 8004) { // writer
+            } else if (member.getActivity().getCode() == WRITER_ACTIVITY_CODE) {
                 writers.add(member.getPerson());
-            } else if (member.getActivity().getCode() == 8043) { // script
+            } else if (member.getActivity().getCode() == SCRIPT_ACTIVITY_CODE) {
                 scripts.add(member.getPerson());
             }
         }
@@ -112,21 +118,21 @@ public class MovieInfos extends Movie {
         writers.addAll(scripts);
     }
 
-    public Set<String> getActors() {
+    public final Set<String> getActors() {
         if (actors == null) {
             parseCasting();
         }
         return actors;
     }
 
-    public Set<String> getDirectors() {
+    public final Set<String> getDirectors() {
         if (directors == null) {
             parseCasting();
         }
         return directors;
     }
 
-    public Set<String> getWriters() {
+    public final Set<String> getWriters() {
         if (writers == null) {
             parseCasting();
         }

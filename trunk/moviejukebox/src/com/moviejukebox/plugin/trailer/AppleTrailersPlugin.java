@@ -23,7 +23,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Date;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -68,7 +69,7 @@ public class AppleTrailersPlugin {
         webBrowser = new WebBrowser();
     }
 
-    public boolean generate(Movie movie) {
+    public final boolean generate(Movie movie) {
 
         // Check if trailer resolution was selected
         if (configResolution.equals("")) {
@@ -78,7 +79,7 @@ public class AppleTrailersPlugin {
         String movieName = movie.getOriginalTitle();
 
         String trailerPageUrl = getTrailerPageUrl(movieName);
-        
+
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
         if (trailerPageUrl == Movie.UNKNOWN) {
@@ -86,32 +87,29 @@ public class AppleTrailersPlugin {
             return false;
         }
 
-        ArrayList<String> trailersUrl = new ArrayList<String>();
-        ArrayList<String> bestTrailersUrl = new ArrayList<String>();
-        
+        LinkedHashSet<String> trailersUrl     = new LinkedHashSet<String>();
+        LinkedHashSet<String> bestTrailersUrl = new LinkedHashSet<String>();
+
         getTrailerSubUrl(trailerPageUrl, trailersUrl);
-        
+
         selectBestTrailer(trailersUrl, bestTrailersUrl);
 
-        int trailerCnt = bestTrailersUrl.size();
         int trailerDownloadCnt = 0;
 
-        if (trailerCnt == 0) {
+        if (bestTrailersUrl.isEmpty()) {
             logger.finest("AppleTrailers Plugin: No trailers found for " + movie.getBaseName());
             return false;
         }
 
         boolean isExchangeOk = false;
 
-        for (int i=0; i < trailerCnt; i++) {            
-        
+        for (String trailerRealUrl : bestTrailersUrl) {
+
             if (trailerDownloadCnt >= configMax) {
                 logger.finest("AppleTrailers Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
                 break;
             }
-        
-            String trailerRealUrl = bestTrailersUrl.get(i);
-            
+
             // Add the trailer URL to the movie
             MovieFile tmf = new MovieFile();
             tmf.setTitle("TRAILER-" + getTrailerTitle(trailerRealUrl));
@@ -146,18 +144,18 @@ public class AppleTrailersPlugin {
                     parentPath = parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1);
                     basename = parentPath.substring(parentPath.lastIndexOf(File.separator) + 1);
                 } else {
-                    int index = name.lastIndexOf(".");
+                    int index = name.lastIndexOf('.');
                     basename = index == -1 ? name : name.substring(0, index);
                 }
                 
                 String trailerAppleName = getFilenameFromUrl(trailerRealUrl);
-                String trailerAppleExt = trailerAppleName.substring(trailerAppleName.lastIndexOf("."));
-                trailerAppleName = trailerAppleName.substring(0, trailerAppleName.lastIndexOf("."));
-                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-" + trailerAppleName + "]" + trailerAppleExt);
-                String trailerFileName = parentPath + File.separator + trailerBasename;
-                
-                int slash = mf.getFilename().lastIndexOf("/");
-                String playPath = slash == -1 ? mf.getFilename() : mf.getFilename().substring(0, slash);
+                String trailerAppleExt  = trailerAppleName.substring(trailerAppleName.lastIndexOf('.'));
+                trailerAppleName        = trailerAppleName.substring(0, trailerAppleName.lastIndexOf('.'));
+                String trailerBasename  = FileTools.makeSafeFilename(basename + ".[TRAILER-" + trailerAppleName + "]" + trailerAppleExt);
+                String trailerFileName  = parentPath + File.separator + trailerBasename;
+
+                int slash                  = mf.getFilename().lastIndexOf('/');
+                String playPath            = slash == -1 ? mf.getFilename() : mf.getFilename().substring(0, slash);
                 String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
                 
                 logger.finest("AppleTrailers Plugin: Found trailer: " + trailerRealUrl);
@@ -180,12 +178,10 @@ public class AppleTrailersPlugin {
                 }
             } else {
                 // Just link to the trailer
-                int underscore = trailerRealUrl.lastIndexOf("_");
-                if (underscore > 0) {
-                    if (trailerRealUrl.substring(underscore + 1, underscore + 2).equals("h")) {
-                        // remove the "h" from the trailer url for streaming
-                        trailerRealUrl = trailerRealUrl.substring(0, underscore + 1) + trailerRealUrl.substring(underscore + 2);
-                    }
+                int underscore = trailerRealUrl.lastIndexOf('_');
+                if (underscore > 0 && trailerRealUrl.substring(underscore + 1, underscore + 2).equals("h")) {
+                    // remove the "h" from the trailer url for streaming
+                    trailerRealUrl = trailerRealUrl.substring(0, underscore + 1) + trailerRealUrl.substring(underscore + 2);
                 }
                 tmf.setFilename(trailerRealUrl);
                 movie.addExtraFile(new ExtraFile(tmf));
@@ -197,45 +193,50 @@ public class AppleTrailersPlugin {
     }
     
     private String getTrailerPageUrl(String movieName) {
+        String doubleQuoteComma = "\",";
+        String titleKey         = "\"title\":\"";
+        String locationKey      = "\"location\":\"";
+
         try {
-            String searchURL = "http://trailers.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q=" + URLEncoder.encode(movieName, "UTF-8");
+            String searchURL = "http://trailers.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q="
+                    + URLEncoder.encode(movieName, "UTF-8");
 
             String xml = webBrowser.request(searchURL);
 
             int index = 0;
             int endIndex = 0;
             while (true) {
-                index = xml.indexOf("\"title\":\"", index);
+                index = xml.indexOf(titleKey, index);
                 if (index == -1) {
                     break;
                 }
 
-                index += 9;
+                index += titleKey.length();
 
-                endIndex = xml.indexOf("\",", index);
+                endIndex = xml.indexOf(doubleQuoteComma, index);
                 if (endIndex == -1) {
                     break;
                 }
 
                 String trailerTitle = decodeEscapeICU(xml.substring(index, endIndex));
 
-                index = endIndex + 2;
+                index = endIndex + doubleQuoteComma.length();
 
-                index = xml.indexOf("\"location\":\"", index);
+                index = xml.indexOf(locationKey, index);
                 if (index == -1) {
                     break;
                 }
 
-                index += 12;
+                index += locationKey.length();
 
-                endIndex = xml.indexOf("\",", index);
+                endIndex = xml.indexOf(doubleQuoteComma, index);
                 if (endIndex == -1) {
                     break;
                 }
 
                 String trailerLocation = decodeEscapeICU( xml.substring(index, endIndex) );
 
-                index = endIndex + 2;
+                index = endIndex + doubleQuoteComma.length();
                 
                 if (trailerTitle.equalsIgnoreCase(movieName)) {
                     String trailerUrl;
@@ -265,7 +266,7 @@ public class AppleTrailersPlugin {
         return Movie.UNKNOWN;
     }
     
-    private void getTrailerSubUrl(String trailerPageUrl, ArrayList<String> trailersUrl) {
+    private void getTrailerSubUrl(String trailerPageUrl, Set<String> trailersUrl) {
         try {
         
             String xml = webBrowser.request(trailerPageUrl);
@@ -352,115 +353,40 @@ public class AppleTrailersPlugin {
         }
     }
 
-    private void getTrailerMovieUrl(String xml, ArrayList<String> trailersUrl) {
+    private void getTrailerMovieUrl(String xml, Set<String> trailersUrl) {
         Matcher m = Pattern.compile("http://(movies|images|trailers).apple.com/movies/[^\"]+?-(tlr|trailer)[^\"]+?\\.(mov|m4v)").matcher(xml);
         while (m.find()) {
             String movieUrl = m.group();
-            boolean duplicate = false;
+            trailersUrl.add(movieUrl);
+        }
+    }
 
-            // Check for duplicate
-            for (int i=0;i<trailersUrl.size();i++) {
-            
-                if (trailersUrl.get(i).equals(movieUrl)) {
-                    duplicate = true;
+    private void selectBestTrailer(Set<String> trailersUrl, Set<String> bestTrailersUrl) {
+
+        String[] resolutionArray = { "1080p", "720p", "480p", "640", "480" };
+        boolean startSearch = false;
+
+        for (String resolution : resolutionArray) {
+            if (configResolution.equals(resolution)) {
+                startSearch = true;
+            }
+            if (startSearch) {
+                for (String curURL : trailersUrl) {
+                    // Search for a specific resolution
+                    if (curURL.indexOf(resolution) != -1) {
+                        addTailerRealUrl(bestTrailersUrl, curURL);
+                    }
                 }
             }
-        
-            if (!duplicate) {
-                trailersUrl.add(movieUrl);
+
+            if (!bestTrailersUrl.isEmpty()) {
+                break;
             }
         }
     }
 
-    private void selectBestTrailer(ArrayList<String> trailersUrl,ArrayList<String> bestTrailersUrl) {
-        
-        if (configResolution.equals("1080p")) {
-            // Search for 1080p
-            for (int i=0;i<trailersUrl.size();i++) {
-                
-                String curURL = trailersUrl.get(i);
-                            
-                if (curURL.indexOf("1080p")!=-1) {
-                    addTailerRealUrl(bestTrailersUrl,curURL);
-                }
-            }
-            
-            if (!bestTrailersUrl.isEmpty()) {
-                return;
-            }
-        }
-
-        if ((configResolution.equals("1080p")) || (configResolution.equals("720p"))) {
-            // Search for 720p
-            for (int i=0;i<trailersUrl.size();i++) {
-                
-                String curURL = trailersUrl.get(i);
-                
-                if (curURL.indexOf("720p")!=-1) {
-                    addTailerRealUrl(bestTrailersUrl,curURL);
-                }
-            }
-
-            if (!bestTrailersUrl.isEmpty()) {
-                return;
-            }
-        }
-
-        if ((configResolution.equals("1080p")) ||
-            (configResolution.equals("720p")) ||
-            (configResolution.equals("480p"))) {
-            // Search for 480p
-            for (int i=0;i<trailersUrl.size();i++) {
-                
-                String curURL = trailersUrl.get(i);
-                
-                if (curURL.indexOf("480p")!=-1) {
-                    addTailerRealUrl(bestTrailersUrl,curURL);
-                }
-            }
-
-            if (!bestTrailersUrl.isEmpty()) {
-                return;
-            }
-        }
-
-        // Search for 640
-        for (int i=0;i<trailersUrl.size();i++) {
-            
-            String curURL = trailersUrl.get(i);
-            
-            if (curURL.indexOf("640")!=-1) {
-                addTailerRealUrl(bestTrailersUrl,curURL);
-            }
-        }
-
-        if (!bestTrailersUrl.isEmpty()) {
-            return;
-        }
-        
-        // Search for 480
-        for (int i=0;i<trailersUrl.size();i++) {
-            
-            String curURL = trailersUrl.get(i);
-            
-            if (curURL.indexOf("480")!=-1) {
-                addTailerRealUrl(bestTrailersUrl,curURL);
-            }
-        }
-        
-    }
-
-    private void addTailerRealUrl(ArrayList<String> bestTrailersUrl,String trailerUrl) {
-    
+    private void addTailerRealUrl(Set<String> bestTrailersUrl, String trailerUrl) {
         String trailerRealUrl = getTrailerRealUrl(trailerUrl);
-        
-        // Check for duplicate
-        for (int i=0;i<bestTrailersUrl.size();i++) {
-            if (bestTrailersUrl.get(i).equals(trailerRealUrl)) {
-                return;
-            }
-        }
-        
         bestTrailersUrl.add(trailerRealUrl);
     }
 
@@ -529,24 +455,22 @@ public class AppleTrailersPlugin {
         return title;
     }
     
-    private String getAbsUrl(String baseUrl,String relativeUrl) {
+    private String getAbsUrl(String baseUrl, String relativeUrl) {
         try {
-            URL BaseURL = new URL(baseUrl);
-            URL AbsURL = new URL(BaseURL, relativeUrl);
-            String AbsUrl = AbsURL.toString();
-            
-            return AbsUrl;
+            URL baseURL = new URL(baseUrl);
+            URL absURL = new URL(baseURL, relativeUrl);
+            return absURL.toString();
         } catch (Exception error) {
             return Movie.UNKNOWN;
         }
     }
-    
+
     private String decodeEscapeICU(String s) {
         String r = "";
 
         int i=0;
         while (i < s.length()) {
-            // Check ICU esacaping
+            // Check ICU escaping
             if ((s.charAt(i) == '%') && (i+5 < s.length()) && (s.charAt(i+1) == 'u')) {
 
                 String value=s.substring(i+2,i+6);
@@ -588,6 +512,7 @@ public class AppleTrailersPlugin {
         try {
             logger.fine("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
             final WebStats stats = WebStats.make(url);
+            final long reportDelay = 1000; // 1 second
             // after make!
             timer.schedule(new TimerTask() {
                 private String lastStatus = "";
@@ -602,7 +527,7 @@ public class AppleTrailersPlugin {
                     // try to keep it visible at least...
                     System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString());
                 }
-            }, 1000, 1000);
+            }, reportDelay, reportDelay);
 
             connection = (HttpURLConnection) (url.openConnection());
             connection.setRequestProperty("User-Agent", "QuickTime/7.6.2");

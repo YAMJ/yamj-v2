@@ -2,7 +2,6 @@ package com.moviejukebox.allocine;
 
 import java.io.IOException;
 import java.io.File;
-
 import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
@@ -14,21 +13,24 @@ import javax.xml.stream.XMLStreamException;
 import com.moviejukebox.allocine.jaxb.ObjectFactory;
 import com.moviejukebox.allocine.MovieInfos;
 
-public class XMLAllocineAPIHelper {
+public final class XMLAllocineAPIHelper {
 
-    private static final JAXBContext context = initContext();
+    // Suppresses default constructor, ensuring non-instantiability.
+    private XMLAllocineAPIHelper() {
+    }
+
+    private static final JAXBContext JAXB_CONTEXT = initContext();
 
     private static JAXBContext initContext() {
         try {
             return JAXBContext.newInstance("com.moviejukebox.allocine.jaxb");
-        } catch (Exception error) {
-            throw new RuntimeException("XMLAllocineAPIHelper: Got error during initialization", error);
-
+        } catch (JAXBException error) {
+            throw new Error("XMLAllocineAPIHelper: Got error during initialization", error);
         }
     }
 
     protected static Unmarshaller createAllocineUnmarshaller() throws JAXBException {
-        Unmarshaller unmarshaller = context.createUnmarshaller();
+        Unmarshaller unmarshaller = JAXB_CONTEXT.createUnmarshaller();
         // Use our own ObjectFactory so we can add behaviors in our classes
         unmarshaller.setProperty("com.sun.xml.bind.ObjectFactory", new ObjectFactory());
         return unmarshaller;
@@ -42,8 +44,8 @@ public class XMLAllocineAPIHelper {
         return null;
     }
 
-    public static MovieInfos getMovieInfos(String AllocineId) throws IOException, JAXBException, XMLStreamException {
-        URL url = new URL("http://api.allocine.fr/xml/movie?partner=3&profile=large&code=" + AllocineId);
+    public static MovieInfos getMovieInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
+        URL url = new URL("http://api.allocine.fr/xml/movie?partner=3&profile=large&code=" + allocineId);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validMovieElement(unmarshaller.unmarshal(url));
     }
