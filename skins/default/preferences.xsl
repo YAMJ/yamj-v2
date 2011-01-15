@@ -180,6 +180,8 @@
     <xsl:param name="thumbnails.reflectionHeight">12.5</xsl:param>
     <xsl:param name="thumbnails.reflectionStart">0.0</xsl:param>
     <xsl:param name="thumbnails.width">171</xsl:param>
+    <xsl:param name="trailers.scanner.enable">true</xsl:param>
+    <xsl:param name="trailers.rescan.days">15</xsl:param>
     <xsl:param name="videoimages.format">jpg</xsl:param>
     <xsl:param name="videoimages.height">250</xsl:param>
     <xsl:param name="videoimages.language">false</xsl:param>

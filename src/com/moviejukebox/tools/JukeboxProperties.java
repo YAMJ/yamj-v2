@@ -88,7 +88,7 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("posters.logoTV",                      false, true,  false, true,  false, false, false, false, false));
         propInfo.add(new PropertyInformation("posters.language",                    false, true,  false, true,  false, false, false, false, false));
 
-        propInfo.add(new PropertyInformation("trailers.rescan.Days",                false, false, false, false, false, false, false, false, true));
+        propInfo.add(new PropertyInformation("trailers.rescan.days",                false, false, false, false, false, false, false, false, true));
     }
 
     /**
