@@ -13,6 +13,14 @@
 
 package com.moviejukebox.plugin;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -20,12 +28,15 @@ import java.util.regex.Pattern;
 
 import net.anidb.Anime;
 import net.anidb.Episode;
+import net.anidb.checksum.Ed2kChecksum;
 import net.anidb.udp.AniDbException;
 import net.anidb.udp.UdpConnection;
 import net.anidb.udp.UdpConnectionException;
 import net.anidb.udp.UdpConnectionFactory;
 import net.anidb.udp.UdpReturnCodes;
+import net.anidb.udp.mask.AnimeFileMask;
 import net.anidb.udp.mask.AnimeMask;
+import net.anidb.udp.mask.FileMask;
 
 import org.pojava.datetime.DateTime;
 
@@ -53,6 +64,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static final String anidbClientName = "yamj";
     private static final int anidbClientVersion = 1;
     private static int anidbPort = 1025;
+    private static final int ed2kChunkSize = 9728000;
     @SuppressWarnings("unused")
     private static final String webhost = "anidb.net";
     private AnimeMask anidbMask;
@@ -73,6 +85,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static String anidbUsername;
     private static String anidbPassword;
 
+    private static boolean hash;
+    
     public AniDbPlugin() {
         preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
         
@@ -87,6 +101,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         
         anidbUsername = PropertiesUtil.getProperty("anidb.username", null);
         anidbPassword = PropertiesUtil.getProperty("anidb.password", null);
+        String str = PropertiesUtil.getProperty("anidb.useHashIdentification", null);
+        hash = PropertiesUtil.getProperty("anidb.useHashIdentification", null).equals("true") ? true : false;
         
         //XXX Debug
         if (anidbUsername == null && anidbPassword == null) {
@@ -100,13 +116,17 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     @Override
     public boolean scan(Movie movie) {
         logger.fine(logMessage + "Scanning as a Movie");
-        return anidbScan(movie);
+        return hash ? anidbHashScan(movie) : anidbScan(movie);
     }
 
     @Override
     public void scanTVShowTitles(Movie movie) {
         logger.fine(logMessage + "Scanning as a TV Show");
-        anidbScan(movie);
+        if (hash) {
+            anidbHashScan(movie);
+        } else {
+            anidbScan(movie);
+        }
         return;
     }
     
@@ -264,6 +284,64 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return true;
     }
     
+    private boolean anidbHashScan(Movie movie) {
+        // TODO: Merge this into the normal scan method once it's stable
+        if (!anidbConnectionProtection) {
+            anidbOpen();
+        }
+
+        String hash = getEd2kChecksum(movie.getFile());
+        if (hash.equals("")) {
+            return false;
+        }
+        net.anidb.File file = null;
+        try {
+            file = getAnimeEpisodeByHash(movie.getFile().length(), hash);
+        } catch (UdpConnectionException e) {
+            // TODO: Handle this
+            e.printStackTrace();
+            return false;
+        } catch (AniDbException e) {
+            // TODO Handle this
+            e.printStackTrace();
+            return false;
+        }
+
+        logger.fine("Romaji name: " + file.getEpisode().getAnime().getRomajiName());
+        logger.fine("Type: " + file.getEpisode().getAnime().getType());
+        logger.fine("Description: " + file.getDescription());
+        logger.fine("Year: " + file.getEpisode().getAnime().getYear());
+
+        movie.setOriginalTitle(file.getEpisode().getAnime().getRomajiName());
+        if (file.getEpisode().getAnime().getType().equals("Movie")) { // Assume anything not a movie is a TV show
+            movie.setMovieType(Movie.TYPE_MOVIE);
+        } else {
+            movie.setMovieType(Movie.TYPE_TVSHOW);
+        }
+        movie.setYear(file.getEpisode().getAnime().getYear());
+        return true;
+    }
+
+    private String getEd2kChecksum(File file) {
+        try {
+            FileInputStream fi = new FileInputStream(file);
+            Ed2kChecksum ed2kChecksum = new Ed2kChecksum();
+            byte[] buffer = new byte[9728000];
+            int k = -1;
+            while ((k = fi.read(buffer, 0, buffer.length)) > 0) {
+                ed2kChecksum.update(buffer, 0, k);
+            }
+            return ed2kChecksum.getHexDigest();
+        } catch (FileNotFoundException e) {
+            // This shouldn't happen
+            logger.severe("Unable to find the file " + file.getAbsolutePath());
+        } catch (IOException e) {
+            logger.severe("Encountered an IO-error while reading file " + file.getAbsolutePath());
+            e.printStackTrace();
+        }
+        return "";
+    }
+    
     /**
      * Search for the Anime description
      * @param animeId
@@ -289,6 +367,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     public Anime getAnimeByName(String animeName) throws UdpConnectionException, AniDbException {
         Anime anime = anidbConn.getAnime(animeName, anidbMask);
         return anime;
+    }
+    
+    public net.anidb.File getAnimeEpisodeByHash(long size, String hash) throws UdpConnectionException, AniDbException {
+        List<net.anidb.File> results = anidbConn.getFiles(size, hash, FileMask.ALL, AnimeFileMask.ALL);
+        return results.get(0); // Unsure how we'd get more than one result here.
     }
     
     /**
@@ -324,6 +407,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      */
     public Episode getEpisode(String animeName, long episodeNumber) throws UdpConnectionException, AniDbException {
         return anidbConn.getEpisode(animeName, episodeNumber);
+    }
+    
+    public net.anidb.Character getCharacter(long characterId) throws UdpConnectionException, AniDbException {
+        return anidbConn.getCharacter(characterId);
     }
     
     /**
@@ -438,7 +525,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             // We don't care about this exception
         }
     }
-
+    
     /**
      * Hold information about the AniDb video file
      * @author stuart.boston
