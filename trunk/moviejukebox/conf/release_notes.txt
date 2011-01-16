@@ -43,6 +43,7 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1763 Orphaned File in Jukebox Folder Finder
  - Enhancement  #1768 ComingSoon plugin enhancements
  - Enhancement  #1770 ComingSoon trailer download
+ - Fixed defect #1784 Details page's XML deleted if Jukebox Clean (-c) and HTML turned off (-h)
  - Enhancement  #1778 Add total number of titles to the XML files
 
 MovieJukebox 2.2
