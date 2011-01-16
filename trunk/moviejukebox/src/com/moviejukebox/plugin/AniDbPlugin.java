@@ -66,8 +66,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static final String ANIDB_CLIENT_NAME = "yamj";
     private static final int ANIDB_CLIENT_VERSION = 1;
     private static int anidbPort;
-    @SuppressWarnings("unused")
-    private static final int ED2k_CHUNK_SIZE = 9728000;
+    private static final int ED2K_CHUNK_SIZE = 9728000;
     @SuppressWarnings("unused")
     private static final String WEBHOST = "anidb.net";
     private AnimeMask anidbMask;
@@ -331,7 +330,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         try {
             FileInputStream fi = new FileInputStream(file);
             Ed2kChecksum ed2kChecksum = new Ed2kChecksum();
-            byte[] buffer = new byte[ED2k_CHUNK_SIZE];
+            byte[] buffer = new byte[ED2K_CHUNK_SIZE];
             int k = -1;
             while ((k = fi.read(buffer, 0, buffer.length)) > 0) {
                 ed2kChecksum.update(buffer, 0, k);

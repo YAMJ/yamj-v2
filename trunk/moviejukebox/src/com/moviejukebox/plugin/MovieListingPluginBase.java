@@ -30,6 +30,8 @@ import java.io.File;
 public class MovieListingPluginBase implements MovieListingPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
+    protected static final String UNDEFINED = "UNDEFINED";
+
     protected boolean groupByType = true;
     protected boolean blankUNKNOWN = true;
     protected String baseFilename = "";
@@ -39,8 +41,8 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      * @param jukeboxRoot
      */
     protected void initialize(Jukebox jukebox) {
-        groupByType = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.GroupByType", "true"));
-        blankUNKNOWN = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.listing.clear.UNKNOWN", "true"));
+        groupByType = PropertiesUtil.getBooleanProperty("mjb.listing.GroupByType", "true");
+        blankUNKNOWN = PropertiesUtil.getBooleanProperty("mjb.listing.clear.UNKNOWN", "true");
         baseFilename = PropertiesUtil.getProperty("mjb.listing.output.filename", "MovieJukebox-listing");
         destination = PropertiesUtil.getProperty("mjb.listing.output.destination", jukebox.getJukeboxRootLocation());
     } // initialize()
