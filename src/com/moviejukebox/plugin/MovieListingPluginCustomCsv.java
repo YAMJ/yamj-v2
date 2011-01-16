@@ -307,7 +307,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     private String prep(String input) {
         String str = input;
         
-        if (null == str || (blankUNKNOWN && UNKNOWN.equals(str))) {
+        if (null == str || (blankUNKNOWN && (UNKNOWN.equals(str) || UNDEFINED.equals(str)))) {
             // clean 'UNKNOWN' values
             str = "";
         }        

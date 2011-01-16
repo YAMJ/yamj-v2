@@ -623,8 +623,11 @@ public class MediaInfoScanner {
                     if (StringTools.isNotValidString(oldInfo) || oldInfo.equalsIgnoreCase("NO")) {
                         movie.setSubtitles(infoLanguage);
                     } else {
-                        // Don't overwrite what is there currently
-                        movie.setSubtitles(oldInfo + " / " + infoLanguage);
+                        // Check to see if the language already exists in the list
+                        if (!oldInfo.contains(infoLanguage)) {
+                            // Don't overwrite what is there currently
+                            movie.setSubtitles(oldInfo + " / " + infoLanguage);
+                        }
                     }
                 } else {
                     logger.finest("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);

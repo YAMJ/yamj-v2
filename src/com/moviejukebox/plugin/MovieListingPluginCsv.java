@@ -170,7 +170,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
     protected String prepOutput(String str, boolean bAddComma) {
         if (null == str) {
             str = "";
-        } else if (blankUNKNOWN && UNKNOWN.equals(str)) {
+        } else if (blankUNKNOWN && (UNKNOWN.equals(str) || UNDEFINED.equals(str))) {
             // clean 'UNKNOWN' values
             str = "";
         }
