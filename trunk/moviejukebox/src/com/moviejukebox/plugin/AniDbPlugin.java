@@ -120,17 +120,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     @Override
     public boolean scan(Movie movie) {
         logger.fine(LOG_MESSAGE + "Scanning as a Movie");
-        return hash ? anidbHashScan(movie) : anidbScan(movie);
+        return anidbScan(movie);
     }
 
     @Override
     public void scanTVShowTitles(Movie movie) {
         logger.fine(LOG_MESSAGE + "Scanning as a TV Show");
-        if (hash) {
-            anidbHashScan(movie);
-        } else {
-            anidbScan(movie);
-        }
+        anidbScan(movie);
         return;
     }
     
@@ -153,46 +149,51 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         
         // Now process the movie
         logger.fine(LOG_MESSAGE + "Logged in and searching for " + movie.getBaseFilename());
-        
-        Matcher titleMatch = Pattern.compile(REGEX_TVSHOW).matcher(movie.getBaseFilename());
-        String episode = Movie.UNKNOWN;
-        String remainder = Movie.UNKNOWN;
-        String crc = Movie.UNKNOWN;
-        
-        if (titleMatch.find()) {
-            // If this matches then this is a TV Show
-            logger.fine(LOG_MESSAGE + "Matched as a TV Show");
-            movie.setMovieType(Movie.TYPE_TVSHOW);
-            movie.setSeason(1);
-            movie.setTitle(cleanString(titleMatch.group(2)));
-            movie.setOriginalTitle(movie.getTitle());
-            episode = titleMatch.group(3);
-            remainder = titleMatch.group(5);
-
-            if (isValidString(remainder)) {
-                Matcher crcMatch = Pattern.compile(CRC_REGEX).matcher(remainder);
-                if (crcMatch.find()) {
-                    crc = crcMatch.group(2);
-                    remainder = remainder.replace(crc, "");
-                }
+        if (hash) {
+            if (!anidbHashScan(movie)) {
+                return false;
             }
         } else {
-            logger.fine(LOG_MESSAGE + "Assuming a movie");
-            titleMatch = Pattern.compile(REGEX_MOVIE).matcher(movie.getBaseFilename());
+            Matcher titleMatch = Pattern.compile(REGEX_TVSHOW).matcher(movie.getBaseFilename());
+            String episode = Movie.UNKNOWN;
+            String remainder = Movie.UNKNOWN;
+            String crc = Movie.UNKNOWN;
+            
             if (titleMatch.find()) {
-                // 4 groups: 1=Scene Group, 2=Anime Name, 3=CRC, 4=Remainder
+                // If this matches then this is a TV Show
+                logger.fine(LOG_MESSAGE + "Matched as a TV Show");
+                movie.setMovieType(Movie.TYPE_TVSHOW);
+                movie.setSeason(1);
                 movie.setTitle(cleanString(titleMatch.group(2)));
                 movie.setOriginalTitle(movie.getTitle());
-                crc = titleMatch.group(3);
-                remainder = titleMatch.group(4);
+                episode = titleMatch.group(3);
+                remainder = titleMatch.group(5);
+    
+                if (isValidString(remainder)) {
+                    Matcher crcMatch = Pattern.compile(CRC_REGEX).matcher(remainder);
+                    if (crcMatch.find()) {
+                        crc = crcMatch.group(2);
+                        remainder = remainder.replace(crc, "");
+                    }
+                }
+            } else {
+                logger.fine(LOG_MESSAGE + "Assuming a movie");
+                titleMatch = Pattern.compile(REGEX_MOVIE).matcher(movie.getBaseFilename());
+                if (titleMatch.find()) {
+                    // 4 groups: 1=Scene Group, 2=Anime Name, 3=CRC, 4=Remainder
+                    movie.setTitle(cleanString(titleMatch.group(2)));
+                    movie.setOriginalTitle(movie.getTitle());
+                    crc = titleMatch.group(3);
+                    remainder = titleMatch.group(4);
+                }
+                movie.setMovieType(Movie.TYPE_MOVIE);
             }
-            movie.setMovieType(Movie.TYPE_MOVIE);
+            
+            logger.fine("Title  : " + movie.getTitle());    //XXX: DEBUG
+            logger.fine("Episode: " + (isValidString(episode)? episode : Movie.UNKNOWN));   //XXX: DEBUG
+            logger.fine("CRC    : " + (isValidString(crc)? crc : Movie.UNKNOWN));   //XXX: DEBUG
+            logger.fine("Remain : " + (isValidString(remainder)? remainder : Movie.UNKNOWN));   //XXX: DEBUG
         }
-        
-        logger.fine("Title  : " + movie.getTitle());    //XXX: DEBUG
-        logger.fine("Episode: " + (isValidString(episode)? episode : Movie.UNKNOWN));   //XXX: DEBUG
-        logger.fine("CRC    : " + (isValidString(crc)? crc : Movie.UNKNOWN));   //XXX: DEBUG
-        logger.fine("Remain : " + (isValidString(remainder)? remainder : Movie.UNKNOWN));   //XXX: DEBUG
         
         Anime anime = null;
         String id = movie.getId(ANIDB_PLUGIN_ID);
@@ -294,11 +295,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
     
     private boolean anidbHashScan(Movie movie) {
-        // TODO: Merge this into the normal scan method once it's stable
-        if (!anidbConnectionProtection) {
-            anidbOpen();
-        }
-
         String hash = getEd2kChecksum(movie.getFile());
         if (hash.equals("")) {
             return false;
@@ -321,21 +317,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.severe(eResult.toString());
             return false;
         }
-
-        // XXX: DEBUG
-        logger.fine("Romaji name: " + file.getEpisode().getAnime().getRomajiName());
-        logger.fine("Type: " + file.getEpisode().getAnime().getType());
-        logger.fine("Description: " + file.getDescription());
-        logger.fine("Year: " + file.getEpisode().getAnime().getYear());
-        // XXX: DEBUG END
         
-        movie.setOriginalTitle(file.getEpisode().getAnime().getRomajiName());
+        movie.setId(ANIDB_PLUGIN_ID, file.getEpisode().getAnime().getAnimeId().toString());
         if (file.getEpisode().getAnime().getType().equals("Movie")) { // Assume anything not a movie is a TV show
             movie.setMovieType(Movie.TYPE_MOVIE);
         } else {
             movie.setMovieType(Movie.TYPE_TVSHOW);
         }
-        movie.setYear(file.getEpisode().getAnime().getYear());
         return true;
     }
 
@@ -343,7 +331,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         try {
             FileInputStream fi = new FileInputStream(file);
             Ed2kChecksum ed2kChecksum = new Ed2kChecksum();
-            byte[] buffer = new byte[9728000];
+            byte[] buffer = new byte[ED2k_CHUNK_SIZE];
             int k = -1;
             while ((k = fi.read(buffer, 0, buffer.length)) > 0) {
                 ed2kChecksum.update(buffer, 0, k);
