@@ -1205,6 +1205,8 @@ public class MovieJukeboxXMLWriter {
         File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
         File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + baseName + ".xml");
 
+        FileTools.addJukeboxFile(finalXmlFile.getName());
+        
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty()) {
 
             XMLWriter writer = new XMLWriter(tempXmlFile);
@@ -1239,6 +1241,8 @@ public class MovieJukeboxXMLWriter {
         File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
         
         logger.finest("MovieJukeboxXMLWriter: Writing NFO file for " + movie.getBaseName() + ".nfo");
+        FileTools.addJukeboxFile(tempNfoFile.getName());
+        
         XMLWriter writer = null;
             
         try {
