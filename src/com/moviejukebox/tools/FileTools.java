@@ -343,6 +343,7 @@ public class FileTools {
      * Note that file1 will be checked to see if it's newer than file2
      */
     public static boolean isNewer(File file1, File file2) {
+        // TODO: Update this routine to use fileCache
         // If file1 exists and file2 doesn't then return true
         if (file1.exists()) {
             // If file2 doesn't exist then file1 is newer 
