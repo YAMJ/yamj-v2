@@ -325,10 +325,6 @@ public class MovieNFOScanner {
             if (nfoFile.exists()) {
                 logger.finest("Found NFO: " + nfoFile.getAbsolutePath());
                 nfoFiles.add(nfoFile);
-            } else {
-                // We put this here, even though, technically, we've already searched for the file
-                // so the user will see where they COULD place the file.
-                logger.finest("Checking for NFO: " + checkNFOfilename + "." + ext);
             }
         }
     }
@@ -571,6 +567,11 @@ public class MovieNFOScanner {
                                 } else {
                                     movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, val); // without attribute we assume it's an IMDB Id
                                     logger.finest("In parseMovieNFO Id=" + val + " found for default IMDB");
+                                }
+                                
+                                // Any value of 0 (Zero) or -1 will stop the movie being scraped
+                                if (val.equals("0") || val.equals("-1")) {
+                                    movie.setScrapeLibrary(false);
                                 }
                             }
                         //} else if (tag.equalsIgnoreCase("filenameandpath")) {
