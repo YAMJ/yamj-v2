@@ -103,17 +103,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         
         anidbUsername = PropertiesUtil.getProperty("anidb.username", null);
         anidbPassword = PropertiesUtil.getProperty("anidb.password", null);
-        @SuppressWarnings("unused")
-        String str = PropertiesUtil.getProperty("anidb.useHashIdentification", null);
+        //String str = PropertiesUtil.getProperty("anidb.useHashIdentification", null);
         hash = PropertiesUtil.getProperty("anidb.useHashIdentification", null).equals("true") ? true : false;
         
-        //XXX Debug
-        if (anidbUsername == null && anidbPassword == null) {
-            logger.severe(LOG_MESSAGE + "!!! WARNING !!! USING DEFAULT USERNAME & PASSWORD !!!");
-            anidbUsername = "Omertron";
-            anidbPassword = "anidb";
+        if (anidbUsername == null || anidbPassword == null) {
+            logger.severe(LOG_MESSAGE + "You need to add your AniDb Username & password to the anidb.username & anidb.password properties");
+            anidbConnectionProtection = true;
         }
-        //XXX Debug end
     }
     
     @Override
