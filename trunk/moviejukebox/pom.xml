@@ -267,11 +267,6 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
-  <organization>
-    <name>Yet Another Movie Jukebox</name>
-    <url>http://code.google.com/p/moviejukebox/</url>
-  </organization>
-  
   <ciManagement>
     <system>Hudson CI</system>
     <url>http://mediadeveloper.org:8080/job/YAMJ/</url>
