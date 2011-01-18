@@ -1538,7 +1538,7 @@ public class SratimPlugin extends ImdbPlugin {
     protected String extractMovieTitle(String xml) {
         String result;
         int start = xml.indexOf("<h1 class=\"subtext_view\">");
-        int end = xml.indexOf("</h1>", start);
+        int end = xml.indexOf("<span", start);
         String title = xml.substring(start + 25, end);
         result = HTMLTools.decodeHtml(title);
         return removeTrailBracket(result);
