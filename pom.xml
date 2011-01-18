@@ -12,6 +12,7 @@
     <tag>HEAD</tag>
     <url>http://code.google.com/p/moviejukebox/source/browse</url>
   </scm>
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -260,14 +261,25 @@
     </plugins>
 
   </build>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <organization>
+    <name>Yet Another Movie Jukebox</name>
+    <url>http://code.google.com/p/moviejukebox/</url>
+  </organization>
+  
   <ciManagement>
     <system>Hudson CI</system>
     <url>http://mediadeveloper.org:8080/job/YAMJ/</url>
   </ciManagement>
+  
+  <issueManagement>
+    <system>Google Code</system>
+    <url>http://code.google.com/p/moviejukebox/issues/list</url>
+  </issueManagement>
 
 </project>
