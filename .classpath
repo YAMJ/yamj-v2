@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="lib/fanarttvapi.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
