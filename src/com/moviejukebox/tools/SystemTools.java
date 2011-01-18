@@ -18,6 +18,7 @@ import static com.moviejukebox.tools.StringTools.*;
 
 public class SystemTools {
     private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false"); 
 
     public static class Base64 {
         public static String base64code = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
@@ -50,6 +51,10 @@ public class SystemTools {
      * Show the memory available to the program and optionally try to force a garbage collection
      */
     public static void showMemory(boolean showAll) {
+        if (!showMemory) {
+            return;
+        }
+        
         // Show the long output
         if (showAll) {
             /* This will return Long.MAX_VALUE if there is no preset limit */
