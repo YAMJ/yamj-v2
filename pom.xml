@@ -264,4 +264,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
+
+  <ciManagement>
+    <system>Hudson CI</system>
+    <url>http://mediadeveloper.org:8080/job/YAMJ/</url>
+  </ciManagement>
+
 </project>
