@@ -1,0 +1,267 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.moviejukebox</groupId>
+  <artifactId>yamj</artifactId>
+  <name>Yet Another Movie Jukebox</name>
+  <version>2.3-SNAPSHOT</version>
+  <description>Static analysis of MovieJukebox project</description>
+  <packaging>jar</packaging>
+  <scm>
+    <connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
+    <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>
+    <tag>HEAD</tag>
+    <url>http://code.google.com/p/moviejukebox/source/browse</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.2.2</version>
+      <type>jar</type>
+      <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.xmlrpc</groupId>
+      <artifactId>xmlrpc-client</artifactId>
+      <version>3.1.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pojava</groupId>
+      <artifactId>pojava</artifactId>
+      <version>2.5.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.jhlabs</groupId>
+      <artifactId>filters</artifactId>
+      <version>2.0.235</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mucommander</groupId>
+      <artifactId>mucommander</artifactId>
+      <version>0.8.5</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/mucommanderlight.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>net.anidb</groupId>
+      <artifactId>anidb</artifactId>
+      <version>0.3</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/javaanidbapi-0.3.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>uk.ac.shef.wit</groupId>
+      <artifactId>simmetrics</artifactId>
+      <version>1.6.2</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/simmetrics.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>com.moviejukebox</groupId>
+      <artifactId>thetvdb</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/thetvdbapi.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>com.moviejukebox</groupId>
+      <artifactId>themoviedb</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/themoviedbapi.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>com.moviejukebox</groupId>
+      <artifactId>mjbsqldb</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/mjbSQL.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>com.moviejukebox</groupId>
+      <artifactId>tvrage</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/tvrageapi.jar</systemPath>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
+    <sourceDirectory>src</sourceDirectory>
+    <!-- testSourceDirectory>test</testSourceDirectory -->
+    <!-- ant compiles sources into this directory -->
+    <outputDirectory>build/classes</outputDirectory>
+
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>1.0-beta-3</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <doCheck>false</doCheck>
+          <doUpdate>false</doUpdate>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <failOnError>false</failOnError>
+          <verbose>true</verbose>
+          <!-- excludes><exclude>**/*</exclude></excludes -->
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.4.1</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>build/jaxb</directory>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+            <fileset>
+              <directory>build</directory>
+              <includes>
+                <include>*-xew-summary.txt</include>
+              </includes>
+              <!--
+                   <excludes>
+                     <exclude>**/important.log</exclude>
+                     <exclude>**/another-important.log</exclude>
+                   </excludes>
+               -->
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Tache permettant d'afficher le classpath utilisé lors de l'execution de maven. -->
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+
+          <execution>
+            <id>print-maven-runtime-classpath</id>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <property name="compile.classpath" refid="maven.compile.classpath" />
+                <echo message="maven.compile.classpath=${compile-classpath}" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>jaxb</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <tasks>
+                <mkdir dir="${basedir}/build/jaxb/com/moviejukebox/allocine/jaxb" />
+                <path id="cp.jaxb">
+                  <fileset dir="${basedir}/lib/jaxb" includes="*.jar" />
+                </path>
+                <!-- classpath for xew plugin -->
+                <path id="cp.plugin">
+                  <fileset dir="${basedir}/lib/xjc-plugin" includes="*.jar" />
+                </path>
+
+                <!-- Ant task definition for the xjc tool -->
+                <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+                  <classpath>
+                    <path refid="cp.jaxb" />
+                    <path refid="cp.plugin" />
+                  </classpath>
+                </taskdef>
+
+                <xjc destdir="${basedir}/build/jaxb" package="com.moviejukebox.allocine.jaxb" extension="Yes">
+                  <!-- <arg value="-debug" /> -->
+                  <!-- <arg value="-verbose" /> -->
+                  <arg value="-Xxew" />
+                  <arg value="-summary ${basedir}/build/allocine-xew-summary.txt" />
+                  <arg value="-instantiate lazy" />
+                  <arg value="-delete" />
+                  <schema dir="${basedir}/schemas" includes="allocine.xsd" />
+                  <!-- <binding dir="${etc}" includes="allocine.xjb" /> -->
+                  <produces dir="${basedir}/build/jaxb/com/moviejukebox/allocine/jaxb" includes="*" />
+                </xjc>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${basedir}/build/jaxb</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+
+  </build>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+</project>
