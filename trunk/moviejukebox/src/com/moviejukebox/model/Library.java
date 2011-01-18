@@ -45,6 +45,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 
 public class Library implements Map<String, Movie> {
@@ -433,6 +434,7 @@ public class Library implements Map<String, Movie> {
             for (final String indexStr : indexList.split(",")) {
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
+                        SystemTools.showMemory();
                         logger.fine("  Indexing " + indexStr + "...");
                         if (indexStr.equals("Other")) {
                             syncindexes.put("Other", indexByProperties(indexMovies));
@@ -460,6 +462,8 @@ public class Library implements Map<String, Movie> {
                 });
             }
             tasks.waitFor();
+            SystemTools.showMemory();
+            
             // Make a "copy" of uncompressed index
             this.keepUncompressedIndexes();
 
@@ -493,7 +497,9 @@ public class Library implements Map<String, Movie> {
                     }
                 }
             }
+            SystemTools.showMemory();
             tasks.restart();
+            
             // OK, now that all the index masters are in-place, sort everything.
             logger.fine("  Sorting Indexes ...");
             for (final Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
@@ -512,6 +518,7 @@ public class Library implements Map<String, Movie> {
                 }
             }
             tasks.waitFor();
+            SystemTools.showMemory();
 
             // Cut off the Other/New lists if they're too long AND add them to the NEW category if required
             trimNewCategory("New-TV", newTvCount);
@@ -551,6 +558,7 @@ public class Library implements Map<String, Movie> {
             }
             Collections.sort(indexMovies);
             setMovieListNavigation(indexMovies);
+            SystemTools.showMemory();
         }
     }
     

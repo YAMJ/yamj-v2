@@ -151,7 +151,6 @@ public class MovieJukebox {
 
     int MaxThreadsProcess = 1;
     int MaxThreadsDownload = 1;
-    
 
     public static void main(String[] args) throws Throwable {
         String logFilename = "moviejukebox.log";
@@ -174,9 +173,11 @@ public class MovieJukebox {
 
         // Just create a pretty underline.
         String mjbTitle = "";
+        
         if (mjbVersion == null) {
             mjbVersion = "";
         }
+        
         for (int i = 1; i <= mjbVersion.length(); i++) {
             mjbTitle += "~";
         }
@@ -190,10 +191,6 @@ public class MovieJukebox {
         logger.fine("See this page: http://code.google.com/p/moviejukebox/wiki/License");
         logger.fine("");
 
-        if (showMemory) {
-            SystemTools.showMemory();
-        }
-        
         // Print the revision information if it was populated by Hudson CI
         if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             if (mjbRevision.equals("0000")) {
@@ -230,12 +227,15 @@ public class MovieJukebox {
                     userPropertiesName = args[++i];
                 } else if ("-i".equalsIgnoreCase(arg)) {
                     skipIndexGeneration = true;
+                    PropertiesUtil.setProperty("mjb.skipIndexGeneration", "true");
                 } else if ("-h".equalsIgnoreCase(arg)) {
                     skipHtmlGeneration = true;
+                    PropertiesUtil.setProperty("mjb.skipHtmlGeneration", "true");
                 } else if ("-dump".equalsIgnoreCase(arg)) {
                     dumpLibraryStructure = true;
                 } else if ("-memory".equalsIgnoreCase(arg)) {
                     showMemory = true;
+                    PropertiesUtil.setProperty("mjb.showMemory", "true");
                 } else if (arg.startsWith("-D")) {
                     String propLine = arg.length() > 2 ? arg.substring(2) : args[++i];
                     int propDiv = propLine.indexOf("=");
@@ -316,6 +316,14 @@ public class MovieJukebox {
         if (PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", "false")) {
             skipHtmlGeneration = true;
         }
+        
+        // Look for the parameter in the properties file if it's not been set on the command line
+        // This way we don't overwrite the setting if it's not found and defaults to "false"
+        if (PropertiesUtil.getBooleanProperty("mjb.showMemory", "false")) {
+            showMemory = true;
+        }
+        
+
         
         // This duplicates the "-c" functionality, but allows you to have it in the property file
         if (PropertiesUtil.getBooleanProperty("mjb.jukeboxClean", "false")) {
@@ -611,12 +619,6 @@ public class MovieJukebox {
         
         this.recheckXML = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.XML", "true"));
 
-        // Look for the parameter in the properties file if it's not been set on the command line
-        // This way we don't overwrite the setting if it's not found and defaults to "false"
-        if (!showMemory) {
-            MovieJukebox.showMemory = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.showMemory", "false"));
-        }
-        
         fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
         posterToken = getProperty("mjb.scanner.posterToken", "_large");
@@ -734,9 +736,7 @@ public class MovieJukebox {
          * PART 1 : Preparing the temporary environment
          * 
          */
-        if (showMemory) {
-            SystemTools.showMemory();
-        }
+        SystemTools.showMemory();
 
         logger.fine("Preparing environment...");
         
@@ -769,9 +769,7 @@ public class MovieJukebox {
         // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
        JukeboxProperties.generateDetailsFile(jukebox);
        
-        if (showMemory) {
-            SystemTools.showMemory();
-        }
+        SystemTools.showMemory();
         
         logger.fine("Initializing...");
         try {
@@ -800,9 +798,7 @@ public class MovieJukebox {
          * PART 2 : Scan movie libraries for files...
          * 
          */
-        if (showMemory) {
-            SystemTools.showMemory();
-        }
+        SystemTools.showMemory();
         
         logger.fine("Scanning library directory " + mediaLibraryRoot);
         logger.fine("Jukebox output goes to " + jukebox.getJukeboxRootLocation());
@@ -825,9 +821,8 @@ public class MovieJukebox {
             });
         }
         tasks.waitFor();
-        if (showMemory) {
-            SystemTools.showMemory();
-        }
+        
+        SystemTools.showMemory();
 
         // If the user asked to preserve the existing movies, scan the output directory as well
         if (isJukeboxPreserve()) {
@@ -937,9 +932,8 @@ public class MovieJukebox {
              * 
              */
 
-            if (showMemory) {
-                SystemTools.showMemory();
-            }
+            SystemTools.showMemory();
+            
             // This is for programs like NMTServer where they don't need the indexes.
             if (skipIndexGeneration) {
                 logger.fine("Indexing of libraries skipped.");
@@ -948,9 +942,8 @@ public class MovieJukebox {
                 library.buildIndex(tasks);
             }
 
-            if (showMemory) {
-                SystemTools.showMemory();
-            }
+            SystemTools.showMemory();
+                
             logger.fine("Indexing masters...");
             /*
              * This is kind of a hack -- library.values() are the movies that were found in the library and library.getMoviesList() 
@@ -1048,9 +1041,7 @@ public class MovieJukebox {
             }
             tasks.waitFor();
 
-            if (showMemory) {
-                SystemTools.showMemory();
-            }
+            SystemTools.showMemory();
 
             logger.fine("Writing movie data...");
             // Multi-thread: Parallel Executor
@@ -1093,9 +1084,7 @@ public class MovieJukebox {
             }
             tasks.waitFor();
 
-            if (showMemory) {
-                SystemTools.showMemory();
-            }
+            SystemTools.showMemory();
 
             if (!skipIndexGeneration) {
                 logger.fine("Writing Indexes XML...");
@@ -1141,9 +1130,7 @@ public class MovieJukebox {
              * PART 4 : Copy files to target directory
              * 
              */
-            if (showMemory) {
-                SystemTools.showMemory();
-            }
+            SystemTools.showMemory();
             
             logger.fine("Copying new files to Jukebox directory...");
             String index = getProperty("mjb.indexFile", "index.htm");
@@ -1186,9 +1173,7 @@ public class MovieJukebox {
              * PART 5: Clean-up the jukebox directory
              * 
              */
-            if (showMemory) {
-                SystemTools.showMemory();
-            }
+            SystemTools.showMemory();
             
             // Clean the jukebox folder of unneeded files
             cleanJukeboxFolder();
