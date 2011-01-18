@@ -113,14 +113,15 @@
   </dependencies>
 
   <build>
-    <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
+    <!-- finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName -->
     <sourceDirectory>src</sourceDirectory>
     <!-- testSourceDirectory>test</testSourceDirectory -->
     <!-- ant compiles sources into this directory -->
     <outputDirectory>build/classes</outputDirectory>
 
     <plugins>
-      <plugin>
+      <!-- not use yet
+        <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
         <version>1.0-beta-3</version>
@@ -136,7 +137,8 @@
           <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
         </configuration>
-      </plugin>
+        </plugin>
+      -->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
