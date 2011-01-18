@@ -65,9 +65,9 @@ public class MediaInfoScanner {
     private String randomDirName;
 
     static {
-        logger.finer("OS name : " + OS_NAME);
-        logger.finer("OS version : " + OS_VERSION);
-        logger.finer("OS archi : " + OS_ARCH);
+        logger.finer("Operating System Name   : " + OS_NAME);
+        logger.finer("Operating System Version: " + OS_VERSION);
+        logger.finer("Operating System Type   : " + OS_ARCH);
 
         mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
         enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "false"));
@@ -86,6 +86,7 @@ public class MediaInfoScanner {
             logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
             activated = false;
         } else {
+            logger.fine("MediaInfo tool will be used to extract video data");
             activated = true;
         }
     }
