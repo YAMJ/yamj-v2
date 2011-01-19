@@ -446,13 +446,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (StringTools.isValidString(lang)) {
             String[] languages = lang.split("/");
 
-            String fullLanguage = "";
+            StringBuffer fullLanguage = new StringBuffer();
             for (String language : languages) {
                 if (fullLanguage.length() > 0) {
-                    fullLanguage += "_";
+                    fullLanguage.append("_");
                 }
-                fullLanguage += language.trim();
+                fullLanguage.append(language.trim());
             }
+            
             try {
 
                 Graphics2D g2d = bi.createGraphics();

@@ -172,14 +172,14 @@ public class MovieJukebox {
         logger.setLevel(Level.ALL);
 
         // Just create a pretty underline.
-        String mjbTitle = "";
+        StringBuffer mjbTitle = new StringBuffer();
         
         if (mjbVersion == null) {
             mjbVersion = "";
         }
         
         for (int i = 1; i <= mjbVersion.length(); i++) {
-            mjbTitle += "~";
+            mjbTitle.append("~");
         }
 
         logger.fine("Yet Another Movie Jukebox " + mjbVersion);
