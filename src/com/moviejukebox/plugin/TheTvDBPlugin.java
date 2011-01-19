@@ -316,7 +316,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         if (episode != null) {
                             // We only get the writers for the first episode, otherwise we might overwhelm the skins with data
                             // TODO Assign the writers on a per-episode basis, rather than series.
-                            if ((movie.getWriters().equals(Movie.UNKNOWN)) || (movie.getWriters().isEmpty())) {
+                            if (movie.getWriters().isEmpty()) {
                                 movie.setWriters(episode.getWriters());
                             }
 

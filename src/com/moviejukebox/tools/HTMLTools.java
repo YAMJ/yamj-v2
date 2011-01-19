@@ -630,14 +630,14 @@ public class HTMLTools {
         Pattern strip_tags_regex = Pattern.compile("([^\\<]*)(?:\\<[^\\>]*\\>)?");
         Matcher m = strip_tags_regex.matcher(s);
 
-        String res = "";
+        StringBuffer res = new StringBuffer();
         while (m.find()) {
-            res += m.group(1);
+            res.append(m.group(1));
         }
         
         // Replace escaped spaces
-        res = res.replaceAll("&nbsp;", " ");
+        String finalRes = res.toString().replaceAll("&nbsp;", " ");
         
-        return res.trim();
+        return finalRes.trim();
     }
 }

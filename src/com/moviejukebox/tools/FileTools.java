@@ -322,15 +322,21 @@ public class FileTools {
      * @param outputString
      */
     public static void writeStringToFile(String filename, String outputString) {
+        FileWriter out = null;
+        
         try {
             File outFile = new File(filename);
             
-            FileWriter out = new FileWriter(outFile);
+            out = new FileWriter(outFile);
             out.write(outputString);
-            out.close();
-
         } catch (Exception ignore) {
             logger.finer("Error writing string to " + filename);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                // Failed to close out file.
+            }
         }
     }
 
@@ -467,7 +473,7 @@ public class FileTools {
             }
         }
 
-        return localFile != null ? localFile : new File(localFile+Movie.UNKNOWN); //just in case
+        return (localFile != null ? localFile : new File(localFile + Movie.UNKNOWN) ); //just in case
     }
 
     /**
@@ -643,6 +649,12 @@ public class FileTools {
      */
     @SuppressWarnings("serial")
     public static class FileEx extends File {
+        private Boolean _isdir = null;
+        private Boolean _exists = null;
+        private Boolean _isfile = null;
+        private Long    _len = null;
+        private Long    _lastModified = null;
+        
         //Standard constructors
         public FileEx(String parent, String child) {
             super(parent, child);
@@ -661,7 +673,6 @@ public class FileTools {
             _exists = exists;
         }
 
-        private Boolean _isdir=null;
         @Override
         public boolean isDirectory() {
             if (_isdir == null) {
@@ -673,8 +684,6 @@ public class FileTools {
             }
             return _isdir;
         }
-
-        private Boolean _exists=null;
         
         @Override
         public boolean exists() {
@@ -688,8 +697,6 @@ public class FileTools {
             return _exists;
         }
 
-        private Boolean _isfile=null;
-        
         @Override
         public boolean isFile() {
             if (_isfile == null) {
@@ -701,8 +708,6 @@ public class FileTools {
             }
             return _isfile;
         }
-
-        private Long _len=null;
         
         @Override
         public long length() {
@@ -715,8 +720,6 @@ public class FileTools {
             }
             return _len;
         }
-
-        private Long _lastModified=null;
         
         @Override
         public long lastModified() {

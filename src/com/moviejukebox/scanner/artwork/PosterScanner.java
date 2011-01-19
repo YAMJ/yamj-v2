@@ -273,13 +273,13 @@ public class PosterScanner {
     }
 
     private static String getPluginsCode() {
-        String response = "";
+        StringBuffer response = new StringBuffer();
 
         Set<String> keySet = posterPlugins.keySet();
         for (String string : keySet) {
-            response += string + " / ";
+            response.append(string + " / ");
         }
-        return response;
+        return response.toString();
     }
 
     /**
