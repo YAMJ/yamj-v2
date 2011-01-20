@@ -70,6 +70,7 @@ import com.moviejukebox.plugin.AniDbPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
+import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
@@ -132,6 +133,7 @@ public class MovieJukebox {
     private static boolean fanartTvDownload;
     private static boolean videoimageDownload;
     private static boolean bannerDownload;
+    private static boolean extraArtworkDownload;    // XXX: Rename this property and split it into clearlogo/clearart/tvthumb/seasonthumb
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
     private boolean recheckXML;
@@ -691,6 +693,7 @@ public class MovieJukebox {
             public MediaInfoScanner miScanner = new MediaInfoScanner();
             public AppleTrailersPlugin trailerPlugin = new AppleTrailersPlugin();
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
+            public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -710,6 +713,7 @@ public class MovieJukebox {
 
         videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
         bannerDownload = parseBoolean(getProperty("mjb.includeWideBanners", "false"));
+        extraArtworkDownload = parseBoolean(getProperty("mjb.includeExtraArtwork", "false"));
 
         boolean processExtras = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.extras.process","true"));
 
@@ -897,6 +901,11 @@ public class MovieJukebox {
                         // Get subtitle
                         tools.subtitlePlugin.generate(movie);
 
+                        // Get ClearART/LOGOS/etc
+                        if (movie.isTVShow() && extraArtworkDownload) {
+                            tools.fanartTvPlugin.scan(movie);
+                        }
+                        
                         // Get Trailers
                         if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
                             boolean status = tools.trailerPlugin.generate(movie);

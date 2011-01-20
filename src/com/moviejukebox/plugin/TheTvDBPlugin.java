@@ -14,11 +14,16 @@
 package com.moviejukebox.plugin;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.trimToLength;
 
 import java.util.List;
 
 import org.pojava.datetime.DateTime;
 
+import com.moviejukebox.model.Artwork;
+import com.moviejukebox.model.ArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
@@ -28,7 +33,6 @@ import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -242,6 +246,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                         if (urlBanner != null) {
                             movie.setBannerURL(urlBanner);
+                            movie.addArtwork(new Artwork(THETVDB_PLUGIN_ID, ArtworkType.Banner, urlBanner, movie.getBannerFilename()));
                             logger.finer("TheTvDBPlugin: Used banner " + urlBanner);
                         }
                     }
@@ -255,6 +260,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || (movie.isDirtyFanart())) {
                     String url = null;
+                    Artwork artwork = new Artwork();
+                    artwork.setSourceSite(THETVDB_PLUGIN_ID);
+                    artwork.setType(ArtworkType.Fanart);
+                    
                     if (!banners.getFanartList().isEmpty()) {
                         int index = movie.getSeason();
                         if (index <= 0) {
@@ -266,16 +275,22 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                         url = banners.getFanartList().get(index).getUrl();
                     }
+                    
                     if (url == null && series.getFanart() != null && !series.getFanart().isEmpty()) {
                         url = series.getFanart();
                     }
+                    
                     if (url != null) {
                         movie.setFanartURL(url);
+                        artwork.setUrl(url);
                     }
 
                     if (isValidString(movie.getFanartURL())) {
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                        artwork.setFilename(movie.getBaseName() + fanartToken + ".jpg");
                     }
+                    
+                    movie.addArtwork(artwork);
                 }
 
                 // we may not have here the semaphore acquired, could lead to deadlock if limit is 1 and this function also needs a slot

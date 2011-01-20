@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -40,6 +41,8 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.MovieJukebox;
+import com.moviejukebox.model.Artwork;
+import com.moviejukebox.model.ArtworkType;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Index;
@@ -949,6 +952,48 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("bannerFile");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getBannerFilename()));
         writer.writeEndElement();
+        
+        writer.writeStartElement("artwork");
+        for (ArtworkType artworkType : ArtworkType.values()) {
+            Set<Artwork> artworkList = movie.getArtwork(artworkType);
+            if (artworkList.size() > 0) {
+                for (Artwork artwork : artworkList) {
+                    writer.writeStartElement(artworkType.toString());
+                    writer.writeAttribute("count", "" + artworkList.size());
+                    
+                        writer.writeStartElement("sourceSite");
+                        writer.writeCharacters(artwork.getSourceSite());
+                        writer.writeEndElement();
+                        
+                        writer.writeStartElement("url");
+                        writer.writeCharacters(artwork.getUrl());
+                        writer.writeEndElement();
+    
+                        writer.writeStartElement("filename");
+                        writer.writeCharacters(artwork.getFilename());
+                        writer.writeEndElement();
+                        
+                    writer.writeEndElement(); // artworkType
+                }
+            } else {
+                // Write a dummy node
+                writer.writeStartElement(artworkType.toString());
+                writer.writeAttribute("count", "" + 0);
+
+                    writer.writeStartElement("url");
+                    writer.writeCharacters(Movie.UNKNOWN);
+                    writer.writeEndElement();
+    
+                    writer.writeStartElement("filename");
+                    writer.writeCharacters(Movie.UNKNOWN);
+                    writer.writeEndElement();
+                    
+                writer.writeEndElement(); // artworkType
+
+            }
+        }
+        writer.writeEndElement(); // artwork
+        
         writer.writeStartElement("plot");
         writer.writeCharacters(movie.getPlot());
         writer.writeEndElement();

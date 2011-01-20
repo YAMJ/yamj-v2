@@ -12,7 +12,7 @@
  */
 
 /**
- *  Banner Scanner
+ *  BannerScanner
  *
  * Routines for locating and downloading Banner for videos
  *
@@ -207,7 +207,7 @@ public class BannerScanner {
                 bannerFile.getParentFile().mkdirs();
 
                 try {
-                    logger.finest("Banner Scanner: Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.finest("BannerScanner: Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the banner using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
@@ -221,10 +221,10 @@ public class BannerScanner {
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.finer("Banner Scanner: Failed to download banner : " + movie.getBannerURL());
+                    logger.finer("BannerScanner: Failed to download banner : " + movie.getBannerURL());
                 }
             } else {
-                logger.finest("Banner Scanner: Banner exists for " + movie.getBaseFilename());
+                logger.finest("BannerScanner: Banner exists for " + movie.getBaseFilename());
             }
         }
         
