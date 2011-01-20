@@ -137,6 +137,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
     // Graphics URLs & files
+    private Set<Artwork> artwork = new LinkedHashSet<Artwork>();
     private String posterURL = UNKNOWN; // The original, unaltered, poster
     private String posterSubimage = UNKNOWN; // A cut up version of the poster (not used)
     private String posterFilename = UNKNOWN; // The poster filename
@@ -1830,6 +1831,36 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
 
         return returnDate;
+    }
+
+    /**
+     * @return the artwork
+     */
+    public Set<Artwork> getArtwork() {
+        return artwork;
+    }
+
+    /**
+     * @param artwork the artwork to set
+     */
+    public void setArtwork(Set<Artwork> artwork) {
+        this.artwork = artwork;
+    }
+    
+    public void addArtwork(Artwork artwork) {
+        this.artwork.add(artwork);
+    }
+    
+    public Set<Artwork> getArtwork(ArtworkType artworkType) {
+        Set<Artwork> artworkList = new LinkedHashSet<Artwork>();
+        
+        for (Artwork artwork : this.artwork) {
+            if (artwork.getType() == artworkType) {
+                artworkList.add(artwork);
+            }
+        }
+        
+        return artworkList;
     }
 
 }
