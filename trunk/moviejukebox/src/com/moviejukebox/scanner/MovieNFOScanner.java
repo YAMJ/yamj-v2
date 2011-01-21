@@ -71,6 +71,8 @@ public class MovieNFOScanner {
     private static String nfoExtRegex;
     private static String[] NFOExtensions;
     private static Pattern partPattern;
+    
+    private static boolean archiveScanRar;
 
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
@@ -102,6 +104,8 @@ public class MovieNFOScanner {
         
         // Set the date format to dd-MM-yyyy
         DateTimeConfig.globalEuropeanDateFormat();
+        
+        archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false");
     }
 
     /**
@@ -188,6 +192,12 @@ public class MovieNFOScanner {
             pathFileName = currentDir.getAbsolutePath();
         }
         
+        if (archiveScanRar && pathFileName.toLowerCase().contains(".rar")) {
+            currentDir = new File(FileTools.getParentFolder(currentDir));
+            baseFileName = currentDir.getName();
+            pathFileName = currentDir.getAbsolutePath();
+        }
+
         // If "pathFileName" is a file then strip the extension from the file.
         if (currentDir.isFile()) {
             pathFileName = pathFileName.substring(0, pathFileName.lastIndexOf("."));
@@ -225,7 +235,7 @@ public class MovieNFOScanner {
         // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
         checkNFO(nfos, pathFileName);
-
+        
         if (isValidString(NFOdirectory)) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
