@@ -47,6 +47,7 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1778 Add total number of titles to the XML files
  - Enhancement  #1787 Add ability to use file hash for anidb lookup
  - Fixed defect #1788 mjb.listing.clear.UNKNOWN should clear both "UNKNOWN" and "UNDEFINED"
+ - Fixed defect #1795 mucommanderlight contains old version of commons-logging
 
 MovieJukebox 2.2
 ----------------
