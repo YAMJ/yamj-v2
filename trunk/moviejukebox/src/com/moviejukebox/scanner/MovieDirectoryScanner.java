@@ -14,6 +14,7 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -29,6 +30,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
+import com.moviejukebox.tools.ArchiveScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -63,6 +65,9 @@ public class MovieDirectoryScanner {
     // BD rip infos Scanner
     private BDRipScanner localBDRipScanner;
 
+    // Archived virtual directories (f.ex. rar, zip, tar.gz etc.)
+    private ArchiveScanner archiveScanners[];
+
     public MovieDirectoryScanner() {
         for (String ext : PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")) {
             supportedExtensions.add(ext);
@@ -79,6 +84,11 @@ public class MovieDirectoryScanner {
         hashpathdepth = Integer.parseInt(PropertiesUtil.getProperty("mjb.scanner.hashpathdepth", "0"));
         playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "false"));
         localBDRipScanner = new BDRipScanner();
+        List<ArchiveScanner> archiveScannerList = new ArrayList<ArchiveScanner>();
+        if (PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false")) {
+            archiveScannerList.add(new RARArchiveScanner());
+        }
+        archiveScanners = archiveScannerList.toArray(new ArchiveScanner[0]);
     }
 
     /**
@@ -90,7 +100,7 @@ public class MovieDirectoryScanner {
      */
     public Library scan(MediaLibraryPath srcPath, Library library) {
 
-        File directory = new FileTools.FileEx(srcPath.getPath());
+        File directory = new FileTools.FileEx(srcPath.getPath(), archiveScanners);
 
         String mediaLibraryRoot;
         if (directory.isFile()) {

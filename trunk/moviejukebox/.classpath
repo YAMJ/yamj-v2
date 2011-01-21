@@ -8,7 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/filters.jar" sourcepath="C:/Users/Julien/workspace/Filters/src"/>
-	<classpathentry kind="lib" path="lib/mucommanderlight.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="lib/thetvdbapi.jar"/>
 	<classpathentry kind="lib" path="lib/themoviedbapi.jar"/>
@@ -30,5 +29,7 @@
 	<classpathentry kind="lib" path="lib/jaxb/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="lib/fanarttvapi.jar"/>
+	<classpathentry kind="lib" path="lib/java-unrar-0.3.jar"/>
+	<classpathentry kind="lib" path="lib/mucommanderlight.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

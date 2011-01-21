@@ -52,7 +52,7 @@ public class MyClass {
 
 ----- License Code (Put at the top of each file -----
 /*
- *      Copyright (c) 2004-2009 YAMJ Members
+ *      Copyright (c) 2004-2011 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list 
  *  
  *      Web: http://code.google.com/p/moviejukebox/
@@ -63,3 +63,11 @@ public class MyClass {
  *      For any reuse or distribution, you must make clear to others the 
  *      license terms of this work.  
  */
+
+----- library sources -----
+java-unrar-0.3.jar:
+ https://github.com/edmund-wagner/junrar/tree/
+ commit  6f32323c983015d96c64
+ tree    42fb990f62e15fac5dfa
+
+ compiled with "mvn package".

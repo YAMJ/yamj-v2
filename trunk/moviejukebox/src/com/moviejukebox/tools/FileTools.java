@@ -649,11 +649,13 @@ public class FileTools {
      */
     @SuppressWarnings("serial")
     public static class FileEx extends File {
-        private Boolean _isdir = null;
-        private Boolean _exists = null;
-        private Boolean _isfile = null;
-        private Long    _len = null;
-        private Long    _lastModified = null;
+        private volatile Boolean _isdir = null;
+        private volatile Boolean _exists = null;
+        private volatile Boolean _isfile = null;
+        private volatile Long    _len = null;
+        private volatile Long    _lastModified = null;
+
+        private ArchiveScanner[] archiveScanners;
         
         //Standard constructors
         public FileEx(String parent, String child) {
@@ -671,6 +673,17 @@ public class FileTools {
         private FileEx(String pathname, boolean exists) {
             this(pathname);
             _exists = exists;
+        }
+
+        // archive scanner supporting constructors
+        public FileEx(String pathname, ArchiveScanner[] archiveScanners) {
+            super(pathname);
+            this.archiveScanners=archiveScanners;
+        }
+        
+        public FileEx(File parent, String child, ArchiveScanner[] archiveScanners) {
+            this(parent, child);
+            this.archiveScanners=archiveScanners;
         }
 
         @Override
@@ -701,7 +714,7 @@ public class FileTools {
         public boolean isFile() {
             if (_isfile == null) {
                 synchronized(this) {
-                    if(_isfile == null) {
+                    if (_isfile == null) {
                         _isfile = super.isFile();
                     }
                 }
@@ -739,42 +752,61 @@ public class FileTools {
             if (p == null) {
                 return null;
             }
-            return new FileEx(p);
+            return new FileEx(p, archiveScanners);
         }
+
+        private volatile File[] _listFiles;
 
         @Override
         public File[] listFiles() {
-            String[] ss = list();
-            if (ss == null) {
-                return null;
+            synchronized(this) {
+                if (_listFiles != null) {
+                    return _listFiles;
+                }
+
+                String[] nameStrings = list();
+                if (nameStrings == null) {
+                    return null;
+                }
+                
+                List<String> mutableNames = new ArrayList<String>(Arrays.asList(nameStrings));
+                List<File> files = new ArrayList<File>();
+                if (archiveScanners != null) {
+                    for (ArchiveScanner as: archiveScanners) {
+                        files.addAll(as.getArchiveFiles(this,mutableNames));
+                    }
+                }
+                
+                for (String name: mutableNames) {
+                    FileEx fe = new FileEx(this, name, archiveScanners);
+                    fe._exists = true;
+                    files.add(fe);
+                }
+                
+                _listFiles = (File[])files.toArray(new File[0]);
             }
-            int n = ss.length;
-            FileEx[] fs = new FileEx[n];
-            for (int i = 0; i < n; i++) {
-                fs[i] = new FileEx(this, ss[i]);
-                fs[i]._exists = true;
-            }
-            return fs;
+            return _listFiles;
         }
 
+        @Override
         public File[] listFiles(FilenameFilter filter) {
-            String[] ss = list();
-            
-            if (ss == null) {
+            File[] src = listFiles();
+
+            if (src == null) {
                 return null;
             }
-            
-            ArrayList<FileEx> v = new ArrayList<FileEx>();
-            FileEx f;
-            for (int i = 0 ; i < ss.length ; i++) {
-                if ((filter == null) || filter.accept(this, ss[i])) {
-                    f = new FileEx(this, ss[i]);
-                    f._exists = true;
-                    v.add(f);
+
+            if (filter == null) {
+                return Arrays.copyOf(src, src.length);
+            }
+
+            List<File> l = new ArrayList<File>();
+            for (File f: src) {
+                if (filter.accept(this, f.getName())) {
+                    l.add(f);
                 }
             }
-            
-            return (FileEx[])(v.toArray(new FileEx[v.size()]));
+            return (File[])l.toArray(new File[0]);
         }
 
     }
@@ -844,7 +876,7 @@ public class FileTools {
         }
 
         public void addFiles(File[] files) {
-            if(files.length == 0) {
+            if (files.length == 0) {
                 return;
             }
             Map<String, File> map = new HashMap<String, File>(files.length);
