@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.awt.BasicStroke;  // NEW NEW
 
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -68,10 +69,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static int textOffset;
     private static int overlayOffsetX;
     private static int overlayOffsetY;
-    private static String overlayFilename;
+//    private static String overlayFilename;
     private String imageType;
     private boolean roundCorners;
     private int cornerRadius;
+//  #####  NEW NEW NEW NEW  ####
+    private boolean addFrame;
+    private int frameSize;
+    private static String frameColorHD;
+    private static String frameColor720;
+    private static String frameColor1080;
+    private static String frameColorSD;
+    private static String overlaySource;
+    private int cornerRadius2;
+
 
     public DefaultImagePlugin() {
         // Generic properties
@@ -111,14 +122,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         textFontColor       = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
         textFontShadow      = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
         textOffset          = PropertiesUtil.getIntProperty(imageType + ".addText.offset", "10");
+        roundCorners        = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
+        cornerRadius        = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
         
         overlayOffsetX      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
         overlayOffsetY      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
-        // TODO: This should probably be configurable based on some parameters, such as BluRay, Set, SD, DVD, etc.
-        overlayFilename     = PropertiesUtil.getProperty(imageType + ".overlay.filename", "overlay_" + imageType + ".png");
+        overlaySource       = PropertiesUtil.getProperty(imageType + ".overlay.source", "default");
 
-        roundCorners = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
-        cornerRadius = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
+        addFrame            = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", "false");
+        frameSize           = PropertiesUtil.getIntProperty(imageType + ".frame.size", "5");
+        frameColorSD        = PropertiesUtil.getProperty(imageType + ".frame.colorSD", "255/255/255");
+        frameColorHD        = PropertiesUtil.getProperty(imageType + ".frame.colorHD", "255/255/255");
+        frameColor720       = PropertiesUtil.getProperty(imageType + ".frame.color720", "255/255/255");
+        frameColor1080      = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
+        cornerRadius2       = Integer.parseInt("0");
         
         ratio = (float)imageWidth / (float)imageHeight;
 
@@ -168,6 +185,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             }
             
+            if (addOverlay) {
+                bi = drawOverlay(movie, bi, overlayOffsetX, overlayOffsetY);
+            }
+            
+            if (addFrame) {
+                bi = addFrame(movie, bi);
+            }
+                       
             if (roundCorners) {
                 bi = roundCorners(bi);
             }
@@ -196,10 +221,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             }
 
-            if (addOverlay) {
-                bi = drawOverlay(movie, bi, overlayFilename, overlayOffsetX, overlayOffsetY);
-            }
-            
             if (addReflectionEffect) {
                 bi = GraphicTools.createReflectedPicture(bi, imageType);
             }
@@ -214,6 +235,70 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         return bi;
+    }
+    
+    /**
+     * Draw a frame around the image; color depends on resolution if wanted
+     * @param movie
+     * @param bi
+     * @return
+     */        
+    private BufferedImage addFrame(Movie movie, BufferedImage bi) {
+        BufferedImage newImg = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D newGraphics = newImg.createGraphics();
+        newGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        if (!movie.isHD()) {
+            String[] ColorSD = frameColorSD.split("/");
+            int SD[] = new int[ColorSD.length];
+            for (int i = 0; i < ColorSD.length; i++) {
+                SD[i] = Integer.parseInt(ColorSD[i]);
+            }
+            newGraphics.setPaint(new Color (SD[0], SD[1], SD[2]));
+        } else if (highdefDiff) {            
+            if (movie.isHD()) {    
+                // Otherwise use the 720p
+                String[] Color720 = frameColor720.split("/");
+                int LO[] = new int[Color720.length];
+                for (int i = 0; i < Color720.length; i++) {
+                    LO[i] = Integer.parseInt(Color720[i]);
+                }
+                newGraphics.setPaint(new Color (LO[0], LO[1], LO[2]));
+            }
+            
+            if (movie.isHD1080()) {     
+                String[] Color1080 = frameColor1080.split("/");
+                int HI[] = new int[Color1080.length];
+                for (int i = 0; i < Color1080.length; i++) {
+                    HI[i] = Integer.parseInt(Color1080[i]);
+                }
+                newGraphics.setPaint(new Color (HI[0], HI[1], HI[2]));
+            }
+        } else {
+            // We don't care, so use the default HD logo.
+            String[] ColorHD = frameColorHD.split("/");
+            int HD[] = new int[ColorHD.length];
+            for (int i = 0; i < ColorHD.length; i++) {
+                HD[i] = Integer.parseInt(ColorHD[i]);
+            }
+            newGraphics.setPaint(new Color (HD[0], HD[1], HD[2]));            
+        }
+        
+        if (roundCorners) {
+            cornerRadius2 = cornerRadius;
+        }
+
+        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius2, cornerRadius2);
+        newGraphics.setClip(rect);
+        
+        // image fitted into border
+        newGraphics.drawImage(bi, frameSize - 1, frameSize - 1, bi.getWidth() - (frameSize * 2) + 2, bi.getHeight() - (frameSize * 2) + 2, null);
+               
+        BasicStroke s4 = new BasicStroke(frameSize * 2);
+            
+        newGraphics.setStroke( s4 );
+        newGraphics.draw( rect );
+        return newImg;
     }
     
     /**
@@ -396,38 +481,55 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return bi;
     }
 
-    /**
+    /** 
      * Draw an overlay on the image, such as a box cover
+     * specific for videosource, container, certification if wanted
      * @param movie
      * @param bi
      * @param offsetY 
      * @param offsetX 
      * @return
      */
-    private BufferedImage drawOverlay(IMovieBasicInformation movie, BufferedImage bi, String overlayFilename, int offsetX, int offsetY) {
-        try {
-            BufferedImage biOverlay = GraphicTools.loadJPEGImage(getResourcesPath() + overlayFilename);
+    private BufferedImage drawOverlay(Movie movie, BufferedImage bi, int offsetX, int offsetY) {
+        
+        String source;
+        if (overlaySource.equalsIgnoreCase("videosource")) {
+            source = movie.getVideoSource();
+        } else if (overlaySource.equalsIgnoreCase("certification")) {
+            source = movie.getCertification();
+        } else if (overlaySource.equalsIgnoreCase("container")) {
+            source = movie.getContainer();
+        } else {
+            source = "default";
+        }
+        
+        // Make sure the source is formatted correctly
+        source = source.toLowerCase().trim();
             
+        try {
+            BufferedImage biOverlay = GraphicTools.loadJPEGImage(getResourcesPath() + source + "_overlay_" + imageType + ".png");
+        
             BufferedImage returnBI = new BufferedImage(biOverlay.getWidth(), biOverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);  
             Graphics2D g2BI = returnBI.createGraphics();
             g2BI.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
+        
             g2BI.drawImage(bi, 
-                            offsetX, offsetY, offsetX + bi.getWidth(), offsetY + bi.getHeight(), 
-                            0, 0, bi.getWidth(), bi.getHeight(), 
-                            null);
+                        offsetX, offsetY, offsetX + bi.getWidth(), offsetY + bi.getHeight(), 
+                        0, 0, bi.getWidth(), bi.getHeight(), 
+                        null);
             g2BI.drawImage(biOverlay, 0, 0, null);
 
             g2BI.dispose();
+            
             return returnBI;
         } catch (IOException error) {
-            logger.warning("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + overlayFilename + " is in the resources directory.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.warning("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + source + "_overlay_" + imageType + ".png is in the resources directory.");
+            // final Writer eResult = new StringWriter();
+            // final PrintWriter printWriter = new PrintWriter(eResult);
+            // error.printStackTrace(printWriter);
+            // logger.severe(eResult.toString());
         }
-        
+            
         return bi;
     }
     
