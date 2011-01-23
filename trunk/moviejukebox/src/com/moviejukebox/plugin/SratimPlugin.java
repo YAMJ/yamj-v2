@@ -110,7 +110,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             if(!keepEnglishGenres){ //Translate genres to Hebrew 
-            	translateGenres(mediaFile);
+                translateGenres(mediaFile);
             }
 
             sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
@@ -189,15 +189,15 @@ public class SratimPlugin extends ImdbPlugin {
             if (i < genereStringEnglish.length) {
                 if (bidiSupport){ //flip genres to for visual Hebrew display
                     genresHeb.add(genereStringHebrew[i]);
-            	} else {
+                } else {
                     genresHeb.add(logicalToVisual(genereStringHebrew[i]));
                 }
             } else {
-            	if (bidiSupport){
+                if (bidiSupport){
                     genresHeb.add("אחר");
-            	} else {
+                } else {
                     genresHeb.add("רחא");
-            	}
+                }
             }
         }
 
@@ -675,7 +675,7 @@ public class SratimPlugin extends ImdbPlugin {
             movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
 
             if (!movie.isOverrideYear()) {
-            	if (!movie.isTVShow()) {
+                if (!movie.isTVShow()) {
                     movie.setYear(HTMLTools.getTextAfterElem(xml, "<td class=\"prod_year\" style=\"padding-left:10px;\">"));
                 }
             }
@@ -731,7 +731,7 @@ public class SratimPlugin extends ImdbPlugin {
         try {
             if (mainXML == null) {
                 String sratimId = movie.getId(SRATIM_PLUGIN_ID);
-            	mainXML = webBrowser.request("http://www.sratim.co.il/view.php?id=" + sratimId, Charset.forName("UTF-8"));
+                mainXML = webBrowser.request("http://www.sratim.co.il/view.php?id=" + sratimId, Charset.forName("UTF-8"));
             }
 
             int season = movie.getSeason();
@@ -746,14 +746,14 @@ public class SratimPlugin extends ImdbPlugin {
             while (true) {
                 index = mainXML.indexOf("<span class=\"smtext\"><a href=\"", index);
                 if (index == -1) {
-                	return;
+                    return;
                 }
                 
                 index += 30;
                 
                 endIndex = mainXML.indexOf("\"", index);
                 if (endIndex == -1) {
-                	return;
+                    return;
                 }
                 
                 String scanUrl = mainXML.substring(index, endIndex);
@@ -761,7 +761,7 @@ public class SratimPlugin extends ImdbPlugin {
                 
                 index = mainXML.indexOf("class=\"smtext\">עונה ", index);
                 if (index == -1) {
-                	return;
+                    return;
                 }
                 
                 index += 20;
@@ -776,7 +776,7 @@ public class SratimPlugin extends ImdbPlugin {
                 
                 index = mainXML.indexOf("class=\"smtext\">", index);
                 if (index == -1) {
-                	return;
+                    return;
                 }
                 
                 index += 15;
@@ -791,24 +791,24 @@ public class SratimPlugin extends ImdbPlugin {
                 
                 int scanSeasontInt = 0;
                 try {
-                	scanSeasontInt = Integer.parseInt(scanSeason);
+                    scanSeasontInt = Integer.parseInt(scanSeason);
                 } catch (Exception error) {
-                	scanSeasontInt = 0;
+                    scanSeasontInt = 0;
                 }
 
                 if (scanSeasontInt == season) {
-                	seasonYear = scanYear;
-                	seasonUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
-                	break;
+                    seasonYear = scanYear;
+                    seasonUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
+                    break;
                 }
             }
 
             
             if (!movie.isOverrideYear()) {
-            	movie.setYear(seasonYear);
+                movie.setYear(seasonYear);
             }
             
-        	seasonXML = webBrowser.request(seasonUrl, Charset.forName("UTF-8"));
+            seasonXML = webBrowser.request(seasonUrl, Charset.forName("UTF-8"));
             
 
         } catch (Exception error) {
@@ -837,52 +837,51 @@ public class SratimPlugin extends ImdbPlugin {
 
                 // Go over the page and sacn for episode links
                 while (true) {
-				    index = seasonXML.indexOf("<td style=\"padding-right:6px;font-size:15px;\"><a href=\"", index);
-				    if (index == -1) {
-				    	return;
-				    }
-				    
-				    index += 55;
-				    
-				    endIndex = seasonXML.indexOf("\"", index);
-				    if (endIndex == -1) {
-				    	return;
-				    }
-				    
-				    String scanUrl = seasonXML.substring(index, endIndex);
-				
-				    
-				    index = seasonXML.indexOf("<b>פרק ", index);
-				    if (index == -1) {
-				    	return;
-				    }
-				    
-				    index += 7;
-				    
-				    endIndex = seasonXML.indexOf(":", index);
-				    if (endIndex == -1) {
-				        return;
-				    }
-				    
-				    String scanPart = seasonXML.substring(index, endIndex);
+                    index = seasonXML.indexOf("<td style=\"padding-right:6px;font-size:15px;\"><a href=\"", index);
+                    if (index == -1) {
+                        return;
+                    }
+                    
+                    index += 55;
+                    
+                    endIndex = seasonXML.indexOf("\"", index);
+                    if (endIndex == -1) {
+                        return;
+                    }
+                    
+                    String scanUrl = seasonXML.substring(index, endIndex);
+                    
+                    index = seasonXML.indexOf("<b>פרק ", index);
+                    if (index == -1) {
+                        return;
+                    }
+                    
+                    index += 7;
+                    
+                    endIndex = seasonXML.indexOf(":", index);
+                    if (endIndex == -1) {
+                        return;
+                    }
+                    
+                    String scanPart = seasonXML.substring(index, endIndex);
 
-				    
-				    index = seasonXML.indexOf("</b> ", index);
-				    if (index == -1) {
-				    	return;
-				    }
-				    
-				    index += 5;
-				    
-				    endIndex = seasonXML.indexOf("</a>", index);
-				    if (endIndex == -1) {
-				        return;
-				    }
-				    
-				    String scanName = seasonXML.substring(index, endIndex);
-				    
+                    
+                    index = seasonXML.indexOf("</b> ", index);
+                    if (index == -1) {
+                        return;
+                    }
+                    
+                    index += 5;
+                    
+                    endIndex = seasonXML.indexOf("</a>", index);
+                    if (endIndex == -1) {
+                        return;
+                    }
+                    
+                    String scanName = seasonXML.substring(index, endIndex);
+                    
 
-				    if (scanPart.equals(Integer.toString(part))) {
+                    if (scanPart.equals(Integer.toString(part))) {
                         if (first) {
                             first = false;
                         } else {
@@ -891,8 +890,8 @@ public class SratimPlugin extends ImdbPlugin {
                         sb.append(logicalToVisual(HTMLTools.decodeHtml(scanName)));
 
                         try {
-                        	String episodeUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
-                        	
+                            String episodeUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
+                            
                             // Get the episode page url
                             String xml = webBrowser.request(episodeUrl, Charset.forName("UTF-8"));
 

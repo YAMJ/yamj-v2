@@ -75,122 +75,122 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         // Search CDON to get an URL to the movie page
         // if title starts with "the" -> remove it to get better results
         if (title.toLowerCase().startsWith("the")) {
-        	title = title.substring(4, title.length());
+            title = title.substring(4, title.length());
         }
         try {
             //try getting the search results from cdon.se
-        	StringBuffer sb = new StringBuffer("");
-       		sb = new StringBuffer("http://cdon.se/search?q=");
-       		String searchTitle = URLEncoder.encode(title, "UTF-8");
-           	if (tvSeason >= 0) {
-       			searchTitle +=("+" + URLEncoder.encode("säsong", "UTF-8"));
-       			searchTitle +=("+" + tvSeason);
-        	}
-       		sb.append(searchTitle);
-       		//new search url format 2010-10-11
-       		//category=2 results in only movies being shown
-           	sb.append("#q=" + searchTitle);
-           	sb.append("&category=2");
-           	//get the result page from the search
+            StringBuffer sb = new StringBuffer("");
+            sb = new StringBuffer("http://cdon.se/search?q=");
+            String searchTitle = URLEncoder.encode(title, "UTF-8");
+            if (tvSeason >= 0) {
+                searchTitle +=("+" + URLEncoder.encode("säsong", "UTF-8"));
+                searchTitle +=("+" + tvSeason);
+            }
+            sb.append(searchTitle);
+            //new search url format 2010-10-11
+            //category=2 results in only movies being shown
+            sb.append("#q=" + searchTitle);
+            sb.append("&category=2");
+            //get the result page from the search
             xml = webBrowser.request(sb.toString());
         } catch (Exception error) {
-           	//there was an error getting the web page, catch the exception
+            //there was an error getting the web page, catch the exception
             logger.severe("CdonPosterPlugin: An exception happened while retreiving CDON id for movie : " + title);
             logger.severe("CdonPosterPlugin: the exception was caused by: " + error.getCause());
         }
          
         //check that the result page contains some movie info
         if (xml.contains("<table class=\"product-list\"")) {
-        	//find the movie url in the search result page
-        	response = findMovieFromProductList(xml, title, year);
+            //find the movie url in the search result page
+            response = findMovieFromProductList(xml, title, year);
 
-       	//else there was no results matching, return Movie.UNKNOWN
-       	} else {
-       		response = Movie.UNKNOWN;
-       		logger.finer("CdonPosterPlugin: could not find movie: " + title);
-       	} 
+        //else there was no results matching, return Movie.UNKNOWN
+        } else {
+            response = Movie.UNKNOWN;
+            logger.finer("CdonPosterPlugin: could not find movie: " + title);
+        } 
         return response;
     }
     
     /* function that takes the search result page from cdon and loops 
      * through the products in that page searching for a match
     */
-	private String findMovieFromProductList(String xml, String title, String year) {
-    	//remove unused parts of resulting web page
-    	int beginIndex = xml.indexOf("class=\"product-list\"")+53;
-    	int endIndex = xml.indexOf("</table>");
-    	String xmlPart = xml.substring(beginIndex, endIndex);
-    	//the result is in a table split it on tr elements
-    	String[] productList = xmlPart.split("<tr>");
+    private String findMovieFromProductList(String xml, String title, String year) {
+        //remove unused parts of resulting web page
+        int beginIndex = xml.indexOf("class=\"product-list\"")+53;
+        int endIndex = xml.indexOf("</table>");
+        String xmlPart = xml.substring(beginIndex, endIndex);
+        //the result is in a table split it on tr elements
+        String[] productList = xmlPart.split("<tr>");
 
-    	//loop through the product list
-    	int foundAtIndex = 0;
-    	int firstTitleFind = 0;
-    	for (int i = 1; i < productList.length; i++) {
-    		String[] productInfo = productList[i].split("<td");
-    		boolean isMovie = false;
-    		if (productInfo.length >= 2 && (productInfo[2].toLowerCase().contains("dvd") || productInfo[2].toLowerCase().contains("blu-ray")) ){
-    			isMovie = true;
-    		}
-    		//only check for matches for movies
-    		if( isMovie ) {
-	    		//movieInfo[3] contains title
-	    		//movieInfo[6] contains year
-	    		String foundTitle = HTMLTools.removeHtmlTags(productInfo[3].substring(15));
-	    		foundTitle = foundTitle.replaceAll("\\t", ""); 
-	    		if (foundTitle.toLowerCase().contains(title.toLowerCase())) {
-	    			//save first title find to fallback to if nothing else is found
-	    			if (firstTitleFind == 0) {
-	    				firstTitleFind = i;
-	    			}
-	    			//check if year matches
-	    			if(year != null) {
-	    				//year is in position 13-17
-	    				String date = productInfo[6].substring(14, 18);
-	    				if(year.equals(date)) {
-	    					foundAtIndex = i;
-	    					break;
-	    				}
-	    			}
-	    			//year not set - we found a match
-	    			else {
-	    				foundAtIndex = i;
-	    				break;
-	    			}
-	    		} //end for found title
-    		} //end isMovie
-    	}
-    	//if we found a match return it without further ado
-    	if (foundAtIndex > 0 || firstTitleFind > 0) {
-    		//if no match with year use the first title find
-    		if (foundAtIndex == 0) {
-    			foundAtIndex = firstTitleFind;
-    		}
-    		//find the movie detail page that is in the td before the year
-    		return extractMovieDetailUrl(title, productList[foundAtIndex]);
-    	} else {
-    		//we got a productList but the matching of titles did not result in a match
-    		//take a chance and return the first product in the list
-    		return extractMovieDetailUrl(title, productList[1]);
-    	}		
-	}
+        //loop through the product list
+        int foundAtIndex = 0;
+        int firstTitleFind = 0;
+        for (int i = 1; i < productList.length; i++) {
+            String[] productInfo = productList[i].split("<td");
+            boolean isMovie = false;
+            if (productInfo.length >= 2 && (productInfo[2].toLowerCase().contains("dvd") || productInfo[2].toLowerCase().contains("blu-ray")) ){
+                isMovie = true;
+            }
+            //only check for matches for movies
+            if( isMovie ) {
+                //movieInfo[3] contains title
+                //movieInfo[6] contains year
+                String foundTitle = HTMLTools.removeHtmlTags(productInfo[3].substring(15));
+                foundTitle = foundTitle.replaceAll("\\t", ""); 
+                if (foundTitle.toLowerCase().contains(title.toLowerCase())) {
+                    //save first title find to fallback to if nothing else is found
+                    if (firstTitleFind == 0) {
+                        firstTitleFind = i;
+                    }
+                    //check if year matches
+                    if(year != null) {
+                        //year is in position 13-17
+                        String date = productInfo[6].substring(14, 18);
+                        if(year.equals(date)) {
+                            foundAtIndex = i;
+                            break;
+                        }
+                    }
+                    //year not set - we found a match
+                    else {
+                        foundAtIndex = i;
+                        break;
+                    }
+                } //end for found title
+            } //end isMovie
+        }
+        //if we found a match return it without further ado
+        if (foundAtIndex > 0 || firstTitleFind > 0) {
+            //if no match with year use the first title find
+            if (foundAtIndex == 0) {
+                foundAtIndex = firstTitleFind;
+            }
+            //find the movie detail page that is in the td before the year
+            return extractMovieDetailUrl(title, productList[foundAtIndex]);
+        } else {
+            //we got a productList but the matching of titles did not result in a match
+            //take a chance and return the first product in the list
+            return extractMovieDetailUrl(title, productList[1]);
+        }
+    }
     
     //function to extract the url of a movie detail page from the td it is in
-	private String extractMovieDetailUrl(String title, String response) {
-		// Split string to extract the url
-		if (response.contains("http")) {
-		    String[] splitMovieURL = response.split("\\s");
-		    //movieDetailPage is in splitMovieURL[13]
-		    response = splitMovieURL[13].replaceAll("href|=|\"", "");
-		    logger.finest("CDonPosterPlugin: found cdon movie url = " + response);
-		} else {
-		    //something went wrong and we do not have an url in the result
-			//set response to Movie.UNKNOWN and write to the log
-			response = Movie.UNKNOWN;
-		    logger.finer("CdonPosterPlugin: error extracting movie url for: " + title);
-		}
-		return response;
-	}
+    private String extractMovieDetailUrl(String title, String response) {
+        // Split string to extract the url
+        if (response.contains("http")) {
+            String[] splitMovieURL = response.split("\\s");
+            //movieDetailPage is in splitMovieURL[13]
+            response = splitMovieURL[13].replaceAll("href|=|\"", "");
+            logger.finest("CDonPosterPlugin: found cdon movie url = " + response);
+        } else {
+            //something went wrong and we do not have an url in the result
+            //set response to Movie.UNKNOWN and write to the log
+            response = Movie.UNKNOWN;
+            logger.finer("CdonPosterPlugin: error extracting movie url for: " + title);
+        }
+        return response;
+    }
     
     /* 
      * Implements getIdFromMovieInfo for IMoviePosterPlugin. 
@@ -209,10 +209,10 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
      */
     @Override
     public IImage getPosterUrl(String id) {
-    	if (!id.contains("http")) {
-    		id = getIdFromMovieInfo(id, null);
-    	}
-    	String posterURL = Movie.UNKNOWN;
+        if (!id.contains("http")) {
+            id = getIdFromMovieInfo(id, null);
+        }
+        String posterURL = Movie.UNKNOWN;
         String xml = "";
         try {
             xml = getCdonMovieDetailsPage(id);
@@ -226,7 +226,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             logger.severe(eResult.toString());
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-        	return new Image(posterURL);
+            return new Image(posterURL);
         }
         logger.finer(" CdonPosterPlugin: No poster found for movie: " + id);
         return Image.UNKNOWN;

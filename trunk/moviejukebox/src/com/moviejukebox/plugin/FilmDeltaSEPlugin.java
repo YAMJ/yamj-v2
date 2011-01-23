@@ -170,11 +170,11 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         }
         String result = st.nextToken() + "/" + st.nextToken();
         try {
-			result = URLDecoder.decode(result, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.warning("FilmdeltaSEPlugin: in makeFilmDeltaId for string : " + nfo);
-			logger.warning(" -Error : " + e.getMessage());
-		}
+            result = URLDecoder.decode(result, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.warning("FilmdeltaSEPlugin: in makeFilmDeltaId for string : " + nfo);
+            logger.warning(" -Error : " + e.getMessage());
+        }
         return result;
     }
 
@@ -244,8 +244,8 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             String newTitle = HTMLTools.extractTag(fdeltaHtml, "title>", 0, "<");
             // check if everything is ok
             if (newTitle != Movie.UNKNOWN) {
-            	//split the string so that we get the title at index 0
-            	String[] titleArray = newTitle.split("-\\sFilmdelta");
+                //split the string so that we get the title at index 0
+                String[] titleArray = newTitle.split("-\\sFilmdelta");
                 newTitle = titleArray[0];
             } else {
                 logger.finer("FilmdeltaSE: Error scraping title");
@@ -264,7 +264,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     }
 
     protected void getFilmdeltaPlot(Movie movie, String fdeltaHtml) {        
-    	String plot = HTMLTools.extractTag(fdeltaHtml, "<div class=\"text\">", "</p>");
+        String plot = HTMLTools.extractTag(fdeltaHtml, "<div class=\"text\">", "</p>");
         //strip remaining html tags
         plot = HTMLTools.stripTags(plot);
         if (!plot.equals(Movie.UNKNOWN)) {
@@ -276,7 +276,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             movie.setOutline(plot);
         }
         else {
-        	logger.info("FilmdeltaSEPlugin: error finding plot for movie: " + movie.getTitle());
+            logger.info("FilmdeltaSEPlugin: error finding plot for movie: " + movie.getTitle());
         }
     }
 
