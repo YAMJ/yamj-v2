@@ -498,7 +498,7 @@ public class OpenSubtitlesPlugin {
 
     private static String sendRPC(String xml) throws MalformedURLException, IOException {
 
-        String str = "";
+        StringBuffer str = new StringBuffer();
         String strona = OSdbServer;
         String logowanie = xml;
         URL url = new URL(strona);
@@ -513,13 +513,15 @@ public class OpenSubtitlesPlugin {
 
         Scanner in;
         in = new Scanner(connection.getInputStream());
+        
         while (in.hasNextLine()) {
-            str += in.nextLine();
+            str.append(in.nextLine());
         }
+        
         in.close();
         ((HttpURLConnection)connection).disconnect();
 
-        return str;
+        return str.toString();
     }
 
     private static String getValue(String find, String xml) {
@@ -551,14 +553,14 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String hashstring(byte[] arayhash) {
-        String s = "";
+        StringBuffer str = new StringBuffer();
         String hex = "0123456789abcdef";
         for (int i = 0; i < arayhash.length; i++) {
             int m = arayhash[i] & 0xff;
-            s = s + hex.charAt(m >> 4) + hex.charAt(m & 0xf);// do not use "s+="
+            str.append(hex.charAt(m >> 4) + hex.charAt(m & 0xf));
         }
         ;
-        return s;
+        return str.toString();
     }
 
     @SuppressWarnings("unused")
@@ -575,14 +577,16 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String generateXMLRPC(String procname, String s[]) {
-        String str = "";
-        str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
-        str += procname + "</methodName><params>";
+        StringBuffer str = new StringBuffer();
+        str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
+        str.append(procname + "</methodName><params>");
+        
         for (int i = 0; i < s.length; i++) {
-            str += "<param><value><string>" + s[i] + "</string></value></param>";
+            str.append("<param><value><string>" + s[i] + "</string></value></param>");
         }
-        str += "</params></methodCall>";
-        return str;
+        
+        str.append("</params></methodCall>");
+        return str.toString();
     }
 
     private static String addEncje(String a) {

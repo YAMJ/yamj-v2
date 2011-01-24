@@ -233,22 +233,25 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Plot
-            String plot = "";
-            for (String p : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
-                if (!p.isEmpty()) {
-                    if (!plot.isEmpty()) {
-                        plot += " ";
+            StringBuffer plot = new StringBuffer();
+            for (String subPlot : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
+                if (!subPlot.isEmpty()) {
+                    if (plot.length() > 0) {
+                        plot.append(" ");
                     }
-                    plot += p;
+                    plot.append(subPlot);
                 }
             }
 
-            if (plot.isEmpty()) {
-                plot = movie.getPlot();
+            String newPlot = "";
+            if (plot.length() == 0) {
+                newPlot = movie.getPlot();
+            } else {
+                newPlot = plot.toString();
             }
 
-            plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
-            movie.setPlot(plot);
+            newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
+            movie.setPlot(newPlot);
 
             // Cast
             Collection<String> newCast = new ArrayList<String>();

@@ -408,15 +408,15 @@ public class AppleTrailersPlugin {
             String mov = new String(buf);
 
             int pos = 44;        
-            String realUrl = "";
+            StringBuffer realUrl = new StringBuffer();
             
             while (mov.charAt(pos)!=0) {
-                realUrl += mov.charAt(pos);
+                realUrl.append(mov.charAt(pos));
                 
                 pos++;
             }
             
-            String absRealURL = getAbsUrl(trailerUrl, realUrl);
+            String absRealURL = getAbsUrl(trailerUrl, realUrl.toString());
             
             return absRealURL;
             
@@ -431,28 +431,28 @@ public class AppleTrailersPlugin {
     }
 
     private String getTrailerTitle(String url) {
-        int start=url.lastIndexOf('/');
-        int end=url.indexOf(".mov",start);
+        int start = url.lastIndexOf('/');
+        int end = url.indexOf(".mov",start);
         
-        if ((start==-1) || (end==-1)) {
+        if ((start == -1) || (end == -1)) {
             return Movie.UNKNOWN;
         }
             
-        String title="";
+        StringBuffer title = new StringBuffer();
         
         for (int i=start+1;i<end;i++) {
             if ((url.charAt(i) == '-') || (url.charAt(i) == '_')) {
-                title += ' ';
+                title.append(' ');
             } else {
                 if (i == start+1) {
-                    title += Character.toUpperCase(url.charAt(i));
+                    title.append(Character.toUpperCase(url.charAt(i)));
                 } else {
-                    title += url.charAt(i);
+                    title.append(url.charAt(i));
                 }
             }
-        }                        
-            
-        return title;
+        }
+
+        return title.toString();
     }
     
     private String getAbsUrl(String baseUrl, String relativeUrl) {
@@ -465,15 +465,15 @@ public class AppleTrailersPlugin {
         }
     }
 
-    private String decodeEscapeICU(String s) {
-        String r = "";
+    private String decodeEscapeICU(String str) {
+        StringBuffer newString = new StringBuffer();
 
-        int i=0;
-        while (i < s.length()) {
+        int loop = 0;
+        while (loop < str.length()) {
             // Check ICU escaping
-            if ((s.charAt(i) == '%') && (i+5 < s.length()) && (s.charAt(i+1) == 'u')) {
+            if ((str.charAt(loop) == '%') && (loop+5 < str.length()) && (str.charAt(loop+1) == 'u')) {
 
-                String value=s.substring(i+2,i+6);
+                String value=str.substring(loop+2,loop+6);
                 int intValue = Integer.parseInt(value,16);
                 
                 // fix for ' char
@@ -483,19 +483,19 @@ public class AppleTrailersPlugin {
                 
                 char c = (char)intValue;
 
-                r += c;
-                i += 6;
+                newString.append(c);
+                loop += 6;
             } else {
-                if (s.charAt(i) == '\\') {
-                    i++;
+                if (str.charAt(loop) == '\\') {
+                    loop++;
                 } else {
-                    r += s.charAt(i);
-                    i++;
+                    newString.append(str.charAt(loop));
+                    loop++;
                 }
             }
         }
         
-        return r;
+        return newString.toString();
     }
 
     private boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrl, File trailerFile) {
