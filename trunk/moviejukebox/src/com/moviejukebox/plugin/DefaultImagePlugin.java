@@ -183,18 +183,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             }
             
-            if (addOverlay) {
-                bi = drawOverlay(movie, bi, overlayOffsetX, overlayOffsetY);
-            }
-            
-            if (addFrame) {
-                bi = drawFrame(movie, bi);
-            }
-                       
             if (roundCorners) {
                 bi = drawRoundCorners(bi);
             }
 
+            if (addFrame) {
+                bi = drawFrame(movie, bi);
+            }
+                       
             bi = drawLogos(movie, bi);
 
             // Should only really happen on set's thumbnails.
@@ -219,6 +215,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             }
 
+            if (addOverlay) {
+                bi = drawOverlay(movie, bi, overlayOffsetX, overlayOffsetY);
+            }
+            
             if (addReflectionEffect) {
                 bi = GraphicTools.createReflectedPicture(bi, imageType);
             }
