@@ -79,10 +79,12 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     public String getOfdbIdFromOfdb(String imdbId) {
+        BufferedReader input = null;
+        URL url;
+        URLConnection urlConn;
+        DataOutputStream printout = null;
+        
         try {
-            URL url;
-            URLConnection urlConn;
-            DataOutputStream printout;
             // URL of CGI-Bin script.
             url = new URL("http://www.ofdb.de/view.php?page=suchergebnis");
             // URL connection channel.
@@ -103,7 +105,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             printout.close();
             // Get response data.
             StringWriter site = new StringWriter();
-            BufferedReader input = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
+            input = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
             String line;
             while ((line = input.readLine()) != null) {
                 site.write(line);
@@ -124,6 +126,18 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             logger.severe("Failed retreiving ofdb URL for movie : ");
             logger.severe("Error : " + error.getMessage());
             return Movie.UNKNOWN;
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+                // Ignore
+            }
+            
+            try {
+                printout.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
     }
 

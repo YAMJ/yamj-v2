@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -237,22 +238,22 @@ public class MovieJukeboxHTMLWriter {
      * @param filename
      */
     private void removeBlankLines(String filename) {
-        BufferedReader reader;
-        StringBuffer sb = new StringBuffer("");
-
+        BufferedReader reader = null;
+        StringBuffer sb = new StringBuffer();
+        FileWriter outFile = null;
+        
         try {
             reader = new BufferedReader(new FileReader(filename));
             String br ="";
 
-            while((br = reader.readLine()) != null)
-            {
+            while((br = reader.readLine()) != null) {
                 if (br.trim().length() > 0) {
                     sb.append(br + "\n");
                 }
             }
             reader.close();
             
-            FileWriter outFile = new FileWriter(filename);
+            outFile = new FileWriter(filename);
             outFile.write(sb.toString());
             outFile.flush();
             outFile.close();
@@ -263,6 +264,19 @@ public class MovieJukeboxHTMLWriter {
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
+        } finally {
+            try {
+                outFile.flush();
+                outFile.close();
+            } catch (IOException e) {
+                // Ignore
+            }
+            
+            try {
+                reader.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
         return;
     }

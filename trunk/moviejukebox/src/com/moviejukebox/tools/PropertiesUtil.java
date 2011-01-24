@@ -44,16 +44,15 @@ public class PropertiesUtil {
     public static boolean setPropertiesStreamName(String streamName) {
         logger.fine("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
-
+        Reader reader = null;
+        
         try {
             if (propertiesStream == null) {
                 propertiesStream = new FileInputStream(streamName);
             }
 
-            Reader reader = new InputStreamReader(propertiesStream, PROPERTIES_CHARSET);
+            reader = new InputStreamReader(propertiesStream, PROPERTIES_CHARSET);
             props.load(reader);
-            propertiesStream.close();
-            reader.close();
         } catch (IOException error) {
             // Output a warning if moviejukebox.properties isn't found. Otherwise it's an error
             if (streamName.contains("moviejukebox.properties")) {
@@ -65,6 +64,18 @@ public class PropertiesUtil {
                 logger.severe("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
             }
             return false;
+        } finally {
+            try {
+                propertiesStream.close();
+            } catch (IOException e1) {
+                // Ignore
+            }
+            
+            try {
+                reader.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
         return true;
     }

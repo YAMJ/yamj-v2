@@ -298,6 +298,10 @@ public class OpenSubtitlesPlugin {
     }
 
     private boolean subtitleUpload(Movie movie, File movieFile[], File subtitleFile[]) {
+        ByteArrayOutputStream baos = null;
+        DeflaterOutputStream deflaterOS = null;
+        FileInputStream fisSubtitleFile = null;
+        
         try {
 
             String ret = "";
@@ -330,19 +334,19 @@ public class OpenSubtitlesPlugin {
                 moviefps[i] = String.valueOf(movie.getFps());
                 moviefilename[i] = movieFile[i].getName();
 
-                FileInputStream f = new FileInputStream(subtitleFile[i]);
+                fisSubtitleFile = new FileInputStream(subtitleFile[i]);
                 MessageDigest md = MessageDigest.getInstance("MD5");
-                byte s[] = new byte[f.available()];
-                f.read(s);
-                f.close();
-
+                byte s[] = new byte[fisSubtitleFile.available()];
+                fisSubtitleFile.read(s);
+                fisSubtitleFile.close();
+                
                 md.update(s);
                 subhash[i] = hashstring(md.digest());
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                DeflaterOutputStream a = new DeflaterOutputStream(baos);
-                a.write(s);
-                a.finish();
-                a.close();
+                baos = new ByteArrayOutputStream();
+                deflaterOS = new DeflaterOutputStream(baos);
+                deflaterOS.write(s);
+                deflaterOS.finish();
+                
                 subcontent[i] = tuBase64(baos.toByteArray());
             }
 
@@ -370,6 +374,24 @@ public class OpenSubtitlesPlugin {
         } catch (Exception error) {
             logger.severe("OpenSubtitles Plugin: Upload Failed");
             return false;
+        } finally {
+            try {
+                fisSubtitleFile.close();
+            } catch (IOException e) {
+                // Ignore
+            }
+            
+            try {
+                deflaterOS.close();
+            } catch (IOException e) {
+                // Ignore
+            }
+            
+            try {
+                baos.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
     }
 
