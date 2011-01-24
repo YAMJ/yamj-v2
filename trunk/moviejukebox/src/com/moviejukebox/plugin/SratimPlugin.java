@@ -60,6 +60,7 @@ public class SratimPlugin extends ImdbPlugin {
     private static String code = "";
     private static boolean keepEnglishTitle = false;
     private static boolean keepEnglishGenres = false;
+    private static boolean keepImdbCast = false;
     private static boolean bidiSupport = true;
     private static String challenge_field = "";
 
@@ -88,6 +89,7 @@ public class SratimPlugin extends ImdbPlugin {
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
         keepEnglishTitle = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishTitles", "false");
         keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", "false");
+        keepImdbCast = PropertiesUtil.getBooleanProperty("sratim.keepImdbCast", "false");
         bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", "true");
 
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
@@ -679,8 +681,10 @@ public class SratimPlugin extends ImdbPlugin {
                     movie.setYear(HTMLTools.getTextAfterElem(xml, "<td class=\"prod_year\" style=\"padding-left:10px;\">"));
                 }
             }
-
-            movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))));
+            
+            if(!keepImdbCast) {
+                movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))));
+            }
 
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);

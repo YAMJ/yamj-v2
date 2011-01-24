@@ -4,6 +4,7 @@
 
 MovieJukebox 2.3 BETA
 ---------------------
+ - Enhancement  #1804 Adding a property to toggle IMDDB\Sratim cast source.
  - Fixed defect  #808 Trailers: Periodic rescan option
  - Enhancement   #997 Ability to turn off 'EXTRAS' processing
  - Enhancement  #1012 Separate index.htm XSL file
