@@ -298,14 +298,15 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     private void getFilmdeltaDirector(Movie movie, String fdeltaHtml) {
         ArrayList<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
-        String newDirector = "";
+        StringBuffer newDirector = new StringBuffer();
+        
         if (!filmdeltaDirectors.isEmpty()) {
             for (String dir : filmdeltaDirectors) {
                 dir = dir.substring(0, dir.length() - 4);
-                newDirector = newDirector + dir + " / ";
+                newDirector.append(dir + " / ");
             }
-            newDirector = newDirector.substring(0, newDirector.length() - 3);
-            movie.addDirector(newDirector);
+            
+            movie.addDirector(newDirector.substring(0, newDirector.length() - 3));
             logger.finest("FilmdeltaSE: scraped director: " + movie.getDirector());
         }
     }

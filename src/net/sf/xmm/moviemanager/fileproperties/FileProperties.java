@@ -198,17 +198,17 @@ abstract class FileProperties {
      */
     int getDecimalValue(int[] bits, int start, int stop, boolean printBits) {
 
-        String dec = "";
+        StringBuffer dec = new StringBuffer();
 
         for (int i = start; i >= stop; i--) {
-            dec += bits[i];
+            dec.append(bits[i]);
         }
 
         if (printBits) {
-            log.finest("dec:" + dec);
+            log.finest("dec:" + dec.toString());
         }
 
-        return Integer.parseInt(dec, 2);
+        return Integer.parseInt(dec.toString(), 2);
     }
 
     /**

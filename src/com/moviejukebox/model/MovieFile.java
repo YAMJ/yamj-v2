@@ -84,13 +84,13 @@ public class MovieFile implements Comparable<MovieFile> {
                     mappedScannerTypes = scannerTypeDefaults.get(s);
                 }
 
-                String patt = s;
+                StringBuffer patt = new StringBuffer(s);
                 if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
                     for (String t : mappedScannerTypes.split(",")) {
-                        patt += "|" + t;
+                        patt.append("|" + t);
                     }
                 }
-                put(s, MovieFilenameScanner.iwpatt(patt));
+                put(s, MovieFilenameScanner.iwpatt(patt.toString()));
             }
         }
     };

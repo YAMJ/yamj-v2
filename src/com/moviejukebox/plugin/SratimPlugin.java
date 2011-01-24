@@ -1382,7 +1382,8 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     private void updateCookies(HttpURLConnection connection) {
-        String cookieHeader = "";
+        StringBuffer cookieHeader = new StringBuffer();
+        
         for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
             if ("Set-Cookie".equals(header.getKey())) {
                 for (String rcookieHeader : header.getValue()) {
@@ -1395,9 +1396,9 @@ public class SratimPlugin extends ImdbPlugin {
                         logger.finest("Sratim Plugin: cookie:" + cookieName + '=' + cookieValue);
 
                         if (!cookieHeader.equals("")) {
-                            cookieHeader = cookieHeader + "; ";
+                            cookieHeader.append(cookieHeader + "; ");
                         }
-                        cookieHeader = cookieHeader + cookieName + "=" + cookieValue;
+                        cookieHeader.append(cookieName + "=" + cookieValue);
                     }
                 }
             }
@@ -1492,14 +1493,14 @@ public class SratimPlugin extends ImdbPlugin {
         }
     }
 
-    public static String removeChar(String s, char c) {
-        String r = "";
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) != c) {
-                r += s.charAt(i);
+    public static String removeChar(String str, char c) {
+        StringBuffer r = new StringBuffer();
+        for (int loop = 0; loop < str.length(); loop++) {
+            if (str.charAt(loop) != c) {
+                r.append(str.charAt(loop));
             }
         }
-        return r;
+        return r.toString();
     }
 
     public void scanNFO(String nfo, Movie movie) {

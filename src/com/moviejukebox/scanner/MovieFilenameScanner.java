@@ -279,11 +279,11 @@ public class MovieFilenameScanner {
 
         @Override
         public void put(String key, Collection<String> tokens) {
-            String patt = key;
-            for (String t : tokens) {
-                patt += "|" + t;
+            StringBuffer patt = new StringBuffer(key);
+            for (String token : tokens) {
+                patt.append("|" + token);
             }
-            put(key, iwpatt(patt));
+            put(key, iwpatt(patt.toString()));
         }
     };
 
