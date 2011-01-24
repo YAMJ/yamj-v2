@@ -13,6 +13,7 @@
 
 package com.moviejukebox.plugin;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -27,7 +28,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
-import java.awt.BasicStroke;  // NEW NEW
 
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -81,7 +81,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static String frameColor1080;
     private static String frameColorSD;
     private static String overlaySource;
-    private int cornerRadius2;
 
 
     public DefaultImagePlugin() {
@@ -135,7 +134,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         frameColorHD        = PropertiesUtil.getProperty(imageType + ".frame.colorHD", "255/255/255");
         frameColor720       = PropertiesUtil.getProperty(imageType + ".frame.color720", "255/255/255");
         frameColor1080      = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
-        cornerRadius2       = Integer.parseInt("0");
         
         ratio = (float)imageWidth / (float)imageHeight;
 
@@ -190,11 +188,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
             
             if (addFrame) {
-                bi = addFrame(movie, bi);
+                bi = drawFrame(movie, bi);
             }
                        
             if (roundCorners) {
-                bi = roundCorners(bi);
+                bi = drawRoundCorners(bi);
             }
 
             bi = drawLogos(movie, bi);
@@ -243,11 +241,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * @param bi
      * @return
      */        
-    private BufferedImage addFrame(Movie movie, BufferedImage bi) {
+    private BufferedImage drawFrame(Movie movie, BufferedImage bi) {
         BufferedImage newImg = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D newGraphics = newImg.createGraphics();
         newGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        int cornerRadius2 = 0;
+        
         if (!movie.isHD()) {
             String[] ColorSD = frameColorSD.split("/");
             int SD[] = new int[ColorSD.length];
@@ -290,14 +289,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius2, cornerRadius2);
         newGraphics.setClip(rect);
-        
+
         // image fitted into border
         newGraphics.drawImage(bi, frameSize - 1, frameSize - 1, bi.getWidth() - (frameSize * 2) + 2, bi.getHeight() - (frameSize * 2) + 2, null);
                
         BasicStroke s4 = new BasicStroke(frameSize * 2);
             
-        newGraphics.setStroke( s4 );
-        newGraphics.draw( rect );
+        newGraphics.setStroke(s4);
+        newGraphics.draw(rect);
+        newGraphics.dispose();
+        
         return newImg;
     }
     
@@ -306,7 +307,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * @param bi
      * @return
      */
-    protected BufferedImage roundCorners(BufferedImage bi) {
+    protected BufferedImage drawRoundCorners(BufferedImage bi) {
         BufferedImage newImg = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D newGraphics = newImg.createGraphics();
         newGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -505,6 +506,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         
         // Make sure the source is formatted correctly
         source = source.toLowerCase().trim();
+        
+        // Check for a blank or an UNKNOWN source and correct it
+        if (StringTools.isNotValidString(source)) {
+            source = "default";
+        }
             
         try {
             BufferedImage biOverlay = GraphicTools.loadJPEGImage(getResourcesPath() + source + "_overlay_" + imageType + ".png");
