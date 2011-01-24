@@ -1236,6 +1236,8 @@ public class SratimPlugin extends ImdbPlugin {
     public boolean downloadSubtitleZip(Movie movie, String subDownloadLink, File subtitleFile) {
 
         boolean found = false;
+        ZipInputStream zipinputstream = null;
+
         try {
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
@@ -1260,7 +1262,6 @@ public class SratimPlugin extends ImdbPlugin {
             Iterator<MovieFile> partsIter = parts.iterator();
 
             byte[] buf = new byte[1024];
-            ZipInputStream zipinputstream = null;
             ZipEntry zipentry;
             zipinputstream = new ZipInputStream(inputStream);
 
@@ -1317,6 +1318,12 @@ public class SratimPlugin extends ImdbPlugin {
         } catch (Exception error) {
             logger.severe("Sratim Plugin: Error - " + error.getMessage());
             return false;
+        } finally {
+            try {
+                zipinputstream.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
 
         return found;
@@ -1433,13 +1440,18 @@ public class SratimPlugin extends ImdbPlugin {
 
     protected StringWriter getContent(URLConnection connection) throws IOException {
         StringWriter content = new StringWriter(10*1024);
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charset.defaultCharset()));
+        InputStreamReader inputStream = new InputStreamReader(connection.getInputStream(), Charset.defaultCharset());
+        BufferedReader in = new BufferedReader(inputStream);
         String line;
+        
         while ((line = in.readLine()) != null) {
             content.write(line);
         }
+        
         content.flush();
         in.close();
+        inputStream.close();
+        
         return content;
     }
 
@@ -1447,6 +1459,8 @@ public class SratimPlugin extends ImdbPlugin {
 
         challenge_field = sessionDetails.getProperty("challenge_field");
 
+        DataOutputStream wr = null;
+        
         try {
             // Build the post request
             String post;
@@ -1473,7 +1487,7 @@ public class SratimPlugin extends ImdbPlugin {
             connection.setInstanceFollowRedirects(false);
 
             // Send request
-            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr = new DataOutputStream(connection.getOutputStream());
             wr.writeBytes(post);
             wr.flush();
             wr.close();
@@ -1494,6 +1508,12 @@ public class SratimPlugin extends ImdbPlugin {
         } catch (Exception error) {
             logger.severe("Sratim Plugin: Error - " + error.getMessage());
             return false;
+        } finally {
+            try {
+                wr.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
     }
 
