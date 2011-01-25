@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tvrage.tools.StringTools;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -49,6 +50,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 public class MovieFilenameScanner {
     protected static final Logger logger = Logger.getLogger("moviejukebox");
     protected static boolean skipEpisodeTitle;
+    protected static boolean useParentRegex;
 
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
@@ -58,12 +60,21 @@ public class MovieFilenameScanner {
     /** All symbols within brackets [] if there is an EXTRA keyword */
     private static String[] extrasKeywords;
     private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
+    
+    protected static final Pattern USE_PARENT_PATTERN;
+    
     static {
         setExtrasKeywords(new String[] {"trailer"});
-        try {
-            skipEpisodeTitle = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.scanner.skip.episodeTitle", "false"));
-        } catch (Exception ignore) {
-            skipEpisodeTitle = false;
+        skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", "false");
+        useParentRegex = PropertiesUtil.getBooleanProperty("filename.scanner.useParentRegex", "false");
+        String patternString = PropertiesUtil.getProperty("filename.scanner.parentRegex", "");
+        logger.finer("MovieFilenameScanner: useParentPattern >>" + patternString + "<<");
+        if (StringTools.isValidString(patternString)) {
+            USE_PARENT_PATTERN = ipatt(patternString);
+        } else {
+            logger.finer("MovieFilenameScanner: Invalid parentPattern, ignoring");
+            USE_PARENT_PATTERN = null;
+            useParentRegex = false;
         }
     }
 
@@ -346,10 +357,19 @@ public class MovieFilenameScanner {
     }
 
     private MovieFilenameScanner(File file) {
-        this.file = file;
-        this.filename = file.getName();
+        // TODO: Not sure why the file/filename are FINAL here. perhaps we should look at this.
+        
+        // CHECK FOR USE_PARENT_PATTERN matches
+        if (useParentRegex && USE_PARENT_PATTERN.matcher(file.getName()).find()) {
+            this.file = file.getParentFile();
+            logger.finer("MovieFilenameScanner: UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
+        } else {
+            this.file = file;
+        }
+        
+        this.filename = this.file.getName();
         rest = filename;
-
+        
         // EXTENSION AND CONTAINER
         if (file.isFile()) {
             // Extract and strip extension
