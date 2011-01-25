@@ -256,7 +256,6 @@ public class MovieJukeboxHTMLWriter {
             outFile = new FileWriter(filename);
             outFile.write(sb.toString());
             outFile.flush();
-            outFile.close();
             
         } catch (Exception error) {
             logger.finer("HTMLWriter: Failed deleting blank lines from " + filename);
@@ -266,14 +265,17 @@ public class MovieJukeboxHTMLWriter {
             logger.severe(eResult.toString());
         } finally {
             try {
-                outFile.flush();
-                outFile.close();
+                if (outFile != null) {
+                    outFile.close();
+                }
             } catch (IOException e) {
                 // Ignore
             }
             
             try {
-                reader.close();
+                if (reader != null) {
+                    reader.close();
+                }
             } catch (IOException e) {
                 // Ignore
             }
