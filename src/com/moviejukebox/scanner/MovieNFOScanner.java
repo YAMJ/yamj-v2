@@ -77,7 +77,7 @@ public class MovieNFOScanner {
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 
-        forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", null);
+        forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
         if (forceNFOEncoding.equalsIgnoreCase("AUTO")) {
             forceNFOEncoding = null;
         }
