@@ -113,7 +113,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         // We get artwork scanner behaviour
         try {
-            searchForExistingArtwork = Boolean.parseBoolean(PropertiesUtil.getProperty(artworkType + ".scanner.searchForExistingArtwork", "true"));
+            searchForExistingArtwork = PropertiesUtil.getBooleanProperty(artworkType + ".scanner.searchForExistingArtwork", "true");
         } catch (Exception ignore) {
             searchForExistingArtwork = true;
         }
@@ -124,19 +124,19 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         setArtworkImageName(PropertiesUtil.getProperty(artworkType + ".scanner.imageName", ""));
         
         try {
-            artworkValidate = Boolean.parseBoolean(PropertiesUtil.getProperty(artworkType + ".scanner.Validate", "true"));
+            artworkValidate = PropertiesUtil.getBooleanProperty(artworkType + ".scanner.Validate", "true");
         } catch (Exception ignore) {
             artworkValidate = true;
         }
         
         try {
-            artworkValidateMatch = Integer.parseInt(PropertiesUtil.getProperty(artworkType + ".scanner.ValidateMatch", "75"));
+            artworkValidateMatch = PropertiesUtil.getIntProperty(artworkType + ".scanner.ValidateMatch", "75");
         } catch (Exception ignore) {
             artworkValidateMatch = 75;
         }
         
         try {
-            artworkValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty(artworkType + ".scanner.ValidateAspect", "true"));
+            artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkType + ".scanner.ValidateAspect", "true");
         } catch (Exception ignore) {
             artworkValidateAspect = true;
         }
@@ -670,8 +670,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         String dimensionType = ARTWORK_TYPES.get(artworkType);
         
         try {
-            artworkWidth = Integer.parseInt(PropertiesUtil.getProperty(dimensionType + ".width", "0"));
-            artworkHeight = Integer.parseInt(PropertiesUtil.getProperty(dimensionType + ".height", "0"));
+            artworkWidth = PropertiesUtil.getIntProperty(dimensionType + ".width", "0");
+            artworkHeight = PropertiesUtil.getIntProperty(dimensionType + ".height", "0");
         } catch (Exception ignore) {
             logger.severe(logMessage + "Number format error with " + dimensionType + ".width and/or " + dimensionType + ".height");
             logger.severe(logMessage + "Please ensure these are set correctly in your skin.properties file.");
@@ -682,8 +682,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         if ((artworkWidth == 0) || (artworkHeight == 0)) {
             // There was an issue with the correct properties, so use poster as a default.
             try {
-                artworkWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "400"));
-                artworkHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "600"));
+                artworkWidth = PropertiesUtil.getIntProperty("posters.width", "400");
+                artworkHeight = PropertiesUtil.getIntProperty("posters.height", "600");
             } catch (Exception ignore) {
                 // Just in case there is an issue with the poster settings too!
                 artworkWidth = 400;

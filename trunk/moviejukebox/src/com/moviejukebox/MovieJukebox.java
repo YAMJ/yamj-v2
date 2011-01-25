@@ -20,7 +20,6 @@ import static com.moviejukebox.tools.StringTools.appendToPath;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.writer.MovieJukeboxHTMLWriter.getTransformer;
-import static java.lang.Boolean.parseBoolean;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -333,13 +332,13 @@ public class MovieJukebox {
         }
         
         MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "),
-                Boolean.parseBoolean(getProperty("filename.scanner.skip.caseSensitive", "true")));
+                        PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive", "true"));
         MovieFilenameScanner.setSkipRegexKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords.regex", ""), ","),
-                Boolean.parseBoolean(getProperty("filename.scanner.skip.caseSensitive.regex", "true")));
+                        PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive.regex", "true"));
         MovieFilenameScanner.setExtrasKeywords(tokenizeToArray(getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| "));
         MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray(getProperty("filename.movie.versions.keywords",
                         "remastered,directors cut,extended cut,final cut"), ",;|"));
-        MovieFilenameScanner.setLanguageDetection(parseBoolean(getProperty("filename.scanner.language.detection", "true")));
+        MovieFilenameScanner.setLanguageDetection(PropertiesUtil.getBooleanProperty("filename.scanner.language.detection", "true"));
         final KeywordMap languages = PropertiesUtil.getKeywordMap("filename.scanner.language.keywords", null);
         if (languages.size() > 0) {
             MovieFilenameScanner.clearLanguages();
@@ -430,7 +429,7 @@ public class MovieJukebox {
         boolean renameFile = false;
         
         String libraryName = "_Library";
-        if (Boolean.parseBoolean(getProperty("mjb.appendLibraryToLogFile", "false"))) {
+        if (PropertiesUtil.getBooleanProperty("mjb.appendLibraryToLogFile", "false")) {
             renameFile = true;
             for (final MediaLibraryPath mediaLibrary : movieLibraryPaths) {
                 if (isValidString(mediaLibrary.getDescription())) {
@@ -443,7 +442,7 @@ public class MovieJukebox {
             newLogFilename += libraryName;
         }
         
-        if (Boolean.parseBoolean(getProperty("mjb.appendDateToLogFile", "false"))) {
+        if (PropertiesUtil.getBooleanProperty("mjb.appendDateToLogFile", "false")) {
             renameFile = true;
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
@@ -605,21 +604,21 @@ public class MovieJukebox {
         
         jukebox = new Jukebox(jukeboxRoot, jukeboxTempLocation, detailsDirName);
         
-        this.forcePosterOverwrite = parseBoolean(getProperty("mjb.forcePostersOverwrite", "false"));
-        this.forceThumbnailOverwrite = parseBoolean(getProperty("mjb.forceThumbnailsOverwrite", "false"));
-        this.forceBannerOverwrite = parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
-        this.forceSkinOverwrite = parseBoolean(getProperty("mjb.forceSkinOverwrite", "false"));
+        this.forcePosterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePostersOverwrite", "false");
+        this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", "false");
+        this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
+        this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", "false");
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
         // This is what these properties should look like
-        // this.fanartMovieDownload = parseBoolean(getProperty("fanart.movie.download", "false"));
-        // this.fanartTvDownload = parseBoolean(getProperty("fanart.tv.download", "false"));
+        // this.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
+        // this.fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
         fanartMovieDownload = FanartScanner.checkDownloadFanart(false);
         fanartTvDownload = FanartScanner.checkDownloadFanart(true);
 
-        this.setIndexFanart = parseBoolean(getProperty("mjb.sets.indexFanart", "false"));
+        this.setIndexFanart = PropertiesUtil.getBooleanProperty("mjb.sets.indexFanart", "false");
         
-        this.recheckXML = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.XML", "true"));
+        this.recheckXML = PropertiesUtil.getBooleanProperty("mjb.recheck.XML", "true");
 
         fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
@@ -627,9 +626,9 @@ public class MovieJukebox {
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
         videoimageToken = getProperty("mjb.scanner.videoimageToken", ".videoimage");
 
-        trailersScannerEnable = parseBoolean(getProperty("trailers.scanner.enable", "true"));
+        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
         try {
-            trailersRescanDaysMillis = Integer.parseInt(PropertiesUtil.getProperty("trailers.rescan.days", "15"));
+            trailersRescanDaysMillis = PropertiesUtil.getIntProperty("trailers.rescan.days", "15");
             // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
             trailersRescanDaysMillis *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         } catch (Exception e) {
@@ -709,13 +708,13 @@ public class MovieJukebox {
         final File jukeboxDetailsRootFile = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails());
 
         MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
-        this.moviejukeboxListing = parseBoolean(getProperty("mjb.listing.generate", "false"));
+        this.moviejukeboxListing = PropertiesUtil.getBooleanProperty("mjb.listing.generate", "false");
 
-        videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
-        bannerDownload = parseBoolean(getProperty("mjb.includeWideBanners", "false"));
-        extraArtworkDownload = parseBoolean(getProperty("mjb.includeExtraArtwork", "false"));
+        videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
+        extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
 
-        boolean processExtras = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.extras.process","true"));
+        boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
 
         // Multi-thread: Processing thread settings
         MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0")); 
@@ -1028,7 +1027,7 @@ public class MovieJukebox {
                         String posterExtension = getProperty("posters.format", "png");
                         movie.setDetailPosterFilename(safeSetMasterBaseName + posterToken + "." + posterExtension);
 
-                        if (Boolean.parseBoolean(getProperty("mjb.sets.createPosters", "false"))) {
+                        if (PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false")) {
                             // Create a detail poster for each movie
                             logger.finest("Creating detail poster for index master: " + movie.getBaseName());
                             createPoster(tools.imagePlugin, jukebox, skinHome, movie, forcePosterOverwrite);
@@ -1281,8 +1280,8 @@ public class MovieJukebox {
      * Once scanned, the <tt>movie</tt> object is persisted.
      */
     public void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) throws FileNotFoundException, XMLStreamException {
-        boolean forceXMLOverwrite = parseBoolean(getProperty("mjb.forceXMLOverwrite", "false"));
-        boolean checkNewer = parseBoolean(getProperty("filename.nfo.checknewer", "true"));
+        boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
+        boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", "true");
 
         /*
          * For each video in the library, if an XML file for this video already exists, then there is no need to search for the video file information, just
@@ -1856,7 +1855,7 @@ public class MovieJukebox {
      */
     private static boolean mjbRecheck(Movie movie) {
         // Property variables
-        int recheckMax = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Max", "50"));
+        int recheckMax = PropertiesUtil.getIntProperty("mjb.recheck.Max", "50");
         
         // Skip Extras (Trailers, etc)
         if (movie.isExtra()) {
@@ -1872,11 +1871,11 @@ public class MovieJukebox {
             return false;
         }
         
-        int recheckDays     = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Days", "30"));
-        int recheckMinDays  = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.minDays", "7"));
-        int recheckRevision = Integer.parseInt(PropertiesUtil.getProperty("mjb.recheck.Revision", "25"));
-        boolean recheckVersion = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Version", "true"));
-        boolean recheckUnknown = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.recheck.Unknown", "true"));
+        int recheckDays     = PropertiesUtil.getIntProperty("mjb.recheck.Days", "30");
+        int recheckMinDays  = PropertiesUtil.getIntProperty("mjb.recheck.minDays", "7");
+        int recheckRevision = PropertiesUtil.getIntProperty("mjb.recheck.Revision", "25");
+        boolean recheckVersion = PropertiesUtil.getBooleanProperty("mjb.recheck.Version", "true");
+        boolean recheckUnknown = PropertiesUtil.getBooleanProperty("mjb.recheck.Unknown", "true");
         Date currentDate = new Date();
         long dateDiff = (currentDate.getTime() - movie.getMjbGenerationDate().toDate().getTime()) / (1000 * 60 * 60 * 24);
         
@@ -1956,7 +1955,7 @@ public class MovieJukebox {
             }
             
             if (movie.isTVShow()) {
-                boolean recheckEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
+                boolean recheckEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
                 
                 if (bannerDownload && isNotValidString(movie.getBannerURL())) {
                     logger.finest("Recheck: " + movie.getBaseName() + " is missing banner artwork, will rescan");
@@ -2003,7 +2002,7 @@ public class MovieJukebox {
      */
     private static boolean isTrailersNeedRescan(Movie movie) {
 
-        boolean trailersOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceTrailersOverwrite", "false"));
+        boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", "false");
         if (trailersOverwrite) {
             return true;
         }

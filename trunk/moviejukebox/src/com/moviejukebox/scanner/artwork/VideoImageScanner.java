@@ -60,7 +60,7 @@ public class VideoImageScanner {
         
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         videoimageToken = PropertiesUtil.getProperty("videoimage.scanner.videoimageToken", ".videoimage");
-        videoimageOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceVideoImagesOverwrite", "false"));
+        videoimageOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceVideoImagesOverwrite", "false");
     }
 
     /**

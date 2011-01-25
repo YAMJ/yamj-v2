@@ -91,7 +91,7 @@ public class PosterScanner {
         fixedPosterName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
         // See if we use folder.* image or not
         // Note: We need the useFolderImage because of the special "folder.jpg" case in windows.
-        useFolderImage = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.useFolderImage", "false"));
+        useFolderImage = PropertiesUtil.getBooleanProperty("poster.scanner.useFolderImage", "false");
 
         if (useFolderImage) {
             st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.imageName", "folder,poster"), ",;|");
@@ -116,11 +116,11 @@ public class PosterScanner {
         moviePosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie",
                         "themoviedb,impawards,imdb,moviecovers,google,yahoo,motechnet");
 
-        posterWidth = Integer.parseInt(PropertiesUtil.getProperty("posters.width", "0"));
-        posterHeight = Integer.parseInt(PropertiesUtil.getProperty("posters.height", "0"));
-        posterValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.Validate", "true"));
-        posterValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("poster.scanner.ValidateMatch", "75"));
-        posterValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("poster.scanner.ValidateAspect", "true"));
+        posterWidth = PropertiesUtil.getIntProperty("posters.width", "0");
+        posterHeight = PropertiesUtil.getIntProperty("posters.height", "0");
+        posterValidate = PropertiesUtil.getBooleanProperty("poster.scanner.Validate", "true");
+        posterValidateMatch = PropertiesUtil.getIntProperty("poster.scanner.ValidateMatch", "75");
+        posterValidateAspect = PropertiesUtil.getBooleanProperty("poster.scanner.ValidateAspect", "true");
 
         // Load plugins
         posterPlugins = new HashMap<String, IPosterPlugin>();

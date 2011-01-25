@@ -81,7 +81,7 @@ public class MovieJukeboxXMLWriter {
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
-    private static int categoryMinCountMaster = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
+    private static int categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean writeNfoFiles;
     private boolean extractCertificationFromMPAA;
@@ -92,23 +92,23 @@ public class MovieJukeboxXMLWriter {
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
         
-        writeNfoFiles = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.writeFiles", "false"));
+        writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", "false");
     }
 
     public MovieJukeboxXMLWriter() {
-        forceXMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceXMLOverwrite", "false"));
-        forceIndexOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceIndexOverwrite", "false"));
-        nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
-        nbMoviesPerLine = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerLine", "5"));
-        nbTvShowsPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbTvThumbnailsPerPage", "0")); // If 0 then use the Movies setting
-        nbTvShowsPerLine = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbTvThumbnailsPerLine", "0")); // If 0 then use the Movies setting
-        fullMovieInfoInIndexes = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.fullMovieInfoInIndexes", "false"));
-        includeMoviesInCategories = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeMoviesInCategories", "false"));
-        includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
-        includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        isPlayOnHD = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.PlayOnHD", "false"));
+        forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
+        forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
+        nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
+        nbMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerLine", "5");
+        nbTvShowsPerPage = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerPage", "0"); // If 0 then use the Movies setting
+        nbTvShowsPerLine = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerLine", "0"); // If 0 then use the Movies setting
+        fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", "false");
+        includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", "false");
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", "false");
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
-        extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
+        extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -855,7 +855,7 @@ public class MovieJukeboxXMLWriter {
     private int calcMinCategoryCount(String categoryName) {
         int categoryMinCount = categoryMinCountMaster;
         try {
-            categoryMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount." + categoryName, "" + categoryMinCountMaster));
+            categoryMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount." + categoryName, "" + categoryMinCountMaster);
         } catch (Exception ignore) {
             categoryMinCount = categoryMinCountMaster;
         }

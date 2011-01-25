@@ -44,7 +44,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
     // Define plot length
-    int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+    int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
     protected TheTvDBPlugin tvdb;
 
@@ -282,7 +282,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     // Limit genres count
                     int maxGenres = 9;
                     try {
-                        maxGenres = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "9"));
+                        maxGenres = PropertiesUtil.getIntProperty("genres.max", "9");
                     } catch (Exception ignore) {
                         //
                     }

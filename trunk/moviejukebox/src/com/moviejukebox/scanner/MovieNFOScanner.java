@@ -84,9 +84,9 @@ public class MovieNFOScanner {
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
         NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
-        getCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
+        getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
-        acceptAllNFO = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.nfo.acceptAllNfo", "false"));
+        acceptAllNFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", "false");
         if (acceptAllNFO) {
             logger.fine("MovieNFOScanner: Accepting all NFO files in the directory");
         }

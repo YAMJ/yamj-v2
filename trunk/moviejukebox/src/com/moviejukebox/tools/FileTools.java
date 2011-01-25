@@ -13,7 +13,6 @@
 package com.moviejukebox.tools;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static java.lang.Boolean.parseBoolean;
 import static org.apache.commons.lang.StringUtils.substringAfter;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 import static org.apache.commons.lang.StringUtils.trimToNull;
@@ -91,7 +90,7 @@ public class FileTools {
     private static Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
-    private static boolean videoimageDownload = parseBoolean(getProperty("mjb.includeVideoImages", "false"));
+    private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
     private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
 
     static {

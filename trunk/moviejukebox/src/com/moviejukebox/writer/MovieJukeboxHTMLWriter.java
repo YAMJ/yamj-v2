@@ -71,17 +71,17 @@ public class MovieJukeboxHTMLWriter {
     private static final Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
     //private static String str_categoriesIndexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
     //private static List<String> categoriesIndexList = Arrays.asList(str_categoriesIndexList.split(","));
-    //private static int categoriesMinCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.categories.minCount", "3"));
+    //private static int categoriesMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3"));
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
     private static File playlistFile;
     private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     private static String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
-    private static boolean generateMultiPartPlaylist = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playlist.generateMultiPart", "true"));
+    private static boolean generateMultiPartPlaylist = PropertiesUtil.getBooleanProperty("mjb.playlist.generateMultiPart", "true");
 
     public MovieJukeboxHTMLWriter() {
-        forceHTMLOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceHTMLOverwrite", "false"));
-        nbMoviesPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbThumbnailsPerPage", "10"));
-        nbTvShowsPerPage = Integer.parseInt(PropertiesUtil.getProperty("mjb.nbTvThumbnailsPerPage", "0")); // If 0 then use the Movies setting
+        forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false");
+        nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
+        nbTvShowsPerPage = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerPage", "0"); // If 0 then use the Movies setting
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
         }

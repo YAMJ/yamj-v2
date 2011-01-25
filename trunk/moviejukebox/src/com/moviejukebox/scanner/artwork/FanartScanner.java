@@ -83,10 +83,10 @@ public class FanartScanner {
 
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 
-        fanartOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceFanartOverwrite", "false"));
+        fanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", "false");
         
         // See if we use background.* or fanart.*
-        useFolderBackground = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.useFolderImage", "false"));
+        useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", "false");
         if (useFolderBackground) {
             st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
             fanartImageName = new ArrayList<String>();
@@ -95,11 +95,11 @@ public class FanartScanner {
             }
         }
 
-        artworkWidth = Integer.parseInt(PropertiesUtil.getProperty("fanart.width", "0"));
-        artworkHeight = Integer.parseInt(PropertiesUtil.getProperty("fanart.height", "0"));
-        artworkValidate = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.Validate", "true"));
-        artworkValidateMatch = Integer.parseInt(PropertiesUtil.getProperty("fanart.scanner.ValidateMatch", "75"));
-        artworkValidateAspect = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.scanner.ValidateAspect", "true"));
+        artworkWidth = PropertiesUtil.getIntProperty("fanart.width", "0");
+        artworkHeight = PropertiesUtil.getIntProperty("fanart.height", "0");
+        artworkValidate = PropertiesUtil.getBooleanProperty("fanart.scanner.Validate", "true");
+        artworkValidateMatch = PropertiesUtil.getIntProperty("fanart.scanner.ValidateMatch", "75");
+        artworkValidateAspect = PropertiesUtil.getBooleanProperty("fanart.scanner.ValidateAspect", "true");
 
     }
 
@@ -183,7 +183,7 @@ public class FanartScanner {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(fullFanartFile);
                     if (fanartImage != null) {
                         fanartImage = backgroundPlugin.generate(movie, fanartImage, "fanart", null);
-                        if (Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.perspective", "false"))) {
+                        if (PropertiesUtil.getBooleanProperty("fanart.perspective", "false")) {
                             destFileName = destFileName.subSequence(0, destFileName.lastIndexOf(".") + 1) + "png";
                             movie.setFanartFilename(destFileName);
                         }
@@ -324,7 +324,7 @@ public class FanartScanner {
         // If this is null, then the property wasn't found, so look for the original
         if (fanartProperty == null) {
             logger.severe("The property moviedb.fanart.download needs to be changed to 'fanart.tv.download' AND 'fanart.movie.download' ");
-            downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("moviedb.fanart.download", "false"));
+            downloadFanart = PropertiesUtil.getBooleanProperty("moviedb.fanart.download", "false");
         } else {
             try {
                 downloadFanart = Boolean.parseBoolean(fanartProperty);

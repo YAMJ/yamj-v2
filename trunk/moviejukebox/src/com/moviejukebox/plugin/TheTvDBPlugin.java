@@ -13,7 +13,6 @@
 
 package com.moviejukebox.plugin;
 
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
@@ -72,18 +71,18 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (language2nd.equalsIgnoreCase(language)) {
             language2nd = "";
         }
-        includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
-        includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        includeWideBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeWideBanners", "false"));
-        onlySeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.onlySeriesBanners", "false"));
-        cycleSeriesBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.cycleSeriesBanners", "true"));
-        dvdEpisodes = Boolean.parseBoolean(PropertiesUtil.getProperty("thetvdb.dvd.episodes", "false"));
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        includeWideBanners = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
+        onlySeriesBanners = PropertiesUtil.getBooleanProperty("mjb.onlySeriesBanners", "false");
+        cycleSeriesBanners = PropertiesUtil.getBooleanProperty("mjb.cycleSeriesBanners", "true");
+        dvdEpisodes = PropertiesUtil.getBooleanProperty("thetvdb.dvd.episodes", "false");
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
-        forceFanartOverwrite = Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
-        forceBannerOverwrite = Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
-        textBanners = Boolean.parseBoolean(PropertiesUtil.getProperty("banners.addText.season", "false"));
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
+        forceFanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", "false");
+        forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        textBanners = PropertiesUtil.getBooleanProperty("banners.addText.season", "false");
 
         // We need to set the proxy parameters if set.
         tvDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());

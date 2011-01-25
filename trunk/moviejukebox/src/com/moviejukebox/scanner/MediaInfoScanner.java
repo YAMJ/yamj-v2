@@ -70,7 +70,7 @@ public class MediaInfoScanner {
         logger.finer("Operating System Type   : " + OS_ARCH);
 
         mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
-        enableMetadata = Boolean.parseBoolean(PropertiesUtil.getProperty("mediainfo.metadata.enable", "false"));
+        enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
 
         File checkMediainfo = null;
 

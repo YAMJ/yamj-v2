@@ -48,7 +48,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     protected TheTvDBPlugin tvdb;
 
     // Get properties for plotlength and rating
-    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     private String preferredRating = PropertiesUtil.getProperty("filmdelta.rating", "filmdelta");
 
     public FilmDeltaSEPlugin() {

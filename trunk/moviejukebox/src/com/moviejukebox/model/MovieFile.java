@@ -59,9 +59,9 @@ public class MovieFile implements Comparable<MovieFile> {
     private MovieFileNameDTO info;
     private boolean watched = false;
     private long watchedDate = 0;
-    private boolean playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "true"));
-    private boolean includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
-    private boolean includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
+    private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", "true");
+    private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+    private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
 

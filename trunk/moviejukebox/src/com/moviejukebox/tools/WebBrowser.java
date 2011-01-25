@@ -63,20 +63,20 @@ public class WebBrowser {
         mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
 
         try {        
-            mjbTimeoutConnect = Integer.parseInt(PropertiesUtil.getProperty("mjb.Timeout.Connect", "25000"));
+            mjbTimeoutConnect = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", "25000");
         } catch (Exception ignore) {
             // If the conversion fails use the default value
             mjbTimeoutConnect = 25000;
         }
 
         try {
-            mjbTimeoutRead = Integer.parseInt(PropertiesUtil.getProperty("mjb.Timeout.Read", "90000"));
+            mjbTimeoutRead = PropertiesUtil.getIntProperty("mjb.Timeout.Read", "90000");
         } catch (Exception ignore) {
             // If the conversion fails use the default value
             mjbTimeoutRead = 90000;
         }
         
-        imageRetryCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.imageRetryCount", "3"));
+        imageRetryCount = PropertiesUtil.getIntProperty("mjb.imageRetryCount", "3");
         if (imageRetryCount < 1) {
             imageRetryCount = 1;
         }

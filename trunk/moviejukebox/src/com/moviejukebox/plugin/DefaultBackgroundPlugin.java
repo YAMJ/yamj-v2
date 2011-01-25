@@ -45,7 +45,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         
         backgroundWidth = checkWidth(movie.isTVShow(), imageType);
         backgroundHeight = checkHeight(movie.isTVShow(), imageType);
-        addPerspective = Boolean.parseBoolean(PropertiesUtil.getProperty(imageType + ".perspective", "false"));
+        addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
         
         BufferedImage bi = null;
         if (backgroundImage != null) {
@@ -81,7 +81,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         //TODO remove these checks once all the skins have upgraded to the new properties
         // If this is null, then the property wasn't found, so look for the original
         if (widthProperty == null) {
-            backgroundWidth = Integer.parseInt(PropertiesUtil.getProperty("background.width", "1280"));
+            backgroundWidth = PropertiesUtil.getIntProperty("background.width", "1280");
         } else {
             backgroundWidth = Integer.parseInt(widthProperty);
         }
@@ -106,7 +106,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         //TODO remove these checks once all the skins have upgraded to the new properties
         // If this is null, then the property wasn't found, so look for the original
         if (heightProperty == null) {
-            backgroundHeight = Integer.parseInt(PropertiesUtil.getProperty("background.height", "720"));
+            backgroundHeight = PropertiesUtil.getIntProperty("background.height", "720");
         } else {
             backgroundHeight = Integer.parseInt(heightProperty);
         }

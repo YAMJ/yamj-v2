@@ -36,7 +36,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
     }
 
-    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     /**
      * Scan FilmUp.IT HTML page for the specified movie

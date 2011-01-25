@@ -60,10 +60,10 @@ public class BannerScanner {
 
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
 
-        bannerOverwrite = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.forceBannersOverwrite", "false"));
+        bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
         
         // See if we use the folder banner artwork
-        useFolderBanner = Boolean.parseBoolean(PropertiesUtil.getProperty("banner.scanner.useFolderImage", "false"));
+        useFolderBanner = PropertiesUtil.getBooleanProperty("banner.scanner.useFolderImage", "false");
         if (useFolderBanner) {
             st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
             bannerImageName = new ArrayList<String>();

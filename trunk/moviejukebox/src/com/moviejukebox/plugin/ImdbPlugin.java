@@ -63,11 +63,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
-        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
-        extractCertificationFromMPAA = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.getCertificationFromMPAA", "true"));
-        getFullInfo = Boolean.parseBoolean(PropertiesUtil.getProperty("imdb.full.info", "false"));
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
+        getFullInfo = PropertiesUtil.getBooleanProperty("imdb.full.info", "false");
     }
 
     @Override
