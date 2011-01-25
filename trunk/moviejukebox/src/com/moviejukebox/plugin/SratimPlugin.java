@@ -1236,15 +1236,17 @@ public class SratimPlugin extends ImdbPlugin {
     public boolean downloadSubtitleZip(Movie movie, String subDownloadLink, File subtitleFile) {
 
         boolean found = false;
-        ZipInputStream zipinputstream = null;
-
+        ZipInputStream zipInputStream = null;
+        OutputStream fileOutputStream = null;
+        HttpURLConnection connection = null;
+        InputStream inputStream = null;
+        
         try {
             URL url = new URL(subDownloadLink);
-            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
+            connection = (HttpURLConnection)(url.openConnection());
             String cookieHeader = sessionDetails.getProperty(PHPSESSID);
             connection.setRequestProperty("Cookie", cookieHeader);
-
-            InputStream inputStream = connection.getInputStream();
+            inputStream = connection.getInputStream();
 
             String contentType = connection.getContentType();
 
@@ -1263,9 +1265,9 @@ public class SratimPlugin extends ImdbPlugin {
 
             byte[] buf = new byte[1024];
             ZipEntry zipentry;
-            zipinputstream = new ZipInputStream(inputStream);
+            zipInputStream = new ZipInputStream(inputStream);
 
-            zipentry = zipinputstream.getNextEntry();
+            zipentry = zipInputStream.getNextEntry();
             while (zipentry != null) {
                 // for each entry to be extracted
                 String entryName = zipentry.getName();
@@ -1276,14 +1278,13 @@ public class SratimPlugin extends ImdbPlugin {
                 if (entryName.toUpperCase().endsWith(".SRT") || entryName.toUpperCase().endsWith(".SUB")) {
 
                     int n;
-                    OutputStream fileoutputstream;
 
                     String entryExt = entryName.substring(entryName.lastIndexOf('.'));
 
                     if (movie.isTVShow()) {
                         // for tv show, use the subtitleFile parameter because tv show is
                         // handled by downloading subtitle from the episode page (each episode for its own)
-                        fileoutputstream = FileTools.createFileOutputStream(subtitleFile + entryExt);
+                        fileOutputStream = FileTools.createFileOutputStream(subtitleFile + entryExt);
                     } else {
                         // for movie, we need to save all subtitles entries
                         // from inside the zip file, and name them according to
@@ -1292,38 +1293,57 @@ public class SratimPlugin extends ImdbPlugin {
                             MovieFile moviePart = partsIter.next();
                             String partName = moviePart.getFile().getAbsolutePath();
                             partName = partName.substring(0, partName.lastIndexOf('.'));
-                            fileoutputstream =FileTools.createFileOutputStream(partName + entryExt);
+                            fileOutputStream =FileTools.createFileOutputStream(partName + entryExt);
                         } else {
                             // in case of some mismatch, use the old code
-                            fileoutputstream = FileTools.createFileOutputStream(subtitleFile + entryExt);
+                            fileOutputStream = FileTools.createFileOutputStream(subtitleFile + entryExt);
                         }
                     }
 
-                    while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
-                        fileoutputstream.write(buf, 0, n);
+                    while ((n = zipInputStream.read(buf, 0, 1024)) > -1) {
+                        fileOutputStream.write(buf, 0, n);
                     }
-
-                    fileoutputstream.close();
 
                     found = true;
                 }
 
-                zipinputstream.closeEntry();
-                zipentry = zipinputstream.getNextEntry();
+                zipInputStream.closeEntry();
+                zipentry = zipInputStream.getNextEntry();
 
             }
-
-            zipinputstream.close();
 
         } catch (Exception error) {
             logger.severe("Sratim Plugin: Error - " + error.getMessage());
             return false;
         } finally {
             try {
-                zipinputstream.close();
+                if (zipInputStream != null) {
+                    zipInputStream.close();
+                }
             } catch (IOException e) {
                 // Ignore
             }
+
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
+            
+            try {
+                if (fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
+
+            if (connection != null) {
+                connection.disconnect();
+            }
+
         }
 
         return found;
