@@ -66,13 +66,17 @@ public class PropertiesUtil {
             return false;
         } finally {
             try {
-                propertiesStream.close();
-            } catch (IOException e1) {
+                if (propertiesStream != null) {
+                    propertiesStream.close();
+                }
+            } catch (IOException e) {
                 // Ignore
             }
             
             try {
-                reader.close();
+                if (reader != null) {
+                    reader.close();
+                }
             } catch (IOException e) {
                 // Ignore
             }
