@@ -13,7 +13,10 @@
 
 package com.moviejukebox.plugin;
 
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static com.moviejukebox.tools.StringTools.convertDateToString;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.trimToLength;
 
 import java.util.List;
 import java.util.StringTokenizer;
@@ -21,7 +24,6 @@ import java.util.StringTokenizer;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tvrage.TVRage;
 import com.moviejukebox.tvrage.model.CountryDetail;
@@ -45,13 +47,9 @@ public class TVRagePlugin extends ImdbPlugin {
     public TVRagePlugin() {
         super();
         tvRage = new TVRage(API_KEY);
-        includeEpisodePlots = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeEpisodePlots", "false"));
-        includeVideoImages = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.includeVideoImages", "false"));
-        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.tv.download", "false"));
-        Boolean.parseBoolean(getProperty("mjb.forceFanartOverwrite", "false"));
-        Boolean.parseBoolean(getProperty("mjb.forceBannersOverwrite", "false"));
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     }
 
     @Override

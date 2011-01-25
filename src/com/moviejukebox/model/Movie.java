@@ -170,8 +170,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private File file;
     private File containerFile;
     // Get the minimum widths for a high-definition movies
-    private int highdef720 = Integer.parseInt(PropertiesUtil.getProperty("highdef.720.width", "1280"));
-    private int highdef1080 = Integer.parseInt(PropertiesUtil.getProperty("highdef.1080.width", "1920"));
+    private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");
+    private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");
 
     // True if movie actually is only a entry point to movies set.
     private boolean isSetMaster = false;

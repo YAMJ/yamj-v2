@@ -117,18 +117,18 @@ public class Library implements Map<String, Movie> {
     private static final int currentDecade = (finalYear / 10) * 10;
 
     static {
-        minSetCount = Integer.parseInt(PropertiesUtil.getProperty("mjb.sets.minSetCount", "2"));
+        minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
         setsRequireAll = PropertiesUtil.getProperty("mjb.sets.requireAll", "false").equalsIgnoreCase("true");
         filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
         singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
-        splitHD = Boolean.parseBoolean(PropertiesUtil.getProperty("highdef.differentiate", "false"));
-        processExtras = Boolean.parseBoolean(PropertiesUtil.getProperty("filename.extras.process","true"));
+        splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
+        processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
         String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml");
         fillGenreMap(xmlGenreFile);
 
         try {
-            maxGenresPerMovie = Integer.parseInt(PropertiesUtil.getProperty("genres.max", "" + maxGenresPerMovie));
+            maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", "" + maxGenresPerMovie);
         } catch (Exception ignore) {
             maxGenresPerMovie = 3;
         }

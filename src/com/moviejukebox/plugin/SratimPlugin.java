@@ -1568,7 +1568,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     private int findEndOfHebrewSubtitlesSection(String mainXML) {
         int result = mainXML.length();
-        boolean onlyHeb = Boolean.parseBoolean(PropertiesUtil.getProperty("sratim.downloadOnlyHebrew", "false"));
+        boolean onlyHeb = PropertiesUtil.getBooleanProperty("sratim.downloadOnlyHebrew", "false");
         if (onlyHeb) {
             String pattern = "images/Flags/2.png";
             int nonHeb = mainXML.indexOf(pattern);

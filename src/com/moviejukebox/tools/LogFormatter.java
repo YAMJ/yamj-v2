@@ -69,8 +69,8 @@ public class LogFormatter extends java.util.logging.Formatter
             }
         }
         
-        logThreadName = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.logThreadName", "false"));
-        logTimeStamp  = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.logTimeStamp", "false"));
+        logThreadName = PropertiesUtil.getBooleanProperty("mjb.logThreadName", "false");
+        logTimeStamp  = PropertiesUtil.getBooleanProperty("mjb.logTimeStamp", "false");
 
         return;
     }

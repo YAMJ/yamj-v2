@@ -30,7 +30,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     private FilmAffinityPosterPlugin posterPlugin; // FIXME - Yaltar don't use PosterPlugin, but extract common method to an utility class.
 
     // Define plot length
-    int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+    int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     public FilmaffinityPlugin() {
         super();

@@ -48,7 +48,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
         super();
 
         preferredSearchEngine = PropertiesUtil.getProperty("moviemeter.id.search", "moviemeter");
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
         try {
             session = new MovieMeterPluginSession();

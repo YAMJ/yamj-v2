@@ -347,13 +347,13 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         mRatingFormatter = new DecimalFormat("#0.00", decimalFormatSymbols);
         
         try {
-            limitCast = Integer.parseInt(PropertiesUtil.getProperty("mjb.listing.csv.limitCast", "100"));
+            limitCast = PropertiesUtil.getIntProperty("mjb.listing.csv.limitCast", "100");
         } catch (Exception ignore) {
             limitCast = 100;
         }
 
         try {
-            limitGenres = Integer.parseInt(PropertiesUtil.getProperty("mjb.listing.csv.limitGenres", "100"));
+            limitGenres = PropertiesUtil.getIntProperty("mjb.listing.csv.limitGenres", "100");
         } catch (Exception ignore) {
             limitGenres = 100;
         }

@@ -61,9 +61,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
         language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
-        downloadFanart = Boolean.parseBoolean(PropertiesUtil.getProperty("fanart.movie.download", "false"));
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     }
 
     public boolean scan(Movie movie) {

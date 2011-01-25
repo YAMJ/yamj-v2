@@ -43,7 +43,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
 
     protected String filmwebPreferredSearchEngine;
-    protected int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+    protected int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     public FilmwebPlugin() {
         super(); // use IMDB if filmweb doesn't know movie

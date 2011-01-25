@@ -70,8 +70,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             outlineLength = 150;
         }
         
-        gettitle = Boolean.parseBoolean(PropertiesUtil.getProperty("filmkatalogus.gettitle", "true"));
-        getplot = Boolean.parseBoolean(PropertiesUtil.getProperty("filmkatalogus.getplot", "true"));
+        gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", "true");
+        getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", "true");
     }
 
     @Override

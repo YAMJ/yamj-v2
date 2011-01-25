@@ -49,10 +49,10 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     public OfdbPlugin() {
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
 
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
-        getplot = Boolean.parseBoolean(PropertiesUtil.getProperty("ofdb.getplot", "true"));
-        gettitle = Boolean.parseBoolean(PropertiesUtil.getProperty("ofdb.gettitle", "true"));
+        getplot = PropertiesUtil.getBooleanProperty("ofdb.getplot", "true");
+        gettitle = PropertiesUtil.getBooleanProperty("ofdb.gettitle", "true");
     }
 
     @Override

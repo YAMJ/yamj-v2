@@ -78,11 +78,11 @@ public class MovieDirectoryScanner {
         thumbnailToken = PropertiesUtil.getProperty("mjb.scanner.thumbnailToken", "_small");
         posterToken = PropertiesUtil.getProperty("mjb.scanner.posterToken", "_large");
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
-        excludeFilesWithoutExternalSubtitles = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false"));
-        excludeMultiPartBluRay = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.excludeMultiPartBluRay", "false"));
+        excludeFilesWithoutExternalSubtitles = PropertiesUtil.getBooleanProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false");
+        excludeMultiPartBluRay = PropertiesUtil.getBooleanProperty("mjb.excludeMultiPartBluRay", "false");
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
-        hashpathdepth = Integer.parseInt(PropertiesUtil.getProperty("mjb.scanner.hashpathdepth", "0"));
-        playFullBluRayDisk = Boolean.parseBoolean(PropertiesUtil.getProperty("mjb.playFullBluRayDisk", "false"));
+        hashpathdepth = PropertiesUtil.getIntProperty("mjb.scanner.hashpathdepth", "0");
+        playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", "false");
         localBDRipScanner = new BDRipScanner();
         List<ArchiveScanner> archiveScannerList = new ArrayList<ArchiveScanner>();
         if (PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false")) {

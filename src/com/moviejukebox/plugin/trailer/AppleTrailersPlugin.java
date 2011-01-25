@@ -49,15 +49,15 @@ public class AppleTrailersPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     private static String  configResolution   = PropertiesUtil.getProperty("appletrailers.resolution", "");
-    private static boolean configDownload     = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.download", "false"));
+    private static boolean configDownload     = PropertiesUtil.getBooleanProperty("appletrailers.download", "false");
     private static String  configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
     private static int     configMax;
-    private static boolean configTypesInclude = Boolean.parseBoolean(PropertiesUtil.getProperty("appletrailers.typesinclude", "true"));
+    private static boolean configTypesInclude = PropertiesUtil.getBooleanProperty("appletrailers.typesinclude", "true");
     private static String  configReplaceUrl   = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
 
     static {
         try {
-            configMax = Integer.parseInt(PropertiesUtil.getProperty("appletrailers.max", "0"));
+            configMax = PropertiesUtil.getIntProperty("appletrailers.max", "0");
         } catch (Exception ignored) {
             configMax = 0;
         }

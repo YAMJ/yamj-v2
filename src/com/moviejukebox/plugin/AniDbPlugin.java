@@ -90,10 +90,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static boolean hash;
     
     public AniDbPlugin() {
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         
         try {
-            anidbPort = Integer.parseInt(PropertiesUtil.getProperty("anidb.port", "1025"));
+            anidbPort = PropertiesUtil.getIntProperty("anidb.port", "1025");
         } catch (Exception ignore) {
             anidbPort = 1025;
             logger.severe(LOG_MESSAGE + "Error setting the port to '" + PropertiesUtil.getProperty("anidb.port") + "' using default");

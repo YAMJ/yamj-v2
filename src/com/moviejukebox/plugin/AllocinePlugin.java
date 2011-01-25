@@ -44,7 +44,7 @@ public class AllocinePlugin extends ImdbPlugin {
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
     }
 
-    private int preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     /**
      * Scan Allocine html page for the specified TV Show

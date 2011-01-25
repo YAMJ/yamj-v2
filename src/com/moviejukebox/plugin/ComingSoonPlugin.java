@@ -90,7 +90,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public ComingSoonPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
-        preferredPlotLength = Integer.parseInt(PropertiesUtil.getProperty("plugin.plot.maxlength", "500"));
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
         
