@@ -88,7 +88,7 @@ public class MovieDirectoryScanner {
         if (PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false")) {
             archiveScannerList.add(new RARArchiveScanner());
         }
-        archiveScanners = archiveScannerList.toArray(new ArchiveScanner[0]);
+        archiveScanners = archiveScannerList.toArray(new ArchiveScanner[archiveScannerList.size()]);
     }
 
     /**

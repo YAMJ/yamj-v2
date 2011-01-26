@@ -782,7 +782,7 @@ public class FileTools {
                     files.add(fe);
                 }
                 
-                _listFiles = (File[])files.toArray(new File[0]);
+                _listFiles = (File[])files.toArray(new File[files.size()]);
             }
             return _listFiles;
         }
@@ -805,7 +805,7 @@ public class FileTools {
                     l.add(f);
                 }
             }
-            return (File[])l.toArray(new File[0]);
+            return (File[])l.toArray(new File[l.size()]);
         }
 
     }

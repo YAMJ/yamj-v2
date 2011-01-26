@@ -875,7 +875,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setFps(float fps) {
-        if (fps != this.fps) {
+      //Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
+        if ( Math.abs(fps-this.fps) >0.1 ){ 
             this.isDirty = true;
             this.fps = fps;
         }
@@ -1036,7 +1037,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
         
         
-        if ((runtime != null) && !runtime.equalsIgnoreCase(this.runtime)) {
+        if (runtime.equalsIgnoreCase(this.runtime)) {
             this.isDirty = true;
             // Escape the first "0" AlloCine gives sometimes
             if (runtime.startsWith("0")) {
