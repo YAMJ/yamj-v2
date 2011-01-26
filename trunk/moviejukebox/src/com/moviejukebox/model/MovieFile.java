@@ -67,7 +67,7 @@ public class MovieFile implements Comparable<MovieFile> {
 
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         {
-            String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD,RAR");
+            String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
 
             HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
                 {

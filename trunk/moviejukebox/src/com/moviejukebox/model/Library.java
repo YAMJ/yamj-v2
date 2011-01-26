@@ -118,9 +118,9 @@ public class Library implements Map<String, Movie> {
 
     static {
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
-        setsRequireAll = PropertiesUtil.getProperty("mjb.sets.requireAll", "false").equalsIgnoreCase("true");
-        filterGenres = PropertiesUtil.getProperty("mjb.filter.genres", "false").equalsIgnoreCase("true");
-        singleSeriesPage = PropertiesUtil.getProperty("mjb.singleSeriesPage", "false").equalsIgnoreCase("true");
+        setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", "false");
+        filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", "false");
+        singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
@@ -161,7 +161,7 @@ public class Library implements Map<String, Movie> {
             }
         }
 
-        charGroupEnglish = PropertiesUtil.getProperty("indexing.character.groupEnglish", "false").equalsIgnoreCase("true");
+        charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", "false");
         getNewCategoryProperties();
     }
     

@@ -41,12 +41,6 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
         }
         
         webBrowser = new WebBrowser();
-        // String retry = PropertiesUtil.getProperty("poster.scanner.google.retry", "3");
-        // try {
-        // nbRetry = Integer.parseInt(retry);
-        // } catch (Exception ex) {
-        // nbRetry = 3;
-        // }
     }
 
     @Override
