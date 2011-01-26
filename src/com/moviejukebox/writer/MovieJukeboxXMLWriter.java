@@ -188,9 +188,6 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<posterURL>")) {
                     movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r)));
                 }
-                if (tag.equalsIgnoreCase("<posterSubimage>")) {
-                    movie.setPosterSubimage(parseCData(r));
-                }
                 if (tag.equalsIgnoreCase("<fanartURL>")) {
                     movie.setFanartURL(HTMLTools.decodeUrl(parseCData(r)));
                 }
@@ -930,9 +927,6 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("posterFile");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getPosterFilename()));
-        writer.writeEndElement();
-        writer.writeStartElement("posterSubimage");
-        writer.writeCharacters(movie.getPosterSubimage());
         writer.writeEndElement();
         writer.writeStartElement("fanartURL");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getFanartURL()));

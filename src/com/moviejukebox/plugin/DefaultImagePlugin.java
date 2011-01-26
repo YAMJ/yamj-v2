@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.moviejukebox.model.IMovieBasicInformation;
@@ -145,22 +144,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             boolean skipResize = false;
             if (origWidth < imageWidth && origHeight < imageHeight && !addHDLogo && !addLanguage) {
                 skipResize = true;
-            }
-
-            // Check if we need to cut the poster into a sub image
-            String posterSubimage = movie.getPosterSubimage();
-
-            if (StringTools.isValidString(posterSubimage)) {
-                StringTokenizer st = new StringTokenizer(posterSubimage, ", ");
-                int x = Integer.parseInt(st.nextToken());
-                int y = Integer.parseInt(st.nextToken());
-                int l = Integer.parseInt(st.nextToken());
-                int h = Integer.parseInt(st.nextToken());
-
-                double pWidth = (double)bi.getWidth() / 100;
-                double pHeight = (double)bi.getHeight() / 100;
-
-                bi = bi.getSubimage((int)(x * pWidth), (int)(y * pHeight), (int)(l * pWidth), (int)(h * pHeight));
             }
 
             if (imageNormalize) {
