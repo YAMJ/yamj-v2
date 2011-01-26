@@ -464,7 +464,6 @@ public class PosterScanner {
         IImage posterImage = getPosterURL(movie);
         if (!Movie.UNKNOWN.equals(posterImage.getUrl())) {
             movie.setPosterURL(posterImage.getUrl());
-            movie.setPosterSubimage(posterImage.getSubimage());
         }
     }
 

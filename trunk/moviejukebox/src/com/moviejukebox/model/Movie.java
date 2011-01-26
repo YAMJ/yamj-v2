@@ -105,7 +105,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String videoType = UNKNOWN;
     private int season = -1;
     private String subtitles = UNKNOWN;
-    // private String director = UNKNOWN;
     private Set<String> directors = new LinkedHashSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private SortedSet<String> genres = new TreeSet<String>();
@@ -139,7 +138,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     // Graphics URLs & files
     private Set<Artwork> artwork = new LinkedHashSet<Artwork>();
     private String posterURL = UNKNOWN; // The original, unaltered, poster
-    private String posterSubimage = UNKNOWN; // A cut up version of the poster (not used)
     private String posterFilename = UNKNOWN; // The poster filename
     private String detailPosterFilename = UNKNOWN; // The resized poster for skins
     private String thumbnailFilename = UNKNOWN; // The thumbnail version of the poster for skins
@@ -1673,21 +1671,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             detailPosterFilename = UNKNOWN;
         }
         this.detailPosterFilename = detailPosterFilename;
-    }
-
-    // ***** Poster Subimage
-    public String getPosterSubimage() {
-        return posterSubimage;
-    }
-
-    public void setPosterSubimage(String subimage) {
-        if (subimage == null) {
-            subimage = UNKNOWN;
-        }
-        if (!subimage.equalsIgnoreCase(this.posterSubimage)) {
-            this.isDirty = true;
-            this.posterSubimage = subimage;
-        }
     }
 
     // ***** Thumbnails
