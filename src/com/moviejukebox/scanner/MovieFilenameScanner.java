@@ -51,6 +51,7 @@ public class MovieFilenameScanner {
     protected static final Logger logger = Logger.getLogger("moviejukebox");
     protected static boolean skipEpisodeTitle;
     protected static boolean useParentRegex;
+    protected static boolean archiveScanRar;
 
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
@@ -76,6 +77,7 @@ public class MovieFilenameScanner {
             USE_PARENT_PATTERN = null;
             useParentRegex = false;
         }
+        archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false");
     }
 
     private static String[] movieVersionKeywords;
@@ -361,7 +363,15 @@ public class MovieFilenameScanner {
         
         // CHECK FOR USE_PARENT_PATTERN matches
         if (useParentRegex && USE_PARENT_PATTERN.matcher(file.getName()).find()) {
-            this.file = file.getParentFile();
+            // Check the container to see if it's a RAR file and go up a further directory
+            if (archiveScanRar && file.getParentFile().isFile()) {
+                // We need to go up two parent directories
+                this.file = file.getParentFile().getParentFile();
+            } else {
+                // Just go up one parent directory.
+                this.file = file.getParentFile();
+            }
+            
             logger.finer("MovieFilenameScanner: UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
         } else {
             this.file = file;
