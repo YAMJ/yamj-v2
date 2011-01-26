@@ -437,7 +437,7 @@ public class RARArchiveScanner implements ArchiveScanner {
                 if(filter.accept(this, f.getName()))
                     accepted.add(f.getName());
             }
-            return accepted.toArray(new String[0]);
+            return accepted.toArray(new String[accepted.size()]);
         }
 
         @Override
@@ -445,7 +445,7 @@ public class RARArchiveScanner implements ArchiveScanner {
             if(!directory) {
                 return null;
             }
-            return children.toArray(new File[0]);
+            return children.toArray(new File[children.size()]);
         }
 
         @Override
@@ -454,14 +454,14 @@ public class RARArchiveScanner implements ArchiveScanner {
                 return null;
             }
             if(filter == null) {
-                return children.toArray(new File[0]);
+                return children.toArray(new File[children.size()]);
             }
             List<File> accepted = new ArrayList<File>();
             for(File f: children) {
                 if(filter.accept(f))
                     accepted.add(f);
             }
-            return accepted.toArray(new File[0]);
+            return accepted.toArray(new File[accepted.size()]);
         }
 
         @Override
@@ -470,14 +470,14 @@ public class RARArchiveScanner implements ArchiveScanner {
                 return null;
             }
             if(filter == null) {
-                return children.toArray(new File[0]);
+                return children.toArray(new File[children.size()]);
             }
             List<File> accepted = new ArrayList<File>();
             for(File f: children) {
                 if(filter.accept(this, f.getName()))
                     accepted.add(f);
             }
-            return accepted.toArray(new File[0]);
+            return accepted.toArray(new File[accepted.size()]);
         }
 
         @Override
