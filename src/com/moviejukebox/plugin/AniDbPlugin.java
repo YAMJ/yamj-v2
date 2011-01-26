@@ -104,7 +104,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         anidbUsername = PropertiesUtil.getProperty("anidb.username", null);
         anidbPassword = PropertiesUtil.getProperty("anidb.password", null);
         //String str = PropertiesUtil.getProperty("anidb.useHashIdentification", null);
-        hash = PropertiesUtil.getProperty("anidb.useHashIdentification", null).equals("true") ? true : false;
+        hash = PropertiesUtil.getBooleanProperty("anidb.useHashIdentification", "false");
         
         if (anidbUsername == null || anidbPassword == null) {
             logger.severe(LOG_MESSAGE + "You need to add your AniDb Username & password to the anidb.username & anidb.password properties");

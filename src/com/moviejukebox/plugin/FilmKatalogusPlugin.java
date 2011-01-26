@@ -53,22 +53,12 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     }
 
     public void init() {
-        try {
-            String temp = PropertiesUtil.getProperty("plugin.plot.maxlength", "500");
-            maxLength = Integer.parseInt(temp);
-            if (maxLength < 50) {
-                maxLength = 500;
-            }
-        } catch (NumberFormatException ex) {
+        maxLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        if (maxLength < 50) {
             maxLength = 500;
-        } 
-        
-        try {
-            String temp = PropertiesUtil.getProperty("filmkatalogus.outline.length", "150");
-            outlineLength = Integer.parseInt(temp);
-        } catch (NumberFormatException ex) {
-            outlineLength = 150;
         }
+        
+        outlineLength = PropertiesUtil.getIntProperty("filmkatalogus.outline.length", "150");
         
         gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", "true");
         getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", "true");
