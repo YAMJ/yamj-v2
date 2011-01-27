@@ -1037,7 +1037,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
         
         
-        if (runtime.equalsIgnoreCase(this.runtime)) {
+        if (!runtime.equalsIgnoreCase(this.runtime)) {
             this.isDirty = true;
             // Escape the first "0" AlloCine gives sometimes
             if (runtime.startsWith("0")) {
