@@ -63,6 +63,7 @@ public class MovieFilenameScanner {
     private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
     
     protected static final Pattern USE_PARENT_PATTERN;
+    protected static final Pattern RAR_EXT_PATTERN = Pattern.compile("(rar|001)$");
     
     static {
         setExtrasKeywords(new String[] {"trailer"});
@@ -364,7 +365,14 @@ public class MovieFilenameScanner {
         // CHECK FOR USE_PARENT_PATTERN matches
         if (useParentRegex && USE_PARENT_PATTERN.matcher(file.getName()).find()) {
             // Check the container to see if it's a RAR file and go up a further directory
-            if (archiveScanRar && file.getParentFile().isFile()) {
+            String rarExtensionCheck = null;
+            try {
+                rarExtensionCheck = file.getParentFile().getName().toLowerCase();
+            } catch (Exception error) {
+                rarExtensionCheck = Movie.UNKNOWN;
+            }
+            
+            if (archiveScanRar && RAR_EXT_PATTERN.matcher(rarExtensionCheck).find()) {
                 // We need to go up two parent directories
                 this.file = file.getParentFile().getParentFile();
             } else {
@@ -379,9 +387,9 @@ public class MovieFilenameScanner {
         
         this.filename = this.file.getName();
         rest = filename;
-        
+
         // EXTENSION AND CONTAINER
-        if (file.isFile()) {
+        if (this.file.isFile()) {
             // Extract and strip extension
             int i = rest.lastIndexOf('.');
             if (i > 0) {
@@ -419,7 +427,6 @@ public class MovieFilenameScanner {
             rest = pattern.matcher(rest).replaceAll("./.");
         }
         
-
         // EXTRAS (Including Trailers)
         {
             for (Pattern pattern : extrasPatterns) {
