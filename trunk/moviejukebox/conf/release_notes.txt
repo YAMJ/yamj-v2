@@ -4,9 +4,8 @@
 
 MovieJukebox 2.3 BETA
 ---------------------
- - Enhancement  #1804 Adding a property to toggle IMDDB\Sratim cast source.
- - Fixed defect #808 Trailers: Periodic rescan option
- - Enhancement  #997 Ability to turn off 'EXTRAS' processing
+ - Fixed defect  #808 Trailers: Periodic rescan option
+ - Enhancement   #997 Ability to turn off 'EXTRAS' processing
  - Enhancement  #1012 Separate index.htm XSL file
  - Enhancement  #1131 Smarter location of set artwork
  - Fixed defect #1267 Titles from IMDB may include their (year/roman numeral) format
@@ -14,6 +13,8 @@ MovieJukebox 2.3 BETA
  - Fixed defect #1499 Allocine plugin should use new XML API
  - Fixed defect #1629 Rating problem with Allocine plugin
  - Fixed defect #1604 Set poster is not picked up correctly for series with ":" in the name
+ - Fixed defect #1634 SratimPlugin - download subtitles does not work due to website redesign
+ - Enhancement  #1634 Removed properties sratim.username, sratim.password, sratim.code as they are no longer required for subtitles download. 
  - Fixed defect #1655 ComingSoon plugin not run properly
  - Enhancement  #1671 Add New:TV and New:Movies categories
  - Enhancement  #1687 Only load the required poster scanner plugins
@@ -53,8 +54,8 @@ MovieJukebox 2.3 BETA
  - Enhancement  #1796 Native RAR support
  - Enhancement  #1802 Configurable overlay and configurable border for thumbnails/posters 
  - Enhancement  #1803 Scan Directory name for Names of movies/tv shows with regex expressions
- - Fixed defect #1634:	SratimPlugin - download subtitles does not work due to website redesign
- - Enhancement  #1634 Removed properties sratim.username, sratim.password, sratim.code as they are no longer required for subtitles download. 
+ - Enhancement  #1804 Adding a property to toggle IMDDB\Sratim cast source.
+ - Fixed defect #1810 old-RAR format compatibility fixed
 
 MovieJukebox 2.2
 ----------------
