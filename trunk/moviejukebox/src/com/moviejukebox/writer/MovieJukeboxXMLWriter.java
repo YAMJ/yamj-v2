@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -41,8 +40,6 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.MovieJukebox;
-import com.moviejukebox.model.Artwork;
-import com.moviejukebox.model.ArtworkType;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Index;
@@ -51,6 +48,10 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Library.IndexInfo;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -949,7 +950,7 @@ public class MovieJukeboxXMLWriter {
         
         writer.writeStartElement("artwork");
         for (ArtworkType artworkType : ArtworkType.values()) {
-            Set<Artwork> artworkList = movie.getArtwork(artworkType);
+            Collection<Artwork> artworkList = movie.getArtwork(artworkType);
             if (artworkList.size() > 0) {
                 for (Artwork artwork : artworkList) {
                     writer.writeStartElement(artworkType.toString());
@@ -963,10 +964,12 @@ public class MovieJukeboxXMLWriter {
                         writer.writeCharacters(artwork.getUrl());
                         writer.writeEndElement();
     
-                        writer.writeStartElement("filename");
-                        writer.writeCharacters(artwork.getFilename());
-                        writer.writeEndElement();
-                        
+                        for (ArtworkFile artworkFile : artwork.getSizes()) {
+                            writer.writeStartElement(artworkFile.getSize().toString());
+                            writer.writeAttribute("downloaded", "" + artworkFile.isDownloaded());
+                            writer.writeCharacters(artworkFile.getFilename());
+                            writer.writeEndElement(); // size
+                        }
                     writer.writeEndElement(); // artworkType
                 }
             } else {
@@ -978,9 +981,10 @@ public class MovieJukeboxXMLWriter {
                     writer.writeCharacters(Movie.UNKNOWN);
                     writer.writeEndElement();
     
-                    writer.writeStartElement("filename");
+                    writer.writeStartElement(ArtworkSize.LARGE.toString());
+                    writer.writeAttribute("downloaded", "false");
                     writer.writeCharacters(Movie.UNKNOWN);
-                    writer.writeEndElement();
+                    writer.writeEndElement(); // size
                     
                 writer.writeEndElement(); // artworkType
 

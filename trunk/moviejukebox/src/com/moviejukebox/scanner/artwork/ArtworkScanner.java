@@ -379,18 +379,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             return false; // Quit and return a false poster
         }
 
-        // Check if we need to cut the poster into a sub image
-        if (!artworkImage.getSubimage().equalsIgnoreCase(Movie.UNKNOWN)) {
-            StringTokenizer st = new StringTokenizer(artworkImage.getSubimage(), ", ");
-            int x = Integer.parseInt(st.nextToken());
-            int y = Integer.parseInt(st.nextToken());
-            int l = Integer.parseInt(st.nextToken());
-            int h = Integer.parseInt(st.nextToken());
-
-            urlWidth = urlWidth * l / 100 - urlWidth * x / 100;
-            urlHeight = urlHeight * h / 100 - urlHeight * y / 100;
-        }
-
         urlAspect = (float)urlWidth / (float)urlHeight;
 
         if (checkAspect && urlAspect > 1.0) {

@@ -40,6 +40,10 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
@@ -265,6 +269,10 @@ public class PosterScanner {
             // Update poster url with local poster
             String posterURI = localPosterFile.toURI().toString();
             movie.setPosterURL(posterURI);
+            
+            ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
+            movie.addArtwork(new Artwork(ArtworkType.Poster, "local", posterURI, artworkFile));
+            
             return posterURI;
         } else {
             logger.finer("PosterScanner: No local poster found for " + movie.getBaseFilename());
@@ -334,6 +342,7 @@ public class PosterScanner {
             } else {
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
                     logger.finest("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterImage.getUrl());
+                    posterImage.setSubimage(posterSearchToken);     // TODO: This is a hack, but seeing as only one poster scanner uses it, it should be safe until it's all refactored to use the Artwork class
                 }
             }
         }
@@ -464,6 +473,8 @@ public class PosterScanner {
         IImage posterImage = getPosterURL(movie);
         if (!Movie.UNKNOWN.equals(posterImage.getUrl())) {
             movie.setPosterURL(posterImage.getUrl());
+            ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
+            movie.addArtwork(new Artwork(ArtworkType.Poster, posterImage.getSubimage(), posterImage.getUrl(), artworkFile)); 
         }
     }
 

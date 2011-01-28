@@ -42,6 +42,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.MovieJukebox;
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -1832,11 +1834,27 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
     
     public void addArtwork(Artwork artwork) {
+        //TODO: Check to see if the artwork source/type/url exists and add to it rather than overwrite or append to the list
         this.artwork.add(artwork);
     }
     
-    public Set<Artwork> getArtwork(ArtworkType artworkType) {
-        Set<Artwork> artworkList = new LinkedHashSet<Artwork>();
+    /**
+     * Check to see if an artwork already exists.
+     * @param artwork
+     * @return
+     */
+    @SuppressWarnings("unused")
+    private Artwork artworkExists(Artwork artwork) {
+        for (Artwork artworkTest : getArtwork(artwork.getType())) {
+            if (artworkTest.equals(artwork)) {
+                return artworkTest;
+            }
+        }
+        return null;
+    }
+    
+    public Collection<Artwork> getArtwork(ArtworkType artworkType) {
+        Collection<Artwork> artworkList = new LinkedHashSet<Artwork>();
         
         for (Artwork artwork : this.artwork) {
             if (artwork.getType() == artworkType) {
