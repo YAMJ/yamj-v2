@@ -4,9 +4,11 @@
 
 MovieJukebox 2.3 BETA
 ---------------------
+ - Fixed defect #1634:	SratimPlugin - download subtitles does not work due to website redesign
+ - Enhancement  #1634 Removed properties sratim.username, sratim.password, sratim.code as they are no longer required for subtitles download. 
  - Enhancement  #1804 Adding a property to toggle IMDDB\Sratim cast source.
- - Fixed defect  #808 Trailers: Periodic rescan option
- - Enhancement   #997 Ability to turn off 'EXTRAS' processing
+ - Fixed defect #808 Trailers: Periodic rescan option
+ - Enhancement  #997 Ability to turn off 'EXTRAS' processing
  - Enhancement  #1012 Separate index.htm XSL file
  - Enhancement  #1131 Smarter location of set artwork
  - Fixed defect #1267 Titles from IMDB may include their (year/roman numeral) format
