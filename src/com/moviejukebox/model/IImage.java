@@ -14,7 +14,13 @@
 package com.moviejukebox.model;
 
 public interface IImage {
+    
     public String getUrl();
-
+    
+    public void setUrl(String url);
+    
     public String getSubimage();
+    
+    public void setSubimage(String subimage);
+    
 }

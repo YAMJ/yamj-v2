@@ -40,6 +40,9 @@ import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
@@ -189,6 +192,10 @@ public class FanartScanner {
                         }
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);
                         logger.finer("FanartScanner: " + fullFanartFilename + " has been copied to " + destFileName);
+                        
+                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, fullFanartFilename, false);
+                        movie.addArtwork(new com.moviejukebox.model.Artwork.Artwork(ArtworkType.Fanart, "local", fullFanartFilename, artworkFile));
+                        
                     } else {
                         movie.setFanartFilename(Movie.UNKNOWN);
                         movie.setFanartURL(Movie.UNKNOWN);

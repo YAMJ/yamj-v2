@@ -28,6 +28,10 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
@@ -164,6 +168,9 @@ public class BannerScanner {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
                         logger.finer("BannerScanner: " + fullBannerFilename + " has been copied to " + destFileName);
+                        
+                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
+                        movie.addArtwork(new Artwork(ArtworkType.Banner, "local", fullBannerFilename, artworkFile));
                     } else {
                         movie.setBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);

@@ -21,10 +21,12 @@ import java.util.List;
 
 import org.pojava.datetime.DateTime;
 
-import com.moviejukebox.model.Artwork;
-import com.moviejukebox.model.ArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
@@ -245,7 +247,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                         if (urlBanner != null) {
                             movie.setBannerURL(urlBanner);
-                            movie.addArtwork(new Artwork(THETVDB_PLUGIN_ID, ArtworkType.Banner, urlBanner, movie.getBannerFilename()));
+                            
+                            ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), false);
+                            Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, urlBanner, artworkFile);
+                            movie.addArtwork(artwork);
                             logger.finer("TheTvDBPlugin: Used banner " + urlBanner);
                         }
                     }
@@ -285,8 +290,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (isValidString(movie.getFanartURL())) {
-                        movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
-                        artwork.setFilename(movie.getBaseName() + fanartToken + ".jpg");
+                        String artworkFilename = movie.getBaseName() + fanartToken + ".jpg";
+                        movie.setFanartFilename(artworkFilename);
+                        artwork.addSize(new ArtworkFile(ArtworkSize.LARGE, artworkFilename, false));
                     }
                     
                     movie.addArtwork(artwork);

@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 
 import com.moviejukebox.fanarttv.FanartTv;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
-import com.moviejukebox.model.Artwork;
-import com.moviejukebox.model.ArtworkType;
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tvrage.tools.StringTools;
