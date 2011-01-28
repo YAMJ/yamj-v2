@@ -81,6 +81,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     protected int preferImdbMask = 0;
     protected String searchId;
     
+    protected boolean trailersScannerEnable;
     protected String trailerMaxResolution;
     protected String trailerPreferredFormat;
     protected boolean trailerSetExchange;
@@ -108,6 +109,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
         }
         
+        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
         trailerMaxResolution = PropertiesUtil.getProperty("comingsoon.trailer.resolution", "");
         trailerPreferredFormat = PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "wmv,mov");
         trailerSetExchange = PropertiesUtil.getBooleanProperty("comingsoon.trailer.setExchange", "false");
@@ -237,7 +239,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
             movie.setOriginalTitle(movie.getTitle());
         }
         
-        generateTrailer(movie);
+        if (trailersScannerEnable) {
+            generateTrailer(movie);
+        }
         
         return scanComingSoon || firstScanImdb; 
     }
