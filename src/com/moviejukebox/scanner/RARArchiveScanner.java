@@ -33,6 +33,7 @@ import com.moviejukebox.tools.ArchiveScanner;
 
 import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.exception.RarException;
+import de.innosystec.unrar.exception.RarException.RarExceptionType;
 import de.innosystec.unrar.rarfile.FileHeader;
 import de.innosystec.unrar.rarfile.MainHeader;
 
@@ -48,6 +49,7 @@ public class RARArchiveScanner implements ArchiveScanner {
         Set<String> remainingNames=new HashSet<String>(mutableNames);
 
         // handle all .rar, .000 and .001 files and decide if they are head of multipart archive or standalone archives
+        mutableNameLoop:
         for(String name: mutableNames) {
             if(!remainingNames.contains(name)) {
                 // process only yet-unprocessed filenames
@@ -66,9 +68,17 @@ public class RARArchiveScanner implements ArchiveScanner {
                             logger.warning("Encrypted archive, skipping...");
                             continue;
                         }
+
                         if(mh.isMultiVolume() && !mh.isFirstVolume()) {
-                            continue;
+                            // for older RARs, they never have firstVolume=true.
+                            // Assume there are no splitBefores in the first volume. (and vice versa)
+                            for(FileHeader fh: archive.getFileHeaders()) {
+                                if(fh.isSplitBefore()) {
+                                    continue mutableNameLoop;
+                                }
+                            }
                         }
+
                         // parse the prefix, suffix, number, and number padding width of the rar
                         String namePrefix="";
                         String nameSuffix="";
@@ -145,9 +155,13 @@ public class RARArchiveScanner implements ArchiveScanner {
                             archive=new Archive(new File(parent,name));
                         }
                     } catch (RarException e) {
-                        logger.info("Could not process RAR: "+e.getMessage());
+                        // .000 and .001 can be other files than RARs
+                        if (!((name.endsWith(".000") || name.endsWith(".001")) && e.getType() == RarExceptionType.notRarArchive)) {
+                            logger.warning("Could not process RAR \""+new File(parent,name).getPath()+"\", reason: "+e.getType());
+                        }
+                        // feature: if the failed file is .rar (and the next file would be .r00), the .r## files will be left in the directory.
                     } catch (IOException e) {
-                        logger.info("Could not process RAR: "+e.getMessage());
+                        logger.warning("Could not process RAR \""+new File(parent,name).getPath()+"\", reason: "+e.getMessage());
                     } finally {
                         if(archive!=null) {
                             try {
