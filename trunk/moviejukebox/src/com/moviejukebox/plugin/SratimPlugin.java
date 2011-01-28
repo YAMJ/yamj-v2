@@ -52,18 +52,13 @@ public class SratimPlugin extends ImdbPlugin {
     private static String[] genereStringHebrew = { "פעולה", "מבוגרים", "הרפתקאות", "אנימציה", "ביוגרפיה", "קומדיה", "פשע", "תיעודי", "דרמה", "משפחה", "פנטזיה",
                     "אפל", "שעשועון", "היסטוריה", "אימה", "מוזיקה", "מחזמר", "מיסתורין", "חדשות", "ריאליטי", "רומנטיקה", "מדע בדיוני", "קצר", "ספורט", "אירוח",
                     "מתח", "מלחמה", "מערבון" };
-    private static Properties sessionDetails = new Properties();
-
+    
     private static boolean subtitleDownload = false;
-    private static String login = "";
-    private static String pass = "";
-    private static String code = "";
     private static boolean keepEnglishTitle = false;
     private static boolean keepEnglishGenres = false;
     private static boolean keepImdbCast = false;
     private static boolean bidiSupport = true;
-    private static String challenge_field = "";
-
+    
     protected static final String RECAPTCHA_URL = "http://www.google.com/recaptcha/api/challenge?k=6LfK1LsSAAAAACdKnQfBi_xCdaMxyd2I9qL5PRH8";
     protected static final Pattern CHALLENGE_ID = Pattern.compile("challenge : '([^']+)'");
 
@@ -72,7 +67,6 @@ public class SratimPlugin extends ImdbPlugin {
     protected TheTvDBPlugin tvdb;
     protected static String preferredPosterSearchEngine;
     protected static String lineBreak;
-    private static boolean LOGGED_IN = false;
 
     public SratimPlugin() {
         super(); // use IMDB if sratim doesn't know movie
@@ -83,9 +77,6 @@ public class SratimPlugin extends ImdbPlugin {
         plotLineMax = PropertiesUtil.getIntProperty("sratim.plotLineMax", "2");
 
         subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", "false");
-        login = PropertiesUtil.getProperty("sratim.username", "");
-        pass = PropertiesUtil.getProperty("sratim.password", "");
-        code = PropertiesUtil.getProperty("sratim.code", "");
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
         keepEnglishTitle = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishTitles", "false");
         keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", "false");
@@ -93,10 +84,6 @@ public class SratimPlugin extends ImdbPlugin {
         bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", "true");
 
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
-        
-        if (!SratimPlugin.LOGGED_IN && subtitleDownload == true && !login.equals("")) {
-            loadSratimCookie();
-        }
     }
 
     public boolean scan(Movie mediaFile) {
@@ -142,7 +129,14 @@ public class SratimPlugin extends ImdbPlugin {
             String xml = webBrowser.request("http://www.sratim.co.il/browse.php?q=imdb%3A" + imdbId, Charset.forName("UTF-8"));
 
             String detailsUrl = HTMLTools.extractTag(xml, "<a href=\"view.php?", 0, "\"");
-            String subtitlesID = HTMLTools.extractTag(xml, "<a href=\"subtitles.php?", 0, "\"");
+            if(subtitleDownload){
+                String subtitlesID = HTMLTools.extractTag(xml, "<a href=\"subtitles.php?", 0, "\"");
+                int subid = subtitlesID.lastIndexOf("mid=");
+                if(subid > -1 && subtitlesID.length() > subid) {
+                    String subtitle = subtitlesID.substring(subid+4);
+                    mediaFile.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
+                }
+            }
 
             if (StringTools.isNotValidString(detailsUrl)) {
                 return Movie.UNKNOWN;
@@ -155,14 +149,6 @@ public class SratimPlugin extends ImdbPlugin {
                 String movieId = detailsUrl.substring(id+3);
                 mediaFile.setId(SRATIM_PLUGIN_ID, movieId);
             }
-            
-            int subid = subtitlesID.lastIndexOf("mid=");
-            
-            if(subid > -1 && subtitlesID.length() > subid) {
-                String subtitle = subtitlesID.substring(subid+4);
-                mediaFile.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
-            }
-
             sratimUrl = "http://www.sratim.co.il/view.php?" + detailsUrl;
 
             return sratimUrl;
@@ -1244,8 +1230,6 @@ public class SratimPlugin extends ImdbPlugin {
         try {
             URL url = new URL(subDownloadLink);
             connection = (HttpURLConnection)(url.openConnection());
-            String cookieHeader = sessionDetails.getProperty(PHPSESSID);
-            connection.setRequestProperty("Cookie", cookieHeader);
             inputStream = connection.getInputStream();
 
             String contentType = connection.getContentType();
@@ -1349,116 +1333,7 @@ public class SratimPlugin extends ImdbPlugin {
         return found;
     }
 
-    public void loadSratimCookie() {
-
-        // Check if session file exist
-        String cookieHeader = "";
-        try {
-            sessionDetails.clear();
-            sessionDetails.load(new FileReader("sratim.session"));
-            cookieHeader = sessionDetails.getProperty(PHPSESSID);
-            logger.finer("found session cookie for sratim.co.il");
-        } catch (Exception error) {
-            logger.severe("file 'sratim.session' not found. need to fetch login details and captcha image in order to login");
-        }
-
-        // Check if we already logged in and got the correct cookie
-        if (isLoggedIn(cookieHeader)) {
-            SratimPlugin.LOGGED_IN = true;
-            return;
-        }
-
-        //try to login
-        if (!submitLoginDetails()) {
-            //we are not logged in, fetch all login details for user to decypher captcha image manually
-            fetchLoginDetails();
-        }
-
-
-    }
-
-    private void fetchLoginDetails() {
-        try {
-            /*
-            in order to get the recaptcha image we need to fetch the captcha details of sratim site
-            from it we need to get the "challenge" id value and using it,
-            fetch the image from "http://www.google.com/recaptcha/api/image?c=" + challenge id
-            and save this image
-             */
-            String captchaJson = webBrowser.request(RECAPTCHA_URL);
-            Matcher matcher = CHALLENGE_ID.matcher(captchaJson);
-            if(matcher.find()) {
-                challenge_field = matcher.group(1);
-            }
-            URL url = new URL("http://www.google.com/recaptcha/api/image?c=" + challenge_field);
-            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
-
-            // Write the jpg code to the file
-            File imageFile = new File("sratim.jpg");
-            FileTools.copy(connection.getInputStream(), new FileOutputStream(imageFile));
-
-            sessionDetails.put("challenge_field",challenge_field);
-            sessionDetails.store(new FileWriter("sratim.session"), "login details for sratim.co.il");
-
-            // Exit and wait for the user to type the jpg code
-            logger.severe("#############################################################################");
-            logger.severe("### Open \"sratim.jpg\" file, and write the code in the sratim.code field ###");
-            logger.severe("#############################################################################");
-            System.exit(0);
-
-        } catch (Exception error) {
-            logger.severe("Sratim Plugin: Error - " + error.getMessage());
-            return;
-        }
-    }
-
-    private void updateCookies(HttpURLConnection connection) {
-        StringBuffer cookieHeader = new StringBuffer();
-        
-        for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
-            if ("Set-Cookie".equals(header.getKey())) {
-                for (String rcookieHeader : header.getValue()) {
-                    String[] cookieElements = rcookieHeader.split(" *; *");
-                    if (cookieElements.length >= 1) {
-                        String[] firstElem = cookieElements[0].split(" *= *");
-                        String cookieName = firstElem[0];
-                        String cookieValue = firstElem.length > 1 ? firstElem[1] : null;
-
-                        logger.finest("Sratim Plugin: cookie:" + cookieName + '=' + cookieValue);
-
-                        if (!cookieHeader.equals("")) {
-                            cookieHeader.append(cookieHeader + "; ");
-                        }
-                        cookieHeader.append(cookieName + "=" + cookieValue);
-                    }
-                }
-            }
-        }
-        sessionDetails.put(PHPSESSID, cookieHeader );
-    }
-
-    private boolean isLoggedIn(String cookieHeader)  {
-
-        if(cookieHeader == null || cookieHeader.length()==0) {
-            return false;
-        }
-
-        StringWriter content;
-
-        try {
-            URL url = new URL("http://www.sratim.co.il/index.php");
-            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
-            connection.setRequestProperty("Cookie", cookieHeader);
-            content = getContent(connection);
-        } catch (Exception error) {
-            logger.severe("SratimPlugin.isLoggedIn(): Error getting URL of index.php");
-            return false;
-        }
-
-        return content.toString().indexOf("preferences.php")>-1;
-    }
-
-    protected StringWriter getContent(URLConnection connection) throws IOException {
+     protected StringWriter getContent(URLConnection connection) throws IOException {
         StringWriter content = new StringWriter(10*1024);
         InputStreamReader inputStream = new InputStreamReader(connection.getInputStream(), Charset.defaultCharset());
         BufferedReader in = new BufferedReader(inputStream);
@@ -1473,68 +1348,6 @@ public class SratimPlugin extends ImdbPlugin {
         inputStream.close();
         
         return content;
-    }
-
-    private boolean submitLoginDetails() {
-
-        challenge_field = sessionDetails.getProperty("challenge_field");
-
-        DataOutputStream wr = null;
-        
-        try {
-            // Build the post request
-            String post;
-            post = "email=" + login + "&password=" + pass + "&recaptcha_challenge_field=" + challenge_field + "&recaptcha_response_field=" + code + "&Login=התחבר";
-
-            logger.finest("Sratim Plugin: post: " + post);
-
-            URL url = new URL("http://www.sratim.co.il/login.php");
-            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Host", "sratim.co.il");
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Content-Length", "" + Integer.toString(post.getBytes().length));
-            connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
-            connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-            connection.setRequestProperty("Accept", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-            connection.setRequestProperty("Referer", "http://sratim.co.il/login.php");
-            connection.setRequestProperty("Cookie", sessionDetails.getProperty(PHPSESSID));
-
-            connection.setUseCaches(false);
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setInstanceFollowRedirects(false);
-
-            // Send request
-            wr = new DataOutputStream(connection.getOutputStream());
-            wr.writeBytes(post);
-            wr.flush();
-            wr.close();
-
-            // read new cookies and update our cookies
-            updateCookies(connection);
-
-            // Get Response redirect
-            //StringWriter response = getContent(connection);
-            boolean loggedIn = connection.getResponseCode() == 302;
-            if(loggedIn) {
-                sessionDetails.store(new FileWriter("sratim.session"), "login details for sratim.co.il");
-                LOGGED_IN = true;
-            }
-            logger.info("Sratim Plugin: is logged in = " + loggedIn);
-            return loggedIn;
-
-        } catch (Exception error) {
-            logger.severe("Sratim Plugin: Error - " + error.getMessage());
-            return false;
-        } finally {
-            try {
-                wr.close();
-            } catch (IOException e) {
-                // Ignore
-            }
-        }
     }
 
     public static String removeChar(String str, char c) {
