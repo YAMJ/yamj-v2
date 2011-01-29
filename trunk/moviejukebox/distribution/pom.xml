@@ -127,6 +127,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>yamj-${project.version}</finalName>
+		<finalName>yamj-${project.version}-r${buildNumber}</finalName>
 	</build>
 </project>
