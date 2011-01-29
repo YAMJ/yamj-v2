@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movie code="666" xmlns="http://www.allocine.net/v6/ns/">
+	<movieType code="4002">Long-métrage</movieType>
+	<originalTitle>Mon Titre Original</originalTitle>
+	<title>Fichier de test 1</title>
+	<keywords>Mes mots clefs</keywords>
+	<productionYear>2011</productionYear>
+	<nationalityList>
+		<nationality code="1234">France</nationality>
+	</nationalityList>
+	<genreList>
+		<genre code="13021">Science fiction</genre>
+		<genre code="13001">Aventure</genre>
+	</genreList>
+	<release>
+		<releaseDate>2011-01-29</releaseDate>
+		<reissueDate>2011-01-29</reissueDate>
+		<country code="5001">France</country>
+		<releaseState code="3004">Sorti en salle</releaseState>
+		<distributor code="7622" name="Twentieth Century Fox France" />
+	</release>
+	<runtime>2345</runtime>
+	<color code="12001">Couleur</color>
+	<formatList>
+		<productionFormat code="19002">35 mm</productionFormat>
+		<projectionFormat code="20017">1.78</projectionFormat>
+	</formatList>
+	<languageList>
+		<language code="6002">Anglais</language>
+	</languageList>
+	<budget>1 000 000 000 $</budget>
+	<synopsis>Un <b>synopsis</b> html avec<br/>
+	des sauts de lignes et de    multiples   espaces...</synopsis>
+	<synopsisShort>Synopsis court</synopsisShort>
+	<castingShort>
+		<directors>Yves Blusseau</directors>
+		<actors>Angelina Jolie</actors>
+	</castingShort>
+	<casting>
+		<castMember>
+			<person code="1">Yves Blusseau</person>
+			<activity code="8002">Réalisateur</activity>
+			<picture path="/none.jpg"
+				href="http://images.allocine.fr/medias/nmedia/none.jpg" />
+		</castMember>
+        <castMember>
+            <person code="1">Yves Blusseau</person>
+            <activity code="8043">Scripte</activity>
+            <picture path="/none.jpg"
+                href="http://images.allocine.fr/medias/nmedia/none.jpg" />
+        </castMember>
+	</casting>
+	<movieCertificate code="14001">Interdit aux moins de 12 ans</movieCertificate>
+	<statistics>
+		<pressRating>1</pressRating>
+		<pressReviewCount>10</pressReviewCount>
+		<userRating>4</userRating>
+		<userReviewCount>10000</userReviewCount>
+		<userNoteCount>40000</userNoteCount>
+		<commentCount>8000</commentCount>
+		<ratingStats>
+		</ratingStats>
+		<fanCount>32768</fanCount>
+		<theaterCount>3</theaterCount>
+		<theaterCountOnRelease>80</theaterCountOnRelease>
+		<releaseWeekPosition>-20</releaseWeekPosition>
+	</statistics>
+</movie>
