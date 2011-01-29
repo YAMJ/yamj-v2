@@ -23,12 +23,6 @@
 		</dependency>
 	</dependencies>
 
-	<scm>
-		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
-		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>
-		<tag>HEAD</tag>
-		<url>http://code.google.com/p/moviejukebox/source/browse</url>
-	</scm>
 	<build>
 		<plugins>
 
