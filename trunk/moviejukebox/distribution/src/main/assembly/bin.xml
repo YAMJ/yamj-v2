@@ -1,0 +1,61 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+  <id>bin</id>
+  <formats>
+    <format>${distribution.format}</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <!-- add jar dependencies -->
+    <fileSet>
+      <directory>${project.build.directory}/dependencies</directory>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+        <include>*.*</include>
+      </includes>
+    </fileSet>
+
+    <!-- add configuration files -->
+    <fileSet>
+      <directory>${basedir}/conf</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+
+    <!-- add skins files -->
+    <fileSet>
+      <directory>${basedir}/skins</directory>
+      <outputDirectory>skins</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+    
+    <!-- add notices files -->
+    <fileSet>
+      <directory>${basedir}/notices</directory>
+      <outputDirectory>notices</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+
+  <moduleSets>
+    <moduleSet>
+  
+      <!-- Enable access to all projects in the current multimodule build! -->
+      <useAllReactorProjects>true</useAllReactorProjects>
+      
+      <binaries>
+        <!-- useStrictFiltering>true</useStrictFiltering -->
+        <includeDependencies>true</includeDependencies>
+        <outputDirectory>lib</outputDirectory>
+        <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+</assembly>

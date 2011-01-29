@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- The Basics -->
+	<parent>
+		<groupId>com.moviejukebox</groupId>
+		<artifactId>moviejukebox</artifactId>
+		<version>2.3-SNAPSHOT</version>
+	</parent>
+	<artifactId>yamj</artifactId>
+	<packaging>jar</packaging>
+
+	<!-- Project Information -->
+	<name>YAMJ Core</name>
+	<description>Static analysis of MovieJukebox project</description>
+
+	<!-- Environment Settings -->
+	<scm>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>
+		<tag>HEAD</tag>
+		<url>http://code.google.com/p/moviejukebox/source/browse</url>
+	</scm>
+
+	<profiles>
+		<!-- update $buildNumber an $timestamp if local sources is managed by svn -->
+		<profile>
+			<id>buildnumber</id>
+			<activation>
+				<file>
+					<exists>.svn</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>buildnumber-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>create</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<format>{0,date,yyyy-MM-dd HH:mm:ss}</format>
+							<items>
+								<item>timestamp</item>
+							</items>
+							<providerImplementations>
+								<svn>javasvn</svn>
+							</providerImplementations>
+						</configuration>
+					</plugin>
+				</plugins>
+				<finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
+			</build>
+		</profile>
+
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>allocine-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>fanarttvapi</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>mjbsqldb</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>thetvdbapi</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>themoviedbapi</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>tvrageapi</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.xmlrpc</groupId>
+			<artifactId>xmlrpc-client</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.pojava</groupId>
+			<artifactId>pojava</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jhlabs</groupId>
+			<artifactId>filters</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.innosystec</groupId>
+			<artifactId>java-unrar</artifactId>
+			<version>0.3</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/java-unrar-0.3.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mucommander</groupId>
+			<artifactId>mucommander</artifactId>
+			<version>0.8.5</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/mucommanderlight.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>net.anidb</groupId>
+			<artifactId>anidb</artifactId>
+			<version>0.3</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/javaanidbapi-0.3.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.saxon</groupId>
+			<artifactId>saxonhe</artifactId>
+			<version>10.0-b19</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/saxon9he.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>uk.ac.shef.wit</groupId>
+			<artifactId>simmetrics</artifactId>
+			<version>1.6.2</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/simmetrics.jar</systemPath>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<finalName>${project.artifactId}-${project.version}</finalName>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>.</directory>
+							<includes>
+								<include>moviejukebox.log</include>
+							</includes>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<failOnError>true</failOnError>
+					<verbose>true</verbose>
+					<!-- excludes><exclude>**/*</exclude></excludes -->
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>add-moviejukebox-conf-resource</id>
+						<phase>generate-test-resources</phase>
+						<goals>
+							<goal>add-test-resource</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>../distribution/conf</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.7.1</version>
+				<configuration>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
+					<excludes>
+						<exclude>**/*PosterPluginTestCase.class</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Specification-Title>Yet Another Movie Jukebox</Specification-Title>
+							<Specification-Version>${project.version}</Specification-Version>
+							<Implementation-Version>${buildNumber}</Implementation-Version>
+							<Implementation-Title>${timestamp}</Implementation-Title>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+
+	<ciManagement>
+		<system>Hudson CI</system>
+		<url>http://mediadeveloper.org:8080/job/YAMJ/</url>
+	</ciManagement>
+
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/moviejukebox/issues/list</url>
+	</issueManagement>
+
+</project>

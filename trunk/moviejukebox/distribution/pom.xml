@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.moviejukebox</groupId>
+		<artifactId>moviejukebox</artifactId>
+		<version>2.3-SNAPSHOT</version>
+	</parent>
+	<artifactId>yamj-distribution</artifactId>
+	<name>YAMJ Distribution</name>
+	<packaging>pom</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>yamj</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.moviejukebox</groupId>
+			<artifactId>allocine-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<scm>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>
+		<tag>HEAD</tag>
+		<url>http://code.google.com/p/moviejukebox/source/browse</url>
+	</scm>
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>create-version-txt</id>
+						<phase>generate-resources</phase>
+						<configuration>
+							<tasks>
+								<property name="version" value="v2.3 BETA" />
+								<!-- This only works if the build is done through Hudson, otherwise 
+									it stays the same -->
+								<property environment="env" />
+
+								<!-- Get the revision information from SVN -->
+								<property environment="env" />
+								<condition property="revision" value="${env.SVN_REVISION}"
+									else="0000">
+									<isset property="env.SVN_REVISION" />
+								</condition>
+
+								<echo>Writing version.txt</echo>
+								<tstamp>
+									<format property="builddate" pattern="yyyy-MM-dd HH:mm:ss"
+										locale="en" />
+								</tstamp>
+								<echo file="conf/version.txt" append="false">Yet Another Movie
+									Jukebox${line.separator}</echo>
+								<echo file="conf/version.txt" append="true">Build Date:
+									${builddate}${line.separator}</echo>
+								<echo file="conf/version.txt" append="true">Version:
+									${version}${line.separator}</echo>
+								<echo file="conf/version.txt" append="true">Revision:
+									r${env.SVN_REVISION}${line.separator}</echo>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeScope>compile</includeScope>
+							<outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>distro-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/bin.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>conf</directory>
+							<includes>
+								<include>version.txt</include>
+							</includes>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+		</plugins>
+		<finalName>yamj-${project.version}</finalName>
+	</build>
+</project>

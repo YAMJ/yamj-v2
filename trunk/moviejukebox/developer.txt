@@ -64,6 +64,32 @@ public class MyClass {
  *      license terms of this work.  
  */
 
+----- Eclipse Integration -----
+Use the m2eclipse plugin to manage the project under eclipse.
+Instructions to install the eclipse plugin: http://m2eclipse.sonatype.org/installing-m2eclipse.html
+A maven version is embedded in it.
+
+----- Compilation -----
+Use maven 3.x to compile the project from command line (http://maven.apache.org/download.html)
+
+From the command line the principal goals are:
+    - mvn clean   : to clean the project
+    - mvn compile : to compile the sources
+    - mvn test    : to compile the sources, the tests, and execute the tests
+    - mvn package : to create the package(s) (.jar, .zip, etc...)
+    - mvn install : to install the package(s) in local repository
+    - mvn deploy  : to deploy the package(s) to the oss.sonatype repository
+    
+If you want to skip the tests set the maven.test.skip property to true before the goal. Example:
+    - mvn -Dmaven.test.skip=true package
+
+In eclipse create a new "Run As" configuration (Run/Run Configurations). Then create a new Maven Build (name it 'package without test' for example)
+and check the 'Skip Tests' option.
+
+If you have problems executing the plugin like sonar, try to increase memory heap:
+[Windows]  set MAVEN_OPTS=-Xmx512m -XX:MaxPermSize=256m
+[Unix/OSX] export MAVEN_OPT=S'-Xmx512m -XX:MaxPermSize=256m'
+
 ----- library sources -----
 java-unrar-0.3.jar:
  https://github.com/edmund-wagner/junrar/tree/
@@ -71,3 +97,4 @@ java-unrar-0.3.jar:
  tree    42fb990f62e15fac5dfa
 
  compiled with "mvn package".
+
