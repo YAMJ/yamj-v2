@@ -1,0 +1,1310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movie code="61282" xmlns="http://www.allocine.net/v6/ns/">
+	<movieType code="4002">Long-métrage</movieType>
+	<originalTitle>Avatar</originalTitle>
+	<title>Avatar</title>
+	<keywords>James Cameron's Avatar Project 880 vatar avtar, Avatar :
+		Special Edition Avatar Avatar 3D </keywords>
+	<productionYear>2009</productionYear>
+	<nationalityList>
+		<nationality code="5002">U.S.A.</nationality>
+	</nationalityList>
+	<genreList>
+		<genre code="13021">Science fiction</genre>
+		<genre code="13001">Aventure</genre>
+	</genreList>
+	<release>
+		<releaseDate>2010-09-01</releaseDate>
+		<reissueDate>2010-09-01</reissueDate>
+		<country code="5001">France</country>
+		<releaseState code="3004">Sorti en salle</releaseState>
+		<distributor code="7622" name="Twentieth Century Fox France" />
+	</release>
+	<runtime>9720</runtime>
+	<color code="12001">Couleur</color>
+	<formatList>
+		<productionFormat code="19002">35 mm</productionFormat>
+		<projectionFormat code="20017">1.78</projectionFormat>
+	</formatList>
+	<languageList>
+		<language code="6002">Anglais</language>
+	</languageList>
+	<budget>300 000 000 $</budget>
+	<synopsis>Malgré sa paralysie, Jake Sully, un ancien marine immobilisé
+		dans un fauteuil roulant, est resté un combattant au plus profond de
+		son être. Il est recruté pour se rendre à des années-lumière de la
+		Terre, sur Pandora, où de puissants groupes industriels exploitent un
+		minerai rarissime destiné à résoudre la crise énergétique sur Terre.
+		Parce que l'atmosphère de Pandora est toxique pour les humains,
+		ceux-ci ont créé le Programme Avatar, qui permet à des " pilotes "
+		humains de lier leur esprit à un avatar, un corps biologique commandé
+		à distance, capable de survivre dans cette atmosphère létale. Ces
+		avatars sont des hybrides créés génétiquement en croisant l'ADN humain
+		avec celui des Na'vi, les autochtones de Pandora.Sous sa forme
+		d'avatar, Jake peut de nouveau marcher. On lui confie une mission
+		d'infiltration auprès des Na'vi, devenus un obstacle trop conséquent à
+		l'exploitation du précieux minerai. Mais tout va changer lorsque
+		Neytiri, une très belle Na'vi, sauve la vie de Jake...</synopsis>
+	<synopsisShort>Sur la lointaine planète de Pandora, Jake Sully, un
+		héros malgré lui, se lance dans une quête de rédemption, de
+		découverte, d'amour inattendu, dont l'issue sera un combat héroïque
+		pour sauver toute une civilisation.</synopsisShort>
+	<castingShort>
+		<directors>James Cameron</directors>
+		<actors>Sam Worthington, Zoe Saldana, Sigourney Weaver, Stephen Lang,
+			Michelle Rodriguez</actors>
+	</castingShort>
+	<casting>
+		<castMember>
+			<person code="1066">James Cameron</person>
+			<activity code="8002">Réalisateur</activity>
+			<picture path="/medias/nmedia/18/35/34/02/19226897.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/34/02/19226897.jpg" />
+		</castMember>
+		<castMember>
+			<person code="41339">Sam Worthington</person>
+			<activity code="8001">Acteur</activity>
+			<role>Jake Sully</role>
+			<picture path="/medias/nmedia/18/70/53/24/19587092.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/70/53/24/19587092.jpg" />
+		</castMember>
+		<castMember>
+			<person code="34515">Zoe Saldana</person>
+			<activity code="8001">Actrice</activity>
+			<role>Neytiri</role>
+			<picture path="/medias/nmedia/18/35/42/79/19226902.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/42/79/19226902.jpg" />
+		</castMember>
+		<castMember>
+			<person code="259">Sigourney Weaver</person>
+			<activity code="8001">Actrice</activity>
+			<role>Grace Augustine</role>
+			<picture path="/medias/nmedia/18/35/39/23/19483207.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/39/23/19483207.jpg" />
+		</castMember>
+		<castMember>
+			<person code="6407">Stephen Lang</person>
+			<activity code="8001">Acteur</activity>
+			<role>le colonel Miles Quaritch</role>
+			<picture path="/medias/nmedia/18/71/42/77/19226853.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/71/42/77/19226853.jpg" />
+		</castMember>
+		<castMember>
+			<person code="60617">Michelle Rodriguez</person>
+			<activity code="8001">Actrice</activity>
+			<role>Trudy Chacon</role>
+			<picture path="/medias/nmedia/18/35/36/07/19603216.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/36/07/19603216.jpg" />
+		</castMember>
+		<castMember>
+			<person code="28985">Giovanni Ribisi</person>
+			<activity code="8001">Acteur</activity>
+			<role>Parker Selfridge</role>
+			<picture path="/medias/nmedia/18/35/39/55/19226929.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/39/55/19226929.jpg" />
+		</castMember>
+		<castMember>
+			<person code="130952">Joel David Moore</person>
+			<activity code="8001">Acteur</activity>
+			<role>Norm Spellman</role>
+			<picture path="/medias/nmedia/18/74/01/99/19226924.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/74/01/99/19226924.jpg" />
+		</castMember>
+		<castMember>
+			<person code="18050">Wes Studi</person>
+			<activity code="8001">Acteur</activity>
+			<role>Eytukan</role>
+			<picture path="/medias/nmedia/18/36/31/06/19442312.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/36/31/06/19442312.jpg" />
+		</castMember>
+		<castMember>
+			<person code="175724">CCH Pounder</person>
+			<activity code="8001">Actrice</activity>
+			<role>Moat</role>
+			<picture path="/medias/nmedia/18/74/01/97/19226918.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/74/01/97/19226918.jpg" />
+		</castMember>
+		<castMember>
+			<person code="117875">Laz Alonso</person>
+			<activity code="8001">Acteur</activity>
+			<role>Tsu'Tey</role>
+			<picture path="/medias/nmedia/18/64/53/72/18790459.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/53/72/18790459.jpg" />
+		</castMember>
+		<castMember>
+			<person code="218328">Dileep Rao</person>
+			<activity code="8001">Acteur</activity>
+			<role>le Dr Max Patel</role>
+			<picture path="/medias/nmedia/18/70/79/16/19226908.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/70/79/16/19226908.jpg" />
+		</castMember>
+		<castMember>
+			<person code="77973">Peter Mensah</person>
+			<activity code="8001">Acteur</activity>
+			<role>Akwey</role>
+			<picture path="/medias/nmedia/18/74/02/02/19226933.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/74/02/02/19226933.jpg" />
+		</castMember>
+		<castMember>
+			<person code="61597">Matt Gerald</person>
+			<activity code="8001">Acteur</activity>
+			<role>le caporal Lyne Wainfleet</role>
+			<picture path="/medias/nmedia/18/62/80/61/18652076.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/62/80/61/18652076.jpg" />
+		</castMember>
+		<castMember>
+			<person code="104999">Scott Lawrence</person>
+			<activity code="8001">Acteur</activity>
+			<role>le chef d'équipage du Venture Star</role>
+		</castMember>
+		<castMember>
+			<person code="105144">Sean Moran</person>
+			<activity code="8001">Acteur</activity>
+			<role>le soldat Fike</role>
+		</castMember>
+		<castMember>
+			<person code="108389">Julene Renee</person>
+			<activity code="8001">Acteur</activity>
+			<role>Un médecin</role>
+		</castMember>
+		<castMember>
+			<person code="157161">Woody Schultz</person>
+			<activity code="8001">Acteur</activity>
+			<role>Un médecin</role>
+		</castMember>
+		<castMember>
+			<person code="194629">Camille Keenan</person>
+			<activity code="8001">Actrice</activity>
+			<role>La serveuse</role>
+			<picture path="/medias/nmedia/18/65/42/24/18862184.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/65/42/24/18862184.jpg" />
+		</castMember>
+		<castMember>
+			<person code="194632">Jacob Tomuri</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le navigateur du Dragon Gunship</role>
+		</castMember>
+		<castMember>
+			<person code="209683">Peter Dillon</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le chef d'équipage de la navette</role>
+		</castMember>
+		<castMember>
+			<person code="210605">Kelson Henderson</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le pilote du Dragon Gunship</role>
+		</castMember>
+		<castMember>
+			<person code="262510">Sean Patrick Murphy</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le copilote de la navette</role>
+		</castMember>
+		<castMember>
+			<person code="410458">James Pitt</person>
+			<activity code="8001">Acteur</activity>
+			<role>le pilote de la navette</role>
+		</castMember>
+		<castMember>
+			<person code="410459">Kevin Dorman</person>
+			<activity code="8001">Acteur</activity>
+			<role>L'opérateur du tracteur</role>
+		</castMember>
+		<castMember>
+			<person code="410460">Dean Knowsley</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le pilote du Samson</role>
+		</castMember>
+		<castMember>
+			<person code="410461">Andrew Emilio DeCesare</person>
+			<activity code="8001">Acteur</activity>
+			<role>Un trooper</role>
+		</castMember>
+		<castMember>
+			<person code="410462">Leandro Di Salvo</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le pilote du Dragon</role>
+		</castMember>
+		<castMember>
+			<person code="410463">Luke Hawker</person>
+			<activity code="8001">Acteur</activity>
+			<role>Un médecin</role>
+		</castMember>
+		<castMember>
+			<person code="410464">Logan Pithyou</person>
+			<activity code="8001">Acteur</activity>
+			<role>Un technicien</role>
+		</castMember>
+		<castMember>
+			<person code="410465">Daniel Rathbon</person>
+			<activity code="8001">Acteur</activity>
+			<role>Un milicien</role>
+		</castMember>
+		<castMember>
+			<person code="410466">Grant Roa</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le videur</role>
+		</castMember>
+		<castMember>
+			<person code="410467">David Van Horn</person>
+			<activity code="8001">Acteur</activity>
+			<role>Le tireur du Dragon Gunship</role>
+		</castMember>
+		<castMember>
+			<person code="410468">Nikie Zambo</person>
+			<activity code="8001">Acteur</activity>
+			<role>Navi</role>
+		</castMember>
+		<castMember>
+			<person code="410469">Nick Miller</person>
+			<activity code="8001">Acteur</activity>
+			<role>Un trooper</role>
+		</castMember>
+		<castMember>
+			<person code="404270">Christian Di Salvo</person>
+			<activity code="8001">Acteur</activity>
+			<role>un pilote du dragon</role>
+		</castMember>
+		<castMember>
+			<person code="410457">Amy Clover</person>
+			<activity code="8001">Acteur</activity>
+			<role>Navi</role>
+		</castMember>
+		<castMember>
+			<person code="213815">Jason Whyte</person>
+			<activity code="8001">Acteur</activity>
+			<role>le technicien médical du centre cryogénique</role>
+		</castMember>
+		<castMember>
+			<person code="418013">Kelly Kilgour</person>
+			<activity code="8001">Acteur</activity>
+			<role>le soldat emprisonné</role>
+		</castMember>
+		<castMember>
+			<person code="418018">Jahnel Curfman</person>
+			<activity code="8001">Acteur</activity>
+			<role>un trooper</role>
+		</castMember>
+		<castMember>
+			<person code="418019">Lisa Roumain</person>
+			<activity code="8001">Actrice</activity>
+			<role>un trooper</role>
+		</castMember>
+		<castMember>
+			<person code="126057">Sean Anthony Moran</person>
+			<activity code="8001">Acteur</activity>
+			<role>Fike</role>
+		</castMember>
+		<castMember>
+			<person code="431377">Noli McCool</person>
+			<activity code="8001">Acteur</activity>
+			<role>Diui</role>
+		</castMember>
+		<castMember>
+			<person code="47942">Jon Landau</person>
+			<activity code="8029">Producteur</activity>
+			<picture path="/medias/nmedia/18/73/58/02/19208203.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/73/58/02/19208203.jpg" />
+		</castMember>
+		<castMember>
+			<person code="1066">James Cameron</person>
+			<activity code="8029">Producteur</activity>
+			<picture path="/medias/nmedia/18/35/34/02/19226897.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/34/02/19226897.jpg" />
+		</castMember>
+		<castMember>
+			<person code="93069">Janace Tashjian</person>
+			<activity code="8064">Producteur associé</activity>
+		</castMember>
+		<castMember>
+			<person code="45432">Colin Wilson</person>
+			<activity code="8062">Producteur exécutif</activity>
+		</castMember>
+		<castMember>
+			<person code="92747">Brooke Breton</person>
+			<activity code="8063">Coproducteur</activity>
+		</castMember>
+		<castMember>
+			<person code="41838">Josh McLaglen</person>
+			<activity code="8063">Coproducteur</activity>
+		</castMember>
+		<castMember>
+			<person code="1066">James Cameron</person>
+			<activity code="8004">Scénariste</activity>
+			<picture path="/medias/nmedia/18/35/34/02/19226897.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/34/02/19226897.jpg" />
+		</castMember>
+		<castMember>
+			<person code="11398">James Horner</person>
+			<activity code="8003">Compositeur</activity>
+			<picture path="/medias/nmedia/18/78/19/71/19450030.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/78/19/71/19450030.jpg" />
+		</castMember>
+		<castMember>
+			<person code="40535">Mauro Fiore</person>
+			<activity code="8037">Directeur de la photographie</activity>
+		</castMember>
+		<castMember>
+			<person code="181749">John Refoua</person>
+			<activity code="8046">Monteur</activity>
+		</castMember>
+		<castMember>
+			<person code="65316">Stephen E. Rivkin</person>
+			<activity code="8046">Monteur</activity>
+		</castMember>
+		<castMember>
+			<person code="41817">Rick Carter</person>
+			<activity code="8059">Chef décorateur</activity>
+		</castMember>
+		<castMember>
+			<person code="176953">Mayes C. Rubeo</person>
+			<activity code="8039">Costumier</activity>
+		</castMember>
+		<castMember>
+			<person code="141735">Joe Letteri</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="59802">Margery Simkin</person>
+			<activity code="8041">Directrice du casting</activity>
+		</castMember>
+		<castMember>
+			<person code="416186">Robert Stromberg</person>
+			<activity code="8059">Chef décorateur</activity>
+		</castMember>
+		<castMember>
+			<person code="46137">Nick Bassett</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="416187">Robert Bavin</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="142394">Simon Bright</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="65730">Todd Cherniawsky</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="46138">Jill Cormack</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="136107">Stefan Dechant</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="416188">Seth Engstrom</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="152891">Sean Haworth</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="98245">Kevin Ishioka</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="416189">Andrew L. Jones</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="416190">Andy McLaren</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="136581">Andrew Menzies</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="416191">Ben Procter</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="46139">Kim Sinclair</person>
+			<activity code="8042">Directeur artistique</activity>
+		</castMember>
+		<castMember>
+			<person code="46139">Kim Sinclair</person>
+			<activity code="8101">Décoratrice</activity>
+		</castMember>
+		<castMember>
+			<person code="80914">Deborah Lynn Scott</person>
+			<activity code="8039">Costumière</activity>
+		</castMember>
+		<castMember>
+			<person code="1066">James Cameron</person>
+			<activity code="8046">Monteur</activity>
+			<picture path="/medias/nmedia/18/35/34/02/19226897.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/34/02/19226897.jpg" />
+		</castMember>
+		<castMember>
+			<person code="417832">Paul Frommer</person>
+			<activity code="8094">Conseiller technique</activity>
+		</castMember>
+		<castMember>
+			<person code="156118">Terry Notary</person>
+			<activity code="8087">Choregraphe</activity>
+		</castMember>
+		<castMember>
+			<person code="417833">Lula Washington</person>
+			<activity code="8087">Choregraphe</activity>
+		</castMember>
+		<castMember>
+			<person code="417834">Carla Meyer</person>
+			<activity code="8094">Conseiller technique</activity>
+		</castMember>
+		<castMember>
+			<person code="84824">Richard Taylor</person>
+			<activity code="8128">Superviseur des effets spéciaux</activity>
+		</castMember>
+		<castMember>
+			<person code="206343">TyRuben Ellingson</person>
+			<activity code="8128">Superviseur des effets spéciaux</activity>
+		</castMember>
+		<castMember>
+			<person code="418035">Stephen Rosenbaum</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="184994">Eric Saindon</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="210439">Dan Lemmon</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="418075">Guy Williams (III)</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="72258">John Knoll</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="22532">John Bruno</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="101398">Steven Quale</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+			<picture path="/medias/nmedia/18/35/62/15/18413312.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/35/62/15/18413312.jpg" />
+		</castMember>
+		<castMember>
+			<person code="41838">Josh McLaglen</person>
+			<activity code="8032">1er assistant réalisateur</activity>
+		</castMember>
+		<castMember>
+			<person code="418089">Garrett Warren</person>
+			<activity code="8122">Coordinateur des cascades</activity>
+		</castMember>
+		<castMember>
+			<person code="418584">Simon Franglen</person>
+			<activity code="8114">Compositeur (chansons du film)</activity>
+		</castMember>
+		<castMember>
+			<person code="11398">James Horner</person>
+			<activity code="8114">Compositeur (chansons du film)</activity>
+			<picture path="/medias/nmedia/18/78/19/71/19450030.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/78/19/71/19450030.jpg" />
+		</castMember>
+		<castMember>
+			<person code="418585">Kuk Harrell</person>
+			<activity code="8114">Compositeur (chansons du film)</activity>
+		</castMember>
+		<castMember>
+			<person code="39579">Mali Finn</person>
+			<activity code="8041">Directrice du casting</activity>
+		</castMember>
+		<castMember>
+			<person code="61968">Christopher Boyes</person>
+			<activity code="8035">Ingénieur du son </activity>
+		</castMember>
+		<castMember>
+			<person code="421224">Gary Summers</person>
+			<activity code="8035">Ingénieur du son </activity>
+		</castMember>
+		<castMember>
+			<person code="142517">Andy Nelson</person>
+			<activity code="8035">Ingénieur du son </activity>
+		</castMember>
+		<castMember>
+			<person code="142461">Tony Johnson</person>
+			<activity code="8035">Ingénieur du son </activity>
+		</castMember>
+		<castMember>
+			<person code="421225">Addison Teague</person>
+			<activity code="8035">Ingénieur du son </activity>
+		</castMember>
+		<castMember>
+			<person code="421234">Richard Baneham</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="142348">Andrew R. Jones</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="444016">John Meyers (II)</person>
+			<activity code="8060">Superviseur des effets visuels</activity>
+		</castMember>
+		<castMember>
+			<person code="169849">Alexis Rubinowicz</person>
+			<activity code="8010">Attaché de presse</activity>
+		</castMember>
+		<castMember>
+			<person code="228279">Emilie Gruyelle</person>
+			<activity code="8010">Attachée de presse</activity>
+		</castMember>
+		<castMember>
+			<person code="84824">Richard Taylor</person>
+			<activity code="8044">Chef accessoiriste</activity>
+		</castMember>
+	</casting>
+	<poster path="/medias/nmedia/18/78/95/70/19485155.jpg"
+		href="http://images.allocine.fr/medias/nmedia/18/78/95/70/19485155.jpg" />
+	<trailer code="19135625" href="http://www.allocine.fr/blogvision/19135625" />
+	<linkList>
+		<link rel="aco:more"
+			href="http://www.allocine.fr/film/fichefilm_gen_cfilm=61282.html" />
+	</linkList>
+	<mediaList>
+		<media class="picture" code="18910309" rcode="19485155">
+			<type code="31001">Affiche</type>
+			<title>James Cameron Affiche : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/78/95/70/19485155.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/78/95/70/19485155.jpg" />
+		</media>
+		<media class="picture" code="18910309" rcode="19211318">
+			<type code="31001">Affiche</type>
+			<title>James Cameron, Sam Worthington, Zoe Saldana Affiche : Avatar
+			</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19211318.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19211318.jpg" />
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18910309" rcode="19150275">
+			<type code="31001">Affiche</type>
+			<title>James Cameron Affiche : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19150275.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19150275.jpg" />
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18910309" rcode="19149062">
+			<type code="31001">Affiche</type>
+			<title>James Cameron, Sam Worthington, Zoe Saldana Affiche : Avatar
+			</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19149062.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19149062.jpg" />
+			<description>Affiche teaser américaine</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19226838">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sam Worthington Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19226838.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19226838.jpg" />
+			<description>Sam Worthington</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19226841">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sam Worthington, Zoe Saldana Photo : Avatar
+			</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19226841.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19226841.jpg" />
+			<description>James Cameron, Zoe Saldana et Sam Worthington lors de la
+				conférence de presse</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19226840">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sigourney Weaver, Stephen Lang Photo : Avatar
+			</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19226840.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19226840.jpg" />
+			<description>Stephen Lang, Sigourney Weaver et James Cameron lors de
+				la conférence de presse</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19226843">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Stephen Lang Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19226843.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19226843.jpg" />
+			<description>Stephen Lang</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19226837">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sigourney Weaver Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19226837.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19226837.jpg" />
+			<description>Sigourney Weaver</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19226839">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Zoe Saldana Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19226839.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19226839.jpg" />
+			<description>Zoe Saldana</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19226836">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Stephen Lang Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19226836.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19226836.jpg" />
+			<description>Stephen Lang</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19189342">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19189342.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19189342.jpg" />
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19189346">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19189346.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19189346.jpg" />
+			<description>James Cameron</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19189341">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Jon Landau Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19189341.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19189341.jpg" />
+			<description>Jon Landau</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19189347">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sam Worthington Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19189347.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19189347.jpg" />
+			<description>Sam Worthington et James Cameron</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19189340">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19189340.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19189340.jpg" />
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19189345">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19189345.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19189345.jpg" />
+			<description>James Cameron</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19189344">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19189344.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19189344.jpg" />
+			<description>James Cameron</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19187516">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Zoe Saldana Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19187516.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19187516.jpg" />
+			<description>Zoe Saldana</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19187517">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19187517.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19187517.jpg" />
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19179097">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sam Worthington, Zoe Saldana Photo : Avatar
+			</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19179097.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19179097.jpg" />
+			<description>Zoe Saldana et Sam Worthington</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19179094">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Michelle Rodriguez, Sam Worthington, Sigourney
+				Weaver Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19179094.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19179094.jpg" />
+			<description>Sam Worthington, Sigourney Weaver et Michelle Rodriguez
+			</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19179095">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Zoe Saldana Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19179095.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19179095.jpg" />
+			<description>Zoe Saldana</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19179098">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Zoe Saldana Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19179098.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19179098.jpg" />
+			<description>Zoe Saldana</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19179099">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19179099.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19179099.jpg" />
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19157004">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sigourney Weaver Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19157004.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19157004.jpg" />
+			<description>James Cameron et Sigourney Weaver sur le tournage
+				d'Avatar</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19157003">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sam Worthington Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19157003.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19157003.jpg" />
+			<description>Sam Worthington</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19157006">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Jon Landau Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19157006.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19157006.jpg" />
+			<description>Michelle Rodriguez </description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19157005">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19157005.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19157005.jpg" />
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19156227">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19156227.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19156227.jpg" />
+			<description>James Cameron</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19155871">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sam Worthington Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19155871.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19155871.jpg" />
+			<description>Sam Worthington</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19074219">
+			<type code="31006">Photo</type>
+			<title>James Cameron Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19074219.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19074219.jpg" />
+			<description>James Cameron</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="picture" code="18854393" rcode="19032239">
+			<type code="31006">Photo</type>
+			<title>James Cameron, Sam Worthington Photo : Avatar</title>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19032239.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19032239.jpg" />
+			<description>James Cameron et Sam Worthington</description>
+			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
+		</media>
+		<media class="video" code="19137985">
+			<type code="31007">Interview</type>
+			<title>James Cameron Interview 2: Avatar, Titanic, Avatar 2, Avatar
+				3, Battle Angel</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>73</commentCount>
+				<viewCount>161664</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19137985_itw4_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19137985_itw4_vost.jpg" />
+		</media>
+		<media class="video" code="19135625">
+			<type code="31003">Bande-annonce</type>
+			<title>Avatar Bande-annonce VF</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>393</commentCount>
+				<viewCount>426084</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19135625_fa2_vf.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19135625_fa2_vf.jpg" />
+		</media>
+		<media class="video" code="19137985">
+			<type code="31007">Interview</type>
+			<title>James Cameron Interview 2: Avatar, Titanic, Avatar 2, Avatar
+				3, Battle Angel</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>73</commentCount>
+				<viewCount>161664</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19137985_itw4_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19137985_itw4_vost.jpg" />
+		</media>
+		<media class="video" code="18930157">
+			<type code="31003">Bande-annonce</type>
+			<title>Avatar Bande-annonce (2) VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>487</commentCount>
+				<viewCount>4087070</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18930157_fa1_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18930157_fa1_vost.jpg" />
+		</media>
+		<media class="video" code="18932632">
+			<type code="31003">Bande-annonce</type>
+			<title>Avatar Bande-annonce (2) VF</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>353</commentCount>
+				<viewCount>1156272</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18932632_fa2_vf.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18932632_fa2_vf.jpg" />
+		</media>
+		<media class="video" code="18914427">
+			<type code="31016">Teaser</type>
+			<title>Avatar Teaser VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>143</commentCount>
+				<viewCount>679774</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18914427_te1_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18914427_te1_vost.jpg" />
+		</media>
+		<media class="video" code="18914706">
+			<type code="31016">Teaser</type>
+			<title>Avatar Teaser VF</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>191</commentCount>
+				<viewCount>631192</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18914706_te2_vf.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18914706_te2_vf.jpg" />
+		</media>
+		<media class="video" code="18941122">
+			<type code="31004">Extrait vidéo</type>
+			<title>Avatar Extrait vidéo VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>33</commentCount>
+				<viewCount>63379</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18941122_ex1_vf.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18941122_ex1_vf.jpg" />
+		</media>
+		<media class="video" code="19175848">
+			<type code="31004">Extrait vidéo</type>
+			<title>Avatar Extrait vidéo (2) VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<viewCount>14834</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19175848_ex2_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19175848_ex2_vost.jpg" />
+		</media>
+		<media class="video" code="19175849">
+			<type code="31004">Extrait vidéo</type>
+			<title>Avatar Extrait vidéo (3) VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<viewCount>10420</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19175849_ex3_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19175849_ex3_vost.jpg" />
+		</media>
+		<media class="video" code="19175850">
+			<type code="31004">Extrait vidéo</type>
+			<title>Avatar Extrait vidéo (4) VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<viewCount>8789</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19175850_ex4_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19175850_ex4_vost.jpg" />
+		</media>
+		<media class="video" code="19175851">
+			<type code="31004">Extrait vidéo</type>
+			<title>Avatar Extrait vidéo (5) VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<viewCount>8669</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19175851_ex5_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19175851_ex5_vost.jpg" />
+		</media>
+		<media class="video" code="19175853">
+			<type code="31004">Extrait vidéo</type>
+			<title>Avatar Extrait vidéo (6) VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<viewCount>8835</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19175853_ex6_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19175853_ex6_vost.jpg" />
+		</media>
+		<media class="video" code="19175854">
+			<type code="31004">Extrait vidéo</type>
+			<title>Avatar Extrait vidéo (7) VO</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>2</commentCount>
+				<viewCount>8856</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19175854_ex7_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19175854_ex7_vost.jpg" />
+		</media>
+		<media class="video" code="18939414">
+			<type code="31007">Interview</type>
+			<title>James Cameron Interview : Avatar</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>125</commentCount>
+				<viewCount>260035</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18939414_itw3_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18939414_itw3_vost.jpg" />
+		</media>
+		<media class="video" code="19137985">
+			<type code="31007">Interview</type>
+			<title>James Cameron Interview 2: Avatar, Titanic, Avatar 2, Avatar
+				3, Battle Angel</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>73</commentCount>
+				<viewCount>161664</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/19137985_itw4_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19137985_itw4_vost.jpg" />
+		</media>
+		<media class="video" code="18920153">
+			<type code="31007">Interview</type>
+			<title>Jon Landau Interview 3: Avatar</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>19</commentCount>
+				<viewCount>5505</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18920153_itw2_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18920153_itw2_vost.jpg" />
+		</media>
+		<media class="video" code="18914906">
+			<type code="31007">Interview</type>
+			<title>James Cameron Interview 4: Avatar</title>
+			<version original="1" lang="6002">Anglais</version>
+			<statistics>
+				<commentCount>31</commentCount>
+				<viewCount>51767</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/64/43/65/18914906_itw1_vost.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/43/65/18914906_itw1_vost.jpg" />
+		</media>
+		<media class="video" code="19183285">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>Faux Raccord N°30 - Best-of 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>417</commentCount>
+				<viewCount>1349030</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/73/95/29/19183285_faux_raccord_best_of_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/73/95/29/19183285_faux_raccord_best_of_2010.jpg" />
+		</media>
+		<media class="video" code="19172320">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°795 - Jeudi 28 octobre 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>71</commentCount>
+				<viewCount>85234</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/19172320_minute_28_10_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/19172320_minute_28_10_2010.jpg" />
+		</media>
+		<media class="video" code="19141116">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>Plein 2 Ciné N°84 - Les films du 8 septembre 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>3</commentCount>
+				<viewCount>19406</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/67/64/27/19141116_p2c_2010_37.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/67/64/27/19141116_p2c_2010_37.jpg" />
+		</media>
+		<media class="video" code="19139082">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°753 - Lundi 30 août 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>105</commentCount>
+				<viewCount>261187</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/19139082_minute_30_08_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/19139082_minute_30_08_2010.jpg" />
+		</media>
+		<media class="video" code="19137864">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°750 - Lundi 23 août 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>82</commentCount>
+				<viewCount>272584</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/19137864_minute_23_08_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/19137864_minute_23_08_2010.jpg" />
+		</media>
+		<media class="video" code="19105986">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°680 - Jeudi 22 avril 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>53</commentCount>
+				<viewCount>45587</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/19105986_minute_22_04_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/19105986_minute_22_04_2010.jpg" />
+		</media>
+		<media class="video" code="18978811">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>Tueurs en Séries N°98 - Vendredi 12 mars 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>57</commentCount>
+				<viewCount>255594</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/66/68/06/18978811_tueurs_en_series_12_03_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/66/68/06/18978811_tueurs_en_series_12_03_2010.jpg" />
+		</media>
+		<media class="video" code="18953413">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°639 - Lundi 22 février 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>81</commentCount>
+				<viewCount>36568</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18953413_minute_22_02_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18953413_minute_22_02_2010.jpg" />
+		</media>
+		<media class="video" code="18950596">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°628 - Vendredi 05 février 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>65</commentCount>
+				<viewCount>129149</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18950596_minute_05_02_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18950596_minute_05_02_2010.jpg" />
+		</media>
+		<media class="video" code="18947008">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°616 - Lundi 18 janvier 2010</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>34</commentCount>
+				<viewCount>24536</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18947008_minute_18_01_2010.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18947008_minute_18_01_2010.jpg" />
+		</media>
+		<media class="video" code="18940558">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>Plein 2 Ciné N°56 - Les films du 16 décembre 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<viewCount>17853</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/67/64/27/18940558_p2c_2009_51.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/67/64/27/18940558_p2c_2009_51.jpg" />
+		</media>
+		<media class="video" code="18939046">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°597 - Mardi 08 décembre 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>33</commentCount>
+				<viewCount>20571</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18939046_minute_08_12_2009.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18939046_minute_08_12_2009.jpg" />
+		</media>
+		<media class="video" code="18930330">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°574 - Vendredi 30 octobre 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>26</commentCount>
+				<viewCount>30354</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18930330_minute_30_10_2009.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18930330_minute_30_10_2009.jpg" />
+		</media>
+		<media class="video" code="18925536">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>Merci Qui? N°141 - "Avatar"</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>81</commentCount>
+				<viewCount>35528</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/67/45/96/18925536_merci_qui_avatar.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/67/45/96/18925536_merci_qui_avatar.jpg" />
+		</media>
+		<media class="video" code="18920446">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°542 - Mercredi 16 septembre 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>40</commentCount>
+				<viewCount>149482</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18920446_minute_16_09_2009.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18920446_minute_16_09_2009.jpg" />
+		</media>
+		<media class="video" code="18917101">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>Plein 2 Ciné N°41 - Les films du 2 septembre 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>2</commentCount>
+				<viewCount>16495</viewCount>
+			</statistics>
+			<thumbnail path="/medias/nmedia/18/67/64/27/18917101_p2c_2009_36.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/67/64/27/18917101_p2c_2009_36.jpg" />
+		</media>
+		<media class="video" code="18910238">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°520 - Lundi 03 août 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>35</commentCount>
+				<viewCount>157399</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18910238_minute_03_08_2009.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18910238_minute_03_08_2009.jpg" />
+		</media>
+		<media class="video" code="18898370">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°501 - Vendredi 19 juin 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>53</commentCount>
+				<viewCount>66845</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18898370_minute_19_06_2009.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18898370_minute_19_06_2009.jpg" />
+		</media>
+		<media class="video" code="18858931">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°394 - Jeudi 15 janvier 2009</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>24</commentCount>
+				<viewCount>39119</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18858931_minute_15_01_2009.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18858931_minute_15_01_2009.jpg" />
+		</media>
+		<media class="video" code="18749415">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°64 - Lundi 24 septembre 2007</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>12</commentCount>
+				<viewCount>29624</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18749415_la_minute_24_09_2007.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18749415_la_minute_24_09_2007.jpg" />
+		</media>
+		<media class="video" code="18740611">
+			<type code="31011">Emission AlloCinéTV</type>
+			<title>La Minute N°26 - Lundi 06 août 2007</title>
+			<version original="0" lang="6001">Français</version>
+			<statistics>
+				<commentCount>18</commentCount>
+				<viewCount>97493</viewCount>
+			</statistics>
+			<thumbnail
+				path="/medias/nmedia/18/64/46/42/18740611_la_minute_07_08_2007.jpg"
+				href="http://images.allocine.fr/medias/nmedia/18/64/46/42/18740611_la_minute_07_08_2007.jpg" />
+		</media>
+	</mediaList>
+	<statistics>
+		<pressRating>4</pressRating>
+		<pressReviewCount>30</pressReviewCount>
+		<userRating>4</userRating>
+		<userReviewCount>9336</userReviewCount>
+		<userNoteCount>33084</userNoteCount>
+		<commentCount>7461</commentCount>
+		<ratingStats>
+			<rating note="5.0">5670</rating>
+			<rating note="4.5">1044</rating>
+			<rating note="4.0">848</rating>
+			<rating note="3.5">65</rating>
+			<rating note="3.0">380</rating>
+			<rating note="2.5">411</rating>
+			<rating note="2.0">156</rating>
+			<rating note="1.5">36</rating>
+			<rating note="1.0">267</rating>
+			<rating note="0.5">457</rating>
+		</ratingStats>
+		<fanCount>14465</fanCount>
+		<theaterCount>7</theaterCount>
+		<theaterCountOnRelease>78</theaterCountOnRelease>
+		<releaseWeekPosition>-20</releaseWeekPosition>
+	</statistics>
+</movie>
