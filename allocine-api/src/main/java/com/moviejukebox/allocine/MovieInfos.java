@@ -53,12 +53,10 @@ public class MovieInfos extends Movie {
                 Element element = (Element) obj;
                 str = element.getTextContent();
             }
-            if (!StringUtils.isBlank(str)) {
-                // Normalize the string (remove LF and collapse WhiteSpaces)
-                str = str.replaceAll("\\r+","\n").replaceAll("\\n+"," ").replaceAll("\\s+"," ").trim();
-                synopsis = synopsis.concat(str);
-            }
+            synopsis = synopsis.concat(str);
         }
+        // Normalize the string (remove LF and collapse WhiteSpaces)
+        synopsis = synopsis.replaceAll("\\r+","\n").replaceAll("\\n+"," ").replaceAll("\\s+"," ").trim();
         return synopsis;
     }
 
