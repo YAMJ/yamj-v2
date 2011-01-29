@@ -216,6 +216,7 @@
 				<configuration>
 					<getRevisionOnlyOnce>true</getRevisionOnlyOnce>
 					<revisionOnScmFailure>0000</revisionOnScmFailure>
+					<timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>
 				</configuration>
 				<executions>
 					<execution>
