@@ -662,12 +662,6 @@ public class SratimPlugin extends ImdbPlugin {
 
             movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
 
-            if (!movie.isOverrideYear()) {
-                if (!movie.isTVShow()) {
-                    movie.setYear(HTMLTools.getTextAfterElem(xml, "<td class=\"prod_year\" style=\"padding-left:10px;\">"));
-                }
-            }
-            
             if(!keepImdbCast) {
                 movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))));
             }
