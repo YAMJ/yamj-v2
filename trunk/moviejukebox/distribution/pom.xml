@@ -25,42 +25,21 @@
 
 	<build>
 		<plugins>
-
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>create-version-txt</id>
 						<phase>generate-resources</phase>
 						<configuration>
-							<tasks>
-								<property name="version" value="v2.3 BETA" />
-								<!-- This only works if the build is done through Hudson, otherwise 
-									it stays the same -->
-								<property environment="env" />
-
-								<!-- Get the revision information from SVN -->
-								<property environment="env" />
-								<condition property="revision" value="${env.SVN_REVISION}"
-									else="0000">
-									<isset property="env.SVN_REVISION" />
-								</condition>
-
-								<echo>Writing version.txt</echo>
-								<tstamp>
-									<format property="builddate" pattern="yyyy-MM-dd HH:mm:ss"
-										locale="en" />
-								</tstamp>
-								<echo file="conf/version.txt" append="false">Yet Another Movie
-									Jukebox${line.separator}</echo>
-								<echo file="conf/version.txt" append="true">Build Date:
-									${builddate}${line.separator}</echo>
-								<echo file="conf/version.txt" append="true">Version:
-									${version}${line.separator}</echo>
-								<echo file="conf/version.txt" append="true">Revision:
-									r${env.SVN_REVISION}${line.separator}</echo>
-							</tasks>
+							<target>
+								<property name="version_file" value="${project.build.directory}/version.txt" />
+								<echo>Writing version file: ${version_file}</echo>
+								<echo file="${version_file}" append="false">Yet Another Movie Jukebox${line.separator}</echo>
+								<echo file="${version_file}" append="true">Build Date: ${timestamp}${line.separator}</echo>
+								<echo file="${version_file}" append="true">Version:	${project.version}${line.separator}</echo>
+								<echo file="${version_file}" append="true">Revision: r${buildNumber}${line.separator}</echo>
+							</target>
 						</configuration>
 						<goals>
 							<goal>run</goal>
@@ -70,7 +49,6 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>2.1</version>
 				<executions>
@@ -87,6 +65,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
@@ -104,22 +83,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>2.4.1</version>
-				<configuration>
-					<filesets>
-						<fileset>
-							<directory>conf</directory>
-							<includes>
-								<include>version.txt</include>
-							</includes>
-							<followSymlinks>false</followSymlinks>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
+
 		</plugins>
 		<finalName>yamj-${project.version}-r${buildNumber}</finalName>
 	</build>
