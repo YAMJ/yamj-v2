@@ -39,6 +39,13 @@
 			<version>2.5</version>
 
 		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-xjc</artifactId>
+			<version>2.2.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -68,21 +75,19 @@
 						<id>jaxb</id>
 						<phase>generate-sources</phase>
 						<configuration>
-							<tasks>
+							<target>
 								<mkdir
 									dir="${project.build.directory}/generated-sources/jaxb/com/moviejukebox/allocine/jaxb" />
-								<!-- classpath for jaxb -->
-								<path id="cp.jaxb">
-									<fileset dir="${basedir}/lib/jaxb" includes="*.jar" />
-								</path>
-								<!-- classpath for xew plugin -->
+								<!-- classpath for JAXB @XmlElementWrapper Plugin (xew) -->
 								<path id="cp.plugin">
 									<fileset dir="${basedir}/lib/xjc-plugin" includes="*.jar" />
 								</path>
+
 								<!-- Ant task definition for the xjc tool -->
-								<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+								<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask"
+									classpathref="maven.plugin.classpath">
 									<classpath>
-										<path refid="cp.jaxb" />
+										<path refid="maven.compile.classpath" />
 										<path refid="cp.plugin" />
 									</classpath>
 								</taskdef>
@@ -100,9 +105,9 @@
 									<!-- <binding dir="${etc}" includes="allocine.xjb" /> -->
 									<produces
 										dir="${project.build.directory}/generated-sources/jaxb/com/moviejukebox/allocine/jaxb"
-										includes="*" />
+										includes="ObjectFactory.java" />
 								</xjc>
-							</tasks>
+							</target>
 						</configuration>
 						<goals>
 							<goal>run</goal>
