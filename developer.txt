@@ -91,10 +91,9 @@ If you have problems executing the plugin like sonar, try to increase memory hea
 [Unix/OSX] export MAVEN_OPT=S'-Xmx512m -XX:MaxPermSize=256m'
 
 ----- library sources -----
-java-unrar-0.3.jar:
+java-unrar-0.4-SNAPSHOT.jar:
  https://github.com/edmund-wagner/junrar/tree/
- commit  6f32323c983015d96c64
- tree    42fb990f62e15fac5dfa
-
+ Branch: 8e91d695dc03f7b8a1138756655d280e340055d5
+ 
  compiled with "mvn package".
 
