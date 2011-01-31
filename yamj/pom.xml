@@ -75,9 +75,9 @@
 		<dependency>
 			<groupId>de.innosystec</groupId>
 			<artifactId>java-unrar</artifactId>
-			<version>0.3</version>
+			<version>0.4-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/java-unrar-0.3.jar</systemPath>
+			<systemPath>${basedir}/lib/java-unrar-0.4-SNAPSHOT.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -112,6 +112,13 @@
 			<systemPath>${basedir}/lib/simmetrics.jar</systemPath>
 		</dependency>
 
+		<dependency>
+			<groupId>org.javolution</groupId>
+			<artifactId>javolution</artifactId>
+			<version>5.2.6</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
