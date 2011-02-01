@@ -1856,10 +1856,20 @@ public class MovieJukebox {
     private static boolean mjbRecheck(Movie movie) {
         // Property variables
         int recheckMax = PropertiesUtil.getIntProperty("mjb.recheck.Max", "50");
+        boolean recheckVersion = PropertiesUtil.getBooleanProperty("mjb.recheck.Version", "true");
         
         // Skip Extras (Trailers, etc)
         if (movie.isExtra()) {
             return false;
+        }
+        
+        // Check for the version of YAMJ that wrote the XML file vs the current version
+        //System.out.println("- mjbVersion : " + movie.getMjbVersion() + " (" + movie.getCurrentMjbVersion() + ")");
+        if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(movie.getCurrentMjbVersion())) {
+            logger.finest("Recheck: " + movie.getBaseName() + " XML is from a previous version, will rescan");
+            // We *ALWAYS* want to re-write the XML when the version changes, so don't skip this check
+            // recheckCount++;
+            return true;
         }
         
         if (recheckCount >= recheckMax) {
@@ -1874,18 +1884,9 @@ public class MovieJukebox {
         int recheckDays     = PropertiesUtil.getIntProperty("mjb.recheck.Days", "30");
         int recheckMinDays  = PropertiesUtil.getIntProperty("mjb.recheck.minDays", "7");
         int recheckRevision = PropertiesUtil.getIntProperty("mjb.recheck.Revision", "25");
-        boolean recheckVersion = PropertiesUtil.getBooleanProperty("mjb.recheck.Version", "true");
         boolean recheckUnknown = PropertiesUtil.getBooleanProperty("mjb.recheck.Unknown", "true");
         Date currentDate = new Date();
         long dateDiff = (currentDate.getTime() - movie.getMjbGenerationDate().toDate().getTime()) / (1000 * 60 * 60 * 24);
-        
-        // Check for the version of YAMJ that wrote the XML file vs the current version
-        //System.out.println("- mjbVersion : " + movie.getMjbVersion() + " (" + movie.getCurrentMjbVersion() + ")");
-        if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(movie.getCurrentMjbVersion())) {
-            logger.finest("Recheck: " + movie.getBaseName() + " XML is from a previous version, will rescan");
-            recheckCount++;
-            return true;
-        }
         
         // Check the date the XML file was last written to and skip if it's less than minDays
         if ((recheckMinDays > 0) && (dateDiff <= recheckMinDays)) {
