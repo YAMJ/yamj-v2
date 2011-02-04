@@ -10,7 +10,7 @@
 
 	<groupId>com.moviejukebox</groupId>
 	<artifactId>allocine-api</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<name>Allocine API</name>
 
 	<properties>
@@ -38,10 +38,9 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/tags/allocine-api-1.0.1</connection>
-		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/tags/allocine-api-1.0.1</developerConnection>
-		<tag>HEAD</tag>
-		<url>http://code.google.com/p/moviejukebox/source/browse/tags/allocine-api-1.0.1</url>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/allocine-api</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/allocine-api</developerConnection>
+		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/allocine-api</url>
 	</scm>
 
 	<dependencies>
