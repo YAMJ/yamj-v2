@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
 		<version>6</version>
-		<relativePath></relativePath>
+		<relativePath />
 	</parent>
 
 	<groupId>com.moviejukebox</groupId>
 	<artifactId>allocine-api</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<name>Allocine API</name>
 
 	<properties>
@@ -39,10 +38,10 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/allocine-api</connection>
-		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/allocine-api</developerConnection>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/tags/allocine-api-1.0.1</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/tags/allocine-api-1.0.1</developerConnection>
 		<tag>HEAD</tag>
-		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/allocine-api</url>
+		<url>http://code.google.com/p/moviejukebox/source/browse/tags/allocine-api-1.0.1</url>
 	</scm>
 
 	<dependencies>
@@ -205,36 +204,30 @@
 						<phase>generate-sources</phase>
 						<configuration>
 							<target>
-								<mkdir
-									dir="${project.build.directory}/generated-sources/jaxb/com/moviejukebox/allocine/jaxb" />
+								<mkdir dir="${project.build.directory}/generated-sources/jaxb/com/moviejukebox/allocine/jaxb" />
 								<!-- classpath for JAXB @XmlElementWrapper Plugin (xew) -->
 								<path id="cp.plugin">
 									<fileset dir="${basedir}/lib/xjc-plugin" includes="*.jar" />
 								</path>
 
 								<!-- Ant task definition for the xjc tool -->
-								<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask"
-									classpathref="maven.plugin.classpath">
+								<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" classpathref="maven.plugin.classpath">
 									<classpath>
 										<path refid="maven.compile.classpath" />
 										<path refid="cp.plugin" />
 									</classpath>
 								</taskdef>
 
-								<xjc destdir="${project.build.directory}/generated-sources/jaxb"
-									package="com.moviejukebox.allocine.jaxb" extension="Yes">
+								<xjc destdir="${project.build.directory}/generated-sources/jaxb" package="com.moviejukebox.allocine.jaxb" extension="Yes">
 									<!-- <arg value="-debug" /> -->
 									<!-- <arg value="-verbose" /> -->
 									<arg value="-Xxew" />
-									<arg
-										value="-summary ${project.build.directory}/allocine-xew-summary.txt" />
+									<arg value="-summary ${project.build.directory}/allocine-xew-summary.txt" />
 									<arg value="-instantiate lazy" />
 									<arg value="-delete" />
 									<schema dir="${basedir}/src/main/schemas" includes="allocine.xsd" />
 									<!-- <binding dir="${etc}" includes="allocine.xjb" /> -->
-									<produces
-										dir="${project.build.directory}/generated-sources/jaxb/com/moviejukebox/allocine/jaxb"
-										includes="ObjectFactory.java" />
+									<produces dir="${project.build.directory}/generated-sources/jaxb/com/moviejukebox/allocine/jaxb" includes="ObjectFactory.java" />
 								</xjc>
 							</target>
 						</configuration>
