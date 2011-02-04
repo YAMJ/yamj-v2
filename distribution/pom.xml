@@ -17,10 +17,6 @@
 			<groupId>com.moviejukebox</groupId>
 			<artifactId>yamj</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.moviejukebox</groupId>
-			<artifactId>allocine-api</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>
