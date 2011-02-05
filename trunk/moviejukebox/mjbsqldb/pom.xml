@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.moviejukebox</groupId>
 	<artifactId>mjbsqldb</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>MovieJukebox SQL DB</name>
 
 	<properties>
@@ -26,9 +26,9 @@
 		<url>http://mediadeveloper.org:8080/job/Moviejukebox-SQL-DB/</url>
 	</ciManagement>
 	<scm>
-		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</connection>
-		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</developerConnection>
-		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/mjbsqldb</url>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/tags/mjbsqldb-1.0</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/tags/mjbsqldb-1.0</developerConnection>
+		<url>http://code.google.com/p/moviejukebox/source/browse/tags/mjbsqldb-1.0</url>
 	</scm>
 
 	<dependencies>
