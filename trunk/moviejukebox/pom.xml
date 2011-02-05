@@ -28,13 +28,13 @@
 		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox</url>
 	</scm>
 	<modules>
-		<module>mjbsqldb</module>
 		<module>yamj</module>
 		<module>distribution</module>
 	</modules>
 
 	<properties>
 		<allocine-api.version>1.0.1</allocine-api.version>
+		<mjbsqldb.version>1.0</mjbsqldb.version>
 		<distribution.format>zip</distribution.format>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -98,7 +98,7 @@
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>mjbsqldb</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>${mjbsqldb.version}</version>
 			</dependency>
 
 			<dependency>
