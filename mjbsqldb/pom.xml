@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>oss-parent</artifactId>
@@ -18,6 +16,20 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
+
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/moviejukebox/issues/list</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Jenkins CI</system>
+		<url>http://mediadeveloper.org:8080/job/Moviejukebox-SQL-DB/</url>
+	</ciManagement>
+	<scm>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</developerConnection>
+		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/mjbsqldb</url>
+	</scm>
 
 	<dependencies>
 		<dependency>
@@ -63,4 +75,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>
