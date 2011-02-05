@@ -17,6 +17,20 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/moviejukebox/issues/list</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Jenkins CI</system>
+		<url>http://mediadeveloper.org:8080/job/Moviejukebox-SQL-DB/</url>
+	</ciManagement>
+	<scm>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</developerConnection>
+		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/mjbsqldb</url>
+	</scm>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -62,9 +76,4 @@
 		</plugins>
 	</build>
 
-  <scm>
-    <connection>scm:svn:http://svn.sonatype.org/spice/tags/mjbsqldb-1.0</connection>
-    <developerConnection>scm:svn:https://svn.sonatype.org/spice/tags/mjbsqldb-1.0</developerConnection>
-    <url>http://svn.sonatype.org/spice/tags/mjbsqldb-1.0</url>
-  </scm>
 </project>
