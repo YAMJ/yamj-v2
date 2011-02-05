@@ -18,7 +18,7 @@
 		<url>http://code.google.com/p/moviejukebox/issues/list</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Hudson CI</system>
+		<system>Jenkins CI</system>
 		<url>http://mediadeveloper.org:8080/job/YAMJ/</url>
 	</ciManagement>
 	<scm>

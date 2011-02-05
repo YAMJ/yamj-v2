@@ -207,7 +207,7 @@
 	</properties>
 
 	<ciManagement>
-		<system>Hudson CI</system>
+		<system>Jenkins CI</system>
 		<url>http://mediadeveloper.org:8080/job/YAMJ/</url>
 	</ciManagement>
 
