@@ -34,6 +34,7 @@
 	</modules>
 
 	<properties>
+		<allocine-api.version>1.0.1</allocine-api.version>
 		<distribution.format>zip</distribution.format>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -85,7 +86,7 @@
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>allocine-api</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
+				<version>${allocine-api.version}</version>
 			</dependency>
 
 			<dependency>
