@@ -31,10 +31,14 @@
 							<target>
 								<property name="version_file" value="${project.build.directory}/version.txt" />
 								<echo>Writing version file: ${version_file}</echo>
-								<echo file="${version_file}" append="false">Yet Another Movie Jukebox${line.separator}</echo>
-								<echo file="${version_file}" append="true">Build Date: ${timestamp}${line.separator}</echo>
-								<echo file="${version_file}" append="true">Version:	${project.version}${line.separator}</echo>
-								<echo file="${version_file}" append="true">Revision: r${buildNumber}${line.separator}</echo>
+                                <echo>Yet Another Movie Jukebox</echo>
+                                <echo file="${version_file}" append="false">Yet Another Movie Jukebox${line.separator}</echo>
+                                <echo>Build Date: ${timestamp}</echo>
+                                <echo file="${version_file}" append="true">Build Date: ${timestamp}${line.separator}</echo>
+                                <echo>Version: ${project.version}</echo>
+                                <echo file="${version_file}" append="true">Version: ${project.version}${line.separator}</echo>
+                                <echo>Revision: r${buildNumber}</echo>
+                                <echo file="${version_file}" append="true">Revision: r${buildNumber}${line.separator}</echo>
 							</target>
 						</configuration>
 						<goals>
