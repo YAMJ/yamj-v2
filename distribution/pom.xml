@@ -24,35 +24,25 @@
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
-                    <execution>
-                        <id>delete-old-version-txt</id>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <target>
-                                <property name="version_file" value="${project.build.directory}/version.txt" />
-                                <echo>Deleting ${version_file}</echo>
-                                <delete file="${version_file}" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
 					<execution>
 						<id>create-version-txt</id>
 						<phase>generate-resources</phase>
 						<configuration>
 							<target>
 								<property name="version_file" value="${project.build.directory}/version.txt" />
+								<property name="header_line"
+									value="Yet Another Movie Jukebox${line.separator}" />
+								<property name="build_date_line"
+									value="Build Date: ${timestamp}${line.separator}" />
+								<property name="version_line"
+									value="Version: ${project.version}${line.separator}" />
+								<property name="revision_line"
+									value="Revision: r${buildNumber}${line.separator}" />
 								<echo>Writing version file: ${version_file}</echo>
-                                <echo>Yet Another Movie Jukebox</echo>
-                                <echo file="${version_file}" append="false">Yet Another Movie Jukebox${line.separator}</echo>
-                                <echo>Build Date: ${timestamp}</echo>
-                                <echo file="${version_file}" append="true">Build Date: ${timestamp}${line.separator}</echo>
-                                <echo>Version: ${project.version}</echo>
-                                <echo file="${version_file}" append="true">Version: ${project.version}${line.separator}</echo>
-                                <echo>Revision: r${buildNumber}</echo>
-                                <echo file="${version_file}" append="true">Revision: r${buildNumber}${line.separator}</echo>
+								<echo file="${version_file}" append="false">${header_line}</echo>
+								<echo file="${version_file}" append="true">${build_date_line}</echo>
+								<echo file="${version_file}" append="true">${version_line}</echo>
+								<echo file="${version_file}" append="true">${revision_line}</echo>
 							</target>
 						</configuration>
 						<goals>
