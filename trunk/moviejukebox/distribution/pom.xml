@@ -24,6 +24,20 @@
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
+                    <execution>
+                        <id>delete-old-version-txt</id>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <target>
+                                <property name="version_file" value="${project.build.directory}/version.txt" />
+                                <echo>Deleting ${version_file}</echo>
+                                <delete file="${version_file}" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
 					<execution>
 						<id>create-version-txt</id>
 						<phase>generate-resources</phase>
