@@ -146,9 +146,9 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoTop250() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
-        filmwebPlugin.setRequestResult("<span class=\"worldRanking\">3. <a href=\"/rankings/film/world#Ojciec chrzestny\">w rankingu światowym</a></span>");
+        filmwebPlugin.setRequestResult("<span class=worldRanking>2. <a href=\"/rankings/film/world#Ojciec chrzestny\">w rankingu światowym</a></span>");
         filmwebPlugin.updateMediaInfo(movie);
-        assertEquals(3, movie.getTop250());
+        assertEquals(2, movie.getTop250());
     }
 
     public void testUpdateMediaInfoDirector() {
@@ -167,7 +167,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoRuntime() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
-        filmwebPlugin.setRequestResult("<div class=\"time\">92<span>Minut</span></div>");
+        filmwebPlugin.setRequestResult("<div class=time>92<span>Minut</span></div>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("92", movie.getRuntime());
     }
