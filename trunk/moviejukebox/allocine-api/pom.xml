@@ -24,7 +24,7 @@
 	</issueManagement>
 	<ciManagement>
 		<system>Jenkins CI</system>
-		<url>http://mediadeveloper.org:8080/job/Allocine-API/</url>
+		<url>http://mediadeveloper.org:8080/job/API-Allocine/</url>
 	</ciManagement>
 	<developers>
 		<developer>

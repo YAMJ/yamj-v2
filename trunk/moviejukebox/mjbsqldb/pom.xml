@@ -23,7 +23,7 @@
 	</issueManagement>
 	<ciManagement>
 		<system>Jenkins CI</system>
-		<url>http://mediadeveloper.org:8080/job/Moviejukebox-SQL-DB/</url>
+		<url>http://mediadeveloper.org:8080/job/API-Moviejukebox-SQL-DB/</url>
 	</ciManagement>
 	<scm>
 		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</connection>
