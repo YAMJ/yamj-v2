@@ -39,7 +39,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
-    private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\" href=\"([^\"]*)\"");
+    private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
 
     protected String filmwebPreferredSearchEngine;
@@ -206,7 +206,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (movie.getTop250() == -1) {
                 try {
-                    movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "\"worldRanking\"", 0, ">.")));
+                    movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "worldRanking", 0, ">.")));
                 } catch (NumberFormatException error) {
                     movie.setTop250(-1);
                 }
@@ -221,7 +221,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (Movie.UNKNOWN.equals(movie.getRuntime())) {
-                movie.setRuntime(HTMLTools.getTextAfterElem(xml, "\"time\""));
+                movie.setRuntime(HTMLTools.getTextAfterElem(xml, "class=time"));
             }
 
             if (Movie.UNKNOWN.equals(movie.getCountry())) {
@@ -323,7 +323,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                     // don't scan episode title if it exists in XML data
                     continue;
                 }
-                int fromIndex = xml.indexOf("sezon " + movie.getSeason());
+                int fromIndex = xml.indexOf("sezon " + movie.getSeason() + "<");
                 boolean first = true;
                 StringBuilder sb = new StringBuilder();
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
