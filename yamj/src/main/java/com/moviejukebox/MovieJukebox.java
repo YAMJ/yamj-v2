@@ -1162,7 +1162,18 @@ public class MovieJukebox {
                     logger.fine("Copying skin files to Jukebox directory...");
                 }
                 
-                FileTools.copyDir(skinHome + File.separator + "html", jukebox.getJukeboxRootLocationDetails(), true);
+                StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.skin.copyDirs", "html"));
+                
+                while (st.hasMoreTokens()) {
+                    String skinDirName = st.nextToken();
+                    String skinDirFull = skinHome + File.separator + skinDirName;
+                    
+                    if ((new File(skinDirFull).exists())) {
+                        logger.fine("Copying the " + skinDirName + " directory...");
+                        FileTools.copyDir(skinDirFull, jukebox.getJukeboxRootLocationDetails(), true);
+                    }
+                }
+                
                 if (skinFile.exists()) {
                     skinFile.setLastModified(timeStart);
                 } else {
