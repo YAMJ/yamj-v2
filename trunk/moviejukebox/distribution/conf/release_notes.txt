@@ -1,9 +1,13 @@
-**************************************************************
-** MovieJukebox Release note
+***************************************************************
+** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.3 BETA
+MovieJukebox 2.4 BETA
 ---------------------
+
+
+MovieJukebox 2.3
+----------------
  - Fixed defect  #808 Trailers: Periodic rescan option
  - Enhancement   #997 Ability to turn off 'EXTRAS' processing
  - Enhancement  #1012 Separate index.htm XSL file
