@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.moviejukebox</groupId>
 		<artifactId>moviejukebox</artifactId>
-		<version>2.3-SNAPSHOT</version>
+		<version>2.3</version>
 	</parent>
 	<artifactId>yamj-distribution</artifactId>
 	<name>YAMJ Distribution</name>
@@ -30,14 +28,10 @@
 						<configuration>
 							<target>
 								<property name="version_file" value="${project.build.directory}/version.txt" />
-								<property name="header_line"
-									value="Yet Another Movie Jukebox${line.separator}" />
-								<property name="build_date_line"
-									value="Build Date: ${timestamp}${line.separator}" />
-								<property name="version_line"
-									value="Version: ${project.version}${line.separator}" />
-								<property name="revision_line"
-									value="Revision: r${buildNumber}${line.separator}" />
+								<property name="header_line" value="Yet Another Movie Jukebox${line.separator}" />
+								<property name="build_date_line" value="Build Date: ${timestamp}${line.separator}" />
+								<property name="version_line" value="Version: ${project.version}${line.separator}" />
+								<property name="revision_line" value="Revision: r${buildNumber}${line.separator}" />
 								<echo>Writing version file: ${version_file}</echo>
 								<echo file="${version_file}" append="false">${header_line}</echo>
 								<echo file="${version_file}" append="true">${build_date_line}</echo>
