@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.moviejukebox</groupId>
 	<artifactId>moviejukebox</artifactId>
 	<name>Yet Another Movie Jukebox</name>
-	<version>2.3-SNAPSHOT</version>
+	<version>2.3</version>
 	<description>The MovieJukebox project</description>
 	<packaging>pom</packaging>
 	<parent>
@@ -22,10 +21,10 @@
 		<url>http://mediadeveloper.org:8080/job/YAMJ/</url>
 	</ciManagement>
 	<scm>
-		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
-		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/tags/moviejukebox-2.3</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/tags/moviejukebox-2.3</developerConnection>
 		<tag>HEAD</tag>
-		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox</url>
+		<url>http://code.google.com/p/moviejukebox/source/browse/tags/moviejukebox-2.3</url>
 	</scm>
 	<modules>
 		<module>yamj</module>
