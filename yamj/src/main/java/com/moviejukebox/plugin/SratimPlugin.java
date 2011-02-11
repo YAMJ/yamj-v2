@@ -926,19 +926,8 @@ public class SratimPlugin extends ImdbPlugin {
             mf.setSubtitlesExchange(true);
             return;
         }
-
-        if (movie.isExtra()) {
-            mf.setSubtitlesExchange(true);
-            return;
-        }
-
-        // Check if this movie already have subtitles for it (.srt and .sub)
-        if (hasExistingSubtitles(mf)) {
-            mf.setSubtitlesExchange(true);
-            return;
-        }
-
-        // Get the file base name
+        
+     // Get the file base name
         String path = mf.getFile().getName().toUpperCase();
         int lindex = path.lastIndexOf(".");
         if (lindex == -1) {
@@ -952,6 +941,19 @@ public class SratimPlugin extends ImdbPlugin {
         if (path.endsWith(".M2TS") && path.startsWith("0")) {
             bluRay = true;
         }
+        
+        if (movie.isExtra()) {
+            mf.setSubtitlesExchange(true);
+            return;
+        }
+
+        // Check if this movie already have subtitles for it (.srt and .sub)
+        if (hasExistingSubtitles(mf, bluRay)) {
+            mf.setSubtitlesExchange(true);
+            return;
+        }
+
+        
 
         basename = basename.replace('.', ' ').replace('-', ' ').replace('_', ' ');
 
@@ -1204,7 +1206,7 @@ public class SratimPlugin extends ImdbPlugin {
         // reconstruct movie filename with full path
         String orgName = mf.getFile().getAbsolutePath();
         File subtitleFile = new File(orgName.substring(0, orgName.lastIndexOf(".")));
-        if (!downloadSubtitleZip(movie, "http://www.sratim.co.il/downloadsubtitle.php?id=" + bestID, subtitleFile)) {
+        if (!downloadSubtitleZip(movie, "http://www.sratim.co.il/downloadsubtitle.php?id=" + bestID, subtitleFile, bluRay)) {
             logger.severe("Sratim Plugin: Error - Subtitle download failed");
             return;
         }
@@ -1213,7 +1215,7 @@ public class SratimPlugin extends ImdbPlugin {
         movie.setSubtitles("YES");
     }
 
-    public boolean downloadSubtitleZip(Movie movie, String subDownloadLink, File subtitleFile) {
+    public boolean downloadSubtitleZip(Movie movie, String subDownloadLink, File subtitleFile, boolean bluray) {
 
         boolean found = false;
         ZipInputStream zipInputStream = null;
@@ -1270,7 +1272,11 @@ public class SratimPlugin extends ImdbPlugin {
                         if (partsIter.hasNext()) {
                             MovieFile moviePart = partsIter.next();
                             String partName = moviePart.getFile().getAbsolutePath();
-                            partName = partName.substring(0, partName.lastIndexOf('.'));
+                            if(bluray){ //This is a BDRip, should be saved as index.EXT under BDMV dir to match PCH requirments 
+                                partName = partName.substring(0, partName.lastIndexOf("BDMV"))+"BDMV\\index";
+                            }else{
+                                partName = partName.substring(0, partName.lastIndexOf('.'));
+                            }
                             fileOutputStream =FileTools.createFileOutputStream(partName + entryExt);
                         } else {
                             // in case of some mismatch, use the old code
@@ -1394,9 +1400,22 @@ public class SratimPlugin extends ImdbPlugin {
         result = HTMLTools.decodeHtml(title);
         return removeTrailBracket(result);
     }
-
-    protected boolean hasExistingSubtitles(MovieFile mf) {
-        // Check if this movie already has subtitles for it, popcorn supports .srt and .sub
+    
+    protected boolean hasExistingSubtitles(MovieFile mf, boolean bluray) {
+        if (bluray){ //Check if the BDRIp folder contains subtitle file in PCH expected convention. 
+            int bdFolderIndex=mf.getFile().getAbsolutePath().lastIndexOf("BDMV");
+                if(bdFolderIndex==-1){
+                    logger.finer("Could not find BDMV FOLDER, Invalid BDRip Stracture, subtitle wont be downloaded");
+                    return true;
+                }
+                String bdFolder =mf.getFile().getAbsolutePath().substring(0,bdFolderIndex);
+                String debug = "";
+            
+                File subIndex = new File(bdFolder +"BDMV//index.sub");
+                File srtIndex = new File(bdFolder +"BDMV//index.srt");
+                return subIndex.exists()||srtIndex.exists();
+        }
+     // Check if this movie already has subtitles for it, popcorn supports .srt and .sub
         String path = mf.getFile().getAbsolutePath();
         int lindex = path.lastIndexOf(".");
         String basename = path.substring(0, lindex + 1);
@@ -1405,10 +1424,8 @@ public class SratimPlugin extends ImdbPlugin {
         File subFile = new File(basename + "sub");
 
         return srtFile.exists() || subFile.exists();
-    }
-
-
-
+    }           
+    
     protected static boolean containsHebrew(char[] chars) {
         if (chars == null) {
             return false;
