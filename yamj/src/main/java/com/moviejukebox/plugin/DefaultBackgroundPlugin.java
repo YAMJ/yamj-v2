@@ -13,11 +13,17 @@
 
 package com.moviejukebox.plugin;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * @author altman.matthew
@@ -28,10 +34,14 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     private int backgroundWidth;
     private int backgroundHeight;
     private boolean addPerspective;
+    private boolean addOverlay;
+    private String skinHome;
+    private static Logger logger = Logger.getLogger("moviejukebox");
 
     public DefaultBackgroundPlugin() {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
+        skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     }
 
     @Override
@@ -46,10 +56,15 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         backgroundWidth = checkWidth(movie.isTVShow(), imageType);
         backgroundHeight = checkHeight(movie.isTVShow(), imageType);
         addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
+        addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
         
         BufferedImage bi = null;
         if (backgroundImage != null) {
             bi = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
+        }
+        
+        if (addOverlay) {
+            bi = drawOverlay(movie, bi);
         }
         
         if (addPerspective) {
@@ -113,4 +128,72 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
         return backgroundHeight;
     }
+    
+    /** 
+     * Draw an overlay on the fanarts (shading, static menu backgrounds, etc.)
+     * specific for TV, Movie, SET and Extras backgrounds
+     * @param movie
+     * @param bi
+     * @return
+     */
+    private BufferedImage drawOverlay(Movie movie, BufferedImage bi) {
+        
+        String source;
+        if (movie.isTVShow() && !movie.isSetMaster()) {        // Background overlay for TV shows
+            source = "tv";
+        } else if (movie.isTVShow() && movie.isSetMaster()) {  // Background overlay for Set index with more than one season 
+            source = "set";
+        } else if (movie.isExtra()) {                          // Background overlay for Extras (not tested) 
+            source = "extra";
+        } else if (movie.isSetMaster()) {                      // Background overlay for Set index with only one season
+            source = "set";
+        } else {
+            source = "movie";                                  // Background overlay for Set index with only one season;
+        }
+        // Don't know why, but I had to differ between Sets containing only one season and Sets with more than one Season.
+        // (comments can be deleted)
+        
+        
+        // Make sure the source is formatted correctly
+        source = source.toLowerCase().trim();
+        
+        // Check for a blank or an UNKNOWN source and correct it
+        if (StringTools.isNotValidString(source)) {
+            source = "blank";
+        }
+            
+        try {
+            BufferedImage biOverlay = GraphicTools.loadJPEGImage(getResourcesPath() + "overlay_fanart_" + source + ".png");
+        
+            BufferedImage returnBI = new BufferedImage(biOverlay.getWidth(), biOverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);  
+            Graphics2D g2BI = returnBI.createGraphics();
+            g2BI.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+            g2BI.drawImage(bi, 
+                        0, 0, bi.getWidth(), bi.getHeight(), 
+                        0, 0, bi.getWidth(), bi.getHeight(), 
+                        null);
+            g2BI.drawImage(biOverlay, 0, 0, null);
+
+            g2BI.dispose();
+            
+            return returnBI;
+        } catch (IOException error) {
+            logger.warning("Failed drawing overlay to " + movie.getBaseName() + ". Please check that overlay_fanart_" + source + ".png is in the resources directory.");
+        }
+            
+        return bi;
+    }
+    
+    /**
+     * Calculate the path to the resources (skin path)
+     * 
+     * @return path to the resource directory
+     */
+    protected String getResourcesPath() {
+        return skinHome + File.separator + "resources" + File.separator;
+    }
+
+
+
 }
