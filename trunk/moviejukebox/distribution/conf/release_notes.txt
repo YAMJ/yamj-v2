@@ -4,7 +4,7 @@
 
 MovieJukebox 2.4 BETA
 ---------------------
-
+ - Enhancement  #1822 Overlay for fanart
 
 MovieJukebox 2.3
 ----------------
