@@ -5,6 +5,7 @@
 MovieJukebox 2.4 BETA
 ---------------------
  - Enhancement  #1822 Overlay for fanart
+ - Enhancement  #1823 Ability to skip genres
 
 MovieJukebox 2.3
 ----------------

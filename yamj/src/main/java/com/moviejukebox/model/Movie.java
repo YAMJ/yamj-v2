@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
@@ -175,8 +176,19 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     // True if movie actually is only a entry point to movies set.
     private boolean isSetMaster = false;
+    
     // Amount of movies in set
     private int setSize = 0;
+    
+    // List of genres to ignore
+    private static HashSet<String> genreSkipList = new HashSet<String>();
+    
+    static {
+        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
+        while (st.hasMoreTokens()) {
+            genreSkipList.add(st.nextToken().toLowerCase());
+        }
+    }
 
     // http://stackoverflow.com/questions/343669/how-to-let-jaxb-render-boolean-as-0-and-1-not-true-and-false
     public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean> {
@@ -280,7 +292,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addGenre(String genre) {
-        if (genre != null && !extra) {
+        if (genre != null && !extra && !genreSkipList.contains(genre.toLowerCase())) {
             this.isDirty = true;
             //logger.finest("Genre added : " + genre);
             genres.add(genre);
@@ -884,10 +896,29 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void setGenres(Collection<String> genres) {
+    public void setGenres(Collection<String> genresToAdd) {
         if (!extra) {
+            // Only check if the skip list isn't empty
+            if (!genreSkipList.isEmpty()) {
+                // remove any unwanted genres from the new collection
+                SortedSet<String> genresFinal = new TreeSet<String>();
+                
+                Iterator<String> genreIterator = genresToAdd.iterator();
+                while (genreIterator.hasNext()) {
+                    String genreToAdd = genreIterator.next();
+                    if (!genreSkipList.contains(genreToAdd.toLowerCase())) {
+                        genresFinal.add(genreToAdd);
+                    }
+                }
+                
+                // Add the trimmed genre list
+                this.genres = new TreeSet<String>(genresFinal);
+            } else {
+                // No need to remove genres, so add them all
+                this.genres = new TreeSet<String>(genresToAdd);
+            }
+            
             this.isDirty = true;
-            this.genres = new TreeSet<String>(genres);
         }
     }
 
