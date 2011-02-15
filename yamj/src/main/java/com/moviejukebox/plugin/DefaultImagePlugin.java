@@ -165,15 +165,17 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     bi = drawText(bi, "Season " + movie.getSeason(), false);
                 }
             }
-            
-            if (roundCorners) {
-                bi = drawRoundCorners(bi);
-            }
 
+            // addFrame before rounding the corners see Issue 1825
             if (addFrame) {
                 bi = drawFrame(movie, bi);
             }
                        
+            // roundCornders after addFrame see Issue 1825
+            if (roundCorners) {
+                bi = drawRoundCorners(bi);
+            }
+
             bi = drawLogos(movie, bi);
 
             // Should only really happen on set's thumbnails.
