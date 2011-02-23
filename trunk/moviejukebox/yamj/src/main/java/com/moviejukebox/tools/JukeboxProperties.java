@@ -27,7 +27,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 
@@ -98,10 +97,10 @@ public class JukeboxProperties {
      * 
      * @param jukebox
      */
-    public static void generateDetailsFile(Jukebox jukebox) {
+    public static void readDetailsFile(Jukebox jukebox) {
         boolean monitor = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false"); 
         
-        // Create or Read the mjbDetails file that stores the jukebox properties we want to watch
+        // Read the mjbDetails file that stores the jukebox properties we want to watch
         File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
         FileTools.addJukeboxFile(mjbDetails.getName());
         try {
@@ -153,12 +152,7 @@ public class JukeboxProperties {
                     logger.finer("Setting 'forceTrailersOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceTrailersOverwrite", "true");
                 }
-            } else {
-                // Create a blank file
-                mjbDetails.createNewFile();
             }
-            // Write the settings to the file
-            createFile(mjbDetails, jukebox);
         } catch (Exception error) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -174,7 +168,10 @@ public class JukeboxProperties {
      * @param mjbDetails
      * @param jukebox
      */
-    public static void createFile(File mjbDetails, Jukebox jukebox) {
+    public static void createFile(Jukebox jukebox) {
+        File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
+        FileTools.addJukeboxFile(mjbDetails.getName());
+
         Document docMjbDetails;
         Element eRoot, eJukebox, eProperties;
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
@@ -270,8 +267,7 @@ public class JukeboxProperties {
         nDetails = nlElements.item(0);
         
         if (nDetails == null) {
-            logger.warning("JukeboxProperties: Error reading file. Deleting and re-creating the file");
-            createFile(mjbDetails, MovieJukebox.getJukebox());
+            // Just return the property info file as is.
             return piReturn;
         }
         

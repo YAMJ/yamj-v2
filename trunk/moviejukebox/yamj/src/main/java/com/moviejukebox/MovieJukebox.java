@@ -770,9 +770,9 @@ public class MovieJukebox {
         }
         
         // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
-       JukeboxProperties.generateDetailsFile(jukebox);
+       JukeboxProperties.readDetailsFile(jukebox);
        
-        SystemTools.showMemory();
+       SystemTools.showMemory();
         
         logger.fine("Initializing...");
         try {
@@ -1208,6 +1208,10 @@ public class MovieJukebox {
 
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
         }
+
+        // Write the jukebox details file at the END of the run (Issue 1830)
+        JukeboxProperties.createFile(jukebox);
+
         timeEnd = System.currentTimeMillis();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
