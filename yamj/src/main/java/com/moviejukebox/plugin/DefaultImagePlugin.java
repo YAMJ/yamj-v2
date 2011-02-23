@@ -68,11 +68,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static int textOffset;
     private static int overlayOffsetX;
     private static int overlayOffsetY;
-//    private static String overlayFilename;
     private String imageType;
     private boolean roundCorners;
     private int cornerRadius;
-//  #####  NEW NEW NEW NEW  ####
     private boolean addFrame;
     private int frameSize;
     private static String frameColorHD;
@@ -80,7 +78,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static String frameColor1080;
     private static String frameColorSD;
     private static String overlaySource;
-
 
     public DefaultImagePlugin() {
         // Generic properties

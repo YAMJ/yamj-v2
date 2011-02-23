@@ -13,8 +13,11 @@
 
 package com.moviejukebox.plugin;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -30,18 +33,27 @@ import com.moviejukebox.tools.StringTools;
  */
 public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
-// private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger("moviejukebox");
     private int backgroundWidth;
     private int backgroundHeight;
     private boolean addPerspective;
     private boolean addOverlay;
     private String skinHome;
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private boolean highdefDiff;
+    private boolean roundCorners;
+    private int cornerRadius;
+    private boolean addFrame;
+    private int frameSize;
+    private static String frameColorHD;
+    private static String frameColor720;
+    private static String frameColor1080;
+    private static String frameColorSD;
 
     public DefaultBackgroundPlugin() {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
     }
 
     @Override
@@ -53,16 +65,34 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
             imageType = "fanart";
         }
         
-        backgroundWidth = checkWidth(movie.isTVShow(), imageType);
-        backgroundHeight = checkHeight(movie.isTVShow(), imageType);
-        addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
-        addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
+        backgroundWidth     = checkWidth(movie.isTVShow(), imageType);
+        backgroundHeight    = checkHeight(movie.isTVShow(), imageType);
+        addPerspective      = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
         
+        addOverlay          = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
+
+        addFrame            = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", "false");
+        frameSize           = PropertiesUtil.getIntProperty(imageType + ".frame.size", "5");
+        frameColorSD        = PropertiesUtil.getProperty(imageType + ".frame.colorSD", "255/255/255");
+        frameColorHD        = PropertiesUtil.getProperty(imageType + ".frame.colorHD", "255/255/255");
+        frameColor720       = PropertiesUtil.getProperty(imageType + ".frame.color720", "255/255/255");
+        frameColor1080      = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
+
         BufferedImage bi = null;
         if (backgroundImage != null) {
             bi = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
         }
         
+        // addFrame before rounding the corners see Issue 1825
+        if (addFrame) {
+            bi = drawFrame(movie, bi);
+        }
+                   
+        // roundCornders after addFrame see Issue 1825
+        if (roundCorners) {
+            bi = drawRoundCorners(bi);
+        }
+
         if (addOverlay) {
             bi = drawOverlay(movie, bi);
         }
@@ -103,6 +133,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
         return backgroundWidth;
     }
+
     /**
      * Checks for older Background width property in case the skin hasn't been updated.
      * TODO: Remove this procedure at some point 
@@ -192,6 +223,92 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
      */
     protected String getResourcesPath() {
         return skinHome + File.separator + "resources" + File.separator;
+    }
+
+    
+    /**
+     * Draw a frame around the image; color depends on resolution if wanted
+     * @param movie
+     * @param bi
+     * @return
+     */        
+    private BufferedImage drawFrame(Movie movie, BufferedImage bi) {
+        BufferedImage newImg = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D newGraphics = newImg.createGraphics();
+        newGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int cornerRadius2 = 0;
+        
+        if (!movie.isHD()) {
+            String[] ColorSD = frameColorSD.split("/");
+            int SD[] = new int[ColorSD.length];
+            for (int i = 0; i < ColorSD.length; i++) {
+                SD[i] = Integer.parseInt(ColorSD[i]);
+            }
+            newGraphics.setPaint(new Color (SD[0], SD[1], SD[2]));
+        } else if (highdefDiff) {            
+            if (movie.isHD()) {    
+                // Otherwise use the 720p
+                String[] Color720 = frameColor720.split("/");
+                int LO[] = new int[Color720.length];
+                for (int i = 0; i < Color720.length; i++) {
+                    LO[i] = Integer.parseInt(Color720[i]);
+                }
+                newGraphics.setPaint(new Color (LO[0], LO[1], LO[2]));
+            }
+            
+            if (movie.isHD1080()) {     
+                String[] Color1080 = frameColor1080.split("/");
+                int HI[] = new int[Color1080.length];
+                for (int i = 0; i < Color1080.length; i++) {
+                    HI[i] = Integer.parseInt(Color1080[i]);
+                }
+                newGraphics.setPaint(new Color (HI[0], HI[1], HI[2]));
+            }
+        } else {
+            // We don't care, so use the default HD logo.
+            String[] ColorHD = frameColorHD.split("/");
+            int HD[] = new int[ColorHD.length];
+            for (int i = 0; i < ColorHD.length; i++) {
+                HD[i] = Integer.parseInt(ColorHD[i]);
+            }
+            newGraphics.setPaint(new Color (HD[0], HD[1], HD[2]));            
+        }
+        
+        if (roundCorners) {
+            cornerRadius2 = cornerRadius;
+        }
+
+        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius2, cornerRadius2);
+        newGraphics.setClip(rect);
+
+        // image fitted into border
+        newGraphics.drawImage(bi, frameSize - 1, frameSize - 1, bi.getWidth() - (frameSize * 2) + 2, bi.getHeight() - (frameSize * 2) + 2, null);
+               
+        BasicStroke s4 = new BasicStroke(frameSize * 2);
+            
+        newGraphics.setStroke(s4);
+        newGraphics.draw(rect);
+        newGraphics.dispose();
+        
+        return newImg;
+    }
+    
+    /**
+     * Draw rounded corners on the image
+     * @param bi
+     * @return
+     */
+    protected BufferedImage drawRoundCorners(BufferedImage bi) {
+        BufferedImage newImg = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D newGraphics = newImg.createGraphics();
+        newGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius, cornerRadius);
+        newGraphics.setClip(rect);
+        newGraphics.drawImage(bi, 0, 0, null);
+        
+        newGraphics.dispose();
+        return newImg;
     }
 
 
