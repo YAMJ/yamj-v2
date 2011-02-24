@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 
@@ -199,7 +200,23 @@ public class JukeboxProperties {
             //create child element, add an attribute, and add to root
             eJukebox = docMjbDetails.createElement(JUKEBOX);
             eRoot.appendChild(eJukebox);
-            
+
+            // Jukebox version
+            String specificationVersion = MovieJukebox.mjbVersion;
+            if (specificationVersion == null) {
+                specificationVersion = Movie.UNKNOWN;
+            }
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxVersion", specificationVersion);
+
+            // Jukebox revision
+            // If YAMJ is self compiled then the revision information may not exist.
+            String currentRevision = MovieJukebox.mjbRevision;
+            // If YAMJ is self compiled then the revision information may not exist.
+            if ((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
+                currentRevision = Movie.UNKNOWN;
+            }
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxRevision", currentRevision);
+
             // Save the run date
             DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", dateFormat.format(System.currentTimeMillis()));
             
