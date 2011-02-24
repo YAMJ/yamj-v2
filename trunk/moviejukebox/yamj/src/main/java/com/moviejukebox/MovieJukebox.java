@@ -1162,7 +1162,7 @@ public class MovieJukebox {
                     logger.fine("Copying skin files to Jukebox directory...");
                 }
                 
-                StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.skin.copyDirs", "html"));
+                StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.skin.copyDirs", "html"), " ,;|");
                 
                 while (st.hasMoreTokens()) {
                     String skinDirName = st.nextToken();
