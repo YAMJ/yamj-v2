@@ -17,7 +17,6 @@
  * movies in Hungarian
  * 
  */
-
 package com.moviejukebox.plugin;
 
 import java.io.PrintWriter;

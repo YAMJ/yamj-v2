@@ -10,7 +10,6 @@
  *      For any reuse or distribution, you must make clear to others the 
  *      license terms of this work.  
  */
-
 package com.moviejukebox.plugin.poster;
 
 import java.io.PrintWriter;
