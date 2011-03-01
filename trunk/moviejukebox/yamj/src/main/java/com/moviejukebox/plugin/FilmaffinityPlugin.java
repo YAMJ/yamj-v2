@@ -1,4 +1,5 @@
 /*
+/*
  *      Copyright (c) 2004-2011 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list 
  *  
@@ -10,7 +11,6 @@
  *      For any reuse or distribution, you must make clear to others the 
  *      license terms of this work.  
  */
-
 package com.moviejukebox.plugin;
 
 import java.io.PrintWriter;

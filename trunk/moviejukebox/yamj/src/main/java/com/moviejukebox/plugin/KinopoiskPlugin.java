@@ -22,7 +22,6 @@
  It is possible to specify URL of the movie page on kinopoisk in 
  the .nfo file. In this case movie data will be retrieved from this page only.  
  */
-
 package com.moviejukebox.plugin;
 
 import java.io.PrintWriter;

@@ -10,7 +10,6 @@
  *      For any reuse or distribution, you must make clear to others the 
  *      license terms of this work.  
  */
-
 package com.moviejukebox.plugin;
 
 import java.io.*;
@@ -1409,7 +1408,7 @@ public class SratimPlugin extends ImdbPlugin {
                     return true;
                 }
                 String bdFolder =mf.getFile().getAbsolutePath().substring(0,bdFolderIndex);
-                String debug = "";
+//                String debug = "";
             
                 File subIndex = new File(bdFolder +"BDMV//index.sub");
                 File srtIndex = new File(bdFolder +"BDMV//index.srt");
