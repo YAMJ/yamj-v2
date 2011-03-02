@@ -795,12 +795,7 @@ public class Library implements Map<String, Movie> {
                 }
                 
                 // Add to the New Movie category
-                if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays)) {
-//                    if (categoriesMap.get("New") != null) {
-//                        index.addMovie(categoriesMap.get("New"), movie);
-//                        movie.addIndex("Property", categoriesMap.get("New"));
-//                    }
-                    
+                if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !movie.isWatched()) {
                     if (categoriesMap.get("New-Movie") != null) {
                         index.addMovie(categoriesMap.get("New-Movie"), movie);
                         movie.addIndex("Property", categoriesMap.get("New-Movie"));
@@ -808,12 +803,7 @@ public class Library implements Map<String, Movie> {
                 }
                 
                 // Add to the New TV category
-                if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays)) {
-//                    if (categoriesMap.get("New") != null) {
-//                        index.addMovie(categoriesMap.get("New"), movie);
-//                        movie.addIndex("Property", categoriesMap.get("New"));
-//                    }
-                    
+                if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !movie.isWatched()) {
                     if (categoriesMap.get("New-TV") != null) {
                         index.addMovie(categoriesMap.get("New-TV"), movie);
                         movie.addIndex("Property", categoriesMap.get("New-TV"));
