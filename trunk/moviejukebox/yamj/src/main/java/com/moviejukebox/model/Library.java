@@ -109,6 +109,7 @@ public class Library implements Map<String, Movie> {
     private static String indexList;
     private static boolean splitHD = false;
     private static boolean processExtras = true;
+    private static boolean hideWatched = true;
 
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -123,6 +124,7 @@ public class Library implements Map<String, Movie> {
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
+        hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", "true");
         String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml");
         fillGenreMap(xmlGenreFile);
 
@@ -795,7 +797,7 @@ public class Library implements Map<String, Movie> {
                 }
                 
                 // Add to the New Movie category
-                if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !movie.isWatched()) {
+                if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched)) {
                     if (categoriesMap.get("New-Movie") != null) {
                         index.addMovie(categoriesMap.get("New-Movie"), movie);
                         movie.addIndex("Property", categoriesMap.get("New-Movie"));
@@ -803,7 +805,7 @@ public class Library implements Map<String, Movie> {
                 }
                 
                 // Add to the New TV category
-                if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !movie.isWatched()) {
+                if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched)) {
                     if (categoriesMap.get("New-TV") != null) {
                         index.addMovie(categoriesMap.get("New-TV"), movie);
                         movie.addIndex("Property", categoriesMap.get("New-TV"));
