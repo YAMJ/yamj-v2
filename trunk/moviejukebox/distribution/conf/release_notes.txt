@@ -9,6 +9,7 @@ MovieJukebox 2.4 BETA
  - Fixed defect #1825 Order of addFrame and roundCorners changed
  - Enhancement  #1839 Only show Unwatched videos in the new categories
  - Fixes defect #1844 fileImageFile is not encoded
+ - Fixed defect #1845 Fanart scanner fails to find movie when title is different than original title
 
 MovieJukebox 2.3
 ----------------

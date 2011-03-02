@@ -278,7 +278,7 @@ public class FanartScanner {
             moviedb = TMDb.moviedbImdbLookup(imdbID, language);
         } else {
             List<MovieDB> movieList = TMDb.moviedbSearch(movie.getOriginalTitle(), language);
-            moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
+            moviedb = TheMovieDb.findMovie(movieList, movie.getOriginalTitle(), movie.getYear());
         }
 
         // Check that the returned movie isn't null
@@ -294,7 +294,7 @@ public class FanartScanner {
                 logger.finer("FanartScanner: Error no fanart found from TheMovieDB.org for " + movie.getBaseFilename());
                 return Movie.UNKNOWN;
             }
-            
+
             for (Artwork fanartArtwork : artworkList) {
                 IImage imageFanart = new Image(fanartArtwork.getUrl());
                 if (validateArtwork(imageFanart, artworkWidth, artworkHeight, true)) {
