@@ -1204,12 +1204,12 @@ public class MovieJukeboxXMLWriter {
                 if (includeVideoImages) {
                     writer.writeStartElement("fileImageURL");
                     writer.writeAttribute("part", Integer.toString(part));
-                    writer.writeCharacters(mf.getVideoImageURL(part));
+                    writer.writeCharacters(HTMLTools.encodeUrl(mf.getVideoImageURL(part)));
                     writer.writeEndElement();
 
                     writer.writeStartElement("fileImageFile");
                     writer.writeAttribute("part", Integer.toString(part));
-                    writer.writeCharacters(mf.getVideoImageFilename(part));
+                    writer.writeCharacters(HTMLTools.encodeUrl(mf.getVideoImageFilename(part)));
                     writer.writeEndElement();
                 }
             }
