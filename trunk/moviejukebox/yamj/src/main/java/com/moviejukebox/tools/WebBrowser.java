@@ -125,7 +125,7 @@ public class WebBrowser {
         ThreadExecutor.enterIO(url);
         content = new StringWriter(10*1024);
         try {
-            BufferedReader in = null;
+           
             URLConnection cnx = null;
             
             try {
@@ -138,29 +138,30 @@ public class WebBrowser {
                     charset = getCharset(cnx);
                 }
                 
+                BufferedReader in = null;
                 try {
+                    
                     // If we fail to get the URL information we need to exit gracefully
                     in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
+                    
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        content.write(line);
+                    }
+                    // Attempt to force close connection
+                    // We have HTTP connections, so these are always valid
+                    content.flush();
                 } catch (Exception error) {
                     logger.severe("WebBrowser: Error getting URL " + url.toString());
-                    return content.toString();
                 }
-                
-                String line;
-                while ((line = in.readLine()) != null) {
-                    content.write(line);
+                finally {
+                    if (in != null) {
+                        in.close();
+                    }
                 }
-                // Attempt to force close connection
-                // We have HTTP connections, so these are always valid
-                content.flush();
-                in.close();
             } catch (SocketTimeoutException error) {
                 logger.severe("Timeout Error with " + url.toString());
             } finally {
-                if (in != null) {
-                    in.close();
-                }
-                
                 if (cnx != null) {
                     if(cnx instanceof HttpURLConnection) {
                         ((HttpURLConnection)cnx).disconnect();
