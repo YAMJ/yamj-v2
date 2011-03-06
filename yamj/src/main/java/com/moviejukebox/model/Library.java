@@ -279,7 +279,7 @@ public class Library implements Map<String, Movie> {
         } else {
             MovieFile firstMovieFile = movie.getFirstFile();
             // Take care of TV-Show (order by episode). Issue 535 - Not sure it's the best place do to this.
-            if (existingMovie.isTVShow()) {
+            if (existingMovie.isTVShow() || existingMovie.getMovieFiles().size()>1) {
                 // The lower episode have to be the main movie.
                 int newEpisodeNumber = firstMovieFile.getFirstPart();
                 int oldEpisodesFirstNumber = Integer.MAX_VALUE;
