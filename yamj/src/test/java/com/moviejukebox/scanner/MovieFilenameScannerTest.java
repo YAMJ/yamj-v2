@@ -398,6 +398,16 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Шейдулла-лентяй", d.getPartTitle());
     }
     
+    public void testIssue1835() {
+        MovieFileNameDTO d = scan("Tropa de Elite.[2007].BRRip.x264.PCMKV.mkv");
+        assertEquals("Tropa de Elite", d.getTitle());
+        assertEquals(2007, d.getYear());
+        
+         d = scan("Tropa de Elite 2.[2010].BDRip.XviD-ZMG.avi");
+        assertEquals("Tropa de Elite 2", d.getTitle());
+        assertEquals(2010, d.getYear());
+    }
+    
     @SuppressWarnings("serial")
     private static MovieFileNameDTO scan(String filename) {
         File file = new File(filename) {
