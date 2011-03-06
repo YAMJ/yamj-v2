@@ -27,16 +27,24 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.imageio.IIOException;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
 
 import com.jhlabs.image.PerspectiveFilter;
 
 public class GraphicTools {
     private static Logger logger = Logger.getLogger("moviejukebox");
+    private static float quality;
+    private static int jpegQuality;
 
+    
     /**
      * Load a JPG image from a file (input stream)
      * @param fis
@@ -113,13 +121,30 @@ public class GraphicTools {
             return;
         }
 
+        jpegQuality  = PropertiesUtil.getIntProperty("mjb.jpeg.quality", "75");
+        quality = (float)jpegQuality / 100;
         // save image as JPEG
         try {
             BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
             bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
 
+            //ori: File outputFile = new File(filename);
+            //ori: ImageIO.write(bufImage, "jpg", outputFile);
+            @SuppressWarnings("rawtypes")
+            Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
+            ImageWriter writer = (ImageWriter)iter.next();
+
+            ImageWriteParam iwp = writer.getDefaultWriteParam();
+            iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            iwp.setCompressionQuality(quality);   // float integer between 0 and 1 - with 1 specifying minimum compression and maximum quality
+
+            //Output file:
             File outputFile = new File(filename);
-            ImageIO.write(bufImage, "jpg", outputFile);
+            FileImageOutputStream output = new FileImageOutputStream(outputFile);
+            writer.setOutput(output);
+            IIOImage image = new IIOImage(bufImage, null, null);
+            writer.write(null, image, iwp);
+            writer.dispose();
 
         } catch (Exception error) {
             logger.severe("GraphicsTools: Failed Saving thumbnail file: " + filename);
