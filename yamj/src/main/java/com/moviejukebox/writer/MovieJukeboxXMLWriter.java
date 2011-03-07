@@ -72,6 +72,10 @@ public class MovieJukeboxXMLWriter {
     private int nbMoviesPerLine;
     private int nbTvShowsPerPage;
     private int nbTvShowsPerLine;
+    private int nbSetMoviesPerPage;
+    private int nbSetMoviesPerLine;
+    private int nbTVSetMoviesPerPage;
+    private int nbTVSetMoviesPerLine;
     private boolean fullMovieInfoInIndexes;
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
@@ -102,6 +106,10 @@ public class MovieJukeboxXMLWriter {
         nbMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerLine", "5");
         nbTvShowsPerPage = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerPage", "0"); // If 0 then use the Movies setting
         nbTvShowsPerLine = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerLine", "0"); // If 0 then use the Movies setting
+        nbSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerPage", "0"); // If 0 then use the Movies setting
+        nbSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerLine", "0"); // If 0 then use the Movies setting
+        nbTVSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerPage", "0"); // If 0 then use the TV SHOW setting
+        nbTVSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerLine", "0"); // If 0 then use the TV SHOW setting
         fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", "false");
         includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", "false");
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
@@ -116,6 +124,22 @@ public class MovieJukeboxXMLWriter {
 
         if (nbTvShowsPerLine == 0) {
             nbTvShowsPerLine = nbMoviesPerLine;
+        }
+        
+        if (nbSetMoviesPerPage == 0) {
+            nbSetMoviesPerPage = nbMoviesPerPage;
+        }
+
+        if (nbSetMoviesPerLine == 0) {
+            nbSetMoviesPerLine = nbMoviesPerLine;
+        }
+
+        if (nbTVSetMoviesPerPage == 0) {
+            nbTVSetMoviesPerPage = nbTvShowsPerPage;
+        }
+
+        if (nbTVSetMoviesPerLine == 0) {
+            nbTVSetMoviesPerLine = nbTvShowsPerLine;
         }
     }
 
@@ -599,9 +623,19 @@ public class MovieJukeboxXMLWriter {
                         int nbVideosPerPage = nbMoviesPerPage, nbVideosPerLine = nbMoviesPerLine;
 
                         if (movies.size() > 0) {
-                            if (key.equalsIgnoreCase("TV Shows") || (categoryName.equalsIgnoreCase("Set") && movies.get(0).isTVShow())) {
+                            if (key.equalsIgnoreCase("TV Shows")) {
                                 nbVideosPerPage = nbTvShowsPerPage;
                                 nbVideosPerLine = nbTvShowsPerLine;
+                            }
+                            
+                            if (categoryName.equalsIgnoreCase("Set")) {
+                                if (movies.get(0).isTVShow()) {
+                                    nbVideosPerPage = nbTVSetMoviesPerPage;
+                                    nbVideosPerLine = nbTVSetMoviesPerLine;
+                                } else {
+                                    nbVideosPerPage = nbSetMoviesPerPage;
+                                    nbVideosPerLine = nbSetMoviesPerLine;
+                                }
                             }
                         }
 

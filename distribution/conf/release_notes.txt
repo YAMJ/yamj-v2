@@ -5,6 +5,8 @@
 MovieJukebox 2.4 BETA
 ---------------------
  - Fixed defect  #793 Problems with more than 9 parts
+ - Fixed defect #1484 Problem with series spanning more than 8 season on set page
+ - Enhancement  #1594 Setting for thumbnails per page/line for sets
  - Fixed defect #1819 WebBrowser error halts processing
  - Enhancement  #1822 Overlay for fanart
  - Enhancement  #1823 Ability to skip genres

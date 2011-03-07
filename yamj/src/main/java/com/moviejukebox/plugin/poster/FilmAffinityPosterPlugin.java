@@ -36,7 +36,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
         webBrowser = new WebBrowser();
         filmAffinityInfo = new FilmAffinityInfo();
     }
-	
+
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         return filmAffinityInfo.getIdFromMovieInfo(title, year);
