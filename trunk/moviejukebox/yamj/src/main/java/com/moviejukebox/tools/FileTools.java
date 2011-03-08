@@ -230,6 +230,8 @@ public class FileTools {
                     }
                 }
             }
+
+            logger.finest("Copied file " + src + " to " + dst);
         } catch (IOException error) {
             logger.severe("Failed copying file " + src + " to " + dst);
             final Writer eResult = new StringWriter();
@@ -281,6 +283,7 @@ public class FileTools {
                     if (updateDisplay) {
                         System.out.print("\n");
                     }
+                    logger.finest("Copied " + totalSize + " files from " + srcDir);
                 }
             }
         } catch (Exception ignore) {
