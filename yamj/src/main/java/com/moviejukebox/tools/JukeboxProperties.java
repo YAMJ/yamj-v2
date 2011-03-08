@@ -473,6 +473,8 @@ public class JukeboxProperties {
             sb.append(isVideoimageOverwrite());
             sb.append(", indexOverwrite: ");
             sb.append(isIndexOverwrite());
+            sb.append(", trailersOverwrite: ");
+            sb.append(isTrailersOverwrite());
             return sb.toString();
         }
 
