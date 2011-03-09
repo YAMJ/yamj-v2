@@ -77,6 +77,7 @@ public class MovieJukeboxXMLWriter {
     private int nbTVSetMoviesPerPage;
     private int nbTVSetMoviesPerLine;
     private boolean fullMovieInfoInIndexes;
+    private boolean fullCategoriesInIndexes;
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
@@ -111,6 +112,7 @@ public class MovieJukeboxXMLWriter {
         nbTVSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerPage", "0"); // If 0 then use the TV SHOW setting
         nbTVSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerLine", "0"); // If 0 then use the TV SHOW setting
         fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", "false");
+        fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", "true");
         includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", "false");
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
@@ -730,6 +732,8 @@ public class MovieJukeboxXMLWriter {
         //FIXME: The categories are listed even if there are no entries, perhaps we should remove the empty categories at some point
         
         try {
+            boolean isCurrent = false;
+            
             xmlFile = new File(rootPath, prefix + current + ".xml");
             FileTools.addJukeboxFile(xmlFile.getName());
 
@@ -743,15 +747,29 @@ public class MovieJukeboxXMLWriter {
                 String categoryKey = category.getKey();
                 Map<String, List<Movie>> index = category.getValue();
 
+                // Is this the current category?
+                isCurrent = categoryKey.equalsIgnoreCase(idx.categoryName);
+                if (!isCurrent && !fullCategoriesInIndexes) {
+                    // This isn't the current index, so we don't want it
+                    continue;
+                }
+                
                 writer.writeStartElement("category");
                 writer.writeAttribute("name", categoryKey);
-                if (categoryKey.equalsIgnoreCase(idx.categoryName)) {
+                if (isCurrent) {
                     writer.writeAttribute("current", "true");
                 }
                 writer.writeAttribute("count", "" + category.getValue().size());
 
                 for (String categoryName : index.keySet()) {
                     String encakey = FileTools.createCategoryKey(categoryName);
+                    isCurrent = encakey.equalsIgnoreCase(idx.key);
+                    
+                    // Check to see if we need the non-current index
+                    if (!isCurrent && !fullCategoriesInIndexes) {
+                        // We don't need this index, so skip it
+                        continue;
+                    }
                     
                     int categoryMinCount = calcMinCategoryCount(categoryName);
 
@@ -766,7 +784,7 @@ public class MovieJukeboxXMLWriter {
                     writer.writeAttribute("name", categoryName);
 
                     // if currently writing this page then add current attribute with value true
-                    if (encakey.equalsIgnoreCase(idx.key)) {
+                    if (isCurrent) {
                         writer.writeAttribute("current", "true");
                         writer.writeAttribute("first", prefix + '1');
                         writer.writeAttribute("previous", prefix + previous);
