@@ -1367,7 +1367,8 @@ public class MovieJukebox {
                     break; // No more files, so quit
                 }
 
-                if ((!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) || (!scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath()))) {
+                // VIDEO_TS.IFO check added for Issue 1851
+                if (((!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) && (!(scannedFilename + "/VIDEO_TS.IFO").equalsIgnoreCase(xmlLoop.getFilename()))) || (!scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath()))) {
                     logger.finest("Detected change of file location to: " + scannedFilename);
                     xmlLoop.setFilename(scannedFilename);
                     xmlLoop.setNewFile(true);
