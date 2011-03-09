@@ -79,9 +79,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput("FilmUpIT ID")
                 + prepOutput("FilmWeb ID")
                 + prepOutput("Kinopoisk ID")
+                + prepOutput("Animator ID")
                 + prepOutput("Sratim ID")
                 + prepOutput("Last Modified Date")
                 + prepOutput("File Size", false)
+                + prepOutput("Watched")
                 ;
     } // headerLine();
 
@@ -135,9 +137,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput(movie.getId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID))
                 + prepOutput(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID))
                 + prepOutput(movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID))
+                + prepOutput(movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID))
                 + prepOutput(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID))
                 + prepOutput(new Timestamp(movie.getLastModifiedTimestamp()).toString()) //, false)
                 + prepOutput(movie.getFileSizeString())
+                + prepOutput("" + movie.isWatched())
                 ;
     } // toCSV()
 

@@ -61,8 +61,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         + "Container," + "File," + "Audio Codec," + "Audio Channels," + "Resolution," + "Video Codec," + "Video Output," + "FPS," 
         + "# Files," + "# Extras," + "# Genres," + "# Cast," + "SubTitles?," + "Poster?," + "Poster Filename," + "Fanart?," 
         + "Fanart Filename," + "Rating #," + "Top 250 #," + "Library Description," + "Library Path," + "Allocine ID," + "FilmDelta ID," 
-        + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Sratim ID," + "Last Modified Date," + "File Size," + "Genres," + "Cast," 
-        + "Plot," + "Outline," + "Thumbnail Filename," + "Detail Poster Filename"; 
+        + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Animator ID," + "Sratim ID," + "Last Modified Date," + "File Size," + "Genres," + "Cast,"  
+        + "Plot," + "Outline," + "Thumbnail Filename," + "Detail Poster Filename" + "Watched"; 
     
     /**
      * Take a comma-separated list of field names and split them into separate fields
@@ -232,6 +232,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID)));
             } else if (checkHeaderField(header, "Kinopoisk ID")) {
                 sb.append(prep(movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID)));
+            } else if (checkHeaderField(header, "Animator ID")) {
+                sb.append(prep(movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID)));
             } else if (checkHeaderField(header, "Sratim ID")) {
                 sb.append(prep(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID)));
             } else if (checkHeaderField(header, "Last Modified Date")) {
@@ -282,6 +284,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getThumbnailFilename()));
             } else if (checkHeaderField(header, "Detail Poster Filename")) {
                 sb.append(prep(movie.getDetailPosterFilename()));
+            } else if (checkHeaderField(header, "Watched")) {
+                sb.append(prep("" + movie.isWatched()));
             }
         }
         return sb.toString();
