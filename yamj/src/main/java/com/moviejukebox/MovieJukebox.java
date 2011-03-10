@@ -2087,12 +2087,8 @@ public class MovieJukebox {
             
         }
         
-        // We didn't find any files, so the movie watched state should be set to false
-        if (fileWatchedCount == 0) {
-            movieWatched = false;
-        }
-        
-        if (movie.isWatched() != movieWatched) {
+        // Only change the watched status if we found at least 1 file
+        if ((fileWatchedCount > 0) && (movie.isWatched() != movieWatched)) {
             movie.setWatched(movieWatched);
             movie.isDirty();
         }

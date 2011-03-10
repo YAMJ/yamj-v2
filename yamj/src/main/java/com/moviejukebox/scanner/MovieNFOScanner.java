@@ -566,6 +566,7 @@ public class MovieNFOScanner {
                                 try {
                                     movie.setWatched(Boolean.parseBoolean(val));
                                 } catch (Exception ignore) {
+                                    // Don't change the watched status
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("tvdbid")) {
