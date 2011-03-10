@@ -12,6 +12,8 @@
  */
 package com.moviejukebox.scanner;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
@@ -22,22 +24,22 @@ import java.util.logging.Logger;
 /**
  * @author Grael by using GPL Source from Mediterranean :
  * @(#)DialogMovieInfo.java 1.0 26.09.06 (dd.mm.yy)
- * 
+ *
  * Copyright (2003) Mediterranean
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Boston, MA 02111.
- * 
+ *
  * Contact: mediterranean@users.sourceforge.net
  */
 public class BDRipScanner {
@@ -155,20 +157,21 @@ public class BDRipScanner {
             list = selectedFile.listFiles();
 
             BDFilePropertiesMovie ret = new BDFilePropertiesMovie();
-            
+
             if (longestFiles == null) {
                 return null;
             }
-            
+
             if (longestFiles.length > 0) {
                 ret.fileList = new File[longestFiles.length];
-    
+
                 for (int i = 0; i < list.length; i++) {
-    
+
                     // Go over the playlist file names
                     for (int j = 0; j < longestFiles.length; j++) {
     
-                        if (list[i].getName().equalsIgnoreCase(longestFiles[j])) {
+                        // extensions may differ: MTS (AVCHD), m2ts (Blu-ray)
+                        if (FilenameUtils.removeExtension(list[i].getName()).equalsIgnoreCase(FilenameUtils.removeExtension(longestFiles[j]))) {
                             ret.fileList[j] = list[i];
                         }
                     }
@@ -177,7 +180,7 @@ public class BDRipScanner {
             } else {
                 ret.duration = 0;
             }
-            
+
             return ret;
 
         } catch (Exception error) {
