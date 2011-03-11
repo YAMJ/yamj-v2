@@ -175,8 +175,8 @@ public class PosterScanner {
         localPosterFile = FileTools.findFileFromExtensions(fullPosterFilename, posterExtensions);
         boolean foundLocalPoster = localPosterFile.exists();               
 
-        // Try searching the fileCache for the filename.
-        if (!foundLocalPoster) {
+        // Try searching the fileCache for the filename, but only for non-fixed filenames
+        if (!foundLocalPoster && !searchForExistingPoster.equalsIgnoreCase("fixedcoverartname")) {
             localPosterFile = FileTools.findFilenameInCache(localPosterBaseFilename, posterExtensions, jukebox, "PosterScanner: ");
             if (localPosterFile != null) {
                 foundLocalPoster = true;
