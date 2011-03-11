@@ -231,7 +231,6 @@ public class FileTools {
                 }
             }
 
-            logger.finest("Copied file " + src + " to " + dst);
         } catch (IOException error) {
             logger.severe("Failed copying file " + src + " to " + dst);
             final Writer eResult = new StringWriter();

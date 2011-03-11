@@ -451,7 +451,7 @@ public class MovieJukeboxXMLWriter {
                                     part = Integer.parseInt(attr.getValue());
                                 }
                             }
-                            mf.setVideoImageURL(part, parseCData(r));
+                            mf.setVideoImageURL(part, HTMLTools.decodeUrl(parseCData(r)));
                         } else if (tag.toLowerCase().startsWith("<fileimagefile")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
@@ -463,7 +463,7 @@ public class MovieJukeboxXMLWriter {
                                     part = Integer.parseInt(attr.getValue());
                                 }
                             }
-                            mf.setVideoImageFilename(part, parseCData(r));
+                            mf.setVideoImageFilename(part, HTMLTools.decodeUrl(parseCData(r)));
                         }
                     }
                     // add or replace MovieFile based on XML data
