@@ -16,6 +16,7 @@ MovieJukebox 2.4 BETA
  - Fixes defect #1844 fileImageFile is not encoded
  - Fixed defect #1845 Fanart scanner fails to find movie when title is different than original title
  - Enhancement  #1847 Change JPEG compression quality
+ - Fixed issue  #1851 Overwrite parameters not working anymore
  - Enhancement  #1852 Animator Plugin (Russian)
  - Enhancement  #1854 AVCHD support
  - Fixes issue  #1855 VideoImages not being downloaded

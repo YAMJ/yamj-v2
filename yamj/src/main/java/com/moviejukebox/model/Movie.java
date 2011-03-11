@@ -1333,8 +1333,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      *            date of the last trailers scan (milliseconds offset from the Epoch)
      */
     public void setTrailerLastScan(long lastScan) {
-        this.isDirty = true;
-        this.trailerLastScan = lastScan;
+        if (lastScan != this.trailerLastScan) {
+            this.isDirty = true;
+            this.trailerLastScan = lastScan;
+        }
     }
 
     /**
