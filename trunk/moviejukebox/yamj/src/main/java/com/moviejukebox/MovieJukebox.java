@@ -237,10 +237,10 @@ public class MovieJukebox {
                     showMemory = true;
                     PropertiesUtil.setProperty("mjb.showMemory", "true");
                 } else if (arg.startsWith("-D")) {
-                    String propLine = arg.length() > 2 ? arg.substring(2) : args[++i];
+                    String propLine = arg.length() > 2 ? new String(arg.substring(2)) : args[++i];
                     int propDiv = propLine.indexOf("=");
                     if (-1 != propDiv) {
-                        cmdLineProps.put(propLine.substring(0, propDiv), propLine.substring(propDiv + 1));
+                        cmdLineProps.put(new String(propLine.substring(0, propDiv)), new String(propLine.substring(propDiv + 1)));
                     }
                 } else if (arg.startsWith("-")) {
                     help();
@@ -360,7 +360,7 @@ public class MovieJukebox {
             while (st.hasMoreTokens()) {
                 String token = st.nextToken().trim();
                 if (token.startsWith("\"") && token.endsWith("\"")) {
-                    token = token.substring(1, token.length() - 1);
+                    token = new String(token.substring(1, token.length() - 1));
                 }
                 Movie.addSortIgnorePrefixes(token.toLowerCase());
             }
@@ -521,7 +521,7 @@ public class MovieJukebox {
                         newFile.createNewFile();
 
                         // Copy NFO / properties / .XML
-                        if (ArrayUtils.contains(extensionToCopy, fileName.substring(fileName.length() - 3))) {
+                        if (ArrayUtils.contains(extensionToCopy, new String(fileName.substring(fileName.length() - 3)))) {
                             logger.info("Coyping " + file + " to " + newFile);
                             FileTools.copyFile(file, newFile);
                         } else {
@@ -1729,7 +1729,7 @@ public class MovieJukebox {
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
                     // Calculate mirror thumbnail name.
-                    String dstMirror = dst.substring(0, dst.lastIndexOf(".")) + "_mirror" + dst.substring(dst.lastIndexOf("."));
+                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf("."))) + "_mirror" + new String(dst.substring(dst.lastIndexOf(".")));
 
                     // Generate left & save as copy
                     logger.finest("Generating mirror thumbnail from " + src + " to " + dstMirror);
@@ -1822,7 +1822,7 @@ public class MovieJukebox {
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
                     // Calculate mirror poster name.
-                    String dstMirror = dst.substring(0, dst.lastIndexOf(".")) + "_mirror" + dst.substring(dst.lastIndexOf("."));
+                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf("."))) + "_mirror" + new String(dst.substring(dst.lastIndexOf(".")));
 
                     // Generate left & save as copy
                     logger.finest("Generating mirror poster from " + src + " to " + dstMirror);

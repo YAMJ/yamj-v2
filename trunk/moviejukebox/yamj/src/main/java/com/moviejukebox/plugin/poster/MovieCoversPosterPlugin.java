@@ -60,12 +60,12 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
             if (content != null) {
                 String formattedTitle = Normalizer.normalize(title.replace("\u0153", "oe").toUpperCase(), Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
                 if (formattedTitle.endsWith(" (TV)")) {
-                    formattedTitle = formattedTitle.substring(0, formattedTitle.length() - 5);
+                    formattedTitle = new String(formattedTitle.substring(0, formattedTitle.length() - 5));
                 }
                 String formattedTitleNormalized = formattedTitle;
                 for (String prefix : Movie.sortIgnorePrefixes) {
                     if (formattedTitle.startsWith(prefix.toUpperCase())) {
-                        formattedTitleNormalized = formattedTitle.substring(prefix.length()) + " (" + prefix.toUpperCase().replace(" ","") + ")";
+                        formattedTitleNormalized = new String(formattedTitle.substring(prefix.length())) + " (" + prefix.toUpperCase().replace(" ","") + ")";
                         break;
                     }
                 }
@@ -92,14 +92,14 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                         for (String filmURL : HTMLTools.extractTags(content, "<TABLE border=\"0\" cellpadding=\"0\" cellspacing=\"0\">", "<FORM action=\"search-mysql.html\">", "<TD><A href=\"fil.html?query=", "</A></TD>", false)) {
                             // logger.finer("MovieCoversPosterPlugin: examining: " + filmURL);
                             if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
-                                content = webBrowser.request("http://www.moviecovers.com/forum/fil.html?query=" + filmURL.substring(0,filmURL.length()-formattedTitle.length()-2));
+                                content = webBrowser.request("http://www.moviecovers.com/forum/fil.html?query=" + new String(filmURL.substring(0,filmURL.length()-formattedTitle.length()-2)));
                                 if (content != null) {
                                     int sizePoster = 0;
                                     int oldSizePoster = 0;
                                     // A quick trick to find a " fr " reference in the comments
                                     int indexFR = content.toUpperCase().indexOf(" FR ");
                                     if (indexFR != -1) {
-                                        content = "</STRONG></B></FONT>" + content.substring(indexFR);
+                                        content = "</STRONG></B></FONT>" + new String(content.substring(indexFR));
                                     }
                                     // Search the biggest picture
                                     for (String poster : HTMLTools.extractTags(content, "</STRONG></B></FONT>", ">MovieCovers Team<", "<LI><A TARGET=\"affiche\" ", "Ko)", false)) {

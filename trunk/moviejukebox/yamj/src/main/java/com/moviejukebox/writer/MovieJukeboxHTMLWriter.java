@@ -170,7 +170,7 @@ public class MovieJukeboxHTMLWriter {
             int partCount = 0;
             for (int i = 0; i < movieFileArray.length; i++) {
                 MovieFile moviePart = movieFileArray[i];
-                String partExt = moviePart.getFilename().substring(moviePart.getFilename().lastIndexOf(".") + 1);
+                String partExt = new String(moviePart.getFilename().substring(moviePart.getFilename().lastIndexOf(".") + 1));
                 if (playlistIgnoreExtensions.indexOf(partExt) > -1) {
                     partCount++;
                 }

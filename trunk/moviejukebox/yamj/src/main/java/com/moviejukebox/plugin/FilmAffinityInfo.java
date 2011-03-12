@@ -94,7 +94,7 @@ public class FilmAffinityInfo {
                 linkMatcher = linkPattern.matcher(xml);
                 
                 while (linkMatcher.find() && Movie.UNKNOWN.equals(response)) {
-                    xml = xml.substring(linkMatcher.start(1));
+                    xml = new String(xml.substring(linkMatcher.start(1)));
                     
                     if (Movie.UNKNOWN.equalsIgnoreCase(firstResponse)) {
                         firstResponse = linkMatcher.group(1);

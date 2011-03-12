@@ -80,7 +80,7 @@ public class FileTools {
             String newFilename = filename;
             int pos = newFilename.indexOf(oldText, 0);
             while(pos >= 0) {
-                newFilename = newFilename.substring(0, pos) + newText + newFilename.substring(pos + oldLength);
+                newFilename = new String(newFilename.substring(0, pos)) + newText + new String(newFilename.substring(pos + oldLength));
                 pos = newFilename.indexOf(oldText, pos + oldLength);
             }
             return newFilename;
@@ -118,12 +118,12 @@ public class FileTools {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.charset.filename.translate", ""), ",");
         while (st.hasMoreElements()) {
             final String token = st.nextToken();
-            final String character = trimToNull(substringBefore(token, "-"));
+            final String character = new String(trimToNull(substringBefore(token, "-")));
             if (character == null) {
                 // TODO Error message?
                 continue;
             }
-            final String translation = trimToNull(substringAfter(token, "-"));
+            final String translation = new String(trimToNull(substringAfter(token, "-")));
             if (translation == null) {
                 // TODO Error message?
                 // TODO Allow empty transliteration?
@@ -442,7 +442,7 @@ public class FileTools {
     }
 
     public static String getFileExtension(String filename) {
-        return filename.substring(filename.lastIndexOf('.')+1);
+        return new String(filename.substring(filename.lastIndexOf('.')+1));
     }
 
     /*
@@ -453,7 +453,7 @@ public class FileTools {
             return "";
         }
         String path = file.getParent();
-        return path.substring(path.lastIndexOf(File.separator)+1);
+        return new String(path.substring(path.lastIndexOf(File.separator)+1));
     }
 
     /***
@@ -566,7 +566,7 @@ public class FileTools {
         
         // Issue 1070, /BDMV/STREAM is being appended to the parent path
         if (parentFolder.toUpperCase().endsWith(File.separator + "BDMV" + File.separator + "STREAM")) {
-            parentFolder = parentFolder.substring(0, parentFolder.length() - 12);
+            parentFolder = new String(parentFolder.substring(0, parentFolder.length() - 12));
         }
 
         return parentFolder;

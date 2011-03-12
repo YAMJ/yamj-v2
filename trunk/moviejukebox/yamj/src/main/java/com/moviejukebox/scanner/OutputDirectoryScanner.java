@@ -49,7 +49,7 @@ public class OutputDirectoryScanner {
                 
                     String filename = file.getName();
                     
-                    if (filename.length() > 4 && ".xml".equalsIgnoreCase(filename.substring(filename.length() - 4))) {
+                    if (filename.length() > 4 && ".xml".equalsIgnoreCase(new String(filename.substring(filename.length() - 4)))) {
                         FileTools.fileCache.fileAdd(file);
                         String filenameUpper = filename.toUpperCase();
                         boolean skip = filenameUpper.equals("CATEGORIES.XML");

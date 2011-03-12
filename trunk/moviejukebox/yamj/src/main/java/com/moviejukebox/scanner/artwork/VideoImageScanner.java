@@ -93,7 +93,7 @@ public class VideoImageScanner {
         // Check for the generic video image for use in the loop later.
         localVideoImageBaseFilename = FileTools.getParentFolder(movie.getFile());
        
-        localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator) + 1);
+        localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator) + 1));
         genericVideoImageFilename = movie.getFile().getParent() + File.separator + localVideoImageBaseFilename + videoimageToken;
 
         // Look for the various versions of the file with different image extensions
@@ -123,14 +123,14 @@ public class VideoImageScanner {
                 
                 if (mf.getFile().isDirectory()) {
                     localVideoImageBaseFilename = mf.getFile().getPath();
-                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
+                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1)) + videoimageToken;
                 } else if (mf.getFile().getParent().toString().contains("BDMV" + File.separator + "STREAM")) {
                     localVideoImageBaseFilename = mf.getFile().getPath().toString();
-                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.indexOf("BDMV" + File.separator + "STREAM") - 1); 
-                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1) + videoimageToken;
+                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.indexOf("BDMV" + File.separator + "STREAM") - 1)); 
+                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1)) + videoimageToken;
                 } else {
                     localVideoImageBaseFilename = mf.getFile().getName();
-                    localVideoImageBaseFilename = localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf(".")) + videoimageToken;
+                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf("."))) + videoimageToken;
                 }
                 
                 fullVideoImageFilename = FileTools.getParentFolder(mf.getFile()) + File.separator + localVideoImageBaseFilename;

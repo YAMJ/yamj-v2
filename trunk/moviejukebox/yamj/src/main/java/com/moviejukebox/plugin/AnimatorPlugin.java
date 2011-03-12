@@ -71,7 +71,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             final String previousTitle = mediaFile.getTitle();
             int dash = previousTitle.indexOf('-');
             if (dash != -1) {
-                mediaFile.setTitle(previousTitle.substring(0, dash));
+                mediaFile.setTitle(new String(previousTitle.substring(0, dash)));
             }
 
             String year = mediaFile.getYear();
@@ -105,7 +105,7 @@ public class AnimatorPlugin extends ImdbPlugin {
         logger.finest("Scanning NFO for Animator Id");
         int beginIndex = nfo.indexOf("animator.ru/db/");
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 33), "");
+            StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 33)), "");
             movie.setId(AnimatorPlugin.ANIMATOR_PLUGIN_ID, st.nextToken());
             logger.log(Level.FINER, "Animator Id found in nfo = {0}", movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
         } else {
@@ -150,11 +150,11 @@ public class AnimatorPlugin extends ImdbPlugin {
                             if (tmp.indexOf("[соответствие фразы]") >= 0) {
                                 beginIndex = tmp.indexOf(" г.)");
                                 if (beginIndex >= 0) {
-                                    String Year = tmp.substring(beginIndex - 4, beginIndex);
+                                    String Year = new String(tmp.substring(beginIndex - 4, beginIndex));
                                     if (Year.equals(year)) {
                                         beginIndex = tmp.indexOf("http://www.animator.ru/db/?p=show_film&fid=", beginIndex);
                                         if (beginIndex >= 0) {
-                                           StringTokenizer st = new StringTokenizer(tmp.substring(beginIndex + 43), " ");
+                                           StringTokenizer st = new StringTokenizer(new String(tmp.substring(beginIndex + 43)), " ");
                                            animatorId = st.nextToken();
                                            break;
                                         }
@@ -198,12 +198,12 @@ public class AnimatorPlugin extends ImdbPlugin {
                         if (pos != -1) {
                             int temp = tmp.indexOf(" alt=\"");
                             if (temp != -1) {
-                                String Year = tmp.substring(temp + 6, tmp.indexOf("\"", temp + 6) - 1);
-                                Year = Year.substring(Year.length() - 4);
+                                String Year = new String(tmp.substring(temp + 6, tmp.indexOf("\"", temp + 6) - 1));
+                                Year = new String(Year.substring(Year.length() - 4));
                                 if (Year.equals(year)) {
                                     temp = tmp.indexOf(" src=\"/images/multiki/");
                                     if (temp != -1) {
-                                        allmultsId = tmp.substring(temp + 22, tmp.indexOf(".jpg", temp + 22));
+                                        allmultsId = new String(tmp.substring(temp + 22, tmp.indexOf(".jpg", temp + 22)));
                                         break;
                                     }
                                 }
@@ -323,7 +323,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 for (String temp : tmp.split(",")) {
                     if (!temp.equals("")) {
                         if (temp.indexOf(" мин.") > 0) {
-                            time = temp.substring(0, temp.indexOf(" мин.") + 4);
+                            time = new String(temp.substring(0, temp.indexOf(" мин.") + 4));
                             break;
                         }
                         newGenres.add(temp);
@@ -464,7 +464,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             if (animatorId != Movie.UNKNOWN) {
                 int tmp = xml.indexOf("<img src=\"../film_img/");
                 if (tmp != -1) {
-                    posterURL = "http://www.animator.ru/film_img/" + xml.substring(tmp + 22, xml.indexOf("\" ", tmp));
+                    posterURL = "http://www.animator.ru/film_img/" + new String(xml.substring(tmp + 22, xml.indexOf("\" ", tmp)));
                 } else if (xml.indexOf("<img id=SlideShow ") != -1) {
                     posterURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_00.jpg";
                     fanURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_01.jpg";

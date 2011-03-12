@@ -56,7 +56,7 @@ public class RARArchiveScanner implements ArchiveScanner {
                 continue;
             }
             if(name!=null && name.length() >= 4) {
-                if(".rar".equalsIgnoreCase(name.substring(name.length() - 4)) || name.endsWith(".000") || name.endsWith(".001")) {
+                if(".rar".equalsIgnoreCase(new String(name.substring(name.length() - 4))) || name.endsWith(".000") || name.endsWith(".001")) {
                     Archive archive=null;
                     try {
                         if(logger.isLoggable(Level.FINEST)) {
@@ -85,11 +85,11 @@ public class RARArchiveScanner implements ArchiveScanner {
                         int nextVolume=-1;
                         String volumeFormat=null;
                         if(name.endsWith(".000")) {
-                            namePrefix=name.substring(0, name.length()-3);
+                            namePrefix=new String(name.substring(0, name.length()-3));
                             nextVolume=1;
                             volumeFormat="%s%03d";
                         } else if(name.endsWith(".001")) {
-                            namePrefix=name.substring(0, name.length()-3);
+                            namePrefix=new String(name.substring(0, name.length()-3));
                             nextVolume=2;
                             volumeFormat="%s%03d";
                         } else {
@@ -105,7 +105,7 @@ public class RARArchiveScanner implements ArchiveScanner {
                                 }
                                 volumeFormat="%s%0"+matcher.group(2).length()+"d%s";
                             } else {
-                                namePrefix=name.substring(0, name.length()-2);
+                                namePrefix=new String(name.substring(0, name.length()-2));
                                 nextVolume=0;
                                 volumeFormat="%s%02d";
                             }

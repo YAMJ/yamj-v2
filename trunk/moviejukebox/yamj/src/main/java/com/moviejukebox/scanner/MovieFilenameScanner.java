@@ -392,8 +392,8 @@ public class MovieFilenameScanner {
             // Extract and strip extension
             int i = rest.lastIndexOf('.');
             if (i > 0) {
-                dto.setExtension(rest.substring(i + 1));
-                rest = rest.substring(0, i);
+                dto.setExtension(new String(rest.substring(i + 1)));
+                rest = new String(rest.substring(0, i));
             } else {
                 dto.setExtension("");
             }
@@ -537,7 +537,7 @@ public class MovieFilenameScanner {
                 // Find first token before trailer, TV show and part
                 // Name should not start with '-' (exclude wrongly marked part/episode titles)
                 String title = "";
-                StringTokenizer t = new StringTokenizer(rest.substring(0, min), "/[]");
+                StringTokenizer t = new StringTokenizer(new String(rest.substring(0, min)), "/[]");
                 while (t.hasMoreElements()) {
                     String token = t.nextToken();
                     token = cleanUpTitle(token);
@@ -597,7 +597,7 @@ public class MovieFilenameScanner {
             // EPISODE TITLE
             if (dto.getSeason() >= 0) {
                 itvshow += 8;
-                Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(itvshow));
+                Matcher matcher = SECOND_TITLE_PATTERN.matcher(new String(rest.substring(itvshow)));
                 while (matcher.find()) {
                     String title = cleanUpTitle(matcher.group(1));
                     if (title.length() > 0) {
@@ -616,7 +616,7 @@ public class MovieFilenameScanner {
                 // Just do this for no extra, already named.
                 if(!dto.isExtra()){
                     ipart += 6;
-                    Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(ipart));
+                    Matcher matcher = SECOND_TITLE_PATTERN.matcher(new String(rest.substring(ipart)));
                     while (matcher.find()) {
                         String title = cleanUpTitle(matcher.group(1));
                         if (title.length() > 0) {
@@ -719,11 +719,11 @@ public class MovieFilenameScanner {
     }
 
     private static String cutMatch(String rest, Matcher matcher) {
-        return (rest.substring(0, matcher.start()) + rest.substring(matcher.end())).trim();
+        return (new String(rest.substring(0, matcher.start())) + new String(rest.substring(matcher.end()))).trim();
     }
 
     private static String cutMatch(String rest, Matcher matcher, String divider) {
-        return rest.substring(0, matcher.start()) + divider + rest.substring(matcher.end());
+        return new String(rest.substring(0, matcher.start())) + divider + new String(rest.substring(matcher.end()));
     }
 
     public static MovieFileNameDTO scan(File file) {

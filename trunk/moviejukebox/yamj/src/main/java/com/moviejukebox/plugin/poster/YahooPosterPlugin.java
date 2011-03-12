@@ -57,7 +57,7 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
             int endIndex = xml.indexOf("%26", beginIndex);
 
             if (beginIndex != -1 && endIndex > beginIndex) {
-                posterURL = URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
+                posterURL = URLDecoder.decode(new String(xml.substring(beginIndex + 7, endIndex)), "UTF-8");
             }
         } catch (Exception error) {
             logger.severe("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);

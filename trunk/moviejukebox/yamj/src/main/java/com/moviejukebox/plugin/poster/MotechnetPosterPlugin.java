@@ -48,7 +48,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
         String searchString = "http://www.motechposters.com/title/";
         int beginIndex = html.indexOf(searchString);
         if (beginIndex > -1) {
-            response = html.substring(beginIndex + searchString.length(), html.indexOf("</a>", beginIndex + searchString.length()));
+            response = new String(html.substring(beginIndex + searchString.length(), html.indexOf("</a>", beginIndex + searchString.length())));
         }
         return response;
     }
@@ -60,7 +60,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
 
         while ((tmp = getUrl(tempHtml)) != null) {
             result.add(tmp);
-            tempHtml = tempHtml.substring(tempHtml.indexOf(tmp) + tmp.length());
+            tempHtml = new String(tempHtml.substring(tempHtml.indexOf(tmp) + tmp.length()));
         }
         return result;
     }
@@ -95,7 +95,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                 if (StringTools.isValidString(response)) {
                     int pos = response.indexOf("/");
                     if (pos > -1) {
-                        response = response.substring(0, pos);
+                        response = new String(response.substring(0, pos));
                     }
                 }
             }
@@ -120,7 +120,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                 int beginIndex = xml.indexOf(searchString);
                 if (beginIndex > -1) {
                     posterURL = "http://www.motechposters.com"
-                                    + xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length()));
+                                    + new String(xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length())));
                 }
             } catch (Exception error) {
                 logger.severe("MotechnetPosterPlugin: Failed retreiving poster for movie : " + id);

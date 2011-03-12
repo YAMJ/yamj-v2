@@ -481,7 +481,7 @@ public class MovieFile implements Comparable<MovieFile> {
         if (file.isFile()) {
             int i = filename.lastIndexOf(".");
             if (i > 0) {
-                return (filename.substring(i + 1));
+                return new String(filename.substring(i + 1));
             }
         }
         return "";

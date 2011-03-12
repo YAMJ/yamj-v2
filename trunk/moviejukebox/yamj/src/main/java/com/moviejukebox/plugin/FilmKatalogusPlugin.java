@@ -107,7 +107,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (beginIndex > 0) { // exact match is found
                 int endIndex = xml.indexOf("</H1>", beginIndex);
                 if (gettitle) {
-                    movie.setTitle(xml.substring((beginIndex + 4), endIndex));
+                    movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)));
                 }
 
                 // PLOT
@@ -115,12 +115,12 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 endIndex = xml.indexOf("</DIV>", beginIndex);
                 if (getplot) {
                     String plot = Movie.UNKNOWN;
-                    plot = xml.substring((beginIndex + 19), endIndex);
+                    plot = new String(xml.substring((beginIndex + 19), endIndex));
 
                     plot = StringTools.trimToLength(plot, maxLength, true, plotEnding);
                     movie.setPlot(plot);
 
-                    // movie.setPlot(xml.substring((beginIndex + 19), endIndex));
+                    // movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
                 }
                 return null;
             }
@@ -130,7 +130,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 beginIndex = xml.indexOf("HREF='/", beginIndex);
                 int endIndex = xml.indexOf("TITLE", beginIndex);
                 filmKatURL = "http://filmkatalogus.hu";
-                filmKatURL = filmKatURL.concat(xml.substring((beginIndex + 6), endIndex - 2));
+                filmKatURL = filmKatURL.concat(new String(xml.substring((beginIndex + 6), endIndex - 2)));
                 xml = webBrowser.request(filmKatURL);
                 //logger.fine(filmKatURL);
                 //logger.finest(xml);
@@ -140,7 +140,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 if (beginIndex != -1) {
                     endIndex = xml.indexOf("</H1>", beginIndex);
                     if (gettitle) {
-                        movie.setTitle(xml.substring((beginIndex + 4), endIndex));
+                        movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)));
                     }
 
                     // PLOT
@@ -148,14 +148,14 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                     endIndex = xml.indexOf("</DIV>", beginIndex);
                     if (getplot) {
                         String plot = Movie.UNKNOWN;
-                        plot = xml.substring((beginIndex + 19), endIndex);
+                        plot = new String(xml.substring((beginIndex + 19), endIndex));
 
                         plot = StringTools.trimToLength(plot, maxLength, true, plotEnding);
                         movie.setPlot(plot);
 
-                        // movie.setPlot(xml.substring((beginIndex + 19), endIndex));
+                        // movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
                     }
-                    // if (getplot) movie.setPlot(xml.substring((beginIndex + 19), endIndex));
+                    // if (getplot) movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
                 }
                 return null;
             }

@@ -78,12 +78,12 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                 if (castIndex > -1) {
                     // Use the old format
                     beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
-                    st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
+                    st = new StringTokenizer(new String(imdbXML.substring(beginIndex + 5)), "\"");
                 } else {
                     // Try the new format
                     castIndex = imdbXML.indexOf("<h2>" + imdbInfo.getSiteDef().getCast() + "</h2>");
                     beginIndex = imdbXML.indexOf("href='http://ia.media-imdb.com/images");
-                    st = new StringTokenizer(imdbXML.substring(beginIndex + 6), "'");
+                    st = new StringTokenizer(new String(imdbXML.substring(beginIndex + 6)), "'");
                 } 
                 
                 // Search the XML from IMDB for a poster
@@ -91,7 +91,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                     posterURL = st.nextToken();
                     int index = posterURL.indexOf("_SX");
                     if (index != -1) {
-                        posterURL = posterURL.substring(0, index) + "_SX600_SY800_.jpg";
+                        posterURL = new String(posterURL.substring(0, index)) + "_SX600_SY800_.jpg";
                     } else {
                         posterURL = Movie.UNKNOWN;
                     }

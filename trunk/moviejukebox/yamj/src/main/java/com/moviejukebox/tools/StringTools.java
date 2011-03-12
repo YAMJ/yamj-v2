@@ -244,10 +244,10 @@ public class StringTools {
                     BreakIterator bi = BreakIterator.getWordInstance();
                     bi.setText(sourceString);
                     int biLength = bi.preceding(requiredLength - endingSuffix.length());
-                    return sourceString.substring(0, biLength).trim() + endingSuffix;
+                    return new String(sourceString.substring(0, biLength)).trim() + endingSuffix;
                 } else {
                     // We know that the source string is longer that the required length, so trim it to size
-                    return sourceString.substring(0, requiredLength - endingSuffix.length()).trim() + endingSuffix;
+                    return new String(sourceString.substring(0, requiredLength - endingSuffix.length())).trim() + endingSuffix;
                 }
             }
         }

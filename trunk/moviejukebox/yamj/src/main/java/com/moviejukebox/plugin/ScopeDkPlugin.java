@@ -142,11 +142,11 @@ public class ScopeDkPlugin extends ImdbPlugin {
                     if (StringTools.isValidString(year)) {
                         // Found the same year. Ok
                         if (year.equalsIgnoreCase(tmp.get(i + 1).trim())) {
-                            return tmp.get(i).substring(startIndex + strRef.length(), endIndex);
+                            return new String(tmp.get(i).substring(startIndex + strRef.length(), endIndex));
                         }
                     } else {
                         // No year, so take the first one :(
-                        return tmp.get(i).substring(startIndex + strRef.length(), endIndex);
+                        return new String(tmp.get(i).substring(startIndex + strRef.length(), endIndex));
                     }
                 } else {
                     logger.warning("Not matching data for search film result : " + tmp.get(i));
