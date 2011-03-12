@@ -69,7 +69,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
 
             String xml = webBrowser.request(sb.toString());
             int beginIndex = xml.indexOf("www.moviemeter.nl/film/");
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 23), "/\"");
+            StringTokenizer st = new StringTokenizer(new String(xml.substring(beginIndex + 23)), "/\"");
             String moviemeterId = st.nextToken();
 
             if (isInteger(moviemeterId)) {

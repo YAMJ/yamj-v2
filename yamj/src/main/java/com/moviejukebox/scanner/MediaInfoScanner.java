@@ -228,7 +228,7 @@ public class MediaInfoScanner {
         while (line != null) {
             // In case of new format : Text #1, Audio #1
             if (line.indexOf("#") >= 0) {
-                line = line.substring(0, line.indexOf("#")).trim();
+                line = new String(line.substring(0, line.indexOf("#"))).trim();
             }
 
             // Get cat ArrayList from cat name.
@@ -238,9 +238,9 @@ public class MediaInfoScanner {
                 HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
-                    label = line.substring(0, indexSeparateur).trim();
+                    label = new String(line.substring(0, indexSeparateur).trim());
                     if (currentData.get(label) == null) {
-                        currentData.put(label, line.substring(indexSeparateur + 3));
+                        currentData.put(label, new String(line.substring(indexSeparateur + 3)));
                     }
                 }
                 currentCat.add(currentData);
@@ -361,7 +361,7 @@ public class MediaInfoScanner {
         if (infoValue != null) {
             int duration = 0;
             if (infoValue.indexOf('.') >= 0) {
-                infoValue = infoValue.substring(0, infoValue.indexOf('.'));
+                infoValue = new String(infoValue.substring(0, infoValue.indexOf('.')));
             }
             duration = Integer.parseInt(infoValue) / 1000;
             // Issue 1176 - Prevent lost of NFO Data
@@ -518,7 +518,7 @@ public class MediaInfoScanner {
             if (infoValue != null) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
-                    infoValue = infoValue.substring(0, infoValue.indexOf("/")).trim(); // In this case, language are "doubled", just take the first one.
+                    infoValue = new String(infoValue.substring(0, infoValue.indexOf("/"))).trim(); // In this case, language are "doubled", just take the first one.
                 }
                 infoLanguage = " (" + infoValue + ")";
                 // Add determination of language.
@@ -588,7 +588,7 @@ public class MediaInfoScanner {
             if (StringTools.isValidString(infoValue)) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
-                    infoValue = infoValue.substring(0, infoValue.indexOf("/")).trim(); // In this case, languages are "doubled", just take the first one.
+                    infoValue = new String(infoValue.substring(0, infoValue.indexOf("/"))).trim(); // In this case, languages are "doubled", just take the first one.
                 }
                 infoLanguage = infoValue;
             }

@@ -317,7 +317,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         logger.finest("Scanning NFO for TheMovieDb Id");
         beginIndex = nfo.indexOf("/movie/");
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
+            StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 7)), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(TMDB_PLUGIN_ID, st.nextToken());
             logger.finer("TheMovieDb Id found in nfo = " + movie.getId(TMDB_PLUGIN_ID));
         } else {
@@ -327,13 +327,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // We might as well look for the IMDb ID as well
         beginIndex = nfo.indexOf("/tt");
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$");
+            StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 1)), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
             logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         } else {
             beginIndex = nfo.indexOf("/Title?");
             if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
-                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
+                StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 7)), "/ \n,:!&é\"'(--è_çà)=$");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
                 logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             }

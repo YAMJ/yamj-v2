@@ -152,8 +152,8 @@ public class Library implements Map<String, Movie> {
             int idx = token.indexOf("-");
             if (idx > 0) {
                 try {
-                    String key = token.substring(0, idx).trim();
-                    String value = token.substring(idx + 1).trim();
+                    String key = new String(token.substring(0, idx).trim());
+                    String value = new String(token.substring(idx + 1).trim());
                     if (key.length() == 1 && value.length() == 1) {
                         charReplacementMap.put(new Character(key.charAt(0)), new Character(value.charAt(0)));
                     }
@@ -1160,16 +1160,16 @@ public class Library implements Map<String, Movie> {
                 } else if (filmYear.equals("" + (currentYear - 1))) {
                     yearCat = "Last Year";
                 } else {
-                    String beginYear = filmYear.substring(0, filmYear.length() - 1) + "0";
+                    String beginYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "0";
                     String endYear = Movie.UNKNOWN;
                     if (Integer.parseInt(filmYear) >= currentDecade) {
                         // The film year is in the current decade, so we need to adjust the end year
                         endYear = "" + finalYear;
                     } else {
                         // Otherwise it's 9
-                        endYear = filmYear.substring(0, filmYear.length() - 1) + "9";
+                        endYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "9";
                     }
-                    yearCat = beginYear + "-" + endYear.substring(endYear.length() - 2);
+                    yearCat = beginYear + "-" + new String(endYear.substring(endYear.length() - 2));
                 }
             } catch (Exception ignore) {
             }

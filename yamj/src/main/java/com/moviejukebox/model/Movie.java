@@ -393,7 +393,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
         for (String prefix : sortIgnorePrefixes) {
             if (lowerTitle.startsWith(prefix.toLowerCase())) {
-                title = title.substring(prefix.length());
+                title = new String(title.substring(prefix.length()));
                 break;
             }
         }
@@ -609,7 +609,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public int getWidth() {
         int width = 0;
         try {
-            width = Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
+            width = Integer.parseInt(new String(getResolution().substring(0, getResolution().indexOf("x"))));
         } catch (Exception error) {
             // This will catch the exception if mediainfo is not installed.
             width = 0;
@@ -1073,7 +1073,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             this.isDirty = true;
             // Escape the first "0" AlloCine gives sometimes
             if (runtime.startsWith("0")) {
-                this.runtime = runtime.substring(1).trim();
+                this.runtime = new String(runtime.substring(1).trim());
             } else {
                 this.runtime = runtime.trim();
             }
@@ -1127,7 +1127,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                 idx++;
             }
 
-            this.titleSort = text.substring(idx);
+            this.titleSort = new String(text.substring(idx));
             this.isDirty = true;
         }
     }

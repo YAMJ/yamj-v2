@@ -330,11 +330,11 @@ public class HTMLTools {
 
                     // add the text that leads up to this match
                     if (delimiter_start_index > current_index) {
-                        result.append(source.substring(current_index, delimiter_start_index));
+                        result.append(new String(source.substring(current_index, delimiter_start_index)));
                     }
 
                     // add the decoded entity
-                    String entity = source.substring(delimiter_start_index, delimiter_end_index + 1);
+                    String entity = new String(source.substring(delimiter_start_index, delimiter_end_index + 1));
 
                     current_index = delimiter_end_index + 1;
 
@@ -348,7 +348,7 @@ public class HTMLTools {
                             radix = 16;
                         }
                         try {
-                            Character c = new Character((char)Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
+                            Character c = new Character((char)Integer.parseInt(new String(entity.substring(start, entity.length() - 1)), radix));
                             result.append(c);
                         } // when the number of the entity can't be parsed, add the entity as-is
                         catch (NumberFormatException error) {
@@ -375,7 +375,7 @@ public class HTMLTools {
         if (null == result) {
             return source;
         } else if (current_index < source.length()) {
-            result.append(source.substring(current_index));
+            result.append(new String(source.substring(current_index)));
         }
 
         return result.toString();
@@ -411,9 +411,9 @@ public class HTMLTools {
             int slash = url.lastIndexOf('/');
             String parentPart = "";
             if (slash != -1) {
-                parentPart = encodeUrlPath(url.substring(0, slash)) + '/';
+                parentPart = encodeUrlPath(new String(url.substring(0, slash))) + '/';
             }
-            return parentPart + encodeUrl(url.substring(slash + 1));
+            return parentPart + encodeUrl(new String(url.substring(slash + 1)));
         }
         return url;
     }
@@ -430,7 +430,7 @@ public class HTMLTools {
             return tags;
         }
 
-        String sectionText = src.substring(index, endIndex);
+        String sectionText = new String(src.substring(index, endIndex));
         int lastIndex = sectionText.length();
         index = 0;
         int endLen = endTag.length();
@@ -445,7 +445,7 @@ public class HTMLTools {
                 endIndex = lastIndex;
             }
             endIndex += endLen;
-            String text = sectionText.substring(index, endIndex);
+            String text = new String(sectionText.substring(index, endIndex));
             tags.add(text);
             if (endIndex > lastIndex) {
                 break;
@@ -477,7 +477,7 @@ public class HTMLTools {
         String value = Movie.UNKNOWN;
 
         if (beginIndex >= 0) {
-            StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
+            StringTokenizer st = new StringTokenizer(new String(src.substring(beginIndex + findStr.length())), separator);
             for (int i = 0; i < skip; i++) {
                 st.nextToken();
             }
@@ -503,12 +503,12 @@ public class HTMLTools {
         }
 
         try {
-            String subString = src.substring(beginIndex + startStr.length());
+            String subString = new String(src.substring(beginIndex + startStr.length()));
             int endIndex = subString.indexOf(endStr);
             if (endIndex < 0) {
                 return Movie.UNKNOWN;
             }
-            subString = subString.substring(0, endIndex);
+            subString = new String(subString.substring(0, endIndex));
             return HTMLTools.decodeHtml(subString.trim());
         } catch (Exception error) {
             return Movie.UNKNOWN;
@@ -539,7 +539,7 @@ public class HTMLTools {
             return tags;
         }
 
-        String sectionText = src.substring(startIndex, endIndex);
+        String sectionText = new String(src.substring(startIndex, endIndex));
         int lastIndex = sectionText.length();
         startIndex = 0;
         int startLen = 0;
@@ -562,7 +562,7 @@ public class HTMLTools {
             if (endIndex == -1) {
                 endIndex = lastIndex;
             }
-            String text = sectionText.substring(startIndex, endIndex);
+            String text = new String(sectionText.substring(startIndex, endIndex));
 
             tags.add(HTMLTools.decodeHtml(text.trim()));
             endIndex += endLen;
@@ -605,7 +605,7 @@ public class HTMLTools {
         if (beginIndex == -1) {
             return Movie.UNKNOWN;
         }
-        StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), "<");
+        StringTokenizer st = new StringTokenizer(new String(src.substring(beginIndex + findStr.length())), "<");
         int i = 0;
         while (st.hasMoreElements()) {
             String elem = st.nextToken().replaceAll("&nbsp;|&#160;", "").trim();

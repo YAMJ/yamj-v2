@@ -76,7 +76,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
                     break;
                 }
 
-                String scanPosterID = xml.substring(index, endIndex);
+                String scanPosterID = new String(xml.substring(index, endIndex));
 
                 index = endIndex + 2;
 
@@ -92,7 +92,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
                     break;
                 }
 
-                String scanName = xml.substring(index, endIndex).trim();
+                String scanName = new String(xml.substring(index, endIndex)).trim();
 
                 index = endIndex + 7;
 

@@ -60,7 +60,7 @@ public class AllocinePlugin extends ImdbPlugin {
             String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Synopsis :", "</p>"));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
             if (tmpPlot.length() > preferredPlotLength) {
-                tmpPlot = tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3)) + "...";
+                tmpPlot = new String(tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3))) + "...";
             }
             movie.setPlot(tmpPlot);
             // logger.finest("AllocinePlugin: TV Show Plot = " + movie.getPlot());
@@ -151,7 +151,7 @@ public class AllocinePlugin extends ImdbPlugin {
                     // logger.finest("AllocinePlugin: New Season detected seasonString=[" + seasonString+"]");
                     int seasonNbI = Integer.valueOf(seasonString);
                     // logger.finest("AllocinePlugin: New Season detected seasonNbI=[" + seasonNbI+"]");
-                    String seasonStringId = seasonTag.substring(seasonTag.lastIndexOf('=') + 1, seasonTag.lastIndexOf('"'));
+                    String seasonStringId = new String(seasonTag.substring(seasonTag.lastIndexOf('=') + 1, seasonTag.lastIndexOf('"')));
                     // logger.finest("AllocinePlugin: New Season detected seasonStringId=[" + seasonStringId+"]");
                     int seasonIdI = Integer.valueOf(seasonStringId);
                     // logger.finest("AllocinePlugin: New Season detected seasonIdI= " + seasonIdI);
@@ -165,10 +165,10 @@ public class AllocinePlugin extends ImdbPlugin {
                         for (String episode : HTMLTools.extractTags(xml, "<table class=\"boxofficedata\">", "</table>", "<a", "</a>", false)) {
                             try {
                                 // logger.finest("AllocinePlugin: episodeTag=[" + episode+"]");
-                                String episodeNbS = episode.substring(episode.lastIndexOf("Episode") + 8, episode.lastIndexOf(':')).trim();
+                                String episodeNbS = new String(episode.substring(episode.lastIndexOf("Episode") + 8, episode.lastIndexOf(':'))).trim();
                                 // logger.finest("AllocinePlugin: episodeNbS=[" + episodeNbS+"]");
                                 Integer episodeNbI = Integer.valueOf(episodeNbS);
-                                String episodeName = episode.substring(episode.lastIndexOf(':') + 1).trim();
+                                String episodeName = new String(episode.substring(episode.lastIndexOf(':') + 1)).trim();
                                 // logger.finest("AllocinePlugin: episodeName=[" + episodeName+"]");
                                 episodeNames.put(episodeNbI, episodeName);
                                 // logger.finest("AllocinePlugin: Episode Nb "+ episodeNbI + " : [" + episodeName+"] added to map");
@@ -327,7 +327,7 @@ public class AllocinePlugin extends ImdbPlugin {
         try {
             int ratingBegin = rating.indexOf("\"");
             int ratingEnd   = rating.indexOf("\"", ratingBegin + 1);
-            String floatRating = rating.substring(ratingBegin + 1, ratingEnd).replace(',', '.');
+            String floatRating = new String(rating.substring(ratingBegin + 1, ratingEnd)).replace(',', '.');
             // logger.finest("AllocinePlugin: String floatRating =[" + floatRating + "]");
 
             return (int)(Float.parseFloat(floatRating) / 5.0 * 100);
@@ -413,9 +413,9 @@ public class AllocinePlugin extends ImdbPlugin {
                     // logger.finest("AllocinePlugin search '" + formattedMovieName + "' in " + searchResult);
 
                     if (formattedTitle.equalsIgnoreCase(formattedMovieName)) {
-                        String searchResultYear = searchResult.substring(searchResult.lastIndexOf(alloCineYearTagStart) + alloCineYearTagStart.length(), searchResult
-                                .length());
-                        searchResultYear = searchResultYear.substring(0, searchResultYear.indexOf(alloCineYearTagEnd)).trim();
+                        String searchResultYear = new String(searchResult.substring(searchResult.lastIndexOf(alloCineYearTagStart) + alloCineYearTagStart.length(), searchResult
+                                .length()));
+                        searchResultYear = new String(searchResultYear.substring(0, searchResultYear.indexOf(alloCineYearTagEnd))).trim();
                         // Issue #1265: to prevent some strange layout where tags <b></b> are inside the movie year
                         searchResultYear = removeHtmlTags(searchResultYear);
                         logger.finest("AllocinePlugin: searchResultYear = [" + searchResultYear+"] while year=["+year+"]");
@@ -423,7 +423,7 @@ public class AllocinePlugin extends ImdbPlugin {
                             int allocineIndexBegin = 0;
                             int allocineIndexEnd = searchResult.indexOf(".html");
 
-                            allocineId = searchResult.substring(allocineIndexBegin, allocineIndexEnd);
+                            allocineId = new String(searchResult.substring(allocineIndexBegin, allocineIndexEnd));
                             // validate that allocineId is an int
                             Integer.valueOf(allocineId);
                             logger.finer("AllocinePlugin: Found AllocineId = " + allocineId);
@@ -499,8 +499,8 @@ public class AllocinePlugin extends ImdbPlugin {
             if (beginIdIndex != -1) {
                 int endIdIndex = nfo.indexOf(".", beginIdIndex);
                 if (endIdIndex != -1) {
-                    logger.finer("AllocinePlugin: Allocine Id found in nfo = " + nfo.substring(beginIdIndex + 1, endIdIndex));
-                    movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, nfo.substring(beginIdIndex + 1, endIdIndex));
+                    logger.finer("AllocinePlugin: Allocine Id found in nfo = " + new String(nfo.substring(beginIdIndex + 1, endIdIndex)));
+                    movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, new String(nfo.substring(beginIdIndex + 1, endIdIndex)));
                 } else {
                     logger.finer("AllocinePlugin: No Allocine Id found in nfo !");
                 }

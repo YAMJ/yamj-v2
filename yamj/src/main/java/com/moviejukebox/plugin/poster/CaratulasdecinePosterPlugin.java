@@ -45,7 +45,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
         String searchString = "caratula.php?pel=";
         int beginIndex = xml.indexOf(searchString);
         if (beginIndex > -1) {
-            response = xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length()));
+            response = new String(xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length())));
         }
         return response;
     }
@@ -68,7 +68,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 String searchString = "http://www.caratulasdecine.com/listado.php";
                 int beginIndex = xml.indexOf(searchString);
                 if (beginIndex > -1) {
-                    String url = xml.substring(beginIndex, xml.indexOf("\"", beginIndex + searchString.length()));
+                    String url = new String(xml.substring(beginIndex, xml.indexOf("\"", beginIndex + searchString.length())));
                     // Need to find a better way to do this
                     url = url.replaceAll("&amp;", "&");
                     xml = webBrowser.request(url, Charset.forName("ISO-8859-1"));
@@ -110,7 +110,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 int beginIndex = xml.indexOf(searchString);
                 if (beginIndex > -1) {
                     posterURL = "http://www.caratulasdecine.com/"
-                                    + xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length()));
+                                    + new String(xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length())));
                 }
 
             } catch (Exception e) {

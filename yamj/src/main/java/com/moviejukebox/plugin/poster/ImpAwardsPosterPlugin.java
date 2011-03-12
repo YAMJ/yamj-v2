@@ -52,9 +52,9 @@ public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
             if (indexMovieLink != -1) {
                 int endIndex = content.indexOf("\"", indexMovieLink + 39);
                 if (endIndex != -1) {
-                    String tmp = content.substring(indexMovieLink + 39, endIndex);
+                    String tmp = new String(content.substring(indexMovieLink + 39, endIndex));
                     if (!tmp.endsWith("standard.html")) {
-                        returnString = year + "/posters/" + content.substring(indexMovieLink + 39, endIndex);
+                        returnString = year + "/posters/" + new String(content.substring(indexMovieLink + 39, endIndex));
                     }
                 }
             }
@@ -74,7 +74,7 @@ public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
         
         if (StringTools.isValidString(id)) {
             if (id.endsWith(".html")) {
-                posterURL = "http://www.impawards.com/" + id.substring(0, id.length() - 4) + "jpg";
+                posterURL = "http://www.impawards.com/" + new String(id.substring(0, id.length() - 4)) + "jpg";
             }
         }
         

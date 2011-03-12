@@ -97,7 +97,7 @@ public class MovieNFOScanner {
             nfoExtRegex += "|" + ext + "$";
         }
         // Skip beginning "|" and sandwich extensions between rest of regex
-        nfoExtRegex = "(?i).*\\.(" + nfoExtRegex.substring(1) + ")";
+        nfoExtRegex = "(?i).*\\.(" + new String(nfoExtRegex.substring(1)) + ")";
         
         partPattern = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
         
@@ -143,15 +143,15 @@ public class MovieNFOScanner {
 
                             // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
                             if ((currentUrlStartIndex < 8)
-                                            || (nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0)) {
-                                String foundUrl = nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3);
+                                            || (new String(nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex)).compareToIgnoreCase("<fanart>") != 0)) {
+                                String foundUrl = new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                                 
                                 // Check for some invalid characters to see if the URL is valid
                                 if (foundUrl.contains(" ") || foundUrl.contains("*")) {
                                     urlStartIndex = currentUrlStartIndex + 3;
                                 } else {
                                     logger.finer("Poster URL found in nfo = " + foundUrl);
-                                    movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                                    movie.setPosterURL(new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3)));
                                     urlStartIndex = -1;
                                     movie.setDirtyPoster(true);
                                 }
@@ -206,13 +206,13 @@ public class MovieNFOScanner {
 
         // If "pathFileName" is a file then strip the extension from the file.
         if (currentDir.isFile()) {
-            pathFileName = pathFileName.substring(0, pathFileName.lastIndexOf("."));
-            baseFileName = baseFileName.substring(0, baseFileName.lastIndexOf("."));
+            pathFileName = new String( pathFileName.substring(0, pathFileName.lastIndexOf(".")));
+            baseFileName = new String(baseFileName.substring(0, baseFileName.lastIndexOf(".")));
         } else {
             // *** First step is to check for VIDEO_TS
             // The movie is a directory, which indicates that this is a VIDEO_TS file
             // So, we should search for the file moviename.nfo in the sub-directory
-            checkNFO(nfos, pathFileName + pathFileName.substring(pathFileName.lastIndexOf(File.separator)));
+            checkNFO(nfos, pathFileName + new String(pathFileName.substring(pathFileName.lastIndexOf(File.separator))));
         }
 
         if (movie.isTVShow()) {
@@ -224,12 +224,12 @@ public class MovieNFOScanner {
                 
                 if (mfFilename.contains("BDMV")) {
                     mfFilename = FileTools.getParentFolder(mf.getFile());
-                    mfFilename = mfFilename.substring(mfFilename.lastIndexOf(File.separator) + 1);
+                    mfFilename = new String(mfFilename.substring(mfFilename.lastIndexOf(File.separator) + 1));
                 } else {
                     mfFilename = mf.getFile().getName();
                     pos = mfFilename.lastIndexOf(".");
                     if (pos > 0) {
-                        mfFilename = mfFilename.substring(0, pos);
+                        mfFilename = new String(mfFilename.substring(0, pos));
                     }
                 }
 
@@ -523,9 +523,9 @@ public class MovieNFOScanner {
                                         pos = val.indexOf(" for ", start);
                                     }
                                     if (pos > start) {
-                                        val = val.substring(start, pos);
+                                        val = new String(val.substring(start, pos));
                                     } else {
-                                        val = val.substring(start);
+                                        val = new String(val.substring(start));
                                     }
                                 }
                                 movie.setCertification(val);
@@ -536,16 +536,16 @@ public class MovieNFOScanner {
                                 int countryPos = val.lastIndexOf(imdbPreferredCountry);
                                 if (countryPos > 0) {
                                     // We've found the country, so extract just that tag
-                                    val = val.substring(countryPos);
+                                    val = new String(val.substring(countryPos));
                                     int pos = val.indexOf(":");
                                     if (pos > 0) {
                                         int endPos = val.indexOf(" /");
                                         if (endPos > 0) {
                                             // This is in the middle of the string
-                                            val = val.substring(pos + 1, endPos);
+                                            val = new String(val.substring(pos + 1, endPos));
                                         } else {
                                             // This is at the end of the string
-                                            val = val.substring(pos + 1);
+                                            val = new String(val.substring(pos + 1));
                                         }
                                     }
                                 } else {
@@ -553,7 +553,7 @@ public class MovieNFOScanner {
                                     int pos = val.lastIndexOf(":");
                                     if (pos > 0) {
                                         // Strip the country code from the rating for certification like "UK:PG-12"
-                                        val = val.substring(pos + 1);
+                                        val = new String(val.substring(pos + 1));
                                     }
                                 }
                                 movie.setCertification(val);
@@ -972,9 +972,9 @@ public class MovieNFOScanner {
                                         pos = val.indexOf(" for ", start);
                                     }
                                     if (pos > start) {
-                                        val = val.substring(start, pos);
+                                        val = new String(val.substring(start, pos));
                                     } else {
-                                        val = val.substring(start);
+                                        val = new String(val.substring(start));
                                     }
                                 }
                                 movie.setCertification(val);
