@@ -17,13 +17,13 @@ import static com.moviejukebox.tools.StringTools.*;
 
 public class SystemTools {
     private static final Logger logger = Logger.getLogger("moviejukebox");
-    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false"); 
+    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false");
 
     public static class Base64 {
-        public static String base64code = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-            "abcdefghijklmnopqrstuvwxyz" + "0123456789" + "+/";
-    
+        public static String base64code = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789" + "+/";
+
         public static int splitLinesAt = 76;
+
         public static String base64Encode(String string) {
             String unEncoded = string; // Copy the string so we can modify it
             StringBuffer encoded = new StringBuffer();
@@ -35,46 +35,42 @@ public class SystemTools {
             // worry about CRLF insertions later
             for (int i = 0; i < unEncoded.length(); i += 3) {
                 int j = (unEncoded.charAt(i) << 16) + (unEncoded.charAt(i + 1) << 8) + unEncoded.charAt(i + 2);
-                encoded.append(base64code.charAt((j >> 18) & 0x3f) +
-                    base64code.charAt((j >> 12) & 0x3f) +
-                    base64code.charAt((j >> 6) & 0x3f) +
-                    base64code.charAt(j & 0x3f));
+                encoded.append(base64code.charAt((j >> 18) & 0x3f) + base64code.charAt((j >> 12) & 0x3f) + base64code.charAt((j >> 6) & 0x3f)
+                                + base64code.charAt(j & 0x3f));
             }
             // replace encoded padding nulls with "="
             // return encoded;
             return "Basic " + encoded.toString();
         }
     }
-    
+
     /**
      * Show the memory available to the program and optionally try to force a garbage collection
      */
     public static void showMemory(boolean showAll) {
-        if (!showMemory) {
-            return;
+        if (showMemory) {
+            // Show the long output
+            if (showAll) {
+                /* This will return Long.MAX_VALUE if there is no preset limit */
+                long maxMemory = Runtime.getRuntime().maxMemory();
+
+                /* Maximum amount of memory the JVM will attempt to use */
+                logger.fine("  Max memory: " + (maxMemory == Long.MAX_VALUE ? "no limit" : formatFileSize(maxMemory)));
+
+                /* Total memory currently in use by the JVM */
+                logger.fine("Total memory: " + formatFileSize(Runtime.getRuntime().totalMemory()));
+
+                /* Total amount of free memory available to the JVM */
+                logger.fine(" Free memory: " + formatFileSize(Runtime.getRuntime().freeMemory()));
+            } else {
+                logger.fine("Memory - Total: " + formatFileSize(Runtime.getRuntime().totalMemory()) + ", Free: "
+                                + formatFileSize(Runtime.getRuntime().freeMemory()));
+            }
         }
-        
-        // Show the long output
-        if (showAll) {
-            /* This will return Long.MAX_VALUE if there is no preset limit */
-            long maxMemory = Runtime.getRuntime().maxMemory();
-            
-            /* Maximum amount of memory the JVM will attempt to use */
-            logger.fine("  Max memory: " + (maxMemory == Long.MAX_VALUE ? "no limit" : formatFileSize(maxMemory)));
-        
-            /* Total memory currently in use by the JVM */
-            logger.fine("Total memory: " + formatFileSize(Runtime.getRuntime().totalMemory()));
-    
-            /* Total amount of free memory available to the JVM */
-            logger.fine(" Free memory: " + formatFileSize(Runtime.getRuntime().freeMemory()));
-        } else {
-            logger.fine("Memory - Total: " + formatFileSize(Runtime.getRuntime().totalMemory()) + ", Free: " + formatFileSize(Runtime.getRuntime().freeMemory()));
-        }
-        
         // Run garbage collection (if needed)
         System.gc();
     }
-    
+
     public static void showMemory() {
         showMemory(false);
     }
