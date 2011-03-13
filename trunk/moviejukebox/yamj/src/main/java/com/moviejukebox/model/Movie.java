@@ -349,10 +349,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addExtraFile(ExtraFile extraFile) {
-        if (extraFile != null) {
+        // Only add extraFile if it doesn't already exists
+        if (extraFile != null && !this.extraFiles.contains(extraFile)) {
             this.isDirty = true;
-            // always replace MovieFile
-            this.extraFiles.remove(extraFile);
             this.extraFiles.add(extraFile);
         }
     }
