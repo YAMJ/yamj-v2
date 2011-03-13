@@ -833,8 +833,8 @@ public class MovieJukebox {
             ods.scan(library);
         }
 
-        // Now that everything's been scanned, merge the trailers into the movies
-        library.mergeExtras();
+        // Now that everything's been scanned, add all extras to library
+        library.addAllExtras();
 
         logger.fine("Found " + library.size() + " videos in your media library");
         logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
@@ -848,6 +848,7 @@ public class MovieJukebox {
                 if (movie.isExtra() && !processExtras) {
                     continue;
                 }
+
                 final int count = ++movieCounter;
 
                 final String movieTitleExt = movie.getOriginalTitle() + (movie.isTVShow() ? (" [Season " + movie.getSeason() + "]") : "")
@@ -927,7 +928,7 @@ public class MovieJukebox {
             }
             tasks.waitFor();
 
-            // re-run the merge in case there were additional trailers that were downloaded
+            // Add the new extra files (like trailers that were downloaded) to the library and to the corresponding movies
             library.mergeExtras();
 
             OpenSubtitlesPlugin.logOut();
