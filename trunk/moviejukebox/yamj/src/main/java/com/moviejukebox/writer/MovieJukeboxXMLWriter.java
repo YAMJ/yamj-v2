@@ -149,7 +149,7 @@ public class MovieJukeboxXMLWriter {
      * Parse a single movie detail XML file
      */
     @SuppressWarnings("unchecked")
-    public boolean parseMovieXML(Jukebox jukebox, File xmlFile, Movie movie) {
+    public boolean parseMovieXML(File xmlFile, Movie movie) {
 
         boolean forceDirtyFlag = false; // force dirty flag for example when extras has been deleted
 
@@ -491,18 +491,15 @@ public class MovieJukeboxXMLWriter {
 
                     // Create a new ExtraFile and add to the movie if the file exists
                     if (!extraTitle.isEmpty() && !extraFilename.isEmpty()) {
-                        File extraPath = new File(jukebox.getJukeboxRootLocationDetailsFile(), HTMLTools.decodeUrl(extraFilename));
-                        if (extraPath.exists()) {
-                            ExtraFile ef = new ExtraFile();
-                            ef.setNewFile(false);
-                            ef.setTitle(extraTitle);
-                            ef.setFilename(extraFilename);
-                            // Issue 1259: Multipart videos cause playlink null pointer
-                            // FIXME - To check ... xml read run after directory scan and replace existing extra file ...
-                            ef.setFile(new File(extraFilename));
-                            // add extra based on XML data
-                            movie.addExtraFile(ef);
-                        } else {
+                        boolean exist = false;
+                        for (ExtraFile ef : movie.getExtraFiles()) {
+                            // Check if the movie has already the extra file
+                            if (ef.getFilename().equals(extraFilename)) {
+                                exist = true;
+                                break;
+                            }
+                        }
+                        if (!exist) {
                             // the extra file has been delete so force the dirty flag
                             forceDirtyFlag = true;
                         }

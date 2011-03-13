@@ -314,14 +314,7 @@ public class Library implements Map<String, Movie> {
         addMovie(getMovieKey(movie), movie);
     }
 
-    public void addAllExtras() {
-        for (Map.Entry<String, Movie> extraEntry : extras.entrySet()) {
-            Movie extra = extraEntry.getValue();
-            library.put(extraEntry.getKey(), extra);
-        }
-    }
-
-    public void mergeExtras() {
+    public void mergeExtras(boolean asNewFile) {
         for (Map.Entry<String, Movie> extraEntry : extras.entrySet()) {
             Movie extra = extraEntry.getValue();
             // Add extra to the library set
@@ -329,7 +322,9 @@ public class Library implements Map<String, Movie> {
             // Add the extra to the corresponding movie
             Movie movie = library.get(getMovieKey(extra));
             if (null != movie) {
-                movie.addExtraFile(new ExtraFile(extraEntry.getValue().getFirstFile()));
+                ExtraFile ef = new ExtraFile(extraEntry.getValue().getFirstFile());
+                ef.setNewFile(asNewFile);
+                movie.addExtraFile(ef);
             }
         }
     }
