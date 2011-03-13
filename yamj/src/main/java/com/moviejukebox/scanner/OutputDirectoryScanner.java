@@ -79,7 +79,7 @@ public class OutputDirectoryScanner {
                         String key = Library.getMovieKey(movie);
                         
                         if (!library.containsKey(key)) {
-                            if (xmlWriter.parseMovieXML(file, movie) && movie.getBaseName() != null) {
+                            if (xmlWriter.parseMovieXML(jukebox, file, movie) && movie.getBaseName() != null) {
                                 logger.finest("  Parsed movie: " + movie.getTitle());
                                 
                                 if (!library.containsKey(Library.getMovieKey(movie))) {
