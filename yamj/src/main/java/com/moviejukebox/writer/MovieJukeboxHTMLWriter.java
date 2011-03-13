@@ -25,8 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
@@ -67,10 +65,9 @@ public class MovieJukeboxHTMLWriter {
     private int nbTvShowsPerPage;
     private static String skinHome;
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    private static final Map<String, Transformer> transformerCache = new HashMap<String, Transformer>();
-    //private static String str_categoriesIndexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
-    //private static List<String> categoriesIndexList = Arrays.asList(str_categoriesIndexList.split(","));
-    //private static int categoriesMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3"));
+    // private static String str_categoriesIndexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
+    // private static List<String> categoriesIndexList = Arrays.asList(str_categoriesIndexList.split(","));
+    // private static int categoriesMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3"));
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
     private static File playlistFile;
     private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
@@ -86,7 +83,7 @@ public class MovieJukeboxHTMLWriter {
         }
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         playlistFile = new File("playlist.xsl");
-        
+
         // Issue 310
         String transformerFactory = PropertiesUtil.getProperty("javax.xml.transform.TransformerFactory", null);
         if (transformerFactory != null) {
@@ -108,7 +105,7 @@ public class MovieJukeboxHTMLWriter {
             FileTools.addJukeboxFile(baseName + ".html");
 
             if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
-                Transformer transformer = getTransformer(new File(skinHome,  "detail.xsl"), jukebox.getJukeboxRootLocationDetails());
+                Transformer transformer = getTransformer(new File(skinHome, "detail.xsl"), jukebox.getJukeboxRootLocationDetails());
 
                 // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
                 // the original source directory
@@ -124,9 +121,8 @@ public class MovieJukeboxHTMLWriter {
                 if (xmlSource != null && xmlResult != null) {
                     transformer.transform(xmlSource, xmlResult);
                 } else {
-                    logger.severe("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + 
-                                    " source: " + (xmlSource == null ? true : false) + 
-                                    " result: " + (xmlResult == null ? true : false));
+                    logger.severe("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + " source: " + (xmlSource == null ? true : false)
+                                    + " result: " + (xmlResult == null ? true : false));
                 }
             }
         } catch (Exception error) {
@@ -140,10 +136,11 @@ public class MovieJukeboxHTMLWriter {
 
     /**
      * Generates a playlist per part of the video. Used primarily with TV Series
-     * @param   rootPath
-     * @param   tempRootPath
-     * @param   movie
-     * @return  List of generated file names
+     * 
+     * @param rootPath
+     * @param tempRootPath
+     * @param movie
+     * @return List of generated file names
      */
     public Collection<String> generatePlaylist(Jukebox jukebox, Movie movie) {
         Collection<String> fileNames = new ArrayList<String>();
@@ -151,7 +148,7 @@ public class MovieJukeboxHTMLWriter {
         if (playlistFile == null || playlistFile.equals("")) {
             return fileNames;
         }
-        
+
         MovieFile[] movieFileArray = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()]);
 
         try {
@@ -163,7 +160,7 @@ public class MovieJukeboxHTMLWriter {
             File finalPlaylistFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + filenameSuffix);
             File tempPlaylistFile = new File(tempFilename + filenameSuffix);
             Source xmlSource;
-            
+
             fileNames.add(baseName + filenameSuffix);
 
             // Issue 884: Remove ISO and IMG files from playlists
@@ -180,7 +177,7 @@ public class MovieJukeboxHTMLWriter {
                 logger.finest("HTMLWriter: Playlist for " + movie.getTitle() + " skipped - All parts are in mjb.playlist.IgnoreExtensions");
                 return fileNames;
             } // Issue 884
-            
+
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
                 tempPlaylistFile.getParentFile().mkdirs();
 
@@ -198,7 +195,7 @@ public class MovieJukeboxHTMLWriter {
                 transformer.transform(xmlSource, xmlResult);
 
                 removeBlankLines(tempPlaylistFile.getAbsolutePath());
-                
+
                 fileNames.add(baseName + filenameSuffix);
             }
         } catch (Exception error) {
@@ -208,7 +205,7 @@ public class MovieJukeboxHTMLWriter {
             error.printStackTrace(printWriter);
             logger.severe(eResult.toString());
         }
-        
+
         // if the multi part playlists are not required
         if (generateMultiPartPlaylist) {
             try {
@@ -225,37 +222,36 @@ public class MovieJukeboxHTMLWriter {
                 logger.severe(eResult.toString());
             }
         }
-        
+
         return fileNames;
     }
-    
+
     /**
-     * Remove blank lines from the file
-     * The PCH does not like blank lines in the playlist.jsp files, so this routine will remove them
-     * This routine is only called for the base playlist as this is transformed with the playlist.xsl
-     * file and therefore could end up with blank lines in it
+     * Remove blank lines from the file The PCH does not like blank lines in the playlist.jsp files, so this routine will remove them This routine is only
+     * called for the base playlist as this is transformed with the playlist.xsl file and therefore could end up with blank lines in it
+     * 
      * @param filename
      */
     private void removeBlankLines(String filename) {
         BufferedReader reader = null;
         StringBuffer sb = new StringBuffer();
         FileWriter outFile = null;
-        
+
         try {
             reader = new BufferedReader(new FileReader(filename));
-            String br ="";
+            String br = "";
 
-            while((br = reader.readLine()) != null) {
+            while ((br = reader.readLine()) != null) {
                 if (br.trim().length() > 0) {
                     sb.append(br + "\n");
                 }
             }
             reader.close();
-            
+
             outFile = new FileWriter(filename);
             outFile.write(sb.toString());
             outFile.flush();
-            
+
         } catch (Exception error) {
             logger.finer("HTMLWriter: Failed deleting blank lines from " + filename);
             final Writer eResult = new StringWriter();
@@ -270,7 +266,7 @@ public class MovieJukeboxHTMLWriter {
             } catch (IOException e) {
                 // Ignore
             }
-            
+
             try {
                 if (reader != null) {
                     reader.close();
@@ -283,8 +279,8 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generate playlist with old simple method. The playlist is to be used for playing episodes
-     * starting from each episode separately.
+     * Generate playlist with old simple method. The playlist is to be used for playing episodes starting from each episode separately.
+     * 
      * @param rootPath
      * @param tempRootPath
      * @param movie
@@ -294,9 +290,9 @@ public class MovieJukeboxHTMLWriter {
      * @throws UnsupportedEncodingException
      * @return generated file name
      */
-    private String generateSimplePlaylist(Jukebox jukebox, Movie movie, MovieFile[] movieFiles, int offset) 
-            throws FileNotFoundException, UnsupportedEncodingException {
-        String fileSuffix = ".playlist"+ movieFiles[offset % movieFiles.length].getFirstPart() + ".jsp";
+    private String generateSimplePlaylist(Jukebox jukebox, Movie movie, MovieFile[] movieFiles, int offset) throws FileNotFoundException,
+                    UnsupportedEncodingException {
+        String fileSuffix = ".playlist" + movieFiles[offset % movieFiles.length].getFirstPart() + ".jsp";
         String baseName = movie.getBaseName();
         String tempFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + baseName;
         File finalPlaylistFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + fileSuffix);
@@ -309,9 +305,9 @@ public class MovieJukeboxHTMLWriter {
 
             // Issue 237 - Add in the IP address of the MyiHome server so the playlist will work.
             // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is
-            //             the normal method for stand alone YAMJ
+            // the normal method for stand alone YAMJ
             for (int i = 0; i < movieFiles.length; i++) {
-                MovieFile part = movieFiles[ (i + offset) % movieFiles.length];
+                MovieFile part = movieFiles[(i + offset) % movieFiles.length];
                 // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the title
                 writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
             }
@@ -322,30 +318,31 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generate the mjb.indexFile page from a template.
-     * If the template is not found, then create a default index page 
+     * Generate the mjb.indexFile page from a template. If the template is not found, then create a default index page
+     * 
      * @param jukebox
      * @param library
      * @param indexFilename
      */
     public void generateMainIndexHTML(Jukebox jukebox, Library library) {
         File jukeboxIndexFile = new File(skinHome, "jukebox-index.xsl");
-        
+
         if (jukeboxIndexFile.exists()) {
             generateTransformedIndexHTML(jukebox, library);
         } else {
             generateDefaultIndexHTML(jukebox, library);
         }
     }
-    
+
     /**
      * Use an xsl file to generate the jukebox index file
+     * 
      * @param jukebox
      * @param library
      */
     private void generateTransformedIndexHTML(Jukebox jukebox, Library library) {
         logger.fine("Generating Index file from jukebox-index.xsl");
-        
+
         XMLWriter writer = null;
 
         String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
@@ -364,14 +361,14 @@ public class MovieJukeboxHTMLWriter {
             File indexFile = new File(jukebox.getJukeboxTempLocation(), "index.xml");
             indexFile.getParentFile().mkdirs();
             writer = new XMLWriter(indexFile);
-            
+
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("index");
 
             writer.writeStartElement("detailsDirName");
             writer.writeCharacters(jukebox.getDetailsDirName());
             writer.writeEndElement();
-            
+
             writer.writeStartElement("homePage");
             writer.writeCharacters(homePage);
             writer.writeEndElement();
@@ -379,19 +376,19 @@ public class MovieJukeboxHTMLWriter {
             writer.writeEndElement(); // index
             writer.writeEndDocument();
             writer.close();
-            
+
             // Now generate the HTML from the XLST
             File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             FileTools.addJukeboxFile(indexFile.getName());
             FileTools.addJukeboxFile(htmlFile.getName());
-            
+
             Transformer transformer = getTransformer(new File(skinHome, "jukebox-index.xsl"), jukebox.getJukeboxTempLocation());
-            
+
             Source xmlSource = new StreamSource(indexFile);
             Result xmlResult = new StreamResult(htmlFile);
-            
+
             transformer.transform(xmlSource, xmlResult);
-            
+
         } catch (Exception error) {
             logger.severe("HTMLWriter: Failed generating jukebox index.");
             final Writer eResult = new StringWriter();
@@ -400,9 +397,10 @@ public class MovieJukeboxHTMLWriter {
             logger.severe(eResult.toString());
         }
     }
-    
+
     /**
      * Generate a simple jukebox index file from scratch
+     * 
      * @param jukebox
      * @param library
      */
@@ -457,7 +455,7 @@ public class MovieJukeboxHTMLWriter {
             logger.severe(eResult.toString());
         }
     }
-    
+
     public void generateMoviesCategoryHTML(Jukebox jukebox, Library library) {
         try {
             File detailsFolder = jukebox.getJukeboxTempLocationDetailsFile();
@@ -487,8 +485,8 @@ public class MovieJukeboxHTMLWriter {
 
     public void generateMoviesIndexHTML(final Jukebox jukebox, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
         tasks.restart();
-        for (final IndexInfo idx : library.getGeneratedIndexes()){
-            if (idx.canSkip) { //this is evaluated during XML indexing
+        for (final IndexInfo idx : library.getGeneratedIndexes()) {
+            if (idx.canSkip) { // this is evaluated during XML indexing
                 logger.finer("HTMLWriter: Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
 
                 // Add the index files to the cache so they aren't deleted
@@ -512,8 +510,7 @@ public class MovieJukeboxHTMLWriter {
 
     }
 
-    private void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page)
-                    throws TransformerFactoryConfigurationError {
+    private void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page) throws TransformerFactoryConfigurationError {
         try {
             File detailsDir = jukebox.getJukeboxTempLocationDetailsFile();
             detailsDir.mkdirs();
@@ -522,7 +519,7 @@ public class MovieJukeboxHTMLWriter {
 
             File xmlFile = new File(detailsDir, filename + ".xml");
             File htmlFile = new File(detailsDir, filename + ".html");
-            
+
             FileTools.addJukeboxFile(xmlFile.getName());
             FileTools.addJukeboxFile(htmlFile.getName());
 
@@ -531,7 +528,7 @@ public class MovieJukeboxHTMLWriter {
             File transformBase = new File(skinHome, "index.xsl");
 
             Transformer transformer;
-            
+
             if (transformCatKey.exists()) {
                 logger.finest("HTMLWriter: Using CategoryKey transformation " + transformCatKey.getName() + " for " + xmlFile.getName());
                 transformer = getTransformer(transformCatKey, jukebox.getJukeboxTempLocationDetails());
@@ -542,7 +539,7 @@ public class MovieJukeboxHTMLWriter {
                 transformer = getTransformer(transformBase, jukebox.getJukeboxTempLocationDetails());
             }
 
-            //Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
+            // Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
             Source xmlSource = new StreamSource(xmlFile);
             Result xmlResult = new StreamResult(htmlFile);
 
@@ -559,22 +556,18 @@ public class MovieJukeboxHTMLWriter {
     /**
      * Creates and caches Transformer, one for every thread/xsl file.
      */
-    public static synchronized Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) throws TransformerConfigurationException {
-        // Gabriel: transformers are NOT thread safe; use thread name to make get the cache thread specific
-        // the method itself must be synchronized because transformerCache map is modified inside
-        String lookupID = Thread.currentThread().getId() + ":" + xslFile.getAbsolutePath();
-        Transformer transformer = transformerCache.get(lookupID);
-        if (transformer == null) {
-            Source xslSource = new StreamSource(xslFile);
-            transformer = transformerFactory.newTransformer(xslSource);
-            transformer.setParameter("homePage", indexFile);
-            transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
-            for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
-                if (e.getKey() != null && e.getValue() != null) {
-                    transformer.setParameter(e.getKey().toString(), e.getValue().toString());
-                }
+    public static Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) throws TransformerConfigurationException {
+        // Vincent - Remove caching of transformer, as saxon keep all parsed document in memory, causing memory leaks.
+        // Creating a new transformer every time didn't consume so much time and have no impact on performance.
+        // It let YAMJ save lot of memory.
+        Source xslSource = new StreamSource(xslFile);
+        Transformer transformer = transformerFactory.newTransformer(xslSource);
+        transformer.setParameter("homePage", indexFile);
+        transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
+        for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
+            if (e.getKey() != null && e.getValue() != null) {
+                transformer.setParameter(e.getKey().toString(), e.getValue().toString());
             }
-            transformerCache.put(lookupID, transformer);
         }
         return transformer;
     }
