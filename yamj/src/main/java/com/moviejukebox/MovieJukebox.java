@@ -834,7 +834,7 @@ public class MovieJukebox {
         }
 
         // Now that everything's been scanned, add all extras to library
-        library.addAllExtras();
+        library.mergeExtras(false);
 
         logger.fine("Found " + library.size() + " videos in your media library");
         logger.fine("Stored " + FileTools.fileCache.size() + " files in the info cache");
@@ -929,7 +929,7 @@ public class MovieJukebox {
             tasks.waitFor();
 
             // Add the new extra files (like trailers that were downloaded) to the library and to the corresponding movies
-            library.mergeExtras();
+            library.mergeExtras(true);
 
             OpenSubtitlesPlugin.logOut();
             AniDbPlugin.anidbClose();
@@ -1332,7 +1332,7 @@ public class MovieJukebox {
             logger.finer("XML file found for " + movie.getBaseName());
             // Copy scanned files BEFORE parsing the existing XML
             scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
-            xmlWriter.parseMovieXML(jukebox, xmlFile, movie);
+            xmlWriter.parseMovieXML(xmlFile, movie);
             
             if (recheckXML && mjbRecheck(movie)) {
                 logger.fine("Recheck of " + movie.getBaseName() + " required");
