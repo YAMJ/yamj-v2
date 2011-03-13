@@ -149,11 +149,13 @@ public class MovieJukeboxXMLWriter {
      * Parse a single movie detail XML file
      */
     @SuppressWarnings("unchecked")
-    public boolean parseMovieXML(File xmlFile, Movie movie) {
+    public boolean parseMovieXML(Jukebox jukebox, File xmlFile, Movie movie) {
+
+        boolean forceDirtyFlag = false; // force dirty flag for example when extras has been deleted
+
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
             XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
-
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
                 String tag = e.toString();
@@ -471,26 +473,40 @@ public class MovieJukeboxXMLWriter {
                 }
 
                 if (tag.toLowerCase().startsWith("<extra ")) {
-                    ExtraFile ef = new ExtraFile();
-                    ef.setNewFile(false);
-
+                    String extraTitle    = "";
+                    String extraFilename = "";
                     StartElement start = e.asStartElement();
                     for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
                         Attribute attr = i.next();
                         String ns = attr.getName().toString();
 
                         if (ns.equalsIgnoreCase("title")) {
-                            ef.setTitle(attr.getValue());
+                            extraTitle = attr.getValue();
                             continue;
                         }
                     }
 
-                    ef.setFilename(parseCData(r));
-                    // Issue 1259: Multipart videos cause playlink null pointer
-                    // FIXME - To check ... xml read run after directory scan and replace existing extra file ...
-                    ef.setFile(new File(ef.getFilename()));
-                    // add or replace extra based on XML data
-                    movie.addExtraFile(ef);
+                    // get the filename
+                    extraFilename = parseCData(r);
+
+                    // Create a new ExtraFile and add to the movie if the file exists
+                    if (!extraTitle.isEmpty() && !extraFilename.isEmpty()) {
+                        File extraPath = new File(jukebox.getJukeboxRootLocationDetailsFile(), HTMLTools.decodeUrl(extraFilename));
+                        if (extraPath.exists()) {
+                            ExtraFile ef = new ExtraFile();
+                            ef.setNewFile(false);
+                            ef.setTitle(extraTitle);
+                            ef.setFilename(extraFilename);
+                            // Issue 1259: Multipart videos cause playlink null pointer
+                            // FIXME - To check ... xml read run after directory scan and replace existing extra file ...
+                            ef.setFile(new File(extraFilename));
+                            // add extra based on XML data
+                            movie.addExtraFile(ef);
+                        } else {
+                            // the extra file has been delete so force the dirty flag
+                            forceDirtyFlag = true;
+                        }
+                    }
                 }
             }
         } catch (Exception error) {
@@ -502,7 +518,8 @@ public class MovieJukeboxXMLWriter {
             return false;
         }
 
-        movie.setDirty(movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
+        movie.setDirty(forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
+
         return true;
     }
 

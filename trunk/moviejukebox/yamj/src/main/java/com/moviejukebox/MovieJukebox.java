@@ -1331,7 +1331,7 @@ public class MovieJukebox {
             logger.finer("XML file found for " + movie.getBaseName());
             // Copy scanned files BEFORE parsing the existing XML
             scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
-            xmlWriter.parseMovieXML(xmlFile, movie);
+            xmlWriter.parseMovieXML(jukebox, xmlFile, movie);
             
             if (recheckXML && mjbRecheck(movie)) {
                 logger.fine("Recheck of " + movie.getBaseName() + " required");
