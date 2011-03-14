@@ -354,6 +354,7 @@ public class MovieJukeboxXMLWriter {
                         try {
                             movie.setPrebuf(Long.parseLong(prebuf));
                         } catch (Exception ignore) {
+                            // If we can't convert the prebuf value, leave it as blank
                         }
                     }
                 }
@@ -833,6 +834,12 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement(); // library
             writer.writeEndDocument();
         } catch (Exception error) {
+            logger.severe("Failed writing index page: " + xmlFile.getName());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.severe(eResult.toString());
+            return;
         } finally {
             writer.close();
         }
