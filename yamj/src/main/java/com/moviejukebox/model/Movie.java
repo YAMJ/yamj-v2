@@ -1667,7 +1667,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     /**
-     * Should be called only from PosterScanner. Avoid calling this inside MoviePlugin Also called from MovieNFOScanner
+     * Should be called only from ArtworkScanner. Avoid calling this inside MoviePlugin Also called from MovieNFOScanner
      * 
      * @param url
      */

@@ -53,6 +53,7 @@ import com.moviejukebox.model.MovieFile;
 
 // import com.moviejukebox.tools.HTMLTools;
 
+@SuppressWarnings("unused")
 public class FileTools {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
