@@ -314,7 +314,7 @@ public class Library implements Map<String, Movie> {
         addMovie(getMovieKey(movie), movie);
     }
 
-    public void mergeExtras(boolean asNewFile) {
+    public void mergeExtras() {
         for (Map.Entry<String, Movie> extraEntry : extras.entrySet()) {
             Movie extra = extraEntry.getValue();
             // Add extra to the library set
@@ -322,9 +322,9 @@ public class Library implements Map<String, Movie> {
             // Add the extra to the corresponding movie
             Movie movie = library.get(getMovieKey(extra));
             if (null != movie) {
-                ExtraFile ef = new ExtraFile(extraEntry.getValue().getFirstFile());
-                ef.setNewFile(asNewFile);
-                movie.addExtraFile(ef);
+                // Extra file added is mark as new. When the XML will be parse
+                // the extra file will be mark as old if it is defined in XML
+                movie.addExtraFile(new ExtraFile(extraEntry.getValue().getFirstFile()));
             }
         }
     }

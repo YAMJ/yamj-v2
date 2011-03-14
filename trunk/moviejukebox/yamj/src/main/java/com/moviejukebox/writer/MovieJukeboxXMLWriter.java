@@ -497,6 +497,8 @@ public class MovieJukeboxXMLWriter {
                             // Check if the movie has already the extra file
                             if (ef.getFilename().equals(extraFilename)) {
                                 exist = true;
+                                // the extra file is old
+                                ef.setNewFile(false);
                                 break;
                             }
                         }
