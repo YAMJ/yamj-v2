@@ -1307,8 +1307,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setTrailerExchange(Boolean trailerExchange) {
-        this.isDirty = true;
-        this.trailerExchange = trailerExchange;
+        if (this.trailerExchange != trailerExchange) {
+            this.isDirty = true;
+            this.trailerExchange = trailerExchange;
+        }
     }
 
     /**

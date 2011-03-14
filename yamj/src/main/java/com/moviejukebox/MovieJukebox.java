@@ -908,6 +908,7 @@ public class MovieJukebox {
                         // Get Trailers
                         if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
                             boolean status = tools.trailerPlugin.generate(movie);
+
                             // Update trailerExchange
                             if (status == false) {
                                 // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
