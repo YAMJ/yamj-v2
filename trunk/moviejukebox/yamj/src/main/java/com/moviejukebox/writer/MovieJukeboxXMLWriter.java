@@ -1082,6 +1082,9 @@ public class MovieJukeboxXMLWriter {
         writeIndexAttribute(writer, library, "Director", movie.getDirector());
         writer.writeCharacters(movie.getDirector());
         writer.writeEndElement();
+        
+        writeElementSet(writer, "directors", "director", movie.getDirectors(), library, "Directors");
+
         writer.writeStartElement("country");
         writeIndexAttribute(writer, library, "Country", movie.getCountry());
         writer.writeCharacters(movie.getCountry());

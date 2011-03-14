@@ -5,6 +5,7 @@
 MovieJukebox 2.4 BETA
 ---------------------
  - Fixed defect  #793 Problems with more than 9 parts
+ - Enhancement   #989 Multiple Directors
  - Fixed issue  #1036 Removed/renamed trailers stays in XML
  - Fixed defect #1484 Problem with series spanning more than 8 season on set page
  - Enhancement  #1594 Setting for thumbnails per page/line for sets
