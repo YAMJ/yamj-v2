@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
@@ -77,10 +78,10 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     protected boolean                artworkOverwrite = false;
     protected String                 artworkToken;          // The suffix of the artwork filename to search for.
     protected String                 artworkType;           // The type of the artwork. Will be used to load the other properties
-    protected boolean                artworkValidate;       // Should the artwork be validated or not.
+    protected static boolean         artworkValidate;       // Should the artwork be validated or not.
     protected boolean                artworkValidateAspect; // Should the artwork be validated for it's aspect
     protected int                    artworkWidth;          // The width of the image from the skin.properties for use in the validation routine
-    protected Logger                 logger = Logger.getLogger("moviejukebox");
+    protected static Logger          logger = Logger.getLogger("moviejukebox");
     protected String                 logMessage;            // The start of the log message
     protected boolean                searchForExistingArtwork;  // Should we search for local artwork
     protected String                 skinHome;              // Location of the skin files used to get the dummy images from for missing artwork
@@ -88,9 +89,12 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     private   HashMap<String,String> ARTWORK_TYPES;         // First value is the property value, the second is the graphic image value
     private   String                 artworkDirectory;      // The name of the artwork directory to search from from either the video directory or the root of the library
     private   String                 artworkPriority;       // The order of the searches performed for the local artwork.
-    private   int                    artworkValidateMatch;  // How close the image should be to the expected dimensions (artworkWidth & artworkHeight)
+    protected static int             artworkValidateMatch;  // How close the image should be to the expected dimensions (artworkWidth & artworkHeight)
+    protected static boolean         artworkMovieDownload;  // Whether or not to download artwork for a Movie 
+    protected boolean                artworkTvDownload;     // Whether or not to download artwork for a TV Show
 
     public ArtworkScanner(String conArtworkType) {
+        // TODO: change this to use the ArtworkType Enum
         // Define the allowable artwork types
         ARTWORK_TYPES = new HashMap<String, String>();
         ARTWORK_TYPES.put(POSTER,     "posters");
@@ -152,6 +156,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         setArtworkImagePlugin();
         
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        
+        artworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkType + ".movie.download", "true");
+        artworkTvDownload = PropertiesUtil.getBooleanProperty(artworkType + ".tv.download" ,"true");
     }
 
     /**
@@ -225,6 +232,50 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     public abstract boolean isDirtyArtwork(Movie movie);
     
     /**
+     * A catch all routine to scan local artwork and then online artwork.
+     */
+    public String scan(Jukebox jukebox, Movie movie) {
+        /*
+         * We need to check some things before we start scanning
+         *  1) If the artwork exists, do we need to overwrite it? (force overwrite?)
+         *  2) Force overwrite should NOT check the jukebox for artwork. 
+         */
+        
+        // If forceOverwrite is set, clear the Url so we will search again
+        if (isOverwrite()) {
+            logger.finest(logMessage + "forceOverwite set, clearing URL before search"); // XXX DEBUG
+            setArtworkUrl(movie, Movie.UNKNOWN);
+        }
+        
+        
+        
+        String artworkUrl = scanLocalArtwork(jukebox, movie);
+        logger.fine(logMessage + "ScanLocalArtwork returned: " + artworkUrl); // XXX DEBUG
+        
+        if (StringTools.isValidString(artworkUrl)) {
+            logger.fine(logMessage + "ArtworkUrl found, so CopyLocalFile triggered"); // XXX DEBUG
+            copyLocalFile(jukebox, movie);
+            return artworkUrl;
+        }
+        
+        if (StringTools.isNotValidString(artworkUrl)) {
+            logger.fine(logMessage + "ArtworkUrl NOT found"); // XXX DEBUG
+            if (movie.isScrapeLibrary()) {
+                logger.fine(logMessage + "Scanning for online artwork"); // XXX DEBUG
+                artworkUrl = scanOnlineArtwork(movie);
+                
+                if (StringTools.isValidString(artworkUrl)) {
+                    downloadArtwork(jukebox, movie, artworkOverwrite, artworkImagePlugin);
+                }
+            } else {
+                logger.fine(logMessage + "Online scanning skipped due to scrapeLibrary=false");
+            }
+        }
+        
+        return artworkUrl;
+    }
+   
+    /**
      * Scan for any local artwork and return the path to it. This should only be called by the scanLocalArtwork
      * method in the derived classes.
      * Note: This will update the movie information for this artwork
@@ -232,7 +283,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param movie
      * @return The URL (path) to the first found artwork in the priority list
      */
-    public String scan(Jukebox jukebox, Movie movie, MovieImagePlugin artworkImagePlugin) {
+    public String scanLocalArtwork(Jukebox jukebox, Movie movie, MovieImagePlugin artworkImagePlugin) {
         String movieArtwork = Movie.UNKNOWN;
         String artworkFilename = movie.getBaseFilename() + artworkToken;
         
@@ -243,19 +294,19 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             
             if (artworkSearch.equals("video")) {
                 movieArtwork = scanVideoArtwork(movie, artworkFilename);
-                logger.fine(logMessage + movie.getBaseFilename() + " scanVideoArtwork    : " + movieArtwork);
+                //logger.fine(logMessage + movie.getBaseFilename() + " scanVideoArtwork    : " + movieArtwork);
                 continue;
             }
             
             if (artworkSearch.equals("folder")) {
                 movieArtwork = scanFolderArtwork(movie);
-                logger.fine(logMessage + movie.getBaseFilename() + " scanFolderArtwork   : " + movieArtwork);
+                //logger.fine(logMessage + movie.getBaseFilename() + " scanFolderArtwork   : " + movieArtwork);
                 continue;
             }
             
             if (artworkSearch.equals("fixed")) {
                 movieArtwork = scanFixedArtwork(movie);
-                logger.fine(logMessage + movie.getBaseFilename() + " scanFixedArtwork    : " + movieArtwork);
+                //logger.fine(logMessage + movie.getBaseFilename() + " scanFixedArtwork    : " + movieArtwork);
                 continue;
             }
             
@@ -263,19 +314,24 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 // This is only for TV Sets as it searches the directory above the one the episode is in for fixed artwork
                 if (movie.isTVShow() && movie.isSetMaster()) {
                     movieArtwork = scanTvSeriesArtwork(movie);
-                    logger.fine(logMessage + movie.getBaseFilename() + " scanTvSeriesArtwork : " + movieArtwork);
+                    //logger.fine(logMessage + movie.getBaseFilename() + " scanTvSeriesArtwork : " + movieArtwork);
                 }
                 continue;
             }
             
             if (artworkSearch.equals("directory")) {
                 movieArtwork = scanArtworkDirectory(movie, artworkFilename);
-                logger.fine(logMessage + movie.getBaseFilename() + " scanArtworkDirectory: " + movieArtwork);
+                //logger.fine(logMessage + movie.getBaseFilename() + " scanArtworkDirectory: " + movieArtwork);
                 continue;
             }
             
         }
         
+        if (StringTools.isValidString(movieArtwork)) {
+            logger.finest(logMessage + "Found artwork for " + movie.getBaseName() + ": " + movieArtwork);
+        } else {
+            logger.finest(logMessage + "No local artwork found for " + movie.getBaseName());
+        }
         setArtworkFilename(movie, artworkFilename + "." + artworkFormat);
         setArtworkUrl(movie, movieArtwork);
         
@@ -402,7 +458,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     }
 
     /**
-     * Copy the local artwork file to the jukebox
+     * Copy the local artwork file to the jukebox. If there's no URL do not create dummy artwork
      * @param jukebox
      * @param movie
      * @return
@@ -414,7 +470,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             logger.finer(logMessage + "No local " + artworkType + " found for " + movie.getBaseName());
             return Movie.UNKNOWN;
         } else {
-            logger.finest(logMessage + artworkType + " file " + fullArtworkFilename + " found");
+            logger.finest(logMessage + fullArtworkFilename + " found");
             if (overwriteArtwork(jukebox, movie)) {
                 String destFilename = getArtworkFilename(movie);
                 String destFullPath = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), destFilename);
@@ -431,7 +487,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     }
 
     /**
-     * returns the forceOverwite parameter for this artwork type
+     * returns the forceOverwite parameter for this artwork type.
+     * This is set in the constructor of each of the sub-scanners
      * @return
      */
     protected boolean isOverwrite() {
@@ -474,21 +531,21 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         if (FileTools.fileCache.fileExists(tempLocFile)) {
             if (FileTools.isNewer(artworkFile, tempLocFile)) {
                 setDirtyArtwork(movie, true);
-                logger.finest(logMessage + movie.getBaseName() + ": Local artwork is newer, overwritting existing artwork");
+                logger.finest(logMessage + movie.getBaseName() + ": Local artwork is newer, overwritting existing artwork"); // XXX DEBUG
                 return true;
             }
         } else if (FileTools.fileCache.fileExists(jukeboxFile)) {
             // Check to see if the found artwork newer than the existing jukebox
             if (FileTools.isNewer(artworkFile, jukeboxFile)) {
                 setDirtyArtwork(movie, true);
-                logger.finest(logMessage + movie.getBaseName() + ": Local artwork is newer, overwritting existing jukebox artwork");
+                logger.finest(logMessage + movie.getBaseName() + ": Local artwork is newer, overwritting existing jukebox artwork"); // XXX DEBUG
                 return true;
             } else {
                 logger.fine(logMessage + "Local artwork is older, not copying"); // XXX DEBUG
                 return false;
             }
         } else {
-            logger.fine(logMessage + "No jukebox file found, copying local file"); // XXX DEBUG
+            logger.fine(logMessage + "No jukebox file found, file will be copied"); // XXX DEBUG
             return true;
         }
         
@@ -720,7 +777,33 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         artworkType = setArtworkType;
         logMessage = "ArtworkScanner (" + setArtworkType + "): ";
 
-        logger.fine(logMessage + "Using " + setArtworkType + " as the Artwork Type");
+        //logger.fine(logMessage + "Using " + setArtworkType + " as the Artwork Type");
    }
 
+    /**
+     * Check the scrapeLibrary and ID settings for the movie to see if we should scrape online sources
+     * As soon as we hit a "false" then we should return.
+     */
+    public boolean getOnlineArtwork(Movie movie) {
+        if (!movie.isScrapeLibrary()) {
+            return false;
+        }
+        
+        if (!movie.isTVShow() && !artworkMovieDownload) {
+            return false;
+        }
+        
+        if (movie.isTVShow() && !artworkTvDownload) {
+            return false;
+        }
+        
+        for (Entry<String, String> e : movie.getIdMap().entrySet()) {
+            if ((e.getValue() == "0") || (e.getValue() == "-1") ) {
+                // Stop and return
+                return false;
+            }
+        }
+
+        return true;
+    }
 }   

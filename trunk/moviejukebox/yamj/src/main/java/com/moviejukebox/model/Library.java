@@ -557,7 +557,7 @@ public class Library implements Map<String, Movie> {
                 for (Map.Entry<String, Movie> masters_entry : dyn_index_masters_entry.getValue().entrySet()) {
                     List<Movie> set = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(masters_entry.getKey());
                     masters_entry.getValue().setPosterFilename(set.get(0).getBaseName() + ".jpg");
-                    masters_entry.getValue().setFile(set.get(0).getFile()); // ensure PosterScanner looks in the right directory
+                    masters_entry.getValue().setFile(set.get(0).getFile()); // ensure ArtworkScanner looks in the right directory
                 }
             }
             Collections.sort(indexMovies);

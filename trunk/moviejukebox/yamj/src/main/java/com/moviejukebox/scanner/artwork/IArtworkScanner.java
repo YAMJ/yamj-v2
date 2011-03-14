@@ -18,6 +18,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieImagePlugin;
 
 public interface IArtworkScanner {
+    public String scan(Jukebox jukebox, Movie movie);
+    
     public String scanLocalArtwork(Jukebox jukebox, Movie movie);
     
     public String scanOnlineArtwork(Movie movie);
@@ -76,4 +78,12 @@ public interface IArtworkScanner {
      */
     abstract void setDirtyArtwork(Movie movie, boolean dirty);
 
+    /**
+     * Determine if an online search should be performed for a particular movie and artwork type.
+     * Properties should be checked as should scrape library and ID = 0/-1
+     * @param movie
+     * @return true if online scraping should be done
+     */
+    abstract boolean getOnlineArtwork(Movie movie);
+    
 }
