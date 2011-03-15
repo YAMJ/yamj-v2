@@ -17,6 +17,7 @@ MovieJukebox 2.4 BETA
  - Fixed defect #1841 Trim down the index files (for Eversion)
  - Fixes defect #1844 fileImageFile is not encoded
  - Fixed defect #1845 Fanart scanner fails to find movie when title is different than original title
+ - Enhancement  #1846 Add original index name to the Other category indexes
  - Enhancement  #1847 Change JPEG compression quality
  - Fixed issue  #1851 Overwrite parameters not working anymore
  - Enhancement  #1852 Animator Plugin (Russian)

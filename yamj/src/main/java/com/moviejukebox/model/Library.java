@@ -142,8 +142,7 @@ public class Library implements Map<String, Movie> {
             }
         }
 
-        String xmlCategoryFile = PropertiesUtil.getProperty("mjb.xmlCategoryFile", "categories-default.xml");
-        fillCategoryMap(xmlCategoryFile);
+        fillCategoryMap(PropertiesUtil.getProperty("mjb.xmlCategoryFile", "categories-default.xml"));
 
         String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
         StringTokenizer tokenizer = new StringTokenizer(temp, ",");
@@ -1063,12 +1062,12 @@ public class Library implements Map<String, Movie> {
     }
 
     @SuppressWarnings("unchecked")
-    private static void fillCategoryMap(String xmlCategoryFile) {
-        File f = new File(xmlCategoryFile);
-        if (f.exists() && f.isFile() && xmlCategoryFile.toUpperCase().endsWith("XML")) {
+    private static void fillCategoryMap(String xmlCategoryFilename) {
+        File xmlFile = new File(xmlCategoryFilename);
+        if (xmlFile.exists() && xmlFile.isFile() && xmlCategoryFilename.toUpperCase().endsWith("XML")) {
 
             try {
-                XMLConfiguration c = new XMLConfiguration(f);
+                XMLConfiguration c = new XMLConfiguration(xmlFile);
 
                 List<HierarchicalConfiguration> categories = c.configurationsAt("category");
                 for (HierarchicalConfiguration category : categories) {
@@ -1082,20 +1081,22 @@ public class Library implements Map<String, Movie> {
                     }
                 }
             } catch (Exception error) {
-                logger.severe("Failed parsing moviejukebox category input file: " + f.getName());
+                logger.severe("Failed parsing moviejukebox category input file: " + xmlFile.getName());
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
                 logger.severe(eResult.toString());
             }
         } else {
-            logger.severe("The moviejukebox category input file you specified is invalid: " + f.getName());
+            logger.severe("The moviejukebox category input file you specified is invalid: " + xmlFile.getName());
         }
     }
 
-    // Issue 436
+    /**
+     * Find the first category in the first index that has any movies in it
+     * For Issue 436
+     */
     public String getDefaultCategory() {
-        // Find the first category in the first index that has any movies in it
         for (Index index : indexes.values()) {
             for (String cat : categoriesMap.values()) {
                 if (index.containsKey(cat) && index.get(cat).size() > 0) {
@@ -1126,7 +1127,24 @@ public class Library implements Map<String, Movie> {
 
         return c;
     }
-
+    
+    /**
+     * Find the un-modified category name.
+     * The Category name could be changed by the use of the Category XML file.
+     * This function will return the original, unchanged name
+     * @param newCategory
+     * @return
+     */
+    public static String getOriginalCategory(String newCategory) {
+        for (Map.Entry<String, String> singleCategory : categoriesMap.entrySet()) {
+            if (singleCategory.getValue().equals(newCategory)) {
+                return singleCategory.getKey();
+            }
+        }
+        
+        return Movie.UNKNOWN;
+    }
+    
     public static boolean isFilterGenres() {
         return filterGenres;
     }
