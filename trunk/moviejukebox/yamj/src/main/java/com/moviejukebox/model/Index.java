@@ -72,4 +72,5 @@ public class Index extends TreeMap<String, List<Movie>> {
     public void setMaxCategories(int maxCategories) {
         this.maxCategories = maxCategories;
     }
+
 }

@@ -781,7 +781,7 @@ public class MovieJukeboxXMLWriter {
                 for (String categoryName : index.keySet()) {
                     String encakey = FileTools.createCategoryKey(categoryName);
                     isCurrent = encakey.equalsIgnoreCase(idx.key);
-                    
+
                     // Check to see if we need the non-current index
                     if (!isCurrent && !fullCategoriesInIndexes) {
                         // We don't need this index, so skip it
@@ -799,6 +799,11 @@ public class MovieJukeboxXMLWriter {
 
                     writer.writeStartElement("index");
                     writer.writeAttribute("name", categoryName);
+
+                    // The category changes only occur for "Other" category
+                    if ("Other".equals(categoryKey)) {
+                        writer.writeAttribute("originalName", Library.getOriginalCategory(encakey));
+                    }
 
                     // if currently writing this page then add current attribute with value true
                     if (isCurrent) {
