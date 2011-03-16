@@ -289,7 +289,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (isValidString(movie.getFanartURL())) {
-                        String artworkFilename = movie.getBaseName() + fanartToken + ".jpg";
+                        String artworkFilename = movie.getBaseName() + fanartToken + "." + fanartExtension;
                         movie.setFanartFilename(artworkFilename);
                         artwork.addSize(new ArtworkFile(ArtworkSize.LARGE, artworkFilename, false));
                     }

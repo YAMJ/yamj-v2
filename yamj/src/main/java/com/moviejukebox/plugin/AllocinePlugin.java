@@ -98,7 +98,7 @@ public class AllocinePlugin extends ImdbPlugin {
             if (downloadFanart && isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                 }
             }
 
@@ -297,7 +297,7 @@ public class AllocinePlugin extends ImdbPlugin {
             if (isNotValidString(movie.getFanartURL()) && downloadFanart) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                 }
             }
         }

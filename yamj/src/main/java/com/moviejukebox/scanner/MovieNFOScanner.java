@@ -62,6 +62,7 @@ public class MovieNFOScanner {
     static final int BUFF_SIZE = 100000;
     static final byte[] buffer = new byte[BUFF_SIZE];
     private static String fanartToken;
+    private static String fanartExtension;
     private static String forceNFOEncoding;
     private static String NFOdirectory;
     private static boolean getCertificationFromMPAA;
@@ -75,7 +76,8 @@ public class MovieNFOScanner {
 
     static {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-
+        fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
+        
         forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
         if (forceNFOEncoding.equalsIgnoreCase("AUTO")) {
             forceNFOEncoding = null;
@@ -510,7 +512,7 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 movie.setFanartURL(val);
-                                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                             }
                         } else if (tag.equalsIgnoreCase("mpaa") && getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);
@@ -1053,7 +1055,7 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 movie.setFanartURL(val);
-                                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                             }
                         } else if (tag.equalsIgnoreCase("trailer")) {
                             String trailer = XMLHelper.getCData(r).trim();

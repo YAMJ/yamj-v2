@@ -111,7 +111,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (StringTools.isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                 }
             }
 

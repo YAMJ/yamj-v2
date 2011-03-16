@@ -49,6 +49,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean extractCertificationFromMPAA;
     private boolean getFullInfo;
     protected String fanartToken;
+    protected String fanartExtension;
     private int preferredPlotLength;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
@@ -64,6 +65,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
         getFullInfo = PropertiesUtil.getBooleanProperty("imdb.full.info", "false");
@@ -187,7 +189,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (downloadFanart && isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
                 if (isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                 }
             }
             
@@ -414,7 +416,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (downloadFanart && isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (isValidString(movie.getFanartURL())) {
-                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
             }
         }
         

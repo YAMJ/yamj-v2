@@ -192,7 +192,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (downloadFanart && StringTools.isNotValidString(mediaFile.getFanartURL())) {
                 mediaFile.setFanartURL(getFanartURL(mediaFile));
                 if (StringTools.isValidString(mediaFile.getFanartURL())) {
-                    mediaFile.setFanartFilename(mediaFile.getBaseName() + fanartToken + ".jpg");
+                    mediaFile.setFanartFilename(mediaFile.getBaseName() + fanartToken + "." + fanartExtension);
                 }
             }
 
