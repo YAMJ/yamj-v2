@@ -126,6 +126,11 @@ public class MovieJukebox {
     @SuppressWarnings("unused")
     private static String videoimageToken;
     private static String fanartToken;
+    
+    private static String posterExtension;
+    private static String thumbnailExtension;
+    private static String bannerExtension;
+    private static String fanartExtension;
 
     private static boolean fanartMovieDownload;
     private static boolean fanartTvDownload;
@@ -624,6 +629,11 @@ public class MovieJukebox {
         posterToken = getProperty("mjb.scanner.posterToken", "_large");
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
         videoimageToken = getProperty("mjb.scanner.videoimageToken", ".videoimage");
+        
+        posterExtension = getProperty("posters.format", "png");
+        thumbnailExtension = getProperty("thumbnails.format", "png");
+        bannerExtension = getProperty("banners.format", "jpg");
+        fanartExtension = getProperty("fanart.format", "jpg");
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
         try {
@@ -992,7 +1002,7 @@ public class MovieJukebox {
                         String oldPosterFilename = movie.getPosterFilename();
 
                         // Set a default poster name in case it's not found during the scan
-                        movie.setPosterFilename(safeSetMasterBaseName + "." + getProperty("posters.format", "jpg"));
+                        movie.setPosterFilename(safeSetMasterBaseName + "." + posterExtension);
                         if (isNotValidString(PosterScanner.scan(jukebox, movie))) {
                             logger.finest("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldPosterFilename);
                             movie.setPosterFilename(oldPosterFilename);
@@ -1001,7 +1011,7 @@ public class MovieJukebox {
                         // If this is a TV Show and we want to download banners, then also check for a banner Set file
                         if (movie.isTVShow() && bannerDownload) {
                             // Set a default banner filename in case it's not found during the scan
-                            movie.setBannerFilename(safeSetMasterBaseName + bannerToken + ".jpg");
+                            movie.setBannerFilename(safeSetMasterBaseName + bannerToken + "." + bannerExtension);
                             if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
                                 updateTvBanner(jukebox, movie);
                                 logger.finest("Local set banner (" + safeSetMasterBaseName + bannerToken + ") not found, using "
@@ -1014,7 +1024,7 @@ public class MovieJukebox {
                         // Check for Set Fanart
                         if (setIndexFanart) {
                             // Set a default fanart filename in case it's not found during the scan
-                            movie.setFanartFilename(safeSetMasterBaseName + fanartToken + ".jpg");
+                            movie.setFanartFilename(safeSetMasterBaseName + fanartToken + "." + fanartExtension);
                             if (!FanartScanner.scan(tools.backgroundPlugin, jukebox, movie)) {
                                 logger.finest("Local set fanart (" + safeSetMasterBaseName + fanartToken + ") not found, using "
                                                 + oldPosterFilename);
@@ -1023,9 +1033,7 @@ public class MovieJukebox {
                             }
                         }
 
-                        String thumbnailExtension = getProperty("thumbnails.format", "png");
                         movie.setThumbnailFilename(safeSetMasterBaseName + thumbnailToken + "." + thumbnailExtension);
-                        String posterExtension = getProperty("posters.format", "png");
                         movie.setDetailPosterFilename(safeSetMasterBaseName + posterToken + "." + posterExtension);
 
                         if (PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false")) {
@@ -1394,10 +1402,8 @@ public class MovieJukebox {
             DatabasePluginController.scanTVShowTitles(movie);
 
             // Update thumbnails format if needed
-            String thumbnailExtension = getProperty("thumbnails.format", "png");
             movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailExtension);
             // Update poster format if needed
-            String posterExtension = getProperty("posters.format", "png");
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
             // Check for local CoverArt

@@ -470,7 +470,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     fanURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_01.jpg";
                     if (StringTools.isValidString(fanURL)) {
                         movie.setFanartURL(fanURL);
-                        movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                        movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                     }
                 }
             }

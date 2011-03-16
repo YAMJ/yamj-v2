@@ -426,7 +426,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                     if (StringTools.isValidString(fanURL)) {
                         movie.setFanartURL(fanURL);
-                        movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                        movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                         logger.finest("KinoPoisk Plugin: Set fanart URL to " + fanURL + " for " + movie.getBaseName());
                     }
                 } catch (Exception ignore) {

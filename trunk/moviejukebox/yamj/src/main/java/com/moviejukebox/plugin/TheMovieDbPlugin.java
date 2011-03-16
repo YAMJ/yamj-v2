@@ -48,6 +48,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private String language;
     protected boolean downloadFanart;
     protected static String fanartToken;
+    protected String fanartExtension;
     private int preferredPlotLength;
 
     public TheMovieDbPlugin() {
@@ -62,6 +63,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+        fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     }
 
@@ -139,7 +141,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (StringTools.isValidString(movie.getFanartURL())) {
-                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
             }
         }
 
