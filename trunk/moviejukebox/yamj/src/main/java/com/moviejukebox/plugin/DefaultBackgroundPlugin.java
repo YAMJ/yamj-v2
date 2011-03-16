@@ -77,6 +77,9 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         frameColor720       = PropertiesUtil.getProperty(imageType + ".frame.color720", "255/255/255");
         frameColor1080      = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
 
+        roundCorners        = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
+        cornerRadius        = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
+
         BufferedImage bi = null;
         if (backgroundImage != null) {
             bi = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
@@ -309,7 +312,5 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         newGraphics.dispose();
         return newImg;
     }
-
-
 
 }
