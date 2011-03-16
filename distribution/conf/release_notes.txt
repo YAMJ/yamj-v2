@@ -14,6 +14,7 @@ MovieJukebox 2.4 BETA
  - Enhancement  #1823 Ability to skip genres
  - Fixed defect #1825 Order of addFrame and roundCorners changed
  - Enhancement  #1839 Only show Unwatched videos in the new categories
+ - Fixed defect #1840 Fixed rounded corners on fanart
  - Fixed defect #1841 Trim down the index files (for Eversion)
  - Fixes defect #1844 fileImageFile is not encoded
  - Fixed defect #1845 Fanart scanner fails to find movie when title is different than original title
