@@ -12,6 +12,8 @@
  */
 package com.moviejukebox.tools;
 
+import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -225,6 +227,9 @@ public class JukeboxProperties {
             
             // Save the jukebox location
             DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxLocation", jukebox.getJukeboxRootLocation());
+            
+            // Save the root index filename
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "indexFile", getProperty("mjb.indexFile", "index.htm"));
 
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
