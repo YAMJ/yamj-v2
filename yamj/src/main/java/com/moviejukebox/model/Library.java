@@ -529,25 +529,20 @@ public class Library implements Map<String, Movie> {
             
             // Merge the two categories into the Master "New" category
             if (categoriesMap.get("New") != null) {
-                int masterCategoryNeeded = 0; // if this is more than 1 then a sort is required
                 Index otherIndexes = indexes.get("Other");
                 List<Movie> newList = new ArrayList<Movie>();
                 
                 if ((categoriesMap.get("New-Movie") != null)  && (otherIndexes.get(categoriesMap.get("New-Movie")) != null)){
                     newList.addAll(otherIndexes.get(categoriesMap.get("New-Movie")));
-                    masterCategoryNeeded++;
                 }
                 
                 if ((categoriesMap.get("New-TV") != null)  && (otherIndexes.get(categoriesMap.get("New-TV")) != null)){
                     newList.addAll(otherIndexes.get(categoriesMap.get("New-TV")));
-                    masterCategoryNeeded++;
                 }
                 
-                if (masterCategoryNeeded > 1) {
-                    logger.fine("Creating new catagory with latest Movies and TV Shows");
-                    otherIndexes.put(categoriesMap.get("New"), newList);
-                    Collections.sort(otherIndexes.get(categoriesMap.get("New")), cmpLast);
-                }
+                logger.fine("Creating new catagory with latest Movies and TV Shows");
+                otherIndexes.put(categoriesMap.get("New"), newList);
+                Collections.sort(otherIndexes.get(categoriesMap.get("New")), cmpLast);
                 
             }
             
