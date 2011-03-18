@@ -31,6 +31,7 @@ import org.w3c.dom.NodeList;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 
 /**
@@ -99,8 +100,9 @@ public class JukeboxProperties {
      * videos or indexes. However, they should just deal with this themselves :-)
      * 
      * @param jukebox
+     * @param mediaLibraryPaths 
      */
-    public static void readDetailsFile(Jukebox jukebox) {
+    public static void readDetailsFile(Jukebox jukebox, Collection<MediaLibraryPath> mediaLibraryPaths) {
         boolean monitor = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false"); 
         
         // Read the mjbDetails file that stores the jukebox properties we want to watch
@@ -109,7 +111,7 @@ public class JukeboxProperties {
         try {
             // If we are monitoring the file and it exists, then read and check, otherwise create the file
             if (monitor && mjbDetails.exists()) {
-                PropertyInformation pi = readFile(mjbDetails);
+                PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
                 
                 if (pi.isBannerOverwrite()) {
                     logger.finer("Setting 'forceBannerOverwrite = true' due to property file changes");
@@ -171,7 +173,7 @@ public class JukeboxProperties {
      * @param mjbDetails
      * @param jukebox
      */
-    public static void createFile(Jukebox jukebox) {
+    public static void writeFile(Jukebox jukebox, Collection<MediaLibraryPath> mediaLibraryPaths) {
         File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
         FileTools.addJukeboxFile(mjbDetails.getName());
 
@@ -230,6 +232,9 @@ public class JukeboxProperties {
             
             // Save the root index filename
             DOMHelper.appendChild(docMjbDetails, eJukebox, "indexFile", getProperty("mjb.indexFile", "index.htm"));
+            
+            // Save the library paths. This isn't very accurate, any change to this file will cause the jukebox to be rebuilt
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "LibraryPath", mediaLibraryPaths.toString());
 
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
@@ -249,9 +254,10 @@ public class JukeboxProperties {
     /**
      * Read the attributes from the file and compare and set any force overwrites needed
      * @param mjbDetails
+     * @param mediaLibraryPaths 
      * @return PropertyInformation Containing the merged overwrite values
      */
-    public static PropertyInformation readFile(File mjbDetails) {
+    public static PropertyInformation processFile(File mjbDetails, Collection<MediaLibraryPath> mediaLibraryPaths) {
         PropertyInformation piReturn = new PropertyInformation("RETURN", false, false, false, false, false, false, false, false, false);
         Document docMjbDetails;
         // Try to open and read the document file
@@ -267,23 +273,21 @@ public class JukeboxProperties {
         NodeList nlElements;
         Node nDetails;
         
-        /* 
-         * Do we care about these properties?
         nlElements = docMjbDetails.getElementsByTagName(JUKEBOX);
         nDetails = nlElements.item(0);
         
-        if (nDetails == null) {
-            logger.warning("JukeboxProperties: Error reading file. Deleting and re-creating the file");
-            createFile(mjbDetails, MovieJukebox.getJukebox());
-            return piReturn;
-        }
-
         if (nDetails.getNodeType() == Node.ELEMENT_NODE) {
             Element eJukebox = (Element) nDetails;
-            logger.fine("DetailsDirName : " + DOMHelper.getValueFromElement(eJukebox, "DetailsDirName"));
-            logger.fine("JukeboxLocation: " + DOMHelper.getValueFromElement(eJukebox, "JukeboxLocation"));
+            // logger.fine("DetailsDirName : " + DOMHelper.getValueFromElement(eJukebox, "DetailsDirName"));
+            // logger.fine("JukeboxLocation: " + DOMHelper.getValueFromElement(eJukebox, "JukeboxLocation"));
+            
+            // Check the library file
+            String mlp = DOMHelper.getValueFromElement(eJukebox, "LibraryPath");
+            if (!mediaLibraryPaths.toString().equalsIgnoreCase(mlp)) {
+                logger.fine("Warning: Library file has changed, overwriting ALL XML files");
+                piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", true, false, false, false, false, false, false, false, false));
+            }
         }
-        */
         
         nlElements = docMjbDetails.getElementsByTagName(PROPERTIES);
         nDetails = nlElements.item(0);

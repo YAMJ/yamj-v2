@@ -97,7 +97,7 @@ import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 public class MovieJukebox {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    static Collection<MediaLibraryPath> movieLibraryPaths;
+    private static Collection<MediaLibraryPath> mediaLibraryPaths;
     private String movieLibraryRoot;
     private String skinHome;
     private static String userPropertiesName = "./moviejukebox.properties";
@@ -328,8 +328,6 @@ public class MovieJukebox {
             showMemory = true;
         }
         
-
-        
         // This duplicates the "-c" functionality, but allows you to have it in the property file
         if (PropertiesUtil.getBooleanProperty("mjb.jukeboxClean", "false")) {
             jukeboxClean = true;
@@ -419,7 +417,7 @@ public class MovieJukebox {
 
         fh.close();
         
-        renameLogFile(logFilename, movieLibraryPaths);
+        renameLogFile(logFilename, mediaLibraryPaths);
 
         return;
     }
@@ -473,7 +471,7 @@ public class MovieJukebox {
     private void makeDumpStructure() {
         logger.finest("Dumping library directory structure for debug");
 
-        for (final MediaLibraryPath mediaLibrary : movieLibraryPaths) {
+        for (final MediaLibraryPath mediaLibrary : mediaLibraryPaths) {
             String mediaLibraryRoot = mediaLibrary.getPath();
             logger.finest("Dumping media library " + mediaLibraryRoot);
             File scan_dir = new File(mediaLibraryRoot);
@@ -648,10 +646,10 @@ public class MovieJukebox {
         File f = new File(source);
         if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
             logger.finest("Parsing library file : " + source);
-            movieLibraryPaths = parseMovieLibraryRootFile(f);
+            mediaLibraryPaths = parseMovieLibraryRootFile(f);
         } else if (f.exists() && f.isDirectory()) {
             logger.finest("Library path is : " + source);
-            movieLibraryPaths = new ArrayList<MediaLibraryPath>();
+            mediaLibraryPaths = new ArrayList<MediaLibraryPath>();
             MediaLibraryPath mlp = new MediaLibraryPath();
             mlp.setPath(source);
             // We'll get the new playerpath value first, then the nmt path so it overrides the default player path
@@ -662,7 +660,7 @@ public class MovieJukebox {
             mlp.setPlayerRootPath(playerRootPath);
             mlp.setScrapeLibrary(true);
             mlp.setExcludes(new ArrayList<String>());
-            movieLibraryPaths.add(mlp);
+            mediaLibraryPaths.add(mlp);
         }
     }
 
@@ -779,7 +777,7 @@ public class MovieJukebox {
         }
         
         // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
-       JukeboxProperties.readDetailsFile(jukebox);
+       JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
        
        SystemTools.showMemory();
         
@@ -819,7 +817,7 @@ public class MovieJukebox {
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsDownload);
 
         final Library library = new Library();
-        for (final MediaLibraryPath mediaLibraryPath : movieLibraryPaths) {
+        for (final MediaLibraryPath mediaLibraryPath : mediaLibraryPaths) {
             // Multi-thread parallel processing
             tasks.submit(new Callable<Void>() {
                 public Void call() {
@@ -1219,7 +1217,7 @@ public class MovieJukebox {
         }
 
         // Write the jukebox details file at the END of the run (Issue 1830)
-        JukeboxProperties.createFile(jukebox);
+        JukeboxProperties.writeFile(jukebox, mediaLibraryPaths);
 
         timeEnd = System.currentTimeMillis();
 
@@ -1385,8 +1383,8 @@ public class MovieJukebox {
                     movie.addMovieFile(xmlLoop);
                     
                     // if we have more than one path, we'll need to change the library details in the movie
-                    if (movieLibraryPaths.size() > 1) {
-                        for (MediaLibraryPath mlp : movieLibraryPaths) {
+                    if (mediaLibraryPaths.size() > 1) {
+                        for (MediaLibraryPath mlp : mediaLibraryPaths) {
                             // Check to see if the paths match and then update the description and quit
                             if (scannedFilename.startsWith(mlp.getPlayerRootPath())) {
                                 movie.setLibraryDescription(mlp.getDescription());

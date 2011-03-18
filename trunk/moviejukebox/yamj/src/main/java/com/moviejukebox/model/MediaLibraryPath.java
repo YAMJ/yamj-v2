@@ -66,6 +66,7 @@ public class MediaLibraryPath {
         sb.append("[path=").append(path).append("]");
         sb.append("[playerRootPath=").append(playerRootPath).append("]");
         sb.append("[scrape=").append(scrapeLibrary).append("]");
+        sb.append("[description=").append(description).append("]");
         for (String excluded : excludes) {
             sb.append("[excludes=").append(excluded).append("]");
         }
