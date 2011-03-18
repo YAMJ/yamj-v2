@@ -89,6 +89,7 @@ import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.LogFormatter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
@@ -427,7 +428,7 @@ public class MovieJukebox {
      * @param logFilename
      */
     private static void renameLogFile(String logFilename, Collection<MediaLibraryPath> movieLibraryPaths) {
-        String newLogFilename = "moviejukebox";
+        StringBuffer newLogFilename = new StringBuffer("moviejukebox");
         boolean renameFile = false;
         
         String libraryName = "_Library";
@@ -441,27 +442,37 @@ public class MovieJukebox {
                 }
             }
             
-            newLogFilename += libraryName;
+            newLogFilename.append(libraryName);
         }
         
         if (PropertiesUtil.getBooleanProperty("mjb.appendDateToLogFile", "false")) {
             renameFile = true;
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
-            newLogFilename += "_" + dateFormat.format(timeStart);
+            newLogFilename.append("_").append(dateFormat.format(timeStart));
+        }
+        
+        String logDir = PropertiesUtil.getProperty("mjb.logFileDirectory", "");
+        if (StringTools.isValidString(logDir)) {
+            renameFile = true;
+            // Add the file separator if we need to
+            logDir += logDir.trim().endsWith(File.separator)?"":File.separator;
+            
+            newLogFilename.insert(0, logDir);
         }
         
         if (renameFile) {
-            newLogFilename += ".log";
+            newLogFilename.append(".log");
             
             // File (or directory) with old name
-            File file = new File(logFilename);
+            File oldLogFile = new File(logFilename);
 
             // File with new name
-            File file2 = new File(newLogFilename);
-
+            File newLogFile = new File(newLogFilename.toString());
+            newLogFile.getParentFile().mkdirs();
+            
             // Rename file (or directory)
-            if (!file.renameTo(file2)) {
+            if (!oldLogFile.renameTo(newLogFile)) {
                 logger.severe("Error renaming log file.");
             }
         }
