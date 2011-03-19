@@ -181,9 +181,9 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             } else {
                 if (bidiSupport) {
-                    genresHeb.add("אחר");
+                    genresHeb.add("׳�׳—׳¨");
                 } else {
-                    genresHeb.add("רחא");
+                    genresHeb.add("׳¨׳—׳�");
                 }
             }
         }
@@ -203,7 +203,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     // Return the type of a specific character
     private static int getCharType(char charToCheck) {
-        if (((charToCheck >= 'א') && (charToCheck <= 'ת'))) {
+        if (((charToCheck >= '׳�') && (charToCheck <= '׳×'))) {
             return BCT_R;
         }
 
@@ -616,7 +616,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             String xml = webBrowser.request(sratimUrl, Charset.forName("UTF-8"));
 
-            if (xml.contains("צפייה בפרופיל סדרה")) {
+            if (xml.contains("׳¦׳₪׳™׳™׳” ׳‘׳₪׳¨׳•׳₪׳™׳� ׳¡׳“׳¨׳”")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                 }
@@ -638,18 +638,18 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.setRating(parseRating(HTMLTools.extractTag(xml, "width=\"120\" height=\"12\" title=\"", 0, " ")));
             }
 
-            movie.addDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:")));
+            movie.addDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "׳‘׳™׳�׳•׳™:")));
 
-            movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "י' בעולם:"));
+            movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "׳™' ׳‘׳¢׳•׳�׳�:"));
             // Issue 1176 - Prevent lost of NFO Data
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך זמן:"))));
+                movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "׳�׳•׳¨׳� ׳–׳�׳�:"))));
             }
-            movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")));
+            movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "׳�׳“׳™׳ ׳”:")));
 
             // Prefer IMDB genres
             if (movie.getGenres().isEmpty()) {
-                String genres = HTMLTools.getTextAfterElem(xml, "ז'אנרים:");
+                String genres = HTMLTools.getTextAfterElem(xml, "׳–'׳�׳ ׳¨׳™׳�:");
                 if (!Movie.UNKNOWN.equals(genres)) {
                     for (String genre : genres.split(" *, *")) {
                         movie.addGenre(logicalToVisual(Library.getIndexingGenre(genre)));
@@ -662,7 +662,7 @@ public class SratimPlugin extends ImdbPlugin {
             movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
 
             if (!keepImdbCast) {
-                movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))));
+                movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "׳©׳—׳§׳ ׳™׳�:", "</tr>", "<a href", "</a>"))));
             }
 
             if (movie.isTVShow()) {
@@ -741,7 +741,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 String scanUrl = new String(mainXML.substring(index, endIndex));
 
-                index = mainXML.indexOf("class=\"smtext\">עונה ", index);
+                index = mainXML.indexOf("class=\"smtext\">׳¢׳•׳ ׳” ", index);
                 if (index == -1) {
                     return;
                 }
@@ -828,7 +828,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                     String scanUrl = new String(seasonXML.substring(index, endIndex));
 
-                    index = seasonXML.indexOf("<b>פרק ", index);
+                    index = seasonXML.indexOf("<b>׳₪׳¨׳§ ", index);
                     if (index == -1) {
                         return;
                     }
@@ -1382,8 +1382,9 @@ public class SratimPlugin extends ImdbPlugin {
     protected String extractMovieTitle(String xml) {
         String result;
         int start = xml.indexOf("<h1 class=\"subtext_view\">");
-        int end = xml.indexOf("<span", start);
-        String title = new String(xml.substring(start + 25, end));
+        int end = xml.indexOf("</h1>", start);
+        String partialT = xml.substring(start, end);
+        String title = partialT.substring(partialT.lastIndexOf('>')+1);
         result = HTMLTools.decodeHtml(title);
         return removeTrailBracket(result);
     }
