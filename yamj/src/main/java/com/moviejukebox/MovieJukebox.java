@@ -1352,6 +1352,19 @@ public class MovieJukebox {
             scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
             xmlWriter.parseMovieXML(xmlFile, movie);
             
+            // If we are overwiting the indexes, we need to check for an update to the library description
+            if (PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false")) {
+                for (MediaLibraryPath mlp : mediaLibraryPaths) {
+                    // Check to see if the paths match and then update the description and quit
+                    if (movie.getFile().getAbsolutePath().startsWith(mlp.getPath()) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
+                        logger.finest("Chaninging libray description from " + movie.getLibraryDescription() + " to " + mlp.getDescription()); // XXX DEBUG
+                        movie.setLibraryDescription(mlp.getDescription());
+                        movie.setDirty(true);
+                        break;
+                    }
+                }
+            }
+            
             if (recheckXML && mjbRecheck(movie)) {
                 logger.fine("Recheck of " + movie.getBaseName() + " required");
                 forceXMLOverwrite = true;
