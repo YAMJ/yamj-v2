@@ -24,8 +24,9 @@ MovieJukebox 2.4 BETA
  - Fixed issue  #1851 Overwrite parameters not working anymore
  - Enhancement  #1852 Animator Plugin (Russian)
  - Enhancement  #1854 AVCHD support
- - Fixes issue  #1855 VideoImages not being downloaded
- - Fixes issue  #1861 Hebrew title breaks due to site HTML changes
+ - Fixes defect #1855 VideoImages not being downloaded
+ - Fixes defect #1861 Hebrew title breaks due to site HTML changes
+ - Fixes defect #1862 forceIndexOverwrite does not update the indexes 
 
 MovieJukebox 2.3
 ----------------

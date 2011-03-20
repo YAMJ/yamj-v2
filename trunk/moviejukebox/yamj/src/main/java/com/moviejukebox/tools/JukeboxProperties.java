@@ -284,7 +284,6 @@ public class JukeboxProperties {
             // Check the library file
             String mlp = DOMHelper.getValueFromElement(eJukebox, "LibraryPath");
             if (!mediaLibraryPaths.toString().equalsIgnoreCase(mlp)) {
-                logger.fine("Warning: Library file has changed, overwriting ALL XML files");
                 // Overwrite the indexes only.
                 piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", false, false, false, false, false, false, false, true, false));
             }
