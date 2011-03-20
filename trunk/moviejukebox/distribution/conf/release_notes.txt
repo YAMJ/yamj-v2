@@ -4,7 +4,7 @@
 
 MovieJukebox 2.4 BETA
 ---------------------
-  - Fixed defect  #793 Problems with more than 9 parts
+  -Fixed defect  #793 Problems with more than 9 parts
  - Enhancement   #989 Multiple Directors
  - Fixed issue  #1036 Removed/renamed trailers stays in XML
  - Fixed issue  #1141 Allow fanart to be saved in png format
@@ -14,6 +14,7 @@ MovieJukebox 2.4 BETA
  - Enhancement  #1822 Overlay for fanart
  - Enhancement  #1823 Ability to skip genres
  - Fixed defect #1825 Order of addFrame and roundCorners changed
+ - Fixed defect #1838 Library Descriptions matching another index name cause multiple indexes to be "current"
  - Enhancement  #1839 Only show Unwatched videos in the new categories
  - Fixed defect #1840 Fixed rounded corners on fanart
  - Fixed defect #1841 Trim down the index files (for Eversion)
