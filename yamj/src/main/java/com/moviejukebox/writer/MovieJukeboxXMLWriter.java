@@ -44,7 +44,7 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Index;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Library.IndexInfo;
+import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Artwork.Artwork;
@@ -749,7 +749,7 @@ public class MovieJukeboxXMLWriter {
         //FIXME: The categories are listed even if there are no entries, perhaps we should remove the empty categories at some point
         
         try {
-            boolean isCurrent = false;
+            boolean isCurrentKey = false;
             
             xmlFile = new File(rootPath, prefix + current + ".xml");
             FileTools.addJukeboxFile(xmlFile.getName());
@@ -765,25 +765,25 @@ public class MovieJukeboxXMLWriter {
                 Map<String, List<Movie>> index = category.getValue();
 
                 // Is this the current category?
-                isCurrent = categoryKey.equalsIgnoreCase(idx.categoryName);
-                if (!isCurrent && !fullCategoriesInIndexes) {
+                isCurrentKey = categoryKey.equalsIgnoreCase(idx.categoryName);
+                if (!isCurrentKey && !fullCategoriesInIndexes) {
                     // This isn't the current index, so we don't want it
                     continue;
                 }
                 
                 writer.writeStartElement("category");
                 writer.writeAttribute("name", categoryKey);
-                if (isCurrent) {
+                if (isCurrentKey) {
                     writer.writeAttribute("current", "true");
                 }
                 writer.writeAttribute("count", "" + category.getValue().size());
 
                 for (String categoryName : index.keySet()) {
                     String encakey = FileTools.createCategoryKey(categoryName);
-                    isCurrent = encakey.equalsIgnoreCase(idx.key);
+                    boolean isCurrentCat = isCurrentKey && encakey.equalsIgnoreCase(idx.key);
 
                     // Check to see if we need the non-current index
-                    if (!isCurrent && !fullCategoriesInIndexes) {
+                    if (!isCurrentCat && !fullCategoriesInIndexes) {
                         // We don't need this index, so skip it
                         continue;
                     }
@@ -806,7 +806,7 @@ public class MovieJukeboxXMLWriter {
                     }
 
                     // if currently writing this page then add current attribute with value true
-                    if (isCurrent) {
+                    if (isCurrentCat) {
                         writer.writeAttribute("current", "true");
                         writer.writeAttribute("first", prefix + '1');
                         writer.writeAttribute("previous", prefix + previous);
