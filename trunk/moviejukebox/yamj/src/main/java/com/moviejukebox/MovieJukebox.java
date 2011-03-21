@@ -1357,7 +1357,7 @@ public class MovieJukebox {
                 for (MediaLibraryPath mlp : mediaLibraryPaths) {
                     // Check to see if the paths match and then update the description and quit
                     if (movie.getFile().getAbsolutePath().startsWith(mlp.getPath()) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
-                        logger.finest("Chaninging libray description from " + movie.getLibraryDescription() + " to " + mlp.getDescription()); // XXX DEBUG
+                        logger.finest("Changing libray description from " + movie.getLibraryDescription() + " to " + mlp.getDescription()); // XXX DEBUG
                         movie.setLibraryDescription(mlp.getDescription());
                         movie.setDirty(true);
                         break;
