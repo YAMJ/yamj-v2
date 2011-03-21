@@ -508,7 +508,7 @@ public class Library implements Map<String, Movie> {
                     newList.addAll(otherIndexes.get(categoriesMap.get("New-TV")));
                 }
                 
-                logger.fine("Creating new catagory with latest Movies and TV Shows");
+                logger.fine("Creating new category with latest Movies and TV Shows");
                 otherIndexes.put(categoriesMap.get("New"), newList);
                 Collections.sort(otherIndexes.get(categoriesMap.get("New")), cmpLast);
                 
