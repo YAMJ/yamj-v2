@@ -469,13 +469,22 @@ public class MovieJukebox {
 
             // File with new name
             File newLogFile = new File(newLogFilename.toString());
-            newLogFile.getParentFile().mkdirs();
+
+            // Try and create the directory if needed, but don't stop the rename if we can't
+            if (StringTools.isValidString(logDir)) {
+                try {
+                    newLogFile.getParentFile().mkdirs();
+                } catch (Exception error) {
+                    logger.finer("Error creating log file directory");
+                }
+            }
             
             // Rename file (or directory)
             if (!oldLogFile.renameTo(newLogFile)) {
                 logger.severe("Error renaming log file.");
             }
         }
+        
         return;
     }
     
