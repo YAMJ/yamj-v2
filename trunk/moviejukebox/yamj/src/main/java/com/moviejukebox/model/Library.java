@@ -761,6 +761,15 @@ public class Library implements Map<String, Movie> {
                     }
                 }
                 
+                // Add to the Watched or Unwatched category
+                if (movie.isWatched()) {
+                    index.addMovie(categoriesMap.get("Watched"), movie);
+                    movie.addIndex("Property", categoriesMap.get("Watched"));
+                } else {
+                    index.addMovie(categoriesMap.get("Unwatched"), movie);
+                    movie.addIndex("Property", categoriesMap.get("Unwatched"));
+                }
+                
                 // Add to the New Movie category
                 if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched)) {
                     if (categoriesMap.get("New-Movie") != null) {
