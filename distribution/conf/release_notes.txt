@@ -26,6 +26,7 @@ MovieJukebox 2.4 BETA
  - Enhancement  #1852 Animator Plugin (Russian)
  - Enhancement  #1854 AVCHD support
  - Fixes defect #1855 VideoImages not being downloaded
+ - Enhancement  #1859 Consolidate ratings/certification using configuration file
  - Fixes defect #1861 Hebrew title breaks due to site HTML changes
  - Fixes defect #1862 forceIndexOverwrite does not update the indexes
  - Fixes defect #1863 appendLibraryToLogFile stopped working

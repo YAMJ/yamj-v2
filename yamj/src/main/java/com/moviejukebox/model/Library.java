@@ -86,9 +86,11 @@ public class Library implements Map<String, Movie> {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean filterGenres;
+    private static boolean filterRatings;
     private static boolean singleSeriesPage;
     private static List<String> certificationOrdering = new ArrayList<String>();
     private static Map<String, String> genresMap = new HashMap<String, String>();
+    private static Map<String, String> ratingsMap = new HashMap<String, String>();
     private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private static boolean charGroupEnglish = false;
@@ -118,14 +120,17 @@ public class Library implements Map<String, Movie> {
     static {
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
         setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", "false");
-        filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", "false");
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
         hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", "true");
-        String xmlGenreFile = PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml");
-        fillGenreMap(xmlGenreFile);
+        
+        filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", "false");
+        fillGenreMap(PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml"));
+        
+        filterRatings = PropertiesUtil.getBooleanProperty("mjb.filter.ratings", "false");
+        fillRatingMap(PropertiesUtil.getProperty("mjb.xmlRatingFile", "ratings-default.xml"));
 
         try {
             maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", "" + maxGenresPerMovie);
@@ -712,8 +717,8 @@ public class Library implements Map<String, Movie> {
 
         for (Movie movie : moviesList) {
             if (!movie.isExtra()) {
-                index.addMovie(movie.getCertification(), movie);
-                movie.addIndex("Certification", movie.getCertification());
+                index.addMovie(getIndexingRating(movie.getCertification()), movie);
+                movie.addIndex("Certification", getIndexingRating(movie.getCertification()));
             }
         }
         return index;
@@ -898,7 +903,7 @@ public class Library implements Map<String, Movie> {
      * Checks if there is a master (will be shown in the index) genre for the specified one.
      * 
      * @param genre
-     *            Genre to find the master.
+     *            Genre to find the master for
      * @return Genre itself or master if available.
      */
     public static String getIndexingGenre(String genre) {
@@ -911,6 +916,28 @@ public class Library implements Map<String, Movie> {
             return masterGenre;
         } else {
             return genre;
+        }
+    }
+
+    /**
+     * Checks if there is a master (will be shown in the index) rating for the specified one.
+     * 
+     * @param rating
+     *            rating to find the master for
+     * @return Rating itself or master if available.
+     */
+    public static String getIndexingRating(String rating) {
+        if (!filterRatings) {
+            return rating;
+        }
+
+        String masterRating = ratingsMap.get(rating);
+        if (masterRating != null) {
+            logger.fine("*** Changing rating from " + rating + " to " + masterRating); // XXX DEBUG
+            return masterRating;
+        } else {
+            logger.fine("*** Rating stays as " + rating); // XXX DEBUG
+            return rating;
         }
     }
 
@@ -1003,12 +1030,12 @@ public class Library implements Map<String, Movie> {
     }
 
     @SuppressWarnings("unchecked")
-    private static void fillGenreMap(String xmlGenreFile) {
-        File f = new File(xmlGenreFile);
-        if (f.exists() && f.isFile() && xmlGenreFile.toUpperCase().endsWith("XML")) {
+    private static void fillGenreMap(String xmlGenreFilename) {
+        File xmlGenreFile = new File(xmlGenreFilename);
+        if (xmlGenreFile.exists() && xmlGenreFile.isFile() && xmlGenreFilename.toUpperCase().endsWith("XML")) {
 
             try {
-                XMLConfiguration c = new XMLConfiguration(f);
+                XMLConfiguration c = new XMLConfiguration(xmlGenreFile);
 
                 List<HierarchicalConfiguration> genres = c.configurationsAt("genre");
                 for (HierarchicalConfiguration genre : genres) {
@@ -1022,14 +1049,45 @@ public class Library implements Map<String, Movie> {
 
                 }
             } catch (Exception error) {
-                logger.severe("Failed parsing moviejukebox genre input file: " + f.getName());
+                logger.severe("Failed parsing moviejukebox genre input file: " + xmlGenreFile.getName());
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
                 logger.severe(eResult.toString());
             }
         } else {
-            logger.severe("The moviejukebox genre input file you specified is invalid: " + f.getName());
+            logger.severe("The moviejukebox genre input file you specified is invalid: " + xmlGenreFile.getName());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void fillRatingMap(String xmlRatingFilename) {
+        File xmlRatingFile = new File(xmlRatingFilename);
+        if (xmlRatingFile.exists() && xmlRatingFile.isFile() && xmlRatingFilename.toUpperCase().endsWith("XML")) {
+
+            try {
+                XMLConfiguration c = new XMLConfiguration(xmlRatingFile);
+
+                List<HierarchicalConfiguration> ratings = c.configurationsAt("rating");
+                for (HierarchicalConfiguration rating : ratings) {
+                    String masterRating = rating.getString("[@name]");
+                    // logger.finest("New masterGenre parsed : (" + masterGenre+ ")");
+                    List<String> subratings = rating.getList("subrating");
+                    for (String subrating : subratings) {
+                        // logger.fine("New rating added to map : (" + subrating + "," + masterRating + ")");
+                        ratingsMap.put(subrating, masterRating);
+                    }
+
+                }
+            } catch (Exception error) {
+                logger.severe("Failed parsing moviejukebox ratings input file: " + xmlRatingFile.getName());
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.severe(eResult.toString());
+            }
+        } else {
+            logger.severe("The moviejukebox rating input file you specified is invalid: " + xmlRatingFile.getName());
         }
     }
 
