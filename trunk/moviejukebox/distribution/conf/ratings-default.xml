@@ -1,0 +1,20 @@
+﻿<!--                                                                                   -->
+<!-- Ratings elements allow you to merge ratings together for different ratings        -->
+<!-- systems from other countries into a single format suitable for you                -->
+<!--                                                                                   -->
+<!-- For example, a USA rating of U may be PG (Parental Guidance) in your country      -->
+<!--     <rating name="PG">                                                            -->
+<!--         <subrating>U</subrating>                                                  -->
+<!--     </rating>                                                                     -->
+
+<ratings>
+    <rating name="U">
+        <subrating>U</subrating>
+        <subrating>PG</subrating>
+    </rating>
+    <rating name="R">
+        <subrating>UNKNOWN</subrating>
+        <subrating>Not Rated</subrating>
+    </rating>
+</ratings>
+

@@ -1,7 +1,7 @@
 ﻿<!--                                                                                   -->
-<!-- Genre elements contains the relation between some subgenres and a master genre    -->
+<!-- Genre elements contains the relation between some sub-genres and a master genre   -->
 <!--                                                                                   -->
-<!-- Exemple of usage for internationalization (Comédie is french for Comedy)          -->
+<!-- Example of usage for internationalization (Comédie is French for Comedy)          -->
 <!--  <genre name="Comédie">                                                           -->
 <!--    <subgenre>Comedy</subgenre>                                                    -->
 <!--  </genre>                                                                         -->
