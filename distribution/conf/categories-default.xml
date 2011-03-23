@@ -62,4 +62,12 @@
     <enable>true</enable>
     <rename>Top250</rename>
   </category>
+  <category name="Watched">
+    <enable>true</enable>
+    <rename>Watched</rename>
+  </category>
+  <category name="Unwatched">
+    <enable>true</enable>
+    <rename>Unwatched</rename>
+  </category>
 </categories>
