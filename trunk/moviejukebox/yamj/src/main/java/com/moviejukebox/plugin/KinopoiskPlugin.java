@@ -96,14 +96,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
     @Override
     public void scanNFO(String nfo, Movie movie) {
-        logger.finest("Scanning NFO for Kinopoisk Id");
+        logger.debug("Scanning NFO for Kinopoisk Id");
         int beginIndex = nfo.indexOf("kinopoisk.ru/level/1/film/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 26), "/");
             movie.setId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID, st.nextToken());
-            logger.finer("Kinopoisk Id found in nfo = " + movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID));
+            logger.debug("Kinopoisk Id found in nfo = " + movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID));
         } else {
-            logger.finer("No Kinopoisk Id found in nfo !");
+            logger.debug("No Kinopoisk Id found in nfo !");
         }
         super.scanNFO(nfo, movie);
     }
@@ -184,8 +184,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving Kinopoisk Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
+            logger.error("Failed retreiving Kinopoisk Id for movie : " + movieName);
+            logger.error("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -427,7 +427,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (StringTools.isValidString(fanURL)) {
                         movie.setFanartURL(fanURL);
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
-                        logger.finest("KinoPoisk Plugin: Set fanart URL to " + fanURL + " for " + movie.getBaseName());
+                        logger.debug("KinoPoisk Plugin: Set fanart URL to " + fanURL + " for " + movie.getBaseName());
                     }
                 } catch (Exception ignore) {
                     // Ignore
@@ -438,11 +438,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
             movie.setTitle(newTitle);
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
+            logger.error("Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return true;
     }

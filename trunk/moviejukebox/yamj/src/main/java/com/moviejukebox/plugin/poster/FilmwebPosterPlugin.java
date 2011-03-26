@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -45,7 +45,7 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
-            logger.severe("Error : " + error.getMessage());
+            logger.error("Error : " + error.getMessage());
         }
     }
 
@@ -60,11 +60,11 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
             xml = webBrowser.request(id);
             posterURL = HTMLTools.extractTag(xml, "posterLightbox", 3, "\"");
         } catch (Exception error) {
-            logger.severe("Failed retreiving filmweb poster for movie : " + id);
+            logger.error("Failed retreiving filmweb poster for movie : " + id);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);

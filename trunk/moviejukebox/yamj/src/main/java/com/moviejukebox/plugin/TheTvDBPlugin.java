@@ -250,12 +250,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), false);
                             Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, urlBanner, artworkFile);
                             movie.addArtwork(artwork);
-                            logger.finer("TheTvDBPlugin: Used banner " + urlBanner);
+                            logger.debug("TheTvDBPlugin: Used banner " + urlBanner);
                         }
                     }
                 } catch (Exception e) {
-                    logger.severe("TheTvDBPlugin: Failed to retrieve TheTvDb Id for movie : " + movie.getTitle());
-                    logger.severe("Error : " + e.getMessage());
+                    logger.error("TheTvDBPlugin: Failed to retrieve TheTvDb Id for movie : " + movie.getTitle());
+                    logger.error("Error : " + e.getMessage());
                 }
 
                 // TODO remove this once all skins are using the new fanart properties
@@ -382,7 +382,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     public void scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie);
 
-        logger.finest("Scanning NFO for TheTVDB Id");
+        logger.debug("Scanning NFO for TheTVDB Id");
         String compareString = nfo.toUpperCase();
         int idx = compareString.indexOf("THETVDB.COM");
         if (idx > -1) {
@@ -410,7 +410,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
                 if (id != null && !id.isEmpty()) {
                     movie.setId(THETVDB_PLUGIN_ID, id.trim());
-                    logger.finer("TheTVDB Id found in nfo = " + id.trim());
+                    logger.debug("TheTVDB Id found in nfo = " + id.trim());
                 }
             }
         }

@@ -13,7 +13,7 @@
 package com.moviejukebox.plugin.poster;
 
 import java.util.List;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
@@ -102,18 +102,18 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                         image = new Image(posterURL);
                         validImage = PosterScanner.validatePoster(image);
                         if (validImage) {
-                            logger.finest("MovieDbPosterPlugin : Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
+                            logger.debug("MovieDbPosterPlugin : Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
                             break;
                         }
                     }
                 } else {
-                    logger.finer("MovieDbPosterPlugin: Unable to find posters for " + id);
+                    logger.debug("MovieDbPosterPlugin: Unable to find posters for " + id);
                 }
             } else {
-                logger.finer("MovieDbPosterPlugin: Unable to find posters for " + id);
+                logger.debug("MovieDbPosterPlugin: Unable to find posters for " + id);
             }
         } catch (Exception error) {
-            logger.severe("MovieDbPosterPlugin: TheMovieDB.org API Error: " + error.getMessage());
+            logger.error("MovieDbPosterPlugin: TheMovieDB.org API Error: " + error.getMessage());
         }
         
         if (StringTools.isValidString(posterURL)) {
@@ -163,7 +163,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                     if (tmdbID != null && !tmdbID.equals("")) {
                         response = tmdbID;
                     } else {
-                        logger.fine("MovieDvPosterPlugin: No TMDb ID found for movie!");
+                        logger.info("MovieDvPosterPlugin: No TMDb ID found for movie!");
                     }
                 }
             }

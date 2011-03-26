@@ -15,7 +15,7 @@ package com.moviejukebox.plugin.poster;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -57,11 +57,11 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
                 posterURL = "http://sratim.co.il/photos/normal/" + posterURL;
             }
         } catch (Exception error) {
-            logger.severe("sratim: Failed retreiving poster for movie : " + id);
+            logger.error("sratim: Failed retreiving poster for movie : " + id);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);

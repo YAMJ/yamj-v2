@@ -24,7 +24,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
@@ -122,8 +122,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             }
             return ofdbID;
         } catch (Exception error) {
-            logger.severe("Failed retreiving ofdb URL for movie : ");
-            logger.severe("Error : " + error.getMessage());
+            logger.error("Failed retreiving ofdb URL for movie : ");
+            logger.error("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         } finally {
             try {
@@ -163,8 +163,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             return ofdbID;
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving ofdb Id for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
+            logger.error("Failed retreiving ofdb Id for movie : " + movieName);
+            logger.error("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -209,7 +209,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
     }
 
@@ -336,19 +336,19 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     @Override
     public void scanNFO(String nfo, Movie movie) {
-        logger.finest("Scanning NFO for Imdb Id");
+        logger.debug("Scanning NFO for Imdb Id");
         int beginIndex = nfo.indexOf("/tt");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$<>");
             movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
-            logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+            logger.debug("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         } else {
             beginIndex = nfo.indexOf("/Title?");
             if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
             } else {
-                logger.finer("No Imdb Id found in nfo !");
+                logger.debug("No Imdb Id found in nfo !");
             }
         }
         beginIndex = nfo.indexOf("http://www.ofdb.de/film/");
@@ -356,9 +356,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex), " \n\t\r\f!&é\"'(èçà)=$<>");
             movie.setId(OfdbPlugin.OFDB_PLUGIN_ID, st.nextToken());
-            logger.finer("Ofdb Id found in nfo = " + movie.getId(OfdbPlugin.OFDB_PLUGIN_ID));
+            logger.debug("Ofdb Id found in nfo = " + movie.getId(OfdbPlugin.OFDB_PLUGIN_ID));
         } else {
-            logger.finer("No Ofdb Id found in nfo !");
+            logger.debug("No Ofdb Id found in nfo !");
         }
     }
 

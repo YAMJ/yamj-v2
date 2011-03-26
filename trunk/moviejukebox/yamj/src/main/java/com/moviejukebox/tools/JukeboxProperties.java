@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -114,47 +114,47 @@ public class JukeboxProperties {
                 PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
                 
                 if (pi.isBannerOverwrite()) {
-                    logger.finer("Setting 'forceBannerOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceBannerOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceBannersOverwrite", "true");
                 }
                 
                 if (pi.isFanartOverwrite()) {
-                    logger.finer("Setting 'forceFanartOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceFanartOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceFanartOverwrite", "true");
                 }
                 
                 if (pi.isHtmlOverwrite()) {
-                    logger.finer("Setting 'forceHtmlOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceHtmlOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceHtmlOverwrite", "true");
                 }
                 
                 if (pi.isPosterOverwrite()) {
-                    logger.finer("Setting 'forcePosterOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forcePosterOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forcePosterOverwrite", "true");
                 }
                 
                 if (pi.isThumbnailOverwrite()) {
-                    logger.finer("Setting 'forceThumbnailOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceThumbnailOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceThumbnailOverwrite", "true");
                 }
                 
                 if (pi.isVideoimageOverwrite()) {
-                    logger.finer("Setting 'forceVideoimageOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceVideoimageOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceVideoimageOverwrite", "true");
                 }
                 
                 if (pi.isXmlOverwrite()) {
-                    logger.finer("Setting 'forceXmlOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceXmlOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceXmlOverwrite", "true");
                 }
                 
                 if (pi.isIndexOverwrite()) {
-                    logger.finer("Setting 'forceIndexOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceIndexOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceIndexOverwrite", "true");
                 }
 
                 if (pi.isTrailersOverwrite()) {
-                    logger.finer("Setting 'forceTrailersOverwrite = true' due to property file changes");
+                    logger.debug("Setting 'forceTrailersOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceTrailersOverwrite", "true");
                 }
             }
@@ -162,8 +162,8 @@ public class JukeboxProperties {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe("Failed creating " + mjbDetails.getName() + " file!");
-            logger.severe(eResult.toString());
+            logger.error("Failed creating " + mjbDetails.getName() + " file!");
+            logger.error(eResult.toString());
         }
         return;
     }
@@ -182,13 +182,13 @@ public class JukeboxProperties {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
         
         try {
-            logger.finest("Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
+            logger.debug("Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
             if (mjbDetails.exists() && !mjbDetails.delete()) {
-                logger.severe("JukeboxProperties: Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+                logger.error("JukeboxProperties: Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
                 return;
             }
         } catch (Exception error) {
-            logger.severe("JukeboxProperties: Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+            logger.error("JukeboxProperties: Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
             return;
         }
         
@@ -246,7 +246,7 @@ public class JukeboxProperties {
             
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
         } catch (Exception error) {
-            logger.severe("JukeboxProperties: Error creating " + mjbDetails.getName() + " file");
+            logger.error("JukeboxProperties: Error creating " + mjbDetails.getName() + " file");
             error.printStackTrace();
         }
     }
@@ -264,8 +264,8 @@ public class JukeboxProperties {
         try {
             docMjbDetails = DOMHelper.getEventDocFromUrl(mjbDetails);
         } catch (Exception error) {
-            logger.severe("JukeboxProperties: Failed creating the file, no checks performed");
-            logger.severe(error.getMessage());
+            logger.error("JukeboxProperties: Failed creating the file, no checks performed");
+            logger.error(error.getMessage());
             error.getStackTrace();
             return piReturn;
         }
@@ -315,7 +315,7 @@ public class JukeboxProperties {
             }
         }
         
-        logger.finest("JukeboxProperties: Returning: " + piReturn.toString());
+        logger.debug("JukeboxProperties: Returning: " + piReturn.toString());
         return piReturn;
     }
     

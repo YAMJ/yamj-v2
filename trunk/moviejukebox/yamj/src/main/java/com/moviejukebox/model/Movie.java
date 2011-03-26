@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -293,7 +293,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void addGenre(String genre) {
         if (genre != null && !extra && !genreSkipList.contains(genre.toLowerCase())) {
             this.isDirty = true;
-            //logger.finest("Genre added : " + genre);
+            //logger.debug("Genre added : " + genre);
             genres.add(genre);
         }
     }
@@ -305,7 +305,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void addSet(String set, Integer order) {
         if (set != null) {
             this.isDirty = true;
-            logger.finest("Set added : " + set + ", order : " + order);
+            logger.debug("Set added : " + set + ", order : " + order);
             sets.put(set, order);
         }
     }
@@ -320,7 +320,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                     movieFile.setInfo(mf.getInfo());
                 }
             }
-            logger.finest("Movie addMovieFile : " + movieFile.getFilename());
+            logger.debug("Movie addMovieFile : " + movieFile.getFilename());
             this.movieFiles.remove(movieFile);
             this.movieFiles.add(movieFile);
         }

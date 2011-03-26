@@ -12,7 +12,7 @@
  */
 package com.moviejukebox.tools;
 
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import static com.moviejukebox.tools.StringTools.*;
 
 public class SystemTools {
@@ -55,15 +55,15 @@ public class SystemTools {
                 long maxMemory = Runtime.getRuntime().maxMemory();
 
                 /* Maximum amount of memory the JVM will attempt to use */
-                logger.fine("  Max memory: " + (maxMemory == Long.MAX_VALUE ? "no limit" : formatFileSize(maxMemory)));
+                logger.info("  Max memory: " + (maxMemory == Long.MAX_VALUE ? "no limit" : formatFileSize(maxMemory)));
 
                 /* Total memory currently in use by the JVM */
-                logger.fine("Total memory: " + formatFileSize(Runtime.getRuntime().totalMemory()));
+                logger.info("Total memory: " + formatFileSize(Runtime.getRuntime().totalMemory()));
 
                 /* Total amount of free memory available to the JVM */
-                logger.fine(" Free memory: " + formatFileSize(Runtime.getRuntime().freeMemory()));
+                logger.info(" Free memory: " + formatFileSize(Runtime.getRuntime().freeMemory()));
             } else {
-                logger.fine("Memory - Total: " + formatFileSize(Runtime.getRuntime().totalMemory()) + ", Free: "
+                logger.info("Memory - Total: " + formatFileSize(Runtime.getRuntime().totalMemory()) + ", Free: "
                                 + formatFileSize(Runtime.getRuntime().freeMemory()));
             }
         }

@@ -17,7 +17,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.FileTools;
 
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.io.File;
@@ -78,7 +78,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     protected void copyListingFile(File file, String filename) {
         // move to configured (default) location
         String dest = destination + File.separator + filename;
-        logger.fine("  Copying to: " + dest);
+        logger.info("  Copying to: " + dest);
         FileTools.copyFile(file, new File(dest));
     } // copyListingFile()
 
@@ -87,7 +87,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      * @param library
      */
     public void generate(Jukebox jukebox, Library library) {
-        logger.fine("  MovieListingPluginBase: not generating listing file.");
+        logger.info("  MovieListingPluginBase: not generating listing file.");
     } // generate()
 
 } // class MovieListingPluginBase

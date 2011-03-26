@@ -19,7 +19,7 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
 
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.io.File;
@@ -210,14 +210,14 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         ArrayList<String> alTypes = getSelectedTypes();
         try {
             CSVWriter writer = new CSVWriter(csvFile);
-            logger.finer("  Writing CSV to: " + csvFile.getAbsolutePath());
+            logger.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
 
             // write header line
             writer.line(headerLine());
 
             if (!groupByType) {
                 for (Movie movie : library.values()) {
-                    logger.finer(movie.toString());
+                    logger.debug(movie.toString());
 
                     String sType;
                     if (movie.isExtra()) {
@@ -256,7 +256,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
 
         // move to configured (default) location

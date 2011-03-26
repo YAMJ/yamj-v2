@@ -14,7 +14,7 @@ package com.moviejukebox.plugin;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -116,8 +116,8 @@ public class FilmAffinityInfo {
             }
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving filmaffinity Id for movie : " + title);
-            logger.severe("Error : " + error.getMessage());
+            logger.error("Failed retreiving filmaffinity Id for movie : " + title);
+            logger.error("Error : " + error.getMessage());
         }
         return response;
     }

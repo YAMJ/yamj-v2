@@ -14,7 +14,7 @@ package com.moviejukebox.plugin.poster;
 
 import java.net.URLEncoder;
 import java.text.Normalizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -53,7 +53,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) + 1), "iso-8859-1"));
             }
             sb.append("&slow=0&tri=Titre&listes=1");
-            logger.finer("MovieCoversPosterPlugin: Searching for: " + sb.toString());
+            logger.debug("MovieCoversPosterPlugin: Searching for: " + sb.toString());
 
             String content = webBrowser.request(sb.toString());
             
@@ -69,14 +69,14 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                         break;
                     }
                 }
-                // logger.finer("MovieCoversPosterPlugin: Looking for a poster for: " + formattedTitleNormalized);
+                // logger.debug("MovieCoversPosterPlugin: Looking for a poster for: " + formattedTitleNormalized);
                 // Checking for "no result" message...
                 if (!content.contains("/forum/index.html?forum=MovieCovers&vue=demande")) {
                     // There is some results
                     for (String filmURL : HTMLTools.extractTags(content, "<TD bgcolor=\"#339900\"", "<FORM action=\"/multicrit.html\"", "<LI><A href=\"/film/titre", "</A>", false)) {
                         if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
                             returnString = HTMLTools.extractTag(filmURL, "_", ".html\">");
-                            // logger.finer("MovieCoversPosterPlugin: Seems to find something: " + returnString + " - " + filmURL);
+                            // logger.debug("MovieCoversPosterPlugin: Seems to find something: " + returnString + " - " + filmURL);
                             break;
                         }
                     }
@@ -85,12 +85,12 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 if (returnString == Movie.UNKNOWN) {
                     sb = new StringBuffer("http://www.moviecovers.com/forum/search-mysql.html?forum=MovieCovers&query=");
                     sb.append(URLEncoder.encode(formattedTitle, "iso-8859-1"));
-                    // logger.finer("MovieCoversPosterPlugin: We have to explore the forums: " + sb);
+                    // logger.debug("MovieCoversPosterPlugin: We have to explore the forums: " + sb);
                     content = webBrowser.request(sb.toString());
                     if (content != null) {
                         // Loop through the search results
                         for (String filmURL : HTMLTools.extractTags(content, "<TABLE border=\"0\" cellpadding=\"0\" cellspacing=\"0\">", "<FORM action=\"search-mysql.html\">", "<TD><A href=\"fil.html?query=", "</A></TD>", false)) {
-                            // logger.finer("MovieCoversPosterPlugin: examining: " + filmURL);
+                            // logger.debug("MovieCoversPosterPlugin: examining: " + filmURL);
                             if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
                                 content = webBrowser.request("http://www.moviecovers.com/forum/fil.html?query=" + new String(filmURL.substring(0,filmURL.length()-formattedTitle.length()-2)));
                                 if (content != null) {
@@ -120,11 +120,11 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         } catch (Exception error) {
-            logger.severe("MovieCoversPosterPlugin: Failed retreiving Moviecovers poster URL: " + title);
-            logger.severe("MovieCoversPosterPlugin: Error : " + error.getMessage());
+            logger.error("MovieCoversPosterPlugin: Failed retreiving Moviecovers poster URL: " + title);
+            logger.error("MovieCoversPosterPlugin: Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
-        logger.finer("MovieCoversPosterPlugin: retreiving Moviecovers poster URL: " + returnString);
+        logger.debug("MovieCoversPosterPlugin: retreiving Moviecovers poster URL: " + returnString);
         return returnString;
     }
 
@@ -138,13 +138,13 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
         try {
             if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
-                logger.finer("MovieCoversPosterPlugin : Movie found on moviecovers.com" + id);
+                logger.debug("MovieCoversPosterPlugin : Movie found on moviecovers.com" + id);
                 posterURL = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
             } else {
-                logger.finer("MovieCoversPosterPlugin: Unable to find posters for " + id);
+                logger.debug("MovieCoversPosterPlugin: Unable to find posters for " + id);
             }
         } catch (Exception error) {
-            logger.finer("MovieCoversPosterPlugin: MovieCovers.com API Error: " + error.getMessage());
+            logger.debug("MovieCoversPosterPlugin: MovieCovers.com API Error: " + error.getMessage());
         }
         
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

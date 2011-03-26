@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Library;
@@ -135,7 +135,7 @@ public class MovieDirectoryScanner {
                 // TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 for (File file : files) {
                     if (file.getName().equalsIgnoreCase(".mjbignore")) {
-                        logger.finest("Scanning of directory " + directory.getAbsolutePath() + " skipped due to override file");
+                        logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to override file");
                         return;
                     }
                 }
@@ -186,7 +186,7 @@ public class MovieDirectoryScanner {
             // Exclude files without external subtitles
             if (opensubtitles.equals("")) { // We are not downloading subtitles, so exclude those that don't have any.
                 if (excludeFilesWithoutExternalSubtitles && !hasSubtitles(file)) {
-                    logger.fine("File " + filename + " excluded. (no external subtitles)");
+                    logger.info("File " + filename + " excluded. (no external subtitles)");
                     return true;
                 }
             }
@@ -203,11 +203,11 @@ public class MovieDirectoryScanner {
                 try {
                     Pattern excludePatt = Pattern.compile(excluded, Pattern.CASE_INSENSITIVE);
                     if (excludePatt.matcher(relativeFileNameLower).find()) {
-                        logger.finest((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
+                        logger.debug((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
                         return true;
                     }
                 } catch (Exception error) {
-                    logger.fine("MovieDirectoryScanner: Error processing exclusion pattern: " + excluded);
+                    logger.info("MovieDirectoryScanner: Error processing exclusion pattern: " + excluded);
                 }
                 
                 excluded = excluded.replace("/", File.separator);
@@ -215,7 +215,7 @@ public class MovieDirectoryScanner {
                 if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
                     // Don't print a message for the exclusion of Jukebox files
                     if (!relativeFileNameLower.contains(jukeboxName)) {
-                        logger.finest((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
+                        logger.debug((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
                     }
                     return true;
                 }
@@ -255,7 +255,7 @@ public class MovieDirectoryScanner {
                 
                 // Exclude multi part BluRay that include more than one file
                 if (excludeMultiPartBluRay && bdPropertiesMovie.fileList.length > 1) {
-                    logger.fine("File " + file.getName() + " excluded. (multi part BluRay)");
+                    logger.info("File " + file.getName() + " excluded. (multi part BluRay)");
                     return;
                 }
 

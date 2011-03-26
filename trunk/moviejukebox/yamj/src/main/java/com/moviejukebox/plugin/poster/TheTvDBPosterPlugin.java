@@ -13,7 +13,7 @@
 package com.moviejukebox.plugin.poster;
 
 import java.util.List;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import org.pojava.datetime.DateTime;
 
@@ -106,8 +106,8 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
         } catch (Exception e) {
-            logger.severe("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for movie : " + title);
-            logger.severe("Error : " + e.getMessage());
+            logger.error("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for movie : " + title);
+            logger.error("Error : " + e.getMessage());
         }
         ThreadExecutor.leaveIO();
         return response;
@@ -150,12 +150,12 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
             ThreadExecutor.leaveIO();
             if (StringTools.isValidString(posterURL)) {
-                logger.finer("TheTvDBPosterPlugin: Used poster " + posterURL);
+                logger.debug("TheTvDBPosterPlugin: Used poster " + posterURL);
                 return new Image(posterURL);
             }
         } catch (Exception e) {
-            logger.severe("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id movie : " + id);
-            logger.severe("Error : " + e.getMessage());
+            logger.error("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id movie : " + id);
+            logger.error("Error : " + e.getMessage());
         }
         return Image.UNKNOWN;
     }

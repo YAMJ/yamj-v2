@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,11 +69,11 @@ public class MovieFilenameScanner {
         skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", "false");
         useParentRegex = PropertiesUtil.getBooleanProperty("filename.scanner.useParentRegex", "false");
         String patternString = PropertiesUtil.getProperty("filename.scanner.parentRegex", "");
-        logger.finer("MovieFilenameScanner: useParentPattern >>" + patternString + "<<");
+        logger.debug("MovieFilenameScanner: useParentPattern >>" + patternString + "<<");
         if (StringTools.isValidString(patternString)) {
             USE_PARENT_PATTERN = ipatt(patternString);
         } else {
-            logger.finer("MovieFilenameScanner: Invalid parentPattern, ignoring");
+            logger.debug("MovieFilenameScanner: Invalid parentPattern, ignoring");
             USE_PARENT_PATTERN = null;
             useParentRegex = false;
         }
@@ -379,7 +379,7 @@ public class MovieFilenameScanner {
                 this.file = file.getParentFile();
             }
             
-            logger.finer("MovieFilenameScanner: UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
+            logger.debug("MovieFilenameScanner: UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
         } else {
             this.file = file;
         }
@@ -508,7 +508,7 @@ public class MovieFilenameScanner {
                 if (idString.length == 2) {
                     dto.setId(idString[0].toLowerCase(), idString[1]);
                 } else {
-                    logger.finer("MovieFilenameScanner: Error decoding ID from filename: " + matcher.group(1));
+                    logger.debug("MovieFilenameScanner: Error decoding ID from filename: " + matcher.group(1));
                 }
             }
         }

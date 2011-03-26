@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -41,7 +41,7 @@ public class PropertiesUtil {
     private static Properties props = new Properties();
 
     public static boolean setPropertiesStreamName(String streamName) {
-        logger.fine("Using properties file " + streamName);
+        logger.info("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
         Reader reader = null;
         
@@ -55,12 +55,12 @@ public class PropertiesUtil {
         } catch (IOException error) {
             // Output a warning if moviejukebox.properties isn't found. Otherwise it's an error
             if (streamName.contains("moviejukebox.properties")) {
-                logger.warning("Warning (non-fatal): User properties file '" + streamName + "', not found.");
+                logger.warn("Warning (non-fatal): User properties file '" + streamName + "', not found.");
             } else if (streamName.contains("skin-user.properties")) {
                 // We don't want this warning printed on the screen every time
-                logger.finer("Warning (non-fatal): User properties file: '" + streamName + "', not found.");
+                logger.debug("Warning (non-fatal): User properties file: '" + streamName + "', not found.");
             } else {
-                logger.severe("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
+                logger.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
             }
             return false;
         } finally {

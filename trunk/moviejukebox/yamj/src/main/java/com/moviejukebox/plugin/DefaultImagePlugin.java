@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -90,7 +90,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE).indexOf(imageType) < 0) {
             // This is an error with the calling function
-            logger.severe("YAMJ Error with calling function in DefaultImagePlugin.java");
+            logger.error("YAMJ Error with calling function in DefaultImagePlugin.java");
             return imageGraphic;
         }
 
@@ -179,7 +179,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 // Draw the set logo if requested.
                 if (addSetLogo) {
                     bi = drawSet(movie, bi);
-                    logger.finest("Drew set logo on " + movie.getTitle());
+                    logger.debug("Drew set logo on " + movie.getTitle());
                 }
                 // Let's draw the set's size (at bottom) if requested.
                 final int size = movie.getSetSize();
@@ -192,7 +192,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         text = Integer.toString(size);
                     }
                     bi = drawText(bi, text, false);
-                    logger.finest("Size (" + movie.getSetSize() + ") of set [" + movie.getTitle() + "] was drawn");
+                    logger.debug("Size (" + movie.getSetSize() + ") of set [" + movie.getTitle() + "] was drawn");
                 }
             }
 
@@ -346,7 +346,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         File logoFile = new File(getResourcesPath() + logoName);
 
         if (!logoFile.exists()) {
-            logger.finest("Missing SubTitle logo (" + logoName + ") unable to draw logo");
+            logger.debug("Missing SubTitle logo (" + logoName + ") unable to draw logo");
             return bi;
         }
 
@@ -356,7 +356,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
             g2d.dispose();
         } catch (IOException error) {
-            logger.warning("Failed drawing SubTitle logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
+            logger.warn("Failed drawing SubTitle logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
 
         return bi;    }
@@ -397,7 +397,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         logoFile = new File(getResourcesPath() + logoName);
         if (!logoFile.exists()) {
-            logger.finest("Missing HD logo (" + logoName + ") using default hd.png");
+            logger.debug("Missing HD logo (" + logoName + ") using default hd.png");
             logoName = "hd.png";
         }
 
@@ -408,16 +408,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             if (addOtherLogo && (movie.isTVShow())) {
                 // Both logos are required, so put the HD logo on the LEFT
                 g2d.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
-                logger.finest("Drew HD logo (" + logoName + ") on the left");
+                logger.debug("Drew HD logo (" + logoName + ") on the left");
             } else {
                 // Only the HD logo is required so set it in the centre
                 g2d.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
-                logger.finest("Drew HD logo (" + logoName + ") in the middle");
+                logger.debug("Drew HD logo (" + logoName + ") in the middle");
             }
             
             g2d.dispose();
         } catch (IOException error) {
-            logger.warning("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
+            logger.warn("Failed drawing HD logo to thumbnail file: Please check that " + logoName + " is in the resources directory.");
         }
 
         return bi;
@@ -443,20 +443,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 if (addOtherLogo && movie.isHD()) {
                     // Both logos are required, so put the TV logo on the RIGHT
                     g2d.drawImage(biTV, bi.getWidth() - biTV.getWidth() - 5, bi.getHeight() - biTV.getHeight() - 5, null);
-                    logger.finest("Drew TV logo on the right");
+                    logger.debug("Drew TV logo on the right");
                 } else {
                     // Only the TV logo is required so set it in the centre
                     g2d.drawImage(biTV, bi.getWidth() / 2 - biTV.getWidth() / 2, bi.getHeight() - biTV.getHeight() - 5, null);
-                    logger.finest("Drew TV logo in the middle");
+                    logger.debug("Drew TV logo in the middle");
                 }
                 
                 g2d.dispose();
             } catch (IOException error) {
-                logger.warning("Failed drawing TV logo to thumbnail file: Please check that tv.png is in the resources directory.");
+                logger.warn("Failed drawing TV logo to thumbnail file: Please check that tv.png is in the resources directory.");
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         }
 
@@ -510,11 +510,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             
             return returnBI;
         } catch (IOException error) {
-            logger.warning("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + source + "_overlay_" + imageType + ".png is in the resources directory.");
+            logger.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + source + "_overlay_" + imageType + ".png is in the resources directory.");
             // final Writer eResult = new StringWriter();
             // final PrintWriter printWriter = new PrintWriter(eResult);
             // error.printStackTrace(printWriter);
-            // logger.severe(eResult.toString());
+            // logger.error(eResult.toString());
         }
             
         return bi;
@@ -552,10 +552,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     g2d.drawImage(biLang, 1, 1, null);
                 } else {
                     if (languages.length == 1) {
-                        logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
-                        logger.warning("Please check that language specific graphic (" + fullLanguage + ".png) is in the resources/languages directory.");
+                        logger.warn("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
+                        logger.warn("Please check that language specific graphic (" + fullLanguage + ".png) is in the resources/languages directory.");
                     } else {
-                        logger.finer("Unable to find multiple language image (" + fullLanguage
+                        logger.debug("Unable to find multiple language image (" + fullLanguage
                                         + ".png) in the resources/languages directory, generating it from single one.");
                         int width = -1;
                         int height = -1;
@@ -579,8 +579,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     height = biLang.getHeight() / nbRows;
                                 }
                             } else {
-                                logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
-                                logger.warning("Please check that language specific graphic (" + language + ".png) is in the resources/languages directory.");
+                                logger.warn("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
+                                logger.warn("Please check that language specific graphic (" + language + ".png) is in the resources/languages directory.");
                             }
                         }
 
@@ -594,8 +594,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 
                 g2d.dispose();
             } catch (IOException e) {
-                logger.warning("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
-                logger.warning("Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
+                logger.warn("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
+                logger.warn("Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
             }
 
         }
@@ -620,7 +620,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
             g2d.dispose();
         } catch (IOException error) {
-            logger.warning("Failed drawing set logo to thumbnail file:" + "Please check that set graphic (set.png) is in the resources directory.");
+            logger.warn("Failed drawing set logo to thumbnail file:" + "Please check that set graphic (set.png) is in the resources directory.");
         }
 
         return bi;

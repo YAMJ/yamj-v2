@@ -13,7 +13,7 @@
 package com.moviejukebox.plugin.poster;
 
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -49,7 +49,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                 response = imdbId;
             }
         } catch (Exception error) {
-            logger.severe("PosterScanner: Imdb Error: " + error.getMessage());
+            logger.error("PosterScanner: Imdb Error: " + error.getMessage());
             return Movie.UNKNOWN;
         }
         return response;
@@ -95,13 +95,13 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                     } else {
                         posterURL = Movie.UNKNOWN;
                     }
-                    logger.finer("PosterScanner: Imdb found poster @: " + posterURL);
+                    logger.debug("PosterScanner: Imdb found poster @: " + posterURL);
                 }
                 
                 
             }
         } catch (Exception error) {
-            logger.severe("PosterScanner: Imdb Error: " + error.getMessage());
+            logger.error("PosterScanner: Imdb Error: " + error.getMessage());
             return Image.UNKNOWN;
         }
         

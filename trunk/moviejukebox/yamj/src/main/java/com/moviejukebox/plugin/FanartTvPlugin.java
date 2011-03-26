@@ -14,7 +14,7 @@ package com.moviejukebox.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.fanarttv.FanartTv;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
@@ -53,7 +53,7 @@ public class FanartTvPlugin {
         
         if (tvdbid > 0) {
             ftArtwork = ft.getArtwork(tvdbid);
-            logger.fine(LogMessage + "Found " + ftArtwork.size() + " artwork items"); // XXX: DEBUG
+            logger.info(LogMessage + "Found " + ftArtwork.size() + " artwork items"); // XXX: DEBUG
 
             Artwork movieArtwork;
             
@@ -67,7 +67,7 @@ public class FanartTvPlugin {
             
             return true;
         } else {
-            logger.finer(LogMessage + "No artwork found for " + movie.getBaseName() + " with TVDBID: " + tvdbidString);
+            logger.debug(LogMessage + "No artwork found for " + movie.getBaseName() + " with TVDBID: " + tvdbidString);
             return false;
         }
     }

@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -142,7 +142,7 @@ public class BannerScanner {
         // If we've found the banner, copy it to the jukebox, otherwise download it.
         if (foundLocalBanner) {
             fullBannerFilename = localBannerFile.getAbsolutePath();
-            logger.finest("BannerScanner: File " + fullBannerFilename + " found");
+            logger.debug("BannerScanner: File " + fullBannerFilename + " found");
             
             if (StringTools.isNotValidString(movie.getBannerFilename())) {
                 movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
@@ -167,7 +167,7 @@ public class BannerScanner {
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
-                        logger.finer("BannerScanner: " + fullBannerFilename + " has been copied to " + destFileName);
+                        logger.debug("BannerScanner: " + fullBannerFilename + " has been copied to " + destFileName);
                         
                         ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
                         movie.addArtwork(new Artwork(ArtworkType.Banner, "local", fullBannerFilename, artworkFile));
@@ -176,13 +176,13 @@ public class BannerScanner {
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.finer("BannerScanner: Failed loading banner : " + fullBannerFilename);
+                    logger.debug("BannerScanner: Failed loading banner : " + fullBannerFilename);
                 }
             } else {
-                logger.finer("BannerScanner: " + finalDestinationFileName + " already exists");
+                logger.debug("BannerScanner: " + finalDestinationFileName + " already exists");
             }
         } else {
-            // logger.finer("BannerScanner : No local Banner found for " + movie.getBaseFilename() + " attempting to download");
+            // logger.debug("BannerScanner : No local Banner found for " + movie.getBaseFilename() + " attempting to download");
             
             // Don't download banners for sets as they will use the first banner from the set
             if (!movie.isSetMaster()) {
@@ -214,7 +214,7 @@ public class BannerScanner {
                 bannerFile.getParentFile().mkdirs();
 
                 try {
-                    logger.finest("BannerScanner: Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.debug("BannerScanner: Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the banner using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
@@ -228,10 +228,10 @@ public class BannerScanner {
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.finer("BannerScanner: Failed to download banner : " + movie.getBannerURL());
+                    logger.debug("BannerScanner: Failed to download banner : " + movie.getBannerURL());
                 }
             } else {
-                logger.finest("BannerScanner: Banner exists for " + movie.getBaseFilename());
+                logger.debug("BannerScanner: Banner exists for " + movie.getBaseFilename());
             }
         }
         

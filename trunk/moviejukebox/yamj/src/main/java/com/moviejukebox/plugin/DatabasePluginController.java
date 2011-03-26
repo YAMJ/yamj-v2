@@ -20,7 +20,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -63,7 +63,7 @@ public class DatabasePluginController {
         }
 
         if (ignore) {
-            logger.finer("Skipping internet search for " + movie.getBaseFilename());
+            logger.debug("Skipping internet search for " + movie.getBaseFilename());
             return;
         } else {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
@@ -75,7 +75,7 @@ public class DatabasePluginController {
                 if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(origType)) {
                     isScanned = PluginMap.get().get(newType).scan(movie);
                     if (!isScanned) {
-                        logger.warning("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                        logger.warn("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
                     }
                 }
             }
@@ -98,12 +98,12 @@ public class DatabasePluginController {
             movieDB = pluginClass.newInstance();
         } catch (Exception error) {
             movieDB = new ImdbPlugin();
-            logger.severe("Failed instantiating MovieDatabasePlugin: " + className);
-            logger.severe("Default IMDb plugin will be used instead.");
+            logger.error("Failed instantiating MovieDatabasePlugin: " + className);
+            logger.error("Default IMDb plugin will be used instead.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return movieDB;
     }

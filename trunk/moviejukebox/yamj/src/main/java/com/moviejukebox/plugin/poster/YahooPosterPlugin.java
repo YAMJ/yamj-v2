@@ -14,7 +14,7 @@ package com.moviejukebox.plugin.poster;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -60,8 +60,8 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
                 posterURL = URLDecoder.decode(new String(xml.substring(beginIndex + 7, endIndex)), "UTF-8");
             }
         } catch (Exception error) {
-            logger.severe("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);
-            logger.severe("Error : " + error.getMessage());
+            logger.error("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);
+            logger.error("Error : " + error.getMessage());
         }
         
         if (StringTools.isValidString(posterURL)) {

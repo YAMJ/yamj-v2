@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,7 +89,7 @@ public class MovieNFOScanner {
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         acceptAllNFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", "false");
         if (acceptAllNFO) {
-            logger.fine("MovieNFOScanner: Accepting all NFO files in the directory");
+            logger.info("MovieNFOScanner: Accepting all NFO files in the directory");
         }
         
         // Construct regex for filtering NFO files
@@ -117,7 +117,7 @@ public class MovieNFOScanner {
      */
     public static void scan(Movie movie, List<File> nfoFiles) {
         for (File nfoFile : nfoFiles) {
-            logger.finest("Scanning NFO file for IDs: " + nfoFile.getName());
+            logger.debug("Scanning NFO file for IDs: " + nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirtyNFO(true);
 
@@ -126,7 +126,7 @@ public class MovieNFOScanner {
             if (!parseXMLNFO(nfo, movie, nfoFile)) {
                 DatabasePluginController.scanNFO(nfo, movie);
 
-                logger.finest("Scanning NFO for Poster URL");
+                logger.debug("Scanning NFO for Poster URL");
                 int urlStartIndex = 0;
                 while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
                     int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
@@ -152,13 +152,13 @@ public class MovieNFOScanner {
                                 if (foundUrl.contains(" ") || foundUrl.contains("*")) {
                                     urlStartIndex = currentUrlStartIndex + 3;
                                 } else {
-                                    logger.finer("Poster URL found in nfo = " + foundUrl);
+                                    logger.debug("Poster URL found in nfo = " + foundUrl);
                                     movie.setPosterURL(new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3)));
                                     urlStartIndex = -1;
                                     movie.setDirtyPoster(true);
                                 }
                             } else {
-                                logger.finer("Poster URL ignored in NFO because it's a fanart URL");
+                                logger.debug("Poster URL ignored in NFO because it's a fanart URL");
                                 // Search for the URL again
                                 urlStartIndex = currentUrlStartIndex + 3;
                             }
@@ -270,7 +270,7 @@ public class MovieNFOScanner {
             // Also check the directory above, for the case where movies are in a multi-part named directory (CD/PART/DISK/Etc.)
             Matcher allNfoMatch = partPattern.matcher(currentDir.getAbsolutePath());
             if (allNfoMatch.find()) {
-                logger.finest("MovieNFOScanner: Found multi-part directory, checking parent directory for NFOs");
+                logger.debug("MovieNFOScanner: Found multi-part directory, checking parent directory for NFOs");
                 checkRNFO(nfos, currentDir.getParentFile().getParentFile(), fFilter);
             }
 
@@ -321,7 +321,7 @@ public class MovieNFOScanner {
         File[] fFiles = currentDir.listFiles(fFilter);
         if (fFiles != null && fFiles.length > 0) {
             for (File foundFile : fFiles ) {
-                logger.finest("Found NFO: " + foundFile.getName());
+                logger.debug("Found NFO: " + foundFile.getName());
                 nfoFiles.add(foundFile);
             }
         }
@@ -341,7 +341,7 @@ public class MovieNFOScanner {
         for (String ext : NFOExtensions) {
             nfoFile = FileTools.fileCache.getFile(checkNFOfilename + "." + ext);
             if (nfoFile.exists()) {
-                logger.finest("Found NFO: " + nfoFile.getAbsolutePath());
+                logger.debug("Found NFO: " + nfoFile.getAbsolutePath());
                 nfoFiles.add(nfoFile);
             }
         }
@@ -411,7 +411,7 @@ public class MovieNFOScanner {
 
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
-                    // logger.finest("In parseMovieNFO found new startElement=" + tag);
+                    // logger.debug("In parseMovieNFO found new startElement=" + tag);
                     if (tag.equalsIgnoreCase("movie")) {
                         isMovieTag = true;
                     }
@@ -453,7 +453,7 @@ public class MovieNFOScanner {
                                         // Assume just the year an append "-01-01" to the end
                                         val += "-01-01";
                                         // Warn the user
-                                        logger.finer("NFOScanner: Partial date detected in premiered field of NFO for " + nfo); 
+                                        logger.debug("NFOScanner: Partial date detected in premiered field of NFO for " + nfo); 
                                     }
                                     
                                     DateTime dateTime = new DateTime(val);
@@ -462,11 +462,11 @@ public class MovieNFOScanner {
                                     movie.setOverrideYear(true);
                                     movie.setYear(dateTime.toString("yyyy"));
                                 } catch (Exception error) {
-                                    logger.severe("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+                                    logger.error("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
                                     final Writer eResult = new StringWriter();
                                     final PrintWriter printWriter = new PrintWriter(eResult);
                                     error.printStackTrace(printWriter);
-                                    logger.severe(eResult.toString());
+                                    logger.error(eResult.toString());
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("quote")) {
@@ -582,10 +582,10 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 if (movieDbIdAttribute != null) { // if we have a moviedb attribute
                                     movie.setId(movieDbIdAttribute.getValue(), val); // we store the Id for this movieDb
-                                    logger.finest("In parseMovieNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
+                                    logger.debug("In parseMovieNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
                                 } else {
                                     movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, val); // without attribute we assume it's an IMDB Id
-                                    logger.finest("In parseMovieNFO Id=" + val + " found for default IMDB");
+                                    logger.debug("In parseMovieNFO Id=" + val + " found for default IMDB");
                                 }
                                 
                                 // Any value of 0 (Zero) or -1 will stop the movie being scraped
@@ -866,7 +866,7 @@ public class MovieNFOScanner {
                         }
                     }
                 } else if (e.isEndElement()) {
-                    // logger.finest("In parseMovieNFO found new endElement=" + e.asEndElement().getName().toString());
+                    // logger.debug("In parseMovieNFO found new endElement=" + e.asEndElement().getName().toString());
                     if (e.asEndElement().getName().toString().equalsIgnoreCase("movie")) {
                         break;
                     }
@@ -875,11 +875,11 @@ public class MovieNFOScanner {
 
             return isMovieTag;
         } catch (Exception error) {
-            logger.severe("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+            logger.error("Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
 
         return false;
@@ -935,10 +935,10 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 if (movieDbIdAttribute != null) { // if we have a moviedb attribute
                                     movie.setId(movieDbIdAttribute.getValue(), val); // we store the Id for this movieDb
-                                    logger.finest("In parseTVNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
+                                    logger.debug("In parseTVNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
                                 } else {
                                     movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, val); // without attribute we assume it's a TheTVDB Id
-                                    logger.finest("In parseTVNFO Id=" + val + " found for default TheTVDB");
+                                    logger.debug("In parseTVNFO Id=" + val + " found for default TheTVDB");
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("watched")) {
@@ -1244,11 +1244,11 @@ public class MovieNFOScanner {
             }
             return isOK;
         } catch (Exception error) {
-            logger.severe("Failed parsing NFO file: " + nfoFile.getAbsolutePath() + ". Please fix or remove it.");
+            logger.error("Failed parsing NFO file: " + nfoFile.getAbsolutePath() + ". Please fix or remove it.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
 
         return false;

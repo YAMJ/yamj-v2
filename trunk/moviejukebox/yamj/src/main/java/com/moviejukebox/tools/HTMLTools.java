@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -386,7 +386,7 @@ public class HTMLTools {
             try {
                 return URLDecoder.decode(url, "UTF-8");
             } catch (UnsupportedEncodingException ignored) {
-                logger.fine("Could not decode URL string: " + url + ", will proceed with undecoded string.");
+                logger.info("Could not decode URL string: " + url + ", will proceed with undecoded string.");
             }
         }
         return url;
@@ -400,7 +400,7 @@ public class HTMLTools {
                 returnUrl = URLEncoder.encode(url, "UTF-8");
                 returnUrl = returnUrl.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
             } catch (UnsupportedEncodingException ignored) {
-                logger.fine("Could not decode URL string: " + returnUrl + ", will proceed with undecoded string.");
+                logger.info("Could not decode URL string: " + returnUrl + ", will proceed with undecoded string.");
             }
         }
         return returnUrl;

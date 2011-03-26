@@ -13,7 +13,7 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
@@ -38,7 +38,7 @@ public class OutputDirectoryScanner {
     
     protected void scanXMLFiles(Map<String, Movie> library) {
     */
-        logger.finer("OutputDirectoryScanner: scanning " + scanDir);
+        logger.debug("OutputDirectoryScanner: scanning " + scanDir);
         File scanDirFile = new FileTools.FileEx(scanDir);
         if (null != scanDirFile) {
         
@@ -66,7 +66,7 @@ public class OutputDirectoryScanner {
                             continue;
                         }
                     
-                        logger.finest("  Found XML file: " + filename);
+                        logger.debug("  Found XML file: " + filename);
                         
                         Movie movie = new Movie();
                         /*
@@ -80,28 +80,28 @@ public class OutputDirectoryScanner {
                         
                         if (!library.containsKey(key)) {
                             if (xmlWriter.parseMovieXML(file, movie) && movie.getBaseName() != null) {
-                                logger.finest("  Parsed movie: " + movie.getTitle());
+                                logger.debug("  Parsed movie: " + movie.getTitle());
                                 
                                 if (!library.containsKey(Library.getMovieKey(movie))) {
-                                    logger.finer("  Adding unscanned movie " + Library.getMovieKey(movie));
+                                    logger.debug("  Adding unscanned movie " + Library.getMovieKey(movie));
                                     movie.setFile(file);
                                     library.addMovie(key, movie);
                                 }
                                 
                             } else {
-                                logger.finest("  Failed parsing movie");
+                                logger.debug("  Failed parsing movie");
                             }
                             
                         } else {
-                            logger.finest("  Movie already in library: " + key);
+                            logger.debug("  Movie already in library: " + key);
                         }
                         
                     } else {
-                        logger.finest("  Skipping file: " + filename);
+                        logger.debug("  Skipping file: " + filename);
                     }
                 }
             } else {
-                logger.finer("  Specified path is not a directory: " + scanDir);
+                logger.debug("  Specified path is not a directory: " + scanDir);
             }
         }
     }

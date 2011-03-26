@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.ParseException;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
@@ -49,11 +49,11 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
         try {
             response = allocinePlugin.getAllocineId(title, year, -1);
         } catch (ParseException error) {
-            logger.severe("AllocinePosterPlugin: Failed retreiving poster id movie : " + title);
+            logger.error("AllocinePosterPlugin: Failed retreiving poster id movie : " + title);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return response;
     }
@@ -68,23 +68,23 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
                 String posterMediaId = HTMLTools.extractTag(xml, "<a href=\"/film/fichefilm-" + id + "/affiches/detail/?cmediafile=", "\" ><img");
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterMediaId)) {
                     String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + id + "/affiches/detail/?cmediafile=" + posterMediaId;
-                    logger.finest("AllocinePlugin: mediaFileURL : " + mediaFileURL);
+                    logger.debug("AllocinePlugin: mediaFileURL : " + mediaFileURL);
                     xml = webBrowser.request(mediaFileURL);
 
                     String posterURLTag = HTMLTools.extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
-                    // logger.finest("AllocinePlugin: posterURLTag : " + posterURLTag);
+                    // logger.debug("AllocinePlugin: posterURLTag : " + posterURLTag);
                     posterURL = HTMLTools.extractTag(posterURLTag, "<img src=\"", "\"");
 
                     if (StringTools.isValidString(posterURL)) {
-                        logger.finest("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
+                        logger.debug("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
                     }
                 }
             } catch (Exception error) {
-                logger.severe("AllocinePlugin: Failed retreiving poster for movie : " + id);
+                logger.error("AllocinePlugin: Failed retreiving poster for movie : " + id);
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

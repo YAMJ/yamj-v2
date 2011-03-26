@@ -76,11 +76,11 @@ public class ScopeDkPlugin extends ImdbPlugin {
             }
 
         } catch (IOException error) {
-            logger.severe("Failed retreiving ScopeDk infos for movie : " + movie.getId(SCOPEDK_PLUGIN_ID));
+            logger.error("Failed retreiving ScopeDk infos for movie : " + movie.getId(SCOPEDK_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return true;
     }
@@ -98,19 +98,19 @@ public class ScopeDkPlugin extends ImdbPlugin {
             // we also get imdb Id for extra infos
             if (StringTools.isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
-                logger.finest("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
+                logger.debug("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
             
             if (StringTools.isValidString(scopeDkId)) {
                 mediaFile.setId(SCOPEDK_PLUGIN_ID, scopeDkId);
-                logger.finer("Scope.dk Id available (" + scopeDkId + "), updating media info");
+                logger.debug("Scope.dk Id available (" + scopeDkId + "), updating media info");
                 retval = updateMovieInfo(mediaFile);
             } else {
-                logger.finer("No Scope.dk Id available, we fall back to ImdbPlugin");
+                logger.debug("No Scope.dk Id available, we fall back to ImdbPlugin");
                 retval = super.scan(mediaFile);
             }
         } catch (Exception error) {
-            logger.finer("Parse error in ScopeDkPlugin we fall back to ImdbPlugin");
+            logger.debug("Parse error in ScopeDkPlugin we fall back to ImdbPlugin");
             retval = super.scan(mediaFile);
         }
         return retval;
@@ -149,16 +149,16 @@ public class ScopeDkPlugin extends ImdbPlugin {
                         return new String(tmp.get(i).substring(startIndex + strRef.length(), endIndex));
                     }
                 } else {
-                    logger.warning("Not matching data for search film result : " + tmp.get(i));
+                    logger.warn("Not matching data for search film result : " + tmp.get(i));
                 }
                 i++; // Step of 2
             }
-            logger.finer("No ID Found with request : " + sb.toString());
+            logger.debug("No ID Found with request : " + sb.toString());
             return Movie.UNKNOWN;
 
         } catch (Exception error) {
-            logger.severe("Failed to retrieve Scope ID for movie : " + movieName);
-            logger.severe("We fall back to ImdbPlugin");
+            logger.error("Failed to retrieve Scope ID for movie : " + movieName);
+            logger.error("We fall back to ImdbPlugin");
             throw new ParseException(FilmUpITId, 0);
         }
     }
@@ -170,7 +170,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
         // If we use Scope.dk plugin look for
         // http://www.scope.dk/...=XXXXX.html
-        logger.finest("ScopeDk: Scanning NFO for ScopeDk Id");
+        logger.debug("ScopeDk: Scanning NFO for ScopeDk Id");
         Matcher idMatcher = patternScopeDkIp.matcher(nfo);
         if (!idMatcher.matches()) {
             idMatcher = patternScopeDkIpMovidedb.matcher(nfo);
@@ -178,10 +178,10 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
         if (idMatcher.matches()) {
             String idMovie = idMatcher.group(3);
-            logger.finer("ScopeDkPlugin: Scope.dk Id found in nfo = " + idMovie);
+            logger.debug("ScopeDkPlugin: Scope.dk Id found in nfo = " + idMovie);
             movie.setId(SCOPEDK_PLUGIN_ID, idMovie);
         } else {
-            logger.finer("ScopeDkPlugin: No Scope.dk Id found in nfo !");
+            logger.debug("ScopeDkPlugin: No Scope.dk Id found in nfo !");
         }
     }
 

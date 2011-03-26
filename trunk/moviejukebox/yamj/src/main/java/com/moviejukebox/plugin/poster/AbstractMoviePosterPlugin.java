@@ -12,7 +12,7 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -45,11 +45,11 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // Id found
             if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
-                logger.finest(this.getName() + " posterPlugin: id found setting it to movie " + id);
+                logger.debug(this.getName() + " posterPlugin: id found setting it to movie " + id);
                 ident.setId(getName(), id);
             }
         } else {
-            logger.finest(this.getName() + " posterPlugin: id already in movie using it, skipping id search : " + id);
+            logger.debug(this.getName() + " posterPlugin: id already in movie using it, skipping id search : " + id);
         }
 
         if (!(Movie.UNKNOWN.equalsIgnoreCase(id) || "-1".equals(id) || "0".equals(id))) {

@@ -19,7 +19,7 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * @author Grael by using GPL Source from Mediterranean :
@@ -184,11 +184,11 @@ public class BDRipScanner {
             return ret;
 
         } catch (Exception error) {
-            logger.warning("BDRip Scanner: Error processing file " + mediaRep.getName());
+            logger.warn("BDRip Scanner: Error processing file " + mediaRep.getName());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return null;
         }
     }

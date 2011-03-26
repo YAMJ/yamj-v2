@@ -24,7 +24,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -77,7 +77,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         }
 
         if (getplot || gettitle) {
-            logger.fine("FilmKatalogusPlugin: Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+            logger.info("FilmKatalogusPlugin: Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
             getHunPlot(mediaFile);
         }
 
@@ -86,7 +86,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
     private String getHunPlot(Movie movie) {
         try {
-            //logger.fine("Running getHunPlot");
+            //logger.info("Running getHunPlot");
             
             String filmKatURL;
             
@@ -99,8 +99,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             }
 
             String xml = webBrowser.request(filmKatURL);
-            //logger.fine(filmKatURL);
-            //logger.finest(xml);
+            //logger.info(filmKatURL);
+            //logger.debug(xml);
 
             // name
             int beginIndex = xml.indexOf("<H1>");
@@ -132,8 +132,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 filmKatURL = "http://filmkatalogus.hu";
                 filmKatURL = filmKatURL.concat(new String(xml.substring((beginIndex + 6), endIndex - 2)));
                 xml = webBrowser.request(filmKatURL);
-                //logger.fine(filmKatURL);
-                //logger.finest(xml);
+                //logger.info(filmKatURL);
+                //logger.debug(xml);
 
                 // name
                 beginIndex = xml.indexOf("<H1>");
@@ -163,12 +163,12 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             return null;
 
         } catch (Exception error) {
-            logger.severe("FilmKatalogusPlugin: Failed retreiving information for " + movie.getTitle());
+            logger.error("FilmKatalogusPlugin: Failed retreiving information for " + movie.getTitle());
             
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return null;
         }
     }
@@ -183,7 +183,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (beginIndex != -1) {
                 StringTokenizer filmKatID = new StringTokenizer(nfo.substring(beginIndex + 3), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID, filmKatID.nextToken());
-                logger.finest("FilmKatalogusPlugin: Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+                logger.debug("FilmKatalogusPlugin: Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
             }
         }
     }

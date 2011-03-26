@@ -144,7 +144,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         } else if (infoDescription.equalsIgnoreCase("writers")){
             return COMINGSOON_RESTORE_WRITERS;
         } else {
-            logger.fine("ComingSoon: unknown value \"" + infoDescription + "\" for property comingsoon.perferimdbfor");
+            logger.info("ComingSoon: unknown value \"" + infoDescription + "\" for property comingsoon.perferimdbfor");
             return 0;
         }
     }
@@ -161,7 +161,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
             
             if (StringTools.isNotValidString(comingSoonId)) {
-                logger.finer("ComingSoon: unable to find id on first scan");
+                logger.debug("ComingSoon: unable to find id on first scan");
             }
         }
 
@@ -173,17 +173,17 @@ public class ComingSoonPlugin extends ImdbPlugin {
         boolean firstScanImdb = false;
         
         if (scanImdb.equalsIgnoreCase("always") || (scanImdb.equalsIgnoreCase("fallback") && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
-            logger.finer("ComingSoon: Checking IMDB");
+            logger.debug("ComingSoon: Checking IMDB");
             firstScanImdb = super.scan(movie);      
             if (StringTools.isNotValidString(comingSoonId) && firstScanImdb) {
                 // We try to fetch again ComingSoon, hopefully with more info
-                logger.finer("ComingSoon: First search on ComingSoon was KO, retrying after succesful query to IMDB");
+                logger.debug("ComingSoon: First search on ComingSoon was KO, retrying after succesful query to IMDB");
                 comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear());
                 movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
             }
             
             if (StringTools.isNotValidString(comingSoonId)) {
-                logger.finer("ComingSoon: unable to find id on second scan");
+                logger.debug("ComingSoon: unable to find id on second scan");
             }
         }
         
@@ -192,20 +192,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
         boolean scanComingSoon = false;
         if (StringTools.isValidString(comingSoonId)) {
 
-            logger.finer("ComingSoon: Fetching movie data from ComingSoon");
+            logger.debug("ComingSoon: Fetching movie data from ComingSoon");
             
             // Restore pre-IMDB infos except title.
-            logger.finest("ComingSoon: restoring pre-IMDB infos with override");
+            logger.debug("ComingSoon: restoring pre-IMDB infos with override");
             restoreMovieInfo(preImdb, movie, COMINGSOON_RESTORE_ALL ^ (COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE), true);
             
             scanComingSoon = updateComingSoonMediaInfo(movie);
             
             // Fill UNKNOWN vales with post-IMDB infos
-            logger.finest("ComingSoon: restoring post-IMDB infos w/o override");
+            logger.debug("ComingSoon: restoring post-IMDB infos w/o override");
             restoreMovieInfo(postImdb, movie, COMINGSOON_RESTORE_ALL ^ (COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE), false);
             
             // Replace values where IMDB is preferred
-            logger.finest("ComingSoon: restoring post-IMDB infos with protected override");
+            logger.debug("ComingSoon: restoring post-IMDB infos with protected override");
             restoreMovieInfo(postImdb, movie, preferImdbMask, true, true);
         }
         
@@ -214,10 +214,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
         if (!firstScanImdb && scanComingSoon && scanImdb.equalsIgnoreCase("always")) {
             // Scan was successful on ComingSoon but not on IMDB, let's try again with more info
 
-            logger.finer("ComingSoon: First scan on IMDB KO, retrying after succesful scan on ComingSoon");
+            logger.debug("ComingSoon: First scan on IMDB KO, retrying after succesful scan on ComingSoon");
             
             // Restore pre-ComingSoon infos except title and year.
-            logger.finest("ComingSoon: restoring pre-IMDB infos with override");
+            logger.debug("ComingSoon: restoring pre-IMDB infos with override");
             restoreMovieInfo(postImdb, movie, COMINGSOON_RESTORE_ALL ^ (COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE | COMINGSOON_RESTORE_YEAR), true);
             
             // Set title to original title, more likely to be found on IMDB
@@ -227,7 +227,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             super.scan(movie);
 
-            logger.finest("ComingSoon: restoring comingsoon informations where needed");
+            logger.debug("ComingSoon: restoring comingsoon informations where needed");
             // restoreMovieInfo(postComingSoon, movie, COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE, true);
             restoreMovieInfo(postComingSoon, movie, COMINGSOON_RESTORE_ALL ^ preferImdbMask , true, true);
            
@@ -278,24 +278,24 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             sb.append("+site%3Acomingsoon.it");
 
-            logger.finer("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
+            logger.debug("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
             String xml = webBrowser.request(sb.toString());
             
            
             int beginIndex = xml.indexOf(COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL);
             if (beginIndex > 0) {
                 comingSoonId = getComingSoonIdFromURL(new String(xml.substring(beginIndex, xml.indexOf('"', beginIndex))));
-                logger.finer("ComingSoon: Found ComingSoon ID: " + comingSoonId);
+                logger.debug("ComingSoon: Found ComingSoon ID: " + comingSoonId);
             }
             return comingSoonId;
             
             
         } catch (Exception error) {
-            logger.severe("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
+            logger.error("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return Movie.UNKNOWN;
         }
     }
@@ -328,7 +328,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     sbPage.append("&p="+searchPage);
                 }
 
-                logger.finer("ComingSoon: Fetching ComingSoon search URL: " + sbPage.toString());
+                logger.debug("ComingSoon: Fetching ComingSoon search URL: " + sbPage.toString());
                 String xml = webBrowser.request(sbPage.toString(), Charset.forName("iso-8859-1"));
                 
                 ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
@@ -345,10 +345,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
                         difference = (differenceOrig < difference ? differenceOrig : difference);
                         if (difference < scoreToBeat) {
                             if (difference == 0) {
-                                logger.finest("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
+                                logger.debug("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
                                 searchPage = COMINGSOON_MAX_SEARCH_PAGES; //End loop
                             } else {
-                                logger.finest("ComingSoon: Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
+                                logger.debug("ComingSoon: Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
                             }
                             comingSoonId = lId;
                             scoreToBeat = difference;
@@ -360,23 +360,23 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
             
             if (StringTools.isValidString(year) && scoreToBeat > 0) {
-                logger.finer("ComingSoon: Perfect match not found, trying removing by year...");
+                logger.debug("ComingSoon: Perfect match not found, trying removing by year...");
                 String newComingSoonId = getComingSoonIdFromComingSoon(movieName, Movie.UNKNOWN, scoreToBeat);
                 comingSoonId = (StringTools.isNotValidString(newComingSoonId) ? comingSoonId : newComingSoonId);
             }
             
             if (StringTools.isValidString(comingSoonId)) {
-                logger.finer("ComingSoon: Found ComingSoon ID: " + comingSoonId);
+                logger.debug("ComingSoon: Found ComingSoon ID: " + comingSoonId);
             }
 
             return comingSoonId;
             
         } catch (Exception error) {
-            logger.severe("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
+            logger.error("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return Movie.UNKNOWN;
         }
     }
@@ -401,10 +401,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
         
         if (moviesFound < 0) {
-            logger.severe("ComingSoon: couldn't find 'Trovati NNN Film' string. Search page layout probably changed");
+            logger.error("ComingSoon: couldn't find 'Trovati NNN Film' string. Search page layout probably changed");
             return listaFilm;
         } else {
-            logger.finest("ComingSoon: search found " + moviesFound + " movies");
+            logger.debug("ComingSoon: search found " + moviesFound + " movies");
         }
         
         if (moviesFound == 0) {
@@ -415,7 +415,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         
         while (beginIndex >= 0 && beginIndex < trovatiIndex) {
             int urlIndex = xml.indexOf(COMINGSOON_SEARCH_URL, beginIndex);
-            logger.finest("ComingSoon: Found movie URL " + new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
+            logger.debug("ComingSoon: Found movie URL " + new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
             String comingSoonId = getComingSoonIdFromURL (new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
             
             int nextIndex = xml.indexOf("<div id=\"BoxFilm\">", beginIndex + 1);
@@ -474,7 +474,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             return COMINGSOON_MAX_DIFF;
         }
         
-        logger.finest("ComingSoon: Comparing " + searchedTitle + " and " + returnedTitle);
+        logger.debug("ComingSoon: Comparing " + searchedTitle + " and " + returnedTitle);
         
         StringTokenizer st1 = new StringTokenizer(searchedTitle);
         int lastMatchedWord = -1;
@@ -526,7 +526,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         
         try {
             String movieURL = COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL +  COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
-            logger.finest("ComingSoon: Querying ComingSoon for " + movieURL);
+            logger.debug("ComingSoon: Querying ComingSoon for " + movieURL);
             String xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
             
             // TITLE & ORIGINAL TITLE
@@ -543,7 +543,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
                 
                 if (StringTools.isNotValidString(title)) {
-                    logger.severe("ComingSoon: No title found at ComingSoon page. HTML layout has changed?");
+                    logger.error("ComingSoon: No title found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
                 
@@ -561,7 +561,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
             if (movie.getRating() == -1) {
                 String rating = HTMLTools.extractTag(xml, "<li class=\"current-rating\"", 1, "<>", false).trim();
-                logger.finest("ComingSoon: found rating " + rating);
+                logger.debug("ComingSoon: found rating " + rating);
                 if (StringTools.isValidString(rating)) {
                     rating = new String(rating.substring(rating.indexOf(" ") + 1, rating.indexOf("/")));
                     int ratingInt = (int) (Float.parseFloat(rating.replace(',','.')) * 20); // Rating is 0 to 5, we normalize to 100
@@ -605,7 +605,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
                 
 
-                logger.finest("ComingSoon: found countryYear " + countryYear + ", country " + country + ", year " + year);
+                logger.debug("ComingSoon: found countryYear " + countryYear + ", country " + country + ", year " + year);
                 
                 if (!movie.isOverrideYear() && Integer.parseInt(year) > 1900) {
                     movie.setYear(year);
@@ -651,19 +651,19 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 
                 int beginIndex = xml.indexOf("<span class='vociFilm'>Trama del film");
                 if (beginIndex < 0) {
-                    logger.severe("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
+                    logger.error("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
     
                 beginIndex = xml.indexOf("</span>", beginIndex);
                 if (beginIndex < 0) {
-                    logger.severe("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
+                    logger.error("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
     
                 int endIndex = xml.indexOf("</div>", beginIndex);
                 if (endIndex < 0) {
-                    logger.severe("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
+                    logger.error("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
                 
@@ -751,11 +751,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
             return true;
             
         } catch (Exception error) {
-            logger.severe("ComingSoon: Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
+            logger.error("ComingSoon: Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return false;
         } 
 
@@ -795,9 +795,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 5)), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(COMINGSOON_PLUGIN_ID, st.nextToken());
-            logger.finer("ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
+            logger.debug("ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
         } else {
-            logger.finer("No ComingSoon Id found in nfo!");
+            logger.debug("No ComingSoon Id found in nfo!");
         }
     }
     
@@ -829,79 +829,79 @@ public class ComingSoonPlugin extends ImdbPlugin {
         
         if ((what & COMINGSOON_RESTORE_TITLE) > 0 && (override || StringTools.isNotValidString(targetMovie.getTitle()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getTitle())) {
-                logger.finest("ComingSoon: restoring title");
+                logger.debug("ComingSoon: restoring title");
                 targetMovie.setTitle(sourceMovie.getTitle());
             }
         }
         if ((what & COMINGSOON_RESTORE_ORIGINALTITLE) > 0 && (override || StringTools.isNotValidString(targetMovie.getOriginalTitle()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getOriginalTitle())) {
-                logger.finest("ComingSoon: restoring original title");
+                logger.debug("ComingSoon: restoring original title");
                 targetMovie.setOriginalTitle(sourceMovie.getOriginalTitle());
             }
         }
         if ((what & COMINGSOON_RESTORE_PLOT) > 0 && (override || StringTools.isNotValidString(targetMovie.getPlot()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getPlot())) {
-                logger.finest("ComingSoon: restoring plot");
+                logger.debug("ComingSoon: restoring plot");
                 targetMovie.setPlot(sourceMovie.getPlot());
             }
         }
         if ((what & COMINGSOON_RESTORE_OUTLINE) > 0 && (override || StringTools.isNotValidString(targetMovie.getOutline()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getOutline())) {
-                logger.finest("ComingSoon: restoring outline");
+                logger.debug("ComingSoon: restoring outline");
                 targetMovie.setOutline(sourceMovie.getOutline());
             }
         }
         if ((what & COMINGSOON_RESTORE_RATING) > 0 && (override || targetMovie.getRating() < 0)) {
             if (!protect || sourceMovie.getRating() >= 0) {
-                logger.finest("ComingSoon: restoring rating");
+                logger.debug("ComingSoon: restoring rating");
                 targetMovie.setRating(sourceMovie.getRating());
             }
         }
         if ((what & COMINGSOON_RESTORE_RUNTIME) > 0 && (override || StringTools.isNotValidString(targetMovie.getRuntime()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getRuntime())) {
-                logger.finest("ComingSoon: restoring runtime");
+                logger.debug("ComingSoon: restoring runtime");
                 targetMovie.setRuntime(sourceMovie.getRuntime());
             }
         }
         if ((what & COMINGSOON_RESTORE_COUNTRY) > 0 && (override || StringTools.isNotValidString(targetMovie.getCountry()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getCountry())) {
-                logger.finest("ComingSoon: restoring country");
+                logger.debug("ComingSoon: restoring country");
                 targetMovie.setCountry(sourceMovie.getCountry());
             }
         }
         if ((what & COMINGSOON_RESTORE_YEAR) > 0 && (override || StringTools.isNotValidString(targetMovie.getYear()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getYear())) {
-                logger.finest("ComingSoon: restoring year");
+                logger.debug("ComingSoon: restoring year");
                 targetMovie.setYear(sourceMovie.getYear());
             }
         }
         if ((what & COMINGSOON_RESTORE_COMPANY) > 0 && (override || StringTools.isNotValidString(targetMovie.getCompany()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getCompany())) {
-                logger.finest("ComingSoon: restoring company");
+                logger.debug("ComingSoon: restoring company");
                 targetMovie.setCompany(sourceMovie.getCompany());
             }
         }
         if ((what & COMINGSOON_RESTORE_GENRES) > 0 && (override || targetMovie.getGenres().isEmpty())) {
             if (!protect || !sourceMovie.getGenres().isEmpty()) {
-                logger.finest("ComingSoon: restoring genres");
+                logger.debug("ComingSoon: restoring genres");
                 targetMovie.setGenres(sourceMovie.getGenres());
             }
         }
         if ((what & COMINGSOON_RESTORE_CAST) > 0 && (override || targetMovie.getCast().isEmpty())) {
             if (!protect || !sourceMovie.getCast().isEmpty()) {
-                logger.finest("ComingSoon: restoring cast");
+                logger.debug("ComingSoon: restoring cast");
                 targetMovie.setCast(sourceMovie.getCast());
             }
         }
         if ((what & COMINGSOON_RESTORE_DIRECTORS) > 0 && (override || targetMovie.getDirectors().isEmpty())) {
             if (!protect || !sourceMovie.getDirectors().isEmpty()) {
-                logger.finest("ComingSoon: restoring directors");
+                logger.debug("ComingSoon: restoring directors");
                 targetMovie.setDirectors(sourceMovie.getDirectors());
             }
         }
         if ((what & COMINGSOON_RESTORE_WRITERS) > 0 && (override || targetMovie.getWriters().isEmpty())) {
             if (!protect || !sourceMovie.getWriters().isEmpty()) {
-                logger.finest("ComingSoon: restoring writers");
+                logger.debug("ComingSoon: restoring writers");
                 targetMovie.setWriters(sourceMovie.getWriters());
             }
         }
@@ -916,26 +916,26 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
         
         if (movie.isTrailerExchange()) {
-            logger.finer("ComingSoon: Movie has previously been checked for trailers, skipping");
+            logger.debug("ComingSoon: Movie has previously been checked for trailers, skipping");
             return;
         }
         
         if (!movie.getExtraFiles().isEmpty()) {
-            logger.finer("ComingSoon: Movie has trailers, skipping");
+            logger.debug("ComingSoon: Movie has trailers, skipping");
             return;
         }
         
         String trailerUrl = getTrailerUrl(movie);
         
         if (StringTools.isNotValidString(trailerUrl)) {
-            logger.finer("ComingSoon: no trailer found");
+            logger.debug("ComingSoon: no trailer found");
             if (trailerSetExchange) {
                 movie.setTrailerExchange(true);
             }
             return;
         }
         
-        logger.finer("ComingSoon: found trailer at URL " + trailerUrl);
+        logger.debug("ComingSoon: found trailer at URL " + trailerUrl);
         
         MovieFile tmf = new MovieFile();
         tmf.setTitle("TRAILER-" + trailerLabel);
@@ -968,15 +968,15 @@ public class ComingSoonPlugin extends ImdbPlugin {
             String playPath = slash == -1 ? mf.getFilename() : new String(mf.getFilename().substring(0, slash));
             String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
             
-            logger.finest("ComingSoon: Found trailer: " + trailerUrl);
-            logger.finest("ComingSoon: Download path: " + trailerFileName);
-            logger.finest("ComingSoon:      Play URL: " + trailerPlayFileName);
+            logger.debug("ComingSoon: Found trailer: " + trailerUrl);
+            logger.debug("ComingSoon: Download path: " + trailerFileName);
+            logger.debug("ComingSoon:      Play URL: " + trailerPlayFileName);
             
             File trailerFile = new File(trailerFileName);
             
             // Check if the file already exists - after jukebox directory was deleted for example
             if (trailerFile.exists()) {
-                logger.finer("ComingSoon: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
+                logger.debug("ComingSoon: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
             
                 tmf.setFilename(trailerPlayFileName);
                 movie.addExtraFile(new ExtraFile(tmf));
@@ -1004,11 +1004,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
         
         try {
             String searchUrl = COMINGSOON_BASE_URL + COMINGSOON_VIDEO_URL + COMINGSOON_KEY_PARAM + comingSoonId;
-            logger.finer("ComingSoon: searching for trailer at URL " + searchUrl);
+            logger.debug("ComingSoon: searching for trailer at URL " + searchUrl);
             String xml = webBrowser.request(searchUrl);
             if (xml.indexOf(COMINGSOON_SEARCH_URL + COMINGSOON_KEY_PARAM + comingSoonId) < 0) {
                 // No link to movie page found. We have been redirected to the general video page
-                logger.finer("ComingSoon: no video found for movie " + movie.getTitle());
+                logger.debug("ComingSoon: no video found for movie " + movie.getTitle());
                 return Movie.UNKNOWN;
             }
             
@@ -1027,7 +1027,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
             
             if (StringTools.isNotValidString(xmlUrl)) {
-                logger.finer("No downloadable trailer found for movie: " + movie.getTitle());
+                logger.debug("No downloadable trailer found for movie: " + movie.getTitle());
                 return Movie.UNKNOWN;
             }
             
@@ -1036,16 +1036,16 @@ public class ComingSoonPlugin extends ImdbPlugin {
             if (beginUrl >= 0) {
                 trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf("\"", beginUrl)));
             } else {
-                logger.severe("ComingSoon: cannot find trailer URL in XML. Layout changed?");
+                logger.error("ComingSoon: cannot find trailer URL in XML. Layout changed?");
             }
             
 
         } catch (Exception error) {
-            logger.severe("ComingSoon: Failed retreiving trailer for movie: " + movie.getTitle());
+            logger.error("ComingSoon: Failed retreiving trailer for movie: " + movie.getTitle());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return Movie.UNKNOWN;
         }
         
@@ -1063,7 +1063,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         } else if (format.equalsIgnoreCase("wmv")) {
             extension = "wvx";
         } else {
-            logger.fine("ComingSoon: unknown trailer format " + format);
+            logger.info("ComingSoon: unknown trailer format " + format);
             return Movie.UNKNOWN;
         }
 
@@ -1082,7 +1082,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         if (indexOfTrailer >= 0 ) {
             int beginUrl = new String(xml.substring(0, indexOfTrailer)).lastIndexOf("http://");
             trailerUrl = new String(xml.substring(beginUrl, xml.indexOf("\"", beginUrl)));
-            logger.finest("ComingSoon: found trailer XML URL " + trailerUrl);
+            logger.debug("ComingSoon: found trailer XML URL " + trailerUrl);
         }
         
         return trailerUrl;
@@ -1103,7 +1103,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         HttpURLConnection connection = null;
         Timer timer = new Timer();
         try {
-            logger.fine("ComingSoon: Download trailer for " + movie.getBaseName());
+            logger.info("ComingSoon: Download trailer for " + movie.getBaseName());
             final WebStats stats = WebStats.make(url);
             // after make!
             timer.schedule(new TimerTask() {
@@ -1127,7 +1127,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             int code = connection.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
-                logger.severe("ComingSoon: Download Failed");
+                logger.error("ComingSoon: Download Failed");
                 return false;
             }
 
@@ -1137,7 +1137,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.severe("ComingSoon: Download Exception");
+            logger.error("ComingSoon: Download Exception");
             return false;
         } finally {
             timer.cancel();         // Close the timer

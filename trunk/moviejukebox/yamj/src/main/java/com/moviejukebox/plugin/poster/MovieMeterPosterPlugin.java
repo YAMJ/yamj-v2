@@ -15,7 +15,7 @@ package com.moviejukebox.plugin.poster;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpcException;
 
@@ -51,8 +51,8 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
             //final Writer eResult = new StringWriter();
             //final PrintWriter printWriter = new PrintWriter(eResult);
             //error.printStackTrace(printWriter);
-            //logger.severe(eResult.toString());
-            logger.finer("MovieMeterPosterPlugin: Failed to create session");
+            //logger.error(eResult.toString());
+            logger.debug("MovieMeterPosterPlugin: Failed to create session");
         }
     }
 
@@ -79,8 +79,8 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
             }
 
         } catch (Exception error) {
-            logger.severe("Failed retreiving moviemeter Id from Google for movie : " + movieName);
-            logger.severe("Error : " + error.getMessage());
+            logger.error("Failed retreiving moviemeter Id from Google for movie : " + movieName);
+            logger.error("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -99,24 +99,24 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
-            logger.finest("Preferred search engine for moviemeter id: " + preferredSearchEngine);
+            logger.debug("Preferred search engine for moviemeter id: " + preferredSearchEngine);
             if ("google".equalsIgnoreCase(preferredSearchEngine)) {
                 // Get moviemeter website from google
-                logger.finest("Searching google.nl to get moviemeter.nl id");
+                logger.debug("Searching google.nl to get moviemeter.nl id");
                 response = getMovieMeterIdFromGoogle(title, year);
-                logger.finest("Returned id: " + response);
+                logger.debug("Returned id: " + response);
             } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
                 response = Movie.UNKNOWN;
             } else {
-                logger.finest("Searching moviemeter.nl for title: " + title);
+                logger.debug("Searching moviemeter.nl for title: " + title);
 
                 HashMap filmInfo = session.getMovieDetailsByTitleAndYear(title, year);
                 response = filmInfo.get("filmId").toString();
             }
 
         } catch (Exception e) {
-            logger.severe("Failed retreiving CaratulasdecinePoster Id for movie : " + title);
-            logger.severe("Error : " + e.getMessage());
+            logger.error("Failed retreiving CaratulasdecinePoster Id for movie : " + title);
+            logger.error("Error : " + e.getMessage());
         }
         return response;
     }
@@ -132,8 +132,8 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
                 posterURL = filmInfo.get("thumbnail").toString().replaceAll("thumbs/", "");
 
             } catch (Exception e) {
-                logger.severe("Failed retreiving CaratulasdecinePoster url for movie : " + id);
-                logger.severe("Error : " + e.getMessage());
+                logger.error("Failed retreiving CaratulasdecinePoster url for movie : " + id);
+                logger.error("Error : " + e.getMessage());
             }
         }
         

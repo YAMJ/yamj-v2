@@ -28,7 +28,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.imageio.IIOException;
 import javax.imageio.IIOImage;
@@ -56,10 +56,10 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(fis);
         } catch (IIOException error) {
-            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            logger.error("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
             return null;
         } catch (Exception ignore) {
-            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
+            logger.error("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             return null;
         } finally {
             if (fis != null) {
@@ -69,7 +69,7 @@ public class GraphicTools {
                     final Writer eResult = new StringWriter();
                     final PrintWriter printWriter = new PrintWriter(eResult);
                     error.printStackTrace(printWriter);
-                    logger.severe(eResult.toString());
+                    logger.error(eResult.toString());
                     // ignore the error
                 }
             }
@@ -110,7 +110,7 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(url);
         } catch (Exception ignore) {
-            logger.severe("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
+            logger.error("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             bi = null;
         }
         return bi;
@@ -147,11 +147,11 @@ public class GraphicTools {
             writer.dispose();
 
         } catch (Exception error) {
-            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + filename);
+            logger.error("GraphicsTools: Failed Saving thumbnail file: " + filename);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
     }
 
@@ -165,11 +165,11 @@ public class GraphicTools {
             File outputFile = new File(filename);
             ImageIO.write(bi, "png", outputFile);
         } catch (Exception error) {
-            logger.severe("GraphicsTools: Failed Saving thumbnail file: " + filename);
+            logger.error("GraphicsTools: Failed Saving thumbnail file: " + filename);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
     }
 
@@ -345,7 +345,7 @@ public class GraphicTools {
         try {
             propertyValue = Float.valueOf(PropertiesUtil.getProperty(propertyName, propertyDefault));
         } catch (NumberFormatException nfe) {
-            logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
+            logger.error("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
         }
 
         return propertyValue;
@@ -394,13 +394,13 @@ public class GraphicTools {
         try {
             perspectiveTop = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveTop", "3"));
         } catch (NumberFormatException nfe) {
-            logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
+            logger.error("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
         }
 
         try {
             perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
         } catch (NumberFormatException nfe) {
-            logger.severe("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
+            logger.error("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
         }        
 
         int Top3d = (int) (h * perspectiveTop / 100);
