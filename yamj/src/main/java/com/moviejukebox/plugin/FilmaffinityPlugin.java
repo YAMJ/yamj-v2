@@ -152,11 +152,11 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             movie.setOverrideTitle(overrideTitle);
                         
         } catch (Exception error) {
-            logger.severe("Failed retreiving FA data movie : " + movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID));
+            logger.error("Failed retreiving FA data movie : " + movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             returnStatus = false;
         }
         return returnStatus;

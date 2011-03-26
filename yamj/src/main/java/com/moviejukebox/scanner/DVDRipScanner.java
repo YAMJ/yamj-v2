@@ -17,7 +17,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
@@ -107,7 +107,7 @@ public class DVDRipScanner {
                         }
 
                     } catch (Exception error) {
-                        logger.finer("DVDRipScanner: Error when parsing file:" + ifo[i]);
+                        logger.debug("DVDRipScanner: Error when parsing file:" + ifo[i]);
                     }
                 }
 
@@ -122,7 +122,7 @@ public class DVDRipScanner {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return null;
         }
         return null;

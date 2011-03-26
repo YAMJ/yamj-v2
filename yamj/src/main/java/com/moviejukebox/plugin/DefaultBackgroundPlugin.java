@@ -20,7 +20,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
@@ -212,7 +212,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
             
             return returnBI;
         } catch (IOException error) {
-            logger.warning("Failed drawing overlay to " + movie.getBaseName() + ". Please check that overlay_fanart_" + source + ".png is in the resources directory.");
+            logger.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that overlay_fanart_" + source + ".png is in the resources directory.");
         }
             
         return bi;

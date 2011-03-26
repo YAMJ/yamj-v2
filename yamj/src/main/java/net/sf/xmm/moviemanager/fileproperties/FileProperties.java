@@ -18,7 +18,7 @@
  * Contact: mediterranean@users.sourceforge.net
  * -----------------------------------------------------
  * gaelead modifications :
- * - org.apache.log4j.Logger switched to java.util.logging.Logger
+ * - org.apache.log4j.Logger switched to org.apache.log4j.Logger
  * - removed all unused code
  **/
 package net.sf.xmm.moviemanager.fileproperties;
@@ -28,11 +28,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 abstract class FileProperties {
 
-    static Logger log = Logger.getLogger("moviejukebox");
+    static Logger logger = Logger.getLogger("moviejukebox");
     protected boolean supported = false;
     protected boolean errorOccured = false;
     /**
@@ -205,7 +205,7 @@ abstract class FileProperties {
         }
 
         if (printBits) {
-            log.finest("dec:" + dec.toString());
+            logger.debug("dec:" + dec.toString());
         }
 
         return Integer.parseInt(dec.toString(), 2);

@@ -19,10 +19,15 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -30,19 +35,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import java.net.URL;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.OutputStreamWriter;
-import java.net.URLConnection;
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  * @author ilgizar
@@ -94,7 +93,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             try {
                 retval = updateAnimatorMediaInfo(mediaFile, animatorId);
             } catch (IOException ex) {
-                Logger.getLogger(AnimatorPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AnimatorPlugin.class.getName()).error(ex);
             }
         }
         return retval;
@@ -102,14 +101,14 @@ public class AnimatorPlugin extends ImdbPlugin {
 
     @Override
     public void scanNFO(String nfo, Movie movie) {
-        logger.finest("Scanning NFO for Animator Id");
+        logger.debug("Scanning NFO for Animator Id");
         int beginIndex = nfo.indexOf("animator.ru/db/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 33)), "");
             movie.setId(AnimatorPlugin.ANIMATOR_PLUGIN_ID, st.nextToken());
-            logger.log(Level.FINER, "Animator Id found in nfo = {0}", movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
+            logger.debug("Animator Id found in nfo = " + movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
         } else {
-            logger.finer("No Animator Id found in nfo !");
+            logger.debug("No Animator Id found in nfo !");
         }
         super.scanNFO(nfo, movie);
     }
@@ -223,8 +222,8 @@ public class AnimatorPlugin extends ImdbPlugin {
 
             return (animatorId == Movie.UNKNOWN && allmultsId == Movie.UNKNOWN)?Movie.UNKNOWN:animatorId + ":" + allmultsId;
         } catch (Exception error) {
-            logger.log(Level.SEVERE, "Failed retreiving Animator Id for movie : {0}", movieName);
-            logger.log(Level.SEVERE, "Error : {0}", error.getMessage());
+            logger.error("Failed retreiving Animator Id for movie : " + movieName);
+            logger.error("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -487,11 +486,11 @@ public class AnimatorPlugin extends ImdbPlugin {
 // Finally set title
             movie.setTitle(originalTitle);
         } catch (Exception error) {
-            logger.log(Level.SEVERE, "Failed retreiving movie data from Animator : {0}", animatorId);
+            logger.error("Failed retreiving movie data from Animator : " + animatorId);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return true;
     }

@@ -25,8 +25,9 @@ import java.net.URLEncoder;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Date;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Timer;
@@ -82,7 +83,7 @@ public class AppleTrailersPlugin {
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
         if (trailerPageUrl == Movie.UNKNOWN) {
-            logger.finer("AppleTrailers Plugin: Trailer not found for " + movie.getBaseName());
+            logger.debug("AppleTrailers Plugin: Trailer not found for " + movie.getBaseName());
             return false;
         }
 
@@ -96,7 +97,7 @@ public class AppleTrailersPlugin {
         int trailerDownloadCnt = 0;
 
         if (bestTrailersUrl.isEmpty()) {
-            logger.finest("AppleTrailers Plugin: No trailers found for " + movie.getBaseName());
+            logger.debug("AppleTrailers Plugin: No trailers found for " + movie.getBaseName());
             return false;
         }
 
@@ -105,7 +106,7 @@ public class AppleTrailersPlugin {
         for (String trailerRealUrl : bestTrailersUrl) {
 
             if (trailerDownloadCnt >= configMax) {
-                logger.finest("AppleTrailers Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
+                logger.debug("AppleTrailers Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
                 break;
             }
 
@@ -115,7 +116,7 @@ public class AppleTrailersPlugin {
 
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
-                logger.finer("AppleTrailers Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
+                logger.debug("AppleTrailers Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
                 continue; // Quit the rest of the trailer loop.
             }
 
@@ -125,7 +126,7 @@ public class AppleTrailersPlugin {
             trailerRealUrl = trailerRealUrl.replace("images.apple.com", configReplaceUrl);
             trailerRealUrl = trailerRealUrl.replace("movies.apple.com", configReplaceUrl);
 
-            logger.finer("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
+            logger.debug("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
             trailerDownloadCnt++;
 
             // Check if we need to download the trailer, or just link to it
@@ -157,15 +158,15 @@ public class AppleTrailersPlugin {
                 String playPath = slash == -1 ? mf.getFilename() : new String(mf.getFilename().substring(0, slash));
                 String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
-                logger.finest("AppleTrailers Plugin: Found trailer: " + trailerRealUrl);
-                logger.finest("AppleTrailers Plugin: Download path: " + trailerFileName);
-                logger.finest("AppleTrailers Plugin:      Play URL: " + trailerPlayFileName);
+                logger.debug("AppleTrailers Plugin: Found trailer: " + trailerRealUrl);
+                logger.debug("AppleTrailers Plugin: Download path: " + trailerFileName);
+                logger.debug("AppleTrailers Plugin:      Play URL: " + trailerPlayFileName);
 
                 File trailerFile = new File(trailerFileName);
 
                 // Check if the file already exists - after jukebox directory was deleted for example
                 if (trailerFile.exists()) {
-                    logger.finer("AppleTrailers Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
+                    logger.debug("AppleTrailers Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
 
                     tmf.setFilename(trailerPlayFileName);
                     movie.addExtraFile(new ExtraFile(tmf));
@@ -253,11 +254,11 @@ public class AppleTrailersPlugin {
             }
 
         } catch (Exception error) {
-            logger.severe("AppleTrailers Plugin: Failed retreiving trailer for movie : " + movieName);
+            logger.error("AppleTrailers Plugin: Failed retreiving trailer for movie : " + movieName);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return Movie.UNKNOWN;
         }
 
@@ -324,11 +325,11 @@ public class AppleTrailersPlugin {
             // }
 
         } catch (Exception error) {
-            logger.severe("AppleTrailers Plugin: Error : " + error.getMessage());
+            logger.error("AppleTrailers Plugin: Error : " + error.getMessage());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return;
         }
     }
@@ -419,11 +420,11 @@ public class AppleTrailersPlugin {
             return absRealURL;
 
         } catch (Exception error) {
-            logger.severe("AppleTrailers Plugin: Error : " + error.getMessage());
+            logger.error("AppleTrailers Plugin: Error : " + error.getMessage());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return Movie.UNKNOWN;
         }
     }
@@ -508,7 +509,7 @@ public class AppleTrailersPlugin {
         HttpURLConnection connection = null;
         Timer timer = new Timer();
         try {
-            logger.fine("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
+            logger.info("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
             final WebStats stats = WebStats.make(url);
             final long reportDelay = 1000; // 1 second
             // after make!
@@ -534,7 +535,7 @@ public class AppleTrailersPlugin {
 
             int code = connection.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
-                logger.severe("AppleTrailers Plugin: Download Failed");
+                logger.error("AppleTrailers Plugin: Download Failed");
                 return false;
             }
 
@@ -544,7 +545,7 @@ public class AppleTrailersPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.severe("AppleTrailers Plugin: Download Exception: " + error);
+            logger.error("AppleTrailers Plugin: Download Exception: " + error);
             return false;
         } finally {
             timer.cancel(); // Close the timer

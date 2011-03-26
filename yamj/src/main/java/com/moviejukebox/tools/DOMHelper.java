@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -146,8 +146,8 @@ public class DOMHelper {
             trans.transform(new DOMSource(doc), new StreamResult(new File(localFile)));
             return true;
         } catch (Exception error) {
-            logger.severe("Error writing the document to " + localFile);
-            logger.severe("Message: " + error.getMessage());
+            logger.error("Error writing the document to " + localFile);
+            logger.error("Message: " + error.getMessage());
             return false;
         }
     }

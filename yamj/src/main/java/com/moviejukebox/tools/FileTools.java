@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -181,22 +181,22 @@ public class FileTools {
         try {
             srcFile = new File(src);
         } catch (Exception error) {
-            logger.severe("Failed copying file " + src + " to " + dst);
+            logger.error("Failed copying file " + src + " to " + dst);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return;
         }
 
         try {
             dstFile = new File(dst);
         } catch (Exception error) {
-            logger.severe("Failed copying file " + src + " to " + dst);
+            logger.error("Failed copying file " + src + " to " + dst);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return;
         }
         copyFile(srcFile, dstFile);
@@ -205,7 +205,7 @@ public class FileTools {
     public static void copyFile(File src, File dst) {
         try {
             if (!src.exists()) {
-                logger.severe("The specified " + src + " file does not exist!");
+                logger.error("The specified " + src + " file does not exist!");
                 return;
             }
 
@@ -233,11 +233,11 @@ public class FileTools {
             }
 
         } catch (IOException error) {
-            logger.severe("Failed copying file " + src + " to " + dst);
+            logger.error("Failed copying file " + src + " to " + dst);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
     }
 
@@ -245,7 +245,7 @@ public class FileTools {
         try {
             File src = new File(srcDir);
             if (!src.exists()) {
-                logger.severe("The specified " + srcDir + " file or directory does not exist!");
+                logger.error("The specified " + srcDir + " file or directory does not exist!");
                 return;
             }
 
@@ -253,7 +253,7 @@ public class FileTools {
             dst.mkdirs();
 
             if (!dst.exists()) {
-                logger.severe("The specified " + dstDir + " output directory does not exist!");
+                logger.error("The specified " + dstDir + " output directory does not exist!");
                 return;
             }
 
@@ -283,7 +283,7 @@ public class FileTools {
                     if (updateDisplay) {
                         System.out.print("\n");
                     }
-                    logger.finest("Copied " + totalSize + " files from " + srcDir);
+                    logger.debug("Copied " + totalSize + " files from " + srcDir);
                 }
             }
         } catch (Exception ignore) {
@@ -311,7 +311,7 @@ public class FileTools {
                     }
                 }
             } catch (IOException error) {
-                logger.severe("Failed reading file " + file.getName());
+                logger.error("Failed reading file " + file.getName());
             }
         }
         
@@ -332,7 +332,7 @@ public class FileTools {
             out = new FileWriter(outFile);
             out.write(outputString);
         } catch (Exception ignore) {
-            logger.finer("Error writing string to " + filename);
+            logger.debug("Error writing string to " + filename);
         } finally {
             try {
                 out.close();
@@ -415,7 +415,7 @@ public class FileTools {
         }
         
         if (!newFilename.equals(filename)) {
-            logger.finest("Encoded filename string " + filename + " to " + newFilename);
+            logger.debug("Encoded filename string " + filename + " to " + newFilename);
         }
             
         return newFilename;
@@ -470,7 +470,7 @@ public class FileTools {
         for (String extension : artworkExtensions) {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
-                logger.finest("The file " + localFile + " found");
+                logger.debug("The file " + localFile + " found");
                 return localFile;
             }
         }
@@ -490,7 +490,7 @@ public class FileTools {
         File searchFile = null;
         String safeFilename = makeSafeFilename(searchFilename);
         
-        logger.finer(logPrefix + "Scanning fileCache for " + safeFilename);
+        logger.debug(logPrefix + "Scanning fileCache for " + safeFilename);
         safeFilename = File.separator + safeFilename;
         
         Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
@@ -513,7 +513,7 @@ public class FileTools {
                     if (abPath.endsWith((safeFilename + "." + extension).toLowerCase())) {
                         files.add(file);
                         
-                        logger.finest(logPrefix + "Found: " + file.getAbsolutePath());
+                        logger.debug(logPrefix + "Found: " + file.getAbsolutePath());
                         
                         if (searchFile == null) {
                             searchFile = file;
@@ -526,12 +526,12 @@ public class FileTools {
             }
             
             if (searchFile != null) {
-                logger.finest(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
+                logger.debug(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
             } else {
-                logger.finest(logPrefix + "No matching files found for " + safeFilename);
+                logger.debug(logPrefix + "No matching files found for " + safeFilename);
             }
         } else {
-            logger.finest(logPrefix + "No scanned files found...");
+            logger.debug(logPrefix + "No scanned files found...");
         }
         
         return searchFile;

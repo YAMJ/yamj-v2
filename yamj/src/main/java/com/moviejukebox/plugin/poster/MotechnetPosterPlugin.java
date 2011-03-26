@@ -19,7 +19,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -100,11 +100,11 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         } catch (Exception error) {
-            logger.severe("MotechnetPosterPlugin: Failed retreiving poster id movie : " + title);
+            logger.error("MotechnetPosterPlugin: Failed retreiving poster id movie : " + title);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return response;
     }
@@ -123,11 +123,11 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                                     + new String(xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length())));
                 }
             } catch (Exception error) {
-                logger.severe("MotechnetPosterPlugin: Failed retreiving poster for movie : " + id);
+                logger.error("MotechnetPosterPlugin: Failed retreiving poster for movie : " + id);
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -53,7 +53,7 @@ public class XMLWriter {
             // no need for buffered write, because there is only 1 step
             fileStream = new FileOutputStream(xmlFile);
         } catch (Exception ex) {
-            logger.severe("Error creating XML file: " + xmlFile);
+            logger.error("Error creating XML file: " + xmlFile);
         }
     }
 

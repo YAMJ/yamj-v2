@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -456,8 +456,8 @@ public class MovieFile implements Comparable<MovieFile> {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe("Error calculating playlink for file " + file.getName());
-            logger.severe(eResult.toString());
+            logger.error("Error calculating playlink for file " + file.getName());
+            logger.error(eResult.toString());
         } finally {
             // Default to VOD if there's no other type found
             if (playLinkMap.size() == 0) {

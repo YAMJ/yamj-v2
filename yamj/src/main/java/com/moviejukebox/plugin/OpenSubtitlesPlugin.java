@@ -29,7 +29,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.util.Scanner;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 
@@ -55,12 +55,12 @@ public class OpenSubtitlesPlugin {
         if (!sublanguageid.equals("")) {
 
             // Part of opensubtitles.org protocol requirements
-            logger.fine("OpenSubtitles Plugin: Subtitles service allowed by www.OpenSubtitles.org");
+            logger.info("OpenSubtitles Plugin: Subtitles service allowed by www.OpenSubtitles.org");
 
             // Login to opensubtitles.org system
             logIn();
         } else {
-            logger.finest("OpenSubtitles Plugin: No language selected in moviejukebox.properties");
+            logger.debug("OpenSubtitles Plugin: No language selected in moviejukebox.properties");
         }
     }
 
@@ -76,14 +76,14 @@ public class OpenSubtitlesPlugin {
                 getValue("status", ret);
                 token = getValue("token", ret);
                 if (token.equals("")) {
-                    logger.severe("OpenSubtitles Plugin: Login error." + "\n" + ret);
+                    logger.error("OpenSubtitles Plugin: Login error." + "\n" + ret);
                 } else {
-                    logger.severe("OpenSubtitles Plugin: Login successful.");
+                    logger.error("OpenSubtitles Plugin: Login successful.");
                 }
                 // String l1 = login.equals("") ? "Anonymous" : login;
             }
         } catch (Exception error) {
-            logger.severe("OpenSubtitles Plugin: Login Failed");
+            logger.error("OpenSubtitles Plugin: Login Failed");
         }
     }
 
@@ -104,7 +104,7 @@ public class OpenSubtitlesPlugin {
             String xml = generateXMLRPC("LogOut", p1);
             sendRPC(xml);
         } catch (Exception error) {
-            logger.severe("OpenSubtitles Plugin: Logout Failed");
+            logger.error("OpenSubtitles Plugin: Logout Failed");
         }
         ;
     }
@@ -119,13 +119,13 @@ public class OpenSubtitlesPlugin {
 
             // Check to see if we scrape the library, if we don't then skip the download
             if (!movie.isScrapeLibrary()) {
-                logger.finest("OpenSubtitles Plugin: Skipped for " + movie.getTitle() + " due to scrape library flag");
+                logger.debug("OpenSubtitles Plugin: Skipped for " + movie.getTitle() + " due to scrape library flag");
                 return;
             }
 
             // Check that the login was successful
             if (token.equals("")) {
-                logger.finest("OpenSubtitles Plugin: Login failed");
+                logger.debug("OpenSubtitles Plugin: Login failed");
                 return;
             }
 
@@ -155,7 +155,7 @@ public class OpenSubtitlesPlugin {
             }
 
             if (allSubtitleExchange) {
-                logger.finest("OpenSubtitles Plugin: All subtitles exist for " + movie.getTitle());
+                logger.debug("OpenSubtitles Plugin: All subtitles exist for " + movie.getTitle());
                 // Don't return yet, we might want to upload the files.
                 //return;
             }
@@ -224,7 +224,7 @@ public class OpenSubtitlesPlugin {
                 }
             }
         } else {
-            logger.finest("OpenSubtitles Plugin: Skipping subtitle download for " + movie.getTitle() +", subtitles already exist: " + movie.getSubtitles());
+            logger.debug("OpenSubtitles Plugin: Skipping subtitle download for " + movie.getTitle() +", subtitles already exist: " + movie.getSubtitles());
         }
     }
 
@@ -261,11 +261,11 @@ public class OpenSubtitlesPlugin {
             }
 
             if (subDownloadLink.equals("")) {
-                logger.finer("OpenSubtitles Plugin: Subtitle not found for " + movieFile.getName());
+                logger.debug("OpenSubtitles Plugin: Subtitle not found for " + movieFile.getName());
                 return false;
             }
 
-            logger.finer("OpenSubtitles Plugin: Download subtitle for " + movie.getBaseName());
+            logger.debug("OpenSubtitles Plugin: Download subtitle for " + movie.getBaseName());
 
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
@@ -274,7 +274,7 @@ public class OpenSubtitlesPlugin {
 
             int code = connection.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
-                logger.severe("OpenSubtitles Plugin: Download Failed");
+                logger.error("OpenSubtitles Plugin: Download Failed");
                 return false;
             }
 
@@ -291,7 +291,7 @@ public class OpenSubtitlesPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.severe("OpenSubtitles Plugin: Download Exception (Movie Not Found)");
+            logger.error("OpenSubtitles Plugin: Download Exception (Movie Not Found)");
             return false;
         }
 
@@ -358,11 +358,11 @@ public class OpenSubtitlesPlugin {
             String alreadyindb = getIntValue("alreadyindb", ret);
 
             if (!alreadyindb.equals("0")) {
-                logger.finer("OpenSubtitles Plugin: Subtitle already in db for " + movie.getBaseName());
+                logger.debug("OpenSubtitles Plugin: Subtitle already in db for " + movie.getBaseName());
                 return true;
             }
 
-            logger.finer("OpenSubtitles Plugin: Upload Subtitle for " + movie.getBaseName());
+            logger.debug("OpenSubtitles Plugin: Upload Subtitle for " + movie.getBaseName());
 
             // Upload the subtitle
             xml = generateXMLRPCUS(idmovieimdb, subhash, subcontent, subfilename, moviehash, moviebytesize, movietimems, movieframes, moviefps, moviefilename);
@@ -372,7 +372,7 @@ public class OpenSubtitlesPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.severe("OpenSubtitles Plugin: Upload Failed");
+            logger.error("OpenSubtitles Plugin: Upload Failed");
             return false;
         } finally {
             try {

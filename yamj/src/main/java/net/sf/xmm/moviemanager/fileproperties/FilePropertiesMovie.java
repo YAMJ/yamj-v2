@@ -18,7 +18,7 @@
  * Contact: mediterranean@users.sourceforge.net
  * -----------------------------------------------------
  * gaelead modifications :
- * - org.apache.log4j.Logger switched to java.util.logging.Logger
+ * - org.apache.log4j.Logger switched to org.apache.log4j.Logger
  * - restricted use of FilePropertiesIFO only
  * - won't use mediainfo here
  * - removed all unused code
@@ -27,7 +27,7 @@ package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * @author Bro3@sf.net

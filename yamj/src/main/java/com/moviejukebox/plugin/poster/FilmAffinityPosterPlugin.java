@@ -58,8 +58,8 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
                 posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
 
             } catch (Exception e) {
-                logger.severe("Failed retreiving FilmAffinity poster url for movie : " + id);
-                logger.severe("Error : " + e.getMessage());
+                logger.error("Failed retreiving FilmAffinity poster url for movie : " + id);
+                logger.error("Error : " + e.getMessage());
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

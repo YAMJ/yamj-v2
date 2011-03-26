@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -407,12 +407,12 @@ public class MovieJukeboxXMLWriter {
                                     mf.setFile(mfFile);
                                 } else {
                                     // We can't find this file anymore, so skip it.
-                                    logger.finest("Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
+                                    logger.debug("Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
                                     continue;
                                 }
                             } catch (Exception ignore) {
                                 // If there is an error creating the file then don't save anything
-                                logger.finest("XMLWriter: Failed parsing file " + xmlFile.getName());
+                                logger.debug("XMLWriter: Failed parsing file " + xmlFile.getName());
                                 continue;
                             }
                         } else if (tag.equalsIgnoreCase("<fileURL>")) {
@@ -510,11 +510,11 @@ public class MovieJukeboxXMLWriter {
                 }
             }
         } catch (Exception error) {
-            logger.severe("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+            logger.error("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return false;
         }
 
@@ -550,7 +550,7 @@ public class MovieJukeboxXMLWriter {
         }
 
         // Issue 1148, generate category in the order specified in properties
-        logger.fine("  Indexing Categories");
+        logger.info("  Indexing Categories");
         for (String categoryName : categoriesDisplayList) {
             int categoryMinCount = calcMinCategoryCount(categoryName);
             boolean openedCategory = false;
@@ -565,9 +565,9 @@ public class MovieJukeboxXMLWriter {
                     for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
                         List<Movie> value = index.getValue();
                         int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
-                        logger.finest("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
+                        logger.debug("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
                         if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
-                            logger.finer("Category " + category.getKey() + " " + index.getKey() + " does not contain enough movies (" + countMovieCat
+                            logger.debug("Category " + category.getKey() + " " + index.getKey() + " does not contain enough movies (" + countMovieCat
                                             + "/" + categoryMinCount + "), not adding to categories.xml.");
                             continue;
                         }
@@ -620,7 +620,7 @@ public class MovieJukeboxXMLWriter {
             Map<String, List<Movie>> index = category.getValue();
             final int categoryMinCount = calcMinCategoryCount(categoryName);
 
-            logger.fine("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes");
+            logger.info("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes");
             for (final Map.Entry<String, List<Movie>> group : index.entrySet()) {
                 tasks.submit(new Callable<Void>() {
                     public Void call() throws XMLStreamException, FileNotFoundException {
@@ -631,7 +631,7 @@ public class MovieJukeboxXMLWriter {
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
                         if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
-                            logger.finer("Category " + category_path + " does not contain enough movies (" + categoryCount
+                            logger.debug("Category " + category_path + " does not contain enough movies (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
                         }
@@ -670,7 +670,7 @@ public class MovieJukeboxXMLWriter {
                             if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
                                 List<Movie> boxedSetMovies = library.getIndexes().get("Set").get(movie.getTitle());
                                 boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
-                                logger.finest("Exploding set for " + category_path + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
+                                logger.debug("Exploding set for " + category_path + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
                                 //delay new instance
                                 if(tmpMovieList == movies) {
                                     tmpMovieList = new ArrayList<Movie>(movies);
@@ -702,7 +702,7 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (skipindex) {
-                            logger.finer("Category " + category_path + " no change detected, skipping XML generation.");
+                            logger.debug("Category " + category_path + " no change detected, skipping XML generation.");
                         } else {
                             for (current = 1 ; current <= last ; current++) {
                                 // All pages are handled here
@@ -841,11 +841,11 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement(); // library
             writer.writeEndDocument();
         } catch (Exception error) {
-            logger.severe("Failed writing index page: " + xmlFile.getName());
+            logger.error("Failed writing index page: " + xmlFile.getName());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return;
         } finally {
             writer.close();
@@ -1237,7 +1237,7 @@ public class MovieJukeboxXMLWriter {
                     writer.writeAttribute("size", Long.toString(mf.getSize()));
                 }
             } catch (Exception error) {
-                logger.finest("XML Writer: File length error for file " + mf.getFilename());
+                logger.debug("XML Writer: File length error for file " + mf.getFilename());
                 writer.writeAttribute("size", "0");
             }
 
@@ -1365,7 +1365,7 @@ public class MovieJukeboxXMLWriter {
         //File rootNfoFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), nfoBaseName));
         File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
         
-        logger.finest("MovieJukeboxXMLWriter: Writing NFO file for " + movie.getBaseName() + ".nfo");
+        logger.debug("MovieJukeboxXMLWriter: Writing NFO file for " + movie.getBaseName() + ".nfo");
         FileTools.addJukeboxFile(tempNfoFile.getName());
         
         XMLWriter writer = null;
@@ -1501,7 +1501,7 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
             writer.writeEndDocument();
         } catch (Exception ignore) {
-            logger.finer("MovieJukeboxXMLWriter: Error creating the NFO file: " + movie.getBaseName() + ".nfo");
+            logger.debug("MovieJukeboxXMLWriter: Error creating the NFO file: " + movie.getBaseName() + ".nfo");
         } finally {
             if (writer != null) {
                 writer.close();

@@ -105,7 +105,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             if (StringTools.isValidString(opinionsPageID)) {
                 int PageID = Integer.parseInt(opinionsPageID);
                 updateRate(movie, PageID);
-                logger.finest("Opinions page UID = " + PageID);
+                logger.debug("Opinions page UID = " + PageID);
             }
 
             if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
@@ -116,11 +116,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
         } catch (IOException error) {
-            logger.severe("Failed retreiving FilmUP infos for movie : " + movie.getId(FILMUPIT_PLUGIN_ID));
+            logger.error("Failed retreiving FilmUP infos for movie : " + movie.getId(FILMUPIT_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return true;
     }
@@ -132,11 +132,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
             float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
             movie.setRating((int)rating);
         } catch (IOException error) {
-            logger.severe("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
+            logger.error("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
     }
 
@@ -159,7 +159,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             // we also get imdb Id for extra infos
             if (StringTools.isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
-                logger.finest("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
+                logger.debug("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
             
             if (StringTools.isValidString(FilmUpITId)) {
@@ -171,12 +171,12 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 }
             } else {
                 // If no FilmUpITId found fallback to Imdb
-                logger.finer("No Filmup Id available, we fall back to ImdbPlugin");
+                logger.debug("No Filmup Id available, we fall back to ImdbPlugin");
                 retval = super.scan(mediaFile);
             }
         } catch (ParseException error) {
             // If no FilmUpITId found fallback to Imdb
-            logger.finer("Parse error in FilmUpITPlugin we fall back to ImdbPlugin");
+            logger.debug("Parse error in FilmUpITPlugin we fall back to ImdbPlugin");
             retval = super.scan(mediaFile);
         }
         return retval;
@@ -202,16 +202,16 @@ public class FilmUpITPlugin extends ImdbPlugin {
             FilmUpITMediaPrefix = "sc_";
 
             for (String searchResult : extractTags(xml, FilmUpITStartResult, "<DD>", FilmUpITMediaPrefix, ".htm")) {
-                // logger.finest("SearchResult = " + searchResult);
+                // logger.debug("SearchResult = " + searchResult);
                 return searchResult;
             }
 
-            logger.finer("No ID Found with request : " + sb.toString());
+            logger.debug("No ID Found with request : " + sb.toString());
             return Movie.UNKNOWN;
 
         } catch (Exception error) {
-            logger.severe("Failed to retrieve FilmUp ID for movie : " + movieName);
-            logger.severe("We fall back to ImdbPlugin");
+            logger.error("Failed to retrieve FilmUp ID for movie : " + movieName);
+            logger.error("We fall back to ImdbPlugin");
             throw new ParseException(FilmUpITId, 0);
         }
     }
@@ -219,23 +219,23 @@ public class FilmUpITPlugin extends ImdbPlugin {
     protected String extractTag(String src, String tagStart, String tagEnd) {
         int beginIndex = src.indexOf(tagStart);
         if (beginIndex < 0) {
-            // logger.finest("extractTag value= Unknown");
+            // logger.debug("extractTag value= Unknown");
             return Movie.UNKNOWN;
         }
         try {
             String subString = src.substring(beginIndex + tagStart.length());
             int endIndex = subString.indexOf(tagEnd);
             if (endIndex < 0) {
-                // logger.finest("extractTag value= Unknown");
+                // logger.debug("extractTag value= Unknown");
                 return Movie.UNKNOWN;
             }
             subString = subString.substring(0, endIndex);
 
             String value = HTMLTools.decodeHtml(subString.trim());
-            // logger.finest("extractTag value=" + value);
+            // logger.debug("extractTag value=" + value);
             return value;
         } catch (Exception error) {
-            logger.severe("extractTag an exception occurred during tag extraction : " + error);
+            logger.error("extractTag an exception occurred during tag extraction : " + error);
             return Movie.UNKNOWN;
         }
     }
@@ -247,7 +247,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
     protected String removeOpenedHtmlTags(String src) {
         String result = src.replaceAll("^.*?>", "");
         result = result.replaceAll("<.*?$", "");
-        // logger.finest("removeOpenedHtmlTags before=[" + src + "], after=["+ result + "]");
+        // logger.debug("removeOpenedHtmlTags before=[" + src + "], after=["+ result + "]");
         return result;
     }
 
@@ -255,13 +255,13 @@ public class FilmUpITPlugin extends ImdbPlugin {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
-            // logger.finest("extractTags no sectionStart Tags found");
+            // logger.debug("extractTags no sectionStart Tags found");
             return tags;
         }
         index += sectionStart.length();
         int endIndex = src.indexOf(sectionEnd, index);
         if (endIndex == -1) {
-            // logger.finest("extractTags no sectionEnd Tags found");
+            // logger.debug("extractTags no sectionEnd Tags found");
             return tags;
         }
 
@@ -275,18 +275,18 @@ public class FilmUpITPlugin extends ImdbPlugin {
             index = sectionText.indexOf(startTag);
             startLen = startTag.length();
         }
-        // logger.finest("extractTags sectionText = " + sectionText);
-        // logger.finest("extractTags startTag = " + startTag);
-        // logger.finest("extractTags startTag index = " + index);
+        // logger.debug("extractTags sectionText = " + sectionText);
+        // logger.debug("extractTags startTag = " + startTag);
+        // logger.debug("extractTags startTag index = " + index);
         while (index != -1) {
             index += startLen;
             endIndex = sectionText.indexOf(endTag, index);
             if (endIndex == -1) {
-                logger.finest("extractTags no endTag found");
+                logger.debug("extractTags no endTag found");
                 endIndex = lastIndex;
             }
             String text = sectionText.substring(index, endIndex);
-            // logger.finest("extractTags Tag found text = [" + text+"]");
+            // logger.debug("extractTags Tag found text = [" + text+"]");
 
             // replaceAll used because trim() does not trim unicode space
             tags.add(HTMLTools.decodeHtml(text.trim()).replaceAll("^[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*\\b(.*)\\b[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*$", "$1"));
@@ -307,13 +307,13 @@ public class FilmUpITPlugin extends ImdbPlugin {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
-            // logger.finest("extractTags no sectionStart Tags found");
+            // logger.debug("extractTags no sectionStart Tags found");
             return tags;
         }
         index += sectionStart.length();
         int endIndex = src.indexOf(sectionEnd, index);
         if (endIndex == -1) {
-            // logger.finest("extractTags no sectionEnd Tags found");
+            // logger.debug("extractTags no sectionEnd Tags found");
             return tags;
         }
 
@@ -325,9 +325,9 @@ public class FilmUpITPlugin extends ImdbPlugin {
         if (startTag != null) {
             index = sectionText.indexOf(startTag);
         }
-        // logger.finest("extractTags sectionText = " + sectionText);
-        // logger.finest("extractTags startTag = " + startTag);
-        // logger.finest("extractTags startTag index = " + index);
+        // logger.debug("extractTags sectionText = " + sectionText);
+        // logger.debug("extractTags startTag = " + startTag);
+        // logger.debug("extractTags startTag index = " + index);
         while (index != -1) {
             endIndex = sectionText.indexOf(endTag, index);
             if (endIndex == -1) {
@@ -335,7 +335,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
             endIndex += endLen;
             String text = sectionText.substring(index, endIndex);
-            // logger.finest("extractTags Tag found text = " + text);
+            // logger.debug("extractTags Tag found text = " + text);
             tags.add(text);
             if (endIndex > lastIndex) {
                 break;
@@ -355,23 +355,23 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
         // If we use FilmUpIT plugin look for
         // http://www.FilmUpIT.fr/...=XXXXX.html
-        logger.finest("Scanning NFO for Filmup Id");
+        logger.debug("Scanning NFO for Filmup Id");
         int beginIndex = nfo.indexOf("http://filmup.leonardo.it/");
         if (beginIndex != -1) {
             int beginIdIndex = nfo.indexOf("sc_", beginIndex);
             if (beginIdIndex != -1) {
                 int endIdIndex = nfo.indexOf(".", beginIdIndex);
                 if (endIdIndex != -1) {
-                    logger.finer("Filmup Id found in nfo = " + nfo.substring(beginIdIndex + 3, endIdIndex));
+                    logger.debug("Filmup Id found in nfo = " + nfo.substring(beginIdIndex + 3, endIdIndex));
                     movie.setId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID, nfo.substring(beginIdIndex + 3, endIdIndex));
                 } else {
-                    logger.finer("No Filmup Id found in nfo !");
+                    logger.debug("No Filmup Id found in nfo !");
                 }
             } else {
-                logger.finer("No Filmup Id found in nfo !");
+                logger.debug("No Filmup Id found in nfo !");
             }
         } else {
-            logger.finer("No Filmup Id found in nfo !");
+            logger.debug("No Filmup Id found in nfo !");
         }
     }
 }

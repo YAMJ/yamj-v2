@@ -16,7 +16,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,7 +80,7 @@ public class ImdbInfo {
         preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
         siteDef = matchesDataPerSite.get(imdbSite);
         if (siteDef == null) {
-            logger.warning("ImdbInfo: No site definition for " + imdbSite + " using the default instead " + DEFAULT_SITE);
+            logger.warn("ImdbInfo: No site definition for " + imdbSite + " using the default instead " + DEFAULT_SITE);
             siteDef = matchesDataPerSite.get(DEFAULT_SITE);
         }
     }
@@ -132,8 +132,8 @@ public class ImdbInfo {
             }
 
         } catch (Exception error) {
-            logger.severe("ImdbInfo Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("ImdbInfo Error : " + error.getMessage());
+            logger.error("ImdbInfo Failed retreiving IMDb Id for movie : " + movieName);
+            logger.error("ImdbInfo Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -149,7 +149,7 @@ public class ImdbInfo {
      */
     private String getImdbIdFromGoogle(String movieName, String year) {
         try {
-            logger.finer("ImdbInfo querying Google for " + movieName);
+            logger.debug("ImdbInfo querying Google for " + movieName);
 
             StringBuffer sb = new StringBuffer("http://www.google.com/search?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
@@ -160,7 +160,7 @@ public class ImdbInfo {
 
             sb.append("+site%3Awww.imdb.com&meta=");
 
-            logger.finest("ImdbInfo Google search: " + sb.toString());
+            logger.debug("ImdbInfo Google search: " + sb.toString());
             
             String xml = webBrowser.request(sb.toString());
             String imdbId = Movie.UNKNOWN;
@@ -172,15 +172,15 @@ public class ImdbInfo {
             }
 
             if (imdbId.startsWith("tt")) {
-                logger.finer("Found IMDb ID: " + imdbId);
+                logger.debug("Found IMDb ID: " + imdbId);
                 return imdbId;
             } else {
                 return Movie.UNKNOWN;
             }
 
         } catch (Exception error) {
-            logger.severe("ImdbInfo Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("ImdbInfo Error : " + error.getMessage());
+            logger.error("ImdbInfo Failed retreiving IMDb Id for movie : " + movieName);
+            logger.error("ImdbInfo Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -209,14 +209,14 @@ public class ImdbInfo {
             }
             sb.append(";s=tt;site=aka");
 
-            logger.finest("ImdbInfo Querying IMDB for " + sb.toString());
+            logger.debug("ImdbInfo Querying IMDB for " + sb.toString());
             String xml = webBrowser.request(sb.toString());
 
             // Check if this is an exact match (we got a movie page instead of a results list)
             Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "title/") + "(tt\\d+)/\"");
             Matcher titlematch = titleregex.matcher(xml);
             if (titlematch.find()) {
-               logger.finer("ImdbInfo: IMDb returned one match " + titlematch.group(1));
+               logger.debug("ImdbInfo: IMDb returned one match " + titlematch.group(1));
                return titlematch.group(1);
             }
             
@@ -255,13 +255,13 @@ public class ImdbInfo {
             }
             
             // If we don't have an ID try google
-            logger.finer("Failed to find an exact match on IMDb, trying Google");
+            logger.debug("Failed to find an exact match on IMDb, trying Google");
             return getImdbIdFromGoogle(movieName, year);
 
             // return searchForTitle(xml, movieName);
         } catch (Exception error) {
-            logger.severe("ImdbInfo Failed retreiving IMDb Id for movie : " + movieName);
-            logger.severe("ImdbInfo Error : " + error.getMessage());
+            logger.error("ImdbInfo Failed retreiving IMDb Id for movie : " + movieName);
+            logger.error("ImdbInfo Error : " + error.getMessage());
         }
 
         return Movie.UNKNOWN;
@@ -286,10 +286,10 @@ public class ImdbInfo {
             // && (null == year || Movie.UNKNOWN == year || year.equals(match.group(3)))
             // && (!perfectMatch || movieName.equalsIgnoreCase(match.group(2)))
             ) {
-                logger.finest("ImdbInfo: " + movieName + ": found IMDB match, " + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
+                logger.debug("ImdbInfo: " + movieName + ": found IMDB match, " + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
                 return match.group(1);
             } else {
-                logger.finest("ImdbInfo: " + movieName + ": rejected IMDB match " + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
+                logger.debug("ImdbInfo: " + movieName + ": rejected IMDB match " + match.group(2) + " (" + match.group(3) + ") " + match.group(4));
             }
         }
 

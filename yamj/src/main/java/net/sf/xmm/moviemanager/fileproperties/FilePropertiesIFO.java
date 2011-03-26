@@ -18,7 +18,7 @@
  * Contact: bro3@users.sourceforge.net
  * -----------------------------------------------------
  * gaelead modifications :
- * - org.apache.log4j.Logger switched to java.util.logging.Logger
+ * - org.apache.log4j.Logger switched to org.apache.log4j.Logger
  * - Use only getRuntime (Video/Audio/Subs info will be scanned by mediainfo)
  * - removed all unused code
  * - fixed the way duration is computed (minutes and seconds interpretation was
@@ -58,7 +58,7 @@ class FilePropertiesIFO extends FileProperties {
 
             //log.finest("Processing IFO file done.");
         } else {
-            log.finest("IFO type (" + Integer.toString(streamType) + ") not supported. Expecting (" + Integer.toString(DVDVIDEO_VTS) + ")");
+            logger.debug("IFO type (" + Integer.toString(streamType) + ") not supported. Expecting (" + Integer.toString(DVDVIDEO_VTS) + ")");
         }
     }
 

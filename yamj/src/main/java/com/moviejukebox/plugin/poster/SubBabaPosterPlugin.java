@@ -13,7 +13,7 @@
 package com.moviejukebox.plugin.poster;
 
 import java.net.URLEncoder;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.Writer;
 import java.io.StringWriter;
@@ -105,8 +105,8 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             }
 
         } catch (Exception e) {
-            logger.severe("Failed retreiving SubBaba Id for movie : " + title);
-            logger.severe("Error : " + e.getMessage());
+            logger.error("Failed retreiving SubBaba Id for movie : " + title);
+            logger.error("Error : " + e.getMessage());
         }
         return response;
     }
@@ -131,11 +131,11 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
                 return posterImage;
             } catch (IOException error) {
-                logger.severe("Failed retreiving SubBaba poster for movie : " + id);
+                logger.error("Failed retreiving SubBaba poster for movie : " + id);
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         }
         return Image.UNKNOWN;

@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -204,19 +204,19 @@ public class Library implements Map<String, Movie> {
         }
         
         if (newMovieDays > 0) {
-            logger.finest("New Movie category will have " + (newMovieCount > 0 ? ("the " + newMovieCount) : "all of the") + " most recent movies in the last " + newMovieDays + " days");
+            logger.debug("New Movie category will have " + (newMovieCount > 0 ? ("the " + newMovieCount) : "all of the") + " most recent movies in the last " + newMovieDays + " days");
             // Convert newDays from DAYS to MILLISECONDS for comparison purposes
             newMovieDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         } else {
-            logger.finest("New Movie category is disabled");
+            logger.debug("New Movie category is disabled");
         }
 
         if (newTvDays > 0) {
-            logger.finest("New TV category will have " + (newTvCount > 0 ? ("the " + newTvCount) : "all of the") + " most recent TV Shows in the last " + newTvDays + " days");
+            logger.debug("New TV category will have " + (newTvCount > 0 ? ("the " + newTvCount) : "all of the") + " most recent TV Shows in the last " + newTvDays + " days");
             // Convert newDays from DAYS to MILLISECONDS for comparison purposes
             newTvDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         } else {
-            logger.finest("New category is disabled");
+            logger.debug("New category is disabled");
         }
 }
 
@@ -241,10 +241,10 @@ public class Library implements Map<String, Movie> {
     // synchronized because scanning can be multi-threaded
     public synchronized void addMovie(String key, Movie movie) {
         Movie existingMovie = library.get(key);
-        // logger.finest("Adding video " + key + ", new part: " + (existingMovie != null));
+        // logger.debug("Adding video " + key + ", new part: " + (existingMovie != null));
 
         if (movie.isExtra()) {
-            // logger.finest("  It's an extra: " + movie.getBaseName());
+            // logger.debug("  It's an extra: " + movie.getBaseName());
             extras.put(movie.getBaseName(), movie);
         } else if (existingMovie == null) {
             library.put(key, movie);
@@ -352,18 +352,18 @@ public class Library implements Map<String, Movie> {
 
                 indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
                 indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
-                logger.finest("Setting index master >" + indexMaster.getTitle() + "< - isTV: " + indexMaster.isTVShow() + " - isHD: " + indexMaster.isHD()
+                logger.debug("Setting index master >" + indexMaster.getTitle() + "< - isTV: " + indexMaster.isTVShow() + " - isHD: " + indexMaster.isHD()
                                 + " - top250: " + indexMaster.getTop250());
                 indexMaster.setTop250(top250);
                 indexMaster.setMovieFiles(master_mf_col);
                 
                 masters.put(index_name, indexMaster);
             } catch (CloneNotSupportedException error) {
-                logger.severe("Failed building index masters");
+                logger.error("Failed building index masters");
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         }
 
@@ -411,7 +411,7 @@ public class Library implements Map<String, Movie> {
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
                         SystemTools.showMemory();
-                        logger.fine("  Indexing " + indexStr + "...");
+                        logger.info("  Indexing " + indexStr + "...");
                         if (indexStr.equals("Other")) {
                             syncindexes.put("Other", indexByProperties(indexMovies));
                         } else if (indexStr.equals("Genres")) {
@@ -477,7 +477,7 @@ public class Library implements Map<String, Movie> {
             tasks.restart();
             
             // OK, now that all the index masters are in-place, sort everything.
-            logger.fine("  Sorting Indexes ...");
+            logger.info("  Sorting Indexes ...");
             for (final Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                 for (final Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
                     tasks.submit(new Callable<Void>() {
@@ -513,7 +513,7 @@ public class Library implements Map<String, Movie> {
                     newList.addAll(otherIndexes.get(categoriesMap.get("New-TV")));
                 }
                 
-                logger.fine("Creating new category with latest Movies and TV Shows");
+                logger.info("Creating new category with latest Movies and TV Shows");
                 otherIndexes.put(categoriesMap.get("New"), newList);
                 Collections.sort(otherIndexes.get(categoriesMap.get("New")), cmpLast);
                 
@@ -540,18 +540,18 @@ public class Library implements Map<String, Movie> {
      */
     private void trimNewCategory(String catName, int catCount) {
         String category = categoriesMap.get(catName);
-        //logger.fine("Trimming '" + catName + "' ('" + category + "') to " + catCount + " videos");
+        //logger.info("Trimming '" + catName + "' ('" + category + "') to " + catCount + " videos");
         if (catCount > 0 && category != null) {
             Index otherIndexes = indexes.get("Other");
             if (otherIndexes != null) {
                 List<Movie> newList = otherIndexes.get(category);
-                //logger.fine("Current size of '" + catName + "' ('" + category + "') is " + (newList != null ? newList.size() : "NULL"));
+                //logger.info("Current size of '" + catName + "' ('" + category + "') is " + (newList != null ? newList.size() : "NULL"));
                 if ((newList != null)  && (newList.size() > catCount)) {
                         newList = newList.subList(0, catCount);
                         otherIndexes.put(category, newList);
                 }
             } else {
-                logger.warning("Warning : You need to enable index 'Other' to get '" + catName + "' ('" + category + "') category");
+                logger.warn("Warning : You need to enable index 'Other' to get '" + catName + "' ('" + category + "') category");
             }
         }
     }
@@ -560,7 +560,7 @@ public class Library implements Map<String, Movie> {
         this.unCompressedIndexes = new HashMap<String, Index>(indexes.size());
         Set<String> indexeskeySet = this.indexes.keySet();
         for (String key : indexeskeySet) {
-            logger.finest("Copying " + key + " indexes");
+            logger.debug("Copying " + key + " indexes");
             Index index = this.indexes.get(key);
             Index indexTmp = new Index();
 
@@ -837,7 +837,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 for (String actor : movie.getCast()) {
-                    logger.finest("Adding " + movie.getTitle() + " to cast list for " + actor);
+                    logger.debug("Adding " + movie.getTitle() + " to cast list for " + actor);
                     index.addMovie(actor, movie);
                     movie.addIndex("Actor", actor);
                 }
@@ -876,7 +876,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 for (String writer : movie.getWriters()) {
-                    logger.finest("Adding " + movie.getTitle() + " to writer list for " + writer);
+                    logger.debug("Adding " + movie.getTitle() + " to writer list for " + writer);
                     index.addMovie(writer, movie);
                     movie.addIndex("Writer", writer);
                 }
@@ -933,10 +933,10 @@ public class Library implements Map<String, Movie> {
 
         String masterRating = ratingsMap.get(rating);
         if (masterRating != null) {
-            logger.fine("*** Changing rating from " + rating + " to " + masterRating); // XXX DEBUG
+            logger.info("*** Changing rating from " + rating + " to " + masterRating); // XXX DEBUG
             return masterRating;
         } else {
-            logger.fine("*** Rating stays as " + rating); // XXX DEBUG
+            logger.info("*** Rating stays as " + rating); // XXX DEBUG
             return rating;
         }
     }
@@ -1040,23 +1040,23 @@ public class Library implements Map<String, Movie> {
                 List<HierarchicalConfiguration> genres = c.configurationsAt("genre");
                 for (HierarchicalConfiguration genre : genres) {
                     String masterGenre = genre.getString("[@name]");
-                    // logger.finest("New masterGenre parsed : (" + masterGenre+ ")");
+                    // logger.debug("New masterGenre parsed : (" + masterGenre+ ")");
                     List<String> subgenres = genre.getList("subgenre");
                     for (String subgenre : subgenres) {
-                        // logger.finest("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
+                        // logger.debug("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
                         genresMap.put(subgenre, masterGenre);
                     }
 
                 }
             } catch (Exception error) {
-                logger.severe("Failed parsing moviejukebox genre input file: " + xmlGenreFile.getName());
+                logger.error("Failed parsing moviejukebox genre input file: " + xmlGenreFile.getName());
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         } else {
-            logger.severe("The moviejukebox genre input file you specified is invalid: " + xmlGenreFile.getName());
+            logger.error("The moviejukebox genre input file you specified is invalid: " + xmlGenreFile.getName());
         }
     }
 
@@ -1071,23 +1071,23 @@ public class Library implements Map<String, Movie> {
                 List<HierarchicalConfiguration> ratings = c.configurationsAt("rating");
                 for (HierarchicalConfiguration rating : ratings) {
                     String masterRating = rating.getString("[@name]");
-                    // logger.finest("New masterGenre parsed : (" + masterGenre+ ")");
+                    // logger.debug("New masterGenre parsed : (" + masterGenre+ ")");
                     List<String> subratings = rating.getList("subrating");
                     for (String subrating : subratings) {
-                        // logger.fine("New rating added to map : (" + subrating + "," + masterRating + ")");
+                        // logger.info("New rating added to map : (" + subrating + "," + masterRating + ")");
                         ratingsMap.put(subrating, masterRating);
                     }
 
                 }
             } catch (Exception error) {
-                logger.severe("Failed parsing moviejukebox ratings input file: " + xmlRatingFile.getName());
+                logger.error("Failed parsing moviejukebox ratings input file: " + xmlRatingFile.getName());
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         } else {
-            logger.severe("The moviejukebox rating input file you specified is invalid: " + xmlRatingFile.getName());
+            logger.error("The moviejukebox rating input file you specified is invalid: " + xmlRatingFile.getName());
         }
     }
 
@@ -1107,18 +1107,18 @@ public class Library implements Map<String, Movie> {
                         String origName = category.getString("[@name]");
                         String newName = category.getString("rename", origName);
                         categoriesMap.put(origName, newName);
-                        //logger.finest("Added category '" + origName + "' with name '" + newName + "'");
+                        //logger.debug("Added category '" + origName + "' with name '" + newName + "'");
                     }
                 }
             } catch (Exception error) {
-                logger.severe("Failed parsing moviejukebox category input file: " + xmlFile.getName());
+                logger.error("Failed parsing moviejukebox category input file: " + xmlFile.getName());
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         } else {
-            logger.severe("The moviejukebox category input file you specified is invalid: " + xmlFile.getName());
+            logger.error("The moviejukebox category input file you specified is invalid: " + xmlFile.getName());
         }
     }
 
@@ -1234,7 +1234,7 @@ public class Library implements Map<String, Movie> {
         List<Movie> list = this.unCompressedIndexes.get(indexName).get(categorie);
         for (Movie movie : boxedSetMovies) {
             if (list.contains(movie)) {
-                logger.finest("Movie " + movie.getTitle() + " match for " + indexName + "[" + categorie + "]");
+                logger.debug("Movie " + movie.getTitle() + " match for " + indexName + "[" + categorie + "]");
                 response.add(movie);
             }
         }

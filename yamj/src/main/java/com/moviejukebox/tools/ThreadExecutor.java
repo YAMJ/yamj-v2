@@ -31,7 +31,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,7 +59,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         // Default, can be overridden
         grouplimits.put(".*", new Semaphore(1));
         String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
-        logger.finer("Using download limits: " + limitsProperty);
+        logger.debug("Using download limits: " + limitsProperty);
 
         Pattern semaphorePattern = Pattern.compile(",?\\s*([^=]+)=(\\d+)");
         Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
@@ -67,10 +67,10 @@ public class ThreadExecutor<T> implements ThreadFactory {
             String group = semaphoreMatcher.group(1);
             try {
                 Pattern.compile(group);
-                logger.finer(group + "=" + semaphoreMatcher.group(2));
+                logger.debug(group + "=" + semaphoreMatcher.group(2));
                 grouplimits.put(group, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
             } catch (Exception error) {
-                logger.finer("Rule \"" + group + "\" is not valid regexp, ignored");
+                logger.debug("Rule \"" + group + "\" is not valid regexp, ignored");
             }
         }
     }
@@ -123,7 +123,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
             if(!hosts.empty()){
                 //going to the same host is ok
                 if(!host.equals(hosts.peek())){
-                  logger.finer("ThreadExecutor: Nested EnterIO("+host+"); previous("+hosts.peek()+"); ignored");
+                  logger.debug("ThreadExecutor: Nested EnterIO("+host+"); previous("+hosts.peek()+"); ignored");
                 }
                 hosts.push(host);
                 return;
@@ -141,7 +141,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
                             }
                         }
                     }
-                    logger.finer(String.format("IO download host: %s; rule: %s", host, semaphoreGroup));
+                    logger.debug(String.format("IO download host: %s; rule: %s", host, semaphoreGroup));
                     hostgrp.put(host, semaphoreGroup);
                 }
             }
@@ -161,13 +161,13 @@ public class ThreadExecutor<T> implements ThreadFactory {
 
         private void leaveIO(){
             if (hosts.empty()) {
-                logger.fine(ThreadExecutor.getStackTrace(new Throwable("ThreadExecutor: Unbalanced LeaveIO call.")));
+                logger.info(ThreadExecutor.getStackTrace(new Throwable("ThreadExecutor: Unbalanced LeaveIO call.")));
                 return;
             }
             String host = hosts.pop();
             if (!hosts.empty()) {
                 if(!host.equals(hosts.peek())){
-                  logger.finer("Nested LeaveIO("+host+"); previous("+hosts.peek()+"); ignored");
+                  logger.debug("Nested LeaveIO("+host+"); previous("+hosts.peek()+"); ignored");
                 }
                 return;
             }
@@ -184,7 +184,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
 
     static public void enterIO(URL url){
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
-            // logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to EnterIO; ignored.")));
+            // logger.info(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to EnterIO; ignored.")));
             // If this isn't a managed thread, then just exit.
             return;
         }
@@ -199,8 +199,8 @@ public class ThreadExecutor<T> implements ThreadFactory {
             try {
                 u = new URL("http://"+url);
             } catch (MalformedURLException e1) {
-                logger.fine("ThreadExecutor: Invalid call to EnterIO.");
-                logger.fine(getStackTrace(e1));
+                logger.info("ThreadExecutor: Invalid call to EnterIO.");
+                logger.info(getStackTrace(e1));
                 return;
             }
         }
@@ -209,7 +209,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
 
     static public void leaveIO(){
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
-            //logger.fine(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to LeaveIO; ignored.")));
+            //logger.info(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to LeaveIO; ignored.")));
             // If this isn't a managed thread, then just exit.
             return;
         }
@@ -271,7 +271,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
                 v.add(f.get());
             } catch (ExecutionException e) {
                 if(ignoreErrors) {
-                    logger.fine(getStackTrace(e.getCause()));
+                    logger.info(getStackTrace(e.getCause()));
                 } else {
                     throw e.getCause();
                 }
@@ -287,7 +287,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         waitForValues();
         int dif = threadsIo - ioThreads.availablePermits(); 
         if (dif != 0) {
-            logger.severe("ThreadExecutor: Unfinished downloading threads detected: " + dif);
+            logger.error("ThreadExecutor: Unfinished downloading threads detected: " + dif);
         }
     }
 }

@@ -15,7 +15,7 @@ package com.moviejukebox.plugin.poster;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -70,12 +70,12 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                         break;
                     }
                 } else {
-                    logger.warning("Not matching data for search film result : " + tmp.get(i));
+                    logger.warn("Not matching data for search film result : " + tmp.get(i));
                 }
                 i++; // Step of 2
             }
         } catch (Exception error) {
-            logger.severe("Failed to retrieve Scope ID for movie : " + title);
+            logger.error("Failed to retrieve Scope ID for movie : " + title);
         }
         return response;
     }
@@ -98,8 +98,8 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                 }
 
             } catch (Exception e) {
-                logger.severe("Failed retreiving ScopeDk url for movie : " + id);
-                logger.severe("Error : " + e.getMessage());
+                logger.error("Failed retreiving ScopeDk url for movie : " + id);
+                logger.error("Error : " + e.getMessage());
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

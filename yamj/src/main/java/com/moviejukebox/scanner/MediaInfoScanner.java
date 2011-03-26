@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
@@ -64,9 +64,9 @@ public class MediaInfoScanner {
     private String randomDirName;
 
     static {
-        logger.finer("Operating System Name   : " + OS_NAME);
-        logger.finer("Operating System Version: " + OS_VERSION);
-        logger.finer("Operating System Type   : " + OS_ARCH);
+        logger.debug("Operating System Name   : " + OS_NAME);
+        logger.debug("Operating System Version: " + OS_VERSION);
+        logger.debug("Operating System Type   : " + OS_ARCH);
 
         mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
         enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
@@ -82,10 +82,10 @@ public class MediaInfoScanner {
         }
         // System.out.println(checkMediainfo.getAbsolutePath());
         if (!checkMediainfo.canExecute()) {
-            logger.fine("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
+            logger.info("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
             activated = false;
         } else {
-            logger.fine("MediaInfo tool will be used to extract video data");
+            logger.info("MediaInfo tool will be used to extract video data");
             activated = true;
         }
     }
@@ -118,8 +118,8 @@ public class MediaInfoScanner {
             try {
                 abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
             } catch (Exception error) {
-                logger.finer("Error reading disk Image. Please re-rip and try again");
-                logger.fine(error.getMessage());
+                logger.debug("Error reading disk Image. Please re-rip and try again");
+                logger.info(error.getMessage());
                 return;
             }
 
@@ -142,7 +142,7 @@ public class MediaInfoScanner {
                     }
                 }
             } catch (Exception error) {
-                logger.fine(error.getMessage());
+                logger.info(error.getMessage());
             }
 
             // Scan IFO files
@@ -193,7 +193,7 @@ public class MediaInfoScanner {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
 
     }
@@ -234,7 +234,7 @@ public class MediaInfoScanner {
             // Get cat ArrayList from cat name.
             ArrayList<HashMap<String, String>> currentCat = matches.get(line);
             if (currentCat != null) {
-                // logger.finer("Current category : " + line);
+                // logger.debug("Current category : " + line);
                 HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
@@ -630,7 +630,7 @@ public class MediaInfoScanner {
                         }
                     }
                 } else {
-                    logger.finest("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
+                    logger.debug("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
                 }
             }
         }

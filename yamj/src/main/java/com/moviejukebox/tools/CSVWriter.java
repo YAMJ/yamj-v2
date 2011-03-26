@@ -13,7 +13,7 @@
 package com.moviejukebox.tools;
 
 import java.io.*;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * User: JDGJr
@@ -32,7 +32,7 @@ public class CSVWriter {
         try {
             writer = new FileWriter(csvFile);
         } catch (Exception ex) {
-            logger.severe("Error creating CSV file: " + csvFile);
+            logger.error("Error creating CSV file: " + csvFile);
         }
     }
 

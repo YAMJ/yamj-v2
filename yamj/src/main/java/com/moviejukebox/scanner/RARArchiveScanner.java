@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.tools.ArchiveScanner;
 
@@ -59,13 +59,11 @@ public class RARArchiveScanner implements ArchiveScanner {
                 if(".rar".equalsIgnoreCase(new String(name.substring(name.length() - 4))) || name.endsWith(".000") || name.endsWith(".001")) {
                     Archive archive=null;
                     try {
-                        if(logger.isLoggable(Level.FINEST)) {
-                            logger.finest("Processing "+name+"...");
-                        }
+                        logger.debug("Processing "+name+"...");
                         archive=new Archive(new File(parent,name));
                         MainHeader mh=archive.getMainHeader();
                         if(mh.isEncrypted()) {
-                            logger.warning("Encrypted archive, skipping...");
+                            logger.warn("Encrypted archive, skipping...");
                             continue;
                         }
 
@@ -100,7 +98,7 @@ public class RARArchiveScanner implements ArchiveScanner {
                                 try {
                                     nextVolume=Integer.parseInt(matcher.group(2))+1;
                                 } catch(NumberFormatException e) {
-                                    logger.warning("RAR part regex matches but is not an integer");
+                                    logger.warn("RAR part regex matches but is not an integer");
                                     continue;
                                 }
                                 volumeFormat="%s%0"+matcher.group(2).length()+"d%s";
@@ -118,11 +116,11 @@ public class RARArchiveScanner implements ArchiveScanner {
                             boolean isSplitAfter=false;
                             for(FileHeader fh: archive.getFileHeaders()) {
                                 String fileName=getFileName(fh);
-                                if(logger.isLoggable(Level.FINEST)) {
+                                if(logger.isDebugEnabled()) {
                                     if(!fh.isSplitBefore())
-                                        logger.finest("\t\t"+fileName);
+                                        logger.debug("\t\t"+fileName);
                                     else
-                                        logger.finest("...\t\t"+fileName);
+                                        logger.debug("...\t\t"+fileName);
                                 }
                                 isSplitAfter=fh.isSplitAfter();
                                 // ignore latter parts of a files, already handled as the first part
@@ -130,7 +128,7 @@ public class RARArchiveScanner implements ArchiveScanner {
                                     continue;
                                 }
                                 if(fh.isEncrypted()) {
-                                    logger.warning("Encrypted file, skipping...");
+                                    logger.warn("Encrypted file, skipping...");
                                     continue;
                                 }
                                 if(!fh.isDirectory()) {
@@ -149,19 +147,17 @@ public class RARArchiveScanner implements ArchiveScanner {
                             archive.close();
                             mh=null;
                             name=String.format(volumeFormat,namePrefix,nextVolume++,nameSuffix);
-                            if(logger.isLoggable(Level.FINEST)) {
-                                logger.finest("Processing "+name+"...");
-                            }
+                            logger.debug("Processing "+name+"...");
                             archive=new Archive(new File(parent,name));
                         }
                     } catch (RarException e) {
                         // .000 and .001 can be other files than RARs
                         if (!((name.endsWith(".000") || name.endsWith(".001")) && e.getType() == RarExceptionType.notRarArchive)) {
-                            logger.warning("Could not process RAR \""+new File(parent,name).getPath()+"\", reason: "+e.getType());
+                            logger.warn("Could not process RAR \""+new File(parent,name).getPath()+"\", reason: "+e.getType());
                         }
                         // feature: if the failed file is .rar (and the next file would be .r00), the .r## files will be left in the directory.
                     } catch (IOException e) {
-                        logger.warning("Could not process RAR \""+new File(parent,name).getPath()+"\", reason: "+e.getMessage());
+                        logger.warn("Could not process RAR \""+new File(parent,name).getPath()+"\", reason: "+e.getMessage());
                     } finally {
                         if(archive!=null) {
                             try {
@@ -334,7 +330,7 @@ public class RARArchiveScanner implements ArchiveScanner {
         // possible bug: this leaks non-virtual files. But it's not used anywhere at the moment
         @Override
         public File getAbsoluteFile() {
-            logger.severe("possible bug, calling RARArchiveScanner.VirtualFile.getAbsoluteFile()");
+            logger.error("possible bug, calling RARArchiveScanner.VirtualFile.getAbsoluteFile()");
             return super.getAbsoluteFile();
         }
 
@@ -346,7 +342,7 @@ public class RARArchiveScanner implements ArchiveScanner {
         // possible bug: this leaks non-virtual files. But it's not used anywhere at the moment
         @Override
         public File getCanonicalFile() throws IOException {
-            logger.severe("possible bug, calling RARArchiveScanner.VirtualFile.getCanonicalFile()");
+            logger.error("possible bug, calling RARArchiveScanner.VirtualFile.getCanonicalFile()");
             return super.getCanonicalFile();
         }
 

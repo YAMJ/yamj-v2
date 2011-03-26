@@ -14,7 +14,7 @@ package com.moviejukebox.plugin;
 
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import org.pojava.datetime.DateTime;
 
@@ -79,18 +79,18 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (StringTools.isValidString(tmdbID)) {
                 // Search based on TMdb ID
-                logger.finer("TheMovieDbPlugin: Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
+                logger.debug("TheMovieDbPlugin: Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
                 moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
             } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
-                logger.finer("TheMovieDbPlugin: Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
+                logger.debug("TheMovieDbPlugin: Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
                 moviedb = TMDb.moviedbImdbLookup(imdbID, language);
                 tmdbID = moviedb.getId();
                 if (StringTools.isNotValidString(tmdbID)) {
-                    logger.finer("TheMovieDbPlugin: No TMDb ID found for movie!");
+                    logger.debug("TheMovieDbPlugin: No TMDb ID found for movie!");
                 }
             } else {
-                logger.finer("TheMovieDbPlugin: Search using title & year: " + movie.getTitle() + " (" + movie.getYear() + ")");
+                logger.debug("TheMovieDbPlugin: Search using title & year: " + movie.getTitle() + " (" + movie.getYear() + ")");
                 String yearSuffix = "";
                 if (StringTools.isValidString(movie.getYear())) {
                     yearSuffix = " " + movie.getYear();
@@ -103,10 +103,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     tmdbID = moviedb.getId();
                     // Get the full information on the film
                     moviedb = TMDb.moviedbGetInfo(tmdbID, moviedb, language);
-                    logger.finer("TheMovieDbPlugin: Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
+                    logger.debug("TheMovieDbPlugin: Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
                 } else {
-                    logger.finer("TheMovieDbPlugin: Movie " + movie.getTitle() + yearSuffix + " not found!");
-                    logger.finest("Try using a NFO file to specify the movie");
+                    logger.debug("TheMovieDbPlugin: Movie " + movie.getTitle() + yearSuffix + " not found!");
+                    logger.debug("Try using a NFO file to specify the movie");
                 }
             }
         } finally {
@@ -187,7 +187,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 float rating = Float.valueOf(moviedb.getRating()) * 10; // Convert rating to integer
                 movie.setRating((int) rating);
             } catch (Exception error) {
-                logger.finer("TheMovieDbPlugin: Error converting rating for " + movie.getBaseName());
+                logger.debug("TheMovieDbPlugin: Error converting rating for " + movie.getBaseName());
                 movie.setRating(-1);
             }
         }
@@ -316,14 +316,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public void scanNFO(String nfo, Movie movie) {
         int beginIndex;
         
-        logger.finest("Scanning NFO for TheMovieDb Id");
+        logger.debug("Scanning NFO for TheMovieDb Id");
         beginIndex = nfo.indexOf("/movie/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 7)), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(TMDB_PLUGIN_ID, st.nextToken());
-            logger.finer("TheMovieDb Id found in nfo = " + movie.getId(TMDB_PLUGIN_ID));
+            logger.debug("TheMovieDb Id found in nfo = " + movie.getId(TMDB_PLUGIN_ID));
         } else {
-            logger.finer("No TheMovieDb Id found in nfo!");
+            logger.debug("No TheMovieDb Id found in nfo!");
         }
         
         // We might as well look for the IMDb ID as well
@@ -331,13 +331,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 1)), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
-            logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+            logger.debug("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         } else {
             beginIndex = nfo.indexOf("/Title?");
             if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                 StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 7)), "/ \n,:!&é\"'(--è_çà)=$");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
-                logger.finer("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+                logger.debug("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             }
         }
     }

@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -60,7 +60,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             // int tryLeft = nbRetry;
             int startSearch = 0;
             // while (tryLeft-- > 0 && Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
-            // logger.finest("GooglePosterPlugin: Try " + (nbRetry - tryLeft) + "/" + nbRetry);
+            // logger.debug("GooglePosterPlugin: Try " + (nbRetry - tryLeft) + "/" + nbRetry);
             String searchString = "imgurl=";
             int beginIndex = xml.indexOf(searchString, startSearch) + 7;
 
@@ -79,8 +79,8 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             // }
             // }
         } catch (Exception error) {
-            logger.severe("GooglePosterPlugin: Failed retreiving poster URL from google images : " + title);
-            logger.severe("Error : " + error.getMessage());
+            logger.error("GooglePosterPlugin: Failed retreiving poster URL from google images : " + title);
+            logger.error("Error : " + error.getMessage());
         }
         return posterImage;
     }
@@ -103,7 +103,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             in.close();
             return true;
         } catch (IOException ignore) {
-            logger.finest("GooglePosterPlugin: ValidatePoster error: " + ignore.getMessage() + ": can't open url");
+            logger.debug("GooglePosterPlugin: ValidatePoster error: " + ignore.getMessage() + ": can't open url");
             return false; // Quit and return a false poster
         }
     }

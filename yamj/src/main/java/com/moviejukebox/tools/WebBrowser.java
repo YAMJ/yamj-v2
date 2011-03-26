@@ -27,7 +27,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.moviejukebox.tools.SystemTools.Base64;
@@ -152,7 +152,7 @@ public class WebBrowser {
                     // We have HTTP connections, so these are always valid
                     content.flush();
                 } catch (Exception error) {
-                    logger.severe("WebBrowser: Error getting URL " + url.toString());
+                    logger.error("WebBrowser: Error getting URL " + url.toString());
                 }
                 finally {
                     if (in != null) {
@@ -160,7 +160,7 @@ public class WebBrowser {
                     }
                 }
             } catch (SocketTimeoutException error) {
-                logger.severe("Timeout Error with " + url.toString());
+                logger.error("Timeout Error with " + url.toString());
             } finally {
                 if (cnx != null) {
                     if(cnx instanceof HttpURLConnection) {
@@ -210,7 +210,7 @@ public class WebBrowser {
                     success = true;
                 } else {
                     retryCount--;
-                    logger.finest("WebBrowser: Image download attempt failed, bytes expected: " + reportedLength + ", bytes received: " + inputStreamLength);
+                    logger.debug("WebBrowser: Image download attempt failed, bytes expected: " + reportedLength + ", bytes received: " + inputStreamLength);
                 }
             }
         } finally {
@@ -218,7 +218,7 @@ public class WebBrowser {
         }
         
         if (!success) {
-            logger.finest("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
+            logger.debug("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
         }
     }
     
@@ -338,7 +338,7 @@ public class WebBrowser {
             charset = Charset.defaultCharset();
         }
 
-        // logger.finest("Detected charset " + charset);
+        // logger.debug("Detected charset " + charset);
         return charset;
     }
 

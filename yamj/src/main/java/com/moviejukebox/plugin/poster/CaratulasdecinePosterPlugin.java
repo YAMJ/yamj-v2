@@ -15,7 +15,7 @@ package com.moviejukebox.plugin.poster;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -90,8 +90,8 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
             }
 
         } catch (Exception e) {
-            logger.severe("Failed retreiving CaratulasdecinePoster Id for movie : " + title);
-            logger.severe("Error : " + e.getMessage());
+            logger.error("Failed retreiving CaratulasdecinePoster Id for movie : " + title);
+            logger.error("Error : " + e.getMessage());
         }
         return response;
     }
@@ -114,8 +114,8 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
 
             } catch (Exception e) {
-                logger.severe("Failed retreiving CaratulasdecinePoster url for movie : " + id);
-                logger.severe("Error : " + e.getMessage());
+                logger.error("Failed retreiving CaratulasdecinePoster url for movie : " + id);
+                logger.error("Error : " + e.getMessage());
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

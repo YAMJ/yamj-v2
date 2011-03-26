@@ -24,7 +24,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,7 +95,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             anidbPort = PropertiesUtil.getIntProperty("anidb.port", "1025");
         } catch (Exception ignore) {
             anidbPort = 1025;
-            logger.severe(LOG_MESSAGE + "Error setting the port to '" + PropertiesUtil.getProperty("anidb.port") + "' using default");
+            logger.error(LOG_MESSAGE + "Error setting the port to '" + PropertiesUtil.getProperty("anidb.port") + "' using default");
         }
         
         anidbMask = new AnimeMask(true, true, true, false, false, true, false, false, false, true, true, true, true, true, true, true, true, false, true, true, true, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, false, true, false);
@@ -106,20 +106,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         hash = PropertiesUtil.getBooleanProperty("anidb.useHashIdentification", "false");
         
         if (anidbUsername == null || anidbPassword == null) {
-            logger.severe(LOG_MESSAGE + "You need to add your AniDb Username & password to the anidb.username & anidb.password properties");
+            logger.error(LOG_MESSAGE + "You need to add your AniDb Username & password to the anidb.username & anidb.password properties");
             anidbConnectionProtection = true;
         }
     }
     
     @Override
     public boolean scan(Movie movie) {
-        logger.fine(LOG_MESSAGE + "Scanning as a Movie");
+        logger.info(LOG_MESSAGE + "Scanning as a Movie");
         return anidbScan(movie);
     }
 
     @Override
     public void scanTVShowTitles(Movie movie) {
-        logger.fine(LOG_MESSAGE + "Scanning as a TV Show");
+        logger.info(LOG_MESSAGE + "Scanning as a TV Show");
         anidbScan(movie);
         return;
     }
@@ -133,7 +133,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         if (!anidbConnectionProtection) {
             anidbOpen();
         } else {
-            logger.fine(LOG_MESSAGE + "There was an error with the connection, no more connections will be attempted!");
+            logger.info(LOG_MESSAGE + "There was an error with the connection, no more connections will be attempted!");
             return false;
         }
         
@@ -142,7 +142,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
         
         // Now process the movie
-        logger.fine(LOG_MESSAGE + "Logged in and searching for " + movie.getBaseFilename());
+        logger.info(LOG_MESSAGE + "Logged in and searching for " + movie.getBaseFilename());
         if (hash) {
             if (!anidbHashScan(movie)) {
                 return false;
@@ -155,7 +155,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             
             if (titleMatch.find()) {
                 // If this matches then this is a TV Show
-                logger.fine(LOG_MESSAGE + "Matched as a TV Show");
+                logger.info(LOG_MESSAGE + "Matched as a TV Show");
                 movie.setMovieType(Movie.TYPE_TVSHOW);
                 movie.setSeason(1);
                 movie.setTitle(cleanString(titleMatch.group(2)));
@@ -171,7 +171,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     }
                 }
             } else {
-                logger.fine(LOG_MESSAGE + "Assuming a movie");
+                logger.info(LOG_MESSAGE + "Assuming a movie");
                 titleMatch = Pattern.compile(REGEX_MOVIE).matcher(movie.getBaseFilename());
                 if (titleMatch.find()) {
                     // 4 groups: 1=Scene Group, 2=Anime Name, 3=CRC, 4=Remainder
@@ -183,10 +183,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 movie.setMovieType(Movie.TYPE_MOVIE);
             }
             
-            logger.fine("Title  : " + movie.getTitle());    //XXX: DEBUG
-            logger.fine("Episode: " + (isValidString(episode)? episode : Movie.UNKNOWN));   //XXX: DEBUG
-            logger.fine("CRC    : " + (isValidString(crc)? crc : Movie.UNKNOWN));   //XXX: DEBUG
-            logger.fine("Remain : " + (isValidString(remainder)? remainder : Movie.UNKNOWN));   //XXX: DEBUG
+            logger.info("Title  : " + movie.getTitle());    //XXX: DEBUG
+            logger.info("Episode: " + (isValidString(episode)? episode : Movie.UNKNOWN));   //XXX: DEBUG
+            logger.info("CRC    : " + (isValidString(crc)? crc : Movie.UNKNOWN));   //XXX: DEBUG
+            logger.info("Remain : " + (isValidString(remainder)? remainder : Movie.UNKNOWN));   //XXX: DEBUG
         }
         
         Anime anime = null;
@@ -214,30 +214,30 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             if (error.getReturnCode() == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(error.getReturnString())) {
                 anime = null;
             } else {
-                logger.fine(LOG_MESSAGE + "Unknown AniDb Exception erorr");
+                logger.info(LOG_MESSAGE + "Unknown AniDb Exception erorr");
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
-                logger.severe(eResult.toString());
+                logger.error(eResult.toString());
             }
         }
         
         if (anime != null) {
             // XXX: DEBUG
-            logger.fine("getAnimeId         : " + anime.getAnimeId());
-            logger.fine("getEnglishName     : " + anime.getEnglishName());
-            logger.fine("getPicname         : " + anime.getPicname());
-            logger.fine("getType            : " + anime.getType());
-            logger.fine("getYear            : " + anime.getYear());
-            logger.fine("getAirDate         : " + anime.getAirDate());
-            logger.fine("Date               : " + new DateTime(anime.getAirDate()).toString("dd-MM-yyyy"));
-            logger.fine("getAwardList       : " + anime.getAwardList());
-            logger.fine("getCategoryList    : " + anime.getCategoryList());
-            logger.fine("getCharacterIdList : " + anime.getCharacterIdList());
-            logger.fine("getEndDate         : " + anime.getEndDate());
-            logger.fine("getEpisodes        : " + anime.getEpisodes());
-            logger.fine("getProducerNameList: " + anime.getProducerNameList());
-            logger.fine("getRating          : " + anime.getRating());
+            logger.info("getAnimeId         : " + anime.getAnimeId());
+            logger.info("getEnglishName     : " + anime.getEnglishName());
+            logger.info("getPicname         : " + anime.getPicname());
+            logger.info("getType            : " + anime.getType());
+            logger.info("getYear            : " + anime.getYear());
+            logger.info("getAirDate         : " + anime.getAirDate());
+            logger.info("Date               : " + new DateTime(anime.getAirDate()).toString("dd-MM-yyyy"));
+            logger.info("getAwardList       : " + anime.getAwardList());
+            logger.info("getCategoryList    : " + anime.getCategoryList());
+            logger.info("getCharacterIdList : " + anime.getCharacterIdList());
+            logger.info("getEndDate         : " + anime.getEndDate());
+            logger.info("getEpisodes        : " + anime.getEpisodes());
+            logger.info("getProducerNameList: " + anime.getProducerNameList());
+            logger.info("getRating          : " + anime.getRating());
             // XXX: DEBUG END
             
             movie.setId(ANIDB_PLUGIN_ID, "" + anime.getAnimeId());
@@ -269,22 +269,22 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             
             String plot = HTMLTools.stripTags(getAnimeDescription(animeId));
             // This plot may contain the information on the director and this needs to be stripped from the plot
-            logger.fine("Plot: " + plot); // XXX: DEBUG
+            logger.info("Plot: " + plot); // XXX: DEBUG
             
             movie.setPlot(plot);
             movie.setOutline(plot);
             
             for (MovieFile mf : movie.getFiles()) {
-                logger.fine("File : " + mf.getFilename()); // XXX: DEBUG
-                logger.fine("First: " + mf.getFirstPart()); // XXX: DEBUG
-                logger.fine("Last : " + mf.getLastPart()); // XXX: DEBUG
+                logger.info("File : " + mf.getFilename()); // XXX: DEBUG
+                logger.info("First: " + mf.getFirstPart()); // XXX: DEBUG
+                logger.info("Last : " + mf.getLastPart()); // XXX: DEBUG
             }
             
         } else {
-            logger.fine(LOG_MESSAGE + "Anime not found: " + movie.getTitle());
+            logger.info(LOG_MESSAGE + "Anime not found: " + movie.getTitle());
         }
         
-        logger.fine(LOG_MESSAGE + "Finished " + movie.getBaseFilename());
+        logger.info(LOG_MESSAGE + "Finished " + movie.getBaseFilename());
         return true;
     }
     
@@ -297,18 +297,18 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         try {
             file = getAnimeEpisodeByHash(movie.getFile().length(), hash);
         } catch (UdpConnectionException error) {
-            logger.fine(LOG_MESSAGE + "UDP Connection Error");
+            logger.info(LOG_MESSAGE + "UDP Connection Error");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return false;
         } catch (AniDbException error) {
-            logger.fine(LOG_MESSAGE + "AniDb Exception Error");
+            logger.info(LOG_MESSAGE + "AniDb Exception Error");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
             return false;
         }
         
@@ -333,13 +333,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             return ed2kChecksum.getHexDigest();
         } catch (FileNotFoundException e) {
             // This shouldn't happen
-            logger.severe(LOG_MESSAGE + "Unable to find the file " + file.getAbsolutePath());
+            logger.error(LOG_MESSAGE + "Unable to find the file " + file.getAbsolutePath());
         } catch (IOException error) {
-            logger.severe(LOG_MESSAGE + "Encountered an IO-error while reading file " + file.getAbsolutePath());
+            logger.error(LOG_MESSAGE + "Encountered an IO-error while reading file " + file.getAbsolutePath());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return "";
     }
@@ -420,7 +420,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * @param error
      */
     private void processUdpError(UdpConnectionException error) {
-        logger.fine(LOG_MESSAGE + "Error: " + error.getMessage());
+        logger.info(LOG_MESSAGE + "Error: " + error.getMessage());
     }
     
     /**
@@ -429,30 +429,30 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      */
     private void processAnidbError(AniDbException error) {
         // We should use the return code here, but it doesn't seem to work
-        logger.fine(LOG_MESSAGE + "Error: " + error.getReturnString());
+        logger.info(LOG_MESSAGE + "Error: " + error.getReturnString());
 
         int rc = error.getReturnCode();
         String rs = error.getReturnString();
         // Refactor to switch when the getReturnCode() works
         if (rc == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(rs)) {
-            logger.fine(LOG_MESSAGE + "Anime not found");
+            logger.info(LOG_MESSAGE + "Anime not found");
         } else if (rc == UdpReturnCodes.NO_SUCH_ANIME_DESCRIPTION || "NO SUCH ANIME DESCRIPTION".equals(rs)) {
-            logger.fine(LOG_MESSAGE + "Anime description not found");
+            logger.info(LOG_MESSAGE + "Anime description not found");
         } else {
-            logger.fine(LOG_MESSAGE + "Unknown error occured: " + rc + " - "+ rs);
+            logger.info(LOG_MESSAGE + "Unknown error occured: " + rc + " - "+ rs);
         }
     }
 
     @Override
     public void scanNFO(String nfo, Movie movie) {
-        logger.finest(LOG_MESSAGE + "Scanning NFO for AniDb Id");
+        logger.debug(LOG_MESSAGE + "Scanning NFO for AniDb Id");
         int beginIndex = nfo.indexOf("aid=");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 4)), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
             movie.setId(ANIDB_PLUGIN_ID, st.nextToken());
-            logger.finer(LOG_MESSAGE + "AniDb Id found in nfo = " + movie.getId(ANIDB_PLUGIN_ID));
+            logger.debug(LOG_MESSAGE + "AniDb Id found in nfo = " + movie.getId(ANIDB_PLUGIN_ID));
         } else {
-            logger.finer(LOG_MESSAGE + "No AniDb Id found in nfo!");
+            logger.debug(LOG_MESSAGE + "No AniDb Id found in nfo!");
         }
     }
 
@@ -474,17 +474,17 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             anidbConn.authenticate(anidbUsername, anidbPassword, ANIDB_CLIENT_NAME, ANIDB_CLIENT_VERSION);
             anidbConnectionProtection = false;
         } catch (IllegalArgumentException error) {
-            logger.severe(LOG_MESSAGE + "Error logging in, please check you username & password");
-            logger.severe(LOG_MESSAGE + error.getMessage());
+            logger.error(LOG_MESSAGE + "Error logging in, please check you username & password");
+            logger.error(LOG_MESSAGE + error.getMessage());
             anidbConn = null;
             anidbConnectionProtection = true;
         } catch (UdpConnectionException error) {
-            logger.severe(LOG_MESSAGE + "Error with UDP Connection, please try again later");
-            logger.severe(LOG_MESSAGE + error.getMessage());
+            logger.error(LOG_MESSAGE + "Error with UDP Connection, please try again later");
+            logger.error(LOG_MESSAGE + error.getMessage());
             anidbConn = null;
             anidbConnectionProtection = true;
         } catch (AniDbException error) {
-            logger.severe(LOG_MESSAGE + "Error with AniDb: " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Error with AniDb: " + error.getMessage());
             anidbConn = null;
             anidbConnectionProtection = true;
         } catch (Exception error) {
@@ -492,7 +492,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.severe(eResult.toString());
+            logger.error(eResult.toString());
         }
         return;
     }
@@ -507,7 +507,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         try {
             if (anidbConn != null) {
                 anidbConn.close();
-                logger.fine(LOG_MESSAGE + "Logged out and leaving now.");
+                logger.info(LOG_MESSAGE + "Logged out and leaving now.");
             }
         } catch (Exception error) {
             error.printStackTrace();    // XXX Debug
