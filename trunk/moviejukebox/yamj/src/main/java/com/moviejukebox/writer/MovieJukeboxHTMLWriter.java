@@ -341,7 +341,7 @@ public class MovieJukeboxHTMLWriter {
      * @param library
      */
     private void generateTransformedIndexHTML(Jukebox jukebox, Library library) {
-        logger.info("Generating Index file from jukebox-index.xsl");
+        logger.debug("Generating Index file from jukebox-index.xsl");
 
         XMLWriter writer = null;
 
