@@ -20,6 +20,11 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
+/**
+ * Log4J Filtering routine to remove API keys from the output
+ * @author Stuart.Boston
+ *
+ */
 public class FilteringLayout extends PatternLayout {
     private static Pattern API_KEYS = Pattern.compile("DO_NOT_MATCH");
     
