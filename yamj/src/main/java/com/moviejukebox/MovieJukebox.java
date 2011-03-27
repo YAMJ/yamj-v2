@@ -81,8 +81,8 @@ import com.moviejukebox.scanner.artwork.BannerScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.scanner.artwork.VideoImageScanner;
-import com.moviejukebox.tools.ApiFilteringLayout;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.FilteringLayout;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -280,7 +280,7 @@ public class MovieJukebox {
         } else {
             // This is needed to update the static reference for the API Keys in the pattern formatter 
             // because the formatter is initialised before the properties files are read
-            ApiFilteringLayout.addApiKeys();
+            FilteringLayout.addApiKeys();
         }
 
         // Load the rest of the command-line properties

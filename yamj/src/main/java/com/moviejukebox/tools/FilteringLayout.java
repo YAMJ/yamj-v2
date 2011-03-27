@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
-public class ApiFilteringLayout extends PatternLayout {
+public class FilteringLayout extends PatternLayout {
     private static Pattern API_KEYS = Pattern.compile("DO_NOT_MATCH");
     
     @Override
