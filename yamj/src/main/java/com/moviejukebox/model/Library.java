@@ -513,7 +513,7 @@ public class Library implements Map<String, Movie> {
                     newList.addAll(otherIndexes.get(categoriesMap.get("New-TV")));
                 }
                 
-                logger.info("Creating new category with latest Movies and TV Shows");
+                logger.debug("Creating new category with latest Movies and TV Shows");
                 otherIndexes.put(categoriesMap.get("New"), newList);
                 Collections.sort(otherIndexes.get(categoriesMap.get("New")), cmpLast);
                 
@@ -933,10 +933,8 @@ public class Library implements Map<String, Movie> {
 
         String masterRating = ratingsMap.get(rating);
         if (masterRating != null) {
-            logger.info("*** Changing rating from " + rating + " to " + masterRating); // XXX DEBUG
             return masterRating;
         } else {
-            logger.info("*** Rating stays as " + rating); // XXX DEBUG
             return rating;
         }
     }
