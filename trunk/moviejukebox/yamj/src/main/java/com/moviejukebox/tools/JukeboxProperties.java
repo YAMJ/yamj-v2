@@ -22,8 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,6 +46,10 @@ public class JukeboxProperties {
     private final static Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
     private final static String JUKEBOX = "jukebox";
     private final static String PROPERTIES = "properties";
+    private final static String CATEGORY = "Category";
+    private final static String GENRE = "Genre";
+    private final static String RATING = "Rating";
+    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
     
     static {
         // Set up the properties to watch:                                          xml           thumbnail     fanart        videoimage    trailers
@@ -179,7 +183,6 @@ public class JukeboxProperties {
 
         Document docMjbDetails;
         Element eRoot, eJukebox, eProperties;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
         
         try {
             logger.debug("Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
@@ -236,6 +239,15 @@ public class JukeboxProperties {
             // Save the library paths. This isn't very accurate, any change to this file will cause the jukebox to be rebuilt
             DOMHelper.appendChild(docMjbDetails, eJukebox, "LibraryPath", mediaLibraryPaths.toString());
 
+            // Save the Categories file details
+            writeGenericXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, docMjbDetails, eJukebox);
+
+            // Save the Genres file details
+            writeGenericXmlFileDetails("mjb.xmlGenreFile", GENRE, docMjbDetails, eJukebox);
+
+            // save the Rating file details
+            writeGenericXmlFileDetails("mjb.xmlRatingFile", RATING, docMjbDetails, eJukebox);
+            
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
             
@@ -248,6 +260,40 @@ public class JukeboxProperties {
         } catch (Exception error) {
             logger.error("JukeboxProperties: Error creating " + mjbDetails.getName() + " file");
             error.printStackTrace();
+        }
+    }
+
+    /**
+     * Generic routine to save details about the supplied XML file details
+     * @param xmlFileProperty
+     * @param jukeboxPropertyCategory
+     * @param docMjbDetails
+     * @param eProperties
+     */
+    private static void writeGenericXmlFileDetails(String xmlFileProperty, String jukeboxPropertyCategory, Document docMjbDetails, Element eProperties) {
+        // Save the file name
+        String tempFilename = getProperty(xmlFileProperty, Movie.UNKNOWN);
+        DOMHelper.appendChild(docMjbDetails, eProperties, jukeboxPropertyCategory + "Filename", tempFilename);
+        
+        // Save the file date
+        DOMHelper.appendChild(docMjbDetails, eProperties, jukeboxPropertyCategory + "ModifiedDate", getFileDate(tempFilename));
+    }
+    
+    /**
+     * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
+     * @param tempFilename
+     * @return
+     */
+    private static String getFileDate(String tempFilename) {
+        if (StringTools.isValidString(tempFilename)) {
+            try {
+                File tempFile = new File(tempFilename);
+                return dateFormat.format(tempFile.lastModified());
+            } catch (Exception ignore) {
+                return Movie.UNKNOWN;
+            }
+        } else {
+            return Movie.UNKNOWN;
         }
     }
     
@@ -287,6 +333,28 @@ public class JukeboxProperties {
                 // Overwrite the indexes only.
                 piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", false, false, false, false, false, false, false, true, false));
             }
+            
+            // Check the Categories file
+            if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
+                // Details are wrong, so overwrite
+                piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, false, false, false, false, false, false, false, true, false));
+                logger.info("Categories has changed, so need to update");
+            }
+            
+            // Check the Genres file
+            if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
+                // Details are wrong, so overwrite
+                piReturn.mergePropertyInformation(new PropertyInformation(GENRE, false, false, false, false, false, false, false, true, false));
+                logger.info("Genres has changed, so need to update");
+            }
+            
+            // Check the Ratings file
+            if (!validXmlFileDetails("mjb.xmlRatingFile", RATING, eJukebox)) {
+                // Details are wrong, so overwrite
+                piReturn.mergePropertyInformation(new PropertyInformation("Ratings", false, false, false, false, false, false, false, true, false));
+                logger.info("Ratings has changed, so need to update");
+            }
+
         }
         
         nlElements = docMjbDetails.getElementsByTagName(PROPERTIES);
@@ -319,6 +387,37 @@ public class JukeboxProperties {
         return piReturn;
     }
     
+    /**
+     * Compare the current XML file details with the stored ones
+     * Any errors with this check will return "true" to ensure no properties are overwritten
+     * @param eJukebox
+     * @return
+     */
+    private static boolean validXmlFileDetails(String xmlFileProperty, String jukeboxPropertyCategory, Element eProperties) {
+        String jukeboxFilename = DOMHelper.getValueFromElement(eProperties, jukeboxPropertyCategory + "Filename");
+        String jukeboxDate = DOMHelper.getValueFromElement(eProperties, jukeboxPropertyCategory + "ModifiedDate");
+
+        try {
+            // Check to see if the filenames are the same
+            if (!jukeboxFilename.equals(getProperty(xmlFileProperty, Movie.UNKNOWN))) {
+                // Filenames don't match
+                return false;
+            }
+            
+            // Check to see if the file dates have changed.
+            String tempFileDate = getFileDate(jukeboxFilename);
+            if (!tempFileDate.equals(jukeboxDate)) {
+                return false;
+            }
+        } catch (Exception ignore) {
+            logger.warn("JukeboxProperties: Error validating " + jukeboxPropertyCategory);
+            return true;
+        }
+        
+        // All the tests pass, so these are the same
+        return true;
+    }
+
     /**
      * Helper function to write out the property to the DOM document & Element
      * @param doc
@@ -500,5 +599,4 @@ public class JukeboxProperties {
         }
     }
     
-
 }
