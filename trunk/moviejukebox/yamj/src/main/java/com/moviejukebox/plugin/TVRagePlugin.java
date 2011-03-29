@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tvrage.TVRage;
 import com.moviejukebox.tvrage.model.CountryDetail;
@@ -42,6 +43,7 @@ public class TVRagePlugin extends ImdbPlugin {
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private int preferredPlotLength;
+    private int preferredOutlineLength;
 
     public TVRagePlugin() {
         super();
@@ -49,6 +51,7 @@ public class TVRagePlugin extends ImdbPlugin {
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
     }
 
     @Override
@@ -113,8 +116,17 @@ public class TVRagePlugin extends ImdbPlugin {
 
             // Update the plot & outline
             if (isNotValidString(movie.getPlot())) {
-                movie.setPlot(showInfo.getSummary());
-                movie.setOutline(showInfo.getSummary());
+                String plot = StringTools.trimToLength(showInfo.getSummary(), preferredPlotLength);
+                
+                if (isValidString(plot)) {
+                    movie.setPlot(plot);
+                    
+                    plot = StringTools.trimToLength(showInfo.getSummary(), preferredOutlineLength);
+                    movie.setOutline(plot);
+                } else {
+                    movie.setPlot(Movie.UNKNOWN);
+                    movie.setOutline(Movie.UNKNOWN);
+                }
             }
             
             // Update the Genres

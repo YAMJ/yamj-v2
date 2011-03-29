@@ -59,10 +59,10 @@ public class AllocinePlugin extends ImdbPlugin {
             // logger.debug("AllocinePlugin: TV Show rating = " + movie.getRating());
             String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Synopsis :", "</p>"));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
-            if (tmpPlot.length() > preferredPlotLength) {
-                tmpPlot = new String(tmpPlot.substring(0, Math.min(tmpPlot.length(), preferredPlotLength - 3))) + "...";
-            }
+            
+            tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength);
             movie.setPlot(tmpPlot);
+            
             // logger.debug("AllocinePlugin: TV Show Plot = " + movie.getPlot());
             movie.addDirector(removeHtmlTags(HTMLTools.extractTag(xml, "Créée par", "</span>")));
             // logger.debug("AllocinePlugin: TV Show Director = " + movie.getDirector());

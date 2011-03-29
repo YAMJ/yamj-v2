@@ -41,8 +41,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
     boolean getplot = true;
     boolean gettitle = true;
-    protected int maxLength;
-    protected int outlineLength;
+    protected int preferredPlotLength;
+    protected int preferredOutlineLength;
     protected TheTvDBPlugin tvdb;
 
     public FilmKatalogusPlugin() {
@@ -52,12 +52,12 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     }
 
     public void init() {
-        maxLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        if (maxLength < 50) {
-            maxLength = 500;
+        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        if (preferredPlotLength < 50) {
+            preferredPlotLength = 500;
         }
         
-        outlineLength = PropertiesUtil.getIntProperty("filmkatalogus.outline.length", "150");
+        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "150");
         
         gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", "true");
         getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", "true");
@@ -117,7 +117,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                     String plot = Movie.UNKNOWN;
                     plot = new String(xml.substring((beginIndex + 19), endIndex));
 
-                    plot = StringTools.trimToLength(plot, maxLength, true, plotEnding);
+                    plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                     movie.setPlot(plot);
 
                     // movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
@@ -150,7 +150,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                         String plot = Movie.UNKNOWN;
                         plot = new String(xml.substring((beginIndex + 19), endIndex));
 
-                        plot = StringTools.trimToLength(plot, maxLength, true, plotEnding);
+                        plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                         movie.setPlot(plot);
 
                         // movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));

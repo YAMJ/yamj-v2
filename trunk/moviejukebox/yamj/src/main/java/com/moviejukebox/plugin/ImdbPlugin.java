@@ -51,6 +51,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected String fanartToken;
     protected String fanartExtension;
     private int preferredPlotLength;
+    private int preferredOutlineLength;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
     protected static final String plotEnding = "...";
@@ -67,6 +68,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
         getFullInfo = PropertiesUtil.getBooleanProperty("imdb.full.info", "false");
     }
@@ -311,7 +313,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                     imdbOutline = outline.trim();
                     if (isValidString(imdbOutline)) {
-                        imdbOutline = trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
+                        imdbOutline = trimToLength(imdbOutline, preferredOutlineLength, true, plotEnding);
                     } else {
                         // Ensure the outline isn't blank or null
                         imdbOutline = Movie.UNKNOWN;

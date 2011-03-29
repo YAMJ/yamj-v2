@@ -10,6 +10,7 @@ MovieJukebox 2.4 BETA
  - Fixed issue  #1141 Allow fanart to be saved in png format
  - Fixed defect #1484 Problem with series spanning more than 8 season on set page
  - Enhancement  #1594 Setting for thumbnails per page/line for sets
+ - Enhancement  #1817 The outline should have the option to limit the length
  - Fixed defect #1819 WebBrowser error halts processing
  - Enhancement  #1822 Overlay for fanart
  - Enhancement  #1823 Ability to skip genres
