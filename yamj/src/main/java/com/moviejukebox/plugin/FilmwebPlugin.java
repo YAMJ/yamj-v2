@@ -43,6 +43,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     protected String filmwebPreferredSearchEngine;
     protected int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+    protected int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
     public FilmwebPlugin() {
         super(); // use IMDB if filmweb doesn't know movie
@@ -237,7 +238,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (Movie.UNKNOWN.equals(movie.getOutline())) {
                 String outline = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
-                outline = StringTools.trimToLength(outline, preferredPlotLength, true, plotEnding);
+                outline = StringTools.trimToLength(outline, preferredOutlineLength, true, plotEnding);
                 movie.setOutline(outline);
             }
 

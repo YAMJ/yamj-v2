@@ -235,22 +235,24 @@ public class StringTools {
      * @return
      */
     public static String trimToLength(String sourceString, int requiredLength, boolean trimToWord, String endingSuffix) {
-        if (isValidString(sourceString)) {
-            if (sourceString.length() <= requiredLength) {
+        String changedString = sourceString.trim();
+        
+        if (isValidString(changedString)) {
+            if (changedString.length() <= requiredLength) {
                 // No need to do anything
-                return sourceString;
+                return changedString;
             } else {
                 if (trimToWord) {
                     BreakIterator bi = BreakIterator.getWordInstance();
-                    bi.setText(sourceString);
+                    bi.setText(changedString);
                     int biLength = bi.preceding(requiredLength - endingSuffix.length());
-                    return new String(sourceString.substring(0, biLength)).trim() + endingSuffix;
+                    return new String(changedString.substring(0, biLength)).trim() + endingSuffix;
                 } else {
                     // We know that the source string is longer that the required length, so trim it to size
-                    return new String(sourceString.substring(0, requiredLength - endingSuffix.length())).trim() + endingSuffix;
+                    return new String(changedString.substring(0, requiredLength - endingSuffix.length())).trim() + endingSuffix;
                 }
             }
         }
-        return sourceString;
+        return changedString;
     }
 }

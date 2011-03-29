@@ -50,6 +50,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     protected static String fanartToken;
     protected String fanartExtension;
     private int preferredPlotLength;
+    private int preferredOutlineLength;
 
     public TheMovieDbPlugin() {
         TMDb = new TheMovieDb(API_KEY);
@@ -65,6 +66,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
     }
 
     public boolean scan(Movie movie) {
@@ -178,6 +180,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             String plot = moviedb.getOverview();
             plot = StringTools.trimToLength(plot, preferredPlotLength, true, "...");
             movie.setPlot(plot);
+            
+            plot = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
             movie.setOutline(plot);
         }
 

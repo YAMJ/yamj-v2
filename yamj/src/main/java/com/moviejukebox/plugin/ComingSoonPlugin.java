@@ -76,6 +76,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private static int COMINGSOON_RESTORE_ALL           = (2 << 13) - 1;
     
     protected int preferredPlotLength;
+    protected int preferredOutlineLength;
     protected String scanImdb;
     protected int preferImdbMask = 0;
     protected String searchId;
@@ -91,6 +92,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "500");
 
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
         
@@ -697,7 +699,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
                 
                 plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
-                outline = StringTools.trimToLength(outline, preferredPlotLength, true, plotEnding);
+                outline = StringTools.trimToLength(outline, preferredOutlineLength, true, plotEnding);
 
                 movie.setPlot(plot);
                 movie.setOutline(outline);

@@ -32,7 +32,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 
 /**
- * 
  * @author Durin
  */
 public class OfdbPlugin implements MovieDatabasePlugin {
@@ -42,6 +41,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     boolean getplot;
     boolean gettitle;
     private int preferredPlotLength;
+    private int preferredOutlineLength;
 
     com.moviejukebox.plugin.ImdbPlugin imdbp;
 
@@ -49,6 +49,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
 
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
         getplot = PropertiesUtil.getBooleanProperty("ofdb.getplot", "true");
         gettitle = PropertiesUtil.getBooleanProperty("ofdb.gettitle", "true");
@@ -197,10 +198,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 // Did we get some translated plot and didn't have previous plotFromNfo ?
                 if (!Movie.UNKNOWN.equalsIgnoreCase(plot) && !plotBeforeImdb) {
                     movie.setPlot(plot);
-                    String outline = plot;
-                    if (outline.length() > 150) {
-                        outline = outline.substring(0, 150) + "... ";
-                    }
+                    
+                    String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
                     movie.setOutline(outline);
                 }
             }

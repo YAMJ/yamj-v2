@@ -48,6 +48,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     // Get properties for plotlength and rating
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+    private int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
     private String preferredRating = PropertiesUtil.getProperty("filmdelta.rating", "filmdelta");
 
     public FilmDeltaSEPlugin() {
@@ -270,7 +271,6 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
             movie.setPlot(plot);
             //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
-            int preferredOutlineLength = 300;
             plot = StringTools.trimToLength(plot, preferredOutlineLength, true, plotEnding);
             movie.setOutline(plot);
         }
