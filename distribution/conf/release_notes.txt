@@ -33,6 +33,7 @@ MovieJukebox 2.4 BETA
  - Fixes defect #1863 appendLibraryToLogFile stopped working
  - Enhancement  #1864 Jukebox properties detects changes the XML config files
  - Enhancement  #1865 Add Watched/Unwatched category
+ - Fixes issue  #1872 Unable to rename log file at end of run
 
 MovieJukebox 2.3
 ----------------

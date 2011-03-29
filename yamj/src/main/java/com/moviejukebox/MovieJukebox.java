@@ -95,7 +95,8 @@ import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
 public class MovieJukebox {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");    // TODO change all instances to "xxx.class" so we can inherit
+    private static String logFilename = "moviejukebox";
+    private static Logger logger = Logger.getLogger(logFilename);    // TODO change all instances to "xxx.class" so we can inherit
     private static Collection<MediaLibraryPath> mediaLibraryPaths;
     private String movieLibraryRoot;
     private String skinHome;
@@ -157,8 +158,8 @@ public class MovieJukebox {
     int MaxThreadsDownload = 1;
 
     public static void main(String[] args) throws Throwable {
-        String logFilename = "moviejukebox.log";
-
+        // Create the log file name here, so we can change it later (because it's locked
+        System.setProperty("file.name", logFilename);
         PropertyConfigurator.configure("properties/log4j.properties");
         
         // Just create a pretty underline.
@@ -400,8 +401,9 @@ public class MovieJukebox {
             ml.generateLibrary();
         }
 
-        renameLogFile(logFilename, mediaLibraryPaths);
-
+        // Now rename the log files
+        renameLogFile();
+        
         return;
     }
 
@@ -409,14 +411,14 @@ public class MovieJukebox {
      * Append the library filename or the date/time to the log filename
      * @param logFilename
      */
-    private static void renameLogFile(String logFilename, Collection<MediaLibraryPath> movieLibraryPaths) {
-        StringBuffer newLogFilename = new StringBuffer("moviejukebox");
+    private static void renameLogFile() {
+        StringBuffer newLogFilename = new StringBuffer(logFilename);    // Use the base log filename
         boolean renameFile = false;
         
         String libraryName = "_Library";
         if (PropertiesUtil.getBooleanProperty("mjb.appendLibraryToLogFile", "false")) {
             renameFile = true;
-            for (final MediaLibraryPath mediaLibrary : movieLibraryPaths) {
+            for (final MediaLibraryPath mediaLibrary : mediaLibraryPaths) {
                 if (isValidString(mediaLibrary.getDescription())) {
                     libraryName = "_" + mediaLibrary.getDescription();
                     libraryName = FileTools.makeSafeFilename(libraryName);
@@ -444,26 +446,42 @@ public class MovieJukebox {
         }
         
         if (renameFile) {
-            newLogFilename.append(".log");
-            
             // File (or directory) with old name
-            File oldLogFile = new File(logFilename);
+            File oldLogFile = new File(logFilename + ".log");
 
             // File with new name
-            File newLogFile = new File(newLogFilename.toString());
+            File newLogFile = new File(newLogFilename.toString() + ".log");
 
             // Try and create the directory if needed, but don't stop the rename if we can't
             if (StringTools.isValidString(logDir)) {
                 try {
                     newLogFile.getParentFile().mkdirs();
                 } catch (Exception error) {
-                    logger.debug("Error creating log file directory");
+                    // This isn't an important error
+                    logger.warn("Error creating log file directory");
                 }
             }
             
+            // First we need to tell Log4J to change the name of the current log file to something else so it unlocks the file
+            System.setProperty("file.name", PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + logFilename + ".tmp");
+            PropertyConfigurator.configure("properties/log4j.properties");
+
             // Rename file (or directory)
             if (!oldLogFile.renameTo(newLogFile)) {
-                logger.error("Error renaming log file.");
+                System.err.println("Error renaming log file.");
+            }
+            
+            // Try and rename the ERROR file too.
+            oldLogFile = new File(logFilename + ".ERROR.log");
+            if (oldLogFile.length() > 0) {
+                newLogFile = new File(newLogFilename.toString() + ".ERROR.log");
+                if (!oldLogFile.renameTo(newLogFile)) {
+                    System.err.println("Error renaming ERROR log file.");
+                }
+            } else {
+                if (!oldLogFile.delete()) {
+                    System.err.println("Error deleting ERROR log file.");
+                }
             }
         }
         
