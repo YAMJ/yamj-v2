@@ -105,8 +105,6 @@ public class MovieJukeboxHTMLWriter {
             FileTools.addJukeboxFile(baseName + ".html");
 
             if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
-                Transformer transformer = getTransformer(new File(skinHome, "detail.xsl"), jukebox.getJukeboxRootLocationDetails());
-
                 // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
                 // the original source directory
                 if (tempXmlFile.exists()) {
@@ -119,6 +117,8 @@ public class MovieJukeboxHTMLWriter {
                 Result xmlResult = new StreamResult(tempHtmlFile);
 
                 if (xmlSource != null && xmlResult != null) {
+                    File skinFile = new File(skinHome, "detail.xsl");
+                    Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
                     transformer.transform(xmlSource, xmlResult);
                 } else {
                     logger.error("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + " source: " + (xmlSource == null ? true : false)
