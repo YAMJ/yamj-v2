@@ -2,8 +2,12 @@
 ** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.4 BETA
----------------------
+MovieJukebox 2.5 SNAPSHOT
+-------------------------
+
+
+MovieJukebox 2.4
+----------------
   -Fixed defect  #793 Problems with more than 9 parts
  - Enhancement   #989 Multiple Directors
  - Fixed issue  #1036 Removed/renamed trailers stays in XML
