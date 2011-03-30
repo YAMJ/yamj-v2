@@ -236,14 +236,16 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
 
-            if (Movie.UNKNOWN.equals(movie.getOutline())) {
-                String outline = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
-                outline = StringTools.trimToLength(outline, preferredOutlineLength, true, plotEnding);
-                movie.setOutline(outline);
-            }
+            String plot = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
 
-            if (Movie.UNKNOWN.equals(movie.getPlot())) {
-                movie.setPlot(movie.getOutline());
+            if (StringTools.isValidString(plot)) {
+                if (Movie.UNKNOWN.equals(movie.getPlot())) {
+                    movie.setPlot(StringTools.trimToLength(plot, preferredPlotLength));
+                }
+
+                if (Movie.UNKNOWN.equals(movie.getOutline())) {
+                    movie.setOutline(StringTools.trimToLength(plot, preferredOutlineLength));
+                }
             }
 
             if (!movie.isOverrideYear()) {
