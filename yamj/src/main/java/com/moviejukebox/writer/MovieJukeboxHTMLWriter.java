@@ -97,32 +97,41 @@ public class MovieJukeboxHTMLWriter {
             String tempFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
             File oldXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
-            File finalHtmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".html");
-            File tempHtmlFile = new File(tempFilename + ".html");
-            Source xmlSource;
 
             FileTools.addJukeboxFile(baseName + ".xml");
-            FileTools.addJukeboxFile(baseName + ".html");
-
-            if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
-                // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
-                // the original source directory
-                if (tempXmlFile.exists()) {
-                    // Use the temp file
-                    xmlSource = new StreamSource(tempXmlFile);
-                } else {
-                    // Use the file in the original directory
-                    xmlSource = new StreamSource(oldXmlFile);
+            String indexList = PropertiesUtil.getProperty("mjb.view.detailList", "detail.xsl");
+            for (final String indexStr : indexList.split(",")) {
+                String Suffix = "";
+                if (!indexStr.equals("detail.xsl")) {
+                    Suffix = indexStr.replace("detail", "").replace(".xsl", "");
                 }
-                Result xmlResult = new StreamResult(tempHtmlFile);
 
-                if (xmlSource != null && xmlResult != null) {
-                    File skinFile = new File(skinHome, "detail.xsl");
-                    Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
-                    transformer.transform(xmlSource, xmlResult);
-                } else {
-                    logger.error("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + " source: " + (xmlSource == null ? true : false)
-                                    + " result: " + (xmlResult == null ? true : false));
+                File finalHtmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + Suffix + ".html");
+                File tempHtmlFile = new File(tempFilename + Suffix + ".html");
+                Source xmlSource;
+
+                FileTools.addJukeboxFile(baseName + Suffix + ".html");
+
+                if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty()) {
+                    // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
+                    // the original source directory
+                    if (tempXmlFile.exists()) {
+                        // Use the temp file
+                        xmlSource = new StreamSource(tempXmlFile);
+                    } else {
+                        // Use the file in the original directory
+                        xmlSource = new StreamSource(oldXmlFile);
+                    }
+                    Result xmlResult = new StreamResult(tempHtmlFile);
+
+                    if (xmlSource != null && xmlResult != null) {
+                        File skinFile = new File(skinHome, indexStr);
+                        Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
+                        transformer.transform(xmlSource, xmlResult);
+                    } else {
+                        logger.error("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + " source: " + (xmlSource == null ? true : false)
+                                        + " result: " + (xmlResult == null ? true : false));
+                    }
                 }
             }
         } catch (Exception error) {
@@ -518,32 +527,40 @@ public class MovieJukeboxHTMLWriter {
             String filename = idx.baseName + page;
 
             File xmlFile = new File(detailsDir, filename + ".xml");
-            File htmlFile = new File(detailsDir, filename + ".html");
 
             FileTools.addJukeboxFile(xmlFile.getName());
-            FileTools.addJukeboxFile(htmlFile.getName());
+            String indexList = PropertiesUtil.getProperty("mjb.view.indexList", "index.xsl");
+            for (final String indexStr : indexList.split(",")) {
+                String Suffix = "";
+                if (!indexStr.equals("index.xsl")) {
+                    Suffix = indexStr.replace("index", "").replace(".xsl", "");
+                }
 
-            File transformCatKey = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName + "_" + idx.key) + ".xsl");
-            File transformCategory = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName) + ".xsl");
-            File transformBase = new File(skinHome, "index.xsl");
+                File htmlFile = new File(detailsDir, filename + Suffix + ".html");
+                FileTools.addJukeboxFile(htmlFile.getName());
 
-            Transformer transformer;
+                File transformCatKey = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName + "_" + idx.key) + ".xsl");
+                File transformCategory = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName) + ".xsl");
+                File transformBase = new File(skinHome, indexStr);
 
-            if (transformCatKey.exists()) {
-                logger.debug("HTMLWriter: Using CategoryKey transformation " + transformCatKey.getName() + " for " + xmlFile.getName());
-                transformer = getTransformer(transformCatKey, jukebox.getJukeboxTempLocationDetails());
-            } else if (transformCategory.exists()) {
-                logger.debug("HTMLWriter: Using Category transformation " + transformCategory.getName() + " for " + xmlFile.getName());
-                transformer = getTransformer(transformCategory, jukebox.getJukeboxTempLocationDetails());
-            } else {
-                transformer = getTransformer(transformBase, jukebox.getJukeboxTempLocationDetails());
+                Transformer transformer;
+
+                if (transformCatKey.exists()) {
+                    logger.debug("HTMLWriter: Using CategoryKey transformation " + transformCatKey.getName() + " for " + xmlFile.getName());
+                    transformer = getTransformer(transformCatKey, jukebox.getJukeboxTempLocationDetails());
+                } else if (transformCategory.exists()) {
+                    logger.debug("HTMLWriter: Using Category transformation " + transformCategory.getName() + " for " + xmlFile.getName());
+                    transformer = getTransformer(transformCategory, jukebox.getJukeboxTempLocationDetails());
+                } else {
+                    transformer = getTransformer(transformBase, jukebox.getJukeboxTempLocationDetails());
+                }
+
+                // Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
+                Source xmlSource = new StreamSource(xmlFile);
+                Result xmlResult = new StreamResult(htmlFile);
+
+                transformer.transform(xmlSource, xmlResult);
             }
-
-            // Transformer transformer = getTransformer(new File(skinHome, "index.xsl"), rootPath);
-            Source xmlSource = new StreamSource(xmlFile);
-            Result xmlResult = new StreamResult(htmlFile);
-
-            transformer.transform(xmlSource, xmlResult);
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
             final Writer eResult = new StringWriter();
