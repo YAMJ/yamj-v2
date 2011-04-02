@@ -376,19 +376,25 @@ public class OpenSubtitlesPlugin {
             return false;
         } finally {
             try {
-                fisSubtitleFile.close();
+                if (fisSubtitleFile != null) {
+                    fisSubtitleFile.close();
+                }
             } catch (IOException e) {
                 // Ignore
             }
             
             try {
-                deflaterOS.close();
+                if (deflaterOS != null) {
+                    deflaterOS.close();
+                }
             } catch (IOException e) {
                 // Ignore
             }
             
             try {
-                baos.close();
+                if (baos != null) {
+                    baos.close();
+                }
             } catch (IOException e) {
                 // Ignore
             }
