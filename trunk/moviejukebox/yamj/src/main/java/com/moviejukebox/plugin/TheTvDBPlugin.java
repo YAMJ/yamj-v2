@@ -314,22 +314,32 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
         ThreadExecutor.enterIO(webhost);
         try {
+            List<Episode> episodeList = tvDB.getSeasonEpisodes(id, movie.getSeason(), language);
+            List<Episode> episodeList2ndLanguage = null; // Start this null and only populate it if needed
+            
             for (MovieFile file : movie.getMovieFiles()) {
                 if (movie.getSeason() >= 0) {
                     for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
                         Episode episode = null;
                         if (dvdEpisodes) {
-                            episode = tvDB.getDVDEpisode(id, movie.getSeason(), part, language);
+                            episode = findDvdEpisode(episodeList, movie.getSeason(), part);
                             if (episode == null && !language2nd.isEmpty()) {
-                                episode = tvDB.getDVDEpisode(id, movie.getSeason(), part, language2nd);
+                                if (episodeList2ndLanguage == null) {
+                                    episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, movie.getSeason(), language2nd);
+                                }
+                                episode = findDvdEpisode(episodeList2ndLanguage, movie.getSeason(), part);
                             }
                         }
 
                         if (episode == null) {
-                            episode = tvDB.getEpisode(id, movie.getSeason(), part, language);
+                            //episode = tvDB.getEpisode(id, movie.getSeason(), part, language);
+                            episode = findEpisode(episodeList, movie.getSeason(), part);
                             if (episode == null && !language2nd.isEmpty()) {
-                                episode = tvDB.getEpisode(id, movie.getSeason(), part, language2nd);
-                            }
+                                if (episodeList2ndLanguage == null) {
+                                    episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, movie.getSeason(), language2nd);
+                                }
+                                episode = findEpisode(episodeList2ndLanguage, movie.getSeason(), part);
+                          }
                         }
 
                         if (episode != null) {
@@ -378,6 +388,24 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
     }
 
+    private Episode findEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
+        for (Episode episode : episodeList) {
+            if (episode.getSeasonNumber() == seasonNumber && episode.getEpisodeNumber() == episodeNumber) {
+                return episode;
+            }
+        }
+        return null;
+    }
+    
+    private Episode findDvdEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
+        for (Episode episode : episodeList) {
+            if (episode.getSeasonNumber() == seasonNumber && episode.getDvdEpisodeNumber().equals(""+episodeNumber)) {
+                return episode;
+            }
+        }
+        return null;
+    }
+    
     @Override
     public void scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie);

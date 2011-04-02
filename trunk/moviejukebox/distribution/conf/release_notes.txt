@@ -4,14 +4,14 @@
 
 MovieJukebox 2.5 SNAPSHOT
 -------------------------
-
+ - Enhancement  #1853 Multiple index pages
 
 MovieJukebox 2.4
 ----------------
-  -Fixed defect  #793 Problems with more than 9 parts
+ - Fixed defect  #793 Problems with more than 9 parts
  - Enhancement   #989 Multiple Directors
- - Fixed issue  #1036 Removed/renamed trailers stays in XML
- - Fixed issue  #1141 Allow fanart to be saved in png format
+ - Fixed defect #1036 Removed/renamed trailers stays in XML
+ - Fixed defect #1141 Allow fanart to be saved in png format
  - Fixed defect #1484 Problem with series spanning more than 8 season on set page
  - Enhancement  #1594 Setting for thumbnails per page/line for sets
  - Enhancement  #1817 The outline should have the option to limit the length
@@ -23,22 +23,22 @@ MovieJukebox 2.4
  - Enhancement  #1839 Only show Unwatched videos in the new categories
  - Fixed defect #1840 Fixed rounded corners on fanart
  - Fixed defect #1841 Trim down the index files (for Eversion)
- - Fixes defect #1844 fileImageFile is not encoded
+ - Fixed defect #1844 fileImageFile is not encoded
  - Fixed defect #1845 Fanart scanner fails to find movie when title is different than original title
  - Enhancement  #1846 Add original index name to the Other category indexes
  - Enhancement  #1847 Change JPEG compression quality
  - Enhancement  #1850 Separate error log
- - Fixed issue  #1851 Overwrite parameters not working anymore
+ - Fixed defect #1851 Overwrite parameters not working anymore
  - Enhancement  #1852 Animator Plugin (Russian)
  - Enhancement  #1854 AVCHD support
- - Fixes defect #1855 VideoImages not being downloaded
+ - Fixed defect #1855 VideoImages not being downloaded
  - Enhancement  #1859 Consolidate ratings/certification using configuration file
- - Fixes defect #1861 Hebrew title breaks due to site HTML changes
- - Fixes defect #1862 forceIndexOverwrite does not update the indexes
- - Fixes defect #1863 appendLibraryToLogFile stopped working
+ - Fixed defect #1861 Hebrew title breaks due to site HTML changes
+ - Fixed defect #1862 forceIndexOverwrite does not update the indexes
+ - Fixed defect #1863 appendLibraryToLogFile stopped working
  - Enhancement  #1864 Jukebox properties detects changes the XML config files
  - Enhancement  #1865 Add Watched/Unwatched category
- - Fixes issue  #1872 Unable to rename log file at end of run
+ - Fixed defect #1872 Unable to rename log file at end of run
 
 MovieJukebox 2.3
 ----------------
@@ -128,7 +128,7 @@ MovieJukebox 2.2
   - Fixed defect #1639 CdonPosterPlugin not working after site restructure
   - Fixed defect #1641 HDDVDs are identified incorrectly in <videoSouce> tag in XML
   - Fixed defect #1643 No director info in XML file
-  - Fixes defect #1645 Mediainfo not scraping codec info for .m2ts files but ok with .mkv files 
+  - Fixed defect #1645 Mediainfo not scraping codec info for .m2ts files but ok with .mkv files 
   - Fixed defect #1646 IMDb NFO not being read correctly
   - Fixed defect #1648 Problem with MovieDbPosterPlugin
   - Fixed defect #1649 TheMovieDb Plugin: Plot & Director aren't displayed
