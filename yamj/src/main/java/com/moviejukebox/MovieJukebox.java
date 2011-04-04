@@ -81,6 +81,7 @@ import com.moviejukebox.scanner.artwork.BannerScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.scanner.artwork.VideoImageScanner;
+import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.FilteringLayout;
 import com.moviejukebox.tools.GraphicTools;
@@ -1075,6 +1076,9 @@ public class MovieJukebox {
                 });
             }
             tasks.waitFor();
+            
+            // Clear the cache if we've used it
+            Cache.clear();
 
             SystemTools.showMemory();
 
