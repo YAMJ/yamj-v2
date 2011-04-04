@@ -159,7 +159,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (id != null && !id.equals(Movie.UNKNOWN)) {
             Series series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language));
             
-            // No found in cache, so look online
+            // Not found in cache, so look online
             if (series == null) {
                 series = tvDB.getSeries(id, language);
                 if (series != null) {
