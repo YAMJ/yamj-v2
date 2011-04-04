@@ -32,6 +32,7 @@ import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
+import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
@@ -156,14 +157,37 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         if (id != null && !id.equals(Movie.UNKNOWN)) {
-            Series series = tvDB.getSeries(id, language);
+            Series series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language));
+            
+            // No found in cache, so look online
+            if (series == null) {
+                series = tvDB.getSeries(id, language);
+                if (series != null) {
+                    // Add to the cache
+                    Cache.addToCache(Cache.generateCacheKey("Series", id, language), series);
+                }
+            }
+            
             if (series == null && !language2nd.isEmpty()) {
-                series = tvDB.getSeries(id, language2nd);
+                series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language2nd));
+                
+                if (series == null) {
+                    series = tvDB.getSeries(id, language2nd);
+                    if (series != null) {
+                        // Add to the cache
+                        Cache.addToCache(Cache.generateCacheKey("Series", id, language2nd), series);
+                    }
+                }
             }
 
             if (series != null) {
-
-                Banners banners = tvDB.getBanners(id);
+                Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey("Banners", id, language));
+                
+                if (banners == null) {
+                    banners = tvDB.getBanners(id);
+                    Cache.addToCache(Cache.generateCacheKey("Banners", id, language), banners);
+                }
+                
                 try {
                     if (!movie.isOverrideTitle()) {
                         // issue 1214 : prevent replacing data with blank when TV plugin fails
@@ -482,4 +506,5 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
         return urlBanner;
     }
+    
 }
