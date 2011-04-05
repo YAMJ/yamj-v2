@@ -1082,6 +1082,15 @@ public class MovieJukebox {
 
             SystemTools.showMemory();
 
+            if (!skipIndexGeneration) {
+                logger.info("Writing Indexes XML...");
+                xmlWriter.writeIndexXML(jukebox, library, tasks);
+                logger.info("Writing Category XML...");
+                xmlWriter.writeCategoryXML(jukebox, library);
+            }
+
+            SystemTools.showMemory();
+
             logger.info("Writing movie data...");
             // Multi-thread: Parallel Executor
             tasks.restart();
@@ -1126,11 +1135,6 @@ public class MovieJukebox {
             SystemTools.showMemory();
 
             if (!skipIndexGeneration) {
-                logger.info("Writing Indexes XML...");
-                xmlWriter.writeIndexXML(jukebox, library, tasks);
-                logger.info("Writing Category XML...");
-                xmlWriter.writeCategoryXML(jukebox, library);
-                
                 if (!skipHtmlGeneration) {
                     logger.info("Writing Indexes HTML...");
                     htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
@@ -1143,7 +1147,6 @@ public class MovieJukebox {
                  * Do not skip this part as it's the index that starts the jukebox
                  */
                 htmlWriter.generateMainIndexHTML(jukebox, library);
-                
             }
 
             try {
