@@ -30,8 +30,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -910,8 +912,9 @@ public class FileTools {
             return files;
         }
         
-        public void saveFileList(String filename) throws FileNotFoundException {
-            PrintWriter p = new PrintWriter(filename);
+        public void saveFileList(String filename) throws FileNotFoundException, UnsupportedEncodingException {
+            PrintWriter p = new PrintWriter(new OutputStreamWriter( new FileOutputStream(filename, true ), "UTF-8" )); 
+
             Set<String> names = cachedFiles.keySet();
             String[] sortednames = names.toArray(new String[names.size()]);
             Arrays.sort(sortednames);
