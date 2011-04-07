@@ -31,7 +31,6 @@ import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
-import com.moviejukebox.thetvdb.model.Person;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -148,7 +147,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     series = seriesList.get(0);
                 }
 
-                id = series.getId();
+                id = "" + series.getId();
                 movie.setId(THETVDB_PLUGIN_ID, id);
 
                 if (series.getImdbId() != null && !series.getImdbId().isEmpty()) {
@@ -371,15 +370,13 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             // We only get the writers for the first episode, otherwise we might overwhelm the skins with data
                             // TODO Assign the writers on a per-episode basis, rather than series.
                             if (movie.getWriters().isEmpty()) {
-                                for (Person writer : episode.getWriters()) {
-                                    movie.addWriter(writer.getName());
-                                }
+                                movie.setWriters(episode.getWriters());
                             }
 
                             // TODO Assign the director to each episode.
                             if (((movie.getDirector().equals(Movie.UNKNOWN)) || (movie.getDirector().isEmpty())) && !episode.getDirectors().isEmpty()) {
-                                for (Person director : episode.getDirectors()) {
-                                    movie.addDirector(director.getName());
+                                if (movie.getDirectors().isEmpty()) {
+                                    movie.setDirectors(episode.getDirectors());
                                 }
                             }
 
