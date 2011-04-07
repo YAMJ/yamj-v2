@@ -13,15 +13,15 @@
 package com.moviejukebox.plugin.poster;
 
 import java.util.List;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
+import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.Banners;
@@ -100,10 +100,12 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                         }
                     }
                 }
+                
                 if (series == null) {
                     series = seriesList.get(0);
                 }
-                response = series.getId();
+                
+                response = "" + series.getId();
             }
 
         } catch (Exception e) {

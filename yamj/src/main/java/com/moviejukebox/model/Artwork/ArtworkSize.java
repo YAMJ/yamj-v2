@@ -22,10 +22,10 @@ public enum ArtworkSize {
             try {
                 return ArtworkSize.valueOf(size.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("No ArtworkSize " + size + " exists");
+                throw new IllegalArgumentException("ArtworkSize " + size + " does not exist");
             }
         }
-        throw new IllegalArgumentException("No ArtworkSize is null");
+        throw new IllegalArgumentException("ArtworkSize is null");
     }
     
 }
