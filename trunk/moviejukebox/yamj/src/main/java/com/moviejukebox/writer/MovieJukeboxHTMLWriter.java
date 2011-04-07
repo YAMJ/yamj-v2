@@ -465,10 +465,10 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    public void generateMoviesCategoryHTML(Jukebox jukebox, Library library) {
+    public void generateMoviesCategoryHTML(Jukebox jukebox, Library library, String filename, String template) {
         try {
+            logger.info("  " + filename + "...");
             File detailsFolder = jukebox.getJukeboxTempLocationDetailsFile();
-            String filename = "Categories";
             File xmlFile = new File(detailsFolder, filename + ".xml");
             File htmlFile = new File(detailsFolder, filename + ".html");
 
@@ -477,7 +477,7 @@ public class MovieJukeboxHTMLWriter {
             FileTools.addJukeboxFile(xmlFile.getName());
             FileTools.addJukeboxFile(htmlFile.getName());
 
-            Transformer transformer = getTransformer(new File(skinHome, "categories.xsl"), jukebox.getJukeboxTempLocation());
+            Transformer transformer = getTransformer(new File(skinHome, template), jukebox.getJukeboxTempLocation());
 
             Source xmlSource = new StreamSource(xmlFile);
             Result xmlResult = new StreamResult(htmlFile);
