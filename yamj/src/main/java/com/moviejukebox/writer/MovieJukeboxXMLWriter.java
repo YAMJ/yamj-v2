@@ -523,11 +523,11 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    public void writeCategoryXML(Jukebox jukebox, Library library) throws FileNotFoundException, XMLStreamException {
+    public void writeCategoryXML(Jukebox jukebox, Library library, String filename) throws FileNotFoundException, XMLStreamException {
         jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
 
-        File xmlFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), "Categories.xml");
-        FileTools.addJukeboxFile("Categories.xml");
+        File xmlFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), filename + ".xml");
+        FileTools.addJukeboxFile(filename + ".xml");
 
         XMLWriter writer = new XMLWriter(xmlFile);
 
@@ -550,13 +550,13 @@ public class MovieJukeboxXMLWriter {
         }
 
         // Issue 1148, generate category in the order specified in properties
-        logger.info("  Indexing Categories");
+        logger.info("  Indexing " + filename);
         for (String categoryName : categoriesDisplayList) {
             int categoryMinCount = calcMinCategoryCount(categoryName);
             boolean openedCategory = false;
             for (Entry<String, Index> category : library.getIndexes().entrySet()) {
                 // Category not empty and match the current cat.
-                if (!category.getValue().isEmpty() && categoryName.equalsIgnoreCase(category.getKey())) {
+                if (!category.getValue().isEmpty() && categoryName.equalsIgnoreCase(category.getKey()) && (filename.equals("Categories") || filename.equals(category.getKey()))) {
                     openedCategory = true;
                     writer.writeStartElement("category");
                     writer.writeAttribute("name", category.getKey());

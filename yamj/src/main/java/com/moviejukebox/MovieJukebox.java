@@ -868,6 +868,9 @@ public class MovieJukebox {
         logger.info("Found " + library.size() + " videos in your media library");
         logger.info("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
+        // Issue 1882: Separate index files for each category
+        boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", "false");
+
         tasks.restart();
         if (library.size() > 0) {
             logger.info("Searching for information on the video files...");
@@ -1086,7 +1089,18 @@ public class MovieJukebox {
                 logger.info("Writing Indexes XML...");
                 xmlWriter.writeIndexXML(jukebox, library, tasks);
                 logger.info("Writing Category XML...");
-                xmlWriter.writeCategoryXML(jukebox, library);
+                xmlWriter.writeCategoryXML(jukebox, library, "Categories");
+
+                // Issue 1882: Separate index files for each category
+                if (separateCategories) {
+                    xmlWriter.writeCategoryXML(jukebox, library, "Other");
+                    xmlWriter.writeCategoryXML(jukebox, library, "Genres");
+                    xmlWriter.writeCategoryXML(jukebox, library, "Library");
+                    xmlWriter.writeCategoryXML(jukebox, library, "Title");
+                    xmlWriter.writeCategoryXML(jukebox, library, "Year");
+                    xmlWriter.writeCategoryXML(jukebox, library, "Rating");
+                    xmlWriter.writeCategoryXML(jukebox, library, "Set");
+                }
             }
 
             SystemTools.showMemory();
@@ -1138,8 +1152,18 @@ public class MovieJukebox {
                 if (!skipHtmlGeneration) {
                     logger.info("Writing Indexes HTML...");
                     htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
-                    logger.info("Writing Category HTML...");
-                    htmlWriter.generateMoviesCategoryHTML(jukebox, library);
+                    htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Categories", "categories.xsl");
+
+                    // Issue 1882: Separate index files for each category
+                    if (separateCategories) {
+                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Other", "category.xsl");
+                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Genres", "category.xsl");
+                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Library", "category.xsl");
+                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Title", "category.xsl");
+                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Year", "category.xsl");
+                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Rating", "category.xsl");
+                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Set", "category.xsl");
+                    }
                 }
                 
                 /*
