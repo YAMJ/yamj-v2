@@ -325,7 +325,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                             time = new String(temp.substring(0, temp.indexOf(" мин.") + 4));
                             break;
                         }
-                        newGenres.add(temp);
+                        newGenres.add(temp.replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
                     }
                 }
             }
