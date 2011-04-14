@@ -15,8 +15,10 @@ import org.apache.log4j.Logger;
 public class Cache {
     private final static ConcurrentHashMap<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
     private static Logger logger = Logger.getLogger(Cache.class);
-
+    private static boolean cacheEnabled = true;
+    
     public Cache() {
+        cacheEnabled = PropertiesUtil.getBooleanProperty("mjb.cache", "true");
     }
   
     /**
@@ -26,6 +28,10 @@ public class Cache {
      * @param value
      */
     public static void addToCache(String key, Object value) {
+        if (!cacheEnabled) {
+            return;
+        }
+        
         if (mjbCache.containsKey(key)) {
             logger.debug("Cache (Add): Already contains object with key " + key + " overwriting...");
             mjbCache.remove(key);
@@ -43,6 +49,10 @@ public class Cache {
      * @return
      */
     public static Object getFromCache(String key) {
+        if (!cacheEnabled) {
+            return null;
+        }
+        
         if (mjbCache.containsKey(key)) {
             logger.debug("Cache (Get): Got object for " + key);
             return mjbCache.get(key);
@@ -58,6 +68,10 @@ public class Cache {
      * @param key
      */
     public static void removeFromCache(String key) {
+        if (!cacheEnabled) {
+            return;
+        }
+        
         if (mjbCache.contains(key)) {
             // logger.debug("*** Cache (Remove): Removing key " + key); // XXX DEBUG
             mjbCache.remove(key);
@@ -74,12 +88,30 @@ public class Cache {
      * @return
      */
     public static String generateCacheKey(String stringOne, String stringTwo, String stringThree) {
+        if (!cacheEnabled) {
+            return "";
+        }
+        
         StringBuffer sb = new StringBuffer();
         sb.append(stringOne).append("-");
         sb.append(stringTwo).append("-");
         sb.append(stringThree);
         // logger.debug("*** Cache: Generating cache key of: " + sb.toString()); // XXX Debug
         return sb.toString();
+    }
+
+    /**
+     * Called when running low on memory, clear the cache and turn off the caching routine
+     * Also print out a message to warn the user
+     */
+    public static void purgeCache() { 
+        if (cacheEnabled) {
+            logger.warn("\n**********************************************");
+            logger.warn("***** Disabling cache due to low memory! *****");
+            logger.warn("**********************************************");
+            cacheEnabled = false;
+            clear();
+        }
     }
     
     /**

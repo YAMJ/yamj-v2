@@ -61,6 +61,9 @@ public class GraphicTools {
         } catch (Exception ignore) {
             logger.error("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
             return null;
+        } catch (OutOfMemoryError error) {
+            logger.error("GraphicsTools: Error processing image file - Out of memory. Please run YAMJ again to fix.");
+            return null;
         } finally {
             if (fis != null) {
                 try {
@@ -70,7 +73,6 @@ public class GraphicTools {
                     final PrintWriter printWriter = new PrintWriter(eResult);
                     error.printStackTrace(printWriter);
                     logger.error(eResult.toString());
-                    // ignore the error
                 }
             }
         }
