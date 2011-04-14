@@ -18,6 +18,7 @@ import static com.moviejukebox.tools.StringTools.*;
 public class SystemTools {
     private static final Logger logger = Logger.getLogger("moviejukebox");
     private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false");
+    private static final float cacheOff = (float) PropertiesUtil.getIntProperty("mjb.cacheOffPercentage", "25");
 
     public static class Base64 {
         public static String base64code = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789" + "+/";
@@ -49,23 +50,31 @@ public class SystemTools {
      */
     public static void showMemory(boolean showAll) {
         if (showMemory) {
-            // Show the long output
+            /* This will return Long.MAX_VALUE if there is no preset limit */
+            long memoryMaximum   = Runtime.getRuntime().maxMemory();
+            long memoryAllocated = Runtime.getRuntime().totalMemory();
+            long memoryFree      = Runtime.getRuntime().freeMemory();
+            
+            float memoryPercentage = (float)(((float)memoryFree/(float)memoryAllocated)*100F);
+            
             if (showAll) {
-                /* This will return Long.MAX_VALUE if there is no preset limit */
-                long maxMemory = Runtime.getRuntime().maxMemory();
-
                 /* Maximum amount of memory the JVM will attempt to use */
-                logger.info("  Max memory: " + (maxMemory == Long.MAX_VALUE ? "no limit" : formatFileSize(maxMemory)));
+                logger.info("  Maximum memory: " + (memoryMaximum == Long.MAX_VALUE ? "no limit" : formatFileSize(memoryMaximum)));
 
                 /* Total memory currently in use by the JVM */
-                logger.info("Total memory: " + formatFileSize(Runtime.getRuntime().totalMemory()));
+                logger.info("Allocated memory: " + formatFileSize(memoryAllocated));
 
                 /* Total amount of free memory available to the JVM */
-                logger.info(" Free memory: " + formatFileSize(Runtime.getRuntime().freeMemory()));
+                logger.info("     Free memory: " + formatFileSize(memoryFree)  + " (" + (int)memoryPercentage + "%)");
             } else {
-                logger.info("Memory - Total: " + formatFileSize(Runtime.getRuntime().totalMemory()) + ", Free: "
-                                + formatFileSize(Runtime.getRuntime().freeMemory()));
+                logger.info("Memory - Maximum: " + formatFileSize(memoryMaximum) + ", Allocated: " + formatFileSize(memoryAllocated) + ", Free: "
+                                + formatFileSize(memoryFree) + " (" + (int)memoryPercentage + "%)");
             }
+
+            if (memoryPercentage < cacheOff) {
+                Cache.purgeCache();
+            }
+            
         }
         // Run garbage collection (if needed)
         System.gc();
