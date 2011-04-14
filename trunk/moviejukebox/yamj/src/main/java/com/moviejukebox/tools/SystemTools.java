@@ -49,14 +49,14 @@ public class SystemTools {
      * Show the memory available to the program and optionally try to force a garbage collection
      */
     public static void showMemory(boolean showAll) {
+
+        /* This will return Long.MAX_VALUE if there is no preset limit */
+        long  memoryMaximum    = Runtime.getRuntime().maxMemory();
+        long  memoryAllocated  = Runtime.getRuntime().totalMemory();
+        long  memoryFree       = Runtime.getRuntime().freeMemory();
+        float memoryPercentage = (float)(((float)memoryFree/(float)memoryMaximum)*100F);
+
         if (showMemory) {
-            /* This will return Long.MAX_VALUE if there is no preset limit */
-            long memoryMaximum   = Runtime.getRuntime().maxMemory();
-            long memoryAllocated = Runtime.getRuntime().totalMemory();
-            long memoryFree      = Runtime.getRuntime().freeMemory();
-            
-            float memoryPercentage = (float)(((float)memoryFree/(float)memoryAllocated)*100F);
-            
             if (showAll) {
                 /* Maximum amount of memory the JVM will attempt to use */
                 logger.info("  Maximum memory: " + (memoryMaximum == Long.MAX_VALUE ? "no limit" : formatFileSize(memoryMaximum)));
@@ -70,12 +70,13 @@ public class SystemTools {
                 logger.info("Memory - Maximum: " + formatFileSize(memoryMaximum) + ", Allocated: " + formatFileSize(memoryAllocated) + ", Free: "
                                 + formatFileSize(memoryFree) + " (" + (int)memoryPercentage + "%)");
             }
-
-            if (memoryPercentage < cacheOff) {
-                Cache.purgeCache();
-            }
-            
         }
+        
+        // Check to see if we need to turn the cache off.
+        if (memoryPercentage < cacheOff) {
+            Cache.purgeCache();
+        }
+
         // Run garbage collection (if needed)
         System.gc();
     }
