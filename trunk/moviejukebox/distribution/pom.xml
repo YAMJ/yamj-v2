@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.moviejukebox</groupId>
@@ -19,6 +20,34 @@
 
 	<build>
 		<plugins>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>versions-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<!-- searches the pom for all non-SNAPSHOT versions which have been 
+						a newer release and replaces them with the latest release version. -->
+					<execution>
+						<id>use-latest-releases</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>use-latest-releases</goal>
+						</goals>
+					</execution>
+
+					<!-- searches the pom for all versions which have been a newer version 
+						and replaces them with the latest version. -->
+					<execution>
+						<id>use-latest-versions</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>use-latest-versions</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -28,10 +57,14 @@
 						<configuration>
 							<target>
 								<property name="version_file" value="${project.build.directory}/version.txt" />
-								<property name="header_line" value="Yet Another Movie Jukebox${line.separator}" />
-								<property name="build_date_line" value="Build Date: ${timestamp}${line.separator}" />
-								<property name="version_line" value="Version: ${project.version}${line.separator}" />
-								<property name="revision_line" value="Revision: r${buildNumber}${line.separator}" />
+								<property name="header_line"
+									value="Yet Another Movie Jukebox${line.separator}" />
+								<property name="build_date_line"
+									value="Build Date: ${timestamp}${line.separator}" />
+								<property name="version_line"
+									value="Version: ${project.version}${line.separator}" />
+								<property name="revision_line"
+									value="Revision: r${buildNumber}${line.separator}" />
 								<echo>Writing version file: ${version_file}</echo>
 								<echo file="${version_file}" append="false">${header_line}</echo>
 								<echo file="${version_file}" append="true">${build_date_line}</echo>
