@@ -18,7 +18,7 @@ import static com.moviejukebox.tools.StringTools.*;
 public class SystemTools {
     private static final Logger logger = Logger.getLogger("moviejukebox");
     private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false");
-    private static final float cacheOff = (float) PropertiesUtil.getIntProperty("mjb.cacheOffPercentage", "25");
+    private static final long cacheOff = (long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50") * 1024 * 1024);
 
     public static class Base64 {
         public static String base64code = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789" + "+/";
@@ -73,7 +73,7 @@ public class SystemTools {
         }
         
         // Check to see if we need to turn the cache off.
-        if (memoryPercentage < cacheOff) {
+        if (memoryFree < cacheOff) {
             Cache.purgeCache();
         }
 
