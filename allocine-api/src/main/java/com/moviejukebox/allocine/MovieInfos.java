@@ -36,12 +36,15 @@ public class MovieInfos extends Movie {
     private Set<String>          actors;
     private Set<String>          writers;
     private Set<String>          directors;
+    private Set<String>          posterURLS;
 
     // Constants
     private static final int     ACTOR_ACTIVITY_CODE    = 8001;
     private static final int     DIRECTOR_ACTIVITY_CODE = 8002;
     private static final int     WRITER_ACTIVITY_CODE   = 8004;
     private static final int     SCRIPT_ACTIVITY_CODE   = 8043;
+
+    private static final int     POSTER_MEDIA_CODE      = 31001;
 
     public final String getSynopsis() {
         String synopsis = "";
@@ -137,4 +140,22 @@ public class MovieInfos extends Movie {
         return writers;
     }
 
+    protected final void parseMediaList() {
+        if (posterURLS == null) {
+            posterURLS = new LinkedHashSet<String>();
+        }
+
+        for (Media media : getMediaList()) {
+            if (media.getType().getCode() == POSTER_MEDIA_CODE) {
+                posterURLS.add(media.getThumbnail().getHref());
+            }
+        }
+    }
+
+    public final Set<String> getPosterUrls() {
+        if (posterURLS == null) {
+            parseMediaList();
+        }
+        return posterURLS;
+    }
 }

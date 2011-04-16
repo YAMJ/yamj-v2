@@ -25,6 +25,14 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:complexType name="typeType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="code" type="xs:int"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
   <xs:element name="movie">
     <xs:annotation>
       <xs:appinfo>
@@ -49,6 +57,7 @@
         <xs:element ref="genreList" />
         <xs:element ref="release" />
         <xs:element ref="casting" />
+        <xs:element ref="mediaList" />
         <xs:element ref="statistics" />
       </xs:all>
       <xs:attribute name="code" type="xs:int" use="required" />
@@ -137,6 +146,31 @@
     <xs:simpleContent>
       <xs:extension base="xs:int">
         <xs:attribute name="note" type="xs:float" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="mediaList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="media" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="media">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="type" type="typeType"/>
+        <xs:element name="thumbnail" type="thumbnailType" />
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="thumbnailType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="href" type="xs:string"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>

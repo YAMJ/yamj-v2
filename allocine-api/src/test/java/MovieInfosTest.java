@@ -1,6 +1,7 @@
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashSet;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -173,6 +174,20 @@ public class MovieInfosTest {
         List<String> validGenres = Arrays.asList(new String[] { "Science fiction", "Aventure" });
         Assert.assertEquals(2, avatarInfos.getGenreList().size());
         Assert.assertEquals(validGenres, avatarInfos.getGenreList());
+    }
+
+    /**
+     * Test method for {@link com.moviejukebox.allocine.jaxb.Movie#getPosterUrls()}.
+     */
+    @Test
+    public void testGetPosterUrl() {
+        HashSet<String> validPosterUrls = new HashSet<String>();
+        validPosterUrls.add("http://images.allocine.fr/medias/nmedia/18/78/95/70/19485155.jpg");
+        validPosterUrls.add("http://images.allocine.fr/medias/nmedia/18/64/43/65/19211318.jpg");
+        validPosterUrls.add("http://images.allocine.fr/medias/nmedia/18/64/43/65/19150275.jpg");
+        validPosterUrls.add("http://images.allocine.fr/medias/nmedia/18/64/43/65/19149062.jpg");
+        Assert.assertEquals(4, avatarInfos.getPosterUrls().size());
+        Assert.assertEquals(validPosterUrls, avatarInfos.getPosterUrls());
     }
 
 }
