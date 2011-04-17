@@ -18,17 +18,15 @@ import java.io.Writer;
 import java.text.ParseException;
 import org.apache.log4j.Logger;
 
+import com.moviejukebox.allocine.*;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
-import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.WebBrowser;
 
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
 
     public AllocinePosterPlugin() {
@@ -39,7 +37,6 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
         
-        webBrowser = new WebBrowser();
         allocinePlugin = new AllocinePlugin();
     }
 
@@ -62,22 +59,18 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            String xml = "";
             try {
-                xml = webBrowser.request("http://www.allocine.fr/film/fichefilm-" + id + "/affiches/");
-                String posterMediaId = HTMLTools.extractTag(xml, "<a href=\"/film/fichefilm-" + id + "/affiches/detail/?cmediafile=", "\" ><img");
-                if (!Movie.UNKNOWN.equalsIgnoreCase(posterMediaId)) {
-                    String mediaFileURL = "http://www.allocine.fr/film/fichefilm-" + id + "/affiches/detail/?cmediafile=" + posterMediaId;
-                    logger.debug("AllocinePlugin: mediaFileURL : " + mediaFileURL);
-                    xml = webBrowser.request(mediaFileURL);
+                MovieInfos movieInfos = XMLAllocineAPIHelper.getMovieInfos(id);
 
-                    String posterURLTag = HTMLTools.extractTag(xml, "<div class=\"tac\" style=\"\">", "</div>");
-                    // logger.debug("AllocinePlugin: posterURLTag : " + posterURLTag);
-                    posterURL = HTMLTools.extractTag(posterURLTag, "<img src=\"", "\"");
+                if (movieInfos == null) {
+                    logger.error("AllocinePlugin: Can't find informations for movie with id: " + id);
+                    return Image.UNKNOWN;
+                }
 
-                    if (StringTools.isValidString(posterURL)) {
-                        logger.debug("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
-                    }
+                posterURL = movieInfos.getPosterUrls().iterator().next();
+
+                if (StringTools.isValidString(posterURL)) {
+                    logger.debug("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
                 }
             } catch (Exception error) {
                 logger.error("AllocinePlugin: Failed retreiving poster for movie : " + id);
