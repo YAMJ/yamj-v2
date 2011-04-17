@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movie code="777" xmlns="http://www.allocine.net/v6/ns/">
+	<movieType code="4002">Long-métrage</movieType>
+	<originalTitle>Mon Titre Original Test 2</originalTitle>
+	<title>Fichier de test 2</title>
+</movie>

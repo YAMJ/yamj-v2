@@ -40,6 +40,7 @@ MovieJukebox 2.4
  - Enhancement  #1865 Add Watched/Unwatched category
  - Fixed defect #1866 Plug in allocine doesn't retrieve Posters
  - Fixed defect #1872 Unable to rename log file at end of run
+ - Fixed defect #1889 Allocine plugin: when no plot, additional information not retrieved (actors, director...)
 
 MovieJukebox 2.3
 ----------------

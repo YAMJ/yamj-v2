@@ -17,20 +17,24 @@ import com.moviejukebox.allocine.jaxb.Release;
  */
 public class MovieInfosTest {
 
-    File       avatarFile  = null;
-    File       smple1File  = null;
-    MovieInfos avatarInfos = null;
-    MovieInfos smple1Infos = null;
+    File       avatarFile   = null;
+    File       sample1File  = null;
+    File       sample2File  = null;
+    MovieInfos avatarInfos  = null;
+    MovieInfos sample1Infos = null;
+    MovieInfos sample2Infos = null;
 
     /**
      * @throws java.lang.Exception
      */
     @Before
     public void setUp() throws Exception {
-        avatarFile = new File("src/test/java/avatar.xml");
-        smple1File = new File("src/test/java/sample1.xml");
-        avatarInfos = XMLAllocineAPIHelper.getMovieInfos(avatarFile);
-        smple1Infos = XMLAllocineAPIHelper.getMovieInfos(smple1File);
+        avatarFile   = new File("src/test/java/avatar.xml");
+        sample1File  = new File("src/test/java/sample1.xml");
+        sample2File  = new File("src/test/java/sample2.xml");
+        avatarInfos  = XMLAllocineAPIHelper.getMovieInfos(avatarFile);
+        sample1Infos = XMLAllocineAPIHelper.getMovieInfos(sample1File);
+        sample2Infos = XMLAllocineAPIHelper.getMovieInfos(sample2File);
     }
 
     /**
@@ -56,8 +60,11 @@ public class MovieInfosTest {
         Assert.assertTrue(avatarSynopsis.startsWith(validStart));
         Assert.assertTrue(avatarSynopsis.endsWith(validEnd));
 
-        String smple1Synopsis = smple1Infos.getSynopsis();
-        Assert.assertEquals("Un synopsis html avec des sauts de lignes et de multiples espaces...", smple1Synopsis);
+        String sample1Synopsis = sample1Infos.getSynopsis();
+        Assert.assertEquals("Un synopsis html avec des sauts de lignes et de multiples espaces...", sample1Synopsis);
+
+        String sample2Synopsis = sample2Infos.getSynopsis();
+        Assert.assertEquals("", sample2Synopsis);
 
     }
 
@@ -67,7 +74,8 @@ public class MovieInfosTest {
     @Test
     public void testGetRating() {
         Assert.assertEquals(85, avatarInfos.getRating());
-        Assert.assertEquals(-1, smple1Infos.getRating());
+        Assert.assertEquals(-1, sample1Infos.getRating());
+        Assert.assertEquals(-1, sample2Infos.getRating());
     }
 
     /**
@@ -76,7 +84,8 @@ public class MovieInfosTest {
     @Test
     public void testGetCertification() {
         Assert.assertEquals("All", avatarInfos.getCertification());
-        Assert.assertEquals("12", smple1Infos.getCertification());
+        Assert.assertEquals("12", sample1Infos.getCertification());
+        Assert.assertEquals("All", sample2Infos.getCertification());
     }
 
     /**
@@ -85,6 +94,7 @@ public class MovieInfosTest {
     @Test
     public void testGetActors() {
         Assert.assertEquals(42, avatarInfos.getActors().size());
+        Assert.assertEquals(0, sample2Infos.getActors().size());
     }
 
     /**
@@ -94,6 +104,7 @@ public class MovieInfosTest {
     public void testGetDirectors() {
         Assert.assertEquals(1, avatarInfos.getDirectors().size());
         Assert.assertEquals("James Cameron", avatarInfos.getDirectors().toArray()[0]);
+        Assert.assertEquals(0, sample2Infos.getDirectors().size());
     }
 
     /**
@@ -103,8 +114,9 @@ public class MovieInfosTest {
     public void testGetWriters() {
         Assert.assertEquals(1, avatarInfos.getWriters().size());
         Assert.assertEquals("James Cameron", avatarInfos.getWriters().toArray()[0]);
-        Assert.assertEquals(1, smple1Infos.getWriters().size());
-        Assert.assertEquals("Yves Blusseau", smple1Infos.getWriters().toArray()[0]);
+        Assert.assertEquals(1, sample1Infos.getWriters().size());
+        Assert.assertEquals("Yves Blusseau", sample1Infos.getWriters().toArray()[0]);
+        Assert.assertEquals(0, sample2Infos.getWriters().size());
     }
 
     /**
@@ -129,6 +141,7 @@ public class MovieInfosTest {
     @Test
     public void testGetProductionYear() {
         Assert.assertEquals("2009", avatarInfos.getProductionYear());
+        Assert.assertEquals(null, sample2Infos.getProductionYear());
     }
 
     /**
@@ -137,6 +150,7 @@ public class MovieInfosTest {
     @Test
     public void testGetRuntime() {
         Assert.assertEquals(9720, avatarInfos.getRuntime());
+        Assert.assertEquals(0, sample2Infos.getRuntime());
     }
 
     /**
@@ -147,6 +161,7 @@ public class MovieInfosTest {
         Release release = avatarInfos.getRelease();
         Assert.assertEquals("2010-09-01", release.getReleaseDate());
         Assert.assertEquals("Twentieth Century Fox France", release.getDistributor().getName());
+        Assert.assertEquals(null, sample2Infos.getRelease());
     }
 
     /**
@@ -164,6 +179,7 @@ public class MovieInfosTest {
     public void testGetNationalityList() {
         Assert.assertEquals(1, avatarInfos.getNationalityList().size());
         Assert.assertEquals("U.S.A.", avatarInfos.getNationalityList().get(0));
+        Assert.assertEquals(0, sample2Infos.getNationalityList().size());
     }
 
     /**
@@ -174,6 +190,7 @@ public class MovieInfosTest {
         List<String> validGenres = Arrays.asList(new String[] { "Science fiction", "Aventure" });
         Assert.assertEquals(2, avatarInfos.getGenreList().size());
         Assert.assertEquals(validGenres, avatarInfos.getGenreList());
+        Assert.assertEquals(0, sample2Infos.getGenreList().size());
     }
 
     /**
@@ -188,6 +205,7 @@ public class MovieInfosTest {
         validPosterUrls.add("http://images.allocine.fr/medias/nmedia/18/64/43/65/19149062.jpg");
         Assert.assertEquals(4, avatarInfos.getPosterUrls().size());
         Assert.assertEquals(validPosterUrls, avatarInfos.getPosterUrls());
+        Assert.assertEquals(0, sample2Infos.getPosterUrls().size());
     }
 
 }
