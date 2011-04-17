@@ -67,11 +67,13 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
                     return Image.UNKNOWN;
                 }
 
-                posterURL = movieInfos.getPosterUrls().iterator().next();
-
-                if (StringTools.isValidString(posterURL)) {
-                    logger.debug("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
+                if (movieInfos.getPosterUrls().size() > 0) {
+                    posterURL = movieInfos.getPosterUrls().iterator().next();
+                    if (StringTools.isValidString(posterURL)) {
+                        logger.debug("AllocinePlugin: Movie PosterURL from Allocine: " + posterURL);
+                    }
                 }
+
             } catch (Exception error) {
                 logger.error("AllocinePlugin: Failed retreiving poster for movie : " + id);
                 final Writer eResult = new StringWriter();
