@@ -78,12 +78,12 @@ public class VideoImageScanner {
         }
 
         String genericVideoImageFilename = null;
+        File   genericVideoImageFile = null;
         String localVideoImageBaseFilename = null;
+        File   localVideoImageFile = null;
         String fullVideoImageFilename = null;
         String videoimageExtension = null;
-        String originalLocalVideoImageBaseFilename = null;
         String originalFullVideoImageFilename = null;
-        File localVideoImageFile = null;
         boolean foundLocalVideoImage = false;
         boolean localOverwrite = false;
         int firstPart, lastPart;
@@ -97,14 +97,13 @@ public class VideoImageScanner {
         genericVideoImageFilename = movie.getFile().getParent() + File.separator + localVideoImageBaseFilename + videoimageToken;
 
         // Look for the various versions of the file with different image extensions
-        videoimageExtension = findVideoImageFile(genericVideoImageFilename, videoimageExtensions);
-
-        if (videoimageExtension != null) {             // The filename and extension was found
-            genericVideoImageFilename += videoimageExtension;
+        genericVideoImageFile = FileTools.findFileFromExtensions(genericVideoImageFilename, videoimageExtensions);
+        if (genericVideoImageFile.exists()) {
+            genericVideoImageFilename = genericVideoImageFile.getAbsolutePath();
         } else {
             genericVideoImageFilename = null;
         }
-
+        
         // Now we look through all the movie files to locate a local video image
         for (MovieFile mf : movie.getFiles()) {
             firstPart = mf.getFirstPart();  // The first part of the moviefile
@@ -112,7 +111,7 @@ public class VideoImageScanner {
             
             // Check to see if the file is null, this might be the case if the file is in the middle of a series
             if (mf.getFile() == null) {
-                logger.debug("VideoImage Scanner: Missing file - " + mf.getFilename());
+                logger.debug("VideoImageScanner: Missing file - " + mf.getFilename());
                 continue;
             }
             
@@ -135,7 +134,6 @@ public class VideoImageScanner {
                 
                 fullVideoImageFilename = FileTools.getParentFolder(mf.getFile()) + File.separator + localVideoImageBaseFilename;
                 
-                originalLocalVideoImageBaseFilename = localVideoImageBaseFilename;
                 originalFullVideoImageFilename = fullVideoImageFilename;
 
                 // Check for the videoimage filename with the suffix
@@ -143,45 +141,32 @@ public class VideoImageScanner {
                     String suffixFullVideoImageFilename = originalFullVideoImageFilename + partSuffix;
                     
                     // Check for the videoimage filename with the "_part" suffix
-                    videoimageExtension = findVideoImageFile(suffixFullVideoImageFilename, videoimageExtensions);
-                    
-                    if (videoimageExtension != null) {
-                        // The filename and extension was found
-                        suffixFullVideoImageFilename += videoimageExtension;
+                    localVideoImageFile = FileTools.findFileFromExtensions(suffixFullVideoImageFilename, videoimageExtensions);
+                    if (localVideoImageFile.exists()) {
+                        logger.debug("VideoImageScanner: File " + localVideoImageFile.getName() + " found");
+                        foundLocalVideoImage = true;
                         
-                        localVideoImageFile = new File(suffixFullVideoImageFilename); // Double check it still works
-                        if (localVideoImageFile.exists()) {
-                            logger.debug("VideoImageScanner: File " + suffixFullVideoImageFilename + " found");
-                            foundLocalVideoImage = true;
-                            
-                            // Copy the found videoimage filenames to the originals to ensure the correct filenames are used
-                            localVideoImageBaseFilename = originalLocalVideoImageBaseFilename + partSuffix + videoimageExtension;
-                            fullVideoImageFilename = suffixFullVideoImageFilename;
-                            mf.setVideoImageFilename(part, localVideoImageBaseFilename);
-                        }
+                        // Copy the found videoimage filenames to the originals to ensure the correct filenames are used
+                        mf.setVideoImageFilename(part, localVideoImageFile.getName());
+                        fullVideoImageFilename = localVideoImageFile.getAbsolutePath();
                     }
                 }
                 
                 // If the wasn't a specific "videoimage_{part}" then look for a more generic videoimage filename
                 if (!foundLocalVideoImage) {
                     // Check for the videoimage filename without the "_part" suffix
-                    videoimageExtension = findVideoImageFile(fullVideoImageFilename, videoimageExtensions);
-                    
-                    if (videoimageExtension != null) {
-                        // The filename and extension was found
-                        fullVideoImageFilename += videoimageExtension;
-                        
-                        localVideoImageFile = new File(fullVideoImageFilename); // Double check it still works
-                        if (localVideoImageFile.exists()) {
-                            logger.debug("VideoImageScanner: File " + fullVideoImageFilename + " found");
-                            foundLocalVideoImage = true;
-                            mf.setVideoImageFilename(part, localVideoImageBaseFilename + partSuffix + videoimageExtension);
-                        }
+                    localVideoImageFile = FileTools.findFileFromExtensions(fullVideoImageFilename, videoimageExtensions);
+                    if (localVideoImageFile.exists()) {
+                        logger.debug("VideoImageScanner: File " + localVideoImageFile.getName() + " found");
+                        foundLocalVideoImage = true;
+                        mf.setVideoImageFilename(part, localVideoImageFile.getName());
+                        fullVideoImageFilename = localVideoImageFile.getAbsolutePath();
                     }
                 }
 
                 // If we don't have a filename, then fill it in here.
                 if (StringTools.isNotValidString(mf.getVideoImageFilename(part))) {
+                    logger.debug("VideoImageScanner: No valid filename was found for part " + part);
                     if (videoimageExtension == null) {
                         videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
                         
@@ -218,13 +203,13 @@ public class VideoImageScanner {
                         // This occurs when there isn't a videoimage URL in the XML
                         if (localVideoImageFile != null)  {
                             mf.setVideoImageURL(part, localVideoImageFile.toURI().toString());
-                            mf.setVideoImageFilename(part, localVideoImageFile.getName().toString());
-                        }
-                        else {
+                            mf.setVideoImageFilename(part, localVideoImageFile.getName());
+                        } else {
                             mf.setVideoImageURL(part, new File(genericVideoImageFilename).toURI().toString());
                             mf.setVideoImageFilename(part, genericVideoImageFilename);
                         }
                     }
+                    
                     String videoimageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
                     String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + videoimageFilename;
                     String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + videoimageFilename;
@@ -248,7 +233,7 @@ public class VideoImageScanner {
                             
                             // Process the dummy videoimage in the temp folder
                             if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
-                                logger.debug("VideoImage Scanner: Using default videoimage");
+                                logger.debug("VideoImageScanner: Using default videoimage");
                                 mf.setVideoImageURL(part, Movie.UNKNOWN);   // So we know this is a dummy videoimage
                             } else {
                                 logger.debug("VideoImageScanner: Failed loading default videoimage");
@@ -319,18 +304,18 @@ public class VideoImageScanner {
                 try {
                     FileTools.downloadImage(tmpDestFile, mf.getVideoImageURL(part));
                 } catch (Exception error) {
-                    logger.debug("VideoImage Scanner: Failed to download videoimage : " + mf.getVideoImageURL(part) + " error: " + error.getMessage());
+                    logger.debug("VideoImageScanner: Failed to download videoimage : " + mf.getVideoImageURL(part) + " error: " + error.getMessage());
                     fileOK = false;
                 }
                     
                 if (fileOK && processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
-                    logger.debug("VideoImage Scanner: Downloaded videoimage for " + mf.getVideoImageFilename(part) + " to " + tmpDestFilename);
+                    logger.debug("VideoImageScanner: Downloaded videoimage for " + mf.getVideoImageFilename(part) + " to " + tmpDestFilename);
                 } else {
                     // failed use dummy
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"), tmpDestFile);
 
                     if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
-                        logger.debug("VideoImage Scanner: Using default videoimage");
+                        logger.debug("VideoImageScanner: Using default videoimage");
                         mf.setVideoImageURL(part, Movie.UNKNOWN); // So we know this is a dummy videoimage
                     } else {
                         // Copying the default image failed, so leave everything blank
@@ -340,39 +325,9 @@ public class VideoImageScanner {
                     }
                 }
             } else {
-                logger.debug("VideoImage Scanner: VideoImage exists for " + mf.getVideoImageFilename(part));
+                logger.debug("VideoImageScanner: VideoImage exists for " + mf.getVideoImageFilename(part));
             }
         }
         return;
-    }
-    
-    /***
-     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the extension
-     * 
-     * @param filename
-     * @param extensions
-     * @return extension of videoimage that was found
-     */
-    private static String findVideoImageFile(String fullVideoImageFilename, Collection<String> videoimageExtensions) {
-        File localVideoImageFile;
-        String videoimageExtension = null;
-        boolean foundLocalVideoImage = false;
-
-        for (String extension : videoimageExtensions) {
-            localVideoImageFile = new File(fullVideoImageFilename + "." + extension);
-            if (localVideoImageFile.exists()) {
-                //logger.debug("The file " + fullVideoImageFilename + "." + extension + " found");
-                videoimageExtension = "." + extension;
-                foundLocalVideoImage = true;
-                break;
-            }
-        }
-
-        // If we've found the filename with extension, return it, otherwise return null
-        if (foundLocalVideoImage) {
-            return videoimageExtension;
-        } else {
-            return null;
-        }
     }
 }
