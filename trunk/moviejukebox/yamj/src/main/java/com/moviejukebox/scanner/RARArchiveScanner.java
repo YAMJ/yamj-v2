@@ -42,6 +42,12 @@ public class RARArchiveScanner implements ArchiveScanner {
 
     private static final Pattern partPattern=Pattern.compile("(.*?\\.part)(\\d+)(\\.rar)$", Pattern.CASE_INSENSITIVE);
 
+    boolean useRARLastModified=false;
+
+    public void setUseRARLastModified(boolean useRARLastModified) {
+        this.useRARLastModified=this.useRARLastModified;
+    }
+
     @Override
     public Collection<? extends File> getArchiveFiles(File parent, List<String> mutableNames) {
         List<File> archiveFiles = new ArrayList<File>();
@@ -108,7 +114,8 @@ public class RARArchiveScanner implements ArchiveScanner {
                                 volumeFormat="%s%02d";
                             }
                         }
-                        VirtualFile virtualRARDirectory = VirtualFile.createRootVirtualFile(parent,name,0,new File(parent,name).lastModified());
+                        long rarLastModified=new File(parent,name).lastModified();
+                        VirtualFile virtualRARDirectory = VirtualFile.createRootVirtualFile(parent,name,0,rarLastModified);
                         archiveFiles.add(virtualRARDirectory);
 
                         // repeat until there are no more volumes remaining for this RAR
@@ -131,10 +138,10 @@ public class RARArchiveScanner implements ArchiveScanner {
                                     logger.warn("Encrypted file, skipping...");
                                     continue;
                                 }
-                                if(!fh.isDirectory()) {
-                                    VirtualFile.createVirtualFile(virtualRARDirectory,fileName,fh.getFullUnpackSize(),fh.getMTime().getTime(),false);
+                                if(useRARLastModified) {
+                                    VirtualFile.createVirtualFile(virtualRARDirectory,fileName,fh.getFullUnpackSize(),rarLastModified,fh.isDirectory());
                                 } else {
-                                    VirtualFile.createVirtualFile(virtualRARDirectory,fileName,fh.getFullUnpackSize(),fh.getMTime().getTime(),true);
+                                    VirtualFile.createVirtualFile(virtualRARDirectory,fileName,fh.getFullUnpackSize(),fh.getMTime().getTime(),fh.isDirectory());
                                 }
                             }
                             remainingNames.remove(name);
