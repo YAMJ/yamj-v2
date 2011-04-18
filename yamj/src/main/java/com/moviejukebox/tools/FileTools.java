@@ -423,7 +423,7 @@ public class FileTools {
         return newFilename;
     }
 
-    /*
+    /**
      * Returns the given path in canonical form
      * i.e. no duplicated separators, no ".", ".."..., and ending without trailing separator
      * the only exception is a root! the canonical form for a root INCLUDES the separator
@@ -436,7 +436,7 @@ public class FileTools {
         }
     }
 
-    /*
+    /**
      * when concatenating paths and the source MIGHT be a root, use this function
      * to safely add the separator 
      */
@@ -448,7 +448,7 @@ public class FileTools {
         return new String(filename.substring(filename.lastIndexOf('.')+1));
     }
 
-    /*
+    /**
      * Returns the parent folder name only; used when searching for posters...
      */
     public static String getParentFolderName(File file) {
@@ -647,7 +647,7 @@ public class FileTools {
     }
    
     /**
-     * special file with "cached" attributes
+     * Special File with "cached" attributes
      * used to minimize file system access which slows down everything
      * @author Gabriel Corneanu
      */
@@ -682,12 +682,12 @@ public class FileTools {
         // archive scanner supporting constructors
         public FileEx(String pathname, ArchiveScanner[] archiveScanners) {
             super(pathname);
-            this.archiveScanners=archiveScanners;
+            this.archiveScanners = archiveScanners;
         }
         
         public FileEx(File parent, String child, ArchiveScanner[] archiveScanners) {
             this(parent, child);
-            this.archiveScanners=archiveScanners;
+            this.archiveScanners = archiveScanners;
         }
 
         @Override

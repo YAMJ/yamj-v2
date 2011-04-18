@@ -41,6 +41,7 @@ MovieJukebox 2.4
  - Fixed defect #1866 Plug in allocine doesn't retrieve Posters
  - Fixed defect #1872 Unable to rename log file at end of run
  - Fixed defect #1889 Allocine plugin: when no plot, additional information not retrieved (actors, director...)
+ - Enhancement  #1890 Allow RAR scanner to check the date of the RAR container instead of the video file
 
 MovieJukebox 2.3
 ----------------

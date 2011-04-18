@@ -85,16 +85,17 @@ public class MovieDirectoryScanner {
         localBDRipScanner = new BDRipScanner();
         List<ArchiveScanner> archiveScannerList = new ArrayList<ArchiveScanner>();
         if (PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false")) {
-            archiveScannerList.add(new RARArchiveScanner());
+            RARArchiveScanner rarArchiveScanner=new RARArchiveScanner();
+            rarArchiveScanner.setUseRARLastModified(PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar.userarlastmodified","false"));
+            archiveScannerList.add(rarArchiveScanner);
         }
         archiveScanners = archiveScannerList.toArray(new ArchiveScanner[archiveScannerList.size()]);
     }
 
     /**
      * Scan the specified directory for movies files.
-     * 
-     * @param directory
-     *            movie library rootfile
+     * @param srcPath
+     * @param library
      * @return a new library
      */
     public Library scan(MediaLibraryPath srcPath, Library library) {
