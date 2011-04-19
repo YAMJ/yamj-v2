@@ -657,9 +657,11 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
-            String tmpPlot = removeHtmlTags(extractTag(xml, "<div style=\"font-size:14px;text-align:justify;\">", "</div>"));
-
-            movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
+            String tmpPlot = removeHtmlTags(extractTag(xml, "<div id=\"profilememo\" style=\"font-size:14px;text-align:justify;\">", "</div>"));
+            
+            if (tmpPlot.length()>30) { //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used. 
+                movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
+            }
 
             if (!keepImdbCast) {
                 movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))));
