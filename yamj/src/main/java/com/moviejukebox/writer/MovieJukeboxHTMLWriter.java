@@ -574,10 +574,19 @@ public class MovieJukeboxHTMLWriter {
      * Creates and caches Transformer, one for every thread/xsl file.
      */
     public static Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) throws TransformerConfigurationException {
-        // Vincent - Remove caching of transformer, as saxon keep all parsed document in memory, causing memory leaks.
-        // Creating a new transformer every time didn't consume so much time and have no impact on performance.
-        // It let YAMJ save lot of memory.
+        /*
+         * Removed caching of transformer, as saxon keeps all parsed documents in memory, causing memory leaks.
+         * Creating a new transformer every time doesn't consume too much time and has no impact on performance.
+         * It lets YAMJ save lot of memory.
+         * @author Vincent
+         */
         Source xslSource = new StreamSource(xslFile);
+        
+        // Sometimes the StreamSource doesn't return an object and we get a null pointer exception, so check it and try loading it again
+        if (xslSource == null || xslSource.equals(null)) {
+            xslSource = new StreamSource(xslFile);
+        }
+        
         Transformer transformer = transformerFactory.newTransformer(xslSource);
         transformer.setParameter("homePage", indexFile);
         transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
