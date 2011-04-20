@@ -237,6 +237,7 @@ public class BannerScanner {
                     }
                 } catch (Exception error) {
                     logger.debug("BannerScanner: Failed to download banner: " + movie.getBannerURL());
+                    movie.setBannerURL(Movie.UNKNOWN);
                 }
             } else {
                 logger.debug("BannerScanner: Banner exists for " + movie.getBaseFilename());
