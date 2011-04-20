@@ -56,10 +56,18 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(fis);
         } catch (IIOException error) {
-            logger.error("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            logger.warn("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.warn(eResult.toString());
             return null;
-        } catch (Exception ignore) {
-            logger.error("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
+        } catch (Exception error) {
+            logger.warn("GraphicsTools: Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.warn(eResult.toString());
             return null;
         } catch (OutOfMemoryError error) {
             logger.error("GraphicsTools: Error processing image file - Out of memory. Please run YAMJ again to fix.");
@@ -72,7 +80,7 @@ public class GraphicTools {
                     final Writer eResult = new StringWriter();
                     final PrintWriter printWriter = new PrintWriter(eResult);
                     error.printStackTrace(printWriter);
-                    logger.error(eResult.toString());
+                    logger.warn(eResult.toString());
                 }
             }
         }
@@ -91,15 +99,15 @@ public class GraphicTools {
 
     /**
      * Load a JPG image from a file
-     * @param f
+     * @param fileImage
      * @return
      * @throws IOException
      */
-    public static BufferedImage loadJPEGImage(File f) throws IOException{
-        InputStream in = FileTools.createFileInputStream(f);
-        BufferedImage b = loadJPEGImage(in);
-        in.close();
-        return b;
+    public static BufferedImage loadJPEGImage(File fileImage) throws IOException{
+        InputStream inImage = FileTools.createFileInputStream(fileImage);
+        BufferedImage biImage = loadJPEGImage(inImage);
+        inImage.close();
+        return biImage;
     }
 
     /**
