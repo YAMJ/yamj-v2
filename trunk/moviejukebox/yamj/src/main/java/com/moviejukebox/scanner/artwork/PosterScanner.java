@@ -343,6 +343,7 @@ public class PosterScanner {
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
                     logger.debug("PosterScanner: Poster URL found at " + posterSearchToken + ": " + posterImage.getUrl());
                     posterImage.setSubimage(posterSearchToken);     // TODO: This is a hack, but seeing as only one poster scanner uses it, it should be safe until it's all refactored to use the Artwork class
+                    movie.setDirtyPoster(true);
                 }
             }
         }

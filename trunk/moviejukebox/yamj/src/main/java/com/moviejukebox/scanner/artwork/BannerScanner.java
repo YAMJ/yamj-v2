@@ -32,6 +32,7 @@ import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
@@ -202,6 +203,12 @@ public class BannerScanner {
      * @param movie
      */
     private static void downloadBanner(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
+        String id = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID); // This is the default ID
+        if (!movie.isScrapeLibrary() || id.equals("0") || id.equals("-1")) {
+            logger.debug("PosterScanner: Skipping online banner search for " + movie.getBaseFilename());
+            return;
+        }
+        
         if (StringTools.isValidString(movie.getBannerURL())) {
             String safeBannerFilename = movie.getBannerFilename();
             String bannerFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeBannerFilename;
@@ -223,12 +230,13 @@ public class BannerScanner {
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, tmpDestFileName);
+                        logger.debug("BannerScanner: Downloaded banner for " + movie.getBannerURL());
                     } else {
                         movie.setBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug("BannerScanner: Failed to download banner : " + movie.getBannerURL());
+                    logger.debug("BannerScanner: Failed to download banner: " + movie.getBannerURL());
                 }
             } else {
                 logger.debug("BannerScanner: Banner exists for " + movie.getBaseFilename());

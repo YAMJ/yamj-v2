@@ -1465,13 +1465,14 @@ public class MovieJukebox {
 
             // Update thumbnails format if needed
             movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailExtension);
+            
             // Update poster format if needed
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
             // Check for local CoverArt
             PosterScanner.scan(jukebox, movie);
             
-            // If we don't have local coverart, look online
+            // If we don't have a local poster, look online
             // And even though we do "recheck" for a poster URL we should always try and get one
             if (!isValidString(movie.getPosterURL())) {
                 PosterScanner.scan(movie);

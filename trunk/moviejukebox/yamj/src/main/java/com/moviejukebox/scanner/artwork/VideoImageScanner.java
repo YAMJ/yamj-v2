@@ -88,7 +88,7 @@ public class VideoImageScanner {
         boolean localOverwrite = false;
         int firstPart, lastPart;
         
-        logger.debug("Checking for videoimages for " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
+        logger.debug("VideoImageScanner: Checking for videoimages for " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
 
         // Check for the generic video image for use in the loop later.
         localVideoImageBaseFilename = FileTools.getParentFolder(movie.getFile());
