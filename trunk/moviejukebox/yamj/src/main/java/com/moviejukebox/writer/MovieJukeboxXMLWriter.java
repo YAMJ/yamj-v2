@@ -1158,7 +1158,12 @@ public class MovieJukeboxXMLWriter {
         if (movie.getFileDate() == null) {
             writer.writeCharacters(Movie.UNKNOWN);
         } else {
-            writer.writeCharacters(Movie.dateFormat.format(movie.getFileDate()));
+            // Try to catch any date re-formatting errors
+            try {
+                writer.writeCharacters(Movie.dateFormat.format(movie.getFileDate()));
+            } catch (ArrayIndexOutOfBoundsException error) {
+                writer.writeCharacters(Movie.UNKNOWN);
+            }
         }
         writer.writeEndElement();
         writer.writeStartElement("fileSize");
