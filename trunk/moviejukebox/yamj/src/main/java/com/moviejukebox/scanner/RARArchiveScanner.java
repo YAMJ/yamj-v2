@@ -45,7 +45,7 @@ public class RARArchiveScanner implements ArchiveScanner {
     boolean useRARLastModified=false;
 
     public void setUseRARLastModified(boolean useRARLastModified) {
-        this.useRARLastModified=this.useRARLastModified;
+        this.useRARLastModified = useRARLastModified;
     }
 
     @Override
