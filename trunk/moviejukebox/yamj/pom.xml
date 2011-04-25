@@ -115,7 +115,7 @@
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>saxonhe</artifactId>
-			<version>10.0-b19</version>
+			<version>9.3.0.5</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/saxon9he.jar</systemPath>
 		</dependency>
