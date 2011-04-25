@@ -92,7 +92,7 @@ public class VideoImageScanner {
 
         // Check for the generic video image for use in the loop later.
         localVideoImageBaseFilename = FileTools.getParentFolder(movie.getFile());
-       
+
         localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator) + 1));
         genericVideoImageFilename = movie.getFile().getParent() + File.separator + localVideoImageBaseFilename + videoimageToken;
 
@@ -131,7 +131,7 @@ public class VideoImageScanner {
                     localVideoImageBaseFilename = mf.getFile().getName();
                     localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf("."))) + videoimageToken;
                 }
-                
+
                 fullVideoImageFilename = FileTools.getParentFolder(mf.getFile()) + File.separator + localVideoImageBaseFilename;
                 
                 originalFullVideoImageFilename = fullVideoImageFilename;
@@ -167,15 +167,16 @@ public class VideoImageScanner {
                 // If we don't have a filename, then fill it in here.
                 if (StringTools.isNotValidString(mf.getVideoImageFilename(part))) {
                     logger.debug("VideoImageScanner: No valid filename was found for part " + part);
+                    
                     if (videoimageExtension == null) {
                         videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
-                        
-                        if (firstPart < lastPart) {
-                            localVideoImageBaseFilename += partSuffix + videoimageExtension;
-                        } else {
-                            localVideoImageBaseFilename += videoimageExtension;
-                        }
                     }
+                    if (firstPart < lastPart) {
+                        localVideoImageBaseFilename += partSuffix + videoimageExtension;
+                    } else {
+                        localVideoImageBaseFilename += videoimageExtension;
+                    }
+                    
                     // This is the YAMJ generated filename.
                     mf.setVideoImageFilename(part, localVideoImageBaseFilename);
                     
