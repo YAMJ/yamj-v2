@@ -44,6 +44,7 @@ import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -195,30 +196,39 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         if (isValidString(id)) {
             animeId = Long.parseLong(id);
         }
-
-        try {
-            if (animeId > 0) {
-                anime = getAnimeByAid(animeId);
-            } else {
-                anime = getAnimeByName(movie.getTitle());
-                if (anime != null) {
-                    animeId = anime.getAnimeId();
-                    // Update the movie's Id
-                    movie.setId(ANIDB_PLUGIN_ID, "" + animeId);
+        if ((anime = (Anime)Cache.getFromCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", Long.toString(animeId)))) != null) {
+            logger.debug("Cache hit for anime " + anime.getAnimeId() + " " + anime.getRomajiName());
+        }
+        else {
+            logger.debug("Cache miss");
+            try {
+                if (animeId > 0) {
+                    anime = getAnimeByAid(animeId);
+                } else {
+                    anime = getAnimeByName(movie.getTitle());
+                    if (anime != null) {
+                        animeId = anime.getAnimeId();
+                        // Update the movie's Id
+                        movie.setId(ANIDB_PLUGIN_ID, "" + animeId);
+                    }
                 }
-            }
-        } catch (UdpConnectionException error) {
-            processUdpError(error);
-        } catch (AniDbException error) {
-            // We should use the return code here, but it doesn't seem to work
-            if (error.getReturnCode() == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(error.getReturnString())) {
-                anime = null;
-            } else {
-                logger.info(LOG_MESSAGE + "Unknown AniDb Exception erorr");
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                if (anime != null) {
+                    Cache.addToCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", anime.getAnimeId().toString()), anime);
+                    logger.debug("Adding to cache: " + Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", anime.getAnimeId().toString()));
+                }
+            } catch (UdpConnectionException error) {
+                processUdpError(error);
+            } catch (AniDbException error) {
+                // We should use the return code here, but it doesn't seem to work
+                if (error.getReturnCode() == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(error.getReturnString())) {
+                    anime = null;
+                } else {
+                    logger.info(LOG_MESSAGE + "Unknown AniDb Exception erorr");
+                    final Writer eResult = new StringWriter();
+                    final PrintWriter printWriter = new PrintWriter(eResult);
+                    error.printStackTrace(printWriter);
+                    logger.error(eResult.toString());
+                }
             }
         }
         
