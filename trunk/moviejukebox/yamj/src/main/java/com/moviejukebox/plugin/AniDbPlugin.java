@@ -197,10 +197,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             animeId = Long.parseLong(id);
         }
         if ((anime = (Anime)Cache.getFromCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", Long.toString(animeId)))) != null) {
-            logger.debug("Cache hit for anime " + anime.getAnimeId() + " " + anime.getRomajiName());
+            logger.debug(LOG_MESSAGE + "Cache hit for anime " + anime.getAnimeId() + " " + anime.getRomajiName());
         }
         else {
-            logger.debug("Cache miss");
+            logger.debug(LOG_MESSAGE + "Cache miss for " + animeId);
             try {
                 if (animeId > 0) {
                     anime = getAnimeByAid(animeId);
@@ -214,7 +214,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 }
                 if (anime != null) {
                     Cache.addToCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", anime.getAnimeId().toString()), anime);
-                    logger.debug("Adding to cache: " + Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", anime.getAnimeId().toString()));
+                    logger.debug(LOG_MESSAGE + "Adding to cache: " + Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", anime.getAnimeId().toString()));
                 }
             } catch (UdpConnectionException error) {
                 processUdpError(error);
