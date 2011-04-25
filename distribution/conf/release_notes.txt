@@ -5,6 +5,7 @@
 MovieJukebox 2.5 SNAPSHOT
 -------------------------
  - Enhancement  #1853 Multiple index pages
+ - Enhancement  #1895 AniDbPlugin caches anime information
 
 MovieJukebox 2.4
 ----------------
