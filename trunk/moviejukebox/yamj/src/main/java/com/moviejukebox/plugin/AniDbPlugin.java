@@ -99,7 +99,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.error(LOG_MESSAGE + "Error setting the port to '" + PropertiesUtil.getProperty("anidb.port") + "' using default");
         }
         
-        anidbMask = new AnimeMask(true, true, true, false, false, true, false, false, false, true, true, true, true, true, true, true, true, false, true, true, true, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, false, true, false);
+        anidbMask = new AnimeMask(true, true, true, false, false, true, false, true, false, true, true, true, true, true, true, true, true, false, true, true, true, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, false, true, false);
         
         anidbUsername = PropertiesUtil.getProperty("anidb.username", null);
         anidbPassword = PropertiesUtil.getProperty("anidb.password", null);
@@ -141,7 +141,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         if (anidbConn == null) {
             return false;
         }
-        
+
         // Now process the movie
         logger.info(LOG_MESSAGE + "Logged in and searching for " + movie.getBaseFilename());
         if (hash) {
@@ -258,6 +258,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             
             if (isValidString(anime.getEnglishName())) {
                 movie.setOriginalTitle(anime.getEnglishName());
+            } else if (isValidString(anime.getRomajiName())){
+                movie.setOriginalTitle(anime.getRomajiName());
+            } else {
+                logger.error(LOG_MESSAGE + "Encountered an anime without a valid title. Anime ID: " + anime.getAnimeId());  
             }
             
             if (isValidString(anime.getYear())) {
