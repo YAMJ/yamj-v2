@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
+ *
  *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *      license terms of this work.
  */
 
 /*
@@ -24,20 +24,36 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.net.URLEncoder;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.IMovieBasicInformation;
+
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebStats;
+
 
 public class KinopoiskPlugin extends ImdbPlugin {
 
@@ -46,11 +62,19 @@ public class KinopoiskPlugin extends ImdbPlugin {
     int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
     protected TheTvDBPlugin tvdb;
+    // Copied from ComingSoonPlugin.java
+    protected boolean trailersScannerEnable;
+    protected boolean trailerSetExchange;
+    protected boolean trailerDownload;
 
     public KinopoiskPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Russia");
         tvdb = new TheTvDBPlugin();
+        // Copied from ComingSoonPlugin.java
+        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
+        trailerSetExchange = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.setExchange", "false");
+        trailerDownload = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.download", "false");
     }
 
     @Override
@@ -76,7 +100,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String name = mediaFile.getTitle();
             name.replace('-', ' ');
             kinopoiskId = getKinopoiskId(name, year, mediaFile.getSeason());
-            
+
             if (StringTools.isValidString(year) && StringTools.isNotValidString(kinopoiskId)) {
                 // Trying without specifying the year
                 kinopoiskId = getKinopoiskId(name, Movie.UNKNOWN, mediaFile.getSeason());
@@ -86,10 +110,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // If ID is specified in NFO, set original title to unknown
             mediaFile.setTitle(Movie.UNKNOWN);
         }
-        
+
         if (StringTools.isValidString(kinopoiskId)) {
             // Replace some movie data by data from Kinopoisk
             retval = updateKinopoiskMediaInfo(mediaFile, kinopoiskId);
+        }
+
+        if (trailersScannerEnable) {
+            generateTrailer(mediaFile);
         }
         return retval;
     }
@@ -155,13 +183,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (beginIndex == -1) {
                     return Movie.UNKNOWN;
                 }
-                
+
                 //beginIndex = xml.indexOf("href=\"/level/1/film/", beginIndex);
                 beginIndex = xml.indexOf("/level/1/film/", beginIndex);
                 if (beginIndex == -1) {
                     return Movie.UNKNOWN;
                 }
-                
+
                 //StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 14), "/\"");
                 kinopoiskId = st.nextToken();
@@ -301,7 +329,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 for (String writer : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
                     newDirectors.add(writer);
                 }
-                
+
                 if (newDirectors.size() > 0) {
                     movie.setDirectors(newDirectors);
                 }
@@ -445,5 +473,189 @@ public class KinopoiskPlugin extends ImdbPlugin {
             logger.error(eResult.toString());
         }
         return true;
+    }
+
+    // Copied from ComingSoonPlugin.java
+    protected void generateTrailer(Movie movie) {
+        if (movie.isExtra() || movie.isTVShow()) {
+            return;
+        }
+        if (!movie.getExtraFiles().isEmpty()) {
+            logger.debug("KinoPoisk Plugin: Movie has trailers, skipping");
+            return;
+        }
+
+        String trailerUrl = getTrailerUrl(movie);
+        if (StringTools.isNotValidString(trailerUrl)) {
+            logger.debug("KinoPoisk Plugin: no trailer found");
+            if (trailerSetExchange) {
+                movie.setTrailerExchange(true);
+            }
+            return;
+        }
+
+        logger.debug("KinoPoisk Plugin: found trailer at URL " + trailerUrl);
+
+        MovieFile tmf = new MovieFile();
+        tmf.setTitle("TRAILER-ru");
+
+        if (trailerDownload) {
+
+            // Copied from AppleTrailersPlugin.java
+
+            MovieFile mf = movie.getFirstFile();
+            String parentPath = mf.getFile().getParent();
+            String name = mf.getFile().getName();
+            String basename;
+
+            if (mf.getFilename().toUpperCase().endsWith("/VIDEO_TS")) {
+                parentPath += File.separator + name;
+                basename = name;
+            } else if (mf.getFile().getAbsolutePath().toUpperCase().contains("BDMV")) {
+                parentPath = new String(parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1));
+                basename = new String(parentPath.substring(parentPath.lastIndexOf(File.separator) + 1));
+            } else {
+                int index = name.lastIndexOf(".");
+                basename = index == -1 ? name : new String(name.substring(0, index));
+            }
+
+            String trailerExt = new String(trailerUrl.substring(trailerUrl.lastIndexOf(".")));
+            String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-ru]" + trailerExt);
+            String trailerFileName = parentPath + File.separator + trailerBasename;
+
+            int slash = mf.getFilename().lastIndexOf("/");
+            String playPath = slash == -1 ? mf.getFilename() : new String(mf.getFilename().substring(0, slash));
+            String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
+
+            logger.debug("KinoPoisk Plugin: Found trailer: " + trailerUrl);
+            logger.debug("KinoPoisk Plugin: Download path: " + trailerFileName);
+            logger.debug("KinoPoisk Plugin:      Play URL: " + trailerPlayFileName);
+            File trailerFile = new File(trailerFileName);
+
+            // Check if the file already exists - after jukebox directory was deleted for example
+            if (trailerFile.exists()) {
+                logger.debug("KinoPoisk Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
+                tmf.setFilename(trailerPlayFileName);
+                movie.addExtraFile(new ExtraFile(tmf));
+            } else if (trailerDownload(movie, trailerUrl, trailerFile)) {
+                tmf.setFilename(trailerPlayFileName);
+                movie.addExtraFile(new ExtraFile(tmf));
+            }
+
+            movie.setTrailerExchange(true);
+        } else {
+            tmf.setFilename(trailerUrl);
+            movie.addExtraFile(new ExtraFile(tmf));
+            movie.setTrailerExchange(true);
+        }
+    }
+
+    protected String getTrailerUrl(Movie movie) {
+
+        // Copied from ComingSoonPlugin.java
+
+        String trailerUrl = Movie.UNKNOWN;
+        String kinopoiskId = movie.getId(KINOPOISK_PLUGIN_ID);
+        if (StringTools.isNotValidString(kinopoiskId)) {
+            return Movie.UNKNOWN;
+        }
+        try {
+            String searchUrl = "http://www.kinopoisk.ru/level/16/film/" + kinopoiskId;
+            logger.debug("KinoPoisk Plugin: searching for trailer at URL " + searchUrl);
+            String xml = webBrowser.request(searchUrl);
+
+            int beginIndex = xml.indexOf("/level/16/film/" + kinopoiskId + "/t/");
+            if (beginIndex < 0) {
+                // No link to movie page found. We have been redirected to the general video page
+                logger.debug("KinoPoisk Plugin: no video found for movie " + movie.getTitle());
+                return Movie.UNKNOWN;
+            }
+
+            String xmlUrl = new String("http://www.kinopoisk.ru" + xml.substring(beginIndex, xml.indexOf("/\"", beginIndex)));
+            if (StringTools.isNotValidString(xmlUrl)) {
+                logger.debug("KinoPoisk Plugin: no downloadable trailer found for movie: " + movie.getTitle());
+                return Movie.UNKNOWN;
+            }
+
+            String trailerXml = webBrowser.request(xmlUrl);
+            int beginUrl = trailerXml.indexOf("<a href=\"/getlink.php");
+            if (beginUrl >= 0) {
+                while (trailerXml.indexOf("<a href=\"/getlink.php", beginUrl + 1) > 0) {
+                    beginUrl = trailerXml.indexOf("<a href=\"/getlink.php", beginUrl + 1);
+                }
+                beginUrl = trailerXml.indexOf("http://", beginUrl);
+                trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf("\"", beginUrl)));
+            } else {
+                logger.error("KinoPoisk Plugin: cannot find trailer URL in XML. Layout changed?");
+            }
+        } catch (Exception error) {
+            logger.error("KinoPoisk Plugin: Failed retreiving trailer for movie: " + movie.getTitle());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return Movie.UNKNOWN;
+        }
+        return trailerUrl;
+    }
+
+    private boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrl, File trailerFile) {
+
+        // Copied from AppleTrailersPlugin.java
+
+        URL url;
+        try {
+            url = new URL(trailerUrl);
+        } catch (MalformedURLException e) {
+            return false;
+        }
+
+        ThreadExecutor.enterIO(url);
+        HttpURLConnection connection = null;
+        Timer timer = new Timer();
+        try {
+            logger.info("KinoPoisk Plugin: Download trailer for " + movie.getBaseName());
+            final WebStats stats = WebStats.make(url);
+            // after make!
+            timer.schedule(new TimerTask() {
+                private String lastStatus = "";
+                public void run() {
+                    String status = stats.calculatePercentageComplete();
+                    // only print if percentage changed
+                    if (status.equals(lastStatus)) {
+                        return;
+                    }
+                    lastStatus = status;
+                    // this runs in a thread, so there is no way to output on one line...
+                    // try to keep it visible at least...
+                    System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString());
+                }
+            }, 1000, 1000);
+
+            connection = (HttpURLConnection) (url.openConnection());
+            connection.setRequestProperty("User-Agent", "QuickTime/7.6.9");
+            InputStream inputStream = connection.getInputStream();
+
+            int code = connection.getResponseCode();
+            if (code != HttpURLConnection.HTTP_OK) {
+                logger.error("KinoPoisk Plugin: Download Failed");
+                return false;
+            }
+
+            FileTools.copy(inputStream, new FileOutputStream(trailerFile), stats);
+            System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
+
+            return true;
+
+        } catch (Exception error) {
+            logger.error("KinoPoisk Plugin: Download Exception");
+            return false;
+        } finally {
+            timer.cancel();         // Close the timer
+            if(connection != null){
+                connection.disconnect();
+            }
+            ThreadExecutor.leaveIO();
+        }
     }
 }
