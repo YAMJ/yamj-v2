@@ -196,39 +196,29 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         if (isValidString(id)) {
             animeId = Long.parseLong(id);
         }
-        if ((anime = (Anime)Cache.getFromCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", Long.toString(animeId)))) != null) {
-            logger.debug(LOG_MESSAGE + "Cache hit for anime " + anime.getAnimeId() + " " + anime.getRomajiName());
-        }
-        else {
-            logger.debug(LOG_MESSAGE + "Cache miss for " + animeId);
-            try {
-                if (animeId > 0) {
-                    anime = getAnimeByAid(animeId);
-                } else {
-                    anime = getAnimeByName(movie.getTitle());
-                    if (anime != null) {
-                        animeId = anime.getAnimeId();
-                        // Update the movie's Id
-                        movie.setId(ANIDB_PLUGIN_ID, "" + animeId);
-                    }
-                }
+        try {
+            if (animeId > 0) {
+                anime = getAnimeByAid(animeId);
+            } else {
+                anime = getAnimeByName(movie.getTitle());
                 if (anime != null) {
-                    Cache.addToCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", anime.getAnimeId().toString()), anime);
-                    logger.debug(LOG_MESSAGE + "Adding to cache: " + Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Anime", anime.getAnimeId().toString()));
+                    animeId = anime.getAnimeId();
+                    // Update the movie's Id
+                    movie.setId(ANIDB_PLUGIN_ID, "" + animeId);
                 }
-            } catch (UdpConnectionException error) {
-                processUdpError(error);
-            } catch (AniDbException error) {
-                // We should use the return code here, but it doesn't seem to work
-                if (error.getReturnCode() == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(error.getReturnString())) {
-                    anime = null;
-                } else {
-                    logger.info(LOG_MESSAGE + "Unknown AniDb Exception erorr");
-                    final Writer eResult = new StringWriter();
-                    final PrintWriter printWriter = new PrintWriter(eResult);
-                    error.printStackTrace(printWriter);
-                    logger.error(eResult.toString());
-                }
+            }
+        } catch (UdpConnectionException error) {
+            processUdpError(error);
+        } catch (AniDbException error) {
+            // We should use the return code here, but it doesn't seem to work
+            if (error.getReturnCode() == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(error.getReturnString())) {
+                anime = null;
+            } else {
+                logger.info(LOG_MESSAGE + "Unknown AniDb Exception erorr");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.error(eResult.toString());
             }
         }
         
@@ -364,24 +354,45 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * @return
      */
     public String getAnimeDescription(long animeId) {
+
         String animePlot = Movie.UNKNOWN;
-        try {
-            animePlot = anidbConn.getAnimeDescription(animeId);
-        } catch (UdpConnectionException error) {
-            processUdpError(error);
-        } catch (AniDbException error) {
-            processAnidbError(error);
+        if ((animePlot = (String)Cache.getFromCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Plot", Long.toString(animeId)))) == null) {
+            try {
+                animePlot = anidbConn.getAnimeDescription(animeId);
+                Cache.addToCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "Plot", Long.toString(animeId)), animePlot);
+                logger.debug(LOG_MESSAGE + "Added anime plot to cache for anime id: " + animeId);
+            } catch (UdpConnectionException error) {
+                processUdpError(error);
+            } catch (AniDbException error) {
+                processAnidbError(error);
+            }
+        } else {
+            logger.debug(LOG_MESSAGE + "Found anime plot in id cache for anime id: " + animeId);
         }
         return animePlot;
     }
     
     public Anime getAnimeByAid(long animeId) throws UdpConnectionException, AniDbException {
-        Anime anime = anidbConn.getAnime(animeId, anidbMask);
+        Anime anime = null;
+        if ((anime = (Anime)Cache.getFromCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "AnimeId", Long.toString(animeId)))) != null) {
+            logger.debug(LOG_MESSAGE + "Found anime in id cache with id: " + anime.getAnimeId());
+            return anime;
+        }
+        anime = anidbConn.getAnime(animeId, anidbMask);
+        Cache.addToCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "AnimeId", Long.toString(animeId)), anime);
+        logger.debug(LOG_MESSAGE + "Added anime to cache for anime id: " + anime.getAnimeId());
         return anime;
     }
     
     public Anime getAnimeByName(String animeName) throws UdpConnectionException, AniDbException {
-        Anime anime = anidbConn.getAnime(animeName, anidbMask);
+        Anime anime = null;
+        if ((anime = (Anime)Cache.getFromCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "AnimeName", animeName))) != null) {
+            logger.debug(LOG_MESSAGE + "Found anime in cache for name: " + animeName);
+            return anime;
+        }
+        anime = anidbConn.getAnime(animeName, anidbMask);
+        Cache.addToCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "AnimeName", animeName), anime);
+        logger.debug(LOG_MESSAGE + "Added anime to cache with name: " + anime.getAnimeId());
         return anime;
     }
     
