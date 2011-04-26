@@ -54,6 +54,11 @@ public class WebBrowser {
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
+        String browserLanguage = PropertiesUtil.getProperty("mjb.Accept-Language", null);
+        if (browserLanguage != null && browserLanguage.trim().length()>0){
+            browserProperties.put("Accept-Language", browserLanguage.trim());
+        } 
+        
         cookies = new HashMap<String, Map<String, String>>();
 
         mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost", null);
@@ -251,12 +256,14 @@ public class WebBrowser {
         // send browser properties
         for (Map.Entry<String, String> browserProperty : browserProperties.entrySet()) {
             cnx.setRequestProperty(browserProperty.getKey(), browserProperty.getValue());
+            logger.debug("setRequestProperty:" + browserProperty.getKey() + "='" + browserProperty.getValue() + "'");
         }
         
         // send cookies
         String cookieHeader = createCookieHeader(cnx);
         if (!cookieHeader.isEmpty()) {
             cnx.setRequestProperty("Cookie", cookieHeader);
+            logger.debug("Cookie:" + cookieHeader);
         }
         
         checkRequest(cnx);
