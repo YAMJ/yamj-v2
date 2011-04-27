@@ -338,21 +338,21 @@ public class JukeboxProperties {
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, false, false, false, false, false, false, false, true, false));
-                logger.info("Categories has changed, so need to update");
+                logger.debug("Categories has changed, so need to update");
             }
             
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(GENRE, false, false, false, false, false, false, false, true, false));
-                logger.info("Genres has changed, so need to update");
+                logger.debug("Genres has changed, so need to update");
             }
             
             // Check the Ratings file
             if (!validXmlFileDetails("mjb.xmlRatingFile", RATING, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation("Ratings", false, false, false, false, false, false, false, true, false));
-                logger.info("Ratings has changed, so need to update");
+                logger.debug("Ratings has changed, so need to update");
             }
 
         }

@@ -5,6 +5,7 @@
 MovieJukebox 2.5 SNAPSHOT
 -------------------------
  - Enhancement   #954 Better handling of regional releases
+ - Enhancement  #1723 Option to remove TV Shows from Sets in category listings
  - Enhancement  #1853 Multiple index pages
  - Enhancement  #1895 AniDbPlugin caches anime information
  - Fixed defect #1896 AniDbPlugin falls back to romaji title if no english title exists
