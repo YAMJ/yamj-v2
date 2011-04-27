@@ -137,7 +137,7 @@ public class MovieJukebox {
     private static boolean fanartTvDownload;
     private static boolean videoimageDownload;
     private static boolean bannerDownload;
-    private static boolean extraArtworkDownload;    // XXX: Rename this property and split it into clearlogo/clearart/tvthumb/seasonthumb
+    private static boolean extraArtworkDownload;    // TODO: Rename this property and split it into clearlogo/clearart/tvthumb/seasonthumb
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
     private boolean recheckXML;

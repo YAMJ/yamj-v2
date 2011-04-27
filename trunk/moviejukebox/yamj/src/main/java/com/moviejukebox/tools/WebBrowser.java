@@ -124,6 +124,8 @@ public class WebBrowser {
     }
 
     public String request(URL url, Charset charset) throws IOException {
+        logger.debug("WebBrowser: Requesting " + url.toString());
+        
         StringWriter content = null;
 
         // get the download limit for the host
@@ -256,14 +258,19 @@ public class WebBrowser {
         // send browser properties
         for (Map.Entry<String, String> browserProperty : browserProperties.entrySet()) {
             cnx.setRequestProperty(browserProperty.getKey(), browserProperty.getValue());
-            logger.debug("setRequestProperty:" + browserProperty.getKey() + "='" + browserProperty.getValue() + "'");
+            
+            if (logger.isTraceEnabled()) {
+                logger.trace("setRequestProperty:" + browserProperty.getKey() + "='" + browserProperty.getValue() + "'");
+            }
         }
         
         // send cookies
         String cookieHeader = createCookieHeader(cnx);
         if (!cookieHeader.isEmpty()) {
             cnx.setRequestProperty("Cookie", cookieHeader);
-            logger.debug("Cookie:" + cookieHeader);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Cookie:" + cookieHeader);
+            }
         }
         
         checkRequest(cnx);
