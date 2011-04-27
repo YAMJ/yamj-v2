@@ -90,6 +90,7 @@ public class MovieJukeboxXMLWriter {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean writeNfoFiles;
     private boolean extractCertificationFromMPAA;
+    private boolean setsExcludeTV;
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
@@ -119,6 +120,7 @@ public class MovieJukeboxXMLWriter {
         isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", "false");
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
+        setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", "false");
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -574,8 +576,8 @@ public class MovieJukeboxXMLWriter {
                         
                         String key = index.getKey();
 
-                        if ("Set".equalsIgnoreCase(categoryName) && value.get(0).isTVShow()) {
-                            logger.info("Skipping " + key + " for category " + categoryName);
+                        if (setsExcludeTV && "Set".equalsIgnoreCase(categoryName) && value.get(0).isTVShow()) {
+                            // Do not include the video in the set because it's a TV show
                             continue;
                         }
 
@@ -583,7 +585,6 @@ public class MovieJukeboxXMLWriter {
 
                         writer.writeStartElement("index");
                         writer.writeAttribute("name", key);
-                        writer.writeAttribute("tvShow", "" + value.get(0).isTVShow());
 
                         if (includeMoviesInCategories) {
                             writer.writeAttribute("filename", indexFilename);
