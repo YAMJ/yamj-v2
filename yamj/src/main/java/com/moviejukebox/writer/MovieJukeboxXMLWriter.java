@@ -567,16 +567,23 @@ public class MovieJukeboxXMLWriter {
                         int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
                         logger.debug("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
                         if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
-                            logger.debug("Category " + category.getKey() + " " + index.getKey() + " does not contain enough movies (" + countMovieCat
+                            logger.debug("Category " + category.getKey() + " " + index.getKey() + " does not contain enough videos (" + countMovieCat
                                             + "/" + categoryMinCount + "), not adding to categories.xml.");
                             continue;
                         }
-
+                        
                         String key = index.getKey();
+
+                        if ("Set".equalsIgnoreCase(categoryName) && value.get(0).isTVShow()) {
+                            logger.info("Skipping " + key + " for category " + categoryName);
+                            continue;
+                        }
+
                         String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(category.getKey(), key)) + "1";
 
                         writer.writeStartElement("index");
                         writer.writeAttribute("name", key);
+                        writer.writeAttribute("tvShow", "" + value.get(0).isTVShow());
 
                         if (includeMoviesInCategories) {
                             writer.writeAttribute("filename", indexFilename);
