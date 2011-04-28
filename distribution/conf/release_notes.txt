@@ -4,11 +4,12 @@
 
 MovieJukebox 2.5 SNAPSHOT
 -------------------------
+ - Enhancement   #314 Sort title option in NFO
  - Enhancement   #954 Better handling of regional releases
  - Enhancement  #1723 Option to remove TV Shows from Sets in category listings
  - Enhancement  #1853 Multiple index pages
- - Enhancement  #1895 AniDbPlugin caches anime information
- - Fixed defect #1896 AniDbPlugin falls back to romaji title if no english title exists
+ - Enhancement  #1895 AniDbPlugin caches Anime information
+ - Fixed defect #1896 AniDbPlugin falls back to Romaji title if no English title exists
  - Enhancement  #1900 Functionality of the KinopoiskPlugin
 
 MovieJukebox 2.4
@@ -43,7 +44,7 @@ MovieJukebox 2.4
  - Fixed defect #1863 appendLibraryToLogFile stopped working
  - Enhancement  #1864 Jukebox properties detects changes the XML config files
  - Enhancement  #1865 Add Watched/Unwatched category
- - Fixed defect #1866 Plug in allocine doesn't retrieve Posters
+ - Fixed defect #1866 Plug in Allocine doesn't retrieve Posters
  - Fixed defect #1872 Unable to rename log file at end of run
  - Fixed defect #1889 Allocine plugin: when no plot, additional information not retrieved (actors, director...)
  - Enhancement  #1890 Allow RAR scanner to check the date of the RAR container instead of the video file

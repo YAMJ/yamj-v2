@@ -428,8 +428,11 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 movie.setOriginalTitle(val);
                             }
-                        //} else if (tag.equalsIgnoreCase("sorttitle")) {
-                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("sorttitle")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                movie.setTitleSort(val);
+                            }
                         } else if (tag.equalsIgnoreCase("set")) {
                             String set = XMLHelper.getCData(r);
                             Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
