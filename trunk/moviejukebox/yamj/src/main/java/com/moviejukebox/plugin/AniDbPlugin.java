@@ -19,14 +19,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import net.anidb.Anime;
 import net.anidb.Episode;
@@ -41,6 +50,10 @@ import net.anidb.udp.mask.AnimeMask;
 import net.anidb.udp.mask.FileMask;
 
 import org.pojava.datetime.DateTime;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -78,6 +91,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     
     private static final String PICTURE_URL_BASE = "http://1.2.3.12/bmi/img7.anidb.net/pics/anime/";
     
+    private static final String THETVDB_ANIDB_MAPPING_URL = "e:\\downloads\\anime-list.xml";//"http://sites.google.com/site/anidblist/anime-list.xml";
+    
     @SuppressWarnings("unused")
     private int preferredPlotLength;
     private static final String LOG_MESSAGE = "AniDbPlugin: ";
@@ -88,6 +103,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static String anidbPassword;
 
     private static boolean hash;
+    private boolean getAdditionalInformationFromTheTvDB = false;
+    private HashMap<Long, AnimeIdMapping> tvdbMappings;
+    
+    private TheTvDBPlugin tvdb;
     
     public AniDbPlugin() {
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
@@ -109,6 +128,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         if (anidbUsername == null || anidbPassword == null) {
             logger.error(LOG_MESSAGE + "You need to add your AniDb Username & password to the anidb.username & anidb.password properties");
             anidbConnectionProtection = true;
+        }
+        tvdbMappings = new HashMap<Long, AniDbPlugin.AnimeIdMapping>();
+        if (getAdditionalInformationFromTheTvDB) {
+            loadAniDbTvDbMappings();
+            tvdb = new TheTvDBPlugin();
         }
     }
     
@@ -274,9 +298,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             String plot = HTMLTools.stripTags(getAnimeDescription(animeId));
             // This plot may contain the information on the director and this needs to be stripped from the plot
             logger.info("Plot: " + plot); // XXX: DEBUG
-            
-            movie.setPlot(plot);
-            movie.setOutline(plot);
+            if (!getAdditionalInformationFromTheTvDB) {
+                movie.setPlot(plot);
+                movie.setOutline(plot);
+            }
             
             for (MovieFile mf : movie.getFiles()) {
                 logger.info("File : " + mf.getFilename()); // XXX: DEBUG
@@ -321,6 +346,14 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             movie.setMovieType(Movie.TYPE_MOVIE);
         } else {
             movie.setMovieType(Movie.TYPE_TVSHOW);
+            for (MovieFile mf : movie.getMovieFiles()) {
+                if (mf.getFirstPart() != Integer.parseInt(file.getEpisode().getEpisodeNumber())) {
+                    mf.setNewFile(true);
+                    mf.setTitle(file.getEpisode().getEnglishTitle());
+                    mf.setFirstPart(Integer.parseInt(file.getEpisode().getEpisodeNumber()));
+                    mf.setLastPart(Integer.parseInt(file.getEpisode().getEpisodeNumber()));
+                }
+            }
         }
         return true;
     }
@@ -480,7 +513,38 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.debug(LOG_MESSAGE + "No AniDb Id found in nfo!");
         }
     }
+    
+    private void loadAniDbTvDbMappings() {
+        try {
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+           
+            AnidbHandler handler = new AnidbHandler();
+                
+            saxParser.parse(THETVDB_ANIDB_MAPPING_URL, handler);
+            for (AnimeIdMapping m : handler.mappings) {
+                // We work on the assumption that multiple anidb ids can map to
+                // the same tvdb id, but not the other way around.
+                if (tvdbMappings.containsKey(m.aniDbId)) {
+                    logger.error(LOG_MESSAGE + "Duplicate anidb ids found while setting up tvdb mappings: " + m.aniDbId + " mapping to " + tvdbMappings.get(m.aniDbId).tvDbId + " and " + m.tvDbId);
+                }
+                tvdbMappings.put(m.aniDbId, m);
+            }
+        } catch(SAXParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
+    
     /**
      * Open the connection to the website
      * @return a connection object, or null if there was a failure.
@@ -571,5 +635,92 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         String  crc;                // CRC number (optional)
         String  otherTags;          // Any other information from the filename, e.g. resolution
         int     anidbID;            // The AniDb ID (from NFO)
+    }
+    
+    // TODO: Here be dragons! Everything below should probably be refactored in time
+    
+    /**
+     * Hold information about mapping of AnimeId of AniDB and
+     * TheTVDB ids for a given show.
+     * @author Xaanin
+     * 
+     */
+    
+    private class AnimeIdMapping {
+        long aniDbId;
+        long tvDbId;
+        int defaultSeason;
+        String name;
+        HashMap<String, String> mappings; // Map Anidb season/episode to tvdb season/episode 
+        
+        public AnimeIdMapping() {
+            mappings = new HashMap<String, String>();
+        }
+        
+        public void addMapping(int anidbSeason, int anidbEpisode, int tvdbSeason, int tvdbEpisode) {
+            mappings.put("" + anidbSeason + "|" + anidbEpisode, "" + tvdbSeason + "|" + tvdbEpisode);
+        }
+    }
+    /**
+     * Parses the xml document containing mappings from anidb id
+     * to thetvdb id.
+     * @author Xaanin
+     *
+     */
+    private class AnidbHandler extends DefaultHandler{ 
+        public List<AnimeIdMapping> mappings = new ArrayList<AnimeIdMapping>();
+        AnimeIdMapping current;
+        
+        boolean name = false;
+        boolean mapping = false;
+        String lastMapping = "";
+        int anidbMappingSeason;
+        int tvdbMappingSeason;
+        
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            if (qName.equalsIgnoreCase("anime")) {
+                current = new AnimeIdMapping();
+                String s = attributes.getValue(attributes.getIndex("tvdbid"));
+                if (!s.equalsIgnoreCase("unknown")) {
+                    current.aniDbId = Long.parseLong(attributes.getValue(attributes.getIndex("anidbid")));
+                    mappings.add(current);
+                    current.tvDbId = Long.parseLong(attributes.getValue(attributes.getIndex("tvdbid")));
+                    current.defaultSeason = Integer.parseInt(attributes.getValue(attributes.getIndex("defaulttvdbseason")));                    
+                }
+            } else if (qName.equalsIgnoreCase("name")) {
+                name = true;
+            } else if (qName.equalsIgnoreCase("mapping")) {
+                mapping = true;
+            }
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
+            logger.info(LOG_MESSAGE + "End of element: " + qName);
+            if (qName.equalsIgnoreCase("mapping")) {
+                mapping = false;
+                String[] split = lastMapping.split(";");
+                for(String s : split) {
+                    if (s.length() > 0) {
+                        String[] res =  s.split("-");
+                        logger.info(LOG_MESSAGE + lastMapping + " >> " + s);
+                        String[] tvdbres = res[1].split("\\+");   // For certain series such as Bokusatsu Tenshi Dokuro-chan where one 
+                                                                // anidb episode maps to two episodes at the tvdb.
+                                                                // For now we only use the first one.
+                        current.addMapping(anidbMappingSeason, Integer.parseInt(res[0]), tvdbMappingSeason, Integer.parseInt(tvdbres[0]));
+                    }
+                }
+                lastMapping = "";
+            } else if (qName.equalsIgnoreCase("name")) {
+                name = false;
+            }
+        }
+        
+        public void characters(char ch[], int start, int length) {
+            if (name) {
+                current.name += new String(ch, start, length);
+            } else if (mapping) {
+                lastMapping += new String(ch, start, length); 
+            }
+        }
     }
 }
