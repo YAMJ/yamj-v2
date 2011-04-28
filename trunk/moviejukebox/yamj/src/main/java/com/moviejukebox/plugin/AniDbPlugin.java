@@ -549,7 +549,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Open the connection to the website
      * @return a connection object, or null if there was a failure.
      */
-    public static void anidbOpen() {
+    public static synchronized void anidbOpen() {
         if (anidbConn != null) {
             // No need to open again
             return;
