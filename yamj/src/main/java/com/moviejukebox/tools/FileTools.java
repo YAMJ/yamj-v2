@@ -207,7 +207,7 @@ public class FileTools {
     public static void copyFile(File src, File dst) {
         try {
             if (!src.exists()) {
-                logger.error("The specified " + src + " file does not exist!");
+                logger.error("FileTools: The specified " + src + " file does not exist!");
                 return;
             }
 
@@ -247,7 +247,7 @@ public class FileTools {
         try {
             File src = new File(srcDir);
             if (!src.exists()) {
-                logger.error("The specified " + srcDir + " file or directory does not exist!");
+                logger.error("FileTools: The specified " + srcDir + " file or directory does not exist!");
                 return;
             }
 
@@ -255,7 +255,7 @@ public class FileTools {
             dst.mkdirs();
 
             if (!dst.exists()) {
-                logger.error("The specified " + dstDir + " output directory does not exist!");
+                logger.error("FileTools: The specified " + dstDir + " output directory does not exist!");
                 return;
             }
 
@@ -472,7 +472,7 @@ public class FileTools {
         for (String extension : artworkExtensions) {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
-                logger.debug("The file " + localFile + " found");
+                logger.debug("FileTools: Found " + localFile + " in the file cache");
                 return localFile;
             }
         }
