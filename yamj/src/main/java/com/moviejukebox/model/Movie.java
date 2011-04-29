@@ -127,6 +127,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     // Trailers
     private boolean trailerExchange = false;
     private long trailerLastScan = 0;
+    // Issue 1901: Awards
+    Collection<Award> awards = new ArrayList<Award>();
 
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
@@ -326,6 +328,13 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    public void addAward(Award award) {
+        if (award != null) {
+            this.isDirty = true;
+            this.awards.add(award);
+        }
+    }
+
     public void removeMovieFile(MovieFile movieFile) {
         if (movieFile != null) {
             this.isDirty = true;
@@ -454,6 +463,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     @XmlElement(name = "extra")
     public Collection<ExtraFile> getExtraFiles() {
         return extraFiles;
+    }
+
+    @XmlElementWrapper(name = "awards")
+    @XmlElement(name = "award")
+    public Collection<Award> getAwards() {
+        return awards;
     }
 
     public String getCertification() {
@@ -986,6 +1001,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setExtraFiles(Collection<ExtraFile> extraFiles) {
         this.isDirty = true;
         this.extraFiles = extraFiles;
+    }
+
+    public void setAwards(Collection<Award> awards) {
+        this.isDirty = true;
+        this.awards = awards;
     }
 
     public void setNext(String next) {

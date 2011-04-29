@@ -25,15 +25,15 @@
 package com.moviejukebox.plugin;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.net.URL;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,15 +41,21 @@ import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.IMovieBasicInformation;
+
+import com.moviejukebox.scanner.artwork.FanartScanner;
+
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebStats;
 
@@ -63,16 +69,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
     protected TheTvDBPlugin tvdb;
 
     // Copied from ComingSoonPlugin.java
-    protected boolean trailersScannerEnable;
-    protected boolean trailerSetExchange;
-    protected boolean trailerDownload;
+    boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
+    boolean trailerSetExchange = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.setExchange", "false");
+    boolean trailerDownload = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.download", "false");
 
     // Shows what name is on the first position with respect to divider
-    protected String titleLeader;
-    protected String titleDivider;
+    String titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
+    String titleDivider = PropertiesUtil.getProperty("kinopoisk.title.divider", "-");
 
     // Set NFO information priority
-    protected boolean NFOpriority;
+    protected boolean NFOpriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", "false");
     protected boolean NFOplot = false;
     protected boolean NFOcast = false;
     protected boolean NFOgenres = false;
@@ -88,26 +94,21 @@ public class KinopoiskPlugin extends ImdbPlugin {
     protected boolean NFOrelease = false;
     protected boolean NFOfanart = false;
     protected boolean NFOposter = false;
+    protected boolean NFOawards = false;
 
     // Set priority fanart & poster by kinopoisk.ru
-    protected boolean fanArt;
-    protected boolean poster;
+    boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", "false");
+    boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", "false");
+    boolean kadr = PropertiesUtil.getBooleanProperty("kinopoisk.kadr", "false");
+    boolean people = PropertiesUtil.getBooleanProperty("kinopoisk.people", "false");
+
+    String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+    String jukeboxTempLocationDetails = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox"));
 
     public KinopoiskPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Russia");
         tvdb = new TheTvDBPlugin();
-
-        // Copied from ComingSoonPlugin.java
-        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
-        trailerSetExchange = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.setExchange", "false");
-        trailerDownload = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.download", "false");
-
-        titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
-        titleDivider = PropertiesUtil.getProperty("kinopoisk.title.divider", "-");
-        NFOpriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", "false");
-        fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", "false");
-        poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", "false");
     }
 
     @Override
@@ -132,6 +133,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             NFOrelease = StringTools.isValidString(mediaFile.getCompany());
             NFOfanart = StringTools.isValidString(mediaFile.getFanartURL());
             NFOposter = StringTools.isValidString(mediaFile.getPosterURL());
+            NFOawards = mediaFile.getAwards().size() > 0;
         }
 
         if (StringTools.isNotValidString(kinopoiskId)) {
@@ -177,6 +179,18 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
         if (trailersScannerEnable) {
             generateTrailer(mediaFile);
+        }
+
+        if (people) {
+            for (String actor : mediaFile.getCast()) {
+                downloadActors(mediaFile, actor, "actor");
+            }
+            for (String actor : mediaFile.getDirectors()) {
+                downloadActors(mediaFile, actor, "director");
+            }
+            for (String actor : mediaFile.getWriters()) {
+                downloadActors(mediaFile, actor, "writer");
+            }
         }
 
         return retval;
@@ -392,8 +406,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 //}
                 if (!NFOdirectors) {
                     Collection<String> newDirectors = new ArrayList<String>();
-                    for (String writer : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
-                        newDirectors.add(writer);
+                    for (String director : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
+                        newDirectors.add(director);
                     }
 
                     if (newDirectors.size() > 0) {
@@ -516,6 +530,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         r = imdbRating;
                     } else if (preferredRating.equals("average")) {
                         r = (kinopoiskRating + imdbRating) / 2;
+                    } else if (preferredRating.equals("combine")) {
+                        r += imdbRating * 1000;
                     }
                 }
                 movie.setRating(r);
@@ -594,7 +610,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
 
-                    if (StringTools.isNotValidString(fanURL)) {
+                    if (kadr && StringTools.isNotValidString(fanURL)) {
                         // Load page with all videoimage
                         wholeArts = webBrowser.request("http://www.kinopoisk.ru/level/13/film/" + kinopoiskId + "/");
                         if (StringTools.isValidString(wholeArts)) {
@@ -636,6 +652,44 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (studio.length() > 0) {
                         movie.setCompany(studio);
                     }
+                }
+            }
+
+            // Awards
+            xml = webBrowser.request("http://www.kinopoisk.ru/level/94/film/" + kinopoiskId);
+            if (StringTools.isValidString(xml) && !NFOawards) {
+                int beginIndex = xml.indexOf("/level/94/award/");
+                if (beginIndex != -1) {
+                    Collection<Award> awards = new ArrayList<Award>();
+                    for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br><br><br><br><br><br>", "<table cellspacing=0 cellpadding=0 border=0 width=100% style=\"border:1px solid #ccc; text-align: left\">", "</table>")) {
+                        String name = Movie.UNKNOWN;
+                        int year = -1;
+                        int won = 0;
+                        int nominated = 0;
+                        for (String tmp : HTMLTools.extractTags(item, "<td height=40 class=\"news\" style=\"padding:10px\">", "</td>", "<a href=\"/level/94/award/", "</a>")) {
+                            int coma = tmp.indexOf(",");
+                            name = tmp.substring(0, coma);
+                            year = Integer.parseInt(tmp.substring(coma + 2, coma + 6));
+                            break;
+                        }
+                        for (String tmp : HTMLTools.extractTags(item, ">Победитель<", ":", "(", ")")) {
+                            won = Integer.parseInt(tmp);
+                            break;
+                        }
+                        for (String tmp : HTMLTools.extractTags(item, ">Номинации<", ":", "(", ")")) {
+                            nominated = Integer.parseInt(tmp);
+                            break;
+                        }
+                        if (StringTools.isValidString(name) && year > 1900 && year < 2020) {
+                            Award award = new Award();
+                            award.setName(name);
+                            award.setYear(year);
+                            award.setWon(won);
+                            award.setNominated(nominated);
+                            awards.add(award);
+                        }
+                    }
+                    movie.setAwards(awards);
                 }
             }
 
@@ -822,7 +876,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
             System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
 
             return true;
-
         } catch (Exception error) {
             logger.error("KinoPoisk Plugin: Download Exception");
             return false;
@@ -832,6 +885,61 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 connection.disconnect();
             }
             ThreadExecutor.leaveIO();
+        }
+    }
+
+    protected void downloadActors(Movie movie, String actor, String mode) {
+        try {
+            String sb = actor;
+            sb = sb.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            sb = "&m_act[find]=" + URLEncoder.encode(sb, "UTF-8").replace(" ", "+");
+
+            sb = "http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=actor" + sb + "&m_act[work]=" + mode;
+            String xml = webBrowser.request(sb);
+
+            String actorId = Movie.UNKNOWN;
+            // Checking for zero results
+            int beginIndex = xml.indexOf("class=\"search_results\"");
+            if (beginIndex > 0) {
+                // Checking if we got the actor page directly
+                int beginInx = xml.indexOf("id_actor = ");
+                if (beginInx == -1) {
+                    // It's search results page, searching a link to the actor page
+                    beginIndex = xml.indexOf("/level/4/people/", beginIndex);
+                    if (beginIndex != -1) {
+                        StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 16), "/");
+                        actorId = st.nextToken();
+                    }
+                } else {
+                    // It's the actor page
+                    StringTokenizer st = new StringTokenizer(xml.substring(beginInx + 11), ";");
+                    actorId = st.nextToken();
+                }
+            }
+            if (StringTools.isValidString(actorId)) {
+                imageDownload(movie, "http://st.kinopoisk.ru/images/actor/" + actorId + ".jpg", FileTools.makeSafeFilename(actor + ".jpg"));
+            }
+        } catch (Exception error) {
+            logger.error("Error : " + error.getMessage());
+        }
+    }
+
+    private void imageDownload(Movie movie, String URL, String filename) {
+        String tmpDestFileName = jukeboxTempLocationDetails + File.separator + filename;
+        File tmpDestFile = new File(tmpDestFileName);
+
+        if (!tmpDestFile.exists()) {
+            if (!StringTools.isValidString(URL)) {
+                logger.debug("Dummy image used for " + filename);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
+            } else {
+                try {
+                    logger.debug("KinoPoisk Plugin: Downloading image for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    FileTools.downloadImage(tmpDestFile, URL);
+                } catch (Exception error) {
+                    logger.debug("KinoPoisk Plugin: Failed to download image: " + URL + " removing from movie details");
+                }
+            }
         }
     }
 }
