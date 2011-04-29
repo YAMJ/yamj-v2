@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -1085,6 +1086,9 @@ public class MovieJukebox {
 
             SystemTools.showMemory();
 
+            // Issue 1882: Separate index files for each category
+            List<String> categoriesList = Arrays.asList(getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set").split(","));
+
             if (!skipIndexGeneration) {
                 logger.info("Writing Indexes XML...");
                 xmlWriter.writeIndexXML(jukebox, library, tasks);
@@ -1093,13 +1097,9 @@ public class MovieJukebox {
 
                 // Issue 1882: Separate index files for each category
                 if (separateCategories) {
-                    xmlWriter.writeCategoryXML(jukebox, library, "Other");
-                    xmlWriter.writeCategoryXML(jukebox, library, "Genres");
-                    xmlWriter.writeCategoryXML(jukebox, library, "Library");
-                    xmlWriter.writeCategoryXML(jukebox, library, "Title");
-                    xmlWriter.writeCategoryXML(jukebox, library, "Year");
-                    xmlWriter.writeCategoryXML(jukebox, library, "Rating");
-                    xmlWriter.writeCategoryXML(jukebox, library, "Set");
+                    for (String categoryName : categoriesList) {
+                        xmlWriter.writeCategoryXML(jukebox, library, categoryName);
+                    }
                 }
             }
 
@@ -1156,13 +1156,9 @@ public class MovieJukebox {
 
                     // Issue 1882: Separate index files for each category
                     if (separateCategories) {
-                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Other", "category.xsl");
-                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Genres", "category.xsl");
-                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Library", "category.xsl");
-                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Title", "category.xsl");
-                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Year", "category.xsl");
-                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Rating", "category.xsl");
-                        htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Set", "category.xsl");
+                        for (String categoryName : categoriesList) {
+                            htmlWriter.generateMoviesCategoryHTML(jukebox, library, categoryName, "category.xsl");
+                        }
                     }
                 }
                 

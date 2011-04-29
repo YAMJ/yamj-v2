@@ -552,7 +552,7 @@ public class MovieJukeboxXMLWriter {
         }
 
         // Issue 1148, generate category in the order specified in properties
-        logger.info("  Indexing " + filename);
+        logger.info("  Indexing " + filename + "...");
         for (String categoryName : categoriesDisplayList) {
             int categoryMinCount = calcMinCategoryCount(categoryName);
             boolean openedCategory = false;
@@ -568,7 +568,7 @@ public class MovieJukeboxXMLWriter {
                         List<Movie> value = index.getValue();
                         int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
                         logger.debug("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
-                        if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey())) {
+                        if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey()) && filename.equals("Categories")) {
                             logger.debug("Category " + category.getKey() + " " + index.getKey() + " does not contain enough videos (" + countMovieCat
                                             + "/" + categoryMinCount + "), not adding to categories.xml.");
                             continue;
@@ -620,6 +620,9 @@ public class MovieJukeboxXMLWriter {
     public void writeIndexXML(final Jukebox jukebox, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
+
+        // Issue 1882: Separate index files for each category
+        final boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", "false");
         
         tasks.restart();
 
@@ -638,7 +641,7 @@ public class MovieJukeboxXMLWriter {
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
-                        if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)) {
+                        if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName) && !separateCategories) {
                             logger.debug("Category " + category_path + " does not contain enough movies (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
