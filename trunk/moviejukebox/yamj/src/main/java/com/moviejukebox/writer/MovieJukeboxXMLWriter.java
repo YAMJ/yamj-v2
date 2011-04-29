@@ -39,6 +39,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.MovieJukebox;
+import com.moviejukebox.model.Award;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Index;
@@ -361,6 +362,39 @@ public class MovieJukeboxXMLWriter {
                     }
                 }
 
+                // Issue 1901: Awards
+                if (tag.toLowerCase().startsWith("<award ")) {
+                    Award award = new Award();
+
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("name")) {
+                            award.setName(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("year")) {
+                            award.setYear(Integer.parseInt(attr.getValue()));
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("won")) {
+                            award.setWon(Integer.parseInt(attr.getValue()));
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("nominated")) {
+                            award.setNominated(Integer.parseInt(attr.getValue()));
+                            continue;
+                        }
+                    }
+                    award.setOrg(parseCData(r));
+                    movie.addAward(award);
+                }
+
                 if (tag.toLowerCase().startsWith("<file ")) {
                     MovieFile mf = new MovieFile();
                     mf.setNewFile(false);
@@ -507,6 +541,14 @@ public class MovieJukeboxXMLWriter {
                         if (!exist) {
                             // the extra file has been delete so force the dirty flag
                             forceDirtyFlag = true;
+
+                            // fixed by ilgizar/30.04.2011
+                            // after rescan extrafiles are empty
+                            ExtraFile ef = new ExtraFile();
+                            ef.setTitle(extraTitle);
+                            ef.setFilename(extraFilename);
+                            ef.setNewFile(false);
+                            movie.addExtraFile(ef);
                         }
                     }
                 }
@@ -1227,6 +1269,22 @@ public class MovieJukeboxXMLWriter {
         writeElementSet(writer, "cast", "actor", movie.getCast(), library, "Cast");
 
         writeElementSet(writer, "writers", "writer", movie.getWriters(), library, "Writers");
+
+        // Issue 1901: Awards
+        Collection<Award> awards = movie.getAwards();
+        if (awards != null && awards.size() > 0) {
+            writer.writeStartElement("awards");
+            for (Award award : awards) {
+                writer.writeStartElement("award");
+                writer.writeAttribute("name", award.getName());
+                writer.writeAttribute("won", Integer.toString(award.getWon()));
+                writer.writeAttribute("nominated", Integer.toString(award.getNominated()));
+                writer.writeAttribute("year", Integer.toString(award.getYear()));
+                writer.writeCharacters(award.getOrg());
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+        }
 
         // Write the indexes that the movie belongs to
         writer.writeStartElement("indexes");
