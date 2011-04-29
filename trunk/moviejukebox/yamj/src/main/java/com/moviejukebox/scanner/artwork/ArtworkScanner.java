@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +36,7 @@ import javax.imageio.stream.ImageInputStream;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
@@ -65,19 +67,20 @@ import com.moviejukebox.tools.WebBrowser;
  *      ???.height
  */
 public abstract class ArtworkScanner implements IArtworkScanner {
-    public final static String BANNER     = "banner";
-    public final static String FANART     = "fanart";
-    public final static String POSTER     = "poster";
-    public final static String VIDEOIMAGE = "videoimage";
+//    public final static String BANNER     = "banner";
+//    public final static String FANART     = "fanart";
+//    public final static String POSTER     = "poster";
+//    public final static String VIDEOIMAGE = "videoimage";
     
     protected Collection<String>     artworkExtensions = new ArrayList<String>();
     protected String                 artworkFormat;         // Format of the artwork to save, e.g. JPG, PNG, etc.
     protected int                    artworkHeight;         // The height of the image from the skin.properties for use in the validation routine
     protected Collection<String>     artworkImageName = new ArrayList<String>();    // List of fixed artwork names
     protected MovieImagePlugin       artworkImagePlugin;
-    protected boolean                artworkOverwrite = false;
+    protected static boolean         artworkOverwrite = false;
     protected String                 artworkToken;          // The suffix of the artwork filename to search for.
-    protected String                 artworkType;           // The type of the artwork. Will be used to load the other properties
+    protected ArtworkType            artworkType;           // The type of the artwork. Will be used to load the other properties. When using for properties, must be lowercase
+    protected String                 artworkTypeName;       // The artwork type name to use in properties (all lowercase)
     protected static boolean         artworkValidate;       // Should the artwork be validated or not.
     protected boolean                artworkValidateAspect; // Should the artwork be validated for it's aspect
     protected int                    artworkWidth;          // The width of the image from the skin.properties for use in the validation routine
@@ -86,28 +89,27 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     protected boolean                searchForExistingArtwork;  // Should we search for local artwork
     protected String                 skinHome;              // Location of the skin files used to get the dummy images from for missing artwork
     protected final WebBrowser       webBrowser = new WebBrowser();
-    private   HashMap<String,String> ARTWORK_TYPES;         // First value is the property value, the second is the graphic image value
+    private   HashMap<ArtworkType, String> ARTWORK_TYPES;         // First value is the property value, the second is the graphic image value
     private   String                 artworkDirectory;      // The name of the artwork directory to search from from either the video directory or the root of the library
     private   String                 artworkPriority;       // The order of the searches performed for the local artwork.
     protected static int             artworkValidateMatch;  // How close the image should be to the expected dimensions (artworkWidth & artworkHeight)
     protected static boolean         artworkMovieDownload;  // Whether or not to download artwork for a Movie 
     protected boolean                artworkTvDownload;     // Whether or not to download artwork for a TV Show
 
-    public ArtworkScanner(String conArtworkType) {
+    /**
+     * Construct the 
+     * @param conArtworkType
+     */
+    public ArtworkScanner(ArtworkType conArtworkType) {
         // TODO: change this to use the ArtworkType Enum
         // Define the allowable artwork types
-        ARTWORK_TYPES = new HashMap<String, String>();
-        ARTWORK_TYPES.put(POSTER,     "posters");
-        ARTWORK_TYPES.put(FANART,     "");
-        ARTWORK_TYPES.put(BANNER,     "banners");
-        ARTWORK_TYPES.put(VIDEOIMAGE, "videoimages");
+        ARTWORK_TYPES = new HashMap<ArtworkType, String>();
+        ARTWORK_TYPES.put(ArtworkType.Poster,     "posters");
+        ARTWORK_TYPES.put(ArtworkType.Fanart,     "");
+        ARTWORK_TYPES.put(ArtworkType.Banner,     "banners");
+        ARTWORK_TYPES.put(ArtworkType.VideoImage, "videoimages");
 
         setArtworkType(conArtworkType);
-        // If we failed to set the artwork type, quit 
-        if (artworkType == null) {
-            logger.error("ArtworkScanner: Failed to set artwork type to " + conArtworkType);
-            return;
-        }
 
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty(conArtworkType + ".scanner.imageName", ""), ",;|");
         while (st.hasMoreTokens()) {
@@ -116,38 +118,38 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         // We get artwork scanner behaviour
         try {
-            searchForExistingArtwork = PropertiesUtil.getBooleanProperty(artworkType + ".scanner.searchForExistingArtwork", "true");
+            searchForExistingArtwork = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.searchForExistingArtwork", "true");
         } catch (Exception ignore) {
             searchForExistingArtwork = true;
         }
         
-        setArtworkExtensions(PropertiesUtil.getProperty(artworkType + ".scanner.artworkExtensions", "jpg,png,gif"));
-        artworkToken  = PropertiesUtil.getProperty(artworkType + ".scanner.artworkToken","");
-        artworkFormat = PropertiesUtil.getProperty(artworkType + ".format", "jpg");
-        setArtworkImageName(PropertiesUtil.getProperty(artworkType + ".scanner.imageName", ""));
+        setArtworkExtensions(PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkExtensions", "jpg,png,gif"));
+        artworkToken  = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkToken","");
+        artworkFormat = PropertiesUtil.getProperty(artworkTypeName + ".format", "jpg");
+        setArtworkImageName(PropertiesUtil.getProperty(artworkTypeName + ".scanner.imageName", ""));
         
         try {
-            artworkValidate = PropertiesUtil.getBooleanProperty(artworkType + ".scanner.Validate", "true");
+            artworkValidate = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.Validate", "true");
         } catch (Exception ignore) {
             artworkValidate = true;
         }
         
         try {
-            artworkValidateMatch = PropertiesUtil.getIntProperty(artworkType + ".scanner.ValidateMatch", "75");
+            artworkValidateMatch = PropertiesUtil.getIntProperty(artworkTypeName + ".scanner.ValidateMatch", "75");
         } catch (Exception ignore) {
             artworkValidateMatch = 75;
         }
         
         try {
-            artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkType + ".scanner.ValidateAspect", "true");
+            artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.ValidateAspect", "true");
         } catch (Exception ignore) {
             artworkValidateAspect = true;
         }
         
-        artworkDirectory = PropertiesUtil.getProperty(artworkType + ".scanner.artworkDirectory", "");
+        artworkDirectory = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkDirectory", "");
         
         // Get the priority (order) that the artwork is searched for
-        artworkPriority = PropertiesUtil.getProperty(artworkType + ".scanner.artworkPriority", "video,folder,fixed,series,directory");
+        artworkPriority = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkPriority", "video,folder,fixed,series,directory");
 
         // Get & set the default artwork dimensions
         setArtworkDimensions();
@@ -157,16 +159,18 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         
-        artworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkType + ".movie.download", "true");
-        artworkTvDownload = PropertiesUtil.getBooleanProperty(artworkType + ".tv.download" ,"true");
+        artworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeName + ".movie.download", "true");
+        artworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeName + ".tv.download" ,"true");
     }
 
     /**
-     * Download the artwork to the jukebox
+     * Save the artwork to the jukebox
      * 
-     * @return the status of the download. True if downloaded, false otherwise.
+     * TODO: Parameter to control if the original artwork is saved in the jukebox or not. We should save this in an "originalArtwork" folder or something
+     * 
+     * @return the status of the save. True if saved correctly, false otherwise.
      */
-    public boolean downloadArtwork(Jukebox jukebox, Movie movie, boolean artworkOverwrite, MovieImagePlugin imagePlugin) {
+    public boolean saveArtworkToJukebox(Jukebox jukebox, Movie movie) {
         
         String artworkUrl = getArtworkUrl(movie);
         String artworkFilename = getArtworkFilename(movie);
@@ -190,26 +194,47 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         
         File artworkFile = FileTools.fileCache.getFile(artworkPath);
         
-        try {
+        if (artworkUrl.startsWith("http")) {
+            // Looks like a URL so download it
             logger.debug(logMessage + "Downloading " + artworkType + " for " + movie.getBaseName() + " to " + artworkPath);
-
-            // Download the artwork using the proxy save downloadImage
-            FileTools.downloadImage(artworkFile, artworkUrl);
-            BufferedImage artworkImage = GraphicTools.loadJPEGImage(artworkFile);
-            
-            String pluginType = ARTWORK_TYPES.get(artworkType);
-
-            if ((artworkImage != null) || (pluginType != null)) {
-                artworkImage = imagePlugin.generate(movie, artworkImage, pluginType, null);
-                GraphicTools.saveImageToDisk(artworkImage, artworkPath);
-            } else {
-                setArtworkFilename(movie, Movie.UNKNOWN);
-                setArtworkUrl(movie, Movie.UNKNOWN);
+            try {
+                // Download the artwork using the proxy save downloadImage
+                FileTools.downloadImage(artworkFile, artworkUrl);
+                BufferedImage artworkImage = GraphicTools.loadJPEGImage(artworkFile);
+                
+                String pluginType = ARTWORK_TYPES.get(artworkType);
+    
+                if ((artworkImage != null) || (pluginType != null)) {
+                    artworkImage = artworkImagePlugin.generate(movie, artworkImage, pluginType, null);
+                    GraphicTools.saveImageToDisk(artworkImage, artworkPath);
+                } else {
+                    setArtworkFilename(movie, Movie.UNKNOWN);
+                    setArtworkUrl(movie, Movie.UNKNOWN);
+                    return false;
+                }
+            } catch (MalformedURLException error) {
+                logger.debug(logMessage + "Failed to download " + artworkType + ": " + artworkUrl + " doesn't look like a proper URL");
+                return false;
+            } catch (Exception error) {
+                logger.debug(logMessage + "Failed to download " + artworkType + ": " + artworkUrl);
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.error(eResult.toString());
                 return false;
             }
-        } catch (Exception error) {
-            logger.debug(logMessage + "Failed to download " + artworkType + ": " + artworkUrl);
-            return false;
+        } else {
+            // Looks like a file, so copy it
+            logger.debug(logMessage + "Saving " + artworkType + " for " + movie.getBaseName() + " to " + artworkPath);
+            try {
+                FileTools.copyFile(artworkUrl, artworkPath);
+            } catch (Exception error) {
+                logger.error(logMessage + "Failed to copy " + artworkType + ": " + artworkUrl);
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
         }
 
         return true;
@@ -265,7 +290,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 artworkUrl = scanOnlineArtwork(movie);
                 
                 if (StringTools.isValidString(artworkUrl)) {
-                    downloadArtwork(jukebox, movie, artworkOverwrite, artworkImagePlugin);
+                    saveArtworkToJukebox(jukebox, movie);
                 }
             } else {
                 logger.info(logMessage + "Online scanning skipped due to scrapeLibrary=false");
@@ -354,14 +379,14 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         String artworkUrl = getArtworkUrl(movie);
         String artworkDummy = "";
         
-        if (artworkType.equals(POSTER)) {
+        if (artworkType == ArtworkType.Poster) {
             artworkDummy = "dummy.jpg";
-        } else if (artworkType.equals(FANART)) {
+        } else if (artworkType == ArtworkType.Fanart) {
             // There is no dummy artwork for fanart
             artworkDummy = "";
-        } else if (artworkType.equals(BANNER)) {
+        } else if (artworkType == ArtworkType.Banner) {
             artworkDummy = "dummy_banner.jpg";
-        } else if (artworkType.equals(VIDEOIMAGE)) {
+        } else if (artworkType == ArtworkType.VideoImage) {
             artworkDummy = "dummy_videoimage.jpg";
         }
         
@@ -389,7 +414,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 }
             }
         } else {
-            downloadArtwork(jukebox, movie, artworkOverwrite, artworkImagePlugin);
+            saveArtworkToJukebox(jukebox, movie);
         }
     }
     
@@ -690,7 +715,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             artworkImagePlugin = pluginClass.newInstance();
         } catch (Exception error) {
             // Use the background plugin for fanart, the image plugin for all others
-            if (artworkType.equals(FANART)) {
+            if (artworkType == ArtworkType.Fanart) {
                 artworkImagePlugin = new DefaultBackgroundPlugin();
             } else {
                 artworkImagePlugin = new DefaultImagePlugin();
@@ -764,20 +789,15 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Set the name for the artwork type to be used in logger messages
      * 
-     * @param artworkType The string name of the artwork type. Valid values: poster, fanart, banner, videoimage
+     * @param artworkType The artwork type to instantiate the scanner for
      */
-    private void setArtworkType(String setArtworkType) {
-        if (!ARTWORK_TYPES.containsKey(setArtworkType)) {
-            // This is an error with the calling function
-            logger.error("YAMJ Error with calling function in ArtworkScanner.java: Unknown Artwork Type (" + setArtworkType + ")");
-            artworkType = null;
-            return;
-        }
-
+    private void setArtworkType(ArtworkType setArtworkType) {
         artworkType = setArtworkType;
-        logMessage = "ArtworkScanner (" + setArtworkType + "): ";
-
-        //logger.info(logMessage + "Using " + setArtworkType + " as the Artwork Type");
+        artworkTypeName = artworkType.toString().toLowerCase();
+        
+        // Set the default logger message
+        logMessage = "ArtworkScanner (" + artworkType + "): ";
+//        logger.info(logMessage + "Using " + artworkType + " as the Artwork Type");
    }
 
     /**

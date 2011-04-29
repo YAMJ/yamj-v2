@@ -15,7 +15,6 @@ package com.moviejukebox.scanner.artwork;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.plugin.MovieImagePlugin;
 
 public interface IArtworkScanner {
     public String scan(Jukebox jukebox, Movie movie);
@@ -28,7 +27,7 @@ public interface IArtworkScanner {
     
     public boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect);
     
-    public boolean downloadArtwork(Jukebox jukebox, Movie movie, boolean artworkOverwrite, MovieImagePlugin imagePlugin);
+    public boolean saveArtworkToJukebox(Jukebox jukebox, Movie movie);
 
     /**
      * Updates the correct Filename based on the artwork type

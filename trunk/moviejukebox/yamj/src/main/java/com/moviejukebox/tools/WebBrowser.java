@@ -90,6 +90,9 @@ public class WebBrowser {
             mjbEncodedPassword = Base64.base64Encode(mjbEncodedPassword);
         }
 
+        if (logger.isTraceEnabled()) {
+            showStatus();
+        }
     }
 
     public String request(String url) throws IOException {
@@ -357,7 +360,7 @@ public class WebBrowser {
     }
 
     /**
-     * Get url - allow to know if there is some redirect
+     * Get URL - allow to know if there is some redirect
      * 
      * @param urlStr
      * @return
@@ -366,46 +369,61 @@ public class WebBrowser {
         String response = urlStr;
         URL url = new URL(urlStr);
         ThreadExecutor.enterIO(url);
+        
         try {
             URLConnection cnx = openProxiedConnection(url);
             sendHeader(cnx);
             readHeader(cnx);
             response = cnx.getURL().toString();
-
         } finally {
             ThreadExecutor.leaveIO();
         }
+        
         return response;
     }
 
-    
     public static String getMjbProxyHost() {
         return mjbProxyHost;
     }
     
-
     public static String getMjbProxyPort() {
         return mjbProxyPort;
     }
-    
 
     public static String getMjbProxyUsername() {
         return mjbProxyUsername;
     }
-    
 
     public static String getMjbProxyPassword() {
         return mjbProxyPassword;
     }
-    
 
     public static int getMjbTimeoutConnect() {
         return mjbTimeoutConnect;
     }
-    
 
     public static int getMjbTimeoutRead() {
         return mjbTimeoutRead;
     }
     
+    public static void showStatus() {
+        if (mjbProxyHost != null) {
+            logger.debug("WebBrowser: Proxy Host: " + mjbProxyHost);
+            logger.debug("WebBrowser: Proxy Port: " + mjbProxyPort);
+        } else {
+            logger.debug("WebBrowser: No proxy set");
+        }
+        
+        if (mjbProxyUsername != null) {
+            logger.debug("WebBrowser: Proxy Host: " + mjbProxyUsername);
+            if (mjbProxyPassword != null) {
+                logger.debug("WebBrowser: Proxy Password: IS SET");
+            }
+        } else {
+            logger.debug("WebBrowser: No Proxy username ");
+        }
+        
+        logger.debug("WebBrowser: Connect Timeout: " + mjbTimeoutConnect);
+        logger.debug("WebBrowser: Read Timeout   : " + mjbTimeoutRead);
+    }
 }

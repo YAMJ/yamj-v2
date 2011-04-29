@@ -20,8 +20,8 @@ public enum ArtworkType {
     ClearArt("clearart"),
     ClearLogo("clearlogo"),
     TvThumb("tvthumb"),
-    SeasonThumb("seasonthumb");
-    // VideoImage("videoimage"),    // We don't store VideoImages in this artwork type as it's specific to a video file
+    SeasonThumb("seasonthumb"),
+    VideoImage("videoimage");    // We don't store VideoImages in this artwork type as it's specific to a video file
     
     private String type;
     
