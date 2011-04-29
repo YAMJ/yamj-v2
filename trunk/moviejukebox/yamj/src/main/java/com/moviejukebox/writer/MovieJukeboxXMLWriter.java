@@ -1414,6 +1414,12 @@ public class MovieJukeboxXMLWriter {
                 writer.writeEndElement();
             }
             
+            if (StringTools.isValidString(movie.getTitleSort())) {
+                writer.writeStartElement("sorttitle");
+                writer.writeCharacters(movie.getTitleSort());
+                writer.writeEndElement();
+            }
+            
             if (StringTools.isValidString(movie.getYear())) {
                 writer.writeStartElement("year");
                 writer.writeCharacters(movie.getYear());
