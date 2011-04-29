@@ -19,20 +19,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -49,6 +45,7 @@ import net.anidb.udp.mask.AnimeFileMask;
 import net.anidb.udp.mask.AnimeMask;
 import net.anidb.udp.mask.FileMask;
 
+import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -106,6 +103,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private boolean getAdditionalInformationFromTheTvDB = false;
     private HashMap<Long, AnimeIdMapping> tvdbMappings;
     
+    @SuppressWarnings("unused")
     private TheTvDBPlugin tvdb;
     
     public AniDbPlugin() {
@@ -646,6 +644,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * 
      */
     
+    @SuppressWarnings("unused")
     private class AnimeIdMapping {
         long aniDbId;
         long tvDbId;
