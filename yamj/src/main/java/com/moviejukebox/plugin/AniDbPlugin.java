@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +48,7 @@ import net.anidb.udp.mask.AnimeFileMask;
 import net.anidb.udp.mask.AnimeMask;
 import net.anidb.udp.mask.FileMask;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 import org.xml.sax.Attributes;
@@ -118,7 +120,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     private static boolean hash;
     private boolean getAdditionalInformationFromTheTvDB = false;
-    private HashMap<Long, AnimeIdMapping> tvdbMappings;
+    private Map<Long, AnimeIdMapping> tvdbMappings;
     
     
     private static final int TABLE_VERSION = 1;
@@ -222,6 +224,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     info = new AnidbTableInfo();
                     info.setVersion(AniDbPlugin.TABLE_VERSION);
                     tableDao.create(info);
+                    break;
                 default:
                     break;
                 }
@@ -451,38 +454,26 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 localFile = res.get(0);
             }
 
-            String hash = null;
+            String ed2kHash = null;
             AnidbFile file = null;
             if (localFile == null) {
-                hash = getEd2kChecksum(movie.getFile());
-                if (hash.equals("")) {
+                ed2kHash = getEd2kChecksum(movie.getFile());
+                if (ed2kHash.equals("")) {
                     return false;
                 }
-                localFile = PojoConverter.create(movie.getFile(), hash, localFileDao, logger);
+                localFile = PojoConverter.create(movie.getFile(), ed2kHash, localFileDao, logger);
             }
 
-            file = getAnimeEpisodeByHash(movie.getFile().length(), localFile == null ? hash : localFile.getEd2k());
+            file = getAnimeEpisodeByHash(movie.getFile().length(), localFile == null ? ed2kHash : localFile.getEd2k());
 
-            if (localFile == null) {
-                AnidbLocalFile lf = new AnidbLocalFile();
-                lf.setEd2k(hash);
-                lf.setSize(movie.getFile().length());
-                lf.setOriginalFilename(movie.getFile().getAbsolutePath());
-                lf.setLastSeen(new Date());
-                localFileDao.create(localFile);
-
-            }
-
-            movie.setId(ANIDB_PLUGIN_ID, Long.toString(file.getAnimeId()));
-
-            // Move the below to main scan method instead
             if (file != null) {
+                movie.setId(ANIDB_PLUGIN_ID, Long.toString(file.getAnimeId()));
                 AnidbEpisode ep;
                 ep = getEpisodeByEid(file.getEpisodeId());
-
-                if (ep != null) {
+                
+                if (ep != null) { // TODO: Determine if this works as intended
                     for (MovieFile mf : movie.getMovieFiles()) {
-                        if (mf.getFirstPart() != Integer.parseInt(ep.epno)) {
+                        if (mf.getFirstPart() != Integer.parseInt(ep.epno) && movie.getMovieFiles().size() == 1) {
                             mf.setNewFile(true);
                             mf.setTitle(ep.englishName);
                             mf.setFirstPart(Integer.parseInt(ep.epno));
@@ -490,8 +481,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                         }
                     }
                 }
+                return true;
             }
-            return true;
+            return false;
         } catch (UdpConnectionException error) {
             logger.info(LOG_MESSAGE + "UDP Connection Error");
             final Writer eResult = new StringWriter();
@@ -517,8 +509,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     private String getEd2kChecksum(File file) {
+        FileInputStream fi = null;
         try {
-            FileInputStream fi = new FileInputStream(file);
+            fi = new FileInputStream(file);
             Ed2kChecksum ed2kChecksum = new Ed2kChecksum();
             byte[] buffer = new byte[ED2K_CHUNK_SIZE];
             int k = -1;
@@ -535,6 +528,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.error(eResult.toString());
+        } finally {
+            if (fi != null) {
+                IOUtils.closeQuietly(fi);
+            }
         }
         return "";
     }
@@ -693,17 +690,25 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 tvdbMappings.put(m.aniDbId, m);
             }
         } catch(SAXParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
         } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
         } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
         }
     }
 
@@ -894,7 +899,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Create our database objects from anidb api objects
      */
     private static class PojoConverter {
-        
+        private PojoConverter() {}
         public static AnidbEpisode create(Episode ep, Dao<AnidbEpisode, String> dao, Logger logger) {
             AnidbEpisode res = new AnidbEpisode();
             res.aid = ep.getAnime().getAnimeId();
@@ -965,9 +970,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 }
 
-// TODO: Implement loading of categories
 class AnimeFactory {
     private static final String LOG_MESSAGE = "AniDbPlugin:AnimeFactory: ";
+    
+    private AnimeFactory() {}
     public static AnidbAnime create(Anime anime, String description, Dao<AnidbAnime, String> dao,Dao<AnidbCategory, String> categoryDao, 
         Logger logger){
         AnidbAnime ret = new AnidbAnime();
