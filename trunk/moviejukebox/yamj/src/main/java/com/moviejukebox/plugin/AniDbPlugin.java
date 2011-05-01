@@ -73,7 +73,8 @@ import com.moviejukebox.tools.PropertiesUtil;
 /**
  * AniDB Plugin
  * @author stuart.boston
- * @version 1
+ * @author Xaanin
+ * @version 2
  * 
  */
 public class AniDbPlugin implements MovieDatabasePlugin {
@@ -405,12 +406,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 movie.setRating((int)(anime.getRating() / 10));
             }
 
-            String plot = HTMLTools.stripTags(getAnimeDescription(animeId));
+            //String plot = HTMLTools.stripTags(getAnimeDescription(animeId));
             // This plot may contain the information on the director and this needs to be stripped from the plot
-            logger.info("Plot: " + plot); // XXX: DEBUG
+            //logger.info("Plot: " + plot); // XXX: DEBUG
+            logger.info("Plot: " + anime.getDescription());
             if (!getAdditionalInformationFromTheTvDB) {
-                movie.setPlot(plot);
-                movie.setOutline(plot);
+                movie.setPlot(anime.getDescription());
+                movie.setOutline(anime.getDescription());
             }
 
             for (MovieFile mf : movie.getFiles()) {
@@ -480,13 +482,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
-            /*
-             * if (file.getEpisode().getAnime().getType().equals("Movie")) { // Assume anything not a movie is a TV show movie.setMovieType(Movie.TYPE_MOVIE); }
-             * else { movie.setMovieType(Movie.TYPE_TVSHOW); for (MovieFile mf : movie.getMovieFiles()) { if (mf.getFirstPart() !=
-             * Integer.parseInt(file.getEpisode().getEpisodeNumber())) { mf.setNewFile(true); mf.setTitle(file.getEpisode().getEnglishTitle());
-             * mf.setFirstPart(Integer.parseInt(file.getEpisode().getEpisodeNumber())); mf.setLastPart(Integer.parseInt(file.getEpisode().getEpisodeNumber()));
-             * } } }
-             */
             return true;
         } catch (UdpConnectionException error) {
             logger.info(LOG_MESSAGE + "UDP Connection Error");
@@ -536,7 +531,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     private String getAnimeDescription(long animeId) {
-
         String animePlot = null;
         try {
             animePlot = anidbConn.getAnimeDescription(animeId);
@@ -1326,7 +1320,7 @@ class AnidbAnime {
     }
 
     public String getDescription() {
-        return description;
+        return description.replaceAll("\\[[\\w:/=\\.]*\\]", ""); // Remove what appears to be bbcode tags in description
     }
 
     public void setDescription(String description) {
