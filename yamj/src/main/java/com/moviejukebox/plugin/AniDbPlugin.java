@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -52,6 +54,16 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.DatabaseTable;
+import com.j256.ormlite.table.TableUtils;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.Cache;
@@ -103,6 +115,17 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private boolean getAdditionalInformationFromTheTvDB = false;
     private HashMap<Long, AnimeIdMapping> tvdbMappings;
     
+    
+    private static final int TABLE_VERSION = 1;
+    private Dao<AnidbLocalFile, String> localFileDao;
+    private Dao<AnidbFile, String> anidbFileDao;
+    @SuppressWarnings("unused")
+    private Dao<AnidbAnime, String> animeDao;
+    @SuppressWarnings("unused")
+    private Dao<AnidbEpisode, String> episodeDao;
+    @SuppressWarnings("unused")
+    private Dao<AnidbTableInfo, String> tableDao;
+    
     @SuppressWarnings("unused")
     private TheTvDBPlugin tvdb;
     
@@ -127,10 +150,101 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.error(LOG_MESSAGE + "You need to add your AniDb Username & password to the anidb.username & anidb.password properties");
             anidbConnectionProtection = true;
         }
+        setupDatabase();
         tvdbMappings = new HashMap<Long, AniDbPlugin.AnimeIdMapping>();
         if (getAdditionalInformationFromTheTvDB) {
             loadAniDbTvDbMappings();
             tvdb = new TheTvDBPlugin();
+        }
+    }
+    
+    private void setupDatabase()
+    {
+        String datadir = null;
+        /*
+         * Not sure how well this will end up working on different versions
+         * of Windows.
+         * TODO: Implement an override for this in the properties file
+         */
+        if (System.getProperty("os.name").contains("Windows")) {
+            datadir = System.getenv("APPDATA");
+            if (datadir == null) {
+                datadir = System.getProperty("user.home") + "AppData\\Roaming";
+            }
+            datadir = datadir.replaceAll("\\\\", "/");
+        } else if (System.getProperty("os.name").contains("Mac")) { // http://developer.apple.com/library/mac/#documentation/MacOSX/Conceptual/BPFileSystem/Articles/WhereToPutFiles.html
+            datadir = System.getProperty("user.home");
+            datadir += "/Library/Application Support";
+        } else { // Linux http://standards.freedesktop.org/basedir-spec/basedir-spec-0.6.html
+            datadir = System.getenv("XDG_DATA_HOME") == null ? System.getProperty("user.home") + "/.local/share" : System.getenv("XDG_DATA_HOME");
+        }
+        logger.debug(LOG_MESSAGE + "Determined user data dir to be " + datadir);
+        String yamjdir = datadir + "/Yamj";
+        File file = new File(yamjdir);
+        if(!file.exists()) {
+            file.mkdirs();
+        }
+        logger.debug(LOG_MESSAGE + "Placing database in " + yamjdir);
+        String dbUrl = "jdbc:sqlite:" + yamjdir + "/yamj_anidb.db";
+        ConnectionSource connectionSource;
+        try {
+            connectionSource = new JdbcConnectionSource(dbUrl);
+            updateTables(connectionSource);
+            localFileDao = DaoManager.createDao(connectionSource, AnidbLocalFile.class);
+            animeDao = DaoManager.createDao(connectionSource, AnidbAnime.class);
+            episodeDao = DaoManager.createDao(connectionSource, AnidbEpisode.class);
+            anidbFileDao = DaoManager.createDao(connectionSource, AnidbFile.class);
+        } catch (SQLException e) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        }
+    }
+
+    /*
+     * Method to check if the database tables are old and need updating, and performs
+     * the update if it's needed.
+     */
+    private static synchronized void updateTables(ConnectionSource connectionSource) {
+        try {
+            Dao<AnidbTableInfo, String> tableDao = DaoManager.createDao(connectionSource, AnidbTableInfo.class);
+            boolean dbUpdate = true;
+            AnidbTableInfo info = null;
+            int version = -1;
+            if (tableDao.isTableExists()) {
+                info = tableDao.queryForId(Integer.toString(AniDbPlugin.TABLE_VERSION));
+                if (info != null) {
+                    dbUpdate = false;
+                } else {
+                    info = tableDao.queryForAll().get(0);
+                    if (info.version == AniDbPlugin.TABLE_VERSION) {
+                        dbUpdate = false;
+                    } else {
+                        version = info.version;
+                    }
+                }
+            }
+            if (dbUpdate) {
+                switch (version) {
+                case -1: // DB Doesn't exist, create from scratch
+                    TableUtils.createTable(connectionSource, AnidbLocalFile.class);
+                    TableUtils.createTable(connectionSource, AnidbEpisode.class);
+                    TableUtils.createTable(connectionSource, AnidbAnime.class);
+                    TableUtils.createTable(connectionSource, AnidbTableInfo.class);
+                    TableUtils.createTable(connectionSource, AnidbFile.class);
+                    info = new AnidbTableInfo();
+                    info.version = AniDbPlugin.TABLE_VERSION;
+                    tableDao.create(info);
+                default:
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
         }
     }
     
@@ -264,6 +378,15 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             
             movie.setId(ANIDB_PLUGIN_ID, "" + anime.getAnimeId());
             
+            if (tvdbMappings.get(anime.getAnimeId()) != null) {
+                movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, Long.toString(tvdbMappings.get(anime.getAnimeId()).tvDbId));
+                movie.setSeason(1);
+            }
+            if (getAdditionalInformationFromTheTvDB) {
+                movie.setTitle(anime.getRomajiName());
+                tvdb.scan(movie);
+            }
+            
             if (isValidString(anime.getPicname())) {
                 movie.setPosterURL(PICTURE_URL_BASE + anime.getPicname());
             }
@@ -315,32 +438,98 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return true;
     }
     
+    // TODO: Create a separate class to handle all these database queries
     private boolean anidbHashScan(Movie movie) {
-        String hash = getEd2kChecksum(movie.getFile());
-        if (hash.equals("")) {
-            return false;
-        }
-        net.anidb.File file = null;
+        AnidbLocalFile localFile = null;
         try {
-            file = getAnimeEpisodeByHash(movie.getFile().length(), hash);
-        } catch (UdpConnectionException error) {
-            logger.info(LOG_MESSAGE + "UDP Connection Error");
+            QueryBuilder<AnidbLocalFile, String> qb = localFileDao.queryBuilder();
+            qb.where().eq(AnidbLocalFile.SIZE_COLUMN_NAME, movie.getFile().length()).and().eq(AnidbLocalFile.FILENAME_COLUMN_NAME, movie.getFile().getAbsolutePath());
+            PreparedQuery<AnidbLocalFile> pq = qb.prepare();
+            List<AnidbLocalFile> res = localFileDao.query(pq);
+            if (res.size() > 0) {
+                localFile = res.get(0);
+            }
+        } catch (SQLException e) {
+            logger.error(LOG_MESSAGE + "An error occured while looking up " + movie.getFile().getAbsolutePath() + " in the cache database");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
+            e.printStackTrace(printWriter);
             logger.error(eResult.toString());
-            return false;
-        } catch (AniDbException error) {
-            logger.info(LOG_MESSAGE + "AniDb Exception Error");
+        }
+
+        String hash = null;
+        AnidbFile file = null;
+        if (localFile == null) {
+            hash = getEd2kChecksum(movie.getFile());
+            if (hash.equals("")) {
+                return false;
+            }
+        } 
+        
+        try {
+            QueryBuilder<AnidbFile, String> qb = anidbFileDao.queryBuilder();
+            if (localFile != null) {
+                qb.where().eq(AnidbFile.ED2K_COLUMN_NAME, localFile.ed2kHash).and().eq(AnidbFile.SIZE_COLUMN_NAME, localFile.size);
+            } else {
+                qb.where().eq(AnidbFile.ED2K_COLUMN_NAME, hash).and().eq(AnidbFile.SIZE_COLUMN_NAME, movie.getFile().length());
+            }
+            PreparedQuery<AnidbFile> pq = qb.prepare();
+            List<AnidbFile> res = anidbFileDao.query(pq);
+            if (res.size() > 0) {
+                file = res.get(0);
+            }
+        } catch (SQLException e) {
+            logger.error(LOG_MESSAGE + "Encountered an SQL error");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
+            e.printStackTrace(printWriter);
             logger.error(eResult.toString());
-            return false;
         }
         
-        movie.setId(ANIDB_PLUGIN_ID, file.getEpisode().getAnime().getAnimeId().toString());
-        if (file.getEpisode().getAnime().getType().equals("Movie")) { // Assume anything not a movie is a TV show
+        if (file == null) {
+            localFile = PojoConverter.create(movie.getFile(), hash, localFileDao, logger);
+            net.anidb.File file_ = null;
+            try {
+                file_ = getAnimeEpisodeByHash(movie.getFile().length(), hash);
+            } catch (UdpConnectionException error) {
+                logger.info(LOG_MESSAGE + "UDP Connection Error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+                return false;
+            } catch (AniDbException error) {
+                logger.info(LOG_MESSAGE + "AniDb Exception Error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+                return false;
+            }
+            if (file_ != null) {
+                    file = PojoConverter.create(file_, anidbFileDao, logger);
+            }
+        } else if (file != null && localFile == null) {
+            AnidbLocalFile lf = new AnidbLocalFile();
+            lf.ed2kHash = hash;
+            lf.size = movie.getFile().length();
+            lf.originalFilename = movie.getFile().getAbsolutePath();
+            lf.lastSeen = new Date();
+            try {
+                localFileDao.create(localFile);
+            } catch (SQLException e) {
+                logger.error(LOG_MESSAGE + "Encountered an SQL error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                e.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
+        }
+        
+        movie.setId(ANIDB_PLUGIN_ID, Long.toString(file.aid));
+        
+        // Move the below to main scan method instead
+        /*if (file.getEpisode().getAnime().getType().equals("Movie")) { // Assume anything not a movie is a TV show
             movie.setMovieType(Movie.TYPE_MOVIE);
         } else {
             movie.setMovieType(Movie.TYPE_TVSHOW);
@@ -352,7 +541,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     mf.setLastPart(Integer.parseInt(file.getEpisode().getEpisodeNumber()));
                 }
             }
-        }
+        }*/
         return true;
     }
 
@@ -637,6 +826,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     
     // TODO: Here be dragons! Everything below should probably be refactored in time
     
+    
+    
     /**
      * Hold information about mapping of AnimeId of AniDB and
      * TheTVDB ids for a given show.
@@ -721,5 +912,267 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 lastMapping += new String(ch, start, length); 
             }
         }
+    }
+    
+    /*
+     * Create our database objects from anidb api objects
+     */
+    private static class PojoConverter {
+        
+        @SuppressWarnings("unused")
+        public static AnidbEpisode create(Episode ep, Dao<AnidbEpisode, String> dao, Logger logger) {
+            AnidbEpisode res = new AnidbEpisode();
+            res.aid = ep.getAnime().getAnimeId();
+            res.aired = new Date(ep.getAired());
+            res.eid = ep.getEpisodeId();
+            res.englishName = ep.getEnglishTitle();
+            res.epno = ep.getEpisodeNumber();
+            res.kanjiName = ep.getKanjiTitle();
+            res.length = ep.getLength();
+            res.rating = ep.getRating();
+            res.retrieved = new Date();
+            res.romajiName = ep.getRomajiTitle();
+            res.votes = ep.getVotes();
+            
+            try {
+                dao.create(res);
+            } catch (SQLException e) {
+                logger.error(LOG_MESSAGE + "Encountered an SQL error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                e.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
+            return res;
+        }
+        
+        public static AnidbLocalFile create(java.io.File file, String ed2kHash, Dao<AnidbLocalFile, String> dao, Logger logger) {
+            AnidbLocalFile res = new AnidbLocalFile();
+            res.ed2kHash = ed2kHash;
+            res.lastSeen = new Date();
+            res.originalFilename = file.getAbsolutePath();
+            res.size = file.length();
+            try {
+                dao.create(res);
+            } catch (SQLException e) {
+                logger.error(LOG_MESSAGE + "Encountered an SQL error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                e.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
+            return res;
+        }
+        
+        public static AnidbFile create(net.anidb.File file, Dao<AnidbFile, String> dao, Logger logger) {
+            AnidbFile res = new AnidbFile();
+            res.aid = file.getEpisode().getAnime().getAnimeId();
+            //ret.audioCodecs
+            res.CRC32 = file.getCrc32();
+            res.ed2k = file.getEd2k();
+            res.eid = file.getEpisode().getEpisodeId();
+            res.fid = file.getFileId();
+            res.gid = file.getGroup().getGroupId();
+            res.MD5 = file.getMd5();
+            res.retrieved = new Date();
+            res.SHA1 = file.getSha1();
+            res.size = file.getSize();
+            res.videoBitrate = file.getVideoBirate();
+            res.videoCodec = file.getVideoCodec();
+            res.videoResolution = file.getVideoResolution();
+            try {
+                dao.create(res);
+            } catch (SQLException e) {
+                logger.error(LOG_MESSAGE + "Encountered an SQL error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                e.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
+            return res;
+        }
+        
+        @SuppressWarnings("unused")
+        public static AnidbAnime create(Anime anime, Dao<AnidbAnime, String> dao, Logger logger) {
+            AnidbAnime ret = new AnidbAnime();
+            ret.aid = anime.getAnimeId();
+            ret.englishName = anime.getEnglishName();
+            ret.kanjiName = anime.getKanjiName();
+            ret.retrieved = new Date();
+            ret.romajiName = anime.getRomajiName();
+            ret.type = anime.getType();
+            ret.year = anime.getYear();
+            try {
+                dao.create(ret);
+            } catch (SQLException e) {
+                logger.error(LOG_MESSAGE + "Encountered an SQL error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                e.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
+            return ret;
+        }
+    }
+}
+
+/**
+ * Holds information about a scanned file on the local system
+ */
+@DatabaseTable(tableName = "local_files")
+class AnidbLocalFile {
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String FILENAME_COLUMN_NAME = "filename";
+    public static final String ED2K_COLUMN_NAME = "ed2khash";
+    public static final String SIZE_COLUMN_NAME = "size";
+    public static final String LAST_SEEN_COLUMN_NAME = "lastseen";
+    
+    public AnidbLocalFile() {}
+    @DatabaseField(generatedId = true, columnName = ID_COLUMN_NAME)
+    int id;
+    // We need to store filenames as bytes in order to allow special characters such as '
+    @DatabaseField(columnName = FILENAME_COLUMN_NAME, dataType = DataType.STRING_BYTES) 
+    String originalFilename;
+    @DatabaseField(index = true, columnName = ED2K_COLUMN_NAME)
+    String ed2kHash;
+    @DatabaseField(index = true, columnName = SIZE_COLUMN_NAME)
+    long size;
+    @DatabaseField(index = true, columnName = LAST_SEEN_COLUMN_NAME)
+    Date lastSeen; // Date this file was last seen, to allow periodic cleanup of stale records
+}
+
+/**
+ * Hold information about a file from anidb
+ * @author Xaanin
+ */
+@DatabaseTable(tableName = "anidb_file")
+class AnidbFile {
+    public static final String ED2K_COLUMN_NAME = "ed2k";
+    public static final String SIZE_COLUMN_NAME = "size";
+    public AnidbFile() {}
+    @DatabaseField(id = true)
+    long fid;
+    @DatabaseField()
+    long aid;
+    @DatabaseField()
+    long eid;
+    @DatabaseField()
+    long gid;
+    @DatabaseField()
+    long size;
+    @DatabaseField()
+    String MD5;
+    @DatabaseField()
+    String ed2k;
+    @DatabaseField()
+    String SHA1;
+    @DatabaseField()
+    String CRC32;
+    @DatabaseField()
+    String audioCodecs;
+    @DatabaseField()
+    long videoBitrate;
+    @DatabaseField()
+    String videoCodec;
+    @DatabaseField()
+    String videoResolution;
+    @DatabaseField(index = true)
+    Date retrieved; // We should be able to periodically recheck the anidb information
+}
+/**
+ * Hold information about an episode from anidb
+ * @author Xaanin
+ */
+@DatabaseTable(tableName = "anidb_episode")
+class AnidbEpisode {
+    public AnidbEpisode() {}
+    @DatabaseField(id = true)
+    long eid;
+    @DatabaseField(index = true)
+    long aid;
+    @DatabaseField()
+    long length;
+    @DatabaseField()
+    long rating;
+    @DatabaseField()
+    long votes;
+    @DatabaseField()
+    String epno; // This can contain letters for things like trailers, specials and such.
+    @DatabaseField()
+    String englishName;
+    @DatabaseField()
+    String romajiName;
+    @DatabaseField()
+    String kanjiName;
+    @DatabaseField()
+    Date aired;
+    @DatabaseField(index = true)
+    Date retrieved; // We should be able to periodically recheck the anidb information
+}
+
+/**
+ * @author Xaanin
+ */
+@DatabaseTable(tableName = "anidb_anime")
+class AnidbAnime {
+    @DatabaseField(id = true)
+    long aid;
+    @DatabaseField()
+    String year;
+    @DatabaseField()
+    String type;
+    
+    @DatabaseField(index = true)
+    String romajiName;
+    
+    @DatabaseField(index = true)
+    String englishName;
+    
+    @DatabaseField()
+    String kanjiName;
+
+    @DatabaseField()
+    String description;
+    
+    @DatabaseField(index = true)
+    Date retrieved; // We should be able to periodically recheck the anidb information
+    public AnidbAnime() {}
+}
+
+/**
+ * Class to allow many to many relationships for categories
+ * @author Xaanin
+ */
+@DatabaseTable(tableName = "anidb_anime_categories")
+class AnidbAnimeToCategories {
+    @DatabaseField(generatedId = true)
+    int id;
+    
+    @DatabaseField(foreign = true)
+    AnidbAnime anime;
+    
+    @DatabaseField(foreign = true)
+    AnidbCategory category;
+}
+
+@DatabaseTable(tableName = "anidb_category")
+class AnidbCategory {
+    @DatabaseField(generatedId = true)
+    int id;
+    
+    @DatabaseField()
+    String categoryName;
+    
+    @DatabaseField()
+    int CategoryWeight;
+}
+
+@DatabaseTable(tableName = "anidb_tableinfo")
+class AnidbTableInfo {
+    @DatabaseField(id = true)
+    int version;
+    
+    public AnidbTableInfo() {
+        
     }
 }
