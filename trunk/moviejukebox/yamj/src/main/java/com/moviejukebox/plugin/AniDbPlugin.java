@@ -122,6 +122,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private Dao<AnidbFile, String> anidbFileDao;
     private Dao<AnidbAnime, String> animeDao;
     private Dao<AnidbEpisode, String> episodeDao;
+    private Dao<AnidbCategory, String> categoryDao;
+    private Dao<AnidbAnimeToCategory, String> categoryMappingDao;
     
     @SuppressWarnings("unused")
     private TheTvDBPlugin tvdb;
@@ -136,7 +138,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.error(LOG_MESSAGE + "Error setting the port to '" + PropertiesUtil.getProperty("anidb.port") + "' using default");
         }
         
-        anidbMask = new AnimeMask(true, true, true, false, false, true, false, true, false, true, true, true, true, true, true, true, true, false, true, true, true, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, false, true, false);
+        anidbMask = new AnimeMask(true, true, true, false, false, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, false, true, false);
         
         anidbUsername = PropertiesUtil.getProperty("anidb.username", null);
         anidbPassword = PropertiesUtil.getProperty("anidb.password", null);
@@ -170,6 +172,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             animeDao = DaoManager.createDao(connectionSource, AnidbAnime.class);
             episodeDao = DaoManager.createDao(connectionSource, AnidbEpisode.class);
             anidbFileDao = DaoManager.createDao(connectionSource, AnidbFile.class);
+            categoryDao = DaoManager.createDao(connectionSource, AnidbCategory.class);
+            categoryMappingDao = DaoManager.createDao(connectionSource, AnidbAnimeToCategory.class);
         } catch (SQLException e) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -194,10 +198,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     dbUpdate = false;
                 } else {
                     info = tableDao.queryForAll().get(0);
-                    if (info.version == AniDbPlugin.TABLE_VERSION) {
+                    if (info.getVersion() == AniDbPlugin.TABLE_VERSION) {
                         dbUpdate = false;
                     } else {
-                        version = info.version;
+                        version = info.getVersion();
                     }
                 }
             }
@@ -209,8 +213,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     TableUtils.createTable(connectionSource, AnidbAnime.class);
                     TableUtils.createTable(connectionSource, AnidbTableInfo.class);
                     TableUtils.createTable(connectionSource, AnidbFile.class);
+                    TableUtils.createTable(connectionSource, AnidbAnimeToCategory.class);
+                    TableUtils.createTable(connectionSource, AnidbCategory.class);
                     info = new AnidbTableInfo();
-                    info.version = AniDbPlugin.TABLE_VERSION;
+                    info.setVersion(AniDbPlugin.TABLE_VERSION);
                     tableDao.create(info);
                 default:
                     break;
@@ -551,7 +557,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         
         anime = animeDao.queryForId(Long.toString(animeId));
         if (anime == null) {
-            anime = PojoConverter.create(anidbConn.getAnime(animeId, anidbMask), animeDao, logger);
+            anime = PojoConverter.create(anidbConn.getAnime(animeId, anidbMask), animeDao, categoryDao, categoryMappingDao, logger);
             anime.setDescription(getAnimeDescription(anime.getAnimeId()));
             animeDao.update(anime);
         }
@@ -576,7 +582,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             return res.get(0);
         }
         
-        anime = PojoConverter.create(anidbConn.getAnime(animeName, anidbMask), animeDao, logger);
+        anime = PojoConverter.create(anidbConn.getAnime(animeName, anidbMask), animeDao, categoryDao, categoryMappingDao, logger);
         anime.setDescription(getAnimeDescription(anime.getAnimeId()));
         animeDao.update(anime);
         Cache.addToCache(Cache.generateCacheKey(ANIDB_PLUGIN_ID, "AnimeName", animeName), anime);
@@ -957,7 +963,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         public static AnidbFile create(net.anidb.File file, Dao<AnidbFile, String> dao, Logger logger) {
             AnidbFile res = new AnidbFile();
             res.setAnimeId(file.getEpisode().getAnime().getAnimeId());
-            //ret.audioCodecs
             res.setCRC32(file.getCrc32());
             res.setEd2k(file.getEd2k());
             res.setEpisodeId(file.getEpisode().getEpisodeId());
@@ -967,9 +972,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             res.setRetrieved(new Date());
             res.setSHA1(file.getSha1());
             res.setSize(file.getSize());
-            res.setVideoBitrate(file.getVideoBirate());
-            res.setVideoCodec(file.getVideoCodec());
-            res.setVideoResolution(file.getVideoResolution());
             try {
                 dao.create(res);
             } catch (SQLException e) {
@@ -982,7 +984,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             return res;
         }
         
-        public static AnidbAnime create(Anime anime, Dao<AnidbAnime, String> dao, Logger logger) {
+        public static AnidbAnime create(Anime anime, Dao<AnidbAnime, String> dao, Dao<AnidbCategory, String> categoryDao, 
+                        Dao<AnidbAnimeToCategory, String> categoryMappingDao, Logger logger) {
             AnidbAnime ret = new AnidbAnime();
             ret.setAnimeId(anime.getAnimeId());
             ret.setEnglishName(anime.getEnglishName());
@@ -999,7 +1002,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 ret.setRating(anime.getRating());
             }
             try {
+                
+                List<AnidbAnimeToCategory> list = new ArrayList<AnidbAnimeToCategory>();
+                for(int i = 0; i < anime.getCategoryList().size(); ++i) {
+                    AnidbCategory category = getCategory(anime.getCategoryList().get(i), categoryDao);
+                    AnidbAnimeToCategory mapping = new AnidbAnimeToCategory();
+                    mapping.anime = ret;
+                    mapping.category = category;
+                    mapping.CategoryWeight = Integer.parseInt(anime.getCategoryWeightList().get(i));
+                    list.add(mapping);
+                }
                 dao.create(ret);
+                for (AnidbAnimeToCategory t : list) { // This has to be done after we persist the AnidbAnime object
+                    categoryMappingDao.create(t);
+                }
             } catch (SQLException e) {
                 logger.error(LOG_MESSAGE + "Encountered an SQL error");
                 final Writer eResult = new StringWriter();
@@ -1008,6 +1024,30 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 logger.error(eResult.toString());
             }
             return ret;
+        }
+
+        private static AnidbCategory getCategory(String categoryName, Dao<AnidbCategory, String> dao) {
+            try {
+                QueryBuilder<AnidbCategory, String> qb = dao.queryBuilder();
+                qb.where().eq(AnidbCategory.CATEGORY_NAME_COLUMN, categoryName);
+                PreparedQuery<AnidbCategory> pq = qb.prepare();
+                List<AnidbCategory> ret = dao.query(pq);
+                if (ret.size() > 0) {
+                    return ret.get(0);
+                }
+                
+                AnidbCategory cat = new AnidbCategory();
+                cat.setCategoryName(categoryName);
+                dao.create(cat);
+                return cat;
+            } catch (SQLException e) {
+                logger.error(LOG_MESSAGE + "Encountered an SQL error");
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                e.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
+            return null;
         }
     }
 }
@@ -1023,6 +1063,7 @@ class AnidbLocalFile {
     public static final String SIZE_COLUMN_NAME = "size";
     public static final String LAST_SEEN_COLUMN_NAME = "lastseen";
     
+
     public AnidbLocalFile() {}
     @DatabaseField(generatedId = true, columnName = ID_COLUMN_NAME)
     private int id;
@@ -1086,8 +1127,6 @@ class AnidbFile {
     @DatabaseField()
     private long groupId;
     @DatabaseField()
-    private long size;
-    @DatabaseField()
     private String MD5;
     @DatabaseField()
     private String ed2k;
@@ -1096,13 +1135,7 @@ class AnidbFile {
     @DatabaseField()
     private String CRC32;
     @DatabaseField()
-    private String audioCodecs;
-    @DatabaseField()
-    private long videoBitrate;
-    @DatabaseField()
-    private String videoCodec;
-    @DatabaseField()
-    private String videoResolution;
+    private long size; // This might seem redundant, but it's needed so we can query for AnidbFiles using hash+size without consulting anidb
     @DatabaseField(index = true)
     private Date retrieved; // We should be able to periodically recheck the anidb information
     
@@ -1132,12 +1165,6 @@ class AnidbFile {
     public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
-    public long getSize() {
-        return size;
-    }
-    public void setSize(long size) {
-        this.size = size;
-    }
     public String getMD5() {
         return MD5;
     }
@@ -1162,35 +1189,19 @@ class AnidbFile {
     public void setCRC32(String cRC32) {
         CRC32 = cRC32;
     }
-    public String getAudioCodecs() {
-        return audioCodecs;
-    }
-    public void setAudioCodecs(String audioCodecs) {
-        this.audioCodecs = audioCodecs;
-    }
-    public long getVideoBitrate() {
-        return videoBitrate;
-    }
-    public void setVideoBitrate(long videoBitrate) {
-        this.videoBitrate = videoBitrate;
-    }
-    public String getVideoCodec() {
-        return videoCodec;
-    }
-    public void setVideoCodec(String videoCodec) {
-        this.videoCodec = videoCodec;
-    }
-    public String getVideoResolution() {
-        return videoResolution;
-    }
-    public void setVideoResolution(String videoResolution) {
-        this.videoResolution = videoResolution;
-    }
     public Date getRetrieved() {
         return retrieved;
     }
     public void setRetrieved(Date retrieved) {
         this.retrieved = retrieved;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }
 /**
@@ -1264,7 +1275,7 @@ class AnidbAnime {
     
     @DatabaseField()
     private long episodeCount;
-
+    
     public AnidbAnime() {
         endDate = 0;
         rating = 0;
@@ -1373,7 +1384,7 @@ class AnidbAnime {
  * @author Xaanin
  */
 @DatabaseTable(tableName = "anidb_anime_categories")
-class AnidbAnimeToCategories {
+class AnidbAnimeToCategory {
     @DatabaseField(generatedId = true)
     int id;
     
@@ -1382,26 +1393,63 @@ class AnidbAnimeToCategories {
     
     @DatabaseField(foreign = true)
     AnidbCategory category;
-}
-
-@DatabaseTable(tableName = "anidb_category")
-class AnidbCategory {
-    @DatabaseField(generatedId = true)
-    int id;
-    
-    @DatabaseField()
-    String categoryName;
     
     @DatabaseField()
     int CategoryWeight;
 }
 
+/**
+ * Category class
+ * @author Xaanin
+ */
+@DatabaseTable(tableName = "anidb_category")
+class AnidbCategory {
+    public static final String CATEGORY_NAME_COLUMN = "name";
+    @DatabaseField(generatedId = true)
+    private int id;
+    
+    @DatabaseField(uniqueIndex = true, columnName = CATEGORY_NAME_COLUMN, canBeNull = false)
+    private String categoryName;
+
+    public AnidbCategory(int id, String categoryName) {
+        super();
+        this.id = id;
+        this.categoryName = categoryName;
+    }
+    
+    public AnidbCategory() {}
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+}
+
 @DatabaseTable(tableName = "anidb_tableinfo")
 class AnidbTableInfo {
     @DatabaseField(id = true)
-    int version;
+    private int version;
     
     public AnidbTableInfo() {
         
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 }
