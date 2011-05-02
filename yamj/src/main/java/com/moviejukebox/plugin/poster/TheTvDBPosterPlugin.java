@@ -24,6 +24,7 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
+import com.moviejukebox.thetvdb.model.BannerType;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.Cache;
@@ -231,7 +232,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String findPosterURL(final Banners bannerList, final int season, final String languageId) {
         for (Banner banner : bannerList.getSeasonList()) {
             if (banner.getSeason() == season) {
-                if (banner.getBannerType2().equalsIgnoreCase(Banner.TYPE_SEASON)) {
+                if (banner.getBannerType2() == BannerType.Season) {
                     if (banner.getLanguage().equalsIgnoreCase(languageId)) {
                         return banner.getUrl();
                     }
