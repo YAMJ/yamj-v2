@@ -29,6 +29,7 @@ import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
+import com.moviejukebox.thetvdb.model.BannerType;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
@@ -59,9 +60,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean cycleSeriesBanners;
     private boolean textBanners;
     private boolean dvdEpisodes = false;
-    private static String bannerSeasonType = "seasonwide";
-    private static String bannerSeriesType = "graphical";
-    private static String bannerBlankType = "blank";
     private int preferredPlotLength;
 
     public TheTvDBPlugin() {
@@ -242,29 +240,29 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         // If we are adding the "Season ?" text to a banner, try searching for these first
                         if (textBanners && !banners.getSeriesList().isEmpty()) {
                             // Trying to grab localized banner at first...
-                            urlBanner = findBannerURL2(banners, bannerBlankType, language, season);
+                            urlBanner = findBannerURL2(banners, BannerType.Blank, language, season);
                             // In a case of failure - trying to grab banner in alternative language.
                             if (urlBanner == null) {
-                                urlBanner = findBannerURL2(banners, bannerBlankType, language2nd, season);
+                                urlBanner = findBannerURL2(banners, BannerType.Blank, language2nd, season);
                             }
                         }
 
                         // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
                         if (!onlySeriesBanners && !banners.getSeasonList().isEmpty()) {
                             // Trying to grab localized banner at first...
-                            urlBanner = findBannerURL(banners, bannerSeasonType, language, season);
+                            urlBanner = findBannerURL(banners, BannerType.Season, language, season);
                             // In a case of failure - trying to grab banner in alternative language.
                             if (urlBanner == null) {
-                                urlBanner = findBannerURL(banners, bannerSeasonType, language2nd, season);
+                                urlBanner = findBannerURL(banners, BannerType.Season, language2nd, season);
                             }
                         }
 
                         // If we didn't find a season banner or only want series banners, check for a series banner
                         if (urlBanner == null && !banners.getSeriesList().isEmpty()) {
-                            urlBanner = findBannerURL2(banners, bannerSeriesType, language, season);
+                            urlBanner = findBannerURL2(banners, BannerType.Series, language, season);
                             // In a case of failure - trying to grab banner in alternative language.
                             if (urlBanner == null) {
-                                urlBanner = findBannerURL2(banners, bannerSeriesType, language2nd, season);
+                                urlBanner = findBannerURL2(banners, BannerType.Series, language2nd, season);
                             }
                         }
 
@@ -469,10 +467,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
     }
 
-    private String findBannerURL(final Banners bannerList, final String bannerType, final String languageId, final int season) {
+    private String findBannerURL(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
         for (Banner banner : bannerList.getSeasonList()) {
             if (banner.getSeason() == season) {
-                if (banner.getBannerType2().equalsIgnoreCase(bannerType)) {
+                if (banner.getBannerType2() == bannerType) {
                     if (banner.getLanguage().equalsIgnoreCase(languageId)) {
                         return banner.getUrl();
                     }
@@ -482,12 +480,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
         return null;
     }
 
-    private String findBannerURL2(final Banners bannerList, final String bannerType, final String languageId, final int season) {
+    private String findBannerURL2(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
         int counter = 0;
         String urlBanner = null;
         String savedUrl = null;
         for (Banner banner : bannerList.getSeriesList()) {
-            if (banner.getBannerType2().equalsIgnoreCase(bannerType)) {
+            if (banner.getBannerType2() == bannerType) {
                 if (banner.getLanguage().equalsIgnoreCase(languageId)) {
                     // Increment the counter (before the test) and see if this is the right season
                     if (++counter == season || !cycleSeriesBanners) {
