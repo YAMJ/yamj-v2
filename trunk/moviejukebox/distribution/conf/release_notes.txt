@@ -12,7 +12,8 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #1895 AniDbPlugin caches Anime information
  - Fixed defect #1896 AniDbPlugin falls back to Romaji title if no English title exists
  - Enhancement  #1900 Functionality of the KinopoiskPlugin
- - Enhancement  #1901 Awards
+ - Enhancement  #1901 Support for Awards
+ - Enhancement  #1903 Support for 3D movie file naming
 
 MovieJukebox 2.4
 ----------------
