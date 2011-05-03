@@ -474,7 +474,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (!NFOtagline) {
                     for (String tagline : HTMLTools.extractTags(item, ">слоган<", "</tr>", "<td ", "</td>")) {
                         if (tagline.length() > 0) {
-                            movie.setTagline(tagline);
+                            movie.setTagline(tagline.replace("\u00AB", "\"").replace("\u00BB", "\""));
                             break;
                         }
                     }
@@ -689,7 +689,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             awards.add(award);
                         }
                     }
-                    movie.setAwards(awards);
+                    if (awards.size() > 0) {
+                        movie.setAwards(awards);
+                    }
                 }
             }
 
@@ -917,7 +919,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
             }
             if (StringTools.isValidString(actorId)) {
-                imageDownload(movie, "http://st.kinopoisk.ru/images/actor/" + actorId + ".jpg", FileTools.makeSafeFilename(actor + ".jpg"));
+                if (mode.equals("actor")) {
+                    mode = "Cast";
+                } else if (mode.equals("director")) {
+                    mode = "Director";
+                } else if (mode.equals("writer")) {
+                   mode = "Writer";
+                }
+                imageDownload(movie, "http://st.kinopoisk.ru/images/actor/" + actorId + ".jpg", FileTools.makeSafeFilename(mode + "_" + actor + "_1.jpg"));
             }
         } catch (Exception error) {
             logger.error("Error : " + error.getMessage());
@@ -931,7 +940,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         if (!tmpDestFile.exists()) {
             if (!StringTools.isValidString(URL)) {
                 logger.debug("Dummy image used for " + filename);
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_user.jpg"), tmpDestFile);
             } else {
                 try {
                     logger.debug("KinoPoisk Plugin: Downloading image for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");

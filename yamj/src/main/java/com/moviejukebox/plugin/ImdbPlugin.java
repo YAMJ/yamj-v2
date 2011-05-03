@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.moviejukebox.model.Award;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Library;
@@ -183,6 +184,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             } else {
                 returnStatus = updateInfoOld(movie, xml);
             }
+            
+            // Issue 1901: Awards
+            updateAwards(movie);
             
             // TODO: Remove this check at some point when all skins have moved over to the new property
             downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
@@ -742,6 +746,52 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             updateTVShowInfo(movie);
         }
 
+        return true;
+    }
+    
+    /**
+     * Process a awards in the IMDb web page
+     * @param movie
+     * @return
+     * @throws MalformedURLException
+     * @throws IOException
+     */
+    private boolean updateAwards(Movie movie) throws MalformedURLException, IOException {
+        String imdbId = movie.getId(IMDB_PLUGIN_ID);
+        String awardXML = webBrowser.request(siteDef.getSite() + "title/" + imdbId + "/awards");
+        if (awardXML.indexOf("Category/Recipient(s)") > 0) {
+            Collection<Award> awards = new ArrayList<Award>();
+            for (String awardBlock : HTMLTools.extractTags(awardXML, "<table style=\"margin-top: 8px; margin-bottom: 8px\" cellspacing=\"2\" cellpadding=\"2\" border=\"1\">", "</table>", "<td colspan=\"4\" align=\"center\" valign=\"top\" bgcolor=\"#ffffdb\"", "<td colspan=\"4\">&nbsp;</td>")) {
+                String org = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
+                org = org.substring(org.indexOf(">") + 1);
+                String tmpString = HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf("</th>")), "<a href=", "</a>");
+                int year = Integer.parseInt(tmpString.substring(tmpString.indexOf(">") + 1).substring(0, 4));
+                int won = 0;
+                int nominated = 0;
+                tmpString = HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf("/" + Integer.toString(year) + "\">" + Integer.toString(year))), "<td rowspan=\"", "</b></td>");
+                int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf("\"")));
+                String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
+                String namePattern = "<td rowspan=\"" + Integer.toString(count) + "\" align=\"center\" valign=\"middle\">";
+                String name = HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf("<b>" + title + "</b>")), namePattern, "</td>");
+                if (title.equals("Won")) {
+                    won = count;
+                    if (awardBlock.indexOf("<b>Nominated</b>") > 0) {
+                        nominated = Integer.parseInt(HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf(namePattern + name + "</td>") + 1), "<td rowspan=\"", "\""));
+                    }
+                } else if (title.equals("Nominated")) {
+                    nominated = count;
+                }
+
+                Award award = new Award();
+                award.setOrg(org);
+                award.setName(name);
+                award.setYear(year);
+                award.setWon(won);
+                award.setNominated(nominated);
+                awards.add(award);
+            }
+            movie.setAwards(awards);
+        }
         return true;
     }
     
