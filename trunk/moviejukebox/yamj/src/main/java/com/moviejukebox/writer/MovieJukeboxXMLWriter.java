@@ -40,6 +40,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Index;
@@ -363,8 +364,8 @@ public class MovieJukeboxXMLWriter {
                 }
 
                 // Issue 1901: Awards
-                if (tag.toLowerCase().startsWith("<award ")) {
-                    Award award = new Award();
+                if (tag.toLowerCase().startsWith("<event ")) {
+                    AwardEvent event = new AwardEvent();
 
                     StartElement start = e.asStartElement();
                     for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
@@ -372,27 +373,41 @@ public class MovieJukeboxXMLWriter {
                         String ns = attr.getName().toString();
 
                         if (ns.equalsIgnoreCase("name")) {
-                            award.setName(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("year")) {
-                            award.setYear(Integer.parseInt(attr.getValue()));
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("won")) {
-                            award.setWon(Integer.parseInt(attr.getValue()));
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("nominated")) {
-                            award.setNominated(Integer.parseInt(attr.getValue()));
+                            event.setName(attr.getValue());
                             continue;
                         }
                     }
-                    award.setOrg(parseCData(r));
-                    movie.addAward(award);
+                    while (!r.peek().toString().equalsIgnoreCase("</event>")) {
+                        e = r.nextEvent();
+                        tag = e.toString();
+                        if (tag.toLowerCase().startsWith("<award ")) {
+                            Award award = new Award();
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if (ns.equalsIgnoreCase("year")) {
+                                    award.setYear(Integer.parseInt(attr.getValue()));
+                                    continue;
+                                }
+
+                                if (ns.equalsIgnoreCase("won")) {
+                                    award.setWon(Integer.parseInt(attr.getValue()));
+                                    continue;
+                                }
+
+                                if (ns.equalsIgnoreCase("nominated")) {
+                                    award.setNominated(Integer.parseInt(attr.getValue()));
+                                    continue;
+                                }
+                            }
+                            award.setName(parseCData(r));
+                            event.addAward(award);
+                        }
+                    }
+                    movie.addAward(event);
                 }
 
                 if (tag.toLowerCase().startsWith("<file ")) {
@@ -1271,16 +1286,20 @@ public class MovieJukeboxXMLWriter {
         writeElementSet(writer, "writers", "writer", movie.getWriters(), library, "Writers");
 
         // Issue 1901: Awards
-        Collection<Award> awards = movie.getAwards();
+        Collection<AwardEvent> awards = movie.getAwards();
         if (awards != null && awards.size() > 0) {
             writer.writeStartElement("awards");
-            for (Award award : awards) {
-                writer.writeStartElement("award");
-                writer.writeAttribute("name", award.getName());
-                writer.writeAttribute("won", Integer.toString(award.getWon()));
-                writer.writeAttribute("nominated", Integer.toString(award.getNominated()));
-                writer.writeAttribute("year", Integer.toString(award.getYear()));
-                writer.writeCharacters(award.getOrg());
+            for (AwardEvent event : awards) {
+                writer.writeStartElement("event");
+                writer.writeAttribute("name", event.getName());
+                for (Award award : event.getAwards()) {
+                    writer.writeStartElement("award");
+                    writer.writeAttribute("won", Integer.toString(award.getWon()));
+                    writer.writeAttribute("nominated", Integer.toString(award.getNominated()));
+                    writer.writeAttribute("year", Integer.toString(award.getYear()));
+                    writer.writeCharacters(award.getName());
+                    writer.writeEndElement();
+                }
                 writer.writeEndElement();
             }
             writer.writeEndElement();

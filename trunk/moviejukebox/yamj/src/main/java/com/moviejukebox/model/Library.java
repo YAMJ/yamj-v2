@@ -892,7 +892,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                for (Award award : movie.getAwards()) {
+                for (AwardEvent award : movie.getAwards()) {
                     String awardName = award.getName();
                     logger.debug("Adding " + movie.getTitle() + " to award list for " + awardName);
                     index.addMovie(awardName, movie);

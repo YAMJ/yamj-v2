@@ -44,6 +44,7 @@ import java.util.TimerTask;
 import java.util.TreeSet;
 
 import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -660,7 +661,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (StringTools.isValidString(xml) && !NFOawards) {
                 int beginIndex = xml.indexOf("/level/94/award/");
                 if (beginIndex != -1) {
-                    Collection<Award> awards = new ArrayList<Award>();
+                    Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
                     for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br><br><br><br><br><br>", "<table cellspacing=0 cellpadding=0 border=0 width=100% style=\"border:1px solid #ccc; text-align: left\">", "</table>")) {
                         String name = Movie.UNKNOWN;
                         int year = -1;
@@ -686,7 +687,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             award.setYear(year);
                             award.setWon(won);
                             award.setNominated(nominated);
-                            awards.add(award);
+
+                            AwardEvent event = new AwardEvent();
+                            event.setName(name);
+                            event.addAward(award);
+                            awards.add(event);
                         }
                     }
                     if (awards.size() > 0) {
