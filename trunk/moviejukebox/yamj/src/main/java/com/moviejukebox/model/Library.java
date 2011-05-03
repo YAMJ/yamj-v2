@@ -39,6 +39,7 @@ import java.util.concurrent.Callable;
 import org.apache.log4j.Logger;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
 import com.moviejukebox.tools.PropertiesUtil;
@@ -91,6 +92,7 @@ public class Library implements Map<String, Movie> {
     private static List<String> certificationOrdering = new ArrayList<String>();
     private static Map<String, String> genresMap = new HashMap<String, String>();
     private static Map<String, String> ratingsMap = new HashMap<String, String>();
+    private static String defaultRating = null;
     private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private static boolean charGroupEnglish = false;
@@ -952,6 +954,8 @@ public class Library implements Map<String, Movie> {
         String masterRating = ratingsMap.get(rating);
         if (masterRating != null) {
             return masterRating;
+        } else if (StringTools.isValidString(defaultRating)) {
+            return defaultRating;
         } else {
             return rating;
         }
@@ -1094,6 +1098,10 @@ public class Library implements Map<String, Movie> {
                         ratingsMap.put(subrating, masterRating);
                     }
 
+                }
+                if (c.containsKey("default")) {
+                    defaultRating = c.getString("default");
+                    logger.info("Found default rating: " + defaultRating);
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox ratings input file: " + xmlRatingFile.getName());
