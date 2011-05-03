@@ -16,20 +16,10 @@ package com.moviejukebox.model;
  * @author ilgizar
  */
 public class Award {
-
     private String name = Movie.UNKNOWN;
-    private String organization = Movie.UNKNOWN;
     private int won = 0;
     private int nominated = 0;
     private int year = -1;
-
-    public String getOrg() {
-        return organization;
-    }
-
-    public void setOrg(String organization) {
-        this.organization = organization;
-    }
 
     public String getName() {
         return name;

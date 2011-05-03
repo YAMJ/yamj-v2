@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Library;
@@ -760,37 +761,47 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         String awardXML = webBrowser.request(siteDef.getSite() + "title/" + imdbId + "/awards");
         if (awardXML.indexOf("Category/Recipient(s)") > 0) {
-            Collection<Award> awards = new ArrayList<Award>();
-            for (String awardBlock : HTMLTools.extractTags(awardXML, "<table style=\"margin-top: 8px; margin-bottom: 8px\" cellspacing=\"2\" cellpadding=\"2\" border=\"1\">", "</table>", "<td colspan=\"4\" align=\"center\" valign=\"top\" bgcolor=\"#ffffdb\"", "<td colspan=\"4\">&nbsp;</td>")) {
-                String org = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
-                org = org.substring(org.indexOf(">") + 1);
-                String tmpString = HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf("</th>")), "<a href=", "</a>");
-                int year = Integer.parseInt(tmpString.substring(tmpString.indexOf(">") + 1).substring(0, 4));
-                int won = 0;
-                int nominated = 0;
-                tmpString = HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf("/" + Integer.toString(year) + "\">" + Integer.toString(year))), "<td rowspan=\"", "</b></td>");
-                int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf("\"")));
-                String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
-                String namePattern = "<td rowspan=\"" + Integer.toString(count) + "\" align=\"center\" valign=\"middle\">";
-                String name = HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf("<b>" + title + "</b>")), namePattern, "</td>");
-                if (title.equals("Won")) {
-                    won = count;
-                    if (awardBlock.indexOf("<b>Nominated</b>") > 0) {
-                        nominated = Integer.parseInt(HTMLTools.extractTag(awardBlock.substring(awardBlock.indexOf(namePattern + name + "</td>") + 1), "<td rowspan=\"", "\""));
-                    }
-                } else if (title.equals("Nominated")) {
-                    nominated = count;
-                }
+            Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
+            for (String awardBlock : HTMLTools.extractTags(awardXML, "<table style=\"margin-top: 8px; margin-bottom: 8px\" cellspacing=\"2\" cellpadding=\"2\" border=\"1\">", "</table>", "bgcolor=\"#ffffdb\"", "<td colspan=\"4\" align=\"center\" valign=\"top\"")) {
+                String name = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
+                name = name.substring(name.indexOf(">") + 1);
 
-                Award award = new Award();
-                award.setOrg(org);
-                award.setName(name);
-                award.setYear(year);
-                award.setWon(won);
-                award.setNominated(nominated);
-                awards.add(award);
+                AwardEvent event = new AwardEvent();
+                event.setName(name);
+
+                for (String yearBlock : HTMLTools.extractTags(awardBlock + "<end>", "</th>", "<end>", "<tr", "<td colspan=\"4\">")) {
+                    if (yearBlock.indexOf("Sections/Awards") > 0) {
+                        String tmpString = HTMLTools.extractTag(yearBlock, "<a href=", "</a>");
+                        int year = Integer.parseInt(tmpString.substring(tmpString.indexOf(">") + 1).substring(0, 4));
+                        int won = 0;
+                        int nominated = 0;
+                        tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + Integer.toString(year) + "\">" + Integer.toString(year))), "<td rowspan=\"", "</b></td>");
+                        int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf("\"")));
+                        String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
+                        String namePattern = " align=\"center\" valign=\"middle\">";
+                        name = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("<b>" + title + "</b>")), namePattern, "</td>");
+                        if (title.equals("Won") || title.equals("2nd place")) {
+                            won = count;
+                            if (yearBlock.indexOf("<b>Nominated</b>") > 0) {
+                                nominated = Integer.parseInt(HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf(namePattern + name + "</td>") + 1), "<td rowspan=\"", "\""));
+                            }
+                        } else if (title.equals("Nominated")) {
+                            nominated = count;
+                        }
+
+                        Award award = new Award();
+                        award.setName(name);
+                        award.setYear(year);
+                        award.setWon(won);
+                        award.setNominated(nominated);
+                        event.addAward(award);
+                    }
+                }
+                awards.add(event);
             }
-            movie.setAwards(awards);
+            if (awards.size() > 0) {
+                movie.setAwards(awards);
+            }
         }
         return true;
     }
