@@ -473,11 +473,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 
                 if (ep != null) { // TODO: Determine if this works as intended
                     for (MovieFile mf : movie.getMovieFiles()) {
-                        if (mf.getFirstPart() != Integer.parseInt(ep.epno) && movie.getMovieFiles().size() == 1) {
+                        if (mf.getFirstPart() != Integer.parseInt(ep.getEpisodeNumber()) && movie.getMovieFiles().size() == 1) {
                             mf.setNewFile(true);
-                            mf.setTitle(ep.englishName);
-                            mf.setFirstPart(Integer.parseInt(ep.epno));
-                            mf.setLastPart(Integer.parseInt(ep.epno));
+                            mf.setTitle(ep.getEnglishName());
+                            mf.setFirstPart(Integer.parseInt(ep.getEpisodeNumber()));
+                            mf.setLastPart(Integer.parseInt(ep.getEpisodeNumber()));
                         }
                     }
                 }
@@ -581,28 +581,16 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     public AnidbEpisode getEpisodeByEid(long eid) throws UdpConnectionException, AniDbException, SQLException{
         // Don't cache episode in memory, we're unlikely to need them more than once per run
         AnidbEpisode episode = null;
-        episode = episodeDao.queryForId(Long.toString(eid));
+        episode = AnidbEpisodeFactory.load(eid, episodeDao, logger);
         if (episode != null) {
             return episode;
         }
         Episode ep = anidbConn.getEpisode(eid);
         if (ep != null) {
-            episode = PojoConverter.create(ep, episodeDao, logger);
+            episode = AnidbEpisodeFactory.create(ep, episodeDao, logger);
             return episode;
         }
         return null;
-    }
-    
-    /**
-     * Get the episode details by Episode ID
-     * @param episodeId
-     * @return
-     * @throws UdpConnectionException
-     * @throws AniDbException
-     */
-    @Deprecated
-    public Episode get(long episodeId) throws UdpConnectionException, AniDbException {
-        return anidbConn.getEpisode(episodeId);
     }
     
     /**
@@ -613,6 +601,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * @throws UdpConnectionException
      * @throws AniDbException
      */
+    @Deprecated
     public Episode getEpisode(long animeId, long episodeNumber) throws UdpConnectionException, AniDbException {
         return anidbConn.getEpisode(animeId, episodeNumber);
     }
@@ -900,31 +889,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      */
     private static class PojoConverter {
         private PojoConverter() {}
-        public static AnidbEpisode create(Episode ep, Dao<AnidbEpisode, String> dao, Logger logger) {
-            AnidbEpisode res = new AnidbEpisode();
-            res.aid = ep.getAnime().getAnimeId();
-            res.aired = new Date(ep.getAired());
-            res.eid = ep.getEpisodeId();
-            res.englishName = ep.getEnglishTitle();
-            res.epno = ep.getEpisodeNumber();
-            res.kanjiName = ep.getKanjiTitle();
-            res.length = ep.getLength();
-            res.rating = ep.getRating();
-            res.retrieved = new Date();
-            res.romajiName = ep.getRomajiTitle();
-            res.votes = ep.getVotes();
-            
-            try {
-                dao.create(res);
-            } catch (SQLException e) {
-                logger.error(LOG_MESSAGE + "Encountered an SQL error");
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                e.printStackTrace(printWriter);
-                logger.error(eResult.toString());
-            }
-            return res;
-        }
         
         public static AnidbLocalFile create(java.io.File file, String ed2kHash, Dao<AnidbLocalFile, String> dao, Logger logger) {
             AnidbLocalFile res = new AnidbLocalFile();
@@ -967,6 +931,70 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             }
             return res;
         }
+    }
+}
+class AnidbEpisodeFactory {
+    private static final String LOG_MESSAGE = "AniDbPlugin:AnidbEpisodeFactory: ";
+    public static AnidbEpisode create(Episode ep, Dao<AnidbEpisode, String> dao, Logger logger) {
+        AnidbEpisode res = new AnidbEpisode();
+        res.setAnimeId(ep.getAnime().getAnimeId());
+        res.setAired(new Date(ep.getAired()));
+        res.setEpisodeId(ep.getEpisodeId());
+        res.setEnglishName(ep.getEnglishTitle());
+        res.setEpisodeNumber(ep.getEpisodeNumber());
+        res.setKanjiName(ep.getKanjiTitle());
+        res.setLength(ep.getLength());
+        res.setRating(ep.getRating());
+        res.setRetrieved(new Date());
+        res.setRomajiName(ep.getRomajiTitle());
+        res.setVotes(ep.getVotes());
+        
+        try {
+            dao.create(res);
+        } catch (SQLException e) {
+            logger.error(LOG_MESSAGE + "Encountered an SQL error");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        }
+        return res;
+    }
+    
+    public static AnidbEpisode load(long eid, Dao<AnidbEpisode, String> dao, Logger logger) {
+        try {
+            AnidbEpisode episode = dao.queryForId(Long.toString(eid));
+            return episode;
+        } catch (SQLException e) {
+            logger.error(LOG_MESSAGE + "Encountered an SQL error while loading episode id " + eid);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        }
+        return null;
+    }
+    
+    public static AnidbEpisode load(long animeId, long episodeNumber, Dao<AnidbEpisode, String> dao, Logger logger) {
+        try {
+            QueryBuilder<AnidbEpisode, String> qb = dao.queryBuilder();
+            qb.where().eq(AnidbEpisode.ANIME_ID_COLUMN, Long.toString(animeId)).and().eq(AnidbEpisode.EPISODE_NUMBER_COLUMN, Long.toString(episodeNumber));
+            PreparedQuery<AnidbEpisode> pq = qb.prepare();
+            List<AnidbEpisode> res = dao.query(pq);
+            if (res.size() > 1) {
+                logger.error(LOG_MESSAGE + "Duplicate entries for anime " + animeId + " episode number " + episodeNumber);
+            }
+            if (res.size() > 0) {
+                return res.get(0);
+            }
+        } catch (SQLException e) {
+            logger.error(LOG_MESSAGE + "Encountered an SQL error while loading anime " + animeId + " episode number " + episodeNumber);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            e.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        }
+        return null;
     }
 }
 
@@ -1233,29 +1261,125 @@ class AnidbFile {
  */
 @DatabaseTable(tableName = "anidb_episode")
 class AnidbEpisode {
+    public static final String ANIME_ID_COLUMN = "animeid";
+    public static final String EPISODE_ID_COLUMN = "episodeid";
+    public static final String EPISODE_NUMBER_COLUMN = "episodenumber";
+
+    @DatabaseField(id = true, columnName = EPISODE_ID_COLUMN)
+    private long episodeId;
+    @DatabaseField(index = true, columnName = ANIME_ID_COLUMN)
+    private long animeId;
+    @DatabaseField()
+    private long length;
+    @DatabaseField()
+    private long rating;
+    @DatabaseField()
+    private long votes;
+    @DatabaseField(index = true, columnName = EPISODE_NUMBER_COLUMN)
+    private String episodeNumber; // This can contain letters for things like trailers, specials and such.
+    @DatabaseField()
+    private String englishName;
+    @DatabaseField()
+    private String romajiName;
+    @DatabaseField()
+    private String kanjiName;
+    @DatabaseField()
+    private Date aired;
+    @DatabaseField(index = true)
+    private Date retrieved; // We should be able to periodically recheck the anidb information
+    
     public AnidbEpisode() {}
-    @DatabaseField(id = true)
-    long eid;
-    @DatabaseField(index = true)
-    long aid;
-    @DatabaseField()
-    long length;
-    @DatabaseField()
-    long rating;
-    @DatabaseField()
-    long votes;
-    @DatabaseField()
-    String epno; // This can contain letters for things like trailers, specials and such.
-    @DatabaseField()
-    String englishName;
-    @DatabaseField()
-    String romajiName;
-    @DatabaseField()
-    String kanjiName;
-    @DatabaseField()
-    Date aired;
-    @DatabaseField(index = true)
-    Date retrieved; // We should be able to periodically recheck the anidb information
+
+    public long getEpisodeId() {
+        return episodeId;
+    }
+
+    public void setEpisodeId(long episodeId) {
+        this.episodeId = episodeId;
+    }
+
+    public long getAnimeId() {
+        return animeId;
+    }
+
+    public void setAnimeId(long animeId) {
+        this.animeId = animeId;
+    }
+
+    public long getLength() {
+        return length;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
+    }
+
+    public long getRating() {
+        return rating;
+    }
+
+    public void setRating(long rating) {
+        this.rating = rating;
+    }
+
+    public long getVotes() {
+        return votes;
+    }
+
+    public void setVotes(long votes) {
+        this.votes = votes;
+    }
+
+    public String getEpisodeNumber() {
+        return episodeNumber;
+    }
+
+    public void setEpisodeNumber(String episodeNumber) {
+        this.episodeNumber = episodeNumber;
+    }
+
+    public String getEnglishName() {
+        return englishName;
+    }
+
+    public void setEnglishName(String englishName) {
+        this.englishName = englishName;
+    }
+
+    public String getRomajiName() {
+        return romajiName;
+    }
+
+    public void setRomajiName(String romajiName) {
+        this.romajiName = romajiName;
+    }
+
+    public String getKanjiName() {
+        return kanjiName;
+    }
+
+    public void setKanjiName(String kanjiName) {
+        this.kanjiName = kanjiName;
+    }
+
+    public Date getAired() {
+        return aired;
+    }
+
+    public void setAired(Date aired) {
+        this.aired = aired;
+    }
+
+    public Date getRetrieved() {
+        return retrieved;
+    }
+
+    public void setRetrieved(Date retrieved) {
+        this.retrieved = retrieved;
+    }
+
+ 
+    
 }
 
 /**
