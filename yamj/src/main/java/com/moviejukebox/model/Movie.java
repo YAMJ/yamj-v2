@@ -1124,13 +1124,16 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (name == null) {
             name = UNKNOWN;
         }
+        
         if (!name.equals(this.title)) {
             this.isDirty = true;
             this.title = name;
 
-            setTitleSort(name);
+            if (StringTools.isNotValidString(titleSort)) {
+                setTitleSort(name);
+            }
 
-            if (originalTitle.equals(UNKNOWN)) {
+            if (StringTools.isNotValidString(originalTitle)) {
                 setOriginalTitle(name);
             }
         }
@@ -1140,6 +1143,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (text == null) {
             text = UNKNOWN;
         }
+        
         if (!text.equals(this.titleSort)) {
             int idx = 0;
             while (idx < text.length() && !Character.isLetterOrDigit(text.charAt(idx))) {
