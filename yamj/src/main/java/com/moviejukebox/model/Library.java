@@ -432,6 +432,8 @@ public class Library implements Map<String, Movie> {
                             syncindexes.put("Country", indexByCountry(indexMovies));
                         } else if (indexStr.equals("Writer")) {
                             syncindexes.put("Writer", indexByWriter(indexMovies));
+                        } else if (indexStr.equals("Award")) {
+                            syncindexes.put("Award", indexByAward(indexMovies));
                         }
                         return null;
                     }
@@ -886,6 +888,22 @@ public class Library implements Map<String, Movie> {
         return index;
     }
 
+    protected static Index indexByAward(List<Movie> list) {
+        Index index = new Index(true);
+        for (Movie movie : list) {
+            if (!movie.isExtra()) {
+                for (Award award : movie.getAwards()) {
+                    String awardName = award.getName();
+                    logger.debug("Adding " + movie.getTitle() + " to award list for " + awardName);
+                    index.addMovie(awardName, movie);
+                    movie.addIndex("Award", awardName);
+                }
+            }
+        }
+
+        return index;
+    }
+
     public int getMovieCountForIndex(String indexName, String category) {
         Index index = unCompressedIndexes.get(indexName);
         if (index == null) {
@@ -1190,7 +1208,7 @@ public class Library implements Map<String, Movie> {
     }
 
     public static Collection<String> getPrefixes() {
-        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES" });
+        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES", "AWARD" });
     }
 
     /**
