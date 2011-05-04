@@ -130,7 +130,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private Dao<AnidbEpisode, String> episodeDao;
     private Dao<AnidbCategory, String> categoryDao;
     
-    @SuppressWarnings("unused")
     private TheTvDBPlugin tvdb;
     
     public AniDbPlugin() {
@@ -1022,6 +1021,7 @@ class AnimeFactory {
         ret.setDescription(description);
         try {
             dao.create(ret);            
+            @SuppressWarnings("unused")
             List<AnidbCategory> list = new ArrayList<AnidbCategory>();
             for(int i = 0; i < anime.getCategoryList().size(); ++i) {
                 AnidbCategory category = new AnidbCategory();

@@ -383,7 +383,6 @@ public class MovieJukeboxXMLWriter {
                         if (tag.toLowerCase().startsWith("<award ")) {
                             Award award = new Award();
                             StartElement element = e.asStartElement();
-                            int part = 1;
                             for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
                                 Attribute attr = i.next();
                                 String ns = attr.getName().toString();
