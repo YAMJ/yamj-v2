@@ -25,15 +25,15 @@
 package com.moviejukebox.plugin;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.net.URL;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,22 +41,17 @@ import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeSet;
 
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.IMovieBasicInformation;
-
-import com.moviejukebox.scanner.artwork.FanartScanner;
-
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebStats;
 
