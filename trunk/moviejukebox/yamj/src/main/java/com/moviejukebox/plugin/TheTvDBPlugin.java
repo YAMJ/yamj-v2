@@ -259,10 +259,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                         // If we didn't find a season banner or only want series banners, check for a series banner
                         if (urlBanner == null && !banners.getSeriesList().isEmpty()) {
-                            urlBanner = findBannerURL2(banners, BannerType.Series, language, season);
+                            urlBanner = findBannerURL2(banners, BannerType.Graphical, language, season);
                             // In a case of failure - trying to grab banner in alternative language.
                             if (urlBanner == null) {
-                                urlBanner = findBannerURL2(banners, BannerType.Series, language2nd, season);
+                                urlBanner = findBannerURL2(banners, BannerType.Graphical, language2nd, season);
                             }
                         }
 
