@@ -643,6 +643,132 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
+    public boolean parsePersonXML(File xmlFile, Person person) {
+
+        boolean forceDirtyFlag = false; // force dirty flag for example when extras has been deleted
+
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
+            while (r.hasNext()) {
+                XMLEvent e = r.nextEvent();
+                String tag = e.toString();
+
+                if (tag.toLowerCase().startsWith("<id ")) {
+                    String personDatabase = ImdbPlugin.IMDB_PLUGIN_ID;
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("persondb")) {
+                            personDatabase = attr.getValue();
+                            continue;
+                        }
+                    }
+                    person.setId(personDatabase, parseCData(r));
+                }
+                if (tag.equalsIgnoreCase("<name>")) {
+                    if (StringTools.isNotValidString(person.getName())) {
+                        person.setName(parseCData(r));
+                    } else {
+                        person.addAka(parseCData(r));
+                    }
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<biography>")) {
+                    person.setBiography(parseCData(r));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<birthday>")) {
+                    person.setBirthday(parseCData(r));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<birthplace>")) {
+                    person.setBirthPlace(parseCData(r));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<url>")) {
+                    person.setUrl(parseCData(r));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<photoFile>")) {
+                    person.setPhotoFilename(parseCData(r));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<photoURL>")) {
+                    person.setPhotoURL(parseCData(r));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<knownMovies>")) {
+                    person.setKnownMovies(Integer.parseInt(parseCData(r)));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<version>")) {
+                    person.setVersion(Integer.parseInt(parseCData(r)));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<lastModifiedAt>")) {
+                    person.setLastModifiedAt(parseCData(r));
+                    continue;
+                }
+                if (tag.toLowerCase().startsWith("<movie ")) {
+                    Filmography film = new Filmography();
+
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("id")) {
+                            film.setId(attr.getValue());
+                            continue;
+                        }
+                        if (ns.toLowerCase().contains("id_")) {
+                            person.setId(ns.substring(3), attr.getValue());
+                            continue;
+                        }
+                        if (ns.equalsIgnoreCase("rating")) {
+                            film.setRating(attr.getValue());
+                            continue;
+                        }
+                        if (ns.equalsIgnoreCase("character")) {
+                            film.setCharacter(attr.getValue());
+                            continue;
+                        }
+                        if (ns.equalsIgnoreCase("job")) {
+                            film.setJob(attr.getValue());
+                            continue;
+                        }
+                        if (ns.equalsIgnoreCase("department")) {
+                            film.setDepartment(attr.getValue());
+                            continue;
+                        }
+                        if (ns.equalsIgnoreCase("url")) {
+                            film.setUrl(attr.getValue());
+                            continue;
+                        }
+
+                        film.setName(parseCData(r));
+                    }
+                    person.addFilm(film);
+                }
+            }
+        } catch (Exception error) {
+            logger.error("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return false;
+        }
+
+        person.setDirty(forceDirtyFlag);
+
+        return true;
+    }
+
     public void writeCategoryXML(Jukebox jukebox, Library library, String filename) throws FileNotFoundException, XMLStreamException {
         jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
 

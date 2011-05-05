@@ -1633,7 +1633,9 @@ public class MovieJukebox {
         File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + person.getFilename() + ".xml");
 
         if (xmlFile.exists() && !forceXMLOverwrite) {
+            logger.debug("XML file found for " + person.getName());
 
+            xmlWriter.parsePersonXML(xmlFile, person);
         } else {
             if (forceXMLOverwrite) {
                 logger.debug("Rescanning internet for information on " + person.getName());
