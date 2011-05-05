@@ -69,6 +69,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.table.TableUtils;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -930,6 +931,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             }
             return res;
         }
+    }
+
+    public boolean scan(Person person) {
+        return true;
     }
 }
 class AnidbEpisodeFactory {
