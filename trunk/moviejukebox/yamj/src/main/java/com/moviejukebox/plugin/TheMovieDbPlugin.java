@@ -366,4 +366,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public boolean scan(Person person) {
         return true;
     }
+
+    @Override
+    public boolean scan(com.moviejukebox.model.Person person) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
