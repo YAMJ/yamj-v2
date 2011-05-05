@@ -24,16 +24,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
+
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
-import com.moviejukebox.model.Artwork.Artwork;
-import com.moviejukebox.model.Artwork.ArtworkFile;
-import com.moviejukebox.model.Artwork.ArtworkSize;
-import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
@@ -75,7 +71,7 @@ public class PhotoScanner {
      */
     public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
         String localPhotoBaseFilename = person.getName();
-        String fullPhotoFilename = null;
+//        String fullPhotoFilename = null;
         File localPhotoFile = null;
         boolean foundLocalPhoto = false;
 
@@ -101,7 +97,7 @@ public class PhotoScanner {
      * @param person
      */
     private static void downloadPhoto(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
-        String id = person.getId(ImdbPlugin.IMDB_PLUGIN_ID); // This is the default ID
+//        String id = person.getId(ImdbPlugin.IMDB_PLUGIN_ID); // This is the default ID
 
         if (StringTools.isValidString(person.getPhotoURL())) {
             String safePhotoFilename = person.getPhotoFilename();

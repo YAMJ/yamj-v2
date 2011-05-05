@@ -12,18 +12,14 @@
  */
 package com.moviejukebox.model;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import static com.moviejukebox.tools.StringTools.isValidString;
 
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.moviejukebox.tools.FileTools;
-import static com.moviejukebox.tools.StringTools.*;
 
 /**
  *  This is the new bean for the Person
@@ -36,7 +32,7 @@ public class Person extends Filmography {
 
     private static final String UNKNOWN = Movie.UNKNOWN;
 
-    private Map<String, String> idMap   = new HashMap<String, String>(2);
+//    private Map<String, String> idMap   = new HashMap<String, String>(2);
     private String  biography           = UNKNOWN;
     private int     order               = -1;
     private int     castId              = -1;
