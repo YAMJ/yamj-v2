@@ -22,6 +22,7 @@ import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
@@ -505,5 +506,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
         return urlBanner;
     }
-    
+
+    public boolean scan(Person person) {
+        return true;
+    }
 }

@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -366,4 +367,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         imdbp.scanTVShowTitles(movie);
     }
 
+    public boolean scan(Person person) {
+        return true;
+    }
 }
