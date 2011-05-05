@@ -13,6 +13,7 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 
 import java.io.PrintWriter;
@@ -41,6 +42,7 @@ public class DatabasePluginController {
 
             movieDatabasePlugin.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
             movieDatabasePlugin.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin").trim()));
+            movieDatabasePlugin.put(Movie.TYPE_PERSON, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.person.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
             
             return movieDatabasePlugin;
         }
@@ -79,6 +81,12 @@ public class DatabasePluginController {
                     }
                 }
             }
+        }
+    }
+
+    public static void scan(Person person) {
+        if (!PluginMap.get().get(Movie.TYPE_PERSON).scan(person)) {
+            logger.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
         }
     }
 

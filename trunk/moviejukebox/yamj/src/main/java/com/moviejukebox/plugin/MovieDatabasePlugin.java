@@ -13,6 +13,7 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
 
 /**
  * MovieDatabasePlugin classes must implement this interface in order 
@@ -46,6 +47,8 @@ public interface MovieDatabasePlugin {
      * if false, then the plugin should set appropriate type by calling movie.setMovieType() before returning
      */
     public boolean scan(Movie movie);
+
+    public boolean scan(Person person);
 
     /**
      * Called by jukebox when there are new episodes files added.

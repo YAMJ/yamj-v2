@@ -46,6 +46,8 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 
+import com.moviejukebox.model.Person;
+
 public class Library implements Map<String, Movie> {
 
     public static final String TV_SERIES = "TVSeries";
@@ -112,6 +114,8 @@ public class Library implements Map<String, Movie> {
     private static boolean splitHD = false;
     private static boolean processExtras = true;
     private static boolean hideWatched = true;
+    // Issue 1897: Cast enhancement
+    private TreeMap<String, Person> people = new TreeMap<String, Person>();
 
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -962,6 +966,7 @@ public class Library implements Map<String, Movie> {
 
     public void clear() {
         library.clear();
+        people.clear();
     }
 
     public Object clone() throws CloneNotSupportedException {
@@ -1271,4 +1276,52 @@ public class Library implements Map<String, Movie> {
     public Collection<IndexInfo> getGeneratedIndexes() {
         return generated_indexes;
     }
+
+    public static String getPersonKey(Person person) {
+        String key = person.getName() + "/" + person.getId();
+        key = key.toLowerCase();
+        return key;
+    }
+
+    public void addPerson(String key, Person person) {
+        if (person != null) {
+            Person existingPerson = getPerson(key);
+            if (existingPerson == null) {
+                people.put(key, person);
+            }
+        }
+    }
+
+    public void addPerson(Person person) {
+        addPerson(getPersonKey(person), person);
+    }
+
+    public Collection<Person> getPeople() {
+        return people.values();
+    }
+
+    public void setPeople(Collection<Person> people) {
+        people.clear();
+        for (Person person : people) {
+            addPerson(person);
+        }
+    }
+
+    public Person getPerson(String key) {
+        return people.get(key);
+    }
+
+    public Person getPerson(Person person) {
+        return people.get(getPersonKey(person));
+    }
+
+    public Person getPersonByName(String name) {
+        for (Person person : people.values()) {
+            if (person.getName().equalsIgnoreCase(name)) {
+                return person;
+            }
+        }
+        return null;
+    }
+
 }

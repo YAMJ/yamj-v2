@@ -44,6 +44,7 @@ import org.pojava.datetime.DateTime;
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -75,6 +76,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public static final String TYPE_BLURAY = "BLURAY"; // Used to indicate what physical format the video is
     public static final String TYPE_DVD = "DVD"; // Used to indicate what physical format the video is
     public static final String TYPE_FILE = "FILE"; // Used to indicate what physical format the video is
+    public static final String TYPE_PERSON = "PERSON";
     public static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
     private String mjbVersion = UNKNOWN;
@@ -129,6 +131,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private long trailerLastScan = 0;
     // Issue 1901: Awards
     Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
+    // Issue 1897: Cast enhancement
+    Collection<Person> people = new ArrayList<Person>();
 
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
@@ -335,6 +339,57 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    public void addPerson(Person person) {
+        if (person != null) {
+            this.isDirty = true;
+            this.people.add(person);
+        }
+    }
+
+    public void addPerson(String name) {
+        addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+    }
+
+    public void addPerson(String key, String name) {
+        addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+    }
+
+    public void addPerson(String key, String name, String URL) {
+        addPerson(key, name, URL, Movie.UNKNOWN, Movie.UNKNOWN);
+    }
+
+    public void addPerson(String key, String name, String URL, String job) {
+        addPerson(key, name, URL, job, Movie.UNKNOWN);
+    }
+
+    public void addPerson(String key, String name, String URL, String job, String character) {
+        if (name != null && key != null && URL != null && job != null && character != null) {
+            Person person = new Person();
+            if (key.indexOf(":") > 0) {
+                String[] keys = key.split(":");
+                person.setId(keys[0], keys[1]);
+            } else {
+                person.setId(key);
+            }
+            person.setName(name);
+            person.setUrl(URL);
+            person.setCharacter(character);
+            person.setJob(job);
+            person.setDepartment();
+            int countActor = 0;
+            if (person.getDepartment().equalsIgnoreCase("Actors")) {
+                for (Person member : people) {
+                    if (member.getDepartment().equalsIgnoreCase("Actors")) {
+                        countActor++;
+                    }
+                }
+            }
+            person.setOrder(countActor);
+            person.setCastId(people.size());
+            addPerson(person);
+        }
+    }
+
     public void removeMovieFile(MovieFile movieFile) {
         if (movieFile != null) {
             this.isDirty = true;
@@ -469,6 +524,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     @XmlElement(name = "award")
     public Collection<AwardEvent> getAwards() {
         return awards;
+    }
+
+    @XmlElementWrapper(name = "people")
+    @XmlElement(name = "person")
+    public Collection<Person> getPeople() {
+        return people;
     }
 
     public String getCertification() {
@@ -791,9 +852,20 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    public void addActor(String key, String actor, String character, String URL) {
+        if (actor != null) {
+            this.isDirty = true;
+            cast.add(actor);
+            addPerson(key, actor, URL, "Actor", character);
+        }
+    }
+
     public void setCast(Collection<String> cast) {
         this.isDirty = true;
         this.cast = new LinkedHashSet<String>(cast);
+        for (String castMember : cast) {
+            addPerson(castMember);
+        }
     }
 
     public void addWriter(String writer) {
@@ -1006,6 +1078,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setAwards(Collection<AwardEvent> awards) {
         this.isDirty = true;
         this.awards = awards;
+    }
+
+    public void setPeople(Collection<Person> people) {
+        this.isDirty = true;
+        this.people = people;
     }
 
     public void setNext(String next) {
