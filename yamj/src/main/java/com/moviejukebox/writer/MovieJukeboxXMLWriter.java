@@ -42,6 +42,7 @@ import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Index;
 import com.moviejukebox.model.Jukebox;
@@ -49,6 +50,7 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
@@ -60,6 +62,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.XMLWriter;
+
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -407,6 +410,65 @@ public class MovieJukeboxXMLWriter {
                         }
                     }
                     movie.addAward(event);
+                }
+
+                // Issue 1897: Cast enhancement
+                if (tag.toLowerCase().startsWith("<person ")) {
+                    Person person = new Person();
+
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("name")) {
+                            person.setName(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("character")) {
+                            person.setCharacter(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("job")) {
+                            person.setJob(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("id")) {
+                            person.setId(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.toLowerCase().contains("id_")) {
+                            person.setId(ns.substring(3), attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("department")) {
+                            person.setDepartment(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("url")) {
+                            person.setUrl(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("order")) {
+                            person.setOrder(attr.getValue());
+                            continue;
+                        }
+
+                        if (ns.equalsIgnoreCase("cast_id")) {
+                            person.setCastId(attr.getValue());
+                            continue;
+                        }
+
+                        person.setFilename(parseCData(r));
+                    }
+                    movie.addPerson(person);
                 }
 
                 if (tag.toLowerCase().startsWith("<file ")) {
@@ -1304,6 +1366,31 @@ public class MovieJukeboxXMLWriter {
             writer.writeEndElement();
         }
 
+        // Issue 1897: Cast enhancement
+        Collection<Person> people = movie.getPeople();
+        if (people != null && people.size() > 0) {
+            writer.writeStartElement("people");
+            for (Person person : people) {
+                writer.writeStartElement("person");
+                writer.writeAttribute("name", person.getName());
+                writer.writeAttribute("character", person.getCharacter());
+                writer.writeAttribute("job", person.getJob());
+                writer.writeAttribute("id", person.getId());
+                for (Map.Entry<String, String> personID : person.getIdMap().entrySet()) {
+                    if (!personID.getKey().equals(ImdbPlugin.IMDB_PLUGIN_ID)) {
+                        writer.writeAttribute("id_" + personID.getKey(), personID.getValue());
+                    }
+                }
+                writer.writeAttribute("department", person.getDepartment());
+                writer.writeAttribute("url", person.getUrl());
+                writer.writeAttribute("order", Integer.toString(person.getOrder()));
+                writer.writeAttribute("cast_id", Integer.toString(person.getCastId()));
+                writer.writeCharacters(person.getFilename());
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+        }
+
         // Write the indexes that the movie belongs to
         writer.writeStartElement("indexes");
         for (Entry<String, String> index : movie.getIndexes().entrySet()) {
@@ -1438,6 +1525,101 @@ public class MovieJukeboxXMLWriter {
             if (writeNfoFiles) {
                 writeNfoFile(jukebox, movie);
             }
+        }
+    }
+
+    private void writePerson(XMLWriter writer, Person person, Library library) throws XMLStreamException {
+        writer.writeStartElement("person");
+
+        for (Map.Entry<String, String> e : person.getIdMap().entrySet()) {
+            writer.writeStartElement("id");
+            writer.writeAttribute("persondb", e.getKey());
+            writer.writeCharacters(e.getValue());
+            writer.writeEndElement();
+        }
+
+        writer.writeStartElement("name");
+        writer.writeCharacters(person.getName());
+        writer.writeEndElement();
+
+        writer.writeStartElement("aka");
+        for (String aka : person.getAka()) {
+            writer.writeStartElement("name");
+            writer.writeCharacters(aka);
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
+
+        writer.writeStartElement("biography");
+        writer.writeCharacters(person.getBiography());
+        writer.writeEndElement();
+
+        writer.writeStartElement("birthday");
+        writer.writeCharacters(person.getBirthday());
+        writer.writeEndElement();
+
+        writer.writeStartElement("birthplace");
+        writer.writeCharacters(person.getBirthPlace());
+        writer.writeEndElement();
+
+        writer.writeStartElement("url");
+        writer.writeCharacters(person.getUrl());
+        writer.writeEndElement();
+
+        writer.writeStartElement("photoFile");
+        writer.writeCharacters(person.getPhotoFilename());
+        writer.writeEndElement();
+
+        writer.writeStartElement("photoURL");
+        writer.writeCharacters(person.getPhotoURL());
+        writer.writeEndElement();
+
+        writer.writeStartElement("knownMovies");
+        writer.writeCharacters(Integer.toString(person.getKnownMovies()));
+        writer.writeEndElement();
+
+        writer.writeStartElement("filmography");
+        for (Filmography film : person.getFilmography()) {
+            writer.writeStartElement("movie");
+            writer.writeAttribute("id", film.getId());
+            writer.writeAttribute("rating", film.getRating());
+            writer.writeAttribute("character", film.getCharacter());
+            writer.writeAttribute("job", film.getJob());
+            writer.writeAttribute("department", film.getDepartment());
+            writer.writeAttribute("url", film.getUrl());
+            writer.writeCharacters(film.getName());
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
+
+        writer.writeStartElement("version");
+        writer.writeCharacters(Integer.toString(person.getVersion()));
+        writer.writeEndElement();
+
+        writer.writeStartElement("lastModifiedAt");
+        writer.writeCharacters(person.getLastModifiedAt());
+        writer.writeEndElement();
+
+        writer.writeEndElement();
+    }
+
+    public void writePersonXML(Jukebox jukebox, Person person, Library library) throws FileNotFoundException, XMLStreamException {
+        String baseName = FileTools.makeSafeFilename(person.getName());
+        File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
+        File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + baseName + ".xml");
+
+        FileTools.addJukeboxFile(finalXmlFile.getName());
+        
+        if (!finalXmlFile.exists() || forceXMLOverwrite || person.isDirty()) {
+
+            XMLWriter writer = new XMLWriter(tempXmlFile);
+
+            writer.writeStartDocument("UTF-8", "1.0");
+            writer.writeStartElement("details");
+            writePerson(writer, person, library);
+            writer.writeEndElement();
+            writer.writeEndDocument();
+            writer.close();
         }
     }
 

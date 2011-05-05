@@ -35,6 +35,7 @@ public class ImdbInfo {
 
     private String preferredSearchEngine;
     private WebBrowser webBrowser;
+    private String objectType = "movie";
 
     private ImdbSiteDataDefinition siteDef;
     static {
@@ -89,6 +90,7 @@ public class ImdbInfo {
      * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      */
     public String getImdbId(String movieName, String year) {
+        objectType = "movie";
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
             return getImdbIdFromGoogle(movieName, year);
         } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
@@ -97,6 +99,19 @@ public class ImdbInfo {
             return Movie.UNKNOWN;
         } else {
             return getImdbIdFromImdb(movieName, year);
+        }
+    }
+
+    public String getImdbPersonId(String movieName, String job) {
+        objectType = "person";
+        if ("google".equalsIgnoreCase(preferredSearchEngine)) {
+            return getImdbIdFromGoogle(movieName, job);
+        } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
+            return getImdbIdFromYahoo(movieName, job);
+        } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
+            return Movie.UNKNOWN;
+        } else {
+            return getImdbIdFromImdb(movieName, job);
         }
     }
 
@@ -121,11 +136,11 @@ public class ImdbInfo {
             sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
 
             String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf("/title/tt");
+            int beginIndex = xml.indexOf(objectType.equals("movie")?"/title/tt":"/name/nm");
             StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
             String imdbId = st.nextToken();
 
-            if (imdbId.startsWith("tt")) {
+            if (imdbId.startsWith(objectType.equals("movie")?"tt":"nm")) {
                 return imdbId;
             } else {
                 return Movie.UNKNOWN;
@@ -165,13 +180,13 @@ public class ImdbInfo {
             String xml = webBrowser.request(sb.toString());
             String imdbId = Movie.UNKNOWN;
             
-            int beginIndex = xml.indexOf("/title/tt");
+            int beginIndex = xml.indexOf(objectType.equals("movie")?"/title/tt":"/name/nm");
             if (beginIndex > -1) {
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
                 imdbId = st.nextToken();
             }
 
-            if (imdbId.startsWith("tt")) {
+            if (imdbId.startsWith(objectType.equals("movie")?"tt":"nm")) {
                 logger.debug("Found IMDb ID: " + imdbId);
                 return imdbId;
             } else {
@@ -207,13 +222,13 @@ public class ImdbInfo {
             if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
-            sb.append(";s=tt;site=aka");
+            sb.append(";s=" + (objectType.equals("movie")?"tt":"nm") + ";site=aka");
 
             logger.debug("ImdbInfo Querying IMDB for " + sb.toString());
             String xml = webBrowser.request(sb.toString());
 
             // Check if this is an exact match (we got a movie page instead of a results list)
-            Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "title/") + "(tt\\d+)/\"");
+            Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + (objectType.equals("movie")?"title/":"name/")) + (objectType.equals("movie")?"(tt\\d+)/\"":"(nm\\d+)/\""));
             Matcher titlematch = titleregex.matcher(xml);
             if (titlematch.find()) {
                logger.debug("ImdbInfo: IMDb returned one match " + titlematch.group(1));
@@ -243,12 +258,12 @@ public class ImdbInfo {
                 //logger.fine("ImdbInfo title check : " + searchResult);
                 if (searchResult.toLowerCase().indexOf(formattedMovieName) != -1) {
                     //logger.fine("ImdbInfo title match : " + searchResult);
-                    return HTMLTools.extractTag(searchResult, "/images/b.gif?link=/title/", "/';\">");
+                    return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
                 } else {
                     for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
                         if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
                             //logger.fine("ImdbInfo othertitle match : " + otherResult);
-                            return HTMLTools.extractTag(searchResult, "/images/b.gif?link=/title/", "/';\">");
+                            return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
                         }
                     }
                 }

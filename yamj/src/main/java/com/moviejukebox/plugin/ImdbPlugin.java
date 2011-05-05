@@ -22,17 +22,20 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -53,6 +56,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected String fanartToken;
     protected String fanartExtension;
     private int preferredPlotLength;
+    private int preferredBiographyLength;
+    private int preferredFilmographyMax;
     private int preferredOutlineLength;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
@@ -73,6 +78,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
         getFullInfo = PropertiesUtil.getBooleanProperty("imdb.full.info", "false");
+
+        preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
+        preferredFilmographyMax = PropertiesUtil.getIntProperty("filmography.max", "20");
     }
 
     @Override
@@ -405,7 +413,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         if (movie.getCast().isEmpty()) {
-            movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
+            // Issue 1897: Cast enhancement
+            // movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
+            for (String actorBlock : HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"", "</tr>")) {
+                String personID = actorBlock.substring(actorBlock.indexOf("\"/name/") + 7, actorBlock.indexOf("/\""));
+                int beginIndex = actorBlock.indexOf("<td class=\"char\">");
+                String character = Movie.UNKNOWN;
+                if (beginIndex > 0) {
+                    if (actorBlock.indexOf("<a href=\"/character/") > 0) {
+                        character = actorBlock.substring(actorBlock.indexOf("/\">", beginIndex) + 3, actorBlock.indexOf("</a>", beginIndex));
+                    } else {
+                        character = actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex));
+                    }
+                }
+                movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID);
+            }
         }
 
         /** Check for writer(s) **/
@@ -669,22 +691,47 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // CAST
         if (movie.getCast().isEmpty()) {
-            peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "<td class=\"name\"", "</td>"); 
-            String castMember;
-            
+            // Issue 1897: Cast enhancement
+            peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "<td class=\"name\"", "</tr>"); 
+
             if (peopleList.isEmpty()) {
                 // Try an alternative search
-                peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "/name/nm", "</a>", true);
+                peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "<td class=\"nm\"", "</tr>", true);
             }
             
-            // Clean up the cast list that is returned
-            for (Iterator<String> iter = peopleList.iterator(); iter.hasNext();) {
-                castMember = iter.next();
-                if (castMember.indexOf("src=") > -1) {
-                    iter.remove();
-                } else {
-                    // Add the cleaned up cast member to the movie
-                    movie.addActor(HTMLTools.stripTags(castMember));
+            if (peopleList.isEmpty()) {
+                // old algorithm
+                peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "<td class=\"name\"", "</td>"); 
+                String castMember;
+                
+                if (peopleList.isEmpty()) {
+                    // Try an alternative search
+                    peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "/name/nm", "</a>", true);
+                }
+                
+                // Clean up the cast list that is returned
+                for (Iterator<String> iter = peopleList.iterator(); iter.hasNext();) {
+                    castMember = iter.next();
+                    if (castMember.indexOf("src=") > -1) {
+                        iter.remove();
+                    } else {
+                        // Add the cleaned up cast member to the movie
+                        movie.addActor(HTMLTools.stripTags(castMember));
+                    }
+                }
+            } else {
+                for (String actorBlock : peopleList) {
+                    String personID = actorBlock.substring(actorBlock.indexOf("\"/name/") + 7, actorBlock.indexOf("/\""));
+                    int beginIndex = actorBlock.indexOf("<td class=\"char\">");
+                    String character = Movie.UNKNOWN;
+                    if (beginIndex > 0) {
+                        if (actorBlock.indexOf("<a href=\"/character/") > 0) {
+                            character = actorBlock.substring(actorBlock.indexOf("/\">", beginIndex) + 3, actorBlock.indexOf("</a>", beginIndex));
+                        } else {
+                            character = actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex));
+                        }
+                    }
+                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID);
                 }
             }
         }
@@ -1038,6 +1085,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
     
     /**
+     * Get the IMDb URL with the default site definition
+     * @param person
+     * @return
+     */
+    protected String getImdbUrl(Person person) {
+       return getImdbUrl(person, siteDef);
+    }
+    
+    /**
      * Get the IMDb URL with a specific site definition
      * @param movie
      * @param siteDefinition
@@ -1046,4 +1102,222 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected String getImdbUrl(Movie movie, ImdbSiteDataDefinition siteDefinition) {
         return siteDefinition.getSite() + "title/" + movie.getId(IMDB_PLUGIN_ID) + "/";
     }
+
+    /**
+     * Get the IMDb URL with a specific site definition
+     * @param person
+     * @param siteDefinition
+     * @return
+     */
+    protected String getImdbUrl(Person person, ImdbSiteDataDefinition siteDefinition) {
+        return siteDefinition.getSite() + "name/" + person.getId(IMDB_PLUGIN_ID) + "/";
+    }
+
+    @Override
+    public boolean scan(Person person) {
+        String imdbId = person.getId(IMDB_PLUGIN_ID);
+        if (isNotValidString(imdbId)) {
+            imdbId = imdbInfo.getImdbPersonId(person.getName(), person.getJob());
+            person.setId(IMDB_PLUGIN_ID, imdbId);
+        }
+
+        boolean retval = true;
+        if (isValidString(imdbId)) {
+            retval = updateImdbPersonInfo(person);
+        }
+        return retval;
+    }
+
+    /**
+     * Scan IMDB HTML page for the specified person
+     */
+    private boolean updateImdbPersonInfo(Person person) {
+        String imdbID = person.getId(IMDB_PLUGIN_ID);
+        boolean imdbNewVersion = false; // Used to fork the processing for the new version of IMDb
+        boolean returnStatus = false;
+        
+        try {
+            if (!imdbID.startsWith("nm")) {
+                imdbID = "nm" + imdbID;
+                // Correct the ID if it's wrong
+                person.setId(IMDB_PLUGIN_ID, "nm" + imdbID);
+            }
+            
+            String xml = getImdbUrl(person);
+            
+            xml = webBrowser.request(xml, siteDef.getCharset());
+            
+            // We can work out if this is the new site by looking for " - IMDb" at the end of the title
+            String title = HTMLTools.extractTag(xml, "<title>");
+            // Check for the new version and correct the title if found.
+            if (title.toLowerCase().endsWith(" - imdb")) {
+                title = title.substring(0, title.length() - 7);
+                imdbNewVersion = true;
+            } else {
+                imdbNewVersion = false;
+            }
+            person.setName(title);
+            
+            if (imdbNewVersion) {
+                returnStatus = updateInfoNew(person, xml);
+            } else {
+                returnStatus = updateInfoOld(person, xml);
+            }
+        } catch (Exception error) {
+            logger.error("Failed retreiving IMDb data for movie : " + person.getId(IMDB_PLUGIN_ID));
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        }
+        return returnStatus;
+    }
+
+    /**
+     * Process the new IMDb format web page
+     * @param person
+     * @param xml
+     * @return
+     * @throws MalformedURLException
+     * @throws IOException
+     */
+    private boolean updateInfoNew(Person person, String xml) throws MalformedURLException, IOException {
+        person.setUrl(getImdbUrl(person));
+
+        if (xml.indexOf("Alternate Names:") > -1) {
+            String name = HTMLTools.extractTag(xml, "Alternate Names:</h4>", "</div>");
+            if (isValidString(name)) {
+                person.addAka(name);
+            }
+        }
+
+        if (xml.indexOf("<td id=\"img_primary\"") > -1) {
+            String photoURL = "http://ia.media-imdb.com/images" + HTMLTools.extractTag(xml, "<img src=\"http://ia.media-imdb.com/images", "\"");
+            if (isValidString(photoURL)) {
+                person.setPhotoURL(photoURL);
+                person.setPhotoFilename();
+            }
+        }
+
+        // get personal information
+        xml = webBrowser.request(getImdbUrl(person) + "bio", siteDef.getCharset());
+
+        String date = "";
+        int beginIndex, endIndex;
+        if (xml.indexOf("<h5>Date of Birth</h5>") > -1) {
+            endIndex = xml.indexOf("<h5>Date of Death</h5>");
+            beginIndex = xml.indexOf("<a href=\"/date/");
+            if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
+                date = xml.substring(beginIndex + 18, beginIndex + 20) + "-" + xml.substring(beginIndex + 15, beginIndex + 17);
+            }
+            beginIndex = xml.indexOf("birth_year=", beginIndex);
+            if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
+                if (!date.equals("")) {
+                    date += "-";
+                }
+                date += xml.substring(beginIndex + 11, beginIndex + 15);
+            }
+            if (!date.equals("")) {
+                person.setBirthday(date);
+            }
+
+            beginIndex = xml.indexOf("birth_place=", beginIndex);
+            String place = "";
+            if (beginIndex > -1) {
+                place = xml.substring(xml.indexOf("\">", beginIndex) + 2, xml.indexOf("</a>", beginIndex));
+                if (isValidString(place)) {
+                    person.setBirthPlace(place);
+                }
+            }
+        }
+
+        beginIndex = xml.indexOf("<h5>Birth Name</h5>");
+        if (beginIndex > -1) {
+            String name = xml.substring(beginIndex + 19, xml.indexOf("<br/>", beginIndex));
+            if (isValidString(name)) {
+                person.addAka(name);
+            }
+        }
+
+        String biography = Movie.UNKNOWN;
+        if (xml.indexOf("<h5>Mini Biography</h5>") > -1) {
+            biography = HTMLTools.extractTag(xml, "<h5>Mini Biography</h5>", "<b>IMDb Mini Biography By: </b>");
+        }
+        if (!isValidString(biography) && xml.indexOf("<h5>Trivia</h5>") > -1) {
+            biography = HTMLTools.extractTag(xml, "<h5>Trivia</h5>", "<br/>");
+        }
+        if (isValidString(biography)) {
+            biography = HTMLTools.removeHtmlTags(biography);
+            biography = trimToLength(biography, preferredBiographyLength, true, plotEnding);
+            person.setBiography(biography);
+        }
+
+        // get known movies
+        xml = webBrowser.request(getImdbUrl(person) + "filmoyear", siteDef.getCharset());
+        if (xml.indexOf("<div id=\"tn15content\">") > -1) {
+            int count = HTMLTools.extractTags(xml, "<div id=\"tn15content\">", "</div>", "<li>", "</li>").size();
+            person.setKnownMovies(count);
+        }
+
+        // get filmography
+        xml = webBrowser.request(getImdbUrl(person) + "filmorate", siteDef.getCharset());
+        if (xml.indexOf("<div class=\"filmo\">") > -1) {
+            TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
+            for (String department : HTMLTools.extractTags(xml, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", "</div>")) {
+                String job = HTMLTools.removeHtmlTags(HTMLTools.extractTag(department, "<h5>", "</h5>"));
+                for (String item : HTMLTools.extractTags(department, "<ol", "</ol>", "<li", "</li>")) {
+                    beginIndex = item.indexOf("<h6>");
+                    if (beginIndex > -1) {
+                        item = item.substring(0, beginIndex);
+                    }
+                    float rating = Float.valueOf(HTMLTools.extractTag(item, "(", ")")).floatValue();
+                    String id = HTMLTools.extractTag(item, "<a href=\"/title/", "/\">");
+                    String name = HTMLTools.extractTag(item, "/\">", "</a>");
+                    beginIndex = item.indexOf("</a> (");
+                    if (beginIndex > -1) {
+                        name += item.substring(beginIndex + 4);
+                    }
+
+                    float key = 10 - (rating + Float.valueOf("0.00" + id.substring(2)).floatValue());
+
+                    if (filmography.get(key) == null) {
+                        Filmography film = new Filmography();
+                        film.setId(id);
+                        film.setName(name);
+                        film.setJob(job);
+                        film.setDepartment();
+                        film.setRating(Float.toString(rating));
+                        film.setUrl(siteDef.getSite() + "title/" + id + "/");
+                        filmography.put(key, film);
+                    }
+                }
+            }
+            Iterator it = filmography.keySet().iterator();
+            Object obj;
+            int count = 0;
+            while (it.hasNext() && count < preferredFilmographyMax) {
+                obj = it.next();
+                person.addFilm(filmography.get(obj));
+                count++;
+            }
+        }
+
+//        person.setModifiedAt();
+        int version = person.getVersion();
+        person.setVersion(++version);
+        return true;
+    }
+
+    /**
+     * Process the old IMDb formatted web page
+     * @param movie
+     * @param xml
+     * @return
+     * @throws MalformedURLException
+     * @throws IOException
+     */
+    private boolean updateInfoOld(Person person, String xml) throws MalformedURLException, IOException {
+        return true;
+    }
+
 }
