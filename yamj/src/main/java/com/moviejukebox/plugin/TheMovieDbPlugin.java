@@ -362,4 +362,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     protected String getFanartURL(Movie movie) {
         return FanartScanner.getFanartURL(movie);
     }
+
+    public boolean scan(Person person) {
+        return true;
+    }
 }
