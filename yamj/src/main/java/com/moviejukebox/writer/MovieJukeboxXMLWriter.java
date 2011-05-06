@@ -769,7 +769,13 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    public void writeCategoryXML(Jukebox jukebox, Library library, String filename) throws FileNotFoundException, XMLStreamException {
+    public void writeCategoryXML(Jukebox jukebox, Library library, String filename, boolean isDirty) throws FileNotFoundException, XMLStreamException {
+        // Issue 1886: Html indexes recreated every time
+        File oldFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + filename + ".xml");
+        if (oldFile.exists() && !isDirty) {
+            return;
+        }
+
         jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
 
         File xmlFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), filename + ".xml");

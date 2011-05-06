@@ -881,11 +881,11 @@ public class MovieJukebox {
         logger.info("Found " + library.size() + " videos in your media library");
         logger.info("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
-        // Issue 1882: Separate index files for each category
-        boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", "false");
-
         tasks.restart();
         if (library.size() > 0) {
+            // Issue 1882: Separate index files for each category
+            boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", "false");
+
             logger.info("Searching for information on the video files...");
             int movieCounter = 0;
             for (final Movie movie : library.values()) {
@@ -915,7 +915,7 @@ public class MovieJukebox {
                         }
 
                         // First get movie data (title, year, director, genre, etc...)
-                        updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie);
+                        library.toggleDirty(updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie));
                         
                         // Then get this movie's poster
                         logger.debug("Updating poster for: " + movieTitleExt);
@@ -1177,12 +1177,12 @@ public class MovieJukebox {
                 logger.info("Writing Indexes XML...");
                 xmlWriter.writeIndexXML(jukebox, library, tasks);
                 logger.info("Writing Category XML...");
-                xmlWriter.writeCategoryXML(jukebox, library, "Categories");
+                xmlWriter.writeCategoryXML(jukebox, library, "Categories", library.isDirty());
 
                 // Issue 1882: Separate index files for each category
                 if (separateCategories) {
                     for (String categoryName : categoriesList) {
-                        xmlWriter.writeCategoryXML(jukebox, library, categoryName);
+                        xmlWriter.writeCategoryXML(jukebox, library, categoryName, library.isDirty());
                     }
                 }
             }
@@ -1267,12 +1267,12 @@ public class MovieJukebox {
                 if (!skipHtmlGeneration) {
                     logger.info("Writing Indexes HTML...");
                     htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
-                    htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Categories", "categories.xsl");
+                    htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Categories", "categories.xsl", library.isDirty());
 
                     // Issue 1882: Separate index files for each category
                     if (separateCategories) {
                         for (String categoryName : categoriesList) {
-                            htmlWriter.generateMoviesCategoryHTML(jukebox, library, categoryName, "category.xsl");
+                            htmlWriter.generateMoviesCategoryHTML(jukebox, library, categoryName, "category.xsl", library.isDirty());
                         }
                     }
                 }
@@ -1284,22 +1284,24 @@ public class MovieJukebox {
                 htmlWriter.generateMainIndexHTML(jukebox, library);
             }
 
-            try {
-                final String totalMoviesXmlFileName = "CompleteMovies.xml";
-                final File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), totalMoviesXmlFileName);
-                
-                OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
-                context.createMarshaller().marshal(jukeboxXml, marStream);
-                marStream.close();
-                FileTools.addJukeboxFile(totalMoviesXmlFileName);
-                Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
+            if (library.isDirty()) {
+                try {
+                    final String totalMoviesXmlFileName = "CompleteMovies.xml";
+                    final File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), totalMoviesXmlFileName);
 
-                final String rssXmlFileName = "RSS.xml";
-                FileTools.addJukeboxFile(rssXmlFileName);
-                Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
-                transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
-            } catch (Exception e) {
-                logger.debug("RSS is not generated." /* + e.getStackTrace().toString() */);
+                    OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
+                    context.createMarshaller().marshal(jukeboxXml, marStream);
+                    marStream.close();
+                    FileTools.addJukeboxFile(totalMoviesXmlFileName);
+                    Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
+
+                    final String rssXmlFileName = "RSS.xml";
+                    FileTools.addJukeboxFile(rssXmlFileName);
+                    Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
+                    transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
+                } catch (Exception e) {
+                    logger.debug("RSS is not generated." /* + e.getStackTrace().toString() */);
+                }
             }
 
             /********************************************************************************
@@ -1463,7 +1465,7 @@ public class MovieJukebox {
      * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. 
      * Once scanned, the <tt>movie</tt> object is persisted.
      */
-    public void updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) throws FileNotFoundException, XMLStreamException {
+    public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
         boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", "true");
 
@@ -1623,6 +1625,7 @@ public class MovieJukebox {
                 }
             }
         }
+        return movie.isDirty() || movie.isDirtyNFO() || movie.isDirtyPoster() || movie.isDirtyFanart() || movie.isDirtyBanner();
     }
 
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person) throws FileNotFoundException, XMLStreamException {
