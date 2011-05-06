@@ -184,10 +184,20 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             } else {
                 imdbNewVersion = false;
             }
-                
+
+            String originalTitle = title;
+            if (xml.indexOf("<span class=\"title-extra\">") > -1) {
+                originalTitle = HTMLTools.extractTag(xml, "<span class=\"title-extra\">", "</span>");
+                if (originalTitle.indexOf("(original title)") > -1) {
+                    originalTitle = originalTitle.replace(" <i>(original title)</i>", "");
+                } else {
+                    originalTitle = title;
+                }
+            }
+
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(title);
-                movie.setOriginalTitle(title);
+                movie.setOriginalTitle(originalTitle);
             }
             
             if (imdbNewVersion) {
