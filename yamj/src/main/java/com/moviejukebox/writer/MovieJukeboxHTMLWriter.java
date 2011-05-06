@@ -43,6 +43,7 @@ import javax.xml.transform.stream.StreamSource;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.tools.FileTools;
@@ -136,6 +137,56 @@ public class MovieJukeboxHTMLWriter {
             }
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML for movie " + movie.getBaseFilename());
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        }
+    }
+
+    public void generatePersonDetailsHTML(Jukebox jukebox, Person person) {
+        try {
+            String baseName = person.getFilename();
+            String tempFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + baseName;
+            File tempXmlFile = new File(tempFilename + ".xml");
+            File oldXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
+
+            FileTools.addJukeboxFile(baseName + ".xml");
+            String indexList = PropertiesUtil.getProperty("mjb.view.personList", "person.xsl");
+            for (final String indexStr : indexList.split(",")) {
+                String Suffix = "";
+                if (!indexStr.equals("person.xsl")) {
+                    Suffix = indexStr.replace("person", "").replace(".xsl", "");
+                }
+
+                File finalHtmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + Suffix + ".html");
+                File tempHtmlFile = new File(tempFilename + Suffix + ".html");
+                Source xmlSource;
+
+                FileTools.addJukeboxFile(baseName + Suffix + ".html");
+
+                if (!finalHtmlFile.exists() || forceHTMLOverwrite || person.isDirty()) {
+                    if (tempXmlFile.exists()) {
+                        // Use the temp file
+                        xmlSource = new StreamSource(tempXmlFile);
+                    } else {
+                        // Use the file in the original directory
+                        xmlSource = new StreamSource(oldXmlFile);
+                    }
+                    Result xmlResult = new StreamResult(tempHtmlFile);
+
+                    if (xmlSource != null && xmlResult != null) {
+                        File skinFile = new File(skinHome, indexStr);
+                        Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
+                        transformer.transform(xmlSource, xmlResult);
+                    } else {
+                        logger.error("HTMLWriter: Unable to transform XML for person " + person.getName() + " source: " + (xmlSource == null ? true : false)
+                                        + " result: " + (xmlResult == null ? true : false));
+                    }
+                }
+            }
+        } catch (Exception error) {
+            logger.error("HTMLWriter: Failed generating HTML for person " + person.getName());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
