@@ -1241,18 +1241,14 @@ public class MovieJukebox {
                     tasks.submit(new Callable<Void>() {
                         public Void call() throws FileNotFoundException, XMLStreamException {
                             ToolSet tools = threadTools.get();
-                            // Update movie XML files with computed index information
+                            // Update person XML files with computed index information
                             logger.debug("Writing index data to person: " + person.getName());
                             xmlWriter.writePersonXML(jukebox, person, library);
 
-                            // Create a photo for each person
-//                            logger.debug("Creating photo for person: " + person.getName());
-//                            createPhoto(tools.imagePlugin, jukebox, skinHome, person, forcePosterOverwrite);
-
-//                            if (!skipIndexGeneration && !skipHtmlGeneration) {
-                            // write the person details HTML
-//                            htmlWriter.generatePersonDetailsHTML(jukebox, person);
-//                            }
+                            if (!skipIndexGeneration && !skipHtmlGeneration) {
+                                // write the person details HTML
+                                htmlWriter.generatePersonDetailsHTML(jukebox, person);
+                            }
 
                             return null;
                         };
