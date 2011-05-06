@@ -116,6 +116,7 @@ public class Library implements Map<String, Movie> {
     private static boolean hideWatched = true;
     // Issue 1897: Cast enhancement
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
+    private static boolean isDirty = false;
 
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -1322,6 +1323,22 @@ public class Library implements Map<String, Movie> {
             }
         }
         return null;
+    }
+
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void setDirty() {
+        isDirty = true;
+    }
+
+    public void setDirty(boolean isDirty) {
+        this.isDirty = isDirty;
+    }
+
+    public void toggleDirty(boolean isDirty) {
+        this.isDirty |= isDirty;
     }
 
 }

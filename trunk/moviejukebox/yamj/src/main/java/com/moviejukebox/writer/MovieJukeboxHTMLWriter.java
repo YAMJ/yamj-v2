@@ -465,23 +465,34 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    public void generateMoviesCategoryHTML(Jukebox jukebox, Library library, String filename, String template) {
+    public void generateMoviesCategoryHTML(Jukebox jukebox, Library library, String filename, String template, boolean isDirty) {
         try {
-            logger.info("  " + filename + "...");
+            // Issue 1886: Html indexes recreated every time
+            String destFolder = jukebox.getJukeboxRootLocationDetails();
+            File oldFile = FileTools.fileCache.getFile(destFolder + File.separator + filename + ".html");
+            if (oldFile.exists() && !isDirty) {
+                return;
+            }
+
+            Source xmlSource;
             File detailsFolder = jukebox.getJukeboxTempLocationDetailsFile();
             File xmlFile = new File(detailsFolder, filename + ".xml");
+            File oldXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + filename + ".xml");
             File htmlFile = new File(detailsFolder, filename + ".html");
 
             htmlFile.getParentFile().mkdirs();
 
-            FileTools.addJukeboxFile(xmlFile.getName());
+            if (xmlFile.exists()) {
+                FileTools.addJukeboxFile(xmlFile.getName());
+                xmlSource = new StreamSource(xmlFile);
+            } else {
+                xmlSource =  new StreamSource(oldXmlFile);
+            }
+
             FileTools.addJukeboxFile(htmlFile.getName());
-
-            Transformer transformer = getTransformer(new File(skinHome, template), jukebox.getJukeboxTempLocation());
-
-            Source xmlSource = new StreamSource(xmlFile);
             Result xmlResult = new StreamResult(htmlFile);
 
+            Transformer transformer = getTransformer(new File(skinHome, template), jukebox.getJukeboxTempLocation());
             transformer.transform(xmlSource, xmlResult);
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML library category index.");
