@@ -846,16 +846,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addActor(String actor) {
-        if (actor != null) {
+        if (actor != null && !cast.contains(actor)) {
             this.isDirty = true;
             cast.add(actor);
         }
     }
 
     public void addActor(String key, String actor, String character, String URL) {
-        if (actor != null) {
-            this.isDirty = true;
-            cast.add(actor);
+        if (actor != null && !cast.contains(actor)) {
+            addActor(actor);
             addPerson(key, actor, URL, "Actor", character);
         }
     }
@@ -869,9 +868,16 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addWriter(String writer) {
-        if (writer != null) {
+        if (writer != null && !writers.contains(writer)) {
             this.isDirty = true;
             writers.add(writer);
+        }
+    }
+
+    public void addWriter(String key, String writer, String URL) {
+        if (writer != null && !writers.contains(writer)) {
+            addWriter(writer);
+            addPerson(key, writer, URL, "Writer", "");
         }
     }
 
@@ -934,8 +940,16 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
     
     public void addDirector(String director) {
-        if (!directors.contains(director)) {
+        if (director != null && !directors.contains(director)) {
+            this.isDirty = true;
             directors.add(director);
+        }
+    }
+
+    public void addDirector(String key, String director, String URL) {
+        if (director != null && !directors.contains(director)) {
+            addDirector(director);
+            addPerson(key, director, URL, "Director", "");
         }
     }
 
