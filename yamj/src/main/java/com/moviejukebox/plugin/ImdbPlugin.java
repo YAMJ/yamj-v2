@@ -862,7 +862,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private boolean updateAwards(Movie movie) throws MalformedURLException, IOException {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
-        String awardXML = webBrowser.request(siteDef.getSite() + "title/" + imdbId + "/awards");
+        String site = siteDef.getSite();
+        if (!siteDef.getSite().contains(".imdb.com")) {
+            site = "http://www.imdb.com/";
+        }
+        String awardXML = webBrowser.request(site + "title/" + imdbId + "/awards");
         if (awardXML.indexOf("Category/Recipient(s)") > 0) {
             Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
             for (String awardBlock : HTMLTools.extractTags(awardXML, "<table style=\"margin-top: 8px; margin-bottom: 8px\" cellspacing=\"2\" cellpadding=\"2\" border=\"1\">", "</table>", "bgcolor=\"#ffffdb\"", "<td colspan=\"4\" align=\"center\" valign=\"top\"")) {
