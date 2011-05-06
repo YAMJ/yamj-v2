@@ -148,15 +148,15 @@ public class Filmography {
 
     public void setDepartment() {
         if (isNotValidString(department)) {
-            if (job.equalsIgnoreCase("Actor") || job.equalsIgnoreCase("Actress")) {
+            if (job.equalsIgnoreCase("actor") || job.equalsIgnoreCase("actress")) {
                 setDepartment("Actors");
-            } else if (job.equalsIgnoreCase("Producer") || job.equalsIgnoreCase("Casting")) {
+            } else if (job.toLowerCase().contains("producer") || job.toLowerCase().contains("casting")) {
                 setDepartment("Production");
-            } else if (job.equalsIgnoreCase("Director")) {
+            } else if (job.toLowerCase().contains("director")) {
                 setDepartment("Directing");
-            } else if (job.equalsIgnoreCase("Author") || job.equalsIgnoreCase("Writer")) {
+            } else if (job.toLowerCase().contains("author") || job.toLowerCase().contains("writer")) {
                 setDepartment("Writing");
-            } else if (job.equalsIgnoreCase("Editor")) {
+            } else if (job.toLowerCase().contains("editor")) {
                 setDepartment("Editing");
             } else if (job.toLowerCase().contains("music")) {
                 setDepartment("Sound");
