@@ -474,6 +474,8 @@ public class MovieJukeboxHTMLWriter {
                 return;
             }
 
+            logger.info("  " + filename + "...");
+
             Source xmlSource;
             File detailsFolder = jukebox.getJukeboxTempLocationDetailsFile();
             File xmlFile = new File(detailsFolder, filename + ".xml");
