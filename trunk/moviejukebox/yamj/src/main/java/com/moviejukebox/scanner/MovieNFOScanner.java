@@ -643,20 +643,28 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("actor")) {
                             String event = r.nextEvent().toString();
+                            String name = Movie.UNKNOWN;
+                            String role = Movie.UNKNOWN;
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
                                     String val = XMLHelper.getCData(r);
                                     if (isValidString(val)) {
-                                        movie.addActor(val);
+                                        name = val;
                                     }
-                                //} else if (event.equalsIgnoreCase("<role>")) {
-                                    // Not currently used
+                                } else if (event.equalsIgnoreCase("<role>")) {
+                                    String val = XMLHelper.getCData(r);
+                                    if (isValidString(val)) {
+                                        role = val;
+                                    }
                                 }
                                 if (r.hasNext()) {
                                     event = r.nextEvent().toString();
                                 } else {
                                     break;
                                 }
+                            }
+                            if (isValidString(name)) {
+                                movie.addActor(Movie.UNKNOWN, name, role, Movie.UNKNOWN);
                             }
                         } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
                             String fiEvent = r.nextEvent().toString();

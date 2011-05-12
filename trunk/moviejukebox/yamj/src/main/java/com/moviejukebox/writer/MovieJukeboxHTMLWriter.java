@@ -568,6 +568,7 @@ public class MovieJukeboxHTMLWriter {
                     FileTools.addJukeboxFile(idx.baseName + page + ".html");
                 }
             } else {
+                logger.debug("HTMLWriter: Category " + idx.categoryName + " " + idx.key + " generate HTML.");
                 tasks.submit(new Callable<Void>() {
                     public Void call() {
                         for (int page = 1; page <= idx.pages; page++) {

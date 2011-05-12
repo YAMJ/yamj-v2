@@ -44,6 +44,7 @@ public class Person extends Filmography {
     private String  photoFilename       = UNKNOWN;
     private String  filename            = UNKNOWN;
     private boolean isDirtyPhoto        = false;
+    private boolean isScrapeLibrary     = true;
     private List<Filmography> filmography = new ArrayList<Filmography>();
     private List<String>      aka         = new ArrayList<String>();
     private String  lastModifiedAt;
@@ -257,6 +258,18 @@ public class Person extends Filmography {
     }
 
     public void setDirtyPhoto() {
-        setDirtyPhoto();
+        setDirtyPhoto(true);
+    }
+
+    public boolean isScrapeLibrary() {
+        return isScrapeLibrary;
+    }
+
+    public void setScrapeLibrary(boolean isScrapeLibrary) {
+        this.isScrapeLibrary = isScrapeLibrary;
+    }
+
+    public void setScrapeLibrary() {
+        setScrapeLibrary(true);
     }
 }

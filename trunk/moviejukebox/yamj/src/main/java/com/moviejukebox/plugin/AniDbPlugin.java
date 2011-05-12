@@ -176,11 +176,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         try {
             connectionSource = new JdbcConnectionSource(dbUrl);
             updateTables(connectionSource);
+/*
             localFileDao = DaoManager.createDao(connectionSource, AnidbLocalFile.class);
             animeDao = DaoManager.createDao(connectionSource, AnidbAnime.class);
             episodeDao = DaoManager.createDao(connectionSource, AnidbEpisode.class);
             anidbFileDao = DaoManager.createDao(connectionSource, AnidbFile.class);
             categoryDao = DaoManager.createDao(connectionSource, AnidbCategory.class);
+*/
         } catch (SQLException e) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -194,6 +196,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * the update if it's needed.
      */
     private static synchronized void updateTables(ConnectionSource connectionSource) {
+/*
         try {
             Dao<AnidbTableInfo, String> tableDao = DaoManager.createDao(connectionSource, AnidbTableInfo.class);
             boolean dbUpdate = true;
@@ -235,6 +238,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             e.printStackTrace(printWriter);
             logger.error(eResult.toString());
         }
+*/
     }
     
     @Override
@@ -934,7 +938,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     public boolean scan(Person person) {
-        return true;
+        return false;
     }
 }
 class AnidbEpisodeFactory {
