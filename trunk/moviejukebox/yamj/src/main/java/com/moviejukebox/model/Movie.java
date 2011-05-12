@@ -1026,6 +1026,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.sets = sets;
     }
 
+    public Map<String, Integer> getSets() {
+        return sets;
+    }
+
     /**
      * 
      * @deprecated replaced by setId(String key, String id). This method is kept for compatibility purpose. But you should use setId(String key, String id)
