@@ -250,10 +250,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
                         if (!onlySeriesBanners && !banners.getSeasonList().isEmpty()) {
                             // Trying to grab localized banner at first...
-                            urlBanner = findBannerURL(banners, BannerType.Season, language, season);
+                            urlBanner = findBannerURL(banners, BannerType.SeasonWide, language, season);
                             // In a case of failure - trying to grab banner in alternative language.
                             if (urlBanner == null) {
-                                urlBanner = findBannerURL(banners, BannerType.Season, language2nd, season);
+                                urlBanner = findBannerURL(banners, BannerType.SeasonWide, language2nd, season);
                             }
                         }
 
