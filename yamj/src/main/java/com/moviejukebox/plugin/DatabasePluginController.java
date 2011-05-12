@@ -85,6 +85,10 @@ public class DatabasePluginController {
     }
 
     public static void scan(Person person) {
+        if (!person.isScrapeLibrary()) {
+            logger.debug("Skipping internet search for " + person.getName());
+            return;
+        }
         if (!PluginMap.get().get(Movie.TYPE_PERSON).scan(person)) {
             logger.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
         }

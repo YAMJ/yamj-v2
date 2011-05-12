@@ -1229,6 +1229,7 @@ public class MovieJukebox {
 
                         if (!skipIndexGeneration && !skipHtmlGeneration) {
                             // write the movie details HTML
+                            logger.debug("Writing detail HTML to movie: " + movie.getBaseName());
                             htmlWriter.generateMovieDetailsHTML(jukebox, movie);
 
                             // write the playlist for the movie if needed

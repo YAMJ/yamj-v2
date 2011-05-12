@@ -364,7 +364,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     }
 
     public boolean scan(Person person) {
-        return true;
+        return false;
     }
 
     @Override

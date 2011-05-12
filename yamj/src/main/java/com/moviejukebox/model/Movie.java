@@ -341,8 +341,18 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void addPerson(Person person) {
         if (person != null) {
-            this.isDirty = true;
-            this.people.add(person);
+            boolean duplicate = false;
+            String name = person.getName();
+            for (Person p : people) {
+                if (p.getName().equals(name)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                isDirty = true;
+                people.add(person);
+            }
         }
     }
 
@@ -386,6 +396,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             }
             person.setOrder(countActor);
             person.setCastId(people.size());
+            person.setScrapeLibrary(scrapeLibrary);
             addPerson(person);
         }
     }

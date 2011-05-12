@@ -368,6 +368,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     public boolean scan(Person person) {
-        return true;
+        return false;
     }
 }
