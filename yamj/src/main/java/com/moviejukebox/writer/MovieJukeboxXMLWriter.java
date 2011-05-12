@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -643,6 +644,93 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
+    public Map<String, Integer> parseMovieXML_set(File xmlFile) {
+        Map<String, Integer> sets = new HashMap<String, Integer>();
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
+            while (r.hasNext()) {
+                XMLEvent e = r.nextEvent();
+                String tag = e.toString();
+
+                if (tag.toLowerCase().startsWith("<set ") || tag.equalsIgnoreCase("<set>")) {
+                    // String set = null;
+                    Integer order = null;
+
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("order")) {
+                            order = Integer.parseInt(attr.getValue());
+                            continue;
+                        }
+                    }
+                    sets.put(parseCData(r), order);
+                }
+            }
+        } catch (Exception error) {
+            logger.error("Failed parsing movie xml for set : please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return sets;
+        }
+
+        return sets;
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean parseSetXML(File xmlFile, Movie movie, List<Movie> moviesList) {
+
+        boolean forceDirtyFlag = false;
+
+        try {
+            Collection<String> movies = new ArrayList<String>();
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
+            while (r.hasNext()) {
+                XMLEvent e = r.nextEvent();
+                String tag = e.toString();
+
+                if (tag.equalsIgnoreCase("<baseFilename>")) {
+                    movies.add(parseCData(r));
+                }
+            }
+            int counter = movie.getSetSize();
+            if (counter == movies.size()) {
+                for (String movieName : movies) {
+                    for (Movie film : moviesList) {
+                        if (film.getBaseName().equals(movieName)) {
+                            forceDirtyFlag |= !film.getSetsKeys().contains(movie.getTitle()) || film.isDirty();
+                            counter--;
+                            break;
+                        }
+                    }
+                    if (forceDirtyFlag) {
+                        break;
+                    }
+                }
+                forceDirtyFlag |= counter != 0;
+            } else {
+                forceDirtyFlag = true;
+            }
+        } catch (Exception error) {
+            logger.error("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return false;
+        }
+
+        movie.setDirty(forceDirtyFlag);
+
+        return true;
+    }
+
     @SuppressWarnings("unchecked")
     public boolean parsePersonXML(File xmlFile, Person person) {
 
@@ -873,6 +961,7 @@ public class MovieJukeboxXMLWriter {
 
         // Issue 1882: Separate index files for each category
         final boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", "false");
+        final boolean setReindex = PropertiesUtil.getBooleanProperty("mjb.sets.reindex", "true");
         
         tasks.restart();
 
@@ -915,6 +1004,13 @@ public class MovieJukeboxXMLWriter {
                                 } else {
                                     nbVideosPerPage = nbSetMoviesPerPage;
                                     nbVideosPerLine = nbSetMoviesPerLine;
+                                    //Issue 1886: Html indexes recreated every time
+                                    for (Movie m : library.getMoviesList()) {
+                                        if (m.isSetMaster() && m.getTitle().equals(key)) {
+                                            skipindex &= !m.isDirty();
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -953,13 +1049,17 @@ public class MovieJukeboxXMLWriter {
                         IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipindex); 
 
                         // Don't skip the indexing for sets as this overwrites the set files
-                        if ("Set".equalsIgnoreCase(categoryName)) {
+                        if ("Set".equalsIgnoreCase(categoryName) && setReindex) {
                             skipindex = false;
                         }
                         
                         for (current = 1 ; current <= last; current ++) {
-                            idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
-                            skipindex = skipindex && idx.canSkip;
+                            if ("Set".equalsIgnoreCase(categoryName) && setReindex) {
+                                idx.canSkip = false;
+                            } else {
+                                idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
+                                skipindex = skipindex && idx.canSkip;
+                            }
                         }
 
                         if (skipindex) {

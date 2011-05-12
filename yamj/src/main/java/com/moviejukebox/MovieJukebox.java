@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -988,7 +989,7 @@ public class MovieJukebox {
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
-                    peopleCounter = movie.getPeople().size();
+                    peopleCounter += movie.getPeople().size();
                 }
 
                 final int peopleCount = peopleCounter;
@@ -1100,8 +1101,10 @@ public class MovieJukebox {
                         // The master's movie XML is used for generating the
                         // playlist it will be overwritten by the index XML
                         
-                        logger.debug("Writing index data for master: " + movie.getBaseName());
-                        xmlWriter.writeMovieXML(jukebox, movie, library);
+                        // Issue 1886: Html indexes recreated every time
+                        // commented next 2 lines because generated XML file not useful
+                        //logger.debug("Writing index data for master: " + movie.getBaseName());
+                        //xmlWriter.writeMovieXML(jukebox, movie, library);
 
                         logger.debug("Updating poster for index master: " + movie.getOriginalTitle() + "...");
 
@@ -1169,6 +1172,16 @@ public class MovieJukebox {
             Cache.clear();
 
             SystemTools.showMemory();
+
+            // Issue 1886: Html indexes recreated every time
+            for (Movie movie : library.getMoviesList()) {
+                if (movie.isSetMaster()) {
+                    File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + movie.getBaseName() + ".xml");
+                    if (xmlFile.exists()) {
+                        xmlWriter.parseSetXML(xmlFile, movie, library.getMoviesList());
+                    }
+                }
+            }
 
             // Issue 1882: Separate index files for each category
             List<String> categoriesList = Arrays.asList(getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set").split(","));
@@ -1500,7 +1513,16 @@ public class MovieJukebox {
             // Copy scanned files BEFORE parsing the existing XML
             scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
             xmlWriter.parseMovieXML(xmlFile, movie);
-            
+
+            // Issue 1886: Html indexes recreated every time
+            // after remove NFO set data restoring from XML - compare NFO and XML sets
+            Movie movieNFO = new Movie();
+            MovieNFOScanner.scan(movieNFO, nfoFiles);
+            if (!Arrays.equals(movieNFO.getSetsKeys().toArray(), movie.getSetsKeys().toArray())) {
+                movie.setSets(movieNFO.getSets());
+                movie.setDirtyNFO(true);
+            }
+
             // If we are overwiting the indexes, we need to check for an update to the library description
             if (PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false")) {
                 for (MediaLibraryPath mlp : mediaLibraryPaths) {
@@ -1621,7 +1643,7 @@ public class MovieJukebox {
                 }
             }
         }
-        return movie.isDirty() || movie.isDirtyNFO() || movie.isDirtyPoster() || movie.isDirtyFanart() || movie.isDirtyBanner();
+        return movie.isDirty() || movie.isDirtyNFO();
     }
 
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person) throws FileNotFoundException, XMLStreamException {
