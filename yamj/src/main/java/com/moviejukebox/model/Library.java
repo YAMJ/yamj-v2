@@ -1333,12 +1333,12 @@ public class Library implements Map<String, Movie> {
         isDirty = true;
     }
 
-    public void setDirty(boolean isDirty) {
-        this.isDirty = isDirty;
+    public void setDirty(boolean dirty) {
+        isDirty = dirty;
     }
 
-    public void toggleDirty(boolean isDirty) {
-        this.isDirty |= isDirty;
+    public void toggleDirty(boolean dirty) {
+        isDirty |= dirty;
     }
 
 }
