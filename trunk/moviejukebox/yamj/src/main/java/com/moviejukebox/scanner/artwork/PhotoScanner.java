@@ -47,18 +47,16 @@ public class PhotoScanner {
 
     protected static Logger logger = Logger.getLogger("moviejukebox");
     protected static Collection<String> photoExtensions = new ArrayList<String>();
-    protected static boolean photoOverwrite;
+    protected static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", "false");
     protected static Collection<String> photoImageName;
+    protected static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
 
     static {
-
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
         while (st.hasMoreTokens()) {
             photoExtensions.add(st.nextToken());
         }
-
-        photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", "false");
     }
 
     /**
@@ -71,7 +69,6 @@ public class PhotoScanner {
      */
     public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
         String localPhotoBaseFilename = person.getName();
-//        String fullPhotoFilename = null;
         File localPhotoFile = null;
         boolean foundLocalPhoto = false;
 
@@ -97,14 +94,16 @@ public class PhotoScanner {
      * @param person
      */
     private static void downloadPhoto(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
-//        String id = person.getId(ImdbPlugin.IMDB_PLUGIN_ID); // This is the default ID
+        person.setPhotoFilename();
+        String safePhotoFilename = person.getPhotoFilename();
+        String photoFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safePhotoFilename;
+        File photoFile = FileTools.fileCache.getFile(photoFilename);
+        String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + safePhotoFilename;
+        File tmpDestFile = new File(tmpDestFileName);
+        String dummyFileName = skinHome + File.separator + "resources" + File.separator + "dummy_photo.jpg";
+        File dummyFile = new File(dummyFileName);
 
         if (StringTools.isValidString(person.getPhotoURL())) {
-            String safePhotoFilename = person.getPhotoFilename();
-            String photoFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safePhotoFilename;
-            File photoFile = FileTools.fileCache.getFile(photoFilename);
-            String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + safePhotoFilename;
-            File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing photo unless ForcePhotoOverwrite = true
             if (photoOverwrite || person.isDirtyPhoto() || (!photoFile.exists() && !tmpDestFile.exists())) {
@@ -130,6 +129,9 @@ public class PhotoScanner {
             } else {
                 logger.debug("PhotoScanner: Photo exists for " + person.getName());
             }
+        } else if ((photoOverwrite || (!photoFile.exists() && !tmpDestFile.exists())) && dummyFile.exists()) {
+            logger.debug("Dummy image used for " + person.getName());
+            FileTools.copyFile(dummyFile, tmpDestFile);
         }
 
         return;

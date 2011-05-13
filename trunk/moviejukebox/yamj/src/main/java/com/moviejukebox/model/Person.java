@@ -13,6 +13,7 @@
 package com.moviejukebox.model;
 
 import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public class Person extends Filmography {
     }
 
     public void setPhotoFilename() {
-        if (isValidString(getName())) {
+        if (isValidString(getName()) && isNotValidString(photoFilename)) {
             setPhotoFilename(FileTools.makeSafeFilename(getName() + ".jpg"));
         }
     }
