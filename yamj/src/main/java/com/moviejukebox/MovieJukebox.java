@@ -156,7 +156,6 @@ public class MovieJukebox {
     private static boolean peopleScan = false;
     private static int peopleMax = 10;
     private static int popularity = 5;
-    private static int countPopular = 100;
 
     // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
@@ -318,7 +317,6 @@ public class MovieJukebox {
             peopleScan = true;
             peopleMax = PropertiesUtil.getIntProperty("mjb.people.maxCount", "10");
             popularity = PropertiesUtil.getIntProperty("mjb.people.popularity", "5");
-            countPopular = PropertiesUtil.getIntProperty("mjb.people.popularity.maxCount", "100");
         }
 
         // Check for mjb.skipHtmlGeneration and set as necessary
@@ -995,7 +993,7 @@ public class MovieJukebox {
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
-                    if (popularity > 0 || countPopular > 0) {
+                    if (popularity > 0) {
                         for (Person person : movie.getPeople()) {
                             if (popularPeople.containsKey(person.getName())) {
                                 popularPeople.get(person.getName()).popularityUp();
@@ -1009,7 +1007,7 @@ public class MovieJukebox {
                 }
 
                 tasks.restart();
-                if (popularity > 0 || countPopular > 0) {
+                if (popularity > 0) {
                     ArrayList as = new ArrayList(popularPeople.entrySet());
 
                     Collections.sort(as, new Comparator() {
@@ -1024,6 +1022,9 @@ public class MovieJukebox {
                     List<Person> stars = new ArrayList<Person>();
                     Iterator itr = as.iterator();
                     while (itr.hasNext()) {
+                        if (peopleCounter < peopleMax) {
+                            break;
+                        }
                         Map.Entry e = (Map.Entry)itr.next();
                         Person p = (Person)e.getValue();
                         if (popularity > p.getPopularity()) {
@@ -1031,9 +1032,6 @@ public class MovieJukebox {
                         }
                         stars.add(p);
                         peopleCounter++;
-                        if (countPopular > 0 && peopleCounter == countPopular) {
-                            break;
-                        }
                     }
                     final int peopleCount = peopleCounter;
                     peopleCounter = 0;
