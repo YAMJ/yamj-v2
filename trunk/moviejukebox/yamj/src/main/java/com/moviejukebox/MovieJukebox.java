@@ -32,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -153,6 +155,8 @@ public class MovieJukebox {
     private static boolean showMemory = false;
     private static boolean peopleScan = false;
     private static int peopleMax = 10;
+    private static int popularity = 5;
+    private static int countPopular = 100;
 
     // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
@@ -313,6 +317,8 @@ public class MovieJukebox {
         if (PropertiesUtil.getBooleanProperty("mjb.people", "false")) {
             peopleScan = true;
             peopleMax = PropertiesUtil.getIntProperty("mjb.people.maxCount", "10");
+            popularity = PropertiesUtil.getIntProperty("mjb.people.popularity", "5");
+            countPopular = PropertiesUtil.getIntProperty("mjb.people.popularity.maxCount", "100");
         }
 
         // Check for mjb.skipHtmlGeneration and set as necessary
@@ -983,36 +989,56 @@ public class MovieJukebox {
             if (peopleScan) {
                 logger.info("Searching for people information...");
                 int peopleCounter = 0;
+                TreeMap<String, Person> popularPeople = new TreeMap<String, Person>();
                 for (Movie movie : library.values()) {
                     // Issue 997: Skip the processing of extras if not required
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
-                    peopleCounter += movie.getPeople().size();
+                    if (popularity > 0 || countPopular > 0) {
+                        for (Person person : movie.getPeople()) {
+                            if (popularPeople.containsKey(person.getName())) {
+                                popularPeople.get(person.getName()).popularityUp();
+                            } else {
+                                popularPeople.put(person.getName(), person);
+                            }
+                        }
+                    } else {
+                        peopleCounter += movie.getPeople().size();
+                    }
                 }
 
-                final int peopleCount = peopleCounter;
-                peopleCounter = 0;
                 tasks.restart();
-                for (Movie movie : library.values()) {
-                    // Issue 997: Skip the processing of extras if not required
-                    if (movie.isExtra() && !processExtras) {
-                        continue;
-                    }
-                    TreeMap<String, Integer> typeCounter = new TreeMap<String, Integer>();
-                    for (final Person person : movie.getPeople()) {
-                        final int count = ++peopleCounter;
-                        String job = person.getJob();
-                        if (!typeCounter.containsKey(job)) {
-                            typeCounter.put(job, 1);
-                        } else if (typeCounter.get(job) == peopleMax) {
-                            continue;
-                        } else {
-                            typeCounter.put(job, typeCounter.get(job) + 1);
-                        }
+                if (popularity > 0 || countPopular > 0) {
+                    ArrayList as = new ArrayList(popularPeople.entrySet());
 
-                        final Person newbie = person;
-                        final String personName = newbie.getName();
+                    Collections.sort(as, new Comparator() {
+                        public int compare(Object o1, Object o2) {
+                            Map.Entry e1 = (Map.Entry)o1;
+                            Map.Entry e2 = (Map.Entry)o2;
+                            Person first = (Person)e1.getValue();
+                            Person second = (Person)e2.getValue();
+                            return second.getPopularity().compareTo(first.getPopularity());
+                        }
+                    });
+                    List<Person> stars = new ArrayList<Person>();
+                    Iterator itr = as.iterator();
+                    while (itr.hasNext()) {
+                        Map.Entry e = (Map.Entry)itr.next();
+                        Person p = (Person)e.getValue();
+                        if (popularity > p.getPopularity()) {
+                            break;
+                        }
+                        stars.add(p);
+                        peopleCounter++;
+                        if (countPopular > 0 && peopleCounter == countPopular) {
+                            break;
+                        }
+                    }
+                    final int peopleCount = peopleCounter;
+                    peopleCounter = 0;
+                    for (final Person person : stars) {
+                        final int count = ++peopleCounter;
 
                         // Multi-thread parallel processing
                         tasks.submit(new Callable<Void>() {
@@ -1021,24 +1047,12 @@ public class MovieJukebox {
 
                                 ToolSet tools = threadTools.get();
 
-                                // Change the output message depending on the existance of the XML file
-                                boolean xmlExists = FileTools.fileCache.fileExists(jukebox.getJukeboxRootLocationDetails() + File.separator + newbie.getName() + ".xml");
-                                if (xmlExists) {
-                                    logger.info("Checking existing person: " + personName);
-                                } else {
-                                    logger.info("Processing new person: " + personName);
-                                }
+                                // Get person data (name, birthday, etc...), download photo
+                                updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, person, tools.imagePlugin);
+                                library.addPerson(person);
 
-                                // First get person data (name, birthday, etc...)
-                                updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, newbie);
+                                logger.info("Finished: " + person.getName() + " (" + count + "/" + peopleCount + ")");
 
-                                if (photoDownload) {
-                                    PhotoScanner.scan(tools.imagePlugin, jukebox, person);
-                                }
-
-                                library.addPerson(newbie);
-
-                                logger.info("Finished: " + personName + " (" + count + "/" + peopleCount + ")");
                                 // Show memory every (processing count) movies
                                 if (showMemory && (count % MaxThreadsProcess) == 0) {
                                     SystemTools.showMemory();
@@ -1048,9 +1062,53 @@ public class MovieJukebox {
                             }
                         });
                     }
+                } else {
+                    final int peopleCount = peopleCounter;
+                    peopleCounter = 0;
+                    for (Movie movie : library.values()) {
+                        // Issue 997: Skip the processing of extras if not required
+                        if (movie.isExtra() && !processExtras) {
+                            continue;
+                        }
+                        TreeMap<String, Integer> typeCounter = new TreeMap<String, Integer>();
+                        for (final Person person : movie.getPeople()) {
+                            final int count = ++peopleCounter;
+                            String job = person.getJob();
+                            if (!typeCounter.containsKey(job)) {
+                                typeCounter.put(job, 1);
+                            } else if (typeCounter.get(job) == peopleMax) {
+                                continue;
+                            } else {
+                                typeCounter.put(job, typeCounter.get(job) + 1);
+                            }
+
+                            // Multi-thread parallel processing
+                            tasks.submit(new Callable<Void>() {
+
+                                public Void call() throws FileNotFoundException, XMLStreamException {
+
+                                    ToolSet tools = threadTools.get();
+
+                                    // Get person data (name, birthday, etc...), download photo and put to library
+                                    updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, person, tools.imagePlugin);
+                                    library.addPerson(person);
+
+                                    logger.info("Finished: " + person.getName() + " (" + count + "/" + peopleCount + ")");
+
+                                    // Show memory every (processing count) movies
+                                    if (showMemory && (count % MaxThreadsProcess) == 0) {
+                                        SystemTools.showMemory();
+                                    }
+
+                                    return null;
+                                }
+                            });
+                        }
+                    }
                 }
                 tasks.waitFor();
             }
+
             /********************************************************************************
              * 
              * PART 3 : Indexing the library
@@ -1649,12 +1707,17 @@ public class MovieJukebox {
         return movie.isDirty() || movie.isDirtyNFO();
     }
 
-    public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person) throws FileNotFoundException, XMLStreamException {
+    public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
-
         person.setFilename();
+        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + FileTools.makeSafeFilename(person.getFilename() + ".xml"));
 
-        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + person.getFilename() + ".xml");
+        // Change the output message depending on the existance of the XML file
+        if (xmlFile.exists()) {
+            logger.info("Checking existing person: " + person.getName());
+        } else {
+            logger.info("Processing new person: " + person.getName());
+        }
 
         if (xmlFile.exists() && !forceXMLOverwrite) {
             logger.debug("XML file found for " + person.getName());
@@ -1668,6 +1731,10 @@ public class MovieJukebox {
                 logger.debug("Scanning for information on " + person.getName());
             }
             DatabasePluginController.scan(person);
+        }
+
+        if (photoDownload) {
+            PhotoScanner.scan(imagePlugin, jukebox, person);
         }
     }
 
