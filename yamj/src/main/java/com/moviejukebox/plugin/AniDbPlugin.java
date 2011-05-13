@@ -177,11 +177,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         try {
             connectionSource = new JdbcConnectionSource(dbUrl);
             updateTables(connectionSource);
-            localFileDao = (Dao<AnidbLocalFile, String>)DaoManager.createDao(connectionSource, AnidbLocalFile.class);
-            animeDao = (Dao<AnidbAnime, String>)DaoManager.createDao(connectionSource, AnidbAnime.class);
-            episodeDao = (Dao<AnidbEpisode, String>)DaoManager.createDao(connectionSource, AnidbEpisode.class);
-            anidbFileDao = (Dao<AnidbFile, String>)DaoManager.createDao(connectionSource, AnidbFile.class);
-            categoryDao = (Dao<AnidbCategory, String>)DaoManager.createDao(connectionSource, AnidbCategory.class);
+            localFileDao = DaoManager.<Dao<AnidbLocalFile, String>, AnidbLocalFile>createDao(connectionSource, AnidbLocalFile.class);
+            animeDao = DaoManager.<Dao<AnidbAnime, String>, AnidbAnime>createDao(connectionSource, AnidbAnime.class);
+            episodeDao = DaoManager.<Dao<AnidbEpisode, String>, AnidbEpisode>createDao(connectionSource, AnidbEpisode.class);
+            anidbFileDao = DaoManager.<Dao<AnidbFile, String>, AnidbFile>createDao(connectionSource, AnidbFile.class);
+            categoryDao = DaoManager.<Dao<AnidbCategory, String>, AnidbCategory>createDao(connectionSource, AnidbCategory.class);
         } catch (SQLException e) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -197,7 +197,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     @SuppressWarnings("unchecked")
     private static synchronized void updateTables(ConnectionSource connectionSource) {
         try {
-            Dao<AnidbTableInfo, String> tableDao = (Dao<AnidbTableInfo, String>)DaoManager.createDao(connectionSource, AnidbTableInfo.class);
+            Dao<AnidbTableInfo, String> tableDao = DaoManager.<Dao<AnidbTableInfo, String>, AnidbTableInfo>createDao(connectionSource, AnidbTableInfo.class);
             boolean dbUpdate = true;
             AnidbTableInfo info = null;
             int version = -1;
