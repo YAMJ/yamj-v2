@@ -1052,7 +1052,6 @@ public class MovieJukebox {
                 }
                 tasks.waitFor();
             }
-
             /********************************************************************************
              * 
              * PART 3 : Indexing the library
@@ -1518,6 +1517,9 @@ public class MovieJukebox {
             // Issue 1886: Html indexes recreated every time
             // after remove NFO set data restoring from XML - compare NFO and XML sets
             Movie movieNFO = new Movie();
+            for (String s : movie.getSetsKeys()) {
+                movieNFO.addSet(s);
+            }
             MovieNFOScanner.scan(movieNFO, nfoFiles);
             if (!Arrays.equals(movieNFO.getSetsKeys().toArray(), movie.getSetsKeys().toArray())) {
                 movie.setSets(movieNFO.getSets());
