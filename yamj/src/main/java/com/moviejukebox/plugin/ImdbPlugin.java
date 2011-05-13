@@ -1270,10 +1270,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         if (xml.indexOf("<td id=\"img_primary\"") > -1) {
-            String photoURL = "http://ia.media-imdb.com/images" + HTMLTools.extractTag(xml, "<img src=\"http://ia.media-imdb.com/images", "\"");
-            if (isValidString(photoURL)) {
-                person.setPhotoURL(photoURL);
-                person.setPhotoFilename();
+            String photoURL = HTMLTools.extractTag(xml, "<td id=\"img_primary\"", "</td>");
+            if (photoURL.indexOf("http://ia.media-imdb.com/images") > -1) {
+                photoURL = "http://ia.media-imdb.com/images" + HTMLTools.extractTag(photoURL, "<img src=\"http://ia.media-imdb.com/images", "\"");
+                if (isValidString(photoURL)) {
+                    person.setPhotoURL(photoURL);
+                    person.setPhotoFilename();
+                }
             }
         }
 
@@ -1409,7 +1412,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws IOException
      */
     private boolean updateInfoOld(Person person, String xml) throws MalformedURLException, IOException {
-        return true;
+        return false;
     }
 
 }
