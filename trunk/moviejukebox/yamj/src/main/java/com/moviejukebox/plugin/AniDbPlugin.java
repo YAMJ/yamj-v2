@@ -176,11 +176,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         try {
             connectionSource = new JdbcConnectionSource(dbUrl);
             updateTables(connectionSource);
-            localFileDao = DaoManager.createDao(connectionSource, AnidbLocalFile.class);
-            animeDao = DaoManager.createDao(connectionSource, AnidbAnime.class);
-            episodeDao = DaoManager.createDao(connectionSource, AnidbEpisode.class);
-            anidbFileDao = DaoManager.createDao(connectionSource, AnidbFile.class);
-            categoryDao = DaoManager.createDao(connectionSource, AnidbCategory.class);
+            localFileDao = (Dao<AnidbLocalFile, String>)DaoManager.createDao(connectionSource, AnidbLocalFile.class);
+            animeDao = (Dao<AnidbAnime, String>)DaoManager.createDao(connectionSource, AnidbAnime.class);
+            episodeDao = (Dao<AnidbEpisode, String>)DaoManager.createDao(connectionSource, AnidbEpisode.class);
+            anidbFileDao = (Dao<AnidbFile, String>)DaoManager.createDao(connectionSource, AnidbFile.class);
+            categoryDao = (Dao<AnidbCategory, String>)DaoManager.createDao(connectionSource, AnidbCategory.class);
         } catch (SQLException e) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -195,7 +195,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      */
     private static synchronized void updateTables(ConnectionSource connectionSource) {
         try {
-            Dao<AnidbTableInfo, String> tableDao = DaoManager.createDao(connectionSource, AnidbTableInfo.class);
+            Dao<AnidbTableInfo, String> tableDao = (Dao<AnidbTableInfo, String>)DaoManager.createDao(connectionSource, AnidbTableInfo.class);
             boolean dbUpdate = true;
             AnidbTableInfo info = null;
             int version = -1;
