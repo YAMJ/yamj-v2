@@ -12,6 +12,10 @@
  */
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.trimToLength;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -23,9 +27,10 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
@@ -40,7 +45,6 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
@@ -254,7 +258,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         if (movie.getDirectors().isEmpty()) {
             // Note this is a hack for the change to IMDB for Issue 875
-            ArrayList<String> tempDirectors = null;
+            //ArrayList<String> tempDirectors = null;
             // Issue 1261 : Allow multiple text matching for one "element".
             String[] directorMatches = siteDef.getDirector().split("\\|");
 
@@ -931,6 +935,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param pluralCategory    The plural version of the category, e.g. "Writers"
      * @return
      */
+    @SuppressWarnings("unused")
     private Collection<String> parseNewPeople(String sourceXml, String[] categoryList) {
         Collection<String> people = new LinkedHashSet<String>();
         
@@ -1379,11 +1384,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
-            Iterator it = filmography.keySet().iterator();
+            Iterator<Float> iterFilm = filmography.keySet().iterator();
             Object obj;
             int count = 0;
-            while (it.hasNext() && count < preferredFilmographyMax) {
-                obj = it.next();
+            while (iterFilm.hasNext() && count < preferredFilmographyMax) {
+                obj = iterFilm.next();
                 person.addFilm(filmography.get(obj));
                 count++;
             }

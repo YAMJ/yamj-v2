@@ -165,6 +165,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
     
+    @SuppressWarnings("unchecked")
     private void setupDatabase()
     {
         /*
@@ -193,6 +194,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Method to check if the database tables are old and need updating, and performs
      * the update if it's needed.
      */
+    @SuppressWarnings("unchecked")
     private static synchronized void updateTables(ConnectionSource connectionSource) {
         try {
             Dao<AnidbTableInfo, String> tableDao = (Dao<AnidbTableInfo, String>)DaoManager.createDao(connectionSource, AnidbTableInfo.class);

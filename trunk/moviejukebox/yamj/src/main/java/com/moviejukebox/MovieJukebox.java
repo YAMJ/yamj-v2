@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1253,6 +1252,7 @@ public class MovieJukebox {
                     // Multi-tread: Start Parallel Processing
                     tasks.submit(new Callable<Void>() {
                         public Void call() throws FileNotFoundException, XMLStreamException {
+                            @SuppressWarnings("unused")
                             ToolSet tools = threadTools.get();
                             // Update person XML files with computed index information
                             logger.debug("Writing index data to person: " + person.getName());

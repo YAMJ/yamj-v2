@@ -682,7 +682,6 @@ public class MovieJukeboxXMLWriter {
         return sets;
     }
 
-    @SuppressWarnings("unchecked")
     public boolean parseSetXML(File xmlFile, Movie movie, List<Movie> moviesList) {
 
         boolean forceDirtyFlag = false;
