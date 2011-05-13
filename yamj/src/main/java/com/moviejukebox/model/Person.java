@@ -46,6 +46,7 @@ public class Person extends Filmography {
     private String  filename            = UNKNOWN;
     private boolean isDirtyPhoto        = false;
     private boolean isScrapeLibrary     = true;
+    private int     popularity              = 1;
     private List<Filmography> filmography = new ArrayList<Filmography>();
     private List<String>      aka         = new ArrayList<String>();
     private String  lastModifiedAt;
@@ -272,5 +273,21 @@ public class Person extends Filmography {
 
     public void setScrapeLibrary() {
         setScrapeLibrary(true);
+    }
+
+    public void setPopularity(Integer value) {
+        popularity = value;
+    }
+
+    public Integer getPopularity() {
+        return popularity;
+    }
+
+    public void popularityUp() {
+        popularity++;
+    }
+
+    public void popularityUp(Integer value) {
+        popularity += value;
     }
 }
