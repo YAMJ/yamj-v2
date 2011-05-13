@@ -889,10 +889,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 for (String yearBlock : HTMLTools.extractTags(awardBlock + "<end>", "</th>", "<end>", "<tr", "<td colspan=\"4\">")) {
                     if (yearBlock.indexOf("Sections/Awards") > 0) {
                         String tmpString = HTMLTools.extractTag(yearBlock, "<a href=", "</a>");
-                        int year = Integer.parseInt(tmpString.substring(tmpString.indexOf(">") + 1).substring(0, 4));
+                        String yearStr = tmpString.substring(tmpString.indexOf(">") + 1).substring(0, 4);
+                        int year = yearStr.equals("????")?-1:Integer.parseInt(yearStr);
                         int won = 0;
                         int nominated = 0;
-                        tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + Integer.toString(year) + "\">" + Integer.toString(year))), "<td rowspan=\"", "</b></td>");
+                        tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + (yearStr.equals("????")?"0000":yearStr) + "\">" + yearStr)), "<td rowspan=\"", "</b></td>");
                         int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf("\"")));
                         String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
                         String namePattern = " align=\"center\" valign=\"middle\">";
