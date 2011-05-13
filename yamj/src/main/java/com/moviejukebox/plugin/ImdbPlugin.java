@@ -1084,7 +1084,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private String searchIMDB(String nfo, Movie movie) {
         final int flags = Pattern.CASE_INSENSITIVE | Pattern.DOTALL;
         String imdbPattern = ")[\\W].*?(tt\\d{7})";
-        String title = movie.getTitle();
+        // Issue 1912 escape special regex characters in title
+        String title = Pattern.quote(movie.getTitle());
         String id = Movie.UNKNOWN;
 
         Pattern patternTitle;
