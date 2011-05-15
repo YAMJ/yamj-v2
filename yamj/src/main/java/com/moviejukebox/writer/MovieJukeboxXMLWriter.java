@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
-import org.apache.log4j.Logger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -39,6 +38,8 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.log4j.Logger;
+
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
@@ -46,9 +47,9 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Index;
+import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
-import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
@@ -63,7 +64,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.XMLWriter;
-
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -644,6 +644,7 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Integer> parseMovieXML_set(File xmlFile) {
         Map<String, Integer> sets = new HashMap<String, Integer>();
         try {
@@ -859,7 +860,11 @@ public class MovieJukeboxXMLWriter {
     public void writeCategoryXML(Jukebox jukebox, Library library, String filename, boolean isDirty) throws FileNotFoundException, XMLStreamException {
         // Issue 1886: Html indexes recreated every time
         File oldFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + filename + ".xml");
+        
         if (oldFile.exists() && !isDirty) {
+            // Even if the library is not dirty, these files need to be added to the safe jukebox list
+            FileTools.addJukeboxFile(filename + ".xml");
+            FileTools.addJukeboxFile(filename + ".html");
             return;
         }
 

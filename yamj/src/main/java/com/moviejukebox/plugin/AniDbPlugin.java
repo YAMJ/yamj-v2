@@ -165,9 +165,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
     
-    @SuppressWarnings("unchecked")
-    private void setupDatabase()
-    {
+    private void setupDatabase() {
         /*
          * Lets just pray that the current directory is writable
          * TODO: Implement an override for this in the properties file
@@ -194,7 +192,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Method to check if the database tables are old and need updating, and performs
      * the update if it's needed.
      */
-    @SuppressWarnings("unchecked")
     private static synchronized void updateTables(ConnectionSource connectionSource) {
         try {
             Dao<AnidbTableInfo, String> tableDao = DaoManager.<Dao<AnidbTableInfo, String>, AnidbTableInfo>createDao(connectionSource, AnidbTableInfo.class);
