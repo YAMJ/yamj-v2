@@ -1020,10 +1020,6 @@ public class MovieJukebox {
                         }
                     });
 
-                    for (Person p : popularPeople.values()) {
-                        logger.error(p.getName() + ": " + p.getPopularity());
-                    }
-
                     List<Person> stars = new ArrayList<Person>();
                     Iterator itr = as.iterator();
                     while (itr.hasNext()) {
