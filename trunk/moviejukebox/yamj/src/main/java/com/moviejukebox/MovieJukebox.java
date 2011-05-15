@@ -1019,11 +1019,15 @@ public class MovieJukebox {
                             return second.getPopularity().compareTo(first.getPopularity());
                         }
                     });
-                    
+
+                    for (Person p : popularPeople.values()) {
+                        logger.error(p.getName() + ": " + p.getPopularity());
+                    }
+
                     List<Person> stars = new ArrayList<Person>();
                     Iterator itr = as.iterator();
                     while (itr.hasNext()) {
-                        if (peopleCounter < peopleMax) {
+                        if (peopleCounter >= peopleMax) {
                             break;
                         }
                         Map.Entry e = (Map.Entry)itr.next();
