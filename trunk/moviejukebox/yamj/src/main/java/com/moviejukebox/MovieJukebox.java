@@ -1019,6 +1019,7 @@ public class MovieJukebox {
                             return second.getPopularity().compareTo(first.getPopularity());
                         }
                     });
+                    
                     List<Person> stars = new ArrayList<Person>();
                     Iterator itr = as.iterator();
                     while (itr.hasNext()) {
@@ -1349,25 +1350,26 @@ public class MovieJukebox {
                 htmlWriter.generateMainIndexHTML(jukebox, library);
             }
 
+            final String totalMoviesXmlFileName = "CompleteMovies.xml";
+            final String rssXmlFileName = "RSS.xml";
             if (library.isDirty()) {
                 try {
-                    final String totalMoviesXmlFileName = "CompleteMovies.xml";
                     final File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), totalMoviesXmlFileName);
 
                     OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                     context.createMarshaller().marshal(jukeboxXml, marStream);
                     marStream.close();
-                    FileTools.addJukeboxFile(totalMoviesXmlFileName);
                     Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
 
-                    final String rssXmlFileName = "RSS.xml";
-                    FileTools.addJukeboxFile(rssXmlFileName);
                     Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
                     transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
                 } catch (Exception e) {
                     logger.debug("RSS is not generated." /* + e.getStackTrace().toString() */);
                 }
             }
+            // These should be added to the list of jukebox files regardless of the state of the library
+            FileTools.addJukeboxFile(totalMoviesXmlFileName);
+            FileTools.addJukeboxFile(rssXmlFileName);
 
             /********************************************************************************
              * 
