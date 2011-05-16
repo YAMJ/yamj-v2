@@ -2416,7 +2416,7 @@ public class MovieJukebox {
         // Only change the watched status if we found at least 1 file
         if ((fileWatchedCount > 0) && (movie.isWatched() != movieWatched)) {
             movie.setWatched(movieWatched);
-            movie.isDirty();
+            movie.setDirty(true);
         }
     }
     
