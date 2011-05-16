@@ -1115,7 +1115,12 @@ public class MovieNFOScanner {
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
+                            // NEW START multiple TV audio info from episode
                             String fiEvent = r.nextEvent().toString();
+                            String finalTVCodec = Movie.UNKNOWN;
+                            String finalTVLanguage = Movie.UNKNOWN;
+                            String finalTVChannels = Movie.UNKNOWN;
+                            String tmpSubtitleLanguage = Movie.UNKNOWN;
                             while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
                                 if (fiEvent.equalsIgnoreCase("<video>")) {
                                     String nfoWidth = null;
@@ -1162,25 +1167,53 @@ public class MovieNFOScanner {
                                 }
 
                                 if (fiEvent.equalsIgnoreCase("<audio>")) {
+                                    // Start of audio info, using temp data to concatain codec + languague
+                                    String tmpTVCodec = Movie.UNKNOWN;
+                                    String tmpTVLanguage = Movie.UNKNOWN;
+                                    String tmpTVChannels = Movie.UNKNOWN;
+
                                     while (!fiEvent.equalsIgnoreCase("</audio>")) {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                movie.setAudioCodec(val);
+                                                // codec come first
+                                                // If the codec is lowercase, covert it to uppercase, otherwise leave it alone
+                                                if (val.toLowerCase().equals(val)) {
+                                                    val = val.toUpperCase();
+                                                }
+                                                
+                                                if (isNotValidString(tmpTVCodec)) {
+                                                    tmpTVCodec = val;
+                                                } else {
+                                                    // We already have language info, need to concat
+                                                    tmpTVCodec = val + " " + tmpTVCodec;
+                                                }
+                                                // movie.setAudioCodec(val);
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
+                                                tmpTVLanguage = MovieFilenameScanner.determineLanguage(val);
+                                                //if (isNotValidString(tmpTVCodec)) {
+                                                //    tmpTVCodec = "(" + val + ")";
+                                                //}  
+												// reasons for inactivation above: 
+												// 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!     
+												// 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
+                                                if (isValidString(tmpTVCodec) && !val.contains("/")){
+                                                    tmpTVCodec += " (" + val + ")";
+                                                }
+                                                // movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<channels>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                movie.setAudioChannels(val);
+                                                tmpTVChannels = val;
+                                                // movie.setAudioChannels(val);
                                             }
                                         }
 
@@ -1188,27 +1221,85 @@ public class MovieNFOScanner {
                                             fiEvent = r.nextEvent().toString();
                                         }
                                     }
+                                    // Parsing of audio end - setting data to movie.
+                                    if (isValidString(tmpTVCodec)) {
+                                        // First one.
+                                        if (isNotValidString(finalTVCodec)) {
+                                            finalTVCodec = tmpTVCodec;
+                                        } else {
+                                            finalTVCodec = finalTVCodec + " / " + tmpTVCodec;
+                                        }
+
+                                    }
+                                    
+                                    if (isValidString(tmpTVLanguage)) {
+                                        // First one.
+                                        if (isNotValidString(finalTVLanguage)) {
+                                            finalTVLanguage = tmpTVLanguage;
+                                        } else {
+                                            finalTVLanguage = finalTVLanguage + " / " + tmpTVLanguage;
+                                        }
+
+                                    }
+                                    
+                                    if (isValidString(tmpTVChannels)) {
+                                        // First one.
+                                        if (isNotValidString(finalTVChannels)) {
+                                            finalTVChannels = tmpTVChannels;
+                                        } else {
+                                            finalTVChannels = finalTVChannels + " / " + tmpTVChannels;
+                                        }
+
+                                    }
                                 }
 
-                                /* We don't check for subtitles at this time
+                                // NEW Subtitle scan
                                 if (fiEvent.equalsIgnoreCase("<subtitle>")) {
                                     while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
-                                            // Unused
+                                            String val = XMLHelper.getCData(r);
+                                            if (isValidString(val)) {
+                                                if (isNotValidString(tmpSubtitleLanguage)) {
+                                                    tmpSubtitleLanguage = val;
+                                                } else {
+                                                    tmpSubtitleLanguage = tmpSubtitleLanguage + " / " + val;
+                                                }
+                                            }
+                                            
                                         }
 
                                         if (r.hasNext()) {
                                             fiEvent = r.nextEvent().toString();
                                         }
                                     }
-                                }*/
+                                }
 
                                 if (r.hasNext()) {
                                     fiEvent = r.nextEvent().toString();
                                 } else {
                                     break;
                                 }
+
                             }
+                            
+                            // Everything is parsed, override all audio info. - NFO Always right.
+                            if (isValidString(finalTVChannels)) {
+                                movie.setAudioChannels(finalTVChannels);
+                            }
+                            
+                            if (isValidString(finalTVCodec)) {
+                                movie.setAudioCodec(finalTVCodec);
+                            }
+                            
+                            if (isValidString(finalTVLanguage)) {
+                                movie.setLanguage(finalTVLanguage);
+                            }
+                            
+                            if (isValidString(tmpSubtitleLanguage)) {
+                                movie.setSubtitles(tmpSubtitleLanguage);
+                            }
+                            // end multiple TV audio info
+ 
                         } else if (tag.equalsIgnoreCase("VideoSource")) {
                             // Issue 506 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
