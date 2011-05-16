@@ -116,8 +116,8 @@ public class FilmAffinityInfo {
             }
 
         } catch (Exception error) {
-            logger.error("Failed retreiving filmaffinity Id for movie : " + title);
-            logger.error("Error : " + error.getMessage());
+            logger.error("FilmAffinity: Failed retrieving Id for movie : " + title);
+            logger.error("FilmAffinity: Error : " + error.getMessage());
         }
         return response;
     }
