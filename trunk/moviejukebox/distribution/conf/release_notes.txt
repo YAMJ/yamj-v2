@@ -20,6 +20,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1907 Awards will not be downloaded if imdb.site is set other than default
  - Fixed defect #1912 Issue with curly brackets and parenthesis' in filename in ImdbPlugin
  - Fixed defect #1913 Issue with sorttitle when using title
+ - Fixed defect #1918 Watched category not updated
  - Fixed defect #1922 Categories files deleted from jukebox after cleanup
 
 MovieJukebox 2.4
