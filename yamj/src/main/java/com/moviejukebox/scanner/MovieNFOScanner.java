@@ -48,6 +48,7 @@ import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.XMLHelper;
+import com.moviejukebox.tvrage.tools.StringTools;
 
 /**
  * NFO file parser.
@@ -406,6 +407,11 @@ public class MovieNFOScanner {
             XMLEventReader r = createXMLReader(nfoFile, nfo);
 
             boolean isMovieTag = false;
+
+            // Before we can set the title and the title sort, we need to see if we have both, so store them here.
+            String titleMain = null;
+            String titleSort = null;
+
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
 
@@ -420,8 +426,7 @@ public class MovieNFOScanner {
                         if (tag.equalsIgnoreCase("title")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
-                                movie.setTitle(val);
-                                movie.setOverrideTitle(true);
+                                titleMain = val;
                             }
                         } else if (tag.equalsIgnoreCase("originaltitle")) {
                             String val = XMLHelper.getCData(r);
@@ -431,7 +436,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("sorttitle")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
-                                movie.setTitleSort(val);
+                                titleSort = val;
                             }
                         } else if (tag.equalsIgnoreCase("set")) {
                             String set = XMLHelper.getCData(r);
@@ -737,7 +742,7 @@ public class MovieNFOScanner {
                                                 if (isNotValidString(tmpCodec)) {
                                                     tmpCodec = val;
                                                 } else {
-                                                    // We alerady have language info, need to concat
+                                                    // We already have language info, need to concatenate
                                                     tmpCodec = val + " " + tmpCodec;
                                                 }
                                                 // movie.setAudioCodec(val);
@@ -883,6 +888,19 @@ public class MovieNFOScanner {
                         break;
                     }
                 }
+            }
+            
+            // We've processed all the NFO file, so work out what to do with the title and titleSort
+            if (StringTools.isValidString(titleMain)) {
+                // We have a valid title, so set that for title and titleSort
+                movie.setTitle(titleMain);
+                movie.setTitleSort(titleMain);
+                movie.setOverrideTitle(true);
+            }
+            
+            // Now check the titleSort and overwrite it if necessary.
+            if (StringTools.isValidString(titleSort)) {
+                movie.setTitleSort(titleSort);
             }
 
             return isMovieTag;
