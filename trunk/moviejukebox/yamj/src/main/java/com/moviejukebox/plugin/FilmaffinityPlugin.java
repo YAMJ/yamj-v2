@@ -44,7 +44,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     private FilmAffinityInfo filmAffinityInfo;
 
     public FilmaffinityPlugin() {
-        super();  // use IMDB if Filmaffinity doesn't know movie
+        super();  // use IMDB if FilmAffinity doesn't know movie
         filmAffinityInfo = new FilmAffinityInfo();
         webBrowser = new WebBrowser();
     }
@@ -56,8 +56,10 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             filmAffinityId = filmAffinityInfo.getIdFromMovieInfo(movie.getTitle(), movie.getYear(), movie.getSeason());
         }
         
-        movie.setId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID,filmAffinityId);
-        
+        if (StringTools.isValidString(filmAffinityId)) {
+            movie.setId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID,filmAffinityId);
+        }
+
         return updateFilmAffinityMediaInfo(movie);
     }
 
@@ -72,8 +74,15 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         Pattern countryPattern = Pattern.compile("<img src=\"/imgs/countries/[A-Z]{2}\\.jpg\" title=\"([\\w ]+)\"");
         Matcher countryMatcher;
         
+        String filmAffinityId = movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+        
+        if (StringTools.isNotValidString(filmAffinityId)) {
+            logger.debug("FilmAffinity: No valid FilmAffinity ID for movie " + movie.getBaseName());
+            return false;
+        }
+        
         try {
-            xml = webBrowser.request("http://www.filmaffinity.com/es/"+movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID), Charset.forName("ISO-8859-1"));
+            xml = webBrowser.request("http://www.filmaffinity.com/es/" + filmAffinityId, Charset.forName("ISO-8859-1"));
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
@@ -152,7 +161,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             movie.setOverrideTitle(overrideTitle);
                         
         } catch (Exception error) {
-            logger.error("Failed retreiving FA data movie : " + movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID));
+            logger.error("FilmAffinity: Failed retreiving movie info: " + filmAffinityId);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
