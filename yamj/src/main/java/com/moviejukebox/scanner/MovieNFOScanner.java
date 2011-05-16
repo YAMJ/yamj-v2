@@ -625,7 +625,7 @@ public class MovieNFOScanner {
                                 if (event.equalsIgnoreCase("<writer>")) {
                                     String val = XMLHelper.getCData(r);
                                     if (isValidString(val)) {
-                                        movie.addWriter(val);
+                                        movie.addWriter(Movie.UNKNOWN, val, Movie.UNKNOWN);
                                     }
                                 //} else if (event.equalsIgnoreCase("<otherCredits>")) {
                                     // Not currently used
@@ -639,7 +639,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
-                                movie.addDirector(val);
+                                movie.addDirector(Movie.UNKNOWN, val, Movie.UNKNOWN);
                             }
                         } else if (tag.equalsIgnoreCase("actor")) {
                             String event = r.nextEvent().toString();

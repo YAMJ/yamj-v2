@@ -51,6 +51,38 @@ public class Person extends Filmography {
     private List<String>      aka         = new ArrayList<String>();
     private String  lastModifiedAt;
 
+    public Person() {
+    }
+
+    public Person(Person person) {
+        setIdMap(person.getIdMap());
+        setName(person.getName());
+        setJob(person.getJob());
+        setCharacter(person.getCharacter());
+        setDepartment(person.getDepartment());
+        setRating(person.getRating());
+        setUrl(person.getUrl());
+
+        setOrder(person.getOrder());
+        setBiography(person.getBiography());
+        setCastId(person.getCastId());
+        setVersion(person.getVersion());
+        setKnownMovies(person.getKnownMovies());
+        setBirthday(person.getBirthday());
+        setBirthPlace(person.getBirthPlace());
+        setPhotoURL(person.getPhotoURL());
+        setPhotoFilename(person.getPhotoFilename());
+        setFilename(person.getFilename());
+        setDirtyPhoto(person.isDirtyPhoto());
+        setScrapeLibrary(person.isScrapeLibrary());
+        setPopularity(person.getPopularity());
+        setFilmography(person.getFilmography());
+        setAka(person.getAka());
+        setLastModifiedAt(person.getLastModifiedAt());
+
+        setDirty(person.isDirty());
+    }
+
     public List<String> getAka() {
         return aka;
     }
