@@ -134,6 +134,11 @@ public class Filmography {
         this.isDirty = isDirty;
     }
 
+    public void setIdMap(Map<String, String> idMap) {
+        this.idMap = idMap;
+        setDirty();
+    }
+
     public void setId(String id) {
         setId(ImdbPlugin.IMDB_PLUGIN_ID, id);
         setDirty();

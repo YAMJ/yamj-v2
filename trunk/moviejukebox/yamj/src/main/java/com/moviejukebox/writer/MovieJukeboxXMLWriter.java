@@ -467,8 +467,9 @@ public class MovieJukeboxXMLWriter {
                             continue;
                         }
 
-                        person.setFilename(parseCData(r));
                     }
+
+                    person.setFilename(parseCData(r));
                     movie.addPerson(person);
                 }
 

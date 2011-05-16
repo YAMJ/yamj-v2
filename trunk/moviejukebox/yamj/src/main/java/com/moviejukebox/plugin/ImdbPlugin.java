@@ -270,7 +270,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     int beginIndex = member.indexOf("<a href=\"/name/");
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
-                        movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID);
+                        movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
                         found = true;
                     }
                 }
@@ -444,7 +444,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     int beginIndex = member.indexOf("<a href=\"/name/");
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
-                        movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID);
+                        movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
                         found = true;
                     }
                 }
@@ -470,7 +470,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         character = actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex));
                     }
                 }
-                movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID);
+                movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID + "/");
                 count++;
                 if (count == actorMax) {
                     break;
@@ -743,7 +743,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         int beginIndex = member.indexOf("href=\"/name/");
                         if (beginIndex > -1) {
                             String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
-                            movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID);
+                            movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
                         }
                     }
                 }
@@ -773,7 +773,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
                             String name = member.substring(member.indexOf("\">", beginIndex) + 2);
                             if (name.indexOf("more credit") == -1) {
-                                movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + "name/" + personID);
+                                movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + "name/" + personID + "/");
                             }
                         }
                     }
@@ -821,7 +821,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             character = character.replaceAll("\\s+", " ").replaceAll("^\\s", "").replaceAll("\\s$", "");
                         }
                     }
-                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + "name/" + personID);
+                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + "name/" + personID + "/");
                 }
             }
         }

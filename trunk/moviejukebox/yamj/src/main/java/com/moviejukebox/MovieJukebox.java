@@ -998,7 +998,8 @@ public class MovieJukebox {
                             if (popularPeople.containsKey(person.getName())) {
                                 popularPeople.get(person.getName()).popularityUp();
                             } else {
-                                popularPeople.put(person.getName(), person);
+                                Person p = new Person(person);
+                                popularPeople.put(person.getName(), p);
                             }
                         }
                     } else {
@@ -1106,6 +1107,36 @@ public class MovieJukebox {
                     }
                 }
                 tasks.waitFor();
+                logger.info("Fill in personal information to the movies...");
+                for (Movie movie : library.values()) {
+                    // Issue 997: Skip the processing of extras if not required
+                    if (movie.isExtra() && !processExtras) {
+                        continue;
+                    }
+                    for (Person person : movie.getPeople()) {
+                        boolean dirty = false;
+                        for (Person p : library.getPeople()) {
+                            if (person.getName().equals(p.getName())) {
+                                if (!person.getFilename().equals(p.getFilename()) && isValidString(p.getFilename())) {
+                                    person.setFilename(p.getFilename());
+                                    dirty = true;
+                                }
+                                if (!person.getUrl().equals(p.getUrl()) && isValidString(p.getUrl())) {
+                                    person.setUrl(p.getUrl());
+                                    dirty = true;
+                                }
+                                if (!person.getId().equals(p.getId()) && isValidString(p.getId())) {
+                                    person.setId(p.getId());
+                                    dirty = true;
+                                }
+                                break;
+                            }
+                        }
+                        if (dirty) {
+                            movie.setDirty(true);
+                        }
+                    }
+                }
             }
 
             /********************************************************************************

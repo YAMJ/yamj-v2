@@ -343,8 +343,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (person != null) {
             boolean duplicate = false;
             String name = person.getName();
+            String job = person.getJob();
             for (Person p : people) {
-                if (p.getName().equals(name)) {
+                if (p.getName().equals(name) && p.getJob().equals(job)) {
                     duplicate = true;
                     break;
                 }
@@ -888,7 +889,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void addWriter(String key, String writer, String URL) {
         if (writer != null && !writers.contains(writer)) {
             addWriter(writer);
-            addPerson(key, writer, URL, "Writer", "");
+            addPerson(key, writer, URL, "Writer");
         }
     }
 
@@ -960,7 +961,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void addDirector(String key, String director, String URL) {
         if (director != null && !directors.contains(director)) {
             addDirector(director);
-            addPerson(key, director, URL, "Director", "");
+            addPerson(key, director, URL, "Director");
         }
     }
 
