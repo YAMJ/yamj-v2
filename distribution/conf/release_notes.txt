@@ -6,6 +6,7 @@ MovieJukebox 2.5 SNAPSHOT
 -------------------------
  - Enhancement   #314 Sort title option in NFO
  - Enhancement   #954 Better handling of regional releases
+ - Enhancement  #1558 Use audio/language info from episode NFOs
  - Enhancement  #1723 Option to remove TV Shows from Sets in category listings
  - Enhancement  #1853 Multiple index pages
  - Enhancement  #1856 originalTitle functionality
