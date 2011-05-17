@@ -384,7 +384,7 @@ public class FileTools {
     }
 
     public static OutputStream createFileOutputStream(File f, int size) throws FileNotFoundException {
-//        return new FileOutputStream(f);
+        // return new FileOutputStream(f);
         return new BufferedOutputStream(new FileOutputStream(f), size);
     }
 
@@ -401,7 +401,7 @@ public class FileTools {
     }
 
     public static InputStream createFileInputStream(File f) throws FileNotFoundException {
-//        return new FileInputStream(f);
+        // return new FileInputStream(f);
         return new BufferedInputStream(new FileInputStream(f), 10*1024);
     }
 

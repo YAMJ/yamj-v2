@@ -707,7 +707,7 @@ public class MovieJukebox {
         @XmlElement
         public List<Movie> movies;
     }
-
+    
     private void generateLibrary() throws Throwable {
 
         /********************************************************************************
@@ -779,7 +779,7 @@ public class MovieJukebox {
             // these parameters as they aren't set to the minimum
             logger.info("See README.TXT for increasing performance using these settings.");
         }
-
+        
         /********************************************************************************
          * 
          * PART 1 : Preparing the temporary environment
@@ -817,7 +817,10 @@ public class MovieJukebox {
         
         // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
        JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
-       
+
+       // Save the current state of the preferences to the skin directory for use by the skin
+       PropertiesUtil.writeProperties(PropertiesUtil.getProperty("mjb.skin.dir", "./"));
+
        SystemTools.showMemory();
         
         logger.info("Initializing...");
@@ -1416,6 +1419,7 @@ public class MovieJukebox {
                     OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                     context.createMarshaller().marshal(jukeboxXml, marStream);
                     marStream.close();
+                    
                     Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
 
                     Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));

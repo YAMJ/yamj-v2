@@ -14,21 +14,26 @@ package com.moviejukebox.tools;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
-import org.apache.log4j.Logger;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -189,6 +194,57 @@ public class PropertiesUtil {
         }
         
         return m;
+    }
+
+    public static void writeProperties(String outputPath) {
+        if (StringTools.isNotValidString(outputPath)) {
+            return;
+        }
+        
+        String preferencesFilename = StringTools.appendToPath(outputPath, "preferences.xsl");
+        BufferedWriter out = null;
+        
+        try {
+            logger.debug("PropertiesUtil: Writing skin preferences file to " + preferencesFilename);
+
+            out = new BufferedWriter(new FileWriter(preferencesFilename));
+            
+            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            out.write("<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n");
+            out.write("    <xsl:output method=\"xml\" omit-xml-declaration=\"yes\" />\n");
+
+            for (Object propertyObject : props.keySet()) {
+                out.write("    <xsl:param name=\"" + (String)propertyObject + "\">" + props.getProperty((String)propertyObject) + "</xsl:param>\n");
+            }
+            
+            out.write("</xsl:stylesheet>\n");
+            out.flush();
+            out.close();
+        } catch (IOException error) {
+            // Can't write to file
+            logger.error("PropertiesUtil: Can't write to file");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        } catch (Exception error) {
+            // Some other error
+            logger.error("PropertiesUtil: Error with file");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        } finally {
+            if (out != null) {
+                try {
+                    out.flush();
+                    out.close();
+                } catch (Exception error) {
+                    // ignore this error
+                }
+            }
+        }
+        
     }
     
 }
