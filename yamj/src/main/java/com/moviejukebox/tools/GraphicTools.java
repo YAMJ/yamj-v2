@@ -20,6 +20,7 @@ import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,15 +63,22 @@ public class GraphicTools {
             error.printStackTrace(printWriter);
             logger.warn(eResult.toString());
             return null;
+        } catch (OutOfMemoryError error) {
+            logger.error("GraphicsTools: Error processing image file - Out of memory. Please run YAMJ again to fix.");
+            return null;
+        } catch (IllegalArgumentException error) {
+            logger.error("GraphicsTools: Error processing image file - Raster bands error");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.warn(eResult.toString());
+            return null;
         } catch (Exception error) {
             logger.warn("GraphicsTools: Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.warn(eResult.toString());
-            return null;
-        } catch (OutOfMemoryError error) {
-            logger.error("GraphicsTools: Error processing image file - Out of memory. Please run YAMJ again to fix.");
             return null;
         } finally {
             if (fis != null) {
@@ -103,7 +111,7 @@ public class GraphicTools {
      * @return
      * @throws IOException
      */
-    public static BufferedImage loadJPEGImage(File fileImage) throws IOException{
+    public static BufferedImage loadJPEGImage(File fileImage) throws IOException {
         InputStream inImage = FileTools.createFileInputStream(fileImage);
         BufferedImage biImage = loadJPEGImage(inImage);
         inImage.close();
