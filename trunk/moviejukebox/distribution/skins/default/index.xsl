@@ -313,7 +313,7 @@ function prompter(y)
     </div>
   </xsl:for-each>
   <div class="title">
-    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="$homePage"/></xsl:attribute>Home</a>
+    <a TVID="HOME"><xsl:attribute name="href"><xsl:value-of select="$mjb.homePage"/></xsl:attribute>Home</a>
     <a name="pgdnload" onfocusload="" id="pgdnload"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@next" />.html</xsl:attribute></a>
     <a name="pgupload" onfocusload="" id="pgupload"><xsl:attribute name="href"><xsl:value-of select="//index[@current='true']/@previous" />.html</xsl:attribute></a>
   </div>

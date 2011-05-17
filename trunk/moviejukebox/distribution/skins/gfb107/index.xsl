@@ -50,7 +50,7 @@
 <xsl:for-each select="library/category[@current='true']/index[@current='true']">
   <td width="*">
     <a class="heading" tvid="HOME">
-      <xsl:attribute name="href"><xsl:value-of select="$homePage" /></xsl:attribute><xsl:value-of select="../@name" />: <xsl:value-of select="@name" /></a></td>
+      <xsl:attribute name="href"><xsl:value-of select="$mjb.homePage" /></xsl:attribute><xsl:value-of select="../@name" />: <xsl:value-of select="@name" /></a></td>
   <xsl:if test="@lastIndex != 1">
     <!-- a tvid="prev"><xsl:attribute name="href"><xsl:value-of select="@first" />.html</xsl:attribute>&#160;|&lt;&#160;</a -->
     <td class="counter"><xsl:value-of select="@currentIndex" />&#160;of&#160;<xsl:value-of select="@lastIndex" />&#160;</td>

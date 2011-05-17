@@ -821,7 +821,8 @@ public class MovieJukebox {
 
        // Save the current state of the preferences to the skin directory for use by the skin
        // The forceHtmlOverwrite is set by the user or by the JukeboxProperties if there has been a skin change
-       if (PropertiesUtil.getBooleanProperty("mjb.forceHtmlOverwrite", "false") || 
+       
+       if (PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false") || 
                        !(new File(PropertiesUtil.getPropertiesFilename(true))).exists() ) {
            PropertiesUtil.writeProperties();
        }
