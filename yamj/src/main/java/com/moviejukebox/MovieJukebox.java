@@ -2298,7 +2298,7 @@ public class MovieJukebox {
         
         // Check for "UNKNOWN" values in the XML
         if (recheckUnknown) {
-            if (isNotValidString(movie.getTitle())) {
+            if (isNotValidString(movie.getTitle()) && isNotValidString(movie.getYear())) {
                 logger.debug("Recheck: " + movie.getBaseName() + " XML is missing the title, will rescan");
                 recheckCount++;
                 return true;
