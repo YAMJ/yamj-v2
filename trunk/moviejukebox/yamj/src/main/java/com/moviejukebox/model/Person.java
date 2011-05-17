@@ -43,7 +43,6 @@ public class Person extends Filmography {
     private String  birthPlace          = UNKNOWN;
     private String  photoURL            = UNKNOWN;
     private String  photoFilename       = UNKNOWN;
-    private String  filename            = UNKNOWN;
     private boolean isDirtyPhoto        = false;
     private boolean isScrapeLibrary     = true;
     private int     popularity              = 1;
@@ -57,6 +56,7 @@ public class Person extends Filmography {
     public Person(Person person) {
         setIdMap(person.getIdMap());
         setName(person.getName());
+        setFilename(new String(person.getFilename()));
         setJob(person.getJob());
         setCharacter(person.getCharacter());
         setDepartment(person.getDepartment());
@@ -72,7 +72,6 @@ public class Person extends Filmography {
         setBirthPlace(person.getBirthPlace());
         setPhotoURL(person.getPhotoURL());
         setPhotoFilename(person.getPhotoFilename());
-        setFilename(person.getFilename());
         setDirtyPhoto(person.isDirtyPhoto());
         setScrapeLibrary(person.isScrapeLibrary());
         setPopularity(person.getPopularity());
@@ -131,10 +130,6 @@ public class Person extends Filmography {
         return photoFilename;
     }
 
-    public String getFilename() {
-        return filename;
-    }
-
     public void addAka(String alsoKnownAs) {
         if (isValidString(alsoKnownAs)) {
             this.aka.add(alsoKnownAs);
@@ -166,19 +161,6 @@ public class Person extends Filmography {
     public void setPhotoFilename() {
         if (isValidString(getName()) && isNotValidString(photoFilename)) {
             setPhotoFilename(FileTools.makeSafeFilename(getName() + ".jpg"));
-        }
-    }
-
-    public void setFilename(String filename) {
-        if (isValidString(filename) && !this.filename.equalsIgnoreCase(filename)) {
-            this.filename = filename;
-            setDirty();
-        }
-    }
-
-    public void setFilename() {
-        if (isValidString(getName())) {
-            setFilename(FileTools.makeSafeFilename(getName()));
         }
     }
 

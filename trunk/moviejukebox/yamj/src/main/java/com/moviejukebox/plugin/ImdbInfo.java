@@ -104,6 +104,9 @@ public class ImdbInfo {
 
     public String getImdbPersonId(String movieName, String job) {
         objectType = "person";
+        if (!job.equalsIgnoreCase("Actor") && !job.equalsIgnoreCase("Actress")) {
+            job = Movie.UNKNOWN;
+        }
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
             return getImdbIdFromGoogle(movieName, job);
         } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {

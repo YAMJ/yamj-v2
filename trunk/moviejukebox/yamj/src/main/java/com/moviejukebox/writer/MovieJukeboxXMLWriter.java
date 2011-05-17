@@ -766,6 +766,10 @@ public class MovieJukeboxXMLWriter {
                     }
                     continue;
                 }
+                if (tag.equalsIgnoreCase("<baseFilename>")) {
+                    person.setFilename(parseCData(r));
+                    continue;
+                }
                 if (tag.equalsIgnoreCase("<biography>")) {
                     person.setBiography(parseCData(r));
                     continue;
@@ -838,12 +842,17 @@ public class MovieJukeboxXMLWriter {
                             film.setUrl(attr.getValue());
                             continue;
                         }
-
-                        film.setName(parseCData(r));
+                        if (ns.equalsIgnoreCase("name")) {
+                            film.setName(attr.getValue());
+                            continue;
+                        }
                     }
+                    film.setFilename(parseCData(r));
+                    film.setDirty(false);
                     person.addFilm(film);
                 }
             }
+            person.setFilename();
         } catch (Exception error) {
             logger.error("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
             final Writer eResult = new StringWriter();
@@ -1779,13 +1788,19 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(person.getName());
         writer.writeEndElement();
 
-        writer.writeStartElement("aka");
-        for (String aka : person.getAka()) {
-            writer.writeStartElement("name");
-            writer.writeCharacters(aka);
+        writer.writeStartElement("baseFilename");
+        writer.writeCharacters(person.getFilename());
+        writer.writeEndElement();
+
+        if (person.getAka().size() > 0) {
+            writer.writeStartElement("aka");
+            for (String aka : person.getAka()) {
+                writer.writeStartElement("name");
+                writer.writeCharacters(aka);
+                writer.writeEndElement();
+            }
             writer.writeEndElement();
         }
-        writer.writeEndElement();
 
         writer.writeStartElement("biography");
         writer.writeCharacters(person.getBiography());
@@ -1824,7 +1839,8 @@ public class MovieJukeboxXMLWriter {
             writer.writeAttribute("job", film.getJob());
             writer.writeAttribute("department", film.getDepartment());
             writer.writeAttribute("url", film.getUrl());
-            writer.writeCharacters(film.getName());
+            writer.writeAttribute("name", film.getName());
+            writer.writeCharacters(film.getFilename());
             writer.writeEndElement();
         }
         writer.writeEndElement();
@@ -1841,7 +1857,8 @@ public class MovieJukeboxXMLWriter {
     }
 
     public void writePersonXML(Jukebox jukebox, Person person, Library library) throws FileNotFoundException, XMLStreamException {
-        String baseName = FileTools.makeSafeFilename(person.getName());
+//        String baseName = FileTools.makeSafeFilename(person.getName());
+        String baseName = person.getFilename();
         File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
         File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + baseName + ".xml");
 
