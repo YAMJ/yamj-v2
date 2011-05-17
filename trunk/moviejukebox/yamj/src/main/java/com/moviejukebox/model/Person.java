@@ -33,7 +33,6 @@ public class Person extends Filmography {
 
     private static final String UNKNOWN = Movie.UNKNOWN;
 
-//    private Map<String, String> idMap   = new HashMap<String, String>(2);
     private String  biography           = UNKNOWN;
     private int     order               = -1;
     private int     castId              = -1;

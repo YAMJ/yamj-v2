@@ -16,8 +16,6 @@ package com.moviejukebox.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import static com.moviejukebox.tools.StringTools.*;
@@ -32,10 +30,10 @@ import static com.moviejukebox.tools.StringTools.*;
 public class Filmography {
 
     private static final String UNKNOWN = Movie.UNKNOWN;
-    private static Logger logger = Logger.getLogger("moviejukebox");
 
     private Map<String, String> idMap   = new HashMap<String, String>(2);
     private String name                 = UNKNOWN;
+    private String doublage             = UNKNOWN;
     private String filename             = UNKNOWN;
     private String job                  = UNKNOWN;
     private String character            = UNKNOWN;
@@ -63,6 +61,10 @@ public class Filmography {
 
     public String getName() {
         return name;
+    }
+
+    public String getDoublage() {
+        return doublage;
     }
 
     public String getFilename() {
@@ -103,6 +105,13 @@ public class Filmography {
     public void setName(String name) {
         if (isValidString(name) && !this.name.equalsIgnoreCase(name)) {
             this.name = name;
+            setDirty();
+        }
+    }
+
+    public void setDoublage(String name) {
+        if (isValidString(doublage) && !doublage.equalsIgnoreCase(name)) {
+            doublage = name;
             setDirty();
         }
     }
