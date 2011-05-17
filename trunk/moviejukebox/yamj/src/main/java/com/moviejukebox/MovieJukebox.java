@@ -83,6 +83,7 @@ import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.scanner.OutputDirectoryScanner;
+import com.moviejukebox.scanner.WatchedScanner;
 import com.moviejukebox.scanner.artwork.BannerScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.scanner.artwork.PhotoScanner;
@@ -819,7 +820,11 @@ public class MovieJukebox {
        JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
 
        // Save the current state of the preferences to the skin directory for use by the skin
-       PropertiesUtil.writeProperties(PropertiesUtil.getProperty("mjb.skin.dir", "./"));
+       // The forceHtmlOverwrite is set by the user or by the JukeboxProperties if there has been a skin change
+       if (PropertiesUtil.getBooleanProperty("mjb.forceHtmlOverwrite", "false") || 
+                       !(new File(PropertiesUtil.getPropertiesFilename(true))).exists() ) {
+           PropertiesUtil.writeProperties();
+       }
 
        SystemTools.showMemory();
         
@@ -948,7 +953,7 @@ public class MovieJukebox {
                         }
                         
                         // Check for watched and unwatched files
-                        checkWatched(movie);
+                        WatchedScanner.checkWatched(jukebox, movie);
 
                         // Get subtitle
                         tools.subtitlePlugin.generate(movie);
@@ -2414,44 +2419,4 @@ public class MovieJukebox {
         return jukebox;
     }
 
-    /**
-     * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
-     * Always assumes that the file is unwatched if nothing is found.
-     * @param movie
-     */
-    private static void checkWatched(Movie movie) {
-        int fileWatchedCount = 0;
-        boolean movieWatched = true;    // Assume it's watched.
-        boolean fileWatched = false;
-        File foundFile = null;
-        Collection<String> extensions = new ArrayList<String>();
-        extensions.add("unwatched");
-        extensions.add("watched");
-        
-        for (MovieFile mf : movie.getFiles()) {
-            fileWatched = false;
-            foundFile = FileTools.findFilenameInCache(mf.getFile().getName(), extensions, jukebox, "Watched Scanner: ");
-            if (foundFile != null) {
-                fileWatchedCount++;
-                if (foundFile.getName().toLowerCase().endsWith(".watched")) {
-                    fileWatched = true;
-                    mf.setWatchedDate(new DateTime().toMillis());
-                } else {
-                    // We've found a specific file <filename>.unwatched, so we clear the settings
-                    fileWatched = false;
-                    mf.setWatchedDate(0); // remove the date if it exists
-                }
-            }
-            movieWatched = movieWatched && fileWatched;
-            mf.setWatched(fileWatched); // Set the watched status
-            
-        }
-        
-        // Only change the watched status if we found at least 1 file
-        if ((fileWatchedCount > 0) && (movie.isWatched() != movieWatched)) {
-            movie.setWatched(movieWatched);
-            movie.setDirty(true);
-        }
-    }
-    
 }
