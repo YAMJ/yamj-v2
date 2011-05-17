@@ -63,7 +63,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private int preferredBiographyLength;
     private int preferredFilmographyMax;
     private int preferredOutlineLength;
+    private int peopleMax;
     private int actorMax;
+    private int directorMax;
+    private int writerMax;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
     protected static final String plotEnding = "...";
@@ -89,7 +92,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
         preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
-        actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "10");
+        peopleMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "15");
+        actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
+        directorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
+        writerMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
         skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
         skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
         skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
@@ -262,12 +268,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getDirectors().isEmpty()) {
+        int peopleCount = 0;
+        if (movie.getDirectors().isEmpty() && directorMax > 0) {
             // Note this is a hack for the change to IMDB for Issue 875
             //ArrayList<String> tempDirectors = null;
             // Issue 1261 : Allow multiple text matching for one "element".
             String[] directorMatches = siteDef.getDirector().split("\\|");
 
+            int count = 0;
             boolean found = false;
             for (String directorMatch : directorMatches) {
 //                tempDirectors = HTMLTools.extractTags(xml, "<h5>" + directorMatch, "</div>", "<a href=\"/name/", "</a>");
@@ -278,6 +286,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
                         movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
                         found = true;
+                        count++;
+                        if (count == directorMax) {
+                            break;
+                        }
                     }
                 }
                 if (found) {
@@ -285,6 +297,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     break;
                 }
             }
+            peopleCount += count;
         }
 
         if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
@@ -441,9 +454,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         /** Check for writer(s) **/
-        if (movie.getWriters().isEmpty()) {
+        if (movie.getWriters().isEmpty() && writerMax > 0) {
 //            movie.setWriters(HTMLTools.extractTags(xml, "<h5>" + siteDef.getWriter(), "</div>", "<a href=\"/name/", "</a>"));
             // Issue 1897: Cast enhancement
+            int count = 0;
             boolean found = true;
             for (String categoryMatch : siteDef.getWriter().split("\\|")) {
                 for (String member : HTMLTools.extractTags(xml, "<h5>" + categoryMatch, "</div>", "", "</a>")) {
@@ -452,6 +466,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
                         movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
                         found = true;
+                        count++;
+                        if (count == writerMax) {
+                            break;
+                        }
                     }
                 }
                 if (found) {
@@ -459,9 +477,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     break;
                 }
             }
+            peopleCount += count;
         }
 
-        if (movie.getCast().isEmpty()) {
+        if (movie.getCast().isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
 //            movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
             // Issue 1897: Cast enhancement
             int count = 0;
@@ -478,7 +497,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
                 movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID + "/");
                 count++;
-                if (count == actorMax) {
+                if (count == actorMax || peopleCount + count == peopleMax) {
                     break;
                 }
             }

@@ -427,6 +427,11 @@ public class MovieJukeboxXMLWriter {
                             continue;
                         }
 
+                        if (ns.equalsIgnoreCase("doublage")) {
+                            person.setDoublage(attr.getValue());
+                            continue;
+                        }
+
                         if (ns.equalsIgnoreCase("character")) {
                             person.setCharacter(attr.getValue());
                             continue;
@@ -1619,6 +1624,7 @@ public class MovieJukeboxXMLWriter {
             for (Person person : people) {
                 writer.writeStartElement("person");
                 writer.writeAttribute("name", person.getName());
+                writer.writeAttribute("doublage", person.getDoublage());
                 writer.writeAttribute("character", person.getCharacter());
                 writer.writeAttribute("job", person.getJob());
                 writer.writeAttribute("id", person.getId());
