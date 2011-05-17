@@ -16,15 +16,18 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -44,7 +47,7 @@ public class PropertiesUtil {
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Properties props = new Properties();
-    private static String propertiesFilename = "properties.xsl";
+    private static String propertiesFilename = "preferences.xsl";
     
     public static boolean setPropertiesStreamName(String streamName) {
         logger.info("Using properties file " + streamName);
@@ -198,19 +201,32 @@ public class PropertiesUtil {
     }
 
     public static void writeProperties() {
-        BufferedWriter out = null;
+        Writer out = null;
+
+        // Save the properties in order
+        List<String> propertiesList = new ArrayList<String>();
+        for (Object propertyObject : props.keySet()) {
+            propertiesList.add((String)propertyObject);
+        }
+        // Sort the properties
+        Collections.sort(propertiesList);
         
         try {
             logger.debug("PropertiesUtil: Writing skin preferences file to " + getPropertiesFilename(true));
 
-            out = new BufferedWriter(new FileWriter(getPropertiesFilename(true)));
-            
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(getPropertiesFilename(true)), "UTF-8"));
+             
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            out.write("<!-- This file is written automatically by YAMJ -->\n");
+            out.write("<!-- Last updated: " + (new Date())  + " -->\n");
+            
             out.write("<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n");
             out.write("    <xsl:output method=\"xml\" omit-xml-declaration=\"yes\" />\n");
 
-            for (Object propertyObject : props.keySet()) {
-                out.write("    <xsl:param name=\"" + (String)propertyObject + "\">" + props.getProperty((String)propertyObject) + "</xsl:param>\n");
+            for (String property : propertiesList) {
+                if (!property.startsWith("API_KEY")) {
+                    out.write("    <xsl:param name=\"" + property + "\" />\n");
+                }
             }
             
             out.write("</xsl:stylesheet>\n");
@@ -231,6 +247,9 @@ public class PropertiesUtil {
             error.printStackTrace(printWriter);
             logger.error(eResult.toString());
         } finally {
+            // Free up memory
+            propertiesList = null;
+            
             if (out != null) {
                 try {
                     out.flush();

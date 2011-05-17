@@ -129,7 +129,7 @@ public class JukeboxProperties {
                 
                 if (pi.isHtmlOverwrite()) {
                     logger.debug("Setting 'forceHtmlOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceHtmlOverwrite", "true");
+                    PropertiesUtil.setProperty("mjb.forceHTMLOverwrite", "true");
                 }
                 
                 if (pi.isPosterOverwrite()) {
@@ -149,7 +149,7 @@ public class JukeboxProperties {
                 
                 if (pi.isXmlOverwrite()) {
                     logger.debug("Setting 'forceXmlOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceXmlOverwrite", "true");
+                    PropertiesUtil.setProperty("mjb.forceXMLOverwrite", "true");
                 }
                 
                 if (pi.isIndexOverwrite()) {
@@ -338,21 +338,21 @@ public class JukeboxProperties {
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, false, false, false, false, false, false, false, true, false));
-                logger.debug("Categories has changed, so need to update");
+                logger.debug("JukeboxProperties: Categories has changed, so need to update");
             }
             
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(GENRE, false, false, false, false, false, false, false, true, false));
-                logger.debug("Genres has changed, so need to update");
+                logger.debug("JukeboxProperties: Genres has changed, so need to update");
             }
             
             // Check the Ratings file
             if (!validXmlFileDetails("mjb.xmlRatingFile", RATING, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation("Ratings", false, false, false, false, false, false, false, true, false));
-                logger.debug("Ratings has changed, so need to update");
+                logger.debug("JukeboxProperties: Ratings has changed, so need to update");
             }
 
         }
