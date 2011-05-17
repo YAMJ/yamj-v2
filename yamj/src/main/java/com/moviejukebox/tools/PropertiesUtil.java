@@ -44,7 +44,8 @@ public class PropertiesUtil {
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Properties props = new Properties();
-
+    private static String propertiesFilename = "properties.xsl";
+    
     public static boolean setPropertiesStreamName(String streamName) {
         logger.info("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
@@ -196,18 +197,13 @@ public class PropertiesUtil {
         return m;
     }
 
-    public static void writeProperties(String outputPath) {
-        if (StringTools.isNotValidString(outputPath)) {
-            return;
-        }
-        
-        String preferencesFilename = StringTools.appendToPath(outputPath, "preferences.xsl");
+    public static void writeProperties() {
         BufferedWriter out = null;
         
         try {
-            logger.debug("PropertiesUtil: Writing skin preferences file to " + preferencesFilename);
+            logger.debug("PropertiesUtil: Writing skin preferences file to " + getPropertiesFilename(true));
 
-            out = new BufferedWriter(new FileWriter(preferencesFilename));
+            out = new BufferedWriter(new FileWriter(getPropertiesFilename(true)));
             
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             out.write("<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n");
@@ -245,6 +241,14 @@ public class PropertiesUtil {
             }
         }
         
+    }
+
+    public static String getPropertiesFilename(boolean fullPath) {
+        if (fullPath) {
+            return StringTools.appendToPath(getProperty("mjb.skin.dir", "./skins/default"), propertiesFilename);
+        } else {
+            return propertiesFilename;
+        }
     }
     
 }
