@@ -67,6 +67,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
     protected static final String plotEnding = "...";
+    private boolean skipVG;
+    private boolean skipTV;
+    private boolean skipV;
 
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
@@ -87,6 +90,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
         preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
         actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "10");
+        skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
+        skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
+        skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
     }
 
     @Override
@@ -1282,51 +1288,51 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // get personal information
-        xml = webBrowser.request(getImdbUrl(person) + "bio", siteDef.getCharset());
+        String xmlInfo = webBrowser.request(getImdbUrl(person) + "bio", siteDef.getCharset());
 
         String date = "";
         int beginIndex, endIndex;
-        if (xml.indexOf("<h5>Date of Birth</h5>") > -1) {
-            endIndex = xml.indexOf("<h5>Date of Death</h5>");
-            beginIndex = xml.indexOf("<a href=\"/date/");
+        if (xmlInfo.indexOf("<h5>Date of Birth</h5>") > -1) {
+            endIndex = xmlInfo.indexOf("<h5>Date of Death</h5>");
+            beginIndex = xmlInfo.indexOf("<a href=\"/date/");
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
-                date = xml.substring(beginIndex + 18, beginIndex + 20) + "-" + xml.substring(beginIndex + 15, beginIndex + 17);
+                date = xmlInfo.substring(beginIndex + 18, beginIndex + 20) + "-" + xmlInfo.substring(beginIndex + 15, beginIndex + 17);
             }
-            beginIndex = xml.indexOf("birth_year=", beginIndex);
+            beginIndex = xmlInfo.indexOf("birth_year=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
                 if (!date.equals("")) {
                     date += "-";
                 }
-                date += xml.substring(beginIndex + 11, beginIndex + 15);
+                date += xmlInfo.substring(beginIndex + 11, beginIndex + 15);
             }
             if (!date.equals("")) {
                 person.setBirthday(date);
             }
 
-            beginIndex = xml.indexOf("birth_place=", beginIndex);
+            beginIndex = xmlInfo.indexOf("birth_place=", beginIndex);
             String place = "";
             if (beginIndex > -1) {
-                place = xml.substring(xml.indexOf("\">", beginIndex) + 2, xml.indexOf("</a>", beginIndex));
+                place = xmlInfo.substring(xmlInfo.indexOf("\">", beginIndex) + 2, xmlInfo.indexOf("</a>", beginIndex));
                 if (isValidString(place)) {
                     person.setBirthPlace(place);
                 }
             }
         }
 
-        beginIndex = xml.indexOf("<h5>Birth Name</h5>");
+        beginIndex = xmlInfo.indexOf("<h5>Birth Name</h5>");
         if (beginIndex > -1) {
-            String name = xml.substring(beginIndex + 19, xml.indexOf("<br/>", beginIndex));
+            String name = xmlInfo.substring(beginIndex + 19, xmlInfo.indexOf("<br/>", beginIndex));
             if (isValidString(name)) {
                 person.addAka(name);
             }
         }
 
         String biography = Movie.UNKNOWN;
-        if (xml.indexOf("<h5>Mini Biography</h5>") > -1) {
-            biography = HTMLTools.extractTag(xml, "<h5>Mini Biography</h5>", "<b>IMDb Mini Biography By: </b>");
+        if (xmlInfo.indexOf("<h5>Mini Biography</h5>") > -1) {
+            biography = HTMLTools.extractTag(xmlInfo, "<h5>Mini Biography</h5>", "<b>IMDb Mini Biography By: </b>");
         }
-        if (!isValidString(biography) && xml.indexOf("<h5>Trivia</h5>") > -1) {
-            biography = HTMLTools.extractTag(xml, "<h5>Trivia</h5>", "<br/>");
+        if (!isValidString(biography) && xmlInfo.indexOf("<h5>Trivia</h5>") > -1) {
+            biography = HTMLTools.extractTag(xmlInfo, "<h5>Trivia</h5>", "<br/>");
         }
         if (isValidString(biography)) {
             biography = HTMLTools.removeHtmlTags(biography);
@@ -1335,17 +1341,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // get known movies
-        xml = webBrowser.request(getImdbUrl(person) + "filmoyear", siteDef.getCharset());
-        if (xml.indexOf("<div id=\"tn15content\">") > -1) {
-            int count = HTMLTools.extractTags(xml, "<div id=\"tn15content\">", "</div>", "<li>", "</li>").size();
+        xmlInfo = webBrowser.request(getImdbUrl(person) + "filmoyear", siteDef.getCharset());
+        if (xmlInfo.indexOf("<div id=\"tn15content\">") > -1) {
+            int count = HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "</div>", "<li>", "</li>").size();
             person.setKnownMovies(count);
         }
 
         // get filmography
-        xml = webBrowser.request(getImdbUrl(person) + "filmorate", siteDef.getCharset());
-        if (xml.indexOf("<div class=\"filmo\">") > -1) {
+        xmlInfo = webBrowser.request(getImdbUrl(person) + "filmorate", siteDef.getCharset());
+        if (xmlInfo.indexOf("<div class=\"filmo\">") > -1) {
+            String fg = HTMLTools.extractTag(xml, "<div id=\"filmography\">", "<div class=\"article\" >");
             TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
-            for (String department : HTMLTools.extractTags(xml, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", "</div>")) {
+            Pattern tvPattern = Pattern.compile("( \\(#\\d+\\.\\d+\\))|(: Episode #\\d+\\.\\d+)");
+            for (String department : HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", "</div>")) {
                 String job = HTMLTools.removeHtmlTags(HTMLTools.extractTag(department, "<h5>", "</h5>"));
                 for (String item : HTMLTools.extractTags(department, "<ol", "</ol>", "<li", "</li>")) {
                     beginIndex = item.indexOf("<h6>");
@@ -1359,17 +1367,42 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     if (beginIndex > -1) {
                         name += item.substring(beginIndex + 4);
                     }
+                    if ((skipVG && name.endsWith("(VG)")) || (skipTV && name.endsWith("(TV)")) || (skipV && name.endsWith("(V)"))) {
+                        continue;
+                    } else if (skipTV) {
+                        Matcher tvMatcher = tvPattern.matcher(name);
+                        if (tvMatcher.find()) {
+                            continue;
+                        }
+                    }
                     String URL = siteDef.getSite() + "title/" + id + "/";
                     String character = Movie.UNKNOWN;
                     if (job.equalsIgnoreCase("actor") || job.equalsIgnoreCase("actress")) {
-                        String movieXML = webBrowser.request(URL + "fullcredits");
-                        beginIndex = movieXML.indexOf("Cast</a>");
+                        beginIndex = fg.indexOf("href=\"/title/" + id);
                         if (beginIndex > -1) {
-                            character = HTMLTools.extractTag(movieXML.substring(beginIndex), "<a href=\"/name/"+ person.getId(), "</td></tr>");
-                            character = character.substring(character.lastIndexOf("\">") + 2).replace("</a>", "").replace("\"", "'");
-                            if (isNotValidString(character)) {
-                                character = Movie.UNKNOWN;
+                            int brIndex = fg.indexOf("<br/>", beginIndex);
+                            int divIndex = fg.indexOf("<div", beginIndex);
+                            int hellipIndex = fg.indexOf("&hellip;", beginIndex);
+                            if (divIndex > -1) {
+                                if (brIndex > -1 &&  brIndex < divIndex) {
+                                    character = fg.substring(brIndex + 5, divIndex);
+                                    character = HTMLTools.removeHtmlTags(character);
+                                } else if (hellipIndex > -1 && hellipIndex < divIndex) {
+                                    character = fg.substring(hellipIndex + 8, divIndex);
+                                    character = HTMLTools.removeHtmlTags(character);
+                                }
                             }
+                        }
+                        if (isNotValidString(character)) {
+                            String movieXML = webBrowser.request(URL + "fullcredits");
+                            beginIndex = movieXML.indexOf("Cast</a>");
+                            if (beginIndex > -1) {
+                                character = HTMLTools.extractTag(movieXML.substring(beginIndex), "<a href=\"/name/"+ person.getId(), "</td></tr>");
+                                character = character.substring(character.lastIndexOf("\">") + 2).replace("</a>", "").replace("\"", "'").replaceAll("^\\s+", "");
+                            }
+                        }
+                        if (isNotValidString(character)) {
+                            character = Movie.UNKNOWN;
                         }
                     }
 

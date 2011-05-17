@@ -129,19 +129,36 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
         </tr>
         <tr>
           <td class="title2" valign="top" colspan="2">By 
-            <xsl:if test="director != 'UNKNOWN'">
-              <xsl:choose>
-                <xsl:when test="director/@index != ''">
-                  <a>
-                    <xsl:attribute name="href"><xsl:value-of select="director/@index" />.html</xsl:attribute>
-                    <xsl:value-of select="director" /> 
-                  </a>
+            <xsl:choose>
+                <xsl:when test="people/person[@job='Director']/@name != ''">
+                    <xsl:choose>
+                        <xsl:when test="people/person[@job='Director'] != 'UNKNOWN'">
+                          <a>
+                            <xsl:attribute name="href"><xsl:value-of select="people/person[@job='Director']" />.html</xsl:attribute>
+                            <xsl:value-of select="people/person[@job='Director']/@name" /> 
+                          </a>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <xsl:value-of select="people/person[@job='Director']/@name" />
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:value-of select="director" />
+                    <xsl:if test="director != 'UNKNOWN'">
+                      <xsl:choose>
+                        <xsl:when test="director/@index != ''">
+                          <a>
+                            <xsl:attribute name="href"><xsl:value-of select="director/@index" />.html</xsl:attribute>
+                            <xsl:value-of select="director" /> 
+                          </a>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <xsl:value-of select="director" />
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </xsl:if>
                 </xsl:otherwise>
-              </xsl:choose>
-            </xsl:if>
+            </xsl:choose>
             <xsl:if test="company != 'UNKNOWN'">
               <xsl:if test="director != 'UNKNOWN'">, </xsl:if>
               <xsl:value-of select="company" /> 
@@ -164,26 +181,53 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
           </td>
         </tr>
 
-        <xsl:if test="count(cast/actor) != 0">
-          <tr>
-            <td class="title2" colspan="2">With 
-              <xsl:for-each select="cast/actor[position() &lt;= $actors.max]">
-                <xsl:if test="position()!=1">, </xsl:if>
-                <xsl:choose>
-                  <xsl:when test="@index != ''">
-                    <a>
-                      <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
-                      <xsl:value-of select="." /> 
-                    </a>
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <xsl:value-of select="." /> 
-                  </xsl:otherwise>
-                </xsl:choose>
-              </xsl:for-each>
-            </td>
-          </tr>
-        </xsl:if>
+        <xsl:choose>
+            <xsl:when test="count(people/person[@department = 'Actors']) != 0">
+              <tr>
+                <td class="title2" colspan="2">With 
+                    <xsl:for-each select="people/person[@department = 'Actors']">
+                        <xsl:sort select="@order" data-type="number" order="ascending"/>
+                        <xsl:if test="position() &lt;= $actors.max">
+                            <xsl:if test="position()!=1">, </xsl:if>
+                            <xsl:choose>
+                              <xsl:when test=". != 'UNKNOWN'">
+                                <a>
+                                  <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+                                  <xsl:value-of select="@name" /> 
+                                </a>
+                              </xsl:when>
+                              <xsl:otherwise>
+                                <xsl:value-of select="@name" /> 
+                              </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:if>
+                    </xsl:for-each>
+                </td>
+              </tr>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:if test="count(cast/actor) != 0">
+                  <tr>
+                    <td class="title2" colspan="2">With 
+                      <xsl:for-each select="cast/actor[position() &lt;= $actors.max]">
+                        <xsl:if test="position()!=1">, </xsl:if>
+                        <xsl:choose>
+                          <xsl:when test="@index != ''">
+                            <a>
+                              <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
+                              <xsl:value-of select="." /> 
+                            </a>
+                          </xsl:when>
+                          <xsl:otherwise>
+                            <xsl:value-of select="." /> 
+                          </xsl:otherwise>
+                        </xsl:choose>
+                      </xsl:for-each>
+                    </td>
+                  </tr>
+                </xsl:if>
+            </xsl:otherwise>
+        </xsl:choose>
 
         <tr>
           <td class="title2" valign="top" colspan="2">

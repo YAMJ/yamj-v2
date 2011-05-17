@@ -61,6 +61,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.pojava.datetime.DateTime;
 
+import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
@@ -995,11 +996,17 @@ public class MovieJukebox {
                     }
                     if (popularity > 0) {
                         for (Person person : movie.getPeople()) {
-                            if (popularPeople.containsKey(person.getName())) {
-                                popularPeople.get(person.getName()).popularityUp();
-                            } else {
+                            boolean exists = false;
+                            String name = person.getName();
+                            for (String key : popularPeople.keySet()) {
+                                if (key.substring(3).equalsIgnoreCase(name)) {
+                                    popularPeople.get(key).popularityUp();
+                                    exists = true;
+                                }
+                            }
+                            if (!exists) {
                                 Person p = new Person(person);
-                                popularPeople.put(person.getName(), p);
+                                popularPeople.put(String.format("%03d", person.getOrder()) + person.getName(), p);
                             }
                         }
                     } else {
@@ -1047,6 +1054,9 @@ public class MovieJukebox {
 
                                 ToolSet tools = threadTools.get();
 
+                                // Set default filename
+                                person.setFilename();
+
                                 // Get person data (name, birthday, etc...), download photo
                                 updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, person, tools.imagePlugin);
                                 library.addPerson(person);
@@ -1088,6 +1098,9 @@ public class MovieJukebox {
                                 public Void call() throws FileNotFoundException, XMLStreamException {
 
                                     ToolSet tools = threadTools.get();
+
+                                    // Set default filename
+                                    person.setFilename();
 
                                     // Get person data (name, birthday, etc...), download photo and put to library
                                     updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, person, tools.imagePlugin);
@@ -1134,6 +1147,19 @@ public class MovieJukebox {
                         }
                         if (dirty) {
                             movie.setDirty(true);
+                        }
+                    }
+                    String name = movie.getOriginalTitle().toUpperCase() + " (" + movie.getYear() + ")";
+                    for (Person p : library.getPeople()) {
+                        boolean dirty = false;
+                        for (Filmography film : p.getFilmography()) {
+                            if (film.getName().toUpperCase().startsWith(name)) {
+                                film.setFilename(movie.getBaseFilename());
+                                if (film.isDirty()) {
+                                    p.setDirty();
+                                }
+                                break;
+                            }
                         }
                     }
                 }
