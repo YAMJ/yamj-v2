@@ -55,6 +55,8 @@ public class Person extends Filmography {
     public Person(Person person) {
         setIdMap(person.getIdMap());
         setName(person.getName());
+        setDoublage(person.getDoublage());
+        setTitle(person.getTitle());
         setFilename(new String(person.getFilename()));
         setJob(person.getJob());
         setCharacter(person.getCharacter());

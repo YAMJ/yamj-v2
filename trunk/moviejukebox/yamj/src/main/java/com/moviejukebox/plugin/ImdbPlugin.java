@@ -1266,7 +1266,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 returnStatus = updateInfoOld(person, xml);
             }
         } catch (Exception error) {
-            logger.error("Failed retreiving IMDb data for movie : " + person.getId(IMDB_PLUGIN_ID));
+            logger.error("Failed retreiving IMDb data for person : " + imdbID);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);

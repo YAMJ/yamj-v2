@@ -357,23 +357,33 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    public void removePerson(Person person) {
+        if (person != null) {
+            people.remove(person);
+        }
+    }
+
     public void addPerson(String name) {
-        addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+        addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
     public void addPerson(String key, String name) {
-        addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+        addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
     public void addPerson(String key, String name, String URL) {
-        addPerson(key, name, URL, Movie.UNKNOWN, Movie.UNKNOWN);
+        addPerson(key, name, URL, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
     public void addPerson(String key, String name, String URL, String job) {
-        addPerson(key, name, URL, job, Movie.UNKNOWN);
+        addPerson(key, name, URL, job, Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
     public void addPerson(String key, String name, String URL, String job, String character) {
+        addPerson(key, name, URL, job, character, Movie.UNKNOWN);
+    }
+
+    public void addPerson(String key, String name, String URL, String job, String character, String doublage) {
         if (name != null && key != null && URL != null && job != null && character != null) {
             Person person = new Person();
             if (key.indexOf(":") > 0) {
@@ -382,9 +392,22 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             } else {
                 person.setId(key);
             }
-            person.setName(name);
+            if (name.indexOf(":") > 0) {
+                String[] names = name.split(":");
+                if (StringTools.isValidString(names[0])) {
+                    person.setName(names[0]);
+                    person.setTitle(names[1]);
+                } else if (StringTools.isValidString(names[1])) {
+                    person.setName(names[1]);
+                } else {
+                    person.setName(name);
+                }
+            } else {
+                person.setName(name);
+            }
             person.setUrl(URL);
             person.setCharacter(character);
+            person.setDoublage(doublage);
             person.setJob(job);
             person.setDepartment();
             int countActor = 0;
@@ -865,9 +888,24 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addActor(String key, String actor, String character, String URL) {
-        if (actor != null && !cast.contains(actor)) {
-            addActor(actor);
-            addPerson(key, actor, URL, "Actor", character);
+        addActor(key, actor, character, URL, UNKNOWN);
+    }
+
+    public void addActor(String key, String name, String character, String URL, String doublage) {
+        if (name != null && !cast.contains(name)) {
+            if (name.indexOf(":") > 0) {
+                String[] names = name.split(":");
+                if (StringTools.isValidString(names[1])) {
+                    addActor(names[1]);
+                } else if (StringTools.isValidString(names[0])) {
+                    addActor(names[0]);
+                } else {
+                    addActor(name);
+                }
+            } else {
+                addActor(name);
+            }
+            addPerson(key, name, URL, "Actor", character, doublage);
         }
     }
 
@@ -879,6 +917,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    public void clearCast() {
+        this.isDirty = true;
+        cast.clear();
+    }
+    
     public void addWriter(String writer) {
         if (writer != null && !writers.contains(writer)) {
             this.isDirty = true;
@@ -886,16 +929,32 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void addWriter(String key, String writer, String URL) {
-        if (writer != null && !writers.contains(writer)) {
-            addWriter(writer);
-            addPerson(key, writer, URL, "Writer");
+    public void addWriter(String key, String name, String URL) {
+        if (name != null && !writers.contains(name)) {
+            if (name.indexOf(":") > 0) {
+                String[] names = name.split(":");
+                if (StringTools.isValidString(names[1])) {
+                    addWriter(names[1]);
+                } else if (StringTools.isValidString(names[0])) {
+                    addWriter(names[0]);
+                } else {
+                    addWriter(name);
+                }
+            } else {
+                addWriter(name);
+            }
+            addPerson(key, name, URL, "Writer");
         }
     }
 
     public void setWriters(Collection<String> writers) {
         this.isDirty = true;
         this.writers = new HashSet<String>(writers);
+    }
+
+    public void clearWriters() {
+        this.isDirty = true;
+        writers.clear();
     }
 
     public void setCompany(String company) {
@@ -946,9 +1005,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     
     public void setDirectors(Collection<String> directors) {
         if (directors != null && !directors.isEmpty()) {
-            this.directors.clear();
+            clearDirectors();
             this.directors.addAll(directors);
         }
+    }
+    
+    public void clearDirectors() {
+        this.isDirty = true;
+        directors.clear();
     }
     
     public void addDirector(String director) {
@@ -958,10 +1022,21 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void addDirector(String key, String director, String URL) {
-        if (director != null && !directors.contains(director)) {
-            addDirector(director);
-            addPerson(key, director, URL, "Director");
+    public void addDirector(String key, String name, String URL) {
+        if (name != null && !directors.contains(name)) {
+            if (name.indexOf(":") > 0) {
+                String[] names = name.split(":");
+                if (StringTools.isValidString(names[1])) {
+                    addDirector(names[1]);
+                } else if (StringTools.isValidString(names[0])) {
+                    addDirector(names[0]);
+                } else {
+                    addDirector(name);
+                }
+            } else {
+                addDirector(name);
+            }
+            addPerson(key, name, URL, "Director");
         }
     }
 

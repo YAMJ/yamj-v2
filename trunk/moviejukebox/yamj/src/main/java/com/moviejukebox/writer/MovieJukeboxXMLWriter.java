@@ -432,6 +432,11 @@ public class MovieJukeboxXMLWriter {
                             continue;
                         }
 
+                        if (ns.equalsIgnoreCase("title")) {
+                            person.setTitle(attr.getValue());
+                            continue;
+                        }
+
                         if (ns.equalsIgnoreCase("character")) {
                             person.setCharacter(attr.getValue());
                             continue;
@@ -769,6 +774,10 @@ public class MovieJukeboxXMLWriter {
                     } else {
                         person.addAka(parseCData(r));
                     }
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<title>")) {
+                    person.setTitle(parseCData(r));
                     continue;
                 }
                 if (tag.equalsIgnoreCase("<baseFilename>")) {
@@ -1625,6 +1634,7 @@ public class MovieJukeboxXMLWriter {
                 writer.writeStartElement("person");
                 writer.writeAttribute("name", person.getName());
                 writer.writeAttribute("doublage", person.getDoublage());
+                writer.writeAttribute("title", person.getTitle());
                 writer.writeAttribute("character", person.getCharacter());
                 writer.writeAttribute("job", person.getJob());
                 writer.writeAttribute("id", person.getId());
@@ -1792,6 +1802,10 @@ public class MovieJukeboxXMLWriter {
 
         writer.writeStartElement("name");
         writer.writeCharacters(person.getName());
+        writer.writeEndElement();
+
+        writer.writeStartElement("title");
+        writer.writeCharacters(person.getTitle());
         writer.writeEndElement();
 
         writer.writeStartElement("baseFilename");
