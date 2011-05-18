@@ -33,6 +33,7 @@ public class Filmography {
 
     private Map<String, String> idMap   = new HashMap<String, String>(2);
     private String name                 = UNKNOWN;
+    private String title                = UNKNOWN;
     private String doublage             = UNKNOWN;
     private String filename             = UNKNOWN;
     private String job                  = UNKNOWN;
@@ -65,6 +66,10 @@ public class Filmography {
 
     public String getDoublage() {
         return doublage;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public String getFilename() {
@@ -105,13 +110,23 @@ public class Filmography {
     public void setName(String name) {
         if (isValidString(name) && !this.name.equalsIgnoreCase(name)) {
             this.name = name;
+            if (isNotValidString(title)) {
+                title = name;
+            }
             setDirty();
         }
     }
 
     public void setDoublage(String name) {
-        if (isValidString(doublage) && !doublage.equalsIgnoreCase(name)) {
+        if (isValidString(name) && !doublage.equalsIgnoreCase(name)) {
             doublage = name;
+            setDirty();
+        }
+    }
+
+    public void setTitle(String title) {
+        if (isValidString(title) && !this.title.equalsIgnoreCase(title)) {
+            this.title = title;
             setDirty();
         }
     }
