@@ -117,6 +117,7 @@ public class Library implements Map<String, Movie> {
     // Issue 1897: Cast enhancement
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
     private static boolean isDirty = false;
+    private static boolean completePerson = false;
 
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -172,6 +173,7 @@ public class Library implements Map<String, Movie> {
         }
 
         charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", "false");
+        completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", "true");
         getNewCategoryProperties();
     }
     
@@ -440,6 +442,8 @@ public class Library implements Map<String, Movie> {
                             syncindexes.put("Writer", indexByWriter(indexMovies));
                         } else if (indexStr.equals("Award")) {
                             syncindexes.put("Award", indexByAward(indexMovies));
+                        } else if (indexStr.equals("Person")) {
+                            syncindexes.put("Person", indexByPerson(indexMovies));
                         }
                         return null;
                     }
@@ -910,6 +914,25 @@ public class Library implements Map<String, Movie> {
         return index;
     }
 
+    protected static Index indexByPerson(List<Movie> list) {
+        Index index = new Index(true);
+        for (Movie movie : list) {
+            if (!movie.isExtra()) {
+                for (Person person : movie.getPeople()) {
+                    if (completePerson && StringTools.isNotValidString(person.getFilename())) {
+                        continue;
+                    }
+                    String name = person.getName();
+                    logger.debug("Adding " + movie.getTitle() + " to person list for " + name);
+                    index.addMovie(name, movie);
+                    movie.addIndex("Person", name);
+                }
+            }
+        }
+
+        return index;
+    }
+
     public int getMovieCountForIndex(String indexName, String category) {
         Index index = unCompressedIndexes.get(indexName);
         if (index == null) {
@@ -1221,7 +1244,7 @@ public class Library implements Map<String, Movie> {
     }
 
     public static Collection<String> getPrefixes() {
-        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES", "AWARD" });
+        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES", "AWARD", "PERSON" });
     }
 
     /**
