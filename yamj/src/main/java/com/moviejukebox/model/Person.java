@@ -146,8 +146,8 @@ public class Person extends Filmography {
     }
 
     public void setPhotoURL(String URL) {
-        if (isValidString(URL) && !this.photoURL.equalsIgnoreCase(URL)) {
-            this.photoURL = URL;
+        if (isValidString(URL) && !photoURL.equalsIgnoreCase(URL)) {
+            photoURL = URL;
             setDirty();
         }
     }
@@ -215,6 +215,11 @@ public class Person extends Filmography {
             this.filmography = filmography;
             setDirty();
         }
+    }
+
+    public void clearFilmography() {
+        filmography.clear();
+        setDirty();
     }
 
     public void setKnownMovies(int knownMovies) {

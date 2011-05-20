@@ -836,6 +836,14 @@ public class MovieJukeboxXMLWriter {
                             person.setId(ns.substring(3), attr.getValue());
                             continue;
                         }
+                        if (ns.equalsIgnoreCase("name")) {
+                            film.setName(attr.getValue());
+                            continue;
+                        }
+                        if (ns.equalsIgnoreCase("title")) {
+                            film.setTitle(attr.getValue());
+                            continue;
+                        }
                         if (ns.equalsIgnoreCase("rating")) {
                             film.setRating(attr.getValue());
                             continue;
@@ -854,10 +862,6 @@ public class MovieJukeboxXMLWriter {
                         }
                         if (ns.equalsIgnoreCase("url")) {
                             film.setUrl(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase("name")) {
-                            film.setName(attr.getValue());
                             continue;
                         }
                     }
@@ -1854,12 +1858,18 @@ public class MovieJukeboxXMLWriter {
         for (Filmography film : person.getFilmography()) {
             writer.writeStartElement("movie");
             writer.writeAttribute("id", film.getId());
+            for (Map.Entry<String, String> e : film.getIdMap().entrySet()) {
+                if (!e.getKey().equals(ImdbPlugin.IMDB_PLUGIN_ID)) {
+                    writer.writeAttribute("id_" + e.getKey(), e.getValue());
+                }
+            }
+            writer.writeAttribute("name", film.getName());
+            writer.writeAttribute("title", film.getTitle());
             writer.writeAttribute("rating", film.getRating());
             writer.writeAttribute("character", film.getCharacter());
             writer.writeAttribute("job", film.getJob());
             writer.writeAttribute("department", film.getDepartment());
             writer.writeAttribute("url", film.getUrl());
-            writer.writeAttribute("name", film.getName());
             writer.writeCharacters(film.getFilename());
             writer.writeEndElement();
         }
