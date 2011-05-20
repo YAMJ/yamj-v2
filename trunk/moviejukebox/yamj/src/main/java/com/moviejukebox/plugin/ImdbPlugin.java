@@ -1260,11 +1260,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             person.setName(title);
             
-            if (imdbNewVersion) {
-                returnStatus = updateInfoNew(person, xml);
-            } else {
-                returnStatus = updateInfoOld(person, xml);
-            }
+            returnStatus = updateInfoNew(person, xml);
         } catch (Exception error) {
             logger.error("Failed retreiving IMDb data for person : " + imdbID);
             final Writer eResult = new StringWriter();
@@ -1450,22 +1446,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-//        person.setModifiedAt();
         int version = person.getVersion();
         person.setVersion(++version);
         return true;
-    }
-
-    /**
-     * Process the old IMDb formatted web page
-     * @param movie
-     * @param xml
-     * @return
-     * @throws MalformedURLException
-     * @throws IOException
-     */
-    private boolean updateInfoOld(Person person, String xml) throws MalformedURLException, IOException {
-        return false;
     }
 
 }

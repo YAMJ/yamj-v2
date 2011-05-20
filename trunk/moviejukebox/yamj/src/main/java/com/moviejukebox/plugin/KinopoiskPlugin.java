@@ -37,14 +37,17 @@ import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -103,8 +106,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
     int actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
     int directorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
     int writerMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
+    int filmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
     int biographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
     int filmography = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
+    boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
+    boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
+    boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
 
     String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     String jukeboxTempLocationDetails = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox"));
@@ -346,18 +353,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(newPlot);
             }
-/*
-            // Cast
-            if (!NFOcast) {
-                Collection<String> newCast = new ArrayList<String>();
-                for (String actor : HTMLTools.extractTags(xml, ">В главных ролях:", "</table>", "<a href=\"/level/4", "</a>")) {
-                    newCast.add(actor);
-                }
-                if (newCast.size() > 0) {
-                    movie.setCast(newCast);
-                }
-            }
-*/
+
             for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr>", "</tr>")) {
                 item = "<td>" + item + "</tr>";
 
@@ -390,30 +386,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         movie.setGenres(newGenres);
                     }
                 }
-/*
-                // Director
-                if (!NFOdirectors) {
-                    Collection<String> newDirectors = new ArrayList<String>();
-                    for (String director : HTMLTools.extractTags(item, ">режиссер<", "</tr>", "<a href=\"/level/4", "</a>")) {
-                        newDirectors.add(director);
-                    }
 
-                    if (newDirectors.size() > 0) {
-                        movie.setDirectors(newDirectors);
-                    }
-                }
-
-                // Writers
-                if (!NFOwriters) {
-                    Collection<String> newWriters = new ArrayList<String>();
-                    for (String writer : HTMLTools.extractTags(item, ">сценарий<", "</tr>", "<a href=\"/level/4", "</a>")) {
-                        newWriters.add(writer);
-                    }
-                    if (newWriters.size() > 0) {
-                        movie.setWriters(newWriters);
-                    }
-                }
-*/
                 // Certification from MPAA
                 if (!NFOcertification) {
                     for (String mpaaTag : HTMLTools.extractTags(item, ">рейтинг MPAA<", "</tr>", "<a href=\'/level/38", "</a>")) {
@@ -975,4 +948,199 @@ public class KinopoiskPlugin extends ImdbPlugin {
         }
     }
 
+    @Override
+    public boolean scan(Person person) {
+        String kinopoiskId = person.getId(KINOPOISK_PLUGIN_ID);
+        if (StringTools.isNotValidString(kinopoiskId)) {
+            kinopoiskId = getKinopoiskPersonId(person.getName(), person.getJob());
+            person.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
+        }
+
+        boolean retval = super.scan(person);
+        if (StringTools.isValidString(kinopoiskId)) {
+            retval = updateKinopoiskPersonInfo(person);
+        }
+        return retval;
+    }
+
+    private boolean updateKinopoiskPersonInfo(Person person) {
+        String kinopoiskId = person.getId(KINOPOISK_PLUGIN_ID);
+        boolean returnStatus = false;
+
+        try {
+            String xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/view_info/ok/");
+            if (StringTools.isValidString(xml)) {
+                if (StringTools.isNotValidString(person.getName())) {
+                    person.setName(HTMLTools.extractTag(xml, "<span style=\"font-size:13px;color:#666\">", "</span>"));
+                }
+                person.setTitle(HTMLTools.extractTag(xml, "<h1 style=\"padding:0px;margin:0px\" class=\"moviename-big\">", "</h1>"));
+
+                String bd = HTMLTools.extractTag(xml, "<td class=\"birth\">", "</td>");
+                if (StringTools.isValidString(bd) && bd.indexOf("</a>") > -1) {
+                    bd = HTMLTools.removeHtmlTags(bd);
+                    bd = bd.substring(0, bd.indexOf("•")).replace(",", "").replaceAll("\\s$", "");
+                    if (StringTools.isValidString(bd)) {
+                        person.setBirthday(bd);
+                    }
+                }
+
+                String bp = HTMLTools.extractTag(xml, ">место рождения</td><td>", "</td>");
+                if (StringTools.isValidString(bp)) {
+                    bp = HTMLTools.removeHtmlTags(bp);
+                    if (StringTools.isValidString(bp)) {
+                        person.setBirthPlace(bp);
+                    }
+                }
+
+                String km = HTMLTools.extractTag(xml, ">всего фильмов</td><td>", "</td>");
+                if (StringTools.isValidString(km)) {
+                    person.setKnownMovies(Integer.parseInt(km));
+                }
+
+                String bio = "";
+                for (String item : HTMLTools.extractTags(xml, "<ul class=\"trivia\">", "</ul>", "<li class=\"trivia\">", "</li>")) {
+                    bio += HTMLTools.removeHtmlTags(item).replaceAll("\u0097", "-") + " ";
+                }
+                if (StringTools.isValidString(bio)) {
+                    bio = StringTools.trimToLength(bio, biographyLength, true, plotEnding);
+                    person.setBiography(bio);
+                }
+
+                if (xml.indexOf("http://st.kinopoisk.ru/images/actor/" + kinopoiskId + ".jpg") > -1 && StringTools.isNotValidString(person.getPhotoURL())) {
+                    person.setPhotoURL("http://st.kinopoisk.ru/images/actor/" + kinopoiskId + ".jpg");
+                }
+            }
+
+            xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/sort/rating/");
+            if (StringTools.isValidString(xml)) {
+                TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
+                for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</table><br />")) {
+                    String job = HTMLTools.extractTag(block, "<div style=\"padding-left: 9px\" id=\"", "\">");
+                    if (job.equals("producer")) {
+                        job = "Producer";
+                    } else if (job.equals("director")) {
+                        job = "Director";
+                    } else if (job.equals("writer")) {
+                        job = "Writer";
+                    } else if (job.equals("actor")) {
+                        job = "Actor";
+                    } else if (job.equals("editor")) {
+                        job = "Editor";
+                    } else if (job.equals("himself")) {
+                        job = "Himself";
+                    } else if (job.equals("design")) {
+                        job = "Design";
+                    } else if (job.equals("operator")) {
+                        job = "Operator";
+                    } else if (job.equals("composer")) {
+                        job = "Music";
+                    }
+                    for (String item : HTMLTools.extractTags(block + "</table>", "<table cellspacing=0 cellpadding=3 border=0 width=100%>", "</table>" , "<tr>", "</tr>")) {
+                        String id = HTMLTools.extractTag(item, " href=\"/level/1/film/", "/\">");
+                        String URL = "http://www.kinopoisk.ru/level/1/film/" + id + "/";
+                        String title = HTMLTools.extractTag(item, " href=\"/level/1/film/" + id + "/\">", "</a>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
+                        if (skipTV && (title.indexOf(" (сериал)") > -1 || title.indexOf(" (ТВ)") > -1)) {
+                            continue;
+                        } else if (skipV && title.indexOf(" (видео)") > -1) {
+                            continue;
+                        }
+                        String year = Movie.UNKNOWN;
+                        if (title.lastIndexOf("(") > -1) {
+                            year = title.substring(title.lastIndexOf("(")).replace(")$", "");
+                        }
+                        String name = HTMLTools.extractTag(item, "<span style=\"color:#999\">", "</span>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
+                        String character = Movie.UNKNOWN;
+                        if (name.indexOf(" ... ") > -1) {
+                            String[] names = name.split(" \\.\\.\\. ");
+                            name = names[0];
+                            if (job.equals("Actor")) {
+                                character = names[1];
+                            }
+                        }
+                        if (name.endsWith(", The")) {
+                            name = "The " + name.replace(", The", "");
+                        }
+                        if (StringTools.isValidString(year)) {
+                            name += " " + year;
+                        }
+                        String rating = HTMLTools.extractTag(item, " class=\"continue\" >", "</a>");
+                        if (StringTools.isNotValidString(rating)) {
+                            rating = HTMLTools.extractTag(item, " class=\"continue\" style='color: #777;'>", "</a>");
+                            if (StringTools.isNotValidString(rating)) {
+                                rating = "0";
+                            }
+                        }
+
+                        float key = 10 - (Float.valueOf(rating).floatValue() + Float.valueOf("0.00" + id).floatValue());
+
+                        if (filmography.get(key) == null) {
+                            Filmography film = new Filmography();
+                            film.setId(KINOPOISK_PLUGIN_ID, id);
+                            film.setName(name);
+                            film.setTitle(title);
+                            film.setJob(job);
+                            film.setCharacter(character);
+                            film.setDepartment();
+                            film.setRating(rating);
+                            film.setUrl(URL);
+                            filmography.put(key, film);
+                        }
+                    }
+                }
+                if (filmography.size() > 0) {
+                    person.clearFilmography();
+                    Iterator<Float> iterFilm = filmography.keySet().iterator();
+                    Object obj;
+                    int count = 0;
+                    while (iterFilm.hasNext() && count < filmographyMax) {
+                        obj = iterFilm.next();
+                        person.addFilm(filmography.get(obj));
+                        count++;
+                    }
+                }
+                returnStatus = true;
+            }
+        } catch (Exception error) {
+            logger.error("Failed retreiving IMDb data for person : " + kinopoiskId);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+        }
+        return returnStatus;
+    }
+
+    protected String getKinopoiskPersonId(String person, String mode) {
+        String personId = Movie.UNKNOWN;
+        try {
+            String sb = person;
+            sb = sb.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            sb = "&m_act[find]=" + URLEncoder.encode(sb, "UTF-8").replace(" ", "+");
+
+            sb = "http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=actor" + sb + "&m_act[work]=" + mode;
+            String xml = webBrowser.request(sb);
+
+            // Checking for zero results
+            int beginIndex = xml.indexOf("class=\"search_results\"");
+            if (beginIndex > 0) {
+                // Checking if we got the person page directly
+                int beginInx = xml.indexOf("id_actor = ");
+                if (beginInx == -1) {
+                    // It's search results page, searching a link to the person page
+                    beginIndex = xml.indexOf("/level/4/people/", beginIndex);
+                    if (beginIndex != -1) {
+                        StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 16), "/");
+                        personId = st.nextToken();
+                    }
+                } else {
+                    // It's the person page
+                    StringTokenizer st = new StringTokenizer(xml.substring(beginInx + 11), ";");
+                    personId = st.nextToken();
+                }
+            }
+        } catch (Exception error) {
+            logger.error("Error : " + error.getMessage());
+        }
+        return personId;
+    }
 }

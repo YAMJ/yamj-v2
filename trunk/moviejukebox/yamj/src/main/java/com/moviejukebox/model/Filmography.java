@@ -201,7 +201,7 @@ public class Filmography {
         if (isNotValidString(department)) {
             if (job.equalsIgnoreCase("actor") || job.equalsIgnoreCase("actress")) {
                 setDepartment("Actors");
-            } else if (job.toLowerCase().contains("producer") || job.toLowerCase().contains("casting")) {
+            } else if (job.toLowerCase().contains("producer") || job.toLowerCase().contains("casting") || job.toLowerCase().contains("design")) {
                 setDepartment("Production");
             } else if (job.toLowerCase().contains("director")) {
                 setDepartment("Directing");
@@ -209,9 +209,9 @@ public class Filmography {
                 setDepartment("Writing");
             } else if (job.toLowerCase().contains("editor")) {
                 setDepartment("Editing");
-            } else if (job.toLowerCase().contains("music")) {
+            } else if (job.toLowerCase().contains("music") || job.toLowerCase().contains("composer")) {
                 setDepartment("Sound");
-            } else if (job.toLowerCase().contains("photo")) {
+            } else if (job.toLowerCase().contains("photo") || job.toLowerCase().contains("camera") || job.toLowerCase().contains("operator")) {
                 setDepartment("Camera");
             }
         }
