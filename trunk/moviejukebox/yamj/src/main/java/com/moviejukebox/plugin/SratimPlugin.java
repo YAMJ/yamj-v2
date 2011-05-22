@@ -1383,12 +1383,13 @@ public class SratimPlugin extends ImdbPlugin {
 
     protected String extractMovieTitle(String xml) {
         String result;
+        
         int start = xml.indexOf("<h1 class=\"subtext_view\">");
         int end = xml.indexOf("</h1>", start);
-        String partialT = xml.substring(start, end);
-        String title = partialT.substring(partialT.lastIndexOf('>')+1);
+        String partialT = xml.substring(start + 25, end);
+        String title = partialT.substring(0, partialT.indexOf('<'));
         result = HTMLTools.decodeHtml(title);
-        return removeTrailBracket(result);
+        return removeTrailBracket(result.trim());
     }
 
     protected boolean hasExistingSubtitles(MovieFile mf, boolean bluray) {
