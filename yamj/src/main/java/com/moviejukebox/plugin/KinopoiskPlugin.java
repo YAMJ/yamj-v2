@@ -36,9 +36,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -112,6 +114,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
     boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
     boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
+    List<String> jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
 
     String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     String jukeboxTempLocationDetails = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox"));
@@ -1011,95 +1014,143 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
             }
 
-            xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/sort/rating/");
-            if (StringTools.isValidString(xml)) {
-                TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
-                for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</table><br />")) {
-                    String job = HTMLTools.extractTag(block, "<div style=\"padding-left: 9px\" id=\"", "\">");
-                    if (job.equals("producer")) {
-                        job = "Producer";
-                    } else if (job.equals("director")) {
-                        job = "Director";
-                    } else if (job.equals("writer")) {
-                        job = "Writer";
-                    } else if (job.equals("actor")) {
-                        job = "Actor";
-                    } else if (job.equals("editor")) {
-                        job = "Editor";
-                    } else if (job.equals("himself")) {
-                        job = "Himself";
-                    } else if (job.equals("design")) {
-                        job = "Design";
-                    } else if (job.equals("operator")) {
-                        job = "Operator";
-                    } else if (job.equals("composer")) {
-                        job = "Music";
-                    }
-                    for (String item : HTMLTools.extractTags(block + "</table>", "<table cellspacing=0 cellpadding=3 border=0 width=100%>", "</table>" , "<tr>", "</tr>")) {
-                        String id = HTMLTools.extractTag(item, " href=\"/level/1/film/", "/\">");
-                        String URL = "http://www.kinopoisk.ru/level/1/film/" + id + "/";
-                        String title = HTMLTools.extractTag(item, " href=\"/level/1/film/" + id + "/\">", "</a>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
-                        if (skipTV && (title.indexOf(" (сериал)") > -1 || title.indexOf(" (ТВ)") > -1)) {
-                            continue;
-                        } else if (skipV && title.indexOf(" (видео)") > -1) {
+            if (!preferredRating.equals("imdb")) {
+                xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/sort/rating/");
+                if (StringTools.isValidString(xml)) {
+                    TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
+                    for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</table><br />")) {
+                        String job = HTMLTools.extractTag(block, "<div style=\"padding-left: 9px\" id=\"", "\">");
+                        if (job.equals("producer")) {
+                            job = "Producer";
+                        } else if (job.equals("director")) {
+                            job = "Director";
+                        } else if (job.equals("writer")) {
+                            job = "Writer";
+                        } else if (job.equals("actor")) {
+                            job = "Actor";
+                        } else if (job.equals("editor")) {
+                            job = "Editor";
+                        } else if (job.equals("himself")) {
+                            job = "Himself";
+                        } else if (job.equals("design")) {
+                            job = "Design";
+                        } else if (job.equals("operator")) {
+                            job = "Operator";
+                        } else if (job.equals("composer")) {
+                            job = "Music";
+                        } else if (job.contains("_titr_")) {
+                            job = "Actor";
+                        }
+                        if (!jobsInclude.contains(job)) {
                             continue;
                         }
-                        String year = Movie.UNKNOWN;
-                        if (title.lastIndexOf("(") > -1) {
-                            year = title.substring(title.lastIndexOf("(")).replace(")$", "");
-                        }
-                        String name = HTMLTools.extractTag(item, "<span style=\"color:#999\">", "</span>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
-                        String character = Movie.UNKNOWN;
-                        if (name.indexOf(" ... ") > -1) {
-                            String[] names = name.split(" \\.\\.\\. ");
-                            name = names[0];
-                            if (job.equals("Actor")) {
-                                character = names[1];
+                        for (String item : HTMLTools.extractTags(block + "</table>", "<table cellspacing=0 cellpadding=3 border=0 width=100%>", "</table>" , "<tr>", "</tr>")) {
+                            String id = HTMLTools.extractTag(item, " href=\"/level/1/film/", "/\">");
+                            String URL = "http://www.kinopoisk.ru/level/1/film/" + id + "/";
+                            String title = HTMLTools.extractTag(item, " href=\"/level/1/film/" + id + "/\">", "</a>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
+                            if (skipTV && (title.indexOf(" (сериал)") > -1 || title.indexOf(" (ТВ)") > -1)) {
+                                continue;
+                            } else if (skipV && title.indexOf(" (видео)") > -1) {
+                                continue;
                             }
-                        }
-                        if (name.endsWith(", The")) {
-                            name = "The " + name.replace(", The", "");
-                        }
-                        if (StringTools.isValidString(year)) {
-                            name += " " + year;
-                        }
-                        String rating = HTMLTools.extractTag(item, " class=\"continue\" >", "</a>");
-                        if (StringTools.isNotValidString(rating)) {
-                            rating = HTMLTools.extractTag(item, " class=\"continue\" style='color: #777;'>", "</a>");
+                            String year = Movie.UNKNOWN;
+                            if (title.lastIndexOf("(") > -1) {
+                                year = title.substring(title.lastIndexOf("(")).replace(")$", "");
+                            }
+                            String name = HTMLTools.extractTag(item, "<span style=\"color:#999\">", "</span>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
+                            String character = Movie.UNKNOWN;
+                            if (name.indexOf(" ... ") > -1) {
+                                String[] names = name.split(" \\.\\.\\. ");
+                                name = names[0];
+                                if (job.equals("Actor")) {
+                                    character = names[1];
+                                }
+                            }
+                            if (name.endsWith(", The")) {
+                                name = "The " + name.replace(", The", "");
+                            }
+                            if (title.contains(", The (")) {
+                                title = "The " + title.replace(", The (", " (");
+                            }
+                            if (StringTools.isValidString(year)) {
+                                name += " " + year;
+                            }
+                            String rating = HTMLTools.extractTag(item, " class=\"continue\" >", "</a>");
                             if (StringTools.isNotValidString(rating)) {
-                                rating = "0";
+                                rating = HTMLTools.extractTag(item, " class=\"continue\" style='color: #777;'>", "</a>");
+                                if (StringTools.isNotValidString(rating)) {
+                                    rating = "0";
+                                }
+                            }
+
+                            float key = 10 - (Float.valueOf(rating).floatValue() + Float.valueOf("0.00" + id).floatValue());
+
+                            if (filmography.get(key) == null) {
+                                Filmography film = new Filmography();
+                                film.setId(KINOPOISK_PLUGIN_ID, id);
+                                film.setName(name);
+                                film.setTitle(title);
+                                film.setJob(job);
+                                film.setCharacter(character);
+                                film.setDepartment();
+                                film.setRating(rating);
+                                film.setUrl(URL);
+                                filmography.put(key, film);
                             }
                         }
+                    }
 
-                        float key = 10 - (Float.valueOf(rating).floatValue() + Float.valueOf("0.00" + id).floatValue());
-
-                        if (filmography.get(key) == null) {
-                            Filmography film = new Filmography();
-                            film.setId(KINOPOISK_PLUGIN_ID, id);
-                            film.setName(name);
-                            film.setTitle(title);
-                            film.setJob(job);
-                            film.setCharacter(character);
-                            film.setDepartment();
-                            film.setRating(rating);
-                            film.setUrl(URL);
-                            filmography.put(key, film);
+                    if (filmography.size() > 0 && (preferredRating.equals("combine") || preferredRating.equals("avarage"))) {
+                        TreeMap<Float, Filmography> combineFilmography = new TreeMap<Float, Filmography>();
+                        for (Filmography film : person.getFilmography()) {
+                            String name = film.getName().replace("ё", "е").replace("Ё", "Е");
+                            String title = film.getTitle().replace("ё", "е").replace("Ё", "Е");
+                            String year = Movie.UNKNOWN;
+                            if (name.lastIndexOf("(") > -1) {
+                                year = HTMLTools.extractTag(name.substring(name.lastIndexOf("(")), "(", ")");
+                            } else if (title.lastIndexOf("(") > -1) {
+                                year = HTMLTools.extractTag(title.substring(title.lastIndexOf("(")), "(", ")");
+                            }
+                            name = name.replace("(" + year + ")", "").replaceAll("\\s+$", "");
+                            title = title.replace("(" + year + ")", "").replaceAll("\\s+$", "");
+                            year = year.substring(0, 4);
+                            boolean found = false;
+                            for (Filmography f : filmography.values()) {
+                                String Name = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X");
+                                String Title = f.getTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X");
+                                String Year = Movie.UNKNOWN;
+                                if (Name.lastIndexOf("(") > -1) {
+                                    Year = HTMLTools.extractTag(Name.substring(Name.lastIndexOf("(")), "(", ")");
+                                } else if (Title.lastIndexOf("(") > -1) {
+                                    Year = HTMLTools.extractTag(Title.substring(Title.lastIndexOf("(")), "(", ")");
+                                }
+                                Name = Name.replace("(" + Year + ")", "").replaceAll("\\s+$", "");
+                                Title = Title.replace("(" + Year + ")", "").replaceAll("\\s+$", "");
+                                Year = Year.substring(0, 4);
+                                if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title)) {
+                                    Float rating = preferredRating.equals("combine")?(Float.valueOf(film.getRating()).floatValue() * 1000 + Float.valueOf(f.getRating()).floatValue()):((Float.valueOf(film.getRating()).floatValue() + Float.valueOf(f.getRating()).floatValue())/2);
+                                    String id = f.getId(KINOPOISK_PLUGIN_ID);
+                                    float key = 10 - (rating + Float.valueOf("0.00" + id).floatValue());
+                                    film.setId(KINOPOISK_PLUGIN_ID, id);
+                                    film.setName(f.getName());
+                                    film.setTitle(f.getTitle());
+                                    film.setJob(f.getJob());
+                                    film.setCharacter(f.getCharacter());
+                                    film.setDepartment();
+                                    film.setRating(Float.toString(rating));
+                                    film.setUrl(f.getUrl());
+                                    found = true;
+                                }
+                            }
+                            if (!found && preferredRating.equals("combine")) {
+                                film.setRating(Float.toString(Float.valueOf(film.getRating()).floatValue() * 1000));
+                            }
                         }
                     }
                 }
-                if (filmography.size() > 0) {
-                    person.clearFilmography();
-                    Iterator<Float> iterFilm = filmography.keySet().iterator();
-                    Object obj;
-                    int count = 0;
-                    while (iterFilm.hasNext() && count < filmographyMax) {
-                        obj = iterFilm.next();
-                        person.addFilm(filmography.get(obj));
-                        count++;
-                    }
-                }
-                returnStatus = true;
             }
+
+            returnStatus = true;
         } catch (Exception error) {
             logger.error("Failed retreiving IMDb data for person : " + kinopoiskId);
             final Writer eResult = new StringWriter();

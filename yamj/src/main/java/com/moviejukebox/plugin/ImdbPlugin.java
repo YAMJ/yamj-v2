@@ -22,9 +22,11 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -73,6 +75,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean skipVG;
     private boolean skipTV;
     private boolean skipV;
+    private List<String> jobsInclude;
 
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
@@ -99,6 +102,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
         skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
         skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
+        jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
     }
 
     @Override
@@ -1370,6 +1374,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             Pattern tvPattern = Pattern.compile("( \\(#\\d+\\.\\d+\\))|(: Episode #\\d+\\.\\d+)");
             for (String department : HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", "</div>")) {
                 String job = HTMLTools.removeHtmlTags(HTMLTools.extractTag(department, "<h5>", "</h5>"));
+                if (!jobsInclude.contains(job)) {
+                    continue;
+                }
                 for (String item : HTMLTools.extractTags(department, "<ol", "</ol>", "<li", "</li>")) {
                     beginIndex = item.indexOf("<h6>");
                     if (beginIndex > -1) {
@@ -1377,7 +1384,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
                     float rating = Float.valueOf(HTMLTools.extractTag(item, "(", ")")).floatValue();
                     String id = HTMLTools.extractTag(item, "<a href=\"/title/", "/\">");
-                    String name = HTMLTools.extractTag(item, "/\">", "</a>");
+                    String name = HTMLTools.extractTag(item, "/\">", "</a>").replaceAll("\"", "");
                     beginIndex = item.indexOf("</a> (");
                     if (beginIndex > -1) {
                         name += item.substring(beginIndex + 4);
@@ -1388,6 +1395,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         Matcher tvMatcher = tvPattern.matcher(name);
                         if (tvMatcher.find()) {
                             continue;
+                        }
+                        beginIndex = fg.indexOf("href=\"/title/" + id);
+                        if (beginIndex > -1) {
+                            beginIndex = fg.indexOf("</b>", beginIndex);
+                            if (beginIndex > -1 && fg.indexOf("<br/>", beginIndex) > -1) {
+                                String tail = fg.substring(beginIndex + 4, fg.indexOf("<br/>", beginIndex));
+                                if (tail.contains("(TV series)") || tail.contains("(TV mini-series)") || tail.contains("(TV movie)")) {
+                                    continue;
+                                }
+                            }
                         }
                     }
                     String URL = siteDef.getSite() + "title/" + id + "/";
