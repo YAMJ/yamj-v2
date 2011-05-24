@@ -141,6 +141,12 @@ public class OpenSubtitlesPlugin {
                 }
 
                 // Check if this movie already have subtitles for it
+                if (mf.getFile() == null) {
+                    // The file pointer doesn't exist, so skip the file
+                    continue;
+                }
+                
+                
                 String path = mf.getFile().getAbsolutePath();
                 int index = path.lastIndexOf(".");
                 String basename = path.substring(0, index + 1);
