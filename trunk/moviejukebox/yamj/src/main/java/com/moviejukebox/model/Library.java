@@ -117,7 +117,8 @@ public class Library implements Map<String, Movie> {
     // Issue 1897: Cast enhancement
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
     private static boolean isDirty = false;
-    private static boolean completePerson = false;
+    private static boolean peopleScan = false;
+    private static boolean completePerson = true;
 
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -174,6 +175,7 @@ public class Library implements Map<String, Movie> {
 
         charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", "false");
         completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", "true");
+        peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", "false");
         getNewCategoryProperties();
     }
     
@@ -848,10 +850,22 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                for (String actor : movie.getCast()) {
-                    logger.debug("Adding " + movie.getTitle() + " to cast list for " + actor);
-                    index.addMovie(actor, movie);
-                    movie.addIndex("Actor", actor);
+                if (peopleScan) {
+                    for (Person person : movie.getPeople()) {
+                        if (!person.getDepartment().equalsIgnoreCase("Actors") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
+                            continue;
+                        }
+                        String actor = person.getTitle();
+                        logger.debug("Adding " + movie.getTitle() + " to cast list for " + actor);
+                        index.addMovie(actor, movie);
+                        movie.addIndex("Actor", actor);
+                    }
+                } else {
+                    for (String actor : movie.getCast()) {
+                        logger.debug("Adding " + movie.getTitle() + " to cast list for " + actor);
+                        index.addMovie(actor, movie);
+                        movie.addIndex("Actor", actor);
+                    }
                 }
             }
         }
@@ -875,8 +889,23 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                index.addMovie(movie.getDirector(), movie);
-                movie.addIndex("Director", movie.getDirector());
+                if (peopleScan) {
+                    for (Person person : movie.getPeople()) {
+                        if (!person.getDepartment().equalsIgnoreCase("Directing") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
+                            continue;
+                        }
+                        String director = person.getTitle();
+                        logger.debug("Adding " + movie.getTitle() + " to director list for " + director);
+                        index.addMovie(director, movie);
+                        movie.addIndex("Director", director);
+                    }
+                } else {
+                    for (String director : movie.getDirectors()) {
+                        logger.debug("Adding " + movie.getTitle() + " to director list for " + director);
+                        index.addMovie(director, movie);
+                        movie.addIndex("Director", director);
+                    }
+                }
             }
         }
 
@@ -887,10 +916,22 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                for (String writer : movie.getWriters()) {
-                    logger.debug("Adding " + movie.getTitle() + " to writer list for " + writer);
-                    index.addMovie(writer, movie);
-                    movie.addIndex("Writer", writer);
+                if (peopleScan) {
+                    for (Person person : movie.getPeople()) {
+                        if (!person.getDepartment().equalsIgnoreCase("Writing") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
+                            continue;
+                        }
+                        String writer = person.getTitle();
+                        logger.debug("Adding " + movie.getTitle() + " to writer list for " + writer);
+                        index.addMovie(writer, movie);
+                        movie.addIndex("Writer", writer);
+                    }
+                } else {
+                    for (String writer : movie.getWriters()) {
+                        logger.debug("Adding " + movie.getTitle() + " to writer list for " + writer);
+                        index.addMovie(writer, movie);
+                        movie.addIndex("Writer", writer);
+                    }
                 }
             }
         }
