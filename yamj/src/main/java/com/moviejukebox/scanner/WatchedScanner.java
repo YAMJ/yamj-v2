@@ -39,8 +39,14 @@ public class WatchedScanner {
         extensions.add("watched");
         
         for (MovieFile mf : movie.getFiles()) {
+            // Check that the file pointer is valid
+            if (mf.getFile() == null) {
+                continue;
+            }
+            
             fileWatched = false;
             foundFile = FileTools.findFilenameInCache(mf.getFile().getName(), extensions, jukebox, "Watched Scanner: ");
+            
             if (foundFile != null) {
                 fileWatchedCount++;
                 if (foundFile.getName().toLowerCase().endsWith(".watched")) {
