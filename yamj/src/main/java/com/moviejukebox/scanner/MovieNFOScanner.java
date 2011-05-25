@@ -669,7 +669,7 @@ public class MovieNFOScanner {
                                 }
                             }
                             if (isValidString(name)) {
-                                movie.addActor(Movie.UNKNOWN, name, role, Movie.UNKNOWN);
+                                movie.addActor(Movie.UNKNOWN, name, role, Movie.UNKNOWN, Movie.UNKNOWN);
                             }
                         } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
                             String fiEvent = r.nextEvent().toString();
