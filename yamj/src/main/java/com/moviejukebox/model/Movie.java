@@ -44,7 +44,7 @@ import org.pojava.datetime.DateTime;
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Filmography;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -132,7 +132,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     // Issue 1901: Awards
     Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
     // Issue 1897: Cast enhancement
-    Collection<Person> people = new ArrayList<Person>();
+    Collection<Filmography> people = new ArrayList<Filmography>();
 
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
@@ -339,12 +339,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void addPerson(Person person) {
+    public void addPerson(Filmography person) {
         if (person != null) {
             boolean duplicate = false;
             String name = person.getName();
             String job = person.getJob();
-            for (Person p : people) {
+            for (Filmography p : people) {
                 if (p.getName().equals(name) && p.getJob().equals(job)) {
                     duplicate = true;
                     break;
@@ -357,7 +357,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void removePerson(Person person) {
+    public void removePerson(Filmography person) {
         if (person != null) {
             people.remove(person);
         }
@@ -385,7 +385,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void addPerson(String key, String name, String URL, String job, String character, String doublage) {
         if (name != null && key != null && URL != null && job != null && character != null) {
-            Person person = new Person();
+            Filmography person = new Filmography();
             if (key.indexOf(":") > 0) {
                 String[] keys = key.split(":");
                 person.setId(keys[0], keys[1]);
@@ -412,7 +412,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             person.setDepartment();
             int countActor = 0;
             if (person.getDepartment().equalsIgnoreCase("Actors")) {
-                for (Person member : people) {
+                for (Filmography member : people) {
                     if (member.getDepartment().equalsIgnoreCase("Actors")) {
                         countActor++;
                     }
@@ -563,8 +563,18 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     @XmlElementWrapper(name = "people")
     @XmlElement(name = "person")
-    public Collection<Person> getPeople() {
+    public Collection<Filmography> getPeople() {
         return people;
+    }
+
+    public Collection<String> getPerson(String department) {
+        Collection<String> pList = new ArrayList<String>();
+        for (Filmography p : people) {
+            if (p.getDepartment().equals(department)) {
+                pList.add(p.getTitle());
+            }
+        }
+        return pList;
     }
 
     public String getCertification() {
@@ -887,33 +897,47 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void addActor(String key, String actor, String character, String URL) {
-        addActor(key, actor, character, URL, UNKNOWN);
-    }
-
     public void addActor(String key, String name, String character, String URL, String doublage) {
-        if (name != null && !cast.contains(name)) {
+        if (name != null) {
+            String Name = name;
             if (name.indexOf(":") > 0) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
-                    addActor(names[1]);
+                    Name = names[1];
                 } else if (StringTools.isValidString(names[0])) {
-                    addActor(names[0]);
-                } else {
-                    addActor(name);
+                    Name = names[0];
                 }
-            } else {
-                addActor(name);
             }
-            addPerson(key, name, URL, "Actor", character, doublage);
+            boolean found = false;
+            for (Filmography p : people) {
+                if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Actors")) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                addActor(Name);
+                addPerson(key, name, URL, "Actor", character, doublage);
+            }
         }
     }
 
     public void setCast(Collection<String> cast) {
-        this.isDirty = true;
-        this.cast = new LinkedHashSet<String>(cast);
-        for (String castMember : cast) {
-            addPerson(castMember);
+        if (cast != null && !cast.isEmpty()) {
+            clearCast();
+            this.cast.addAll(cast);
+            Collection<Filmography> pList = new ArrayList<Filmography>();
+            for (Filmography p : people) {
+                if (p.getDepartment().equals("Actors")) {
+                    pList.add(p);
+                }
+            }
+            for (Filmography p : pList) {
+                removePerson(p);
+            }
+            for (String member : cast) {
+                addActor(Movie.UNKNOWN, member, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+            }
         }
     }
 
@@ -930,26 +954,47 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addWriter(String key, String name, String URL) {
-        if (name != null && !writers.contains(name)) {
+        if (name != null) {
+            String Name = name;
             if (name.indexOf(":") > 0) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
-                    addWriter(names[1]);
+                    Name = names[1];
                 } else if (StringTools.isValidString(names[0])) {
-                    addWriter(names[0]);
-                } else {
-                    addWriter(name);
+                    Name = names[0];
                 }
-            } else {
-                addWriter(name);
             }
-            addPerson(key, name, URL, "Writer");
+            boolean found = false;
+            for (Filmography p : people) {
+                if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Writing")) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                addWriter(Name);
+                addPerson(key, name, URL, "Writer");
+            }
         }
     }
 
     public void setWriters(Collection<String> writers) {
-        this.isDirty = true;
-        this.writers = new HashSet<String>(writers);
+        if (writers != null && !writers.isEmpty()) {
+            clearWriters();
+            this.writers.addAll(writers);
+            Collection<Filmography> pList = new ArrayList<Filmography>();
+            for (Filmography p : people) {
+                if (p.getDepartment().equals("Writing")) {
+                    pList.add(p);
+                }
+            }
+            for (Filmography p : pList) {
+                removePerson(p);
+            }
+            for (String member : writers) {
+                addWriter(Movie.UNKNOWN, member, Movie.UNKNOWN);
+            }
+        }
     }
 
     public void clearWriters() {
@@ -1007,6 +1052,18 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (directors != null && !directors.isEmpty()) {
             clearDirectors();
             this.directors.addAll(directors);
+            Collection<Filmography> pList = new ArrayList<Filmography>();
+            for (Filmography p : people) {
+                if (p.getDepartment().equals("Directing")) {
+                    pList.add(p);
+                }
+            }
+            for (Filmography p : pList) {
+                removePerson(p);
+            }
+            for (String member : directors) {
+                addDirector(Movie.UNKNOWN, member, Movie.UNKNOWN);
+            }
         }
     }
     
@@ -1023,20 +1080,27 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addDirector(String key, String name, String URL) {
-        if (name != null && !directors.contains(name)) {
+        if (name != null) {
+            String Name = name;
             if (name.indexOf(":") > 0) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
-                    addDirector(names[1]);
+                    Name = names[1];
                 } else if (StringTools.isValidString(names[0])) {
-                    addDirector(names[0]);
-                } else {
-                    addDirector(name);
+                    Name = names[0];
                 }
-            } else {
-                addDirector(name);
             }
-            addPerson(key, name, URL, "Director");
+            boolean found = false;
+            for (Filmography p : people) {
+                if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Directing")) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                addDirector(Name);
+                addPerson(key, name, URL, "Director");
+            }
         }
     }
 
@@ -1185,7 +1249,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.awards = awards;
     }
 
-    public void setPeople(Collection<Person> people) {
+    public void setPeople(Collection<Filmography> people) {
         this.isDirty = true;
         this.people = people;
     }

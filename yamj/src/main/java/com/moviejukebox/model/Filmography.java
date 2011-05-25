@@ -42,6 +42,9 @@ public class Filmography {
     private String rating               = UNKNOWN;
     private String url                  = UNKNOWN;
     private boolean isDirty             = true;
+    private boolean isScrapeLibrary     = true;
+    private int     order               = -1;
+    private int     castId              = -1;
 
     public String getId() {
         return getId(ImdbPlugin.IMDB_PLUGIN_ID);
@@ -62,10 +65,6 @@ public class Filmography {
 
     public String getName() {
         return name;
-    }
-
-    public String getDoublage() {
-        return doublage;
     }
 
     public String getTitle() {
@@ -113,13 +112,6 @@ public class Filmography {
             if (isNotValidString(title)) {
                 title = name;
             }
-            setDirty();
-        }
-    }
-
-    public void setDoublage(String name) {
-        if (isValidString(name) && !doublage.equalsIgnoreCase(name)) {
-            doublage = name;
             setDirty();
         }
     }
@@ -195,6 +187,71 @@ public class Filmography {
             this.idMap.put(key, id);
             setDirty();
         }
+    }
+
+    public int getCastId() {
+        return castId;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setCastId(int castId) {
+        if (this.castId != castId) {
+            this.castId = castId;
+            setDirty();
+        }
+    }
+
+    public void setCastId(String castId) {
+        if (isValidString(castId) && !castId.equalsIgnoreCase(Integer.toString(this.castId))) {
+            try {
+                this.castId = Integer.parseInt(castId);
+                setDirty();
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
+    public void setOrder(int order) {
+        if (this.order != order) {
+            this.order = order;
+            setDirty();
+        }
+    }
+
+    public void setOrder(String order) {
+        if (isValidString(order) && !order.equalsIgnoreCase(Integer.toString(this.order))) {
+            try {
+                this.order = Integer.parseInt(order);
+                setDirty();
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
+    public String getDoublage() {
+        return doublage;
+    }
+
+    public void setDoublage(String name) {
+        if (isValidString(name) && !doublage.equalsIgnoreCase(name)) {
+            doublage = name;
+            setDirty();
+        }
+    }
+
+    public boolean isScrapeLibrary() {
+        return isScrapeLibrary;
+    }
+
+    public void setScrapeLibrary(boolean isScrapeLibrary) {
+        this.isScrapeLibrary = isScrapeLibrary;
+    }
+
+    public void setScrapeLibrary() {
+        setScrapeLibrary(true);
     }
 
     public void setDepartment() {

@@ -273,7 +273,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         int peopleCount = 0;
-        if (movie.getDirectors().isEmpty() && directorMax > 0) {
+        if (movie.getPerson("Directing").isEmpty() && directorMax > 0) {
             // Note this is a hack for the change to IMDB for Issue 875
             //ArrayList<String> tempDirectors = null;
             // Issue 1261 : Allow multiple text matching for one "element".
@@ -282,7 +282,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             int count = 0;
             boolean found = false;
             for (String directorMatch : directorMatches) {
-//                tempDirectors = HTMLTools.extractTags(xml, "<h5>" + directorMatch, "</div>", "<a href=\"/name/", "</a>");
                 // Issue 1897: Cast enhancement
                 for (String member : HTMLTools.extractTags(xml, "<h5>" + directorMatch, "</div>", "", "</a>")) {
                     int beginIndex = member.indexOf("<a href=\"/name/");
@@ -458,8 +457,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         /** Check for writer(s) **/
-        if (movie.getWriters().isEmpty() && writerMax > 0) {
-//            movie.setWriters(HTMLTools.extractTags(xml, "<h5>" + siteDef.getWriter(), "</div>", "<a href=\"/name/", "</a>"));
+        if (movie.getPerson("Writing").isEmpty() && writerMax > 0) {
             // Issue 1897: Cast enhancement
             int count = 0;
             boolean found = true;
@@ -484,8 +482,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             peopleCount += count;
         }
 
-        if (movie.getCast().isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
-//            movie.setCast(HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"><a href=\"/name/", "</a>"));
+        if (movie.getPerson("Actors").isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             int count = 0;
             for (String actorBlock : HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"", "</tr>")) {
@@ -499,7 +496,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         character = actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex));
                     }
                 }
-                movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID + "/");
+                movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID + "/", Movie.UNKNOWN);
                 count++;
                 if (count == actorMax || peopleCount + count == peopleMax) {
                     break;
@@ -762,9 +759,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // DIRECTOR(S)
-        if (movie.getDirectors().isEmpty()) {
-//            peopleList = parseNewPeople(xml, siteDef2.getDirector().split("\\|"));
-//            movie.setDirectors(peopleList);
+        if (movie.getPerson("Directing").isEmpty()) {
             // Issue 1897: Cast enhancement
             for (String category : siteDef2.getDirector().split("\\|")) {
                 if (xml.indexOf(category + ":") >= 0) {
@@ -780,19 +775,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // WRITER(S)
-        if (movie.getWriters().isEmpty()) {
-/*
-            peopleList = parseNewPeople(xml, siteDef2.getWriter().split("\\|")); 
-            String writer;
-            
-            for (Iterator<String> iter = peopleList.iterator(); iter.hasNext();) {
-                writer = iter.next();
-                // Clean up by removing the phrase "and ? more credits"
-                if (writer.indexOf("more credit") == -1) {
-                    movie.addWriter(writer);
-                }
-            }
-*/
+        if (movie.getPerson("Writing").isEmpty()) {
             // Issue 1897: Cast enhancement
             for (String category : siteDef2.getWriter().split("\\|")) {
                 if (xml.indexOf(category + ":") >= 0) {
@@ -811,7 +794,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
         
         // CAST
-        if (movie.getCast().isEmpty()) {
+        if (movie.getPerson("Actors").isEmpty()) {
             // Issue 1897: Cast enhancement
             peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "<td class=\"name\"", "</tr>"); 
 
@@ -850,7 +833,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             character = character.replaceAll("\\s+", " ").replaceAll("^\\s", "").replaceAll("\\s$", "");
                         }
                     }
-                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + "name/" + personID + "/");
+                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + "name/" + personID + "/", Movie.UNKNOWN);
                 }
             }
         }
