@@ -33,23 +33,38 @@ public class Person extends Filmography {
 
     private static final String UNKNOWN = Movie.UNKNOWN;
 
-    private String  biography           = UNKNOWN;
-    private int     order               = -1;
-    private int     castId              = -1;
-    private int     version             = -1;
-    private int     knownMovies         = -1;
-    private String  birthday            = UNKNOWN;
-    private String  birthPlace          = UNKNOWN;
-    private String  photoURL            = UNKNOWN;
-    private String  photoFilename       = UNKNOWN;
-    private boolean isDirtyPhoto        = false;
-    private boolean isScrapeLibrary     = true;
-    private int     popularity              = 1;
+    private String  biography             = UNKNOWN;
+    private int     version               = -1;
+    private int     knownMovies           = -1;
+    private String  birthday              = UNKNOWN;
+    private String  birthPlace            = UNKNOWN;
+    private String  photoURL              = UNKNOWN;
+    private String  photoFilename         = UNKNOWN;
+    private boolean isDirtyPhoto          = false;
+    private int     popularity            = 1;
     private List<Filmography> filmography = new ArrayList<Filmography>();
     private List<String>      aka         = new ArrayList<String>();
     private String  lastModifiedAt;
 
     public Person() {
+    }
+
+    public Person(Filmography person) {
+        setIdMap(person.getIdMap());
+        setName(person.getName());
+        setDoublage(person.getDoublage());
+        setTitle(person.getTitle());
+        setFilename(new String(person.getFilename()));
+        setJob(person.getJob());
+        setCharacter(person.getCharacter());
+        setDepartment(person.getDepartment());
+        setRating(person.getRating());
+        setUrl(person.getUrl());
+        setScrapeLibrary(person.isScrapeLibrary());
+        setOrder(person.getOrder());
+        setCastId(person.getCastId());
+
+        setDirty(person.isDirty());
     }
 
     public Person(Person person) {
@@ -63,10 +78,11 @@ public class Person extends Filmography {
         setDepartment(person.getDepartment());
         setRating(person.getRating());
         setUrl(person.getUrl());
-
+        setScrapeLibrary(person.isScrapeLibrary());
         setOrder(person.getOrder());
-        setBiography(person.getBiography());
         setCastId(person.getCastId());
+
+        setBiography(person.getBiography());
         setVersion(person.getVersion());
         setKnownMovies(person.getKnownMovies());
         setBirthday(person.getBirthday());
@@ -74,7 +90,6 @@ public class Person extends Filmography {
         setPhotoURL(person.getPhotoURL());
         setPhotoFilename(person.getPhotoFilename());
         setDirtyPhoto(person.isDirtyPhoto());
-        setScrapeLibrary(person.isScrapeLibrary());
         setPopularity(person.getPopularity());
         setFilmography(person.getFilmography());
         setAka(person.getAka());
@@ -99,10 +114,6 @@ public class Person extends Filmography {
         return birthPlace;
     }
 
-    public int getCastId() {
-        return castId;
-    }
-
     public List<Filmography> getFilmography() {
         return filmography;
     }
@@ -113,10 +124,6 @@ public class Person extends Filmography {
 
     public String getLastModifiedAt() {
         return lastModifiedAt;
-    }
-
-    public int getOrder() {
-        return order;
     }
 
     public int getVersion() {
@@ -193,23 +200,6 @@ public class Person extends Filmography {
         }
     }
 
-    public void setCastId(int castId) {
-        if (this.castId != castId) {
-            this.castId = castId;
-            setDirty();
-        }
-    }
-
-    public void setCastId(String castId) {
-        if (isValidString(castId) && !castId.equalsIgnoreCase(Integer.toString(this.castId))) {
-            try {
-                this.castId = Integer.parseInt(castId);
-                setDirty();
-            } catch (Exception ignore) {
-            }
-        }
-    }
-
     public void setFilmography(List<Filmography> filmography) {
         if (filmography != null && !this.filmography.equals(filmography)) {
             this.filmography = filmography;
@@ -238,23 +228,6 @@ public class Person extends Filmography {
         setLastModifiedAt(sdf.format(Calendar.getInstance().getTime()));
     }
 
-    public void setOrder(int order) {
-        if (this.order != order) {
-            this.order = order;
-            setDirty();
-        }
-    }
-
-    public void setOrder(String order) {
-        if (isValidString(order) && !order.equalsIgnoreCase(Integer.toString(this.order))) {
-            try {
-                this.order = Integer.parseInt(order);
-                setDirty();
-            } catch (Exception ignore) {
-            }
-        }
-    }
-
     public void setVersion(int version) {
         if (this.version != version) {
             this.version = version;
@@ -281,18 +254,6 @@ public class Person extends Filmography {
 
     public void setDirtyPhoto() {
         setDirtyPhoto(true);
-    }
-
-    public boolean isScrapeLibrary() {
-        return isScrapeLibrary;
-    }
-
-    public void setScrapeLibrary(boolean isScrapeLibrary) {
-        this.isScrapeLibrary = isScrapeLibrary;
-    }
-
-    public void setScrapeLibrary() {
-        setScrapeLibrary(true);
     }
 
     public void setPopularity(Integer value) {

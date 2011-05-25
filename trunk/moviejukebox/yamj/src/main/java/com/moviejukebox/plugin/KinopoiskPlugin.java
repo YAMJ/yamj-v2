@@ -133,10 +133,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
         if (NFOpriority) {
             // checked NFO data
             NFOplot = StringTools.isValidString(mediaFile.getPlot());
-            NFOcast = mediaFile.getCast().size() > 0;
+            NFOcast = mediaFile.getPerson("Actors").size() > 0;
             NFOgenres = mediaFile.getGenres().size() > 0;
-            NFOdirectors = mediaFile.getDirectors().size() > 0;
-            NFOwriters = mediaFile.getWriters().size() > 0;
+            NFOdirectors = mediaFile.getPerson("Directing").size() > 0;
+            NFOwriters = mediaFile.getPerson("Writing").size() > 0;
             NFOcertification = StringTools.isValidString(mediaFile.getCertification());
             NFOcountry = StringTools.isValidString(mediaFile.getCountry());
             NFOyear = StringTools.isValidString(mediaFile.getYear())?mediaFile.getYear():"";
@@ -681,13 +681,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (!NFOcast) {
                         peopleCount = scanMoviePerson(movie, xml, "actor", actorMax, peopleCount);
                     }
-                    Collection<Person> outcast = new ArrayList<Person>();
-                    for (Person p : movie.getPeople()) {
+                    Collection<Filmography> outcast = new ArrayList<Filmography>();
+                    for (Filmography p : movie.getPeople()) {
                         if (StringTools.isNotValidString(p.getId(KINOPOISK_PLUGIN_ID))) {
                             outcast.add(p);
                         }
                     }
-                    for (Person p : outcast) {
+                    for (Filmography p : outcast) {
                         movie.removePerson(p);
                     }
                 }
@@ -734,7 +734,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 count++;
                 peopleCount++;
                 boolean found = false;
-                for (Person p : movie.getPeople()) {
+                for (Filmography p : movie.getPeople()) {
                     if (p.getName().equalsIgnoreCase(origName) && p.getJob().equalsIgnoreCase(mode)) {
                         p.setId(KINOPOISK_PLUGIN_ID, personID);
                         p.setTitle(name);

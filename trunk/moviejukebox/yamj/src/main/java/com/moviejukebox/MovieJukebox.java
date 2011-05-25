@@ -1004,7 +1004,7 @@ public class MovieJukebox {
                         continue;
                     }
                     if (popularity > 0) {
-                        for (Person person : movie.getPeople()) {
+                        for (Filmography person : movie.getPeople()) {
                             boolean exists = false;
                             String name = person.getName();
                             for (String key : popularPeople.keySet()) {
@@ -1090,7 +1090,7 @@ public class MovieJukebox {
                             continue;
                         }
                         TreeMap<String, Integer> typeCounter = new TreeMap<String, Integer>();
-                        for (final Person person : movie.getPeople()) {
+                        for (Filmography person : movie.getPeople()) {
                             final int count = ++peopleCounter;
                             String job = person.getJob();
                             if (!typeCounter.containsKey(job)) {
@@ -1100,6 +1100,7 @@ public class MovieJukebox {
                             } else {
                                 typeCounter.put(job, typeCounter.get(job) + 1);
                             }
+                            final Person p = new Person(person);
 
                             // Multi-thread parallel processing
                             tasks.submit(new Callable<Void>() {
@@ -1109,13 +1110,13 @@ public class MovieJukebox {
                                     ToolSet tools = threadTools.get();
 
                                     // Set default filename
-                                    person.setFilename();
+                                    p.setFilename();
 
                                     // Get person data (name, birthday, etc...), download photo and put to library
-                                    updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, person, tools.imagePlugin);
-                                    library.addPerson(person);
+                                    updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, p, tools.imagePlugin);
+                                    library.addPerson(p);
 
-                                    logger.info("Finished: " + person.getName() + " (" + count + "/" + peopleCount + ")");
+                                    logger.info("Finished: " + p.getName() + " (" + count + "/" + peopleCount + ")");
 
                                     // Show memory every (processing count) movies
                                     if (showMemory && (count % MaxThreadsProcess) == 0) {
@@ -1135,7 +1136,7 @@ public class MovieJukebox {
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
-                    for (Person person : movie.getPeople()) {
+                    for (Filmography person : movie.getPeople()) {
                         boolean dirty = false;
                         for (Person p : library.getPeople()) {
                             if (person.getName().equals(p.getName())) {

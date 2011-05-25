@@ -851,7 +851,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 if (peopleScan) {
-                    for (Person person : movie.getPeople()) {
+                    for (Filmography person : movie.getPeople()) {
                         if (!person.getDepartment().equalsIgnoreCase("Actors") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
                         }
@@ -890,7 +890,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 if (peopleScan) {
-                    for (Person person : movie.getPeople()) {
+                    for (Filmography person : movie.getPeople()) {
                         if (!person.getDepartment().equalsIgnoreCase("Directing") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
                         }
@@ -917,7 +917,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 if (peopleScan) {
-                    for (Person person : movie.getPeople()) {
+                    for (Filmography person : movie.getPeople()) {
                         if (!person.getDepartment().equalsIgnoreCase("Writing") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
                         }
@@ -959,7 +959,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                for (Person person : movie.getPeople()) {
+                for (Filmography person : movie.getPeople()) {
                     if (completePerson && StringTools.isNotValidString(person.getFilename())) {
                         continue;
                     }

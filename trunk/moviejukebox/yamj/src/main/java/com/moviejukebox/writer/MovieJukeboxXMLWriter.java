@@ -415,7 +415,7 @@ public class MovieJukeboxXMLWriter {
 
                 // Issue 1897: Cast enhancement
                 if (tag.toLowerCase().startsWith("<person ")) {
-                    Person person = new Person();
+                    Filmography person = new Person();
 
                     StartElement start = e.asStartElement();
                     for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
@@ -1631,10 +1631,10 @@ public class MovieJukeboxXMLWriter {
         }
 
         // Issue 1897: Cast enhancement
-        Collection<Person> people = movie.getPeople();
+        Collection<Filmography> people = movie.getPeople();
         if (people != null && people.size() > 0) {
             writer.writeStartElement("people");
-            for (Person person : people) {
+            for (Filmography person : people) {
                 writer.writeStartElement("person");
                 writer.writeAttribute("name", person.getName());
                 writer.writeAttribute("doublage", person.getDoublage());
