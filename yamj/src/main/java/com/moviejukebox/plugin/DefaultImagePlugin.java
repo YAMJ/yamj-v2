@@ -25,6 +25,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.IMovieBasicInformation;
@@ -51,6 +57,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addSetLogo;
     private boolean addSubTitle;
     private boolean addLanguage;
+    private boolean addRating;
     private boolean addOverlay;
     private int imageWidth;
     private int imageHeight;
@@ -77,6 +84,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static String frameColor1080;
     private static String frameColorSD;
     private static String overlaySource;
+
+    // Issue 1937: Overlay configuration XML
+    private List<logoOverlay> overlayLayers = new ArrayList<logoOverlay>();
+    private boolean xmlOverlay;
 
     public DefaultImagePlugin() {
         // Generic properties
@@ -105,6 +116,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addSetLogo          = PropertiesUtil.getBooleanProperty(imageType + ".logoSet", "false"); // Note: This should only be for thumbnails
         addSubTitle         = PropertiesUtil.getBooleanProperty(imageType + ".logoSubTitle", "false");
         addLanguage         = PropertiesUtil.getBooleanProperty(imageType + ".language", "false");
+        addRating           = PropertiesUtil.getBooleanProperty(imageType + ".rating", "false");
         addOverlay          = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
 
         addTextTitle        = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", "false");
@@ -130,6 +142,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         frameColor720       = PropertiesUtil.getProperty(imageType + ".frame.color720", "255/255/255");
         frameColor1080      = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
         
+        // Issue 1937: Overlay configuration XML
+        xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", "false");
+        if (xmlOverlay) {
+            fillOverlayParams(PropertiesUtil.getProperty(imageType + ".xmlOverlayFile", "overlay-default.xml"));
+        }
+
         ratio = (float)imageWidth / (float)imageHeight;
 
         BufferedImage bi = imageGraphic;
@@ -172,29 +190,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 bi = drawRoundCorners(bi);
             }
 
-            bi = drawLogos(movie, bi);
-
-            // Should only really happen on set's thumbnails.
-            if (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster()) {
-                // Draw the set logo if requested.
-                if (addSetLogo) {
-                    bi = drawSet(movie, bi);
-                    logger.debug("Drew set logo on " + movie.getTitle());
-                }
-                // Let's draw the set's size (at bottom) if requested.
-                final int size = movie.getSetSize();
-                if (addTextSetSize && size > 0) {
-                    String text = null;
-                    // Let's draw not more than 9...
-                    if (size > 9) {
-                        text = "9+";
-                    } else {
-                        text = Integer.toString(size);
-                    }
-                    bi = drawText(bi, text, false);
-                    logger.debug("Size (" + movie.getSetSize() + ") of set [" + movie.getTitle() + "] was drawn");
-                }
-            }
+            bi = drawLogos(movie, bi, imageType);
 
             if (addOverlay) {
                 bi = drawOverlay(movie, bi, overlayOffsetX, overlayOffsetY);
@@ -310,21 +306,139 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      *            The image to draw on
      * @return The new image with the added logos
      */
-    protected BufferedImage drawLogos(Movie movie, BufferedImage bi) {
-        if (addHDLogo) {
-            bi = drawLogoHD(movie, bi, addTVLogo);
-        }
+    protected BufferedImage drawLogos(Movie movie, BufferedImage bi, String imageType) {
+        // Issue 1937: Overlay configuration XML
+        if (xmlOverlay) {
+            for (logoOverlay layer : overlayLayers) {
+                boolean flag = false;
+                List<String> values = new ArrayList<String>();
+                List<String> images = new ArrayList<String>();
+                List<Float> lefts = new ArrayList<Float>();
+                List<Float> tops = new ArrayList<Float>();
+                List<String> aligns = new ArrayList<String>();
+                List<String> valigns = new ArrayList<String>();
+                for (String name : layer.names) {
+                    String value = Movie.UNKNOWN;
+                    String image = Movie.UNKNOWN;
+                    if (checkLogoEnabled(name)) {
+                        if (name.equals("set")) {
+                            value = (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster())?"true":"false";
+                        } else if (name.equals("TV")) {
+                            value = movie.isTVShow()?"true":"false";
+                        } else if (name.equals("HD")) {
+                            value = movie.isHD()?highdefDiff?movie.isHD1080()?"hd1080":"hd720":"hd":"false";
+                        } else if (name.equals("subtitle")) {
+                            value = (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO"))?"false":"true";
+                        } else if (name.equals("language")) {
+                            value = movie.getLanguage();
+                            if (StringTools.isValidString(value)) {
+                                image = "languages/English.png";
+                            }
+                        } else if (name.equals("rating")) {
+                            value = Integer.toString((movie.getRating()/10)*10);
+                        }
 
-        if (addTVLogo) {
-            bi = drawLogoTV(movie, bi, addHDLogo);
-        }
+                        for (imageOverlay img : layer.images) {
+                            if (img.name.equals(name) && img.value.equals(value)) {
+                                File imageFile = new File(getResourcesPath() + img.filename);
+                                if (imageFile.exists()) {
+                                    image = img.filename;
+                                }
+                                break;
+                            }
+                        }
+                        flag = flag || StringTools.isValidString(image);
+                    }
+                    lefts.add(layer.left);
+                    tops.add(layer.top);
+                    aligns.add(layer.align);
+                    valigns.add(layer.valign);
+                    values.add(value);
+                    images.add(image);
+                }
 
-        if (addLanguage) {
-            bi = drawLanguage(movie, bi);
-        }
-        
-        if (addSubTitle) {
-            bi = drawSubTitle(movie, bi);
+                if (!flag) {
+                    continue;
+                }
+
+                if (layer.positions.size() > 0) {
+                    for (conditionOverlay cond : layer.positions) {
+                        flag = true;
+                        for (int i = 0; i < layer.names.size(); i++) {
+                            flag = flag && cond.values.get(i).equals(values.get(i));
+                            if (!flag) {
+                                break;
+                            }
+                        }
+                        if (flag) {
+                            for (int i = 0; i < layer.names.size(); i++) {
+                                lefts.set(i, cond.positions.get(i).left);
+                                tops.set(i, cond.positions.get(i).top);
+                                aligns.set(i, cond.positions.get(i).align);
+                                valigns.set(i, cond.positions.get(i).valign);
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < layer.names.size(); i++) {
+                    if (layer.names.get(i).equals("language")) {
+                        bi = drawLanguage(movie, bi, getOverlayX(bi.getWidth(), 62, lefts.get(i), aligns.get(i)), getOverlayY(bi.getHeight(), 40, tops.get(i), valigns.get(i)));
+                        continue;
+                    }
+
+                    String image = images.get(i);
+                    if (StringTools.isNotValidString(image)) {
+                        continue;
+                    }
+                    File imageFile = new File(getResourcesPath() + image);
+                    if (!imageFile.exists()) {
+                        continue;
+                    }
+
+                    try {
+                        BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + image);
+
+                        Graphics2D g2d = bi.createGraphics();
+                        g2d.drawImage(biSet, getOverlayX(bi.getWidth(), biSet.getWidth(), lefts.get(i), aligns.get(i)), getOverlayY(bi.getHeight(), biSet.getHeight(), tops.get(i), valigns.get(i)), null);
+                        g2d.dispose();
+                    } catch (IOException error) {
+                        logger.warn("Failed drawing overlay to image file: Please check that " + image + " is in the resources directory.");
+                    }
+
+                    if (layer.names.get(i).equals("set")) {
+                        bi = drawSetSize(movie, bi);
+                        continue;
+                    }
+                }
+            }
+        } else {
+            if (addHDLogo) {
+                bi = drawLogoHD(movie, bi, addTVLogo);
+            }
+
+            if (addTVLogo) {
+                bi = drawLogoTV(movie, bi, addHDLogo);
+            }
+
+            if (addLanguage) {
+                bi = drawLanguage(movie, bi, 1, 1);
+            }
+            
+            if (addSubTitle) {
+                bi = drawSubTitle(movie, bi);
+            }
+
+            // Should only really happen on set's thumbnails.
+            if (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster()) {
+                // Draw the set logo if requested.
+                if (addSetLogo) {
+                    bi = drawSet(movie, bi);
+                    logger.debug("Drew set logo on " + movie.getTitle());
+                }
+                bi = drawSetSize(movie, bi);
+            }
         }
 
         return bi;
@@ -529,7 +643,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      *            The image file to draw on
      * @return The new image file with the language flag on it
      */
-    private BufferedImage drawLanguage(IMovieBasicInformation movie, BufferedImage bi) {
+    private BufferedImage drawLanguage(IMovieBasicInformation movie, BufferedImage bi, int left, int top) {
         String lang = movie.getLanguage();
 
         if (StringTools.isValidString(lang)) {
@@ -587,7 +701,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         for (int i = 0; i < imageFiles.length; i++) {
                             int indexCol = (i) % nbCols;
                             int indexRow = (i / nbCols);
-                            g2d.drawImage(imageFiles[i], 1 + (width * indexCol), 1 + (height * indexRow), width, height, null);
+                            g2d.drawImage(imageFiles[i], left + (width * indexCol), top + (height * indexRow), width, height, null);
                         }
                     }
                 }
@@ -621,6 +735,24 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.dispose();
         } catch (IOException error) {
             logger.warn("Failed drawing set logo to thumbnail file:" + "Please check that set graphic (set.png) is in the resources directory.");
+        }
+
+        return bi;
+    }
+
+    private BufferedImage drawSetSize(Movie movie, BufferedImage bi) {
+        // Let's draw the set's size (at bottom) if requested.
+        final int size = movie.getSetSize();
+        if (addTextSetSize && size > 0) {
+            String text = null;
+            // Let's draw not more than 9...
+            if (size > 9) {
+                text = "9+";
+            } else {
+                text = Integer.toString(size);
+            }
+            bi = drawText(bi, text, false);
+            logger.debug("Size (" + movie.getSetSize() + ") of set [" + movie.getTitle() + "] was drawn");
         }
 
         return bi;
@@ -716,6 +848,204 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             }
             return null;
+        }
+    }
+
+    // Issue 1937: Overlay configuration XML
+    private class positionOverlay {
+        float  left   = 0;
+        float  top    = 0;
+        String align  = "left";
+        String valign = "top";
+    }
+
+    private class imageOverlay {
+        String name;
+        String value;
+        String filename;
+    }
+
+    private class conditionOverlay {
+        List<String> values = new ArrayList<String>();
+        List<positionOverlay> positions = new ArrayList<positionOverlay>();
+    }
+
+    private class logoOverlay extends positionOverlay {
+        List<String> names = new ArrayList<String>();
+        List<imageOverlay> images = new ArrayList<imageOverlay>();
+        List<conditionOverlay> positions = new ArrayList<conditionOverlay>();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void fillOverlayParams(String xmlOverlayFilename) {
+        File xmlOverlayFile = new File(xmlOverlayFilename);
+        if (xmlOverlayFile.exists() && xmlOverlayFile.isFile() && xmlOverlayFilename.toUpperCase().endsWith("XML")) {
+            try {
+                XMLConfiguration c = new XMLConfiguration(xmlOverlayFile);
+                List<HierarchicalConfiguration> layers = c.configurationsAt("layer");
+                int index = 0;
+                for (HierarchicalConfiguration layer : layers) {
+                    String name = layer.getString("name");
+                    if (StringTools.isNotValidString(name)) {
+                        continue;
+                    }
+                    logoOverlay overlay = new logoOverlay();
+
+                    String left = layer.getString("left");
+                    String top = layer.getString("top");
+                    String align = layer.getString("align");
+                    String valign = layer.getString("valign");
+
+                    overlay.names = Arrays.asList(name.split("/"));
+                    if (StringTools.isValidString(left)) {
+                        try {
+                            overlay.left = Float.parseFloat(left);
+                        } catch (Exception ignore) {
+                        }
+                    }
+                    if (StringTools.isValidString(top)) {
+                        try {
+                            overlay.top = Float.parseFloat(top);
+                        } catch (Exception ignore) {
+                        }
+                    }
+                    if (StringTools.isValidString(align) && (align.equals("left") || align.equals("center") || align.equals("right"))) {
+                        overlay.align = align;
+                    }
+                    if (StringTools.isValidString(valign) && (valign.equals("top") || valign.equals("center") || valign.equals("bottom"))) {
+                        overlay.valign = valign;
+                    }
+
+                    List<HierarchicalConfiguration> images = c.configurationsAt("layer(" + index + ").images.image");
+                    for (HierarchicalConfiguration image : images) {
+                        name = image.getString("[@name]");
+                        String value = image.getString("[@value]");
+                        String filename = image.getString("[@filename]");
+
+                        if (StringTools.isNotValidString(name)) {
+                            name = overlay.names.get(0);
+                        }
+                        if (!overlay.names.contains(name) || StringTools.isNotValidString(value) || StringTools.isNotValidString(filename)) {
+                            continue;
+                        }
+
+                        imageOverlay img = new imageOverlay();
+                        img.name = name;
+                        img.value = value;
+                        img.filename = filename;
+
+                        overlay.images.add(img);
+                    }
+
+                    if (overlay.names.size() > 1) {
+                        List<HierarchicalConfiguration> positions = c.configurationsAt("layer(" + index + ").positions.position");
+                        for (HierarchicalConfiguration position : positions) {
+                            String value = position.getString("[@value]");
+                            left = position.getString("[@left]");
+                            top = position.getString("[@top]");
+                            align = position.getString("[@align]");
+                            valign = position.getString("[@valign]");
+
+                            if (StringTools.isNotValidString(value)) {
+                                continue;
+                            }
+                            conditionOverlay condition = new conditionOverlay();
+                            condition.values = Arrays.asList(value.split("/"));
+                            if (StringTools.isNotValidString(left)) {
+                                left = Float.toString(overlay.left);
+                            }
+                            if (StringTools.isNotValidString(top)) {
+                                top = Float.toString(overlay.top);
+                            }
+                            if (StringTools.isNotValidString(align)) {
+                                align = overlay.align;
+                            }
+                            if (StringTools.isNotValidString(valign)) {
+                                valign = overlay.valign;
+                            }
+                            List<String> lefts = Arrays.asList(left.split("/"));
+                            List<String> tops = Arrays.asList(top.split("/"));
+                            List<String> aligns = Arrays.asList(align.split("/"));
+                            List<String> valigns = Arrays.asList(valign.split("/"));
+                            for (int i = 0; i < overlay.names.size(); i++) {
+                                if (StringTools.isNotValidString(condition.values.get(i))) {
+                                    condition.values.set(i, Movie.UNKNOWN);
+                                }
+                                positionOverlay p = new positionOverlay();
+                                if (lefts.size() <= i || StringTools.isNotValidString(lefts.get(i))) {
+                                    p.left = overlay.left;
+                                } else {
+                                    p.left = Float.parseFloat(lefts.get(i));
+                                }
+                                if (tops.size() <= i || StringTools.isNotValidString(tops.get(i))) {
+                                    p.top = overlay.top;
+                                } else {
+                                    p.top = Float.parseFloat(tops.get(i));
+                                }
+                                if (aligns.size() <= i || StringTools.isNotValidString(aligns.get(i))) {
+                                    p.align = overlay.align;
+                                } else {
+                                    p.align = aligns.get(i);
+                                }
+                                if (valigns.size() <= i || StringTools.isNotValidString(valigns.get(i))) {
+                                    p.valign = overlay.valign;
+                                } else {
+                                    p.valign = valigns.get(i);
+                                }
+                                condition.positions.add(p);
+                            }
+                            overlay.positions.add(condition);
+                        }
+                    }
+                    overlayLayers.add(overlay);
+                    index++;
+                }
+            } catch (Exception error) {
+                logger.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
+                final Writer eResult = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(eResult);
+                error.printStackTrace(printWriter);
+                logger.error(eResult.toString());
+            }
+        } else {
+            logger.error("The moviejukebox overlay configuration file you specified is invalid: " + xmlOverlayFile.getName());
+        }
+    }
+
+    protected boolean checkLogoEnabled(String name) {
+        if (name.equals("language")) {
+            return addLanguage;
+        } else if (name.equals("subtitle")) {
+            return addSubTitle;
+        } else if (name.equals("set")) {
+            return addSetLogo;
+        } else if (name.equals("TV")) {
+            return addTVLogo;
+        } else if (name.equals("HD")) {
+            return addHDLogo;
+        } else if (name.equals("rating")) {
+            return addRating;
+        }
+        return false;
+    }
+
+    protected int getOverlayX(int fieldWidth, int itemWidth, float left, String align) {
+        if (align.equals("left")) {
+            return (int)(left>=0?left:fieldWidth+left);
+        } else if (align.equals("right")) {
+            return (int)(left>=0?left-itemWidth:fieldWidth+left-itemWidth);
+        } else {
+            return (int)(left==0?((fieldWidth-itemWidth)/2):left>0?(fieldWidth/2+left):(fieldWidth/2+left-itemWidth));
+        }
+    }
+
+    protected int getOverlayY(int fieldHeight, int itemHeight, float top, String align) {
+        if (align.equals("top")) {
+            return (int)(top>=0?top:fieldHeight+top);
+        } else if (align.equals("bottom")) {
+            return (int)(top>=0?top-itemHeight:fieldHeight+top-itemHeight);
+        } else {
+            return (int)(top==0?((fieldHeight-itemHeight)/2):top>0?(fieldHeight/2+top):(fieldHeight/2+top-itemHeight));
         }
     }
 }

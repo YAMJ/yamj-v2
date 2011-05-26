@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<overlay>
+    <layer>
+        <name>language</name>
+        <left>1</left>
+        <top>1</top>
+        <align>left</align>
+        <valign>top</valign>
+    </layer>
+    <layer>
+        <name>subtitle</name>
+        <left>-5</left>
+        <top>5</top>
+        <align>right</align>
+        <valign>top</valign>
+        <images>
+            <image value="true" filename="subtitle.png"/>
+        </images>
+    </layer>
+    <layer>
+        <name>set</name>
+        <left>-5</left>
+        <top>30</top>
+        <align>right</align>
+        <valign>top</valign>
+        <images>
+            <image value="true" filename="set.png"/>
+        </images>
+    </layer>
+    <layer>
+        <name>TV/HD</name>
+        <left>0</left>
+        <top>-5</top>
+        <align>center</align>
+        <valign>bottom</valign>
+        <images>
+            <image name="TV" value="true" filename="tv.png"/>
+            <image name="HD" value="hd" filename="hd.png"/>
+            <image name="HD" value="hd720" filename="hd-720.png"/>
+            <image name="HD" value="hd1080" filename="hd-1080.png"/>
+        </images>
+        <positions>
+            <position value="true/hd" left="-5/5" align="right/left"/>
+            <position value="true/hd720" left="-5/5" align="right/left"/>
+            <position value="true/hd1080" left="-5/5" align="right/left"/>
+        </positions>
+    </layer>
+</overlay>
