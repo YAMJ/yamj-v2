@@ -213,12 +213,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 bi = drawRoundCorners(bi);
             }
 
-            bi = drawLogos(movie, bi, imageType);
+            bi = drawLogos(movie, bi, imageType, true);
 
             if (addOverlay) {
                 bi = drawOverlay(movie, bi, overlayOffsetX, overlayOffsetY);
             }
             
+            bi = drawLogos(movie, bi, imageType, false);
+
             if (addReflectionEffect) {
                 bi = GraphicTools.createReflectedPicture(bi, imageType);
             }
@@ -329,10 +331,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      *            The image to draw on
      * @return The new image with the added logos
      */
-    protected BufferedImage drawLogos(Movie movie, BufferedImage bi, String imageType) {
+    protected BufferedImage drawLogos(Movie movie, BufferedImage bi, String imageType, boolean beforeMainOverlay) {
         // Issue 1937: Overlay configuration XML
         if (xmlOverlay) {
             for (logoOverlay layer : overlayLayers) {
+                if (layer.before != beforeMainOverlay) {
+                    continue;
+                }
                 boolean flag = false;
                 List<stateOverlay> states = new ArrayList<stateOverlay>();
                 for (String name : layer.names) {
@@ -470,7 +475,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     }
                 }
             }
-        } else {
+        } else if (beforeMainOverlay) {
             if (addHDLogo) {
                 bi = drawLogoHD(movie, bi, addTVLogo);
             }
@@ -949,6 +954,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     private class logoOverlay extends positionOverlay {
+        boolean before = true;
         List<String> names = new ArrayList<String>();
         List<imageOverlay> images = new ArrayList<imageOverlay>();
         List<conditionOverlay> positions = new ArrayList<conditionOverlay>();
@@ -984,6 +990,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         continue;
                     }
                     logoOverlay overlay = new logoOverlay();
+
+                    String after = layer.getString("[@after]");
+                    if (StringTools.isValidString(after) && after.equals("true")) {
+                        overlay.before = false;
+                    }
 
                     String left = layer.getString("left");
                     String top = layer.getString("top");
@@ -1137,7 +1148,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (align.equals("left")) {
             return (int)(left>=0?left:fieldWidth+left);
         } else if (align.equals("right")) {
-            return (int)(left>=0?left-itemWidth:fieldWidth+left-itemWidth);
+            return (int)(left>=0?fieldWidth-left-itemWidth:-left-itemWidth);
         } else {
             return (int)(left==0?((fieldWidth-itemWidth)/2):left>0?(fieldWidth/2+left):(fieldWidth/2+left-itemWidth));
         }
@@ -1147,7 +1158,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (align.equals("top")) {
             return (int)(top>=0?top:fieldHeight+top);
         } else if (align.equals("bottom")) {
-            return (int)(top>=0?top-itemHeight:fieldHeight+top-itemHeight);
+            return (int)(top>=0?fieldHeight-top-itemHeight:-top-itemHeight);
         } else {
             return (int)(top==0?((fieldHeight-itemHeight)/2):top>0?(fieldHeight/2+top):(fieldHeight/2+top-itemHeight));
         }
