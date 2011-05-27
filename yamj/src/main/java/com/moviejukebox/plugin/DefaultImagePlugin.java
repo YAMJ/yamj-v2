@@ -99,6 +99,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addCertification;
     private boolean addWatched;
     private boolean addTop250;
+    private boolean addKeywords;
 
     public DefaultImagePlugin() {
         // Generic properties
@@ -165,6 +166,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addCertification    = PropertiesUtil.getBooleanProperty(imageType + ".certification", "false");
         addWatched          = PropertiesUtil.getBooleanProperty(imageType + ".watched", "false");
         addTop250           = PropertiesUtil.getBooleanProperty(imageType + ".top250", "false");
+        addKeywords         = PropertiesUtil.getBooleanProperty(imageType + ".keywords", "false");
 
         xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", "false");
         if (xmlOverlay) {
@@ -377,6 +379,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = movie.isWatched()?"true":"false";
                         } else if (name.equals("top250")) {
                             value = movie.getTop250() > 0?"true":"false";
+                        } else if (name.equals("keywords")) {
+                            value = movie.getBaseFilename();
                         }
                     }
                     stateOverlay state = new stateOverlay(layer.left, layer.top, layer.align, layer.valign, value);
@@ -394,12 +398,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         for (imageOverlay img : layer.images) {
                             if (img.name.equals(name)) {
                                 boolean accept = false;
-                                if (img.values.size() == 1 && img.value.equals(value)) {
+                                if (img.values.size() == 1 && ((name.equals("keywords") && value.indexOf(img.value) > -1) || img.value.equals(value))) {
                                     accept = true;
                                 } else if (img.values.size() > 1) {
                                     accept = true;
                                     for (int i = 0; i < layer.names.size(); i++) {
-                                        accept = accept && img.values.get(i).equals(states.get(i).value);
+                                        accept = accept && ((name.equals("keywords") && states.get(i).value.indexOf(img.values.get(i)) > -1) || img.values.get(i).equals(states.get(i).value));
                                         if (!accept) {
                                             break;
                                         }
@@ -1140,6 +1144,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return addWatched;
         } else if (name.equals("top250")) {
             return addTop250;
+        } else if (name.equals("keywords")) {
+            return addKeywords;
         }
         return false;
     }
