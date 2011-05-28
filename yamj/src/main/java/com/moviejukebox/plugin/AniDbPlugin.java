@@ -24,6 +24,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -100,6 +103,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     @SuppressWarnings("unused")
     private static final String WEBHOST = "anidb.net";
     private AnimeMask anidbMask;
+    private AnimeMask categoryMask;
     private AnimeFileMask animeFileMask;
     private FileMask fileMask;
     @SuppressWarnings("unused")
@@ -134,6 +138,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private int tvshowRegexEpisodeNumberIndex;
     private int movieRegexTitleIndex;
     
+    private int minimumCategoryWeight;
+    private int maxGenres;
     
     private TheTvDBPlugin tvdb;
     
@@ -150,7 +156,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         anidbMask = new AnimeMask(true, true, true, false, false, true, true, true, true, true, false, false, false, true, true, true, 
                         true, false, false, false, true, true, false, false, false, false, false, true, true, false, false, false, false, 
                         false, true, false, true, true, false, false, false, false, false);
-        
+        categoryMask = new AnimeMask(false, false, false, false, false, true, true, false, false, false, false, false, false, false, false,
+                        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+                        false, false, false, false, false, false, false, false, false, false, false);
         animeFileMask = new AnimeFileMask(true, false, true, true, false, false, true, true, true, true, false, false, false, true, true, true, true, true, true, false, false, false);
 
         fileMask = new FileMask(true, true, true, false, false, false, false, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, true, false, true, false);
@@ -158,6 +166,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         anidbPassword = PropertiesUtil.getProperty("anidb.password", null);
         //String str = PropertiesUtil.getProperty("anidb.useHashIdentification", null);
         hash = PropertiesUtil.getBooleanProperty("anidb.useHashIdentification", "false");
+        
+        minimumCategoryWeight = PropertiesUtil.getIntProperty("anidb.minimumCategoryWeight", "0");
+        maxGenres = PropertiesUtil.getIntProperty("anidb.maxGenres", "5");
         
         String tvshowRegexOverride = PropertiesUtil.getProperty("anidb.regex.tvshow", null);
         String movieRegexOverride = PropertiesUtil.getProperty("anidb.regex.movie", null);
@@ -264,6 +275,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     break;
                 }
             }
+            
         } catch (SQLException e) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -423,10 +435,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 movie.setYear(new String(anime.getYear().substring(0, 4)));
             }
 
-            /*
-             * if (!anime.getCategoryList().isEmpty()) { movie.setGenres(anime.getCategoryList()); }
-             */
-
+            final List<String> categories = new ArrayList<String>();
+            for (int i = 0; i < anime.getCategories().size() && i < maxGenres && anime.getCategories().get(i).getWeight() >= minimumCategoryWeight; ++i) {
+                categories.add(anime.getCategories().get(i).getCategoryName());
+            }
+            movie.setGenres(categories);
+            
             if (anime.getAirDate() > 0) {
                 DateTime rDate = new DateTime(anime.getAirDate());
                 movie.setReleaseDate(rDate.toString("yyyy-MM-dd"));
@@ -452,7 +466,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
 
         logger.info(LOG_MESSAGE + "Finished " + movie.getBaseFilename());
-        return false;
+        return true;
     }
     
     // TODO: Create a separate class to handle all these database queries
@@ -472,23 +486,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
             file = getAnimeEpisodeByHash(movie.getFile().length(), localFile == null ? ed2kHash : localFile.getEd2k());
             return file;
-            /*if (file != null) {
-                movie.setId(ANIDB_PLUGIN_ID, Long.toString(file.getAnimeId()));
-                AnidbEpisode ep;
-                ep = getEpisodeByEid(file.getEpisodeId());
-                
-                if (ep != null) { // TODO: Determine if this works as intended
-                    for (MovieFile mf : movie.getMovieFiles()) {
-                        if (mf.getFirstPart() != Integer.parseInt(ep.getEpisodeNumber()) && movie.getMovieFiles().size() == 1) {
-                            mf.setNewFile(true);
-                            mf.setTitle(ep.getEnglishName());
-                            mf.setFirstPart(Integer.parseInt(ep.getEpisodeNumber()));
-                            mf.setLastPart(Integer.parseInt(ep.getEpisodeNumber()));
-                        }
-                    }
-                }
-                return true;
-            }*/
         } catch (UdpConnectionException error) {
             logger.info(LOG_MESSAGE + "UDP Connection Error");
             final Writer eResult = new StringWriter();
@@ -541,18 +538,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return "";
     }
 
-    private String getAnimeDescription(long animeId) {
-        String animePlot = null;
-        try {
-            animePlot = anidbConn.getAnimeDescription(animeId);
-        } catch (UdpConnectionException error) {
-            processUdpError(error);
-        } catch (AniDbException error) {
-            processAnidbError(error);
-        }
-        return animePlot;
-    }
-    
     public AnidbAnime getAnimeByAid(long animeId) throws UdpConnectionException, AniDbException, SQLException {
         return loadAnidbAnime(animeId);
     }
@@ -948,7 +933,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             addAnimeToCache(res);
             return res;
         }
-        Anime _anime = anidbConn.getAnime(aid);
+        Anime _anime = anidbConn.getAnime(aid, anidbMask);
         AnidbAnime anime = null;
         if (_anime != null) {
             anime = new AnidbAnime(_anime);
@@ -991,8 +976,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return null;
     }    
     
-    private void createCategories(AnidbAnime anime, Anime anidbResult) throws SQLException {
+    private void createCategories(AnidbAnime anime, Anime anidbResult) throws SQLException, UdpConnectionException, AniDbException {
         /* Add categories and reload anime from database */
+        /* Response was most likely truncated if we got less than five categories */
+        if (anidbResult.getCategoryList() == null || anidbResult.getCategoryWeightList() == null || anidbResult.getCategoryList().size() < 5) {
+            anidbResult = anidbConn.getAnime(anime.getAnimeId(), categoryMask);
+        }
         for(int i = 0; i < anidbResult.getCategoryList().size(); ++i) {
             AnidbCategory category = new AnidbCategory();
             category.setAnime(anime);
@@ -1389,6 +1378,9 @@ class AnidbAnime {
     
     @ForeignCollectionField(eager = true)
     private ForeignCollection<AnidbCategory> categories;
+    
+    private List<AnidbCategory> _categories;
+    
     public AnidbAnime() {
         endDate = 0;
         rating = 0;
@@ -1509,9 +1501,27 @@ class AnidbAnime {
     public long getEpisodeCount() {
         return episodeCount;
     }
+    
+    // Comparator to sort AnidbCategory in descending order based on weight.
+    private class CategoryComparator implements Comparator<AnidbCategory> {
+        @Override
+        public int compare(AnidbCategory o1, AnidbCategory o2) {
+            if(o1.getWeight() < o2.getWeight()) {
+                return 1;
+            } else if (o1.getWeight() > o2.getWeight()) {
+                return -1;
+            } else {
+                return o1.getCategoryName().compareTo(o2.getCategoryName());
+            }
+        }
+    }
 
-    public ForeignCollection<AnidbCategory> getCategories() {
-        return categories;
+    public List<AnidbCategory> getCategories() {
+        if (_categories == null) {
+            _categories = new ArrayList<AnidbCategory>(categories);
+            Collections.sort(_categories, new CategoryComparator());
+        }
+        return _categories;
     }
 
     public void setCategories(ForeignCollection<AnidbCategory> categories) {
@@ -1589,6 +1599,10 @@ class AnidbCategory {
 class AnidbTableInfo {
     @DatabaseField(id = true)
     private int version;
+    @DatabaseField()
+    private Date lastTvdbMappingDownload;
+    @DatabaseField()
+    private Date lastAnidbDataDumpDownload;
     
     public AnidbTableInfo() {
         
@@ -1600,6 +1614,22 @@ class AnidbTableInfo {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public Date getLastTvdbMappingDownload() {
+        return lastTvdbMappingDownload;
+    }
+
+    public void setLastTvdbMappingDownload(Date lastTvdbMappingDownload) {
+        this.lastTvdbMappingDownload = lastTvdbMappingDownload;
+    }
+
+    public Date getLastAnidbDataDumpDownload() {
+        return lastAnidbDataDumpDownload;
+    }
+
+    public void setLastAnidbDataDumpDownload(Date lastAnidbDataDumpDownload) {
+        this.lastAnidbDataDumpDownload = lastAnidbDataDumpDownload;
     }
 }
 
@@ -1624,7 +1654,7 @@ class AnidbTvdbMapping {
     @DatabaseField(columnName = NAME_COLUMN_NAME)
     private String name;
     
-    @ForeignCollectionField(eager=false)
+    @ForeignCollectionField(eager=true)
     private ForeignCollection<AnidbTvdbEpisodeMapping> mappings;
     
     public AnidbTvdbMapping() {}
@@ -1665,6 +1695,10 @@ class AnidbTvdbMapping {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public ForeignCollection<AnidbTvdbEpisodeMapping> getMappings() {
+        return mappings;
     }
 }
 
