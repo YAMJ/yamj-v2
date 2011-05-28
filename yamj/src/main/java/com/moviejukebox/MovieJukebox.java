@@ -376,7 +376,7 @@ public class MovieJukebox {
             }
         }
         
-        enableWatchScanner = PropertiesUtil.getBooleanProperty("mjb.watchedscanner.enable", "true");
+        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
 
         if (movieLibraryRoot == null) {
             movieLibraryRoot = getProperty("mjb.libraryRoot");
