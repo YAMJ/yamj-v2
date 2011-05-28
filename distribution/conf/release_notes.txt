@@ -24,7 +24,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1918 Watched category not updated
  - Fixed defect #1922 Categories files deleted from jukebox after cleanup
  - Fixed defect #1929 Sratim plug in does not generate movie names
-
+ - Enhancement  #1938 Add option to disable watched scanner
 MovieJukebox 2.4
 ----------------
  - Fixed defect  #793 Problems with more than 9 parts

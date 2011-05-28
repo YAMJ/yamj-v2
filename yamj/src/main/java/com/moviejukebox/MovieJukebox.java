@@ -169,6 +169,8 @@ public class MovieJukebox {
 
     int MaxThreadsProcess = 1;
     int MaxThreadsDownload = 1;
+    
+    private static boolean enableWatchScanner;
 
     public static void main(String[] args) throws Throwable {
         // Create the log file name here, so we can change it later (because it's locked
@@ -373,6 +375,8 @@ public class MovieJukebox {
                 Movie.addSortIgnorePrefixes(token.toLowerCase());
             }
         }
+        
+        enableWatchScanner = PropertiesUtil.getBooleanProperty("mjb.watchedscanner.enable", "true");
 
         if (movieLibraryRoot == null) {
             movieLibraryRoot = getProperty("mjb.libraryRoot");
@@ -954,7 +958,9 @@ public class MovieJukebox {
                         }
                         
                         // Check for watched and unwatched files
-                        WatchedScanner.checkWatched(jukebox, movie);
+                        if(enableWatchScanner) { // Issue 1938
+                            WatchedScanner.checkWatched(jukebox, movie);
+                        }
 
                         // Get subtitle
                         tools.subtitlePlugin.generate(movie);
