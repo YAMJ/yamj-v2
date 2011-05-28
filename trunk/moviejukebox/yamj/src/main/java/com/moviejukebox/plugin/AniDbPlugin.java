@@ -63,6 +63,8 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
@@ -116,7 +118,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     private static boolean hash;
     private boolean getAdditionalInformationFromTheTvDB = false;
-    private Map<Long, AnimeIdMapping> tvdbMappings;
 
     private static final int TABLE_VERSION = 1;
     private Dao<AnidbLocalFile, String> localFileDao;
@@ -124,6 +125,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private Dao<AnidbAnime, String> animeDao;
     private Dao<AnidbEpisode, String> episodeDao;
     private Dao<AnidbCategory, String> categoryDao;
+    private Dao<AnidbTvdbMapping, String> mappingDao;
+    private Dao<AnidbTvdbEpisodeMapping, String> episodeMappingDao;
 
     private Pattern tvshowRegex;
     private Pattern movieRegex;
@@ -144,7 +147,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.error(LOG_MESSAGE + "Error setting the port to '" + PropertiesUtil.getProperty("anidb.port") + "' using default");
         }
         
-        anidbMask = new AnimeMask(true, true, true, false, false, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, false, true, false);
+        anidbMask = new AnimeMask(true, true, true, false, false, true, true, true, true, true, false, false, false, true, true, true, 
+                        true, false, false, false, true, true, false, false, false, false, false, true, true, false, false, false, false, 
+                        false, true, false, true, true, false, false, false, false, false);
         
         animeFileMask = new AnimeFileMask(true, false, true, true, false, false, true, true, true, true, false, false, false, true, true, true, true, true, true, false, false, false);
 
@@ -186,9 +191,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             anidbConnectionProtection = true;
         }
         setupDatabase();
-        tvdbMappings = new HashMap<Long, AniDbPlugin.AnimeIdMapping>();
         if (getAdditionalInformationFromTheTvDB) {
-            loadAniDbTvDbMappings();
+            //loadAnidbTvdbMappings();
             tvdb = new TheTvDBPlugin();
         }
     }
@@ -208,6 +212,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             episodeDao = DaoManager.<Dao<AnidbEpisode, String>, AnidbEpisode>createDao(connectionSource, AnidbEpisode.class);
             anidbFileDao = DaoManager.<Dao<AnidbFile, String>, AnidbFile>createDao(connectionSource, AnidbFile.class);
             categoryDao = DaoManager.<Dao<AnidbCategory, String>, AnidbCategory>createDao(connectionSource, AnidbCategory.class);
+            mappingDao = DaoManager.<Dao<AnidbTvdbMapping, String>, AnidbTvdbMapping>createDao(connectionSource, AnidbTvdbMapping.class);
+            episodeMappingDao = DaoManager.<Dao<AnidbTvdbEpisodeMapping, String>, AnidbTvdbEpisodeMapping>createDao(connectionSource, AnidbTvdbEpisodeMapping.class);
         } catch (SQLException e) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -248,6 +254,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     TableUtils.createTable(connectionSource, AnidbTableInfo.class);
                     TableUtils.createTable(connectionSource, AnidbFile.class);
                     TableUtils.createTable(connectionSource, AnidbCategory.class);
+                    TableUtils.createTable(connectionSource, AnidbTvdbMapping.class);
+                    TableUtils.createTable(connectionSource, AnidbTvdbEpisodeMapping.class);
                     info = new AnidbTableInfo();
                     info.setVersion(AniDbPlugin.TABLE_VERSION);
                     tableDao.create(info);
@@ -394,10 +402,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
             movie.setId(ANIDB_PLUGIN_ID, "" + anime.getAnimeId());
 
-            if (tvdbMappings.get(anime.getAnimeId()) != null) {
+            /*if (tvdbMappings.get(anime.getAnimeId()) != null) {
                 movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, Long.toString(tvdbMappings.get(anime.getAnimeId()).tvDbId));
                 movie.setSeason(1);
-            }
+            }*/
             if (getAdditionalInformationFromTheTvDB) {
                 movie.setTitle(anime.getRomajiName());
                 tvdb.scan(movie);
@@ -631,20 +639,27 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
     
-    private void loadAniDbTvDbMappings() {
+    private void loadAnidbTvdbMappings() throws SQLException {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
            
             AnidbHandler handler = new AnidbHandler();
                 
             saxParser.parse(THETVDB_ANIDB_MAPPING_URL, handler);
-            for (AnimeIdMapping m : handler.mappings) {
-                // We work on the assumption that multiple anidb ids can map to
-                // the same tvdb id, but not the other way around.
-                if (tvdbMappings.containsKey(m.aniDbId)) {
-                    logger.error(LOG_MESSAGE + "Duplicate anidb ids found while setting up tvdb mappings: " + m.aniDbId + " mapping to " + tvdbMappings.get(m.aniDbId).tvDbId + " and " + m.tvDbId);
-                }
-                tvdbMappings.put(m.aniDbId, m);
+            
+            DeleteBuilder<AnidbTvdbMapping, String> db = mappingDao.deleteBuilder();
+            PreparedDelete<AnidbTvdbMapping> pd = db.prepare();
+            mappingDao.delete(pd);
+            
+            DeleteBuilder<AnidbTvdbEpisodeMapping, String> db2 = episodeMappingDao.deleteBuilder();
+            PreparedDelete<AnidbTvdbEpisodeMapping> pd2 = db2.prepare();
+            episodeMappingDao.delete(pd2);
+            
+            for (AnidbTvdbMapping m : handler.mappings) {
+                mappingDao.create(m);
+            }
+            for (AnidbTvdbEpisodeMapping m : handler.episodeMappings) {
+                episodeMappingDao.create(m);
             }
         } catch(SAXParseException e) {
             final Writer eResult = new StringWriter();
@@ -765,31 +780,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     // TODO: Here be dragons! Everything below should probably be refactored in time
     
     
-    
-    /**
-     * Hold information about mapping of AnimeId of AniDB and
-     * TheTVDB ids for a given show.
-     * @author Xaanin
-     * 
-     */
-    
-    @SuppressWarnings("unused")
-    private class AnimeIdMapping {
-        long aniDbId;
-        long tvDbId;
-        int defaultSeason;
-        String name;
-        HashMap<String, String> mappings; // Map Anidb season/episode to tvdb season/episode 
-        
-        public AnimeIdMapping() {
-            mappings = new HashMap<String, String>();
-        }
-        
-        public void addMapping(int anidbSeason, int anidbEpisode, int tvdbSeason, int tvdbEpisode) {
-            mappings.put("" + anidbSeason + "|" + anidbEpisode, "" + tvdbSeason + "|" + tvdbEpisode);
-        }
-    }
-
     /**
      * Parses the xml document containing mappings from anidb id
      * to thetvdb id.
@@ -797,24 +787,27 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      *
      */
     private class AnidbHandler extends DefaultHandler{ 
-        public List<AnimeIdMapping> mappings = new ArrayList<AnimeIdMapping>();
-        AnimeIdMapping current;
+        public List<AnidbTvdbMapping> mappings = new ArrayList<AnidbTvdbMapping>();
+        public List<AnidbTvdbEpisodeMapping> episodeMappings = new ArrayList<AnidbTvdbEpisodeMapping>();
+        AnidbTvdbMapping current;
         
         boolean name = false;
         boolean mapping = false;
         String lastMapping = "";
+        StringBuilder nameString = new StringBuilder();
+        
         int anidbMappingSeason;
         int tvdbMappingSeason;
         
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
             if (qName.equalsIgnoreCase("anime")) {
-                current = new AnimeIdMapping();
+                current = new AnidbTvdbMapping();
                 String s = attributes.getValue(attributes.getIndex("tvdbid"));
                 if (!s.equalsIgnoreCase("unknown")) {
-                    current.aniDbId = Long.parseLong(attributes.getValue(attributes.getIndex("anidbid")));
+                    current.setAnidbId(Long.parseLong(attributes.getValue(attributes.getIndex("anidbid"))));
+                    current.setTvdbId(Long.parseLong(attributes.getValue(attributes.getIndex("tvdbid"))));
+                    current.setDefaultTvdbSeason(Integer.parseInt(attributes.getValue(attributes.getIndex("defaulttvdbseason"))));
                     mappings.add(current);
-                    current.tvDbId = Long.parseLong(attributes.getValue(attributes.getIndex("tvdbid")));
-                    current.defaultSeason = Integer.parseInt(attributes.getValue(attributes.getIndex("defaulttvdbseason")));                    
                 }
             } else if (qName.equalsIgnoreCase("name")) {
                 name = true;
@@ -835,18 +828,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                         String[] tvdbres = res[1].split("\\+");   // For certain series such as Bokusatsu Tenshi Dokuro-chan where one 
                                                                 // anidb episode maps to two episodes at the tvdb.
                                                                 // For now we only use the first one.
-                        current.addMapping(anidbMappingSeason, Integer.parseInt(res[0]), tvdbMappingSeason, Integer.parseInt(tvdbres[0]));
+                        episodeMappings.add(new AnidbTvdbEpisodeMapping(anidbMappingSeason, Integer.parseInt(res[0]), 
+                                                                        tvdbMappingSeason, Integer.parseInt(tvdbres[0]), current));
                     }
                 }
                 lastMapping = "";
             } else if (qName.equalsIgnoreCase("name")) {
+                current.setName(nameString.toString());
                 name = false;
             }
         }
         
         public void characters(char ch[], int start, int length) {
             if (name) {
-                current.name += new String(ch, start, length);
+                nameString.append(ch, start, length);
             } else if (mapping) {
                 lastMapping += new String(ch, start, length); 
             }
@@ -1049,7 +1044,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 /**
  * Holds information about a scanned file on the local system
  */
-@DatabaseTable(tableName = "local_files")
+@DatabaseTable(tableName = "anidb_local_file")
 class AnidbLocalFile {
     public static final String ID_COLUMN_NAME = "id";
     public static final String FILENAME_COLUMN_NAME = "filename";
@@ -1408,7 +1403,9 @@ class AnidbAnime {
         setRomajiName(anime.getRomajiName());
         setType(anime.getType());
         setYear(anime.getYear());
-        setAirDate(anime.getAirDate());
+        if (anime.getAirDate() != null) {
+            setAirDate(anime.getAirDate());
+        }
         if (anime.getEndDate() != null) {
             setEndDate(anime.getEndDate());
         }
@@ -1604,4 +1601,153 @@ class AnidbTableInfo {
     public void setVersion(int version) {
         this.version = version;
     }
+}
+
+@DatabaseTable(tableName = "anidb_tvdb_mapping")
+class AnidbTvdbMapping {
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String ANIDB_ID_COLUMN_NAME = "anidb_id";
+    public static final String TVDB_ID_COLUMN_NAME = "tvdb_id";
+    public static final String TVDB_DEFAULT_SEASON_COLUMN_NAME = "tvdb_default_season";
+    public static final String NAME_COLUMN_NAME = "name";
+    @DatabaseField(id=true, columnName = ID_COLUMN_NAME)
+    private int id;
+    
+    @DatabaseField(columnName = ANIDB_ID_COLUMN_NAME)
+    private long anidbId;
+    @DatabaseField(columnName = TVDB_ID_COLUMN_NAME)
+    private long tvdbId;
+
+    @DatabaseField(columnName = TVDB_DEFAULT_SEASON_COLUMN_NAME)
+    private int defaultTvdbSeason;
+    
+    @DatabaseField(columnName = NAME_COLUMN_NAME)
+    private String name;
+    
+    @ForeignCollectionField(eager=false)
+    private ForeignCollection<AnidbTvdbEpisodeMapping> mappings;
+    
+    public AnidbTvdbMapping() {}
+
+    public AnidbTvdbMapping(long anidbId, long tvdbId) {
+        super();
+        this.anidbId = anidbId;
+        this.tvdbId = tvdbId;
+    }
+
+    public long getAnidbId() {
+        return anidbId;
+    }
+
+    public void setAnidbId(long anidbId) {
+        this.anidbId = anidbId;
+    }
+
+    public long getTvdbId() {
+        return tvdbId;
+    }
+
+    public void setTvdbId(long tvdbId) {
+        this.tvdbId = tvdbId;
+    }
+
+    public int getDefaultTvdbSeason() {
+        return defaultTvdbSeason;
+    }
+
+    public void setDefaultTvdbSeason(int defaultTvdbSeason) {
+        this.defaultTvdbSeason = defaultTvdbSeason;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+@DatabaseTable(tableName = "anidb_tvdb_episode_mapping")
+class AnidbTvdbEpisodeMapping {
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String ANIDB_SEASON_COLUMN_NAME = "anidb_season";
+    public static final String ANIDB_EPISODE_NUMBER_COLUMN_NAME = "anidb_episode_number";
+    public static final String TVDB_SEASON_COLUMN_NAME = "tvdb_season";
+    public static final String TVDB_EPISODE_NUMBER_COLUMN_NAME = "tvdb_episode_number";
+    @DatabaseField(id = true, columnName=ID_COLUMN_NAME)
+    private int id;
+    @DatabaseField(columnName = ANIDB_SEASON_COLUMN_NAME)
+    private int anidbSeason;
+    @DatabaseField(columnName = ANIDB_EPISODE_NUMBER_COLUMN_NAME)
+    private int anidbEpisodeNumber;
+    
+    @DatabaseField(columnName = TVDB_SEASON_COLUMN_NAME)
+    private int tvdbSeason;
+    @DatabaseField(columnName = TVDB_EPISODE_NUMBER_COLUMN_NAME)
+    private int tvdbEpisodeNumber;
+    
+    @DatabaseField(foreign = true)
+    private AnidbTvdbMapping mapping;
+    
+    public AnidbTvdbEpisodeMapping() {}
+
+    public AnidbTvdbEpisodeMapping(int anidbSeason, int anidbEpisodeNumber, int tvdbSeason, int tvdbEpisodeNumber, AnidbTvdbMapping mapping) {
+        super();
+        this.anidbSeason = anidbSeason;
+        this.anidbEpisodeNumber = anidbEpisodeNumber;
+        this.tvdbSeason = tvdbSeason;
+        this.tvdbEpisodeNumber = tvdbEpisodeNumber;
+        this.mapping = mapping;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getAnidbSeason() {
+        return anidbSeason;
+    }
+
+    public void setAnidbSeason(int anidbSeason) {
+        this.anidbSeason = anidbSeason;
+    }
+
+    public int getAnidbEpisodeNumber() {
+        return anidbEpisodeNumber;
+    }
+
+    public void setAnidbEpisodeNumber(int anidbEpisodeNumber) {
+        this.anidbEpisodeNumber = anidbEpisodeNumber;
+    }
+
+    public int getTvdbSeason() {
+        return tvdbSeason;
+    }
+
+    public void setTvdbSeason(int tvdbSeason) {
+        this.tvdbSeason = tvdbSeason;
+    }
+
+    public int getTvdbEpisodeNumber() {
+        return tvdbEpisodeNumber;
+    }
+
+    public void setTvdbEpisodeNumber(int tvdbEpisodeNumber) {
+        this.tvdbEpisodeNumber = tvdbEpisodeNumber;
+    }
+
+    public AnidbTvdbMapping getMapping() {
+        return mapping;
+    }
+
+    public void setMapping(AnidbTvdbMapping mapping) {
+        this.mapping = mapping;
+    }
+    
+    
 }
