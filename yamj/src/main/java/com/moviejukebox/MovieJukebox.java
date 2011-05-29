@@ -980,7 +980,9 @@ public class MovieJukebox {
                                     status = trailersRescanDaysMillis < 0 ? true : false;
                                 }
                                 movie.setTrailerExchange(status);
-                            }
+                            } 
+                        } else {
+                            library.remove(Library.getMovieKey(movie));
                         }
                         logger.info("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         // Show memory every (processing count) movies
@@ -995,13 +997,13 @@ public class MovieJukebox {
             tasks.waitFor();
 
             // Remove any movie objects set to be removed
-            Iterator<Map.Entry<String, Movie>> it = library.entrySet().iterator();
+            /*Iterator<Map.Entry<String, Movie>> it = library.entrySet().iterator();
             while(it.hasNext()) {
                 Map.Entry<String,Movie> m = it.next();
                 if (m.getValue().getMovieType().equals(Movie.REMOVE)) {
                     it.remove();
                 }
-            }
+            }*/
             // Add the new extra files (like trailers that were downloaded) to the library and to the corresponding movies
             library.mergeExtras();
 
