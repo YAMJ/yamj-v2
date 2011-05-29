@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,6 +79,9 @@ import com.j256.ormlite.table.TableUtils;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.thetvdb.TheTVDB;
+import com.moviejukebox.thetvdb.model.Banners;
+import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -123,6 +129,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static boolean hash;
     private boolean getAdditionalInformationFromTheTvDB = false;
 
+    private static final HashMap<String, Movie> mainSeriesMovieObjects;
+    
     private static final int TABLE_VERSION = 1;
     private Dao<AnidbLocalFile, String> localFileDao;
     private Dao<AnidbFile, String> anidbFileDao;
@@ -141,7 +149,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private int minimumCategoryWeight;
     private int maxGenres;
     
-    private TheTvDBPlugin tvdb;
+    private static TheTVDB tvdb;
+    private static Boolean loadedTvdbMappings = false;
+    
+    static {
+        mainSeriesMovieObjects = new HashMap<String, Movie>();
+    }
     
     public AniDbPlugin() {
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
@@ -168,7 +181,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         hash = PropertiesUtil.getBooleanProperty("anidb.useHashIdentification", "false");
         
         minimumCategoryWeight = PropertiesUtil.getIntProperty("anidb.minimumCategoryWeight", "0");
-        maxGenres = PropertiesUtil.getIntProperty("anidb.maxGenres", "5");
+        maxGenres = PropertiesUtil.getIntProperty("anidb.maxGenres", "3");
         
         String tvshowRegexOverride = PropertiesUtil.getProperty("anidb.regex.tvshow", null);
         String movieRegexOverride = PropertiesUtil.getProperty("anidb.regex.movie", null);
@@ -201,11 +214,19 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.error(LOG_MESSAGE + "You need to add your AniDb Username & password to the anidb.username & anidb.password properties");
             anidbConnectionProtection = true;
         }
+
         setupDatabase();
-        if (getAdditionalInformationFromTheTvDB) {
-            //loadAnidbTvdbMappings();
-            tvdb = new TheTvDBPlugin();
+        try {
+            synchronized(loadedTvdbMappings) {
+                if(!loadedTvdbMappings) {
+                    loadAnidbTvdbMappings();
+                    loadedTvdbMappings = true;
+                }
+            }
+        } catch (SQLException e) {
+            logException("Encountered SQL error while loading tvdb mappings", e);
         }
+        initTvdb();
     }
     
     private void setupDatabase() {
@@ -284,6 +305,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
     
+    private static synchronized void initTvdb() {
+        if (tvdb != null) {
+            return;
+        }
+        tvdb = new TheTVDB(PropertiesUtil.getProperty("API_KEY_TheTVDb"));
+    }
+    
     @Override
     public boolean scan(Movie movie) {
         logger.info(LOG_MESSAGE + "Scanning as a Movie");
@@ -295,6 +323,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         logger.info(LOG_MESSAGE + "Scanning as a TV Show");
         anidbScan(movie);
         return;
+    }
+    
+    private String generateHashmapKey(Movie m) {
+        return m.getId(ANIDB_PLUGIN_ID) + "|" + m.getSeason();
     }
     
     /**
@@ -319,12 +351,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         logger.info(LOG_MESSAGE + "Logged in and searching for " + movie.getBaseFilename());
         String episodeNumber = "";
         if (hash) {
-            AnidbFile af = anidbHashScan(movie); 
+            final AnidbFile af = anidbHashScan(movie); 
             if (af == null) {
                 return false;
             }
             try {
-                AnidbEpisode ae = getEpisodeByEid(af.getEpisodeId());
+                final AnidbEpisode ae = getEpisodeByEid(af.getEpisodeId());
                 episodeNumber = ae.getEpisodeNumber();
             } catch (UdpConnectionException e) {
                 processUdpError(e);
@@ -389,12 +421,36 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
 
         if (anime != null) {
+            final boolean isSpecial = !Character.isDigit(episodeNumber.charAt(0));
+            final int epNo = isSpecial ? Integer.parseInt(episodeNumber.substring(1)) : Integer.parseInt(episodeNumber);
+
             if (anime.getType().equals("Movie")) { // Assume anything not a movie is a TV show
                 movie.setMovieType(Movie.TYPE_MOVIE);
             }
             else {
                 movie.setMovieType(Movie.TYPE_TVSHOW);
             }
+            
+            if (isSpecial) {
+                movie.setSeason(0);
+            } else {
+                movie.setSeason(1);
+            }
+            
+            synchronized(mainSeriesMovieObjects) {
+                if (mainSeriesMovieObjects.containsKey(generateHashmapKey(movie))) {
+                    final Movie main = mainSeriesMovieObjects.get(generateHashmapKey(movie));
+                    final MovieFile mf = movie.getMovieFiles().iterator().next();
+                    mf.setFirstPart(epNo);
+                    mf.setLastPart(epNo);
+                    main.getMovieFiles().add(mf);
+                    movie.setMovieType(Movie.TYPE_UNKNOWN);
+                    return false;
+                } else {
+                    mainSeriesMovieObjects.put(generateHashmapKey(movie), movie);
+                }
+            }
+            
             // XXX: DEBUG
             logger.info("getAnimeId         : " + anime.getAnimeId());
             logger.info("getEnglishName     : " + anime.getEnglishName());
@@ -414,18 +470,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
             movie.setId(ANIDB_PLUGIN_ID, "" + anime.getAnimeId());
 
-            /*if (tvdbMappings.get(anime.getAnimeId()) != null) {
-                movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, Long.toString(tvdbMappings.get(anime.getAnimeId()).tvDbId));
-                movie.setSeason(1);
-            }*/
-            if (getAdditionalInformationFromTheTvDB) {
-                movie.setTitle(anime.getRomajiName());
-                tvdb.scan(movie);
-            }
-
             if (isValidString(anime.getEnglishName())) {
-                movie.setOriginalTitle(anime.getEnglishName());
+                movie.setTitle(anime.getEnglishName());
+                movie.setOriginalTitle(anime.getRomajiName());
             } else if (isValidString(anime.getRomajiName())) {
+                movie.setTitle(anime.getRomajiName());
                 movie.setOriginalTitle(anime.getRomajiName());
             } else {
                 logger.error(LOG_MESSAGE + "Encountered an anime without a valid title. Anime ID: " + anime.getAnimeId());
@@ -449,10 +498,48 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             if (anime.getRating() > 0) {
                 movie.setRating((int)(anime.getRating() / 10));
             }
+            
+            movie.setPlot(anime.getDescription());
+            movie.setOutline(anime.getDescription());
+            
+            if (movie.getMovieFiles().size() == 1 && movie.getMovieType() == Movie.TYPE_TVSHOW) {
+                for (MovieFile mf : movie.getMovieFiles()) {
+                     
+                    if (!isSpecial) {
+                        final AnidbEpisode ae = getEpisode(anime.getAnimeId(), epNo);    
+                        if (ae != null) {
+                            mf.setTitle(ae.getRomajiName());
+                        }
+                    }
+                    mf.setFirstPart(Integer.parseInt(episodeNumber));
+                    
+                    mf.setLastPart(Integer.parseInt(episodeNumber));
+                }
+            }
 
-            if (!getAdditionalInformationFromTheTvDB) {
-                movie.setPlot(anime.getDescription());
-                movie.setOutline(anime.getDescription());
+            if (getAdditionalInformationFromTheTvDB) {
+                
+                // Check if we need a special mapping
+                AnidbTvdbMapping mapping = null;
+                try {
+                    mapping = findMapping(anime, episodeNumber);
+                } catch (SQLException e) {
+                    logException("SQL error when looking for tvdb mappings", e);
+                }
+                if (mapping != null) {
+                    AnidbTvdbEpisodeMapping episodeMapping = findEpisodeMapping(episodeNumber, mapping); 
+                    if (episodeMapping != null) {
+                        getDataFromTheTvdb(movie, mapping.getTvdbId(), episodeMapping.getTvdbSeason(), episodeMapping.getTvdbEpisodeNumber());
+                    } else {
+                        if (Character.isDigit(episodeNumber.charAt(0))) {
+                            getDataFromTheTvdb(movie, mapping.getTvdbId(), mapping.getDefaultTvdbSeason(), epNo);                            
+                        } else {
+                            getDataFromTheTvdb(movie, mapping.getTvdbId(), mapping.getDefaultTvdbSeason(), epNo);
+                        }
+                    }
+                } else {
+                    getDataFromTheTvdb(movie, 1, epNo);
+                }
             }
 
             for (MovieFile mf : movie.getFiles()) {
@@ -469,7 +556,73 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return true;
     }
     
-    // TODO: Create a separate class to handle all these database queries
+    private AnidbTvdbMapping findMapping(AnidbAnime anime, String epno) throws SQLException {
+        QueryBuilder<AnidbTvdbMapping, String> qb = mappingDao.queryBuilder();
+        qb.where().eq(AnidbTvdbMapping.ANIDB_ID_COLUMN_NAME, anime.getAnimeId());
+        PreparedQuery<AnidbTvdbMapping> pq = qb.prepare();
+        // Should only be one
+        return mappingDao.queryForFirst(pq);
+    }
+    
+    private AnidbTvdbEpisodeMapping findEpisodeMapping(String epno, AnidbTvdbMapping mapping) {
+        int anidbSeason = 1;
+        int anidbEpno = -1;
+        if (epno.startsWith("S")) {
+            anidbSeason = 0;
+            anidbEpno = Integer.parseInt(epno.substring(1));
+        } else {
+            anidbEpno = Integer.parseInt(epno);
+        }
+        for(AnidbTvdbEpisodeMapping m : mapping.getMappings()) {
+            if (m.getAnidbEpisodeNumber() == anidbEpno && m.getAnidbSeason() == anidbSeason) {
+                return m;
+            }
+        }
+        return null;
+    }
+    
+    private void getDataFromTheTvdb(Movie m, long tvdbId, int season, int epno) {
+        synchronized(tvdb) {
+            Series series = tvdb.getSeries(Long.toString(tvdbId), "en");
+            if (series != null) {
+                com.moviejukebox.thetvdb.model.Episode ep = null;//tvdb.getEpisode(series.getSeriesId(), season, epno, "en");
+                processTvdbResults(m, series, ep, epno);
+            }
+        }
+    }
+    
+    private void getDataFromTheTvdb(Movie m, int season, int epno) {
+        synchronized(tvdb) {
+            List<Series> series = tvdb.searchSeries(m.getTitle(), "en"); // Because apparently language isn't the language of the title
+            if (series.size() > 0) {
+                com.moviejukebox.thetvdb.model.Episode ep = null;//tvdb.getEpisode(series.get(0).getSeriesId(), season, epno, "en");
+                processTvdbResults(m, series.get(0), ep, epno);
+            }
+        }
+    }
+    
+    private void processTvdbResults(Movie m, Series s, com.moviejukebox.thetvdb.model.Episode episode, int epno) {
+        // This should hopefully not be necessary once the new artwork scanner is done?
+        Banners b = tvdb.getBanners(s.getId());
+        //m.setFanartURL(s.getFanart());
+        if (b.getFanartList().size() > 0) {
+            m.setFanartURL(b.getFanartList().get(0).getUrl());
+        }
+        
+        m.setBannerURL(s.getBanner());
+        if (b.getPosterList().size() > 0) {
+            m.setPosterURL(s.getPoster());
+        }
+        if (episode != null) {
+            for(MovieFile mf : m.getMovieFiles()) {
+                mf.setPlot(epno, episode.getOverview());
+                if(!isValidString(mf.getTitle())) {
+                    mf.setTitle(episode.getEpisodeName());
+                }
+            }
+        }
+    }
+    
     private AnidbFile anidbHashScan(Movie movie) {
         try {
             AnidbLocalFile localFile = loadLocalFile(movie.getFile());
@@ -562,9 +715,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * @throws UdpConnectionException
      * @throws AniDbException
      */
-    @Deprecated
-    public Episode getEpisode(long animeId, long episodeNumber) throws UdpConnectionException, AniDbException {
-        return anidbConn.getEpisode(animeId, episodeNumber);
+    public AnidbEpisode getEpisode(long animeId, long episodeNumber) {
+        return loadAnidbEpisode(animeId, episodeNumber);
     }
     
     /**
@@ -624,11 +776,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
     
+    // TODO: Make this thread safe
     private void loadAnidbTvdbMappings() throws SQLException {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
            
-            AnidbHandler handler = new AnidbHandler();
+            final AnidbHandler handler = new AnidbHandler();
                 
             saxParser.parse(THETVDB_ANIDB_MAPPING_URL, handler);
             
@@ -639,13 +792,31 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             DeleteBuilder<AnidbTvdbEpisodeMapping, String> db2 = episodeMappingDao.deleteBuilder();
             PreparedDelete<AnidbTvdbEpisodeMapping> pd2 = db2.prepare();
             episodeMappingDao.delete(pd2);
-            
-            for (AnidbTvdbMapping m : handler.mappings) {
-                mappingDao.create(m);
+            try {
+                mappingDao.callBatchTasks(new Callable<Void>() {
+
+                    @Override
+                    public Void call() throws Exception {
+                        for (AnidbTvdbMapping m : handler.mappings) {
+                            mappingDao.create(m);
+                        }
+                        return null;
+                    }
+                });
+                episodeMappingDao.callBatchTasks(new Callable<Void>() {
+
+                    @Override
+                    public Void call() throws Exception {
+                        for (AnidbTvdbEpisodeMapping m : handler.episodeMappings) {
+                            episodeMappingDao.create(m);
+                        }
+                        return null;
+                    }
+                });
+            } catch (Exception e) {
+                logger.error("Encountered an unknown error while saving tvdb mappings");
             }
-            for (AnidbTvdbEpisodeMapping m : handler.episodeMappings) {
-                episodeMappingDao.create(m);
-            }
+
         } catch(SAXParseException e) {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
@@ -802,14 +973,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
         
         public void endElement(String uri, String localName, String qName) {
-            logger.info(LOG_MESSAGE + "End of element: " + qName);
             if (qName.equalsIgnoreCase("mapping")) {
                 mapping = false;
                 String[] split = lastMapping.split(";");
                 for(String s : split) {
                     if (s.length() > 0) {
                         String[] res =  s.split("-");
-                        logger.info(LOG_MESSAGE + lastMapping + " >> " + s);
                         String[] tvdbres = res[1].split("\\+");   // For certain series such as Bokusatsu Tenshi Dokuro-chan where one 
                                                                 // anidb episode maps to two episodes at the tvdb.
                                                                 // For now we only use the first one.
@@ -820,6 +989,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 lastMapping = "";
             } else if (qName.equalsIgnoreCase("name")) {
                 current.setName(nameString.toString());
+                nameString.setLength(0);
                 name = false;
             }
         }
@@ -919,6 +1089,34 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logException("Encountered UDP Connection error when loading episode information for eid " + eid, e);
         } catch (AniDbException e) {
             logException("Encountered an Anidb error when loading episode information for eid " + eid, e);
+        }
+        return null;
+    }
+
+    public AnidbEpisode loadAnidbEpisode(final long aid, final long episodeNumber) {
+        try {
+            QueryBuilder<AnidbEpisode, String> qb = episodeDao.queryBuilder();
+            qb.where().eq(AnidbEpisode.ANIME_ID_COLUMN, aid).and().eq(AnidbEpisode.EPISODE_NUMBER_COLUMN, episodeNumber);
+            PreparedQuery<AnidbEpisode> pq = qb.prepare();
+            AnidbEpisode ep = episodeDao.queryForFirst(pq);
+            if (ep != null) {
+                return ep;
+            }
+            Episode e = anidbConn.getEpisode(aid, episodeNumber);
+            if (e != null) {
+                // We have the episode number as known to anidb, which might be different from the one we parse
+                if ((ep = episodeDao.queryForId(Long.toString(e.getEpisodeId()))) == null) {
+                    ep = new AnidbEpisode(e);
+                    episodeDao.create(ep);
+                }
+            }
+            return ep;
+        } catch (SQLException e) {
+            logException("Encountered an SQL error when loading episode data", e);
+        } catch (UdpConnectionException e) {
+            logException("Encountered UDP Connection error when loading episode information for anime " + aid + " episode " + episodeNumber, e);
+        } catch (AniDbException e) {
+            logException("Encountered an Anidb error when loading episode information for anime " + aid + " episode " + episodeNumber, e);
         }
         return null;
     }
@@ -1597,7 +1795,7 @@ class AnidbCategory {
 
 @DatabaseTable(tableName = "anidb_tableinfo")
 class AnidbTableInfo {
-    @DatabaseField(id = true)
+    @DatabaseField(generatedId = true)
     private int version;
     @DatabaseField()
     private Date lastTvdbMappingDownload;
@@ -1640,7 +1838,7 @@ class AnidbTvdbMapping {
     public static final String TVDB_ID_COLUMN_NAME = "tvdb_id";
     public static final String TVDB_DEFAULT_SEASON_COLUMN_NAME = "tvdb_default_season";
     public static final String NAME_COLUMN_NAME = "name";
-    @DatabaseField(id=true, columnName = ID_COLUMN_NAME)
+    @DatabaseField(generatedId=true, columnName = ID_COLUMN_NAME)
     private int id;
     
     @DatabaseField(columnName = ANIDB_ID_COLUMN_NAME)
@@ -1709,7 +1907,7 @@ class AnidbTvdbEpisodeMapping {
     public static final String ANIDB_EPISODE_NUMBER_COLUMN_NAME = "anidb_episode_number";
     public static final String TVDB_SEASON_COLUMN_NAME = "tvdb_season";
     public static final String TVDB_EPISODE_NUMBER_COLUMN_NAME = "tvdb_episode_number";
-    @DatabaseField(id = true, columnName=ID_COLUMN_NAME)
+    @DatabaseField(generatedId = true, columnName=ID_COLUMN_NAME)
     private int id;
     @DatabaseField(columnName = ANIDB_SEASON_COLUMN_NAME)
     private int anidbSeason;
