@@ -934,54 +934,54 @@ public class MovieJukebox {
 
                         // First get movie data (title, year, director, genre, etc...)
                         library.toggleDirty(updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie));
-                        
-                        // Then get this movie's poster
-                        logger.debug("Updating poster for: " + movieTitleExt);
-                        updateMoviePoster(jukebox, movie);
-
-                        // Download episode images if required
-                        if (videoimageDownload) {
-                            VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
-                        }
-
-                        // Get Fanart only if requested
-                        // Note that the FanartScanner will check if the file is newer / different
-                        if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                            FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
-                        }
-
-                        // Get Banner if requested and is a TV show
-                        if (bannerDownload && movie.isTVShow()) {
-                            if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
-                                updateTvBanner(jukebox, movie);
+                        if (!movie.getMovieType().equals(Movie.REMOVE)) {
+                            // Then get this movie's poster
+                            logger.debug("Updating poster for: " + movieTitleExt);
+                            updateMoviePoster(jukebox, movie);
+    
+                            // Download episode images if required
+                            if (videoimageDownload) {
+                                VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
+                            }
+    
+                            // Get Fanart only if requested
+                            // Note that the FanartScanner will check if the file is newer / different
+                            if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
+                                FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
+                            }
+    
+                            // Get Banner if requested and is a TV show
+                            if (bannerDownload && movie.isTVShow()) {
+                                if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
+                                    updateTvBanner(jukebox, movie);
+                                }
+                            }
+                            
+                            // Check for watched and unwatched files
+                            if(enableWatchScanner) { // Issue 1938
+                                WatchedScanner.checkWatched(jukebox, movie);
+                            }
+    
+                            // Get subtitle
+                            tools.subtitlePlugin.generate(movie);
+    
+                            // Get ClearART/LOGOS/etc
+                            if (movie.isTVShow() && extraArtworkDownload) {
+                                tools.fanartTvPlugin.scan(movie);
+                            }
+                            
+                            // Get Trailers
+                            if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
+                                boolean status = tools.trailerPlugin.generate(movie);
+    
+                                // Update trailerExchange
+                                if (status == false) {
+                                    // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
+                                    status = trailersRescanDaysMillis < 0 ? true : false;
+                                }
+                                movie.setTrailerExchange(status);
                             }
                         }
-                        
-                        // Check for watched and unwatched files
-                        if(enableWatchScanner) { // Issue 1938
-                            WatchedScanner.checkWatched(jukebox, movie);
-                        }
-
-                        // Get subtitle
-                        tools.subtitlePlugin.generate(movie);
-
-                        // Get ClearART/LOGOS/etc
-                        if (movie.isTVShow() && extraArtworkDownload) {
-                            tools.fanartTvPlugin.scan(movie);
-                        }
-                        
-                        // Get Trailers
-                        if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
-                            boolean status = tools.trailerPlugin.generate(movie);
-
-                            // Update trailerExchange
-                            if (status == false) {
-                                // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
-                                status = trailersRescanDaysMillis < 0 ? true : false;
-                            }
-                            movie.setTrailerExchange(status);
-                        }
-
                         logger.info("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         // Show memory every (processing count) movies
                         if (showMemory && (count % MaxThreadsProcess) == 0) {
@@ -994,6 +994,14 @@ public class MovieJukebox {
             }
             tasks.waitFor();
 
+            // Remove any movie objects set to be removed
+            Iterator<Map.Entry<String, Movie>> it = library.entrySet().iterator();
+            while(it.hasNext()) {
+                Map.Entry<String,Movie> m = it.next();
+                if (m.getValue().getMovieType().equals(Movie.REMOVE)) {
+                    it.remove();
+                }
+            }
             // Add the new extra files (like trailers that were downloaded) to the library and to the corresponding movies
             library.mergeExtras();
 

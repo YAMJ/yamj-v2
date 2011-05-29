@@ -74,7 +74,7 @@ public class DatabasePluginController {
                 boolean isScanned = PluginMap.get().get(origType).scan(movie);
                 String newType = movie.getMovieType();
                 // so if the movie wasn't scanned and it is now a different valid type, then rescan
-                if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(origType)) {
+                if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE) && !newType.equals(origType)) {
                     isScanned = PluginMap.get().get(newType).scan(movie);
                     if (!isScanned) {
                         logger.warn("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");

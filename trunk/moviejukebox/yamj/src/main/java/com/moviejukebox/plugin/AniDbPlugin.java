@@ -444,7 +444,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     mf.setFirstPart(epNo);
                     mf.setLastPart(epNo);
                     main.getMovieFiles().add(mf);
-                    movie.setMovieType(Movie.TYPE_UNKNOWN);
+                    movie.setMovieType(Movie.REMOVE);
                     return false;
                 } else {
                     mainSeriesMovieObjects.put(generateHashmapKey(movie), movie);
