@@ -1,5 +1,6 @@
 package com.moviejukebox.tools;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -18,7 +19,7 @@ public class Cache {
     private static boolean cacheEnabled = true;
     
     public Cache() {
-        cacheEnabled = PropertiesUtil.getBooleanProperty("mjb.cache", "true");
+        setCacheState(PropertiesUtil.getBooleanProperty("mjb.cache", "true"));
     }
   
     /**
@@ -80,36 +81,72 @@ public class Cache {
         }
     }
 
-    /**
-     * Generate a simple cache key based on three string attributes
-     * @param stringOne
-     * @param stringTwo
-     * @param stringThree
-     * @return
-     */
+    public static String generateCacheKey(String stringOne, String stringTwo) {
+        return generateCacheKey(stringOne, stringOne, null, null);
+    }
+    
     public static String generateCacheKey(String stringOne, String stringTwo, String stringThree) {
+        return generateCacheKey(stringOne, stringTwo, stringThree, null);
+    }
+    
+    public static String generateCacheKey(String stringOne, String stringTwo, String stringThree, String stringFour) {
+        ArrayList<String> cacheKeys = new ArrayList<String>();
+        if (StringTools.isValidString(stringOne)) {
+            cacheKeys.add(stringOne);
+        }
+        
+        if (StringTools.isValidString(stringTwo)) {
+            cacheKeys.add(stringTwo);
+        }
+        
+        if (StringTools.isValidString(stringThree)) {
+            cacheKeys.add(stringThree);
+        }
+        
+        if (StringTools.isValidString(stringFour)) {
+            cacheKeys.add(stringFour);
+        }
+        
+        return generateCacheKey(cacheKeys);
+    }
+
+    /**
+     * Generate a simple cache key based on string values
+     * @return cache key
+     */
+    public static String generateCacheKey(ArrayList<String> cacheKeys) {
         if (!cacheEnabled) {
             return "";
         }
         
-        StringBuffer sb = new StringBuffer();
-        sb.append(stringOne).append("-");
-        sb.append(stringTwo).append("-");
-        sb.append(stringThree);
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String value : cacheKeys) {
+            if (!first) {
+                sb.append("-");
+            }
+            sb.append(value);
+        }
+        
         // logger.debug("*** Cache: Generating cache key of: " + sb.toString()); // XXX Debug
         return sb.toString();
     }
 
+    /**
+     * Set the state of the cache
+     */
+    public static void setCacheState(boolean cacheState) {
+        cacheEnabled = cacheState;
+    }
+    
     /**
      * Called when running low on memory, clear the cache and turn off the caching routine
      * Also print out a message to warn the user
      */
     public static void purgeCache() { 
         if (cacheEnabled) {
-            logger.warn("\n**********************************************");
-            logger.warn("***** Disabling cache due to low memory! *****");
-            logger.warn("**********************************************");
-            cacheEnabled = false;
+            logger.debug("Cache: Disabling cache due to low memory.");
+            setCacheState(false);
             clear();
         }
     }
