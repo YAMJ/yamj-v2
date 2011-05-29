@@ -92,11 +92,11 @@ public class MovieFilenameScanner {
     // Number at the end of string preceded with '-'
     private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
 
-    private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC" };
+    private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC", "FLAC" };
 
-    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)");
+    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)|(?:[\\s_]\\d{1,4}[\\s_])");
     protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
-    protected static final Pattern EPISODE_PATTERN = ipatt("[ex]\\s??([0-9]+)");
+    protected static final Pattern EPISODE_PATTERN = ipatt("[ex]??\\s??([0-9]+)");
 
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
@@ -273,7 +273,7 @@ public class MovieFilenameScanner {
 
     private static final Map<String, Pattern> HD_RESOLUTION_MAP = new HashMap<String, Pattern>() {
         {
-            for (String s : new String[] { "720p", "1080i", "1080p", "HD" }) {
+            for (String s : new String[] { "720p", "1080i", "1080p", "HD", "1280x720", "1920x1080" }) {
                 put(s, iwpatt(s));
             }
         }
@@ -453,9 +453,12 @@ public class MovieFilenameScanner {
                 rest = cutMatch(rest, matcher, "./TVSHOW/.");
                 
                 final Matcher smatcher = SEASON_PATTERN.matcher(matcher.group(0));
-                smatcher.find();
-                int season = Integer.parseInt(smatcher.group(1));
-                dto.setSeason(season);
+                if (smatcher.find()) {
+                    int season = Integer.parseInt(smatcher.group(1));
+                    dto.setSeason(season);
+                } else {
+                    dto.setSeason(1);
+                }
 
                 final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(0));
                 while (ematcher.find()) {
