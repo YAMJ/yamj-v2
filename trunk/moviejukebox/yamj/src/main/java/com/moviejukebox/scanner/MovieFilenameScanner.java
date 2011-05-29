@@ -94,9 +94,9 @@ public class MovieFilenameScanner {
 
     private static final String[] AUDIO_CODECS_ARRAY = new String[] { "AC3", "DTS", "DD", "AAC", "FLAC" };
 
-    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)|(?:[\\s_]\\d{1,4}[\\s_])");
+    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)|(?:-[ _]\\d{1,4}[ _])");
     protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
-    protected static final Pattern EPISODE_PATTERN = ipatt("[ex]??\\s??([0-9]+)");
+    protected static final Pattern EPISODE_PATTERN = ipatt("[ex\\s_]([0-9]+)");
 
     protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
     protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
