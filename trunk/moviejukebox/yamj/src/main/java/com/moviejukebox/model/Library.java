@@ -97,6 +97,7 @@ public class Library implements Map<String, Movie> {
     private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
     private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private static boolean charGroupEnglish = false;
+    private HashMap<Movie, String> keys = new HashMap<Movie, String>();
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
     private Map<String, Movie> extras = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
@@ -258,6 +259,7 @@ public class Library implements Map<String, Movie> {
             // logger.debug("  It's an extra: " + movie.getBaseName());
             extras.put(movie.getBaseName(), movie);
         } else if (existingMovie == null) {
+            keys.put(movie, key);
             library.put(key, movie);
         } else {
             MovieFile firstMovieFile = movie.getFirstFile();
@@ -278,6 +280,8 @@ public class Library implements Map<String, Movie> {
                     for (MovieFile movieFile : espisodesFiles) {
                         movie.addMovieFile(movieFile);
                         library.put(key, movie); // Replace the old one by the lower.
+                        keys.remove(existingMovie);
+                        keys.put(movie, key);
                         existingMovie = movie;
                     }
                 } else {
@@ -1083,6 +1087,15 @@ public class Library implements Map<String, Movie> {
     }
 
     public Movie remove(Object key) {
+        Movie m = library.remove(key);
+        if (m != null) {
+            keys.remove(m);
+        }
+        return m;
+    }
+    
+    public Movie remove(Movie m) {
+        String key = keys.get(m);
         return library.remove(key);
     }
 
