@@ -68,6 +68,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private static Logger logger = Logger.getLogger("moviejukebox");
     public static final String UNKNOWN = "UNKNOWN";
     public static final String NOTRATED = "Not Rated";
+    public static final String REMOVE = "Remove"; // All Movie objects with this type will be removed from library before index generation
     public static final String TYPE_MOVIE = "MOVIE";
     public static final String TYPE_TVSHOW = "TVSHOW";
     public static final String TYPE_UNKNOWN = UNKNOWN;
