@@ -594,7 +594,19 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private void getDataFromTheTvdb(Movie m, int season, int epno) {
         synchronized(tvdb) {
             List<Series> series = tvdb.searchSeries(m.getTitle(), "en"); // Because apparently language isn't the language of the title
+
+            
             if (series.size() > 0) {
+                AnidbTvdbMapping mapping = new AnidbTvdbMapping();
+                mapping.setDefaultTvdbSeason(1);
+                mapping.setName(series.get(0).getSeriesName());
+                mapping.setAnidbId(Long.parseLong(m.getId(ANIDB_PLUGIN_ID)));
+                mapping.setTvdbId(Long.parseLong(series.get(0).getId()));
+                try {
+                    mappingDao.create(mapping);
+                } catch (SQLException e) {
+                    logException("SQL exception when trying to save tvdb mapping", e);
+                }
                 com.moviejukebox.thetvdb.model.Episode ep = null;//tvdb.getEpisode(series.get(0).getSeriesId(), season, epno, "en");
                 processTvdbResults(m, series.get(0), ep, epno);
             }
