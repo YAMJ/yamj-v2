@@ -973,7 +973,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             anime = animeDao.queryForId(Long.toString(anime.getAnimeId()));
             addAnimeToCache(anime);
         }
-        return null;
+        return anime;
     }    
     
     private void createCategories(AnidbAnime anime, Anime anidbResult) throws SQLException, UdpConnectionException, AniDbException {
