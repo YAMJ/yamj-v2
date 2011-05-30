@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 import com.moviejukebox.model.MovieFileNameDTO;
@@ -170,7 +172,7 @@ public class MovieFilenameScannerTest extends TestCase {
         d = scan("House 3x101x19x3.avi");
         assertEquals(3, d.getSeason());
         assertEquals(Arrays.asList(new Integer[] { 101, 19, 3 }), d.getEpisodes());
-
+        
         d = scan("Dinner.Game.(Diner.De.Cons).1998.FRENCH.720p.BluRay.x264-zzz.ts");
         assertEquals(1998, d.getYear());
         assertEquals("Dinner Game (Diner De Cons)", d.getTitle());
@@ -406,6 +408,16 @@ public class MovieFilenameScannerTest extends TestCase {
          d = scan("Tropa de Elite 2.[2010].BDRip.XviD-ZMG.avi");
         assertEquals("Tropa de Elite 2", d.getTitle());
         assertEquals(2010, d.getYear());
+    }
+    
+    public void testIssue1946() {
+        MovieFileNameDTO d = scan("test\\South Park - S14E05 - 200 (1).avi");
+        assertEquals("200 (1)", d.getEpisodeTitle());
+        assertEquals(14, d.getSeason());
+        assertEquals(-1, d.getYear());
+        assertEquals(1, d.getEpisodes().size());
+        assertEquals(5, d.getEpisodes().get(0).intValue());
+        assertEquals("South Park", d.getTitle());
     }
     
     @SuppressWarnings("serial")

@@ -243,4 +243,25 @@ import com.moviejukebox.model.Movie.MovieId;
             idMap.put(id.movieDatabase, id.value);
         }
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[Title=" + title + "]");
+        sb.append("[Year=" + year + "]");
+        sb.append("[Parttitle=" + partTitle + "]");
+        sb.append("[EpisodeTitle=" + episodeTitle + "]");
+        sb.append("[Season=" + season + "]");
+        sb.append("[EpisodeCount=" + episodes.size() + "]");
+        sb.append("[Part=" + part + "]");
+        sb.append("[Extra=" + extra + "]");
+        sb.append("[AudioCodec=" + audioCodec+ "]");
+        sb.append("[VideoCodec=" + videoCodec+ "]");
+        sb.append("[Container=" + container+ "]");
+        sb.append("[Extension=" + extension + "]");
+        sb.append("[Fps=" + fps+ "]");
+        sb.append("[hdResolution=" + hdResolution+ "]");
+        sb.append("[VideoSource=" + videoSource + "]");
+        return sb.toString();
+    }
 }
