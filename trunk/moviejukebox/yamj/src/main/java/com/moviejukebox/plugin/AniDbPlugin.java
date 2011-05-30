@@ -24,16 +24,12 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -168,7 +164,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         
         anidbMask = new AnimeMask(true, true, true, false, false, true, true, true, true, true, false, false, false, true, true, true, 
                         true, false, false, false, true, true, false, false, false, false, false, true, true, false, false, false, false, 
-                        false, true, false, true, true, false, false, false, false, false);
+                        false, true, false, false, false, true, true, true, true, true);
         categoryMask = new AnimeMask(false, false, false, false, false, true, true, false, false, false, false, false, false, false, false,
                         false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
                         false, false, false, false, false, false, false, false, false, false, false);
@@ -421,35 +417,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
 
         if (anime != null) {
-            final boolean isSpecial = !Character.isDigit(episodeNumber.charAt(0));
-            final int epNo = isSpecial ? Integer.parseInt(episodeNumber.substring(1)) : Integer.parseInt(episodeNumber);
-
             if (anime.getType().equals("Movie")) { // Assume anything not a movie is a TV show
                 movie.setMovieType(Movie.TYPE_MOVIE);
             }
             else {
                 movie.setMovieType(Movie.TYPE_TVSHOW);
             }
-            
-            if (isSpecial) {
-                movie.setSeason(0);
-            } else {
-                movie.setSeason(1);
-            }
-            
-            synchronized(mainSeriesMovieObjects) {
-                if (mainSeriesMovieObjects.containsKey(generateHashmapKey(movie))) {
-                    final Movie main = mainSeriesMovieObjects.get(generateHashmapKey(movie));
-                    final MovieFile mf = movie.getMovieFiles().iterator().next();
-                    mf.setFirstPart(epNo);
-                    mf.setLastPart(epNo);
-                    main.getMovieFiles().add(mf);
-                    movie.setMovieType(Movie.REMOVE);
-                    return false;
-                } else {
-                    mainSeriesMovieObjects.put(generateHashmapKey(movie), movie);
-                }
-            }
+
             
             // XXX: DEBUG
             logger.info("getAnimeId         : " + anime.getAnimeId());
@@ -501,59 +475,137 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             
             movie.setPlot(anime.getDescription());
             movie.setOutline(anime.getDescription());
-            
-            if (movie.getMovieFiles().size() == 1 && movie.getMovieType() == Movie.TYPE_TVSHOW) {
-                for (MovieFile mf : movie.getMovieFiles()) {
-                     
-                    if (!isSpecial) {
-                        final AnidbEpisode ae = getEpisode(anime.getAnimeId(), epNo);    
-                        if (ae != null) {
-                            mf.setTitle(ae.getRomajiName());
-                        }
-                    }
-                    mf.setFirstPart(Integer.parseInt(episodeNumber));
-                    
-                    mf.setLastPart(Integer.parseInt(episodeNumber));
-                }
-            }
 
-            if (getAdditionalInformationFromTheTvDB) {
-                
-                // Check if we need a special mapping
-                AnidbTvdbMapping mapping = null;
-                try {
-                    mapping = findMapping(anime, episodeNumber);
-                } catch (SQLException e) {
-                    logException("SQL error when looking for tvdb mappings", e);
-                }
-                if (mapping != null) {
-                    AnidbTvdbEpisodeMapping episodeMapping = findEpisodeMapping(episodeNumber, mapping); 
-                    if (episodeMapping != null) {
-                        getDataFromTheTvdb(movie, mapping.getTvdbId(), episodeMapping.getTvdbSeason(), episodeMapping.getTvdbEpisodeNumber());
-                    } else {
-                        if (Character.isDigit(episodeNumber.charAt(0))) {
-                            getDataFromTheTvdb(movie, mapping.getTvdbId(), mapping.getDefaultTvdbSeason(), epNo);                            
-                        } else {
-                            getDataFromTheTvdb(movie, mapping.getTvdbId(), mapping.getDefaultTvdbSeason(), epNo);
-                        }
-                    }
-                } else {
-                    getDataFromTheTvdb(movie, 1, epNo);
-                }
-            }
 
-            for (MovieFile mf : movie.getFiles()) {
-                logger.info("File : " + mf.getFilename()); // XXX: DEBUG
-                logger.info("First: " + mf.getFirstPart()); // XXX: DEBUG
-                logger.info("Last : " + mf.getLastPart()); // XXX: DEBUG
+            if (movie.getMovieType() == Movie.TYPE_TVSHOW) {
+                return scanTVShows(movie, anime, episodeNumber);
             }
-
         } else {
             logger.info(LOG_MESSAGE + "Anime not found: " + movie.getTitle());
         }
-
         logger.info(LOG_MESSAGE + "Finished " + movie.getBaseFilename());
         return true;
+    }
+
+    private boolean scanTVShows(Movie movie, AnidbAnime anime, String episodeNumber) {
+        final boolean isSpecial = !Character.isDigit(episodeNumber.charAt(0));
+        int epNo = isSpecial ? Integer.parseInt(episodeNumber.substring(1)) : Integer.parseInt(episodeNumber);
+        
+        if (isSpecial) {
+            movie.setSeason(0);
+        } else {
+            movie.setSeason(1);
+        }
+
+        synchronized(mainSeriesMovieObjects) {
+            if (mainSeriesMovieObjects.containsKey(generateHashmapKey(movie))) {
+                final Movie main = mainSeriesMovieObjects.get(generateHashmapKey(movie));
+                final MovieFile mf = movie.getMovieFiles().iterator().next();
+                if (movie.getMovieFiles().size() > 1) {
+                    logger.error(LOG_MESSAGE + "Discarding a movie object with more than one movie file. This will most likely cause files to be missing from the jukebox");
+                }
+                mf.setFirstPart(epNo);
+                mf.setLastPart(epNo);
+                main.getMovieFiles().add(mf);
+                movie.setMovieType(Movie.REMOVE);
+                return false;
+            } else {
+                mainSeriesMovieObjects.put(generateHashmapKey(movie), movie);
+            }
+        }
+
+        Series s = null;
+        if (getAdditionalInformationFromTheTvDB) {
+            // Check if we need a special mapping
+            AnidbTvdbMapping mapping = null;
+            try {
+                mapping = findMapping(anime, episodeNumber);
+            } catch (SQLException e) {
+                logException("SQL error when looking for tvdb mappings", e);
+            }
+            com.moviejukebox.thetvdb.model.Episode ep = null;
+            if (mapping != null) {
+                AnidbTvdbEpisodeMapping episodeMapping = findEpisodeMapping(episodeNumber, mapping); 
+                s = getSeriesFromTvdb(mapping.getTvdbId());
+                if (episodeMapping != null) {
+                    //ep = getEpisodeFromTvdb(s.getId(), episodeMapping.getTvdbSeason(), episodeMapping.getTvdbEpisodeNumber());
+                } else {
+                    if (Character.isDigit(episodeNumber.charAt(0))) {
+                        //ep = getEpisodeFromTvdb(s.getId(), 1, epNo); 
+                    } else {
+                        //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
+                    }
+                }
+            } else {
+                s = getSeriesFromTvdb(movie.getTitle());
+                if (s != null) {
+                    //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
+                }
+            }
+            if (s != null) {
+                // This should hopefully not be necessary once the new artwork scanner is done?
+                Banners b = tvdb.getBanners(s.getId());
+                //m.setFanartURL(s.getFanart());
+                if (b.getFanartList().size() > 0) {
+                    movie.setFanartURL(b.getFanartList().get(0).getUrl());
+                }
+                movie.setBannerURL(s.getBanner());
+                if (b.getPosterList().size() > 0) {
+                    movie.setPosterURL(s.getPoster());
+                }            
+            }
+        }
+        
+        for (MovieFile mf : movie.getMovieFiles()) {
+            final Matcher m = tvshowRegex.matcher(mf.getFilename());
+            if (!isSpecial) {
+                if (m.find()) {
+                    epNo = Integer.parseInt(m.group(tvshowRegexEpisodeNumberIndex));
+                }
+                final AnidbEpisode ae = getEpisode(anime.getAnimeId(), epNo);    
+                if (ae != null) {
+                    if (isValidString(ae.getEnglishName())) {
+                        mf.setTitle(ae.getEnglishName());
+                    } else if (isValidString(ae.getRomajiName())){
+                        mf.setTitle(ae.getRomajiName());
+                    }
+                }
+                mf.setFirstPart(epNo);
+                mf.setLastPart(epNo);
+            } else { // Currently there doesn't appear to be a good way to find the episode title for specials if we don't have the episode ID
+                mf.setFirstPart(getSpecialEpisodeNumbering(m.group(tvshowRegexEpisodeNumberIndex), anime));
+                mf.setLastPart(getSpecialEpisodeNumbering(m.group(tvshowRegexEpisodeNumberIndex), anime));
+            }
+        }
+        return true;
+    }
+    
+    private int getSpecialEpisodeNumbering(String episodeNumber, AnidbAnime anime) {
+        return 0;
+    }
+
+    
+    protected Series getSeriesFromTvdb(final long tvdbId) {
+        synchronized(tvdb) {
+            return tvdb.getSeries(Long.toString(tvdbId), "en");
+        }
+    }
+    
+    protected Series getSeriesFromTvdb(final String title) {
+        synchronized(tvdb) {
+            final List<Series> series = tvdb.searchSeries(title, "en");
+            if (series.size() > 0) {
+                return series.get(0);
+            }
+        }
+        return null;
+    }
+    
+    protected com.moviejukebox.thetvdb.model.Episode getEpisodeFromTvdb(final String seriesId, final int season, final int episodeNumber)
+    {
+        synchronized(tvdb) {
+            return tvdb.getEpisode(seriesId, season, episodeNumber, "en");
+        }
     }
     
     private AnidbTvdbMapping findMapping(AnidbAnime anime, String epno) throws SQLException {
@@ -581,50 +633,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return null;
     }
     
-    private void getDataFromTheTvdb(Movie m, long tvdbId, int season, int epno) {
-        synchronized(tvdb) {
-            Series series = tvdb.getSeries(Long.toString(tvdbId), "en");
-            if (series != null) {
-                com.moviejukebox.thetvdb.model.Episode ep = null;//tvdb.getEpisode(series.getSeriesId(), season, epno, "en");
-                processTvdbResults(m, series, ep, epno);
-            }
-        }
-    }
-    
-    private void getDataFromTheTvdb(Movie m, int season, int epno) {
-        synchronized(tvdb) {
-            List<Series> series = tvdb.searchSeries(m.getTitle(), "en"); // Because apparently language isn't the language of the title
-
-            
-            if (series.size() > 0) {
-                AnidbTvdbMapping mapping = new AnidbTvdbMapping();
-                mapping.setDefaultTvdbSeason(1);
-                mapping.setName(series.get(0).getSeriesName());
-                mapping.setAnidbId(Long.parseLong(m.getId(ANIDB_PLUGIN_ID)));
-                mapping.setTvdbId(Long.parseLong(series.get(0).getId()));
-                try {
-                    mappingDao.create(mapping);
-                } catch (SQLException e) {
-                    logException("SQL exception when trying to save tvdb mapping", e);
-                }
-                com.moviejukebox.thetvdb.model.Episode ep = null;//tvdb.getEpisode(series.get(0).getSeriesId(), season, epno, "en");
-                processTvdbResults(m, series.get(0), ep, epno);
-            }
-        }
-    }
-    
     private void processTvdbResults(Movie m, Series s, com.moviejukebox.thetvdb.model.Episode episode, int epno) {
-        // This should hopefully not be necessary once the new artwork scanner is done?
-        Banners b = tvdb.getBanners(s.getId());
-        //m.setFanartURL(s.getFanart());
-        if (b.getFanartList().size() > 0) {
-            m.setFanartURL(b.getFanartList().get(0).getUrl());
-        }
-        
-        m.setBannerURL(s.getBanner());
-        if (b.getPosterList().size() > 0) {
-            m.setPosterURL(s.getPoster());
-        }
+
         if (episode != null) {
             for(MovieFile mf : m.getMovieFiles()) {
                 mf.setPlot(epno, episode.getOverview());
@@ -1175,6 +1185,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
         Anime _anime = anidbConn.getAnime(name, anidbMask);
         if (_anime != null) {
+            // We shouldn't get something we already have, but check to make sure
+            anime = animeDao.queryForId(Long.toString(_anime.getAnimeId()));
+            if (anime != null) {
+                return anime;
+            }
             anime = new AnidbAnime(_anime);
             String animePlot = anidbConn.getAnimeDescription(anime.getAnimeId());
             anime.setDescription(animePlot);
@@ -1586,6 +1601,21 @@ class AnidbAnime {
     @DatabaseField()
     private long episodeCount;
     
+    @DatabaseField()
+    private int specialsCount;
+   
+    @DatabaseField()
+    private int creditsCount;
+    
+    @DatabaseField()
+    private int otherCount;
+    
+    @DatabaseField()
+    private int trailerCount;
+    
+    @DatabaseField()
+    private int parodyCount;
+    
     @ForeignCollectionField(eager = true)
     private ForeignCollection<AnidbCategory> categories;
     
@@ -1614,6 +1644,11 @@ class AnidbAnime {
         if (anime.getRating() != null) {
             setRating(anime.getRating());
         }
+        setSpecialsCount(anime.getSpecialsCount().intValue());
+        setCreditsCount(anime.getCreditsCount().intValue());
+        setOtherCount(anime.getOtherCount().intValue());
+        setTrailerCount(anime.getTrailerCount().intValue());
+        setParodyCount(anime.getParodyCount().intValue());
     }
     
     public void setAnimeId(long aid) {
@@ -1736,6 +1771,46 @@ class AnidbAnime {
 
     public void setCategories(ForeignCollection<AnidbCategory> categories) {
         this.categories = categories;
+    }
+
+    public long getSpecialsCount() {
+        return specialsCount;
+    }
+
+    public void setSpecialsCount(int specialsCount) {
+        this.specialsCount = specialsCount;
+    }
+
+    public int getCreditsCount() {
+        return creditsCount;
+    }
+
+    public void setCreditsCount(int creditsCount) {
+        this.creditsCount = creditsCount;
+    }
+
+    public int getOtherCount() {
+        return otherCount;
+    }
+
+    public void setOtherCount(int otherCount) {
+        this.otherCount = otherCount;
+    }
+
+    public int getTrailerCount() {
+        return trailerCount;
+    }
+
+    public void setTrailerCount(int trailerCount) {
+        this.trailerCount = trailerCount;
+    }
+
+    public int getParodyCount() {
+        return parodyCount;
+    }
+
+    public void setParodyCount(int parodyCount) {
+        this.parodyCount = parodyCount;
     }
 }
 
