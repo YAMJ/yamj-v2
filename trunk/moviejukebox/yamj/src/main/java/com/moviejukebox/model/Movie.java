@@ -13,6 +13,7 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1918,13 +1919,25 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (StringTools.isNotValidString(aspect)) {
             return;
         }
+        
+        String newAspect = new String(aspect);  // We can't alter the parameter, so use a new one
+
         // Format the aspect slightly and change "16/9" to "16:9"
-        aspect.replaceAll("/", ":");
-        if (!aspect.contains(":")) {
-            aspect += ":1";
+        newAspect.replaceAll("/", ":");
+        if (!newAspect.contains(":")) {
+            newAspect += ":1";
+        }
+        
+        // Format the aspect if it is a float value to 2 decimal places
+        if (newAspect.contains(".")) {
+            try {
+                newAspect = new DecimalFormat("#.##").format(Float.parseFloat(newAspect));
+            } catch (NumberFormatException nfe) {
+                // Don't change the number because there was an error
+            }
         }
 
-        this.aspect = aspect;
+        this.aspect = newAspect;
     }
 
     public String getAspectRatio() {
