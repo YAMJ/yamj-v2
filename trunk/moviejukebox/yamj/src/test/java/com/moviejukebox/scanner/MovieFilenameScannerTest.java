@@ -408,7 +408,9 @@ public class MovieFilenameScannerTest extends TestCase {
     }
     
     public void testIssue1946() {
-        MovieFileNameDTO d = scan("South Park - S14E05 - 200 (1).avi");
+        // This requires a full path.
+        // The issue was caused by the scanner thinking that the parent directory was the show title.
+        MovieFileNameDTO d = scan("y:\\test\\South Park - S14E05 - 200 (1).avi");
         assertEquals("200 (1)", d.getEpisodeTitle());
         assertEquals(14, d.getSeason());
         assertEquals(-1, d.getYear());
