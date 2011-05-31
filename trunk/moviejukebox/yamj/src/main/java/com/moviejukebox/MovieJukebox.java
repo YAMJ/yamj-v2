@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -67,6 +66,7 @@ import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.plugin.AniDbPlugin;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
@@ -1032,32 +1032,29 @@ public class MovieJukebox {
 
                 tasks.restart();
                 if (popularity > 0) {
-                    ArrayList as = new ArrayList(popularPeople.entrySet());
+//                    ArrayList as = new ArrayList(popularPeople.entrySet());
+                    ArrayList<Person> as = new ArrayList<Person>(popularPeople.values());
 
-                    Collections.sort(as, new Comparator() {
-                        public int compare(Object o1, Object o2) {
-                            Map.Entry e1 = (Map.Entry)o1;
-                            Map.Entry e2 = (Map.Entry)o2;
-                            Person first = (Person)e1.getValue();
-                            Person second = (Person)e2.getValue();
-                            return second.getPopularity().compareTo(first.getPopularity());
-                        }
-                    });
+                    Collections.sort(as, new PersonComparator());
 
                     List<Person> stars = new ArrayList<Person>();
-                    Iterator itr = as.iterator();
+                    Iterator<Person> itr = as.iterator();
+                    
                     while (itr.hasNext()) {
                         if (peopleCounter >= peopleMax) {
                             break;
                         }
-                        Map.Entry e = (Map.Entry)itr.next();
-                        Person p = (Person)e.getValue();
-                        if (popularity > p.getPopularity()) {
+                        
+                        Person person = itr.next();
+                        
+                        if (popularity > person.getPopularity()) {
                             break;
                         }
-                        stars.add(p);
+                        
+                        stars.add(person);
                         peopleCounter++;
                     }
+                    
                     final int peopleCount = peopleCounter;
                     peopleCounter = 0;
                     for (final Person person : stars) {
