@@ -38,7 +38,6 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -1101,7 +1100,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
 
                     if (filmography.size() > 0 && (preferredRating.equals("combine") || preferredRating.equals("avarage"))) {
-                        TreeMap<Float, Filmography> combineFilmography = new TreeMap<Float, Filmography>();
+//                        TreeMap<Float, Filmography> combineFilmography = new TreeMap<Float, Filmography>();
                         for (Filmography film : person.getFilmography()) {
                             String name = film.getName().replace("ё", "е").replace("Ё", "Е");
                             String title = film.getTitle().replace("ё", "е").replace("Ё", "Е");
@@ -1130,7 +1129,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title)) {
                                     Float rating = preferredRating.equals("combine")?(Float.valueOf(film.getRating()).floatValue() * 1000 + Float.valueOf(f.getRating()).floatValue()):((Float.valueOf(film.getRating()).floatValue() + Float.valueOf(f.getRating()).floatValue())/2);
                                     String id = f.getId(KINOPOISK_PLUGIN_ID);
-                                    float key = 10 - (rating + Float.valueOf("0.00" + id).floatValue());
+//                                    float key = 10 - (rating + Float.valueOf("0.00" + id).floatValue());
                                     film.setId(KINOPOISK_PLUGIN_ID, id);
                                     film.setName(f.getName());
                                     film.setTitle(f.getTitle());

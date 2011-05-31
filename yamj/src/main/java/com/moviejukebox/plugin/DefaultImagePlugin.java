@@ -941,9 +941,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         List<String> values = new ArrayList<String>();
         String filename;
 
-        public imageOverlay() {
-        }
-
         public imageOverlay(String name, String value, String filename, List<String> values) {
             this.name = name;
             this.value = value;
@@ -967,9 +964,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private class stateOverlay extends positionOverlay {
         String value = Movie.UNKNOWN;
         String filename = Movie.UNKNOWN;
-
-        public stateOverlay() {
-        }
 
         public stateOverlay(Integer left, Integer top, String align, String valign, String value) {
             this.left = left;

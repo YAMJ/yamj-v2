@@ -1222,7 +1222,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private boolean updateImdbPersonInfo(Person person) {
         String imdbID = person.getId(IMDB_PLUGIN_ID);
-        boolean imdbNewVersion = false; // Used to fork the processing for the new version of IMDb
         boolean returnStatus = false;
         
         try {
@@ -1241,9 +1240,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // Check for the new version and correct the title if found.
             if (title.toLowerCase().endsWith(" - imdb")) {
                 title = title.substring(0, title.length() - 7);
-                imdbNewVersion = true;
-            } else {
-                imdbNewVersion = false;
             }
             person.setName(title);
             

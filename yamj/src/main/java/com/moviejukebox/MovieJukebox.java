@@ -59,7 +59,6 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Jukebox;
@@ -1167,9 +1166,9 @@ public class MovieJukebox {
                             movie.setDirty(true);
                         }
                     }
+                    
                     String name = movie.getOriginalTitle().toUpperCase() + " (" + movie.getYear() + ")";
                     for (Person p : library.getPeople()) {
-                        boolean dirty = false;
                         for (Filmography film : p.getFilmography()) {
                             if (film.getName().toUpperCase().startsWith(name)) {
                                 film.setFilename(movie.getBaseFilename());
