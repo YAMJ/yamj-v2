@@ -20,7 +20,6 @@ import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +28,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.Iterator;
-import org.apache.log4j.Logger;
 
 import javax.imageio.IIOException;
 import javax.imageio.IIOImage;
@@ -37,6 +35,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+
+import org.apache.log4j.Logger;
 
 import com.jhlabs.image.PerspectiveFilter;
 

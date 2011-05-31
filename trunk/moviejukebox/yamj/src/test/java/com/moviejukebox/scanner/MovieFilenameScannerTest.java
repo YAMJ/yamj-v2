@@ -19,12 +19,9 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Assert;
-
 import junit.framework.TestCase;
 
 import com.moviejukebox.model.MovieFileNameDTO;
-
 
 public class MovieFilenameScannerTest extends TestCase {
 
