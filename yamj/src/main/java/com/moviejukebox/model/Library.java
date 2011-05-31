@@ -47,6 +47,8 @@ import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 
 import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Comparator.LastModifiedComparator;
+import com.moviejukebox.model.Comparator.Top250Comparator;
 
 public class Library implements Map<String, Movie> {
 
