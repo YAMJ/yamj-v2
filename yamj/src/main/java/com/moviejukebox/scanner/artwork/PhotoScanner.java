@@ -50,12 +50,21 @@ public class PhotoScanner {
     protected static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", "false");
     protected static Collection<String> photoImageName;
     protected static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+    protected static String peopleFolder;
 
     static {
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
         while (st.hasMoreTokens()) {
             photoExtensions.add(st.nextToken());
+        }
+
+        // Issue 1947: Cast enhancement - option to save all related files to a specific folder
+        peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
+        if (StringTools.isNotValidString(peopleFolder)) {
+            peopleFolder = "";
+        } else if (!peopleFolder.endsWith(File.separator)) {
+            peopleFolder += File.separator;
         }
     }
 
@@ -96,12 +105,14 @@ public class PhotoScanner {
     private static void downloadPhoto(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
         person.setPhotoFilename();
         String safePhotoFilename = person.getPhotoFilename();
-        String photoFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safePhotoFilename;
+        String photoFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + safePhotoFilename;
         File photoFile = FileTools.fileCache.getFile(photoFilename);
-        String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + safePhotoFilename;
+        String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + peopleFolder + safePhotoFilename;
         File tmpDestFile = new File(tmpDestFileName);
         String dummyFileName = skinHome + File.separator + "resources" + File.separator + "dummy_photo.jpg";
         File dummyFile = new File(dummyFileName);
+        photoFile.getParentFile().mkdirs();
+        tmpDestFile.getParentFile().mkdirs();
 
         if (StringTools.isValidString(person.getPhotoURL())) {
 

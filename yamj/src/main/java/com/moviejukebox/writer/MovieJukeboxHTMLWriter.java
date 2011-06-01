@@ -49,6 +49,7 @@ import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.XMLWriter;
 
@@ -64,6 +65,7 @@ public class MovieJukeboxHTMLWriter {
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
     private int nbTvShowsPerPage;
+    private String peopleFolder;
     private static String skinHome;
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
     // private static String str_categoriesIndexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
@@ -84,6 +86,14 @@ public class MovieJukeboxHTMLWriter {
         }
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         playlistFile = new File("playlist.xsl");
+
+        // Issue 1947: Cast enhancement - option to save all related files to a specific folder
+        peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
+        if (StringTools.isNotValidString(peopleFolder)) {
+            peopleFolder = "";
+        } else if (!peopleFolder.endsWith(File.separator)) {
+            peopleFolder += File.separator;
+        }
 
         // Issue 310
         String transformerFactory = PropertiesUtil.getProperty("javax.xml.transform.TransformerFactory", null);
@@ -147,9 +157,10 @@ public class MovieJukeboxHTMLWriter {
     public void generatePersonDetailsHTML(Jukebox jukebox, Person person) {
         try {
             String baseName = person.getFilename();
-            String tempFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + baseName;
+            String tempFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + peopleFolder + baseName;
             File tempXmlFile = new File(tempFilename + ".xml");
-            File oldXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
+            File oldXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + baseName + ".xml");
+            tempXmlFile.getParentFile().mkdirs();
 
             FileTools.addJukeboxFile(baseName + ".xml");
             String indexList = PropertiesUtil.getProperty("mjb.view.personList", "person.xsl");
@@ -159,7 +170,7 @@ public class MovieJukeboxHTMLWriter {
                     Suffix = indexStr.replace("person", "").replace(".xsl", "");
                 }
 
-                File finalHtmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + Suffix + ".html");
+                File finalHtmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + baseName + Suffix + ".html");
                 File tempHtmlFile = new File(tempFilename + Suffix + ".html");
                 Source xmlSource;
 

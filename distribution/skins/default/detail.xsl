@@ -134,7 +134,11 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                     <xsl:choose>
                         <xsl:when test="people/person[@job='Director'] != 'UNKNOWN'">
                           <a>
-                            <xsl:attribute name="href"><xsl:value-of select="people/person[@job='Director']" />.html</xsl:attribute>
+                            <xsl:attribute name="href">
+                             <xsl:if test="$mjb.people.folder!=''"><xsl:value-of select="$mjb.people.folder"/>/</xsl:if>
+                             <xsl:value-of select="people/person[@job='Director']" />
+                             <xsl:text>.html</xsl:text>
+                            </xsl:attribute>
                             <xsl:value-of select="people/person[@job='Director']/@name" /> 
                           </a>
                         </xsl:when>
@@ -192,7 +196,11 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                             <xsl:choose>
                               <xsl:when test=". != 'UNKNOWN'">
                                 <a>
-                                  <xsl:attribute name="href"><xsl:value-of select="." />.html</xsl:attribute>
+                                  <xsl:attribute name="href">
+                                   <xsl:if test="$mjb.people.folder!=''"><xsl:value-of select="$mjb.people.folder"/>/</xsl:if>
+                                   <xsl:value-of select="." />
+                                   <xsl:text>.html</xsl:text>
+                                  </xsl:attribute>
                                   <xsl:value-of select="@name" /> 
                                 </a>
                               </xsl:when>

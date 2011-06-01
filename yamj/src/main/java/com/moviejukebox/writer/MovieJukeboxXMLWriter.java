@@ -97,6 +97,7 @@ public class MovieJukeboxXMLWriter {
     private static boolean writeNfoFiles;
     private boolean extractCertificationFromMPAA;
     private boolean setsExcludeTV;
+    private static String peopleFolder;
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
@@ -127,6 +128,14 @@ public class MovieJukeboxXMLWriter {
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
         setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", "false");
+
+        // Issue 1947: Cast enhancement - option to save all related files to a specific folder
+        peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
+        if (StringTools.isNotValidString(peopleFolder)) {
+            peopleFolder = "";
+        } else if (!peopleFolder.endsWith(File.separator)) {
+            peopleFolder += File.separator;
+        }
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -1887,10 +1896,11 @@ public class MovieJukeboxXMLWriter {
     }
 
     public void writePersonXML(Jukebox jukebox, Person person, Library library) throws FileNotFoundException, XMLStreamException {
-//        String baseName = FileTools.makeSafeFilename(person.getName());
         String baseName = person.getFilename();
-        File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + ".xml");
-        File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + baseName + ".xml");
+        File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + baseName + ".xml");
+        File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + peopleFolder + baseName + ".xml");
+        finalXmlFile.getParentFile().mkdirs();
+        tempXmlFile.getParentFile().mkdirs();
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
         
