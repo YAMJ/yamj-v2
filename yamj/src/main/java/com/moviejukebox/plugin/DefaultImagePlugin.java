@@ -398,12 +398,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         for (imageOverlay img : layer.images) {
                             if (img.name.equals(name)) {
                                 boolean accept = false;
-                                if (img.values.size() == 1 && ((name.equals("keywords") && value.indexOf(img.value) > -1) || img.value.equals(value))) {
+                                if (img.values.size() == 1 && ((name.equals("keywords") && value.indexOf(img.value) > -1) || img.value.equals(value) || img.value.equals("default"))) {
                                     accept = true;
                                 } else if (img.values.size() > 1) {
                                     accept = true;
                                     for (int i = 0; i < layer.names.size(); i++) {
-                                        accept = accept && ((name.equals("keywords") && states.get(i).value.indexOf(img.values.get(i)) > -1) || img.values.get(i).equals(states.get(i).value));
+                                        accept = accept && ((name.equals("keywords") && states.get(i).value.indexOf(img.values.get(i)) > -1) || img.values.get(i).equals(states.get(i).value) || img.values.get(i).equals("default"));
                                         if (!accept) {
                                             break;
                                         }
@@ -432,7 +432,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     for (conditionOverlay cond : layer.positions) {
                         flag = true;
                         for (int i = 0; i < layer.names.size(); i++) {
-                            flag = flag && cond.values.get(i).equals(states.get(i).value);
+                            String name = layer.names.get(i);
+                            String condition = cond.values.get(i);
+                            String value = states.get(i).value;
+                            flag = flag && ((name.equals("keywords") && value.indexOf(condition) > -1) || condition.equals(value) || condition.equals("default"));
                             if (!flag) {
                                 break;
                             }
