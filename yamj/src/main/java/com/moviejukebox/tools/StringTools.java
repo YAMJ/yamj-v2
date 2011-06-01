@@ -24,12 +24,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 
 public class StringTools {
-    private static Logger logger = Logger.getLogger("moviejukebox");
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
     private static final long KB = 1024;
     private static final long MB = KB*KB;
@@ -88,7 +86,6 @@ public class StringTools {
             if (tempC == null) {
                 sb.append(c);
             } else {
-                logger.info("Replaced >" + c + "< with >" + tempC + "<");
                 sb.append(tempC);
             }
         }
