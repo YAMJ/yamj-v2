@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
@@ -41,52 +40,19 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 
+import com.moviejukebox.model.Comparator.CertificationComparator;
+import com.moviejukebox.model.Comparator.LastModifiedComparator;
+import com.moviejukebox.model.Comparator.MovieSetComparator;
+import com.moviejukebox.model.Comparator.Top250Comparator;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.Comparator.LastModifiedComparator;
-import com.moviejukebox.model.Comparator.Top250Comparator;
-
 public class Library implements Map<String, Movie> {
 
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
-
-    @SuppressWarnings("rawtypes")
-    private static class MovieSetComparator implements Comparator {
-        private String set;
-
-        private MovieSetComparator(String set) {
-            this.set = set;
-        }
-
-        public int compare(Object left, Object right) {
-            Movie m1 = (Movie)left;
-            Movie m2 = (Movie)right;
-            Integer o1 = m1.getSetOrder(set);
-            Integer o2 = m2.getSetOrder(set);
-
-            // If one is explicitly ordered and the other isn't, the ordered one comes first
-            if (o1 == null && o2 != null || o1 != null && o2 == null) {
-                return o2 == null ? -1 : 1;
-
-                // If they're both ordered and the value is different, order by that
-            } else if (o1 != null && !o1.equals(o2)) {
-                return o1.compareTo(o2);
-
-                // Either the order is the same, or neither have an order, so fall back to releaseDate, then titleSort
-            } else {
-                int c = m1.getYear().compareTo(m2.getYear());
-                if (c == 0) {
-                    c = m1.getTitleSort().compareTo(m2.getTitleSort());
-                }
-                return c;
-            }
-        }
-    }
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean filterGenres;
@@ -97,7 +63,6 @@ public class Library implements Map<String, Movie> {
     private static Map<String, String> ratingsMap = new HashMap<String, String>();
     private static String defaultRating = null;
     private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
-    private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
     private static boolean charGroupEnglish = false;
     private HashMap<Movie, String> keys = new HashMap<Movie, String>();
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
@@ -159,23 +124,6 @@ public class Library implements Map<String, Movie> {
         }
 
         fillCategoryMap(PropertiesUtil.getProperty("mjb.xmlCategoryFile", "categories-default.xml"));
-
-        String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
-        StringTokenizer tokenizer = new StringTokenizer(temp, ",");
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            int idx = token.indexOf("-");
-            if (idx > 0) {
-                try {
-                    String key = new String(token.substring(0, idx).trim());
-                    String value = new String(token.substring(idx + 1).trim());
-                    if (key.length() == 1 && value.length() == 1) {
-                        charReplacementMap.put(new Character(key.charAt(0)), new Character(value.charAt(0)));
-                    }
-                } catch (Exception ignore) {
-                }
-            }
-        }
 
         charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", "false");
         completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", "true");
@@ -665,21 +613,18 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra()) {
                 String title = movie.getStrippedTitleSort();
                 if (title.length() > 0) {
-                    Character c = Character.toUpperCase(title.charAt(0));
+                    Character firstCharacter = Character.toUpperCase(title.charAt(0));
 
-                    if (!Character.isLetter(c)) {
+                    if (!Character.isLetter(firstCharacter)) {
                         index.addMovie("09", movie);
                         movie.addIndex("Title", "09");
-                    } else if (charGroupEnglish && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
+                    } else if (charGroupEnglish && ((firstCharacter >= 'A' && firstCharacter <= 'Z') || (firstCharacter >= 'a' && firstCharacter <= 'z'))) {
                         index.addMovie("AZ", movie);
                         movie.addIndex("Title", "AZ");
                     } else {
-                        Character tempC = charReplacementMap.get(c);
-                        if (tempC != null) {
-                            c = tempC;
-                        }
-                        index.addMovie(c.toString(), movie);
-                        movie.addIndex("Title", c.toString());
+                        String newChar = StringTools.characterMapReplacement(firstCharacter);
+                        index.addMovie(newChar, movie);
+                        movie.addIndex("Title", newChar);
                     }
                 }
             }
@@ -1252,22 +1197,22 @@ public class Library implements Map<String, Movie> {
     static LastModifiedComparator cmpLast = new LastModifiedComparator();
     static Top250Comparator cmp250 = new Top250Comparator();
 
-    @SuppressWarnings("unchecked")
     protected static Comparator<Movie> getComparator(String category, String key) {
-        Comparator<Movie> c = null;
+        Comparator<Movie> cmpMovie = null;
+        
         if (category.equals(SET)) {
-            c = new MovieSetComparator(key);
+            cmpMovie = new MovieSetComparator(key);
         } else if (category.equals("Other")) {
             if (key.equals(categoriesMap.get("New")) || 
                     key.equals(categoriesMap.get("New-TV")) || 
                     key.equals(categoriesMap.get("New-Movie"))) {
-                c = cmpLast;
+                cmpMovie = cmpLast;
             } else if (key.equals(categoriesMap.get("Top250"))) {
-                c = cmp250;
+                cmpMovie = cmp250;
             }
         }
 
-        return c;
+        return cmpMovie;
     }
     
     /**

@@ -17,14 +17,19 @@ import java.text.BreakIterator;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 
 public class StringTools {
+    private static Logger logger = Logger.getLogger("moviejukebox");
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
     private static final long KB = 1024;
     private static final long MB = KB*KB;
@@ -32,6 +37,63 @@ public class StringTools {
     private static final DecimalFormat FILESIZE_FORMAT_0 = new DecimalFormat("0");
     private static final DecimalFormat FILESIZE_FORMAT_1 = new DecimalFormat("0.#");
     private static final DecimalFormat FILESIZE_FORMAT_2 = new DecimalFormat("0.##");
+    private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
+
+    static {
+        // Populate the charReplacementMap
+        String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
+        //String temp = PropertiesUtil.getProperty("mjb.charset.filename.translate", "");
+        StringTokenizer tokenizer = new StringTokenizer(temp, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            int idx = token.indexOf("-");
+            if (idx > 0) {
+                try {
+                    String key = new String(token.substring(0, idx).trim());
+                    String value = new String(token.substring(idx + 1).trim());
+                    if (key.length() == 1 && value.length() == 1) {
+                        charReplacementMap.put(new Character(key.charAt(0)), new Character(value.charAt(0)));
+                    }
+                } catch (Exception ignore) {
+                }
+            }
+        }
+    }
+    
+    /**
+     * Check the passed character against the replacement list.
+     * @param charToReplace
+     * @return
+     */
+    public static String characterMapReplacement(Character charToReplace) {
+        Character tempC = charReplacementMap.get(charToReplace);
+        if (tempC == null) {
+            return charToReplace.toString();
+        } else {
+            return tempC.toString();
+        }
+    }
+    
+    /**
+     * Change all the characters in a string to the safe replacements
+     * @param stringToReplace
+     * @return
+     */
+    public static String stringMapReplacement(String stringToReplace) {
+        Character tempC;
+        StringBuilder sb = new StringBuilder();
+        
+        for (Character c : stringToReplace.toCharArray()) {
+            tempC = charReplacementMap.get(c);
+            if (tempC == null) {
+                sb.append(c);
+            } else {
+                logger.info("Replaced >" + c + "< with >" + tempC + "<");
+                sb.append(tempC);
+            }
+        }
+        return sb.toString();
+    }
     
     /**
      * Append a string to the end of a path ensuring that there are the correct number of File.separators
