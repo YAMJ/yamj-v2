@@ -121,7 +121,11 @@
                         <xsl:choose>
                             <xsl:when test=". != 'UNKNOWN'">
                                 <a>
-                                    <xsl:attribute name="href"><xsl:value-of select="."/>.html</xsl:attribute>
+                                    <xsl:attribute name="href">
+                                        <xsl:if test="$mjb.people.folder!=''">../</xsl:if>
+                                        <xsl:value-of select="."/>
+                                        <xsl:text>.html</xsl:text>
+                                    </xsl:attribute>
                                     <xsl:value-of select="$name"/>
                                 </a>
                             </xsl:when>

@@ -157,6 +157,7 @@ public class MovieJukebox {
     private static boolean peopleScan = false;
     private static int peopleMax = 10;
     private static int popularity = 5;
+    private static String peopleFolder = "";
 
     // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
@@ -320,6 +321,14 @@ public class MovieJukebox {
             peopleScan = true;
             peopleMax = PropertiesUtil.getIntProperty("mjb.people.maxCount", "10");
             popularity = PropertiesUtil.getIntProperty("mjb.people.popularity", "5");
+
+            // Issue 1947: Cast enhancement - option to save all related files to a specific folder
+            peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
+            if (isNotValidString(peopleFolder)) {
+                peopleFolder = "";
+            } else if (!peopleFolder.endsWith(File.separator)) {
+                peopleFolder += File.separator;
+            }
         }
 
         // Check for mjb.skipHtmlGeneration and set as necessary
@@ -864,6 +873,10 @@ public class MovieJukebox {
         logger.info("Scanning library directory " + mediaLibraryRoot);
         logger.info("Jukebox output goes to " + jukebox.getJukeboxRootLocation());
         FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
+        if (isValidString(peopleFolder)) {
+            File peopleFolderHandle = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder);
+            FileTools.fileCache.addDir(peopleFolderHandle, 0);
+        }
 
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsDownload);
 
@@ -1782,7 +1795,7 @@ public class MovieJukebox {
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
         person.setFilename();
-        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + FileTools.makeSafeFilename(person.getFilename() + ".xml"));
+        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + FileTools.makeSafeFilename(person.getFilename() + ".xml"));
 
         // Change the output message depending on the existance of the XML file
         if (xmlFile.exists()) {
