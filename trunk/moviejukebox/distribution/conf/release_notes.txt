@@ -7,6 +7,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement	 #258 Anidb plugin development
  - Enhancement   #314 Sort title option in NFO
  - Enhancement   #954 Better handling of regional releases
+ - Enhancement  #1471 Request to use "indexing.character.replacement" when sorting movies
  - Enhancement  #1558 Use audio/language info from episode NFOs
  - Enhancement  #1723 Option to remove TV Shows from Sets in category listings
  - Enhancement  #1853 Multiple index pages
@@ -20,8 +21,9 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #1901 Support for Awards
  - Enhancement  #1903 Support for 3D movie file naming
  - Fixed defect #1907 Awards will not be downloaded if imdb.site is set other than default
+ - Enhancement  #1908 Sort movies without using SortTitle (in case of accented characters)
  - Fixed defect #1912 Issue with curly brackets and parenthesis' in filename in ImdbPlugin
- - Fixed defect #1913 Issue with sorttitle when using title
+ - Fixed defect #1913 Issue with SortTitle when using title
  - Fixed defect #1918 Watched category not updated
  - Fixed defect #1922 Categories files deleted from jukebox after cleanup
  - Fixed defect #1929 Sratim plug in does not generate movie names

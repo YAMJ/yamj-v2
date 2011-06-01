@@ -1399,8 +1399,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             while (idx < text.length() && !Character.isLetterOrDigit(text.charAt(idx))) {
                 idx++;
             }
-
-            this.titleSort = new String(text.substring(idx));
+            
+            // Issue 1908: Replace all non-standard characters in the title sort
+            this.titleSort = StringTools.stringMapReplacement(new String(text.substring(idx)));
             this.isDirty = true;
         }
     }
