@@ -158,7 +158,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
-    private boolean watched = false;    // Watched / Unwatched
+    private boolean watchedFile = false;    // Watched / Unwatched - Set from the .watched files
+    private boolean watchedNFO = false; // Watched / Unwatched - Set from the NFO file
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
@@ -1106,6 +1107,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    
     public void setDirty(boolean isDirty) {
         this.isDirty = isDirty;
     }
@@ -1700,6 +1702,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.audioChannels = audioChannels;
     }
 
+    @XmlTransient
     public boolean isOverrideTitle() {
         return overrideTitle;
     }
@@ -2080,6 +2083,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.indexes = new HashMap<String, String>(indexes);
     }
 
+    @XmlTransient
     public boolean isOverrideYear() {
         return overrideYear;
     }
@@ -2103,13 +2107,30 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     // Read the watched flag
+    @XmlElement(name = "isWatched")
     public boolean isWatched() {
-        return watched;
+        // The watched NFO should override the watched file status
+        return (watchedFile || watchedNFO);
+    }
+    
+    @XmlTransient
+    public boolean isWatchedNFO() {
+        return watchedNFO;
+    }
+    
+    @XmlTransient
+    public boolean isWatchedFile() {
+        return watchedFile;
     }
 
-    // Set the watched flag
-    public void setWatched(boolean watched) {
-        this.watched = watched;
+    // Set the watched flag for files
+    public void setWatchedFile(boolean watched) {
+        this.watchedFile = watched;
+    }
+    
+    // Set the watched flag for NFO
+    public void setWatchedNFO(boolean watched) {
+        this.watchedNFO = watched;
     }
 
     @XmlElement

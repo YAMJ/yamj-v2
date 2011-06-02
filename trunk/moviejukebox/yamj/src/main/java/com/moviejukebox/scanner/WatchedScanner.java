@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Jukebox;
@@ -24,15 +25,19 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 
 public class WatchedScanner {
+    private static Logger logger = Logger.getLogger("moviejukebox");
+    
     /**
      * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
      * Always assumes that the file is unwatched if nothing is found.
      * @param movie
      */
-    public static void checkWatched(Jukebox jukebox, Movie movie) {
+    public static boolean checkWatched(Jukebox jukebox, Movie movie) {
         int fileWatchedCount = 0;
         boolean movieWatched = true;    // Assume it's watched.
         boolean fileWatched = false;
+        boolean returnStatus = false;   // Assume no changes
+        
         File foundFile = null;
         Collection<String> extensions = new ArrayList<String>();
         extensions.add("unwatched");
@@ -58,16 +63,38 @@ public class WatchedScanner {
                     mf.setWatchedDate(0); // remove the date if it exists
                 }
             }
-            movieWatched = movieWatched && fileWatched;
+
             mf.setWatched(fileWatched); // Set the watched status
+            // As soon as there is an unwatched file, the whole movie becomes unwatched
+            movieWatched = movieWatched && fileWatched;
             
         }
         
         // Only change the watched status if we found at least 1 file
-        if ((fileWatchedCount > 0) && (movie.isWatched() != movieWatched)) {
-            movie.setWatched(movieWatched);
+        if ((fileWatchedCount > 0) && (movie.isWatchedFile() != movieWatched)) {
+            movie.setWatchedFile(movieWatched);
             movie.setDirty(true);
+            
+            // Issue 1949 - Force the artwork to be overwritten
+            movie.setDirtyPoster(true);
+            movie.setDirtyBanner(true);
+            
+            returnStatus = true;
         }
+        
+        // If there are no files found and the movie is watched(file), reset the status
+        if ((fileWatchedCount == 0) && movie.isWatchedFile()) {
+            movie.setWatchedFile(movieWatched);
+            movie.setDirty(true);
+            
+            // Issue 1949 - Force the artwork to be overwritten
+            movie.setDirtyPoster(true);
+            movie.setDirtyBanner(true);
+
+            returnStatus = true;
+        }
+
+        return returnStatus;
     }
 
 }

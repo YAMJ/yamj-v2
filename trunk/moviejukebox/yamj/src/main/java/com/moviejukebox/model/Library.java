@@ -736,11 +736,11 @@ public class Library implements Map<String, Movie> {
                 if (useWatchedScanner) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
                     // Add to the Watched or Unwatched category
                     if (movie.isWatched()) {
-                        index.addMovie(categoriesMap.get("Watched"), movie);
                         movie.addIndex("Property", categoriesMap.get("Watched"));
+                        index.addMovie(categoriesMap.get("Watched"), movie);
                     } else {
-                        index.addMovie(categoriesMap.get("Unwatched"), movie);
                         movie.addIndex("Property", categoriesMap.get("Unwatched"));
+                        index.addMovie(categoriesMap.get("Unwatched"), movie);
                     }
                 }
                 
