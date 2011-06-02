@@ -575,7 +575,7 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 try {
-                                    movie.setWatched(Boolean.parseBoolean(val));
+                                    movie.setWatchedNFO(Boolean.parseBoolean(val));
                                 } catch (Exception ignore) {
                                     // Don't change the watched status
                                 }
@@ -975,8 +975,9 @@ public class MovieNFOScanner {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 try {
-                                    movie.setWatched(Boolean.parseBoolean(val));
+                                    movie.setWatchedNFO(Boolean.parseBoolean(val));
                                 } catch (Exception ignore) {
+                                    // Don't change the watched status
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("set")) {

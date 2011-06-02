@@ -27,9 +27,11 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1918 Watched category not updated
  - Fixed defect #1922 Categories files deleted from jukebox after cleanup
  - Fixed defect #1929 Sratim plug in does not generate movie names
+ - Fixed defect #1936 Watched/Unwatched/New categories are not updated when file is marked as watched
  - Enhancement  #1938 Add option to disable watched scanner
  - Fixed defect #1940 Anidbplugin fails to lookup non-cached animes
  - Fixed defect #1942 TV episodes with a digit first in episode name fail title detection
+ - Fixed defect #1949 Changing the watched status should overwrite the artwork
  - Fixed defect #1950 sorttitle displays the basefile name
 
 MovieJukebox 2.4

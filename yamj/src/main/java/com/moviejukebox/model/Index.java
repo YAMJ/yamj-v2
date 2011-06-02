@@ -60,11 +60,32 @@ public class Index extends TreeMap<String, List<Movie>> {
             list = new ArrayList<Movie>();
             put(category, list);
         }
+        
         if (!list.contains(movie)) {
             list.add(movie);
         }
     }
 
+    public void removeMovie(String category, Movie movie) {
+        if (StringTools.isNotValidString(category)) {
+            return;
+        }
+
+        if (movie == null) {
+            return;
+        }
+
+        List<Movie> list = get(category);
+        
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        
+        if (list.contains(movie)) {
+            list.remove(movie);
+        }
+    }
+    
     public int getMaxCategories() {
         return maxCategories;
     }

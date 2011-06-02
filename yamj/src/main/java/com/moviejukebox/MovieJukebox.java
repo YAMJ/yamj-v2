@@ -971,7 +971,7 @@ public class MovieJukebox {
                             
                             // Check for watched and unwatched files
                             if(enableWatchScanner) { // Issue 1938
-                                WatchedScanner.checkWatched(jukebox, movie);
+                                library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
                             }
     
                             // Get subtitle
@@ -1341,7 +1341,7 @@ public class MovieJukebox {
 
             SystemTools.showMemory();
 
-            logger.info("Writing movie data...");
+            logger.info("Writing Library data...");
             // Multi-thread: Parallel Executor
             tasks.restart();
             for (final Movie movie : library.values()) {

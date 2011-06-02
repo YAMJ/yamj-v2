@@ -98,7 +98,9 @@ public class MovieJukeboxXMLWriter {
     private boolean extractCertificationFromMPAA;
     private boolean setsExcludeTV;
     private static String peopleFolder;
+    private static boolean enableWatchScanner;
 
+    
     static {
         if (str_categoriesDisplayList.length() == 0) {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
@@ -106,6 +108,8 @@ public class MovieJukeboxXMLWriter {
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
         
         writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", "false");
+        
+        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
     }
 
     public MovieJukeboxXMLWriter() {
@@ -228,7 +232,10 @@ public class MovieJukeboxXMLWriter {
                     movie.setTop250(Integer.parseInt(parseCData(r)));
                 }
                 if (tag.equalsIgnoreCase("<watched>")) {
-                    movie.setWatched(Boolean.parseBoolean(parseCData(r)));
+                    movie.setWatchedFile(Boolean.parseBoolean(parseCData(r)));
+                }
+                if (tag.equalsIgnoreCase("<watchedNFO>")) {
+                    movie.setWatchedNFO(Boolean.parseBoolean(parseCData(r)));
                 }
                 if (tag.equalsIgnoreCase("<posterURL>")) {
                     movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r)));
@@ -895,7 +902,7 @@ public class MovieJukeboxXMLWriter {
     }
 
     public void writeCategoryXML(Jukebox jukebox, Library library, String filename, boolean isDirty) throws FileNotFoundException, XMLStreamException {
-        // Issue 1886: Html indexes recreated every time
+        // Issue 1886: HTML indexes recreated every time
         File oldFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + filename + ".xml");
         
         if (oldFile.exists() && !isDirty) {
@@ -1045,7 +1052,7 @@ public class MovieJukeboxXMLWriter {
                                 } else {
                                     nbVideosPerPage = nbSetMoviesPerPage;
                                     nbVideosPerLine = nbSetMoviesPerLine;
-                                    //Issue 1886: Html indexes recreated every time
+                                    //Issue 1886: HTML indexes recreated every time
                                     for (Movie m : library.getMoviesList()) {
                                         if (m.isSetMaster() && m.getTitle().equals(key)) {
                                             skipindex &= !m.isDirty();
@@ -1093,6 +1100,27 @@ public class MovieJukeboxXMLWriter {
                         if ("Set".equalsIgnoreCase(categoryName) && setReindex) {
                             skipindex = false;
                         }
+                        
+                        /*
+                         * The issue with watched/unwatched is there is no way to tell when the index has changed.
+                         * The current method relies on the isDirty flag of the movie to trigger the index to be written
+                         * However, because the movie is no longer in Unwatched (when it's marked as Watched) then there is nothing
+                         * to trigger the re-write of the index.
+                         * The same is true of the New index. If a movie was unwatched in the new index and is marked as watched, then
+                         * there is nothing to mark the new index as needed an update. The same might be true for marking a movie as unwatched
+                         * if it's within the new index's time frame.
+                         * 
+                         * FIXME This is a hack, and will re-create the indexes each time
+                         * 
+                         * When we write the watched or unwatched index, we should always write the other one.
+                         */
+                        if (enableWatchScanner && 
+                                    ("Unwatched".equalsIgnoreCase(key) || 
+                                     "Watched".equalsIgnoreCase(key) || 
+                                     "New".equalsIgnoreCase(key))) {
+                            skipindex = false;
+                        }
+                        
                         
                         for (current = 1 ; current <= last; current ++) {
                             if ("Set".equalsIgnoreCase(categoryName) && setReindex) {
@@ -1392,6 +1420,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("watched");
         writer.writeCharacters(Boolean.toString(movie.isWatched()));
+        writer.writeEndElement();
+        writer.writeStartElement("watchedNFO");
+        writer.writeCharacters(Boolean.toString(movie.isWatchedNFO()));
         writer.writeEndElement();
         if (movie.isWatched()) {
             writer.writeStartElement("watchedDate");
