@@ -523,6 +523,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             } catch (SQLException e) {
                 logException("SQL error when looking for tvdb mappings", e);
             }
+            @SuppressWarnings("unused")
             com.moviejukebox.thetvdb.model.Episode ep = null;
             if (mapping != null) {
                 AnidbTvdbEpisodeMapping episodeMapping = findEpisodeMapping(episodeNumber, mapping); 
@@ -633,6 +634,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return null;
     }
     
+    @SuppressWarnings("unused")
     private void processTvdbResults(Movie m, Series s, com.moviejukebox.thetvdb.model.Episode episode, int epno) {
 
         if (episode != null) {
@@ -769,6 +771,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      * Output a nice message for the AniDb Exception
      * @param error
      */
+    @SuppressWarnings("unused")
     private void processAnidbError(AniDbException error) {
         // We should use the return code here, but it doesn't seem to work
         logger.info(LOG_MESSAGE + "Error: " + error.getReturnString());
@@ -1925,6 +1928,7 @@ class AnidbTvdbMapping {
     public static final String TVDB_ID_COLUMN_NAME = "tvdb_id";
     public static final String TVDB_DEFAULT_SEASON_COLUMN_NAME = "tvdb_default_season";
     public static final String NAME_COLUMN_NAME = "name";
+    @SuppressWarnings("unused")
     @DatabaseField(generatedId=true, columnName = ID_COLUMN_NAME)
     private int id;
     
