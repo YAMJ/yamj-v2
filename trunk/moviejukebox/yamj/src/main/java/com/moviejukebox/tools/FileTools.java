@@ -121,12 +121,14 @@ public class FileTools {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.charset.filename.translate", ""), ",");
         while (st.hasMoreElements()) {
             final String token = st.nextToken();
-            final String character = new String(trimToNull(substringBefore(token, "-")));
+            String beforeStr = substringBefore(token, "-");
+            final String character = new String(beforeStr.length() == 1 && (beforeStr.equals("\t") || beforeStr.equals(" "))?beforeStr:trimToNull(beforeStr));
             if (character == null) {
                 // TODO Error message?
                 continue;
             }
-            final String translation = new String(trimToNull(substringAfter(token, "-")));
+            String afterStr = substringAfter(token, "-");
+            final String translation = new String(afterStr.length() == 1 && (afterStr.equals("\t") || afterStr.equals(" "))?afterStr:trimToNull(afterStr));
             if (translation == null) {
                 // TODO Error message?
                 // TODO Allow empty transliteration?
