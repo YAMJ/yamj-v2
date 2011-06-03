@@ -163,7 +163,7 @@ public class MovieJukeboxHTMLWriter {
             tempXmlFile.getParentFile().mkdirs();
 
             FileTools.addJukeboxFile(baseName + ".xml");
-            String indexList = PropertiesUtil.getProperty("mjb.view.personList", "person.xsl");
+            String indexList = PropertiesUtil.getProperty("mjb.view.personList", "people.xsl");
             for (final String indexStr : indexList.split(",")) {
                 String Suffix = "";
                 if (!indexStr.equals("person.xsl")) {
