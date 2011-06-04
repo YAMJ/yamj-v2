@@ -9,7 +9,7 @@
     </layer>
     <layer>
         <name>subtitle</name>
-        <left>-5</left>
+        <left>5</left>
         <top>5</top>
         <align>right</align>
         <valign>top</valign>
@@ -19,7 +19,7 @@
     </layer>
     <layer>
         <name>set</name>
-        <left>-5</left>
+        <left>5</left>
         <top>30</top>
         <align>right</align>
         <valign>top</valign>
@@ -30,7 +30,7 @@
     <layer>
         <name>TV/HD</name>
         <left>0</left>
-        <top>-5</top>
+        <top>5</top>
         <align>center</align>
         <valign>bottom</valign>
         <images>
@@ -40,9 +40,9 @@
             <image name="HD" value="hd1080" filename="hd-1080.png"/>
         </images>
         <positions>
-            <position value="true/hd" left="-5/5" align="right/left"/>
-            <position value="true/hd720" left="-5/5" align="right/left"/>
-            <position value="true/hd1080" left="-5/5" align="right/left"/>
+            <position value="true/hd" left="5/5" align="right/left"/>
+            <position value="true/hd720" left="5/5" align="right/left"/>
+            <position value="true/hd1080" left="5/5" align="right/left"/>
         </positions>
     </layer>
 </overlay>
