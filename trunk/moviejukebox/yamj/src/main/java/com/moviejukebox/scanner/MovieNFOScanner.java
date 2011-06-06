@@ -650,11 +650,31 @@ public class MovieNFOScanner {
                             String event = r.nextEvent().toString();
                             String name = Movie.UNKNOWN;
                             String role = Movie.UNKNOWN;
+                            
+                            /*
+                             * There can be multiple actors listed in the nfo in the format
+                             * <actor>
+                             *     <name>Actor Name</name>
+                             *     <role>Character Name</role>
+                             *     <name>Actor Name</name>
+                             *     <role>Character Name</role>
+                             * </actor>     
+                             */
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
+                                    // Check to see if we already have a name, and save the record if we do
+                                    if (isValidString(name)) {
+                                        movie.addActor(Movie.UNKNOWN, name, role, Movie.UNKNOWN, Movie.UNKNOWN);
+                                        // Clear the name and role
+                                        name = Movie.UNKNOWN;
+                                        role = Movie.UNKNOWN;
+                                    }
+                                    
+                                    // Get the actor name
                                     String val = XMLHelper.getCData(r);
                                     if (isValidString(val)) {
                                         name = val;
+                                        role = Movie.UNKNOWN;
                                     }
                                 } else if (event.equalsIgnoreCase("<role>")) {
                                     String val = XMLHelper.getCData(r);
@@ -662,12 +682,19 @@ public class MovieNFOScanner {
                                         role = val;
                                     }
                                 }
+                                
+                                // Only write if we have a valid name and role
+                                if (isValidString(name) && isValidString(role)) {
+                                    movie.addActor(Movie.UNKNOWN, name, role, Movie.UNKNOWN, Movie.UNKNOWN);
+                                }
+
                                 if (r.hasNext()) {
                                     event = r.nextEvent().toString();
                                 } else {
                                     break;
                                 }
                             }
+                            // Save the last actor
                             if (isValidString(name)) {
                                 movie.addActor(Movie.UNKNOWN, name, role, Movie.UNKNOWN, Movie.UNKNOWN);
                             }
