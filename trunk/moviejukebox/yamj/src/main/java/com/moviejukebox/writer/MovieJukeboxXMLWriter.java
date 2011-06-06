@@ -2039,6 +2039,11 @@ public class MovieJukeboxXMLWriter {
                 writer.writeEndElement();
             }
             
+            if (movie.getRating() >= 0) {
+                writer.writeStartElement("rating");
+                writer.writeCharacters(Integer.toString(movie.getRating()));
+                writer.writeEndElement();
+            }
             
             if (StringTools.isValidString(movie.getCertification())) {
                 if (extractCertificationFromMPAA) {
