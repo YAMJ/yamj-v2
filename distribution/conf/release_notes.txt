@@ -33,6 +33,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1942 TV episodes with a digit first in episode name fail title detection
  - Fixed defect #1949 Changing the watched status should overwrite the artwork
  - Fixed defect #1950 sorttitle displays the basefile name
+ - Fixed defect #1954 Only 1 actor read from NFO file
 
 MovieJukebox 2.4
 ----------------
