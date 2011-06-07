@@ -954,6 +954,7 @@ public class MovieJukeboxXMLWriter {
                         List<Movie> value = index.getValue();
                         int countMovieCat = library.getMovieCountForIndex(category.getKey(), index.getKey());
                         logger.debug("Index: " + category.getKey() + ", Category: " + index.getKey() + ", count: " + value.size());
+                        // Display a message about the category we're indexing
                         if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(category.getKey()) && filename.equals("Categories")) {
                             logger.debug("Category " + category.getKey() + " " + index.getKey() + " does not contain enough videos (" + countMovieCat
                                             + "/" + categoryMinCount + "), not adding to categories.xml.");
@@ -1119,6 +1120,7 @@ public class MovieJukeboxXMLWriter {
                                      "Watched".equalsIgnoreCase(key) || 
                                      "New".equalsIgnoreCase(key))) {
                             skipindex = false;
+                            idx.canSkip = false;
                         }
                         
                         
