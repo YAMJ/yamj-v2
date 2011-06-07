@@ -166,8 +166,8 @@ public class MovieJukeboxHTMLWriter {
             String indexList = PropertiesUtil.getProperty("mjb.view.personList", "people.xsl");
             for (final String indexStr : indexList.split(",")) {
                 String Suffix = "";
-                if (!indexStr.equals("person.xsl")) {
-                    Suffix = indexStr.replace("person", "").replace(".xsl", "");
+                if (!indexStr.equals("people.xsl")) {
+                    Suffix = indexStr.replace("people", "").replace(".xsl", "");
                 }
 
                 File finalHtmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + baseName + Suffix + ".html");

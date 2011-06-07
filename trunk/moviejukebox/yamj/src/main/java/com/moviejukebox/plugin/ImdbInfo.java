@@ -104,9 +104,9 @@ public class ImdbInfo {
 
     public String getImdbPersonId(String movieName, String job) {
         objectType = "person";
-        if (!job.equalsIgnoreCase("Actor") && !job.equalsIgnoreCase("Actress")) {
+//        if (!job.equalsIgnoreCase("Actor") && !job.equalsIgnoreCase("Actress")) {
             job = Movie.UNKNOWN;
-        }
+//        }
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
             return getImdbIdFromGoogle(movieName, job);
         } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
@@ -114,7 +114,7 @@ public class ImdbInfo {
         } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
             return Movie.UNKNOWN;
         } else {
-            return getImdbIdFromImdb(movieName, job);
+            return getImdbIdFromImdb(movieName.toLowerCase(), job);
         }
     }
 
@@ -256,16 +256,16 @@ public class ImdbInfo {
                 formattedMovieName = otherMovieName;
             }
             
-            //logger.fine("ImdbInfo title search : " + formattedMovieName);
-            for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-title-", "</td>", false)) {
-                //logger.fine("ImdbInfo title check : " + searchResult);
+            logger.debug("ImdbInfo title search : " + formattedMovieName);
+            for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-"+(objectType.equals("movie")?"title":"name")+"-", "</td>", false)) {
+                logger.debug("ImdbInfo title check : " + searchResult);
                 if (searchResult.toLowerCase().indexOf(formattedMovieName) != -1) {
-                    //logger.fine("ImdbInfo title match : " + searchResult);
+                    logger.debug("ImdbInfo title match : " + searchResult);
                     return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
                 } else {
                     for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
                         if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
-                            //logger.fine("ImdbInfo othertitle match : " + otherResult);
+                            logger.debug("ImdbInfo othertitle match : " + otherResult);
                             return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
                         }
                     }
