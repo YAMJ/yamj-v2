@@ -494,7 +494,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     } else if (preferredRating.equals("average")) {
                         r = (kinopoiskRating + imdbRating) / 2;
                     } else if (preferredRating.equals("combine")) {
-                        r += imdbRating * 1000;
+                        r = r * 1000 + imdbRating;
                     }
                 }
                 movie.setRating(r);
@@ -1074,15 +1074,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             if (StringTools.isValidString(year)) {
                                 name += " " + year;
                             }
-                            String rating = HTMLTools.extractTag(item, " class=\"continue\" >", "</a>");
-                            if (StringTools.isNotValidString(rating)) {
-                                rating = HTMLTools.extractTag(item, " class=\"continue\" style='color: #777;'>", "</a>");
-                                if (StringTools.isNotValidString(rating)) {
-                                    rating = "0";
-                                }
+                            String ratingStr = HTMLTools.extractTag(item, " class=\"continue\" >", "</a>");
+                            Integer rating = 0;
+                            if (StringTools.isNotValidString(ratingStr)) {
+                                ratingStr = HTMLTools.extractTag(item, " class=\"continue\" style='color: #777;'>", "</a>");
+                            }
+                            if (StringTools.isValidString(ratingStr)) {
+                                rating = (int)(Float.valueOf(ratingStr).floatValue() * 10);
                             }
 
-                            float key = 10 - (Float.valueOf(rating).floatValue() + Float.valueOf("0.00" + id).floatValue());
+                            float key = 101 - (rating + Float.valueOf("0." + id).floatValue());
 
                             if (filmography.get(key) == null) {
                                 Filmography film = new Filmography();
@@ -1092,7 +1093,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 film.setJob(job);
                                 film.setCharacter(character);
                                 film.setDepartment();
-                                film.setRating(rating);
+                                film.setRating(Integer.toString(rating));
                                 film.setUrl(URL);
                                 filmography.put(key, film);
                             }
@@ -1100,7 +1101,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
 
                     if (filmography.size() > 0 && (preferredRating.equals("combine") || preferredRating.equals("avarage"))) {
-//                        TreeMap<Float, Filmography> combineFilmography = new TreeMap<Float, Filmography>();
                         for (Filmography film : person.getFilmography()) {
                             String name = film.getName().replace("ё", "е").replace("Ё", "Е");
                             String title = film.getTitle().replace("ё", "е").replace("Ё", "Е");
@@ -1127,22 +1127,17 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 Title = Title.replace("(" + Year + ")", "").replaceAll("\\s+$", "");
                                 Year = Year.substring(0, 4);
                                 if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title)) {
-                                    Float rating = preferredRating.equals("combine")?(Float.valueOf(film.getRating()).floatValue() * 1000 + Float.valueOf(f.getRating()).floatValue()):((Float.valueOf(film.getRating()).floatValue() + Float.valueOf(f.getRating()).floatValue())/2);
                                     String id = f.getId(KINOPOISK_PLUGIN_ID);
-//                                    float key = 10 - (rating + Float.valueOf("0.00" + id).floatValue());
                                     film.setId(KINOPOISK_PLUGIN_ID, id);
                                     film.setName(f.getName());
                                     film.setTitle(f.getTitle());
                                     film.setJob(f.getJob());
                                     film.setCharacter(f.getCharacter());
                                     film.setDepartment();
-                                    film.setRating(Float.toString(rating));
+                                    film.setRating(Integer.toString((int)(preferredRating.equals("combine")?(Float.valueOf(f.getRating()).floatValue() * 1000 + Float.valueOf(film.getRating()).floatValue()):((Float.valueOf(film.getRating()).floatValue() + Float.valueOf(f.getRating()).floatValue())/2))));
                                     film.setUrl(f.getUrl());
                                     found = true;
                                 }
-                            }
-                            if (!found && preferredRating.equals("combine")) {
-                                film.setRating(Float.toString(Float.valueOf(film.getRating()).floatValue() * 1000));
                             }
                         }
                     }
