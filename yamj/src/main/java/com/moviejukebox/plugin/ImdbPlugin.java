@@ -1361,7 +1361,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     if (beginIndex > -1) {
                         item = item.substring(0, beginIndex);
                     }
-                    float rating = Float.valueOf(HTMLTools.extractTag(item, "(", ")")).floatValue();
+                    int rating = (int)(Float.valueOf(HTMLTools.extractTag(item, "(", ")")).floatValue() * 10);
                     String id = HTMLTools.extractTag(item, "<a href=\"/title/", "/\">");
                     String name = HTMLTools.extractTag(item, "/\">", "</a>").replaceAll("\"", "");
                     beginIndex = item.indexOf("</a> (");
@@ -1417,7 +1417,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         }
                     }
 
-                    float key = 10 - (rating + Float.valueOf("0.00" + id.substring(2)).floatValue());
+                    float key = 101 - (rating + Float.valueOf("0." + id.substring(2)).floatValue());
 
                     if (filmography.get(key) == null) {
                         Filmography film = new Filmography();
@@ -1426,7 +1426,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         film.setJob(job);
                         film.setCharacter(character);
                         film.setDepartment();
-                        film.setRating(Float.toString(rating));
+                        film.setRating(Integer.toString(rating));
                         film.setUrl(URL);
                         filmography.put(key, film);
                     }
