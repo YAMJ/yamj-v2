@@ -911,6 +911,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                     Name = names[0];
                 }
             }
+            Name = Name.trim();
             boolean found = false;
             for (Filmography p : people) {
                 if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Actors")) {
@@ -967,6 +968,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                     Name = names[0];
                 }
             }
+            Name = Name.trim();
             boolean found = false;
             for (Filmography p : people) {
                 if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Writing")) {
@@ -1093,6 +1095,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                     Name = names[0];
                 }
             }
+            Name = Name.trim();
             boolean found = false;
             for (Filmography p : people) {
                 if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Directing")) {

@@ -107,6 +107,9 @@ public class Filmography {
     }
 
     public void setName(String name) {
+        if (name != null) {
+            name = name.trim();
+        }
         if (isValidString(name) && !this.name.equalsIgnoreCase(name)) {
             this.name = name;
             if (isNotValidString(title)) {
@@ -117,6 +120,9 @@ public class Filmography {
     }
 
     public void setTitle(String title) {
+        if (title != null) {
+            title = title.trim();
+        }
         if (isValidString(title) && !this.title.equalsIgnoreCase(title)) {
             this.title = title;
             setDirty();
