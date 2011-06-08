@@ -1227,9 +1227,9 @@ public class MovieNFOScanner {
                                                 //if (isNotValidString(tmpTVCodec)) {
                                                 //    tmpTVCodec = "(" + val + ")";
                                                 //}  
-												// reasons for inactivation above: 
-												// 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!     
-												// 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
+                                                // reasons for inactivation above: 
+                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!     
+                                                // 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
                                                 if (isValidString(tmpTVCodec) && !val.contains("/")){
                                                     tmpTVCodec += " (" + val + ")";
                                                 }

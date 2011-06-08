@@ -1178,6 +1178,10 @@ public class Library implements Map<String, Movie> {
             logger.error("The moviejukebox category input file you specified is invalid: " + xmlFile.getName());
         }
     }
+    
+    public Map<String, String> getCategoriesMap() {
+        return categoriesMap;
+    }
 
     /**
      * Find the first category in the first index that has any movies in it
