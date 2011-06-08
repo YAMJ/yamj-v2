@@ -35,6 +35,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1949 Changing the watched status should overwrite the artwork
  - Fixed defect #1950 sorttitle displays the basefile name
  - Fixed defect #1954 Only 1 actor read from NFO file
+ - Fixed defect #1966 New Category always empty when watched scanner is disabled
 
 MovieJukebox 2.4
 ----------------
