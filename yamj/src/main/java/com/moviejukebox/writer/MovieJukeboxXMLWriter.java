@@ -100,7 +100,6 @@ public class MovieJukeboxXMLWriter {
     private static String peopleFolder;
     private static boolean enableWatchScanner;
 
-
     static {
         if (str_categoriesDisplayList.length() == 0) {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
@@ -1241,46 +1240,24 @@ public class MovieJukeboxXMLWriter {
                 }
                 writer.writeAttribute("count", "" + category.getValue().size());
 
-                for (String categoryName : index.keySet()) {
-                    String encakey = FileTools.createCategoryKey(categoryName);
-                    boolean isCurrentCat = isCurrentKey && encakey.equalsIgnoreCase(idx.key);
+                int indexSize = 0;
+                if ("other".equalsIgnoreCase(categoryKey)) {
+                    // Process the other category using the order listed in the category.xml file
+                    Map<String, String> cm = library.getCategoriesMap();
 
-                    // Check to see if we need the non-current index
-                    if (!isCurrentCat && !fullCategoriesInIndexes) {
-                        // We don't need this index, so skip it
-                        continue;
+                    for (String catOriginalName : cm.keySet()) {
+                        String catNewName = cm.get(catOriginalName);
+                        if (category.getValue().containsKey(catNewName)) {
+                            indexSize = index.get(catNewName).size();
+                            processIndexCategory(catNewName, categoryKey, isCurrentKey, idx, writer, indexSize, previous, current, next, last);
+                        }
                     }
 
-                    int categoryMinCount = calcMinCategoryCount(categoryName);
-
-                    // FIXME This is horrible! Issue 735 will get rid of it.
-                    if (index.get(categoryName).size() < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
-                        continue;
+                } else {
+                    for (String categoryName : index.keySet()) {
+                        indexSize = index.get(categoryName).size();
+                        processIndexCategory(categoryName, categoryKey, isCurrentKey, idx, writer, indexSize, previous, current, next, last);
                     }
-
-                    prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
-
-                    writer.writeStartElement("index");
-                    writer.writeAttribute("name", categoryName);
-
-                    // The category changes only occur for "Other" category
-                    if ("Other".equals(categoryKey)) {
-                        writer.writeAttribute("originalName", Library.getOriginalCategory(encakey));
-                    }
-
-                    // if currently writing this page then add current attribute with value true
-                    if (isCurrentCat) {
-                        writer.writeAttribute("current", "true");
-                        writer.writeAttribute("first", prefix + '1');
-                        writer.writeAttribute("previous", prefix + previous);
-                        writer.writeAttribute("next", prefix + next);
-                        writer.writeAttribute("last", prefix + last);
-                        writer.writeAttribute("currentIndex", Integer.toString(current));
-                        writer.writeAttribute("lastIndex", Integer.toString(last));
-                    }
-
-                    writer.writeCharacters(prefix + '1');
-                    writer.writeEndElement(); // index
                 }
 
                 writer.writeEndElement(); // categories
@@ -1315,6 +1292,50 @@ public class MovieJukeboxXMLWriter {
         }
 
         return;
+    }
+    
+    private void processIndexCategory(String categoryName, String categoryKey, boolean isCurrentKey, IndexInfo idx, XMLWriter writer, int indexSize, int previous, int current, int next, int last) throws XMLStreamException {
+        String encakey = FileTools.createCategoryKey(categoryName);
+        boolean isCurrentCat = isCurrentKey && encakey.equalsIgnoreCase(idx.key);
+        String prefix = idx.baseName;
+
+        // Check to see if we need the non-current index
+        if (!isCurrentCat && !fullCategoriesInIndexes) {
+            // We don't need this index, so skip it
+            return;
+        }
+
+        int categoryMinCount = calcMinCategoryCount(categoryName);
+
+        // FIXME This is horrible! Issue 735 will get rid of it.
+        if (indexSize < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+            return;
+        }
+
+        prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
+
+        writer.writeStartElement("index");
+        writer.writeAttribute("name", categoryName);
+
+        // The category changes only occur for "Other" category
+        if ("Other".equals(categoryKey)) {
+            writer.writeAttribute("originalName", Library.getOriginalCategory(encakey));
+        }
+
+        // if currently writing this page then add current attribute with value true
+        if (isCurrentCat) {
+            writer.writeAttribute("current", "true");
+            writer.writeAttribute("first", prefix + '1');
+            writer.writeAttribute("previous", prefix + previous);
+            writer.writeAttribute("next", prefix + next);
+            writer.writeAttribute("last", prefix + last);
+            writer.writeAttribute("currentIndex", Integer.toString(current));
+            writer.writeAttribute("lastIndex", Integer.toString(last));
+        }
+
+        writer.writeCharacters(prefix + '1');
+        writer.writeEndElement(); // index
+    
     }
 
     private void writeMovieForIndex(XMLWriter writer, Movie movie) throws XMLStreamException {
