@@ -1643,7 +1643,7 @@ public class MovieJukebox {
             scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
             xmlWriter.parseMovieXML(xmlFile, movie);
 
-            // Issue 1886: Html indexes recreated every time
+            // Issue 1886: HTML indexes recreated every time
             // after remove NFO set data restoring from XML - compare NFO and XML sets
             Movie movieNFO = new Movie();
             for (String s : movie.getSetsKeys()) {
@@ -1660,7 +1660,7 @@ public class MovieJukebox {
                 for (MediaLibraryPath mlp : mediaLibraryPaths) {
                     // Check to see if the paths match and then update the description and quit
                     if (movie.getFile().getAbsolutePath().startsWith(mlp.getPath()) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
-                        logger.debug("Changing libray description from " + movie.getLibraryDescription() + " to " + mlp.getDescription()); // XXX DEBUG
+                        logger.debug("Changing libray description from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
                         movie.setLibraryDescription(mlp.getDescription());
                         movie.setDirty(true);
                         break;
