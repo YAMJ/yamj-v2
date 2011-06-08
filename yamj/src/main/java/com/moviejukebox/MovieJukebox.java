@@ -46,6 +46,7 @@ import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
@@ -172,6 +173,7 @@ public class MovieJukebox {
     int MaxThreadsDownload = 1;
     
     private static boolean enableWatchScanner;
+    private static boolean enableCompleteMovies;
 
     public static void main(String[] args) throws Throwable {
         // Create the log file name here, so we can change it later (because it's locked
@@ -386,7 +388,8 @@ public class MovieJukebox {
         }
         
         enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
-
+        enableCompleteMovies = PropertiesUtil.getBooleanProperty("complete.movies.enable", "true");
+        
         if (movieLibraryRoot == null) {
             movieLibraryRoot = getProperty("mjb.libraryRoot");
             logger.info("Got libraryRoot from properties file: " + movieLibraryRoot);
@@ -716,12 +719,6 @@ public class MovieJukebox {
         }
     }
 
-    @XmlRootElement(name = "jukebox")
-    public static class JukeboxXml {
-        @XmlElement
-        public List<Movie> movies;
-    }
-    
     private void generateLibrary() throws Throwable {
 
         /********************************************************************************
@@ -1229,10 +1226,6 @@ public class MovieJukebox {
             List<Movie> indexMasters = new ArrayList<Movie>(library.getMoviesList());
             indexMasters.removeAll(library.values());
 
-            JAXBContext context = JAXBContext.newInstance(JukeboxXml.class);
-            final JukeboxXml jukeboxXml = new JukeboxXml();
-            jukeboxXml.movies = library.values();
-
             // Multi-thread: Parallel Executor
             tasks.restart();
 
@@ -1444,28 +1437,10 @@ public class MovieJukebox {
                  */
                 htmlWriter.generateMainIndexHTML(jukebox, library);
             }
-
-            final String totalMoviesXmlFileName = "CompleteMovies.xml";
-            final String rssXmlFileName = "RSS.xml";
-            if (library.isDirty()) {
-                try {
-                    final File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), totalMoviesXmlFileName);
-
-                    OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
-                    context.createMarshaller().marshal(jukeboxXml, marStream);
-                    marStream.close();
-                    
-                    Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
-
-                    Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
-                    transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
-                } catch (Exception e) {
-                    logger.debug("RSS is not generated." /* + e.getStackTrace().toString() */);
-                }
+            
+            if (enableCompleteMovies) {
+                writeCompleteMovies(library);
             }
-            // These should be added to the list of jukebox files regardless of the state of the library
-            FileTools.addJukeboxFile(totalMoviesXmlFileName);
-            FileTools.addJukeboxFile(rssXmlFileName);
 
             /********************************************************************************
              * 
@@ -2449,4 +2424,48 @@ public class MovieJukebox {
         return jukebox;
     }
 
+    @XmlRootElement(name = "jukebox")
+    public static class JukeboxXml {
+        @XmlElement
+        public List<Movie> movies;
+    }
+    
+    private void writeCompleteMovies(Library library) {
+        String totalMoviesXmlFileName = "CompleteMovies.xml";
+        String rssXmlFileName = "RSS.xml";
+        JAXBContext context;
+        
+        try {
+            context = JAXBContext.newInstance(JukeboxXml.class);
+        } catch (JAXBException error) {
+            logger.debug("CompleteMovies: RSS is not generated.");
+            return;
+        }
+        
+        JukeboxXml jukeboxXml = new JukeboxXml();
+        jukeboxXml.movies = library.values();
+
+        if (library.isDirty()) {
+            try {
+                File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), totalMoviesXmlFileName);
+
+                OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
+                context.createMarshaller().marshal(jukeboxXml, marStream);
+                marStream.close();
+                
+                Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
+
+                Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
+                transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
+            } catch (Exception error) {
+                logger.debug("CompleteMovies: RSS is not generated." /* + e.getStackTrace().toString() */);
+            }
+        }
+        // These should be added to the list of jukebox files regardless of the state of the library
+        FileTools.addJukeboxFile(totalMoviesXmlFileName);
+        FileTools.addJukeboxFile(rssXmlFileName);
+
+        return;
+    }
+    
 }
