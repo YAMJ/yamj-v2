@@ -700,7 +700,7 @@ public class Library implements Map<String, Movie> {
                 if (processExtras) {
                     if (categoriesMap.get("Extras") != null) {
                         index.addMovie(categoriesMap.get("Extras"), movie);
-                        movie.addIndex("Property", categoriesMap.get("Extras"));
+                        movie.addIndex("Extras", categoriesMap.get("Extras"));
                     }
                 }
             } else {
@@ -710,18 +710,18 @@ public class Library implements Map<String, Movie> {
                         if (movie.isHD1080()) {
                             if (categoriesMap.get("HD-1080") != null) {
                                 index.addMovie(categoriesMap.get("HD-1080"), movie);
-                                movie.addIndex("Property", categoriesMap.get("HD-1080"));
+                                movie.addIndex("HD", categoriesMap.get("HD-1080"));
                             }
                         } else {
                             if (categoriesMap.get("HD-720") != null) {
                                 index.addMovie(categoriesMap.get("HD-720"), movie);
-                                movie.addIndex("Property", categoriesMap.get("HD-720"));
+                                movie.addIndex("HD", categoriesMap.get("HD-720"));
                             }
                         }
                     } else {
                         if (categoriesMap.get("HD") != null) {
                             index.addMovie(categoriesMap.get("HD"), movie);
-                            movie.addIndex("Property", categoriesMap.get("HD"));
+                            movie.addIndex("HD", categoriesMap.get("HD"));
                         }
                     }
                 }
@@ -729,18 +729,18 @@ public class Library implements Map<String, Movie> {
                 if (movie.getTop250() > 0) {
                     if (categoriesMap.get("Top250") != null) {
                         index.addMovie(categoriesMap.get("Top250"), movie);
-                        movie.addIndex("Property", categoriesMap.get("Top250"));
+                        movie.addIndex("Top250", categoriesMap.get("Top250"));
                     }
                 }
                 
                 if (enableWatchScanner) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
                     // Add to the Watched or Unwatched category
                     if (movie.isWatched()) {
-                        movie.addIndex("Property", categoriesMap.get("Watched"));
                         index.addMovie(categoriesMap.get("Watched"), movie);
+                        movie.addIndex("Watched", categoriesMap.get("Watched"));
                     } else {
-                        movie.addIndex("Property", categoriesMap.get("Unwatched"));
                         index.addMovie(categoriesMap.get("Unwatched"), movie);
+                        movie.addIndex("Unwatched", categoriesMap.get("Unwatched"));
                     }
                 }
                 
@@ -748,7 +748,7 @@ public class Library implements Map<String, Movie> {
                 if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
                     if (categoriesMap.get("New-Movie") != null) {
                         index.addMovie(categoriesMap.get("New-Movie"), movie);
-                        movie.addIndex("Property", categoriesMap.get("New-Movie"));
+                        movie.addIndex("New-Movie", categoriesMap.get("New-Movie"));
                     }
                 }
                 
@@ -756,24 +756,24 @@ public class Library implements Map<String, Movie> {
                 if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
                     if (categoriesMap.get("New-TV") != null) {
                         index.addMovie(categoriesMap.get("New-TV"), movie);
-                        movie.addIndex("Property", categoriesMap.get("New-TV"));
+                        movie.addIndex("New-TV", categoriesMap.get("New-TV"));
                     }
                 }
 
                 if (categoriesMap.get("All") != null) {
                     index.addMovie(categoriesMap.get("All"), movie);
-                    movie.addIndex("Property", categoriesMap.get("All"));
+                    movie.addIndex("All", categoriesMap.get("All"));
                 }
 
                 if (movie.isTVShow()) {
                     if (categoriesMap.get("TV Shows") != null) {
                         index.addMovie(categoriesMap.get("TV Shows"), movie);
-                        movie.addIndex("Property", categoriesMap.get("TV Shows"));
+                        movie.addIndex("TV Shows", categoriesMap.get("TV Shows"));
                     }
                 } else {
                     if (categoriesMap.get("Movies") != null) {
                         index.addMovie(categoriesMap.get("Movies"), movie);
-                        movie.addIndex("Property", categoriesMap.get("Movies"));
+                        movie.addIndex("Movies", categoriesMap.get("Movies"));
                     }
                 }
             }
