@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -1045,29 +1046,28 @@ public class MovieJukebox {
 
                 tasks.restart();
                 if (popularity > 0) {
-//                    ArrayList as = new ArrayList(popularPeople.entrySet());
                     ArrayList<Person> as = new ArrayList<Person>(popularPeople.values());
 
                     Collections.sort(as, new PersonComparator());
 
                     List<Person> stars = new ArrayList<Person>();
                     Iterator<Person> itr = as.iterator();
-                    
+
                     while (itr.hasNext()) {
                         if (peopleCounter >= peopleMax) {
                             break;
                         }
-                        
+
                         Person person = itr.next();
-                        
+
                         if (popularity > person.getPopularity()) {
                             break;
                         }
-                        
+
                         stars.add(person);
                         peopleCounter++;
                     }
-                    
+
                     final int peopleCount = peopleCounter;
                     peopleCounter = 0;
                     for (final Person person : stars) {
@@ -1176,11 +1176,22 @@ public class MovieJukebox {
                             movie.setDirty(true);
                         }
                     }
-                    
+
                     String name = movie.getOriginalTitle().toUpperCase() + " (" + movie.getYear() + ")";
                     for (Person p : library.getPeople()) {
                         for (Filmography film : p.getFilmography()) {
-                            if (film.getName().toUpperCase().startsWith(name)) {
+                            boolean flag = false;
+                            for (Entry<String, String> e : movie.getIdMap().entrySet()) {
+                                String value = film.getId(e.getKey());
+                                flag |= isValidString(e.getValue()) && isValidString(value) && value.equals(e.getValue());
+                                if (flag) {
+                                    break;
+                                }
+                            }
+                            if (!flag) {
+                                flag = film.getName().toUpperCase().startsWith(name);
+                            }
+                            if (flag) {
                                 film.setFilename(movie.getBaseFilename());
                                 if (film.isDirty()) {
                                     p.setDirty();
