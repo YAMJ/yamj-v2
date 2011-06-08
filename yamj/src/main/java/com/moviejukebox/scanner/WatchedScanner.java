@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Jukebox;
@@ -25,8 +24,6 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 
 public class WatchedScanner {
-    private static Logger logger = Logger.getLogger("moviejukebox");
-    
     /**
      * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
      * Always assumes that the file is unwatched if nothing is found.

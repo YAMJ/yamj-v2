@@ -185,9 +185,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             if (gettitle) {
                 String titleShort = extractTag(xml, "<title>OFDb - ", 0, "(");
-                if (!Movie.UNKNOWN.equalsIgnoreCase(titleShort) && !movie.isOverrideTitle()) {
-                    movie.setTitleSort(titleShort);
-                    movie.setTitle(movie.getTitleSort());
+                if (StringTools.isValidString(titleShort) && !movie.isOverrideTitle()) {
+                    movie.setTitle(titleShort);
                 }
             }
 

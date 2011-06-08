@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -63,7 +65,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public static final String dateFormatLongString = dateFormatString + " HH:mm:ss";
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
     public static final SimpleDateFormat dateFormatLong = new SimpleDateFormat(dateFormatLongString);
-    
+
     // Preparing to JAXB
 
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -184,13 +186,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     // True if movie actually is only a entry point to movies set.
     private boolean isSetMaster = false;
-    
+
     // Amount of movies in set
     private int setSize = 0;
-    
+
     // List of genres to ignore
     private static HashSet<String> genreSkipList = new HashSet<String>();
-    
+
+    private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
+
     static {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
         while (st.hasMoreTokens()) {
@@ -224,7 +228,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setMjbVersion(String mjbVersion) {
-        if ((mjbVersion == null) || (mjbVersion.equalsIgnoreCase(UNKNOWN))) {
+        if (StringTools.isNotValidString(mjbVersion)) {
             this.mjbVersion = getCurrentMjbVersion();
         } else {
             this.mjbVersion = mjbVersion;
@@ -238,14 +242,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public String getCurrentMjbVersion() {
         String specificationVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
-        if (specificationVersion == null) {
+        if (StringUtils.isBlank(specificationVersion)) {
             specificationVersion = UNKNOWN;
         }
         return specificationVersion;
     }
 
     public void setMjbRevision(String mjbRevision) {
-        if (mjbRevision == null || mjbRevision.equalsIgnoreCase(UNKNOWN)) {
+        if (StringTools.isNotValidString(mjbRevision)) {
             this.mjbRevision = "0";
         } else {
             this.mjbRevision = mjbRevision;
@@ -255,7 +259,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     @XmlElement
     public String getMjbRevision() {
         // If YAMJ is self compiled then the revision information may not exist.
-        if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
+        if (!(StringUtils.isBlank(mjbRevision) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             return mjbRevision;
         } else {
             return Movie.UNKNOWN;
@@ -265,7 +269,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public String getCurrentMjbRevision() {
         String currentRevision = MovieJukebox.mjbRevision;
         // If YAMJ is self compiled then the revision information may not exist.
-        if ((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
+        if (StringUtils.isBlank(currentRevision) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
             currentRevision = Movie.UNKNOWN;
         }
         return currentRevision;
@@ -300,7 +304,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addGenre(String genre) {
-        if (genre != null && !extra && !genreSkipList.contains(genre.toLowerCase())) {
+        if (StringTools.isValidString(genre) && !extra && !genreSkipList.contains(genre.toLowerCase())) {
             this.isDirty = true;
             //logger.debug("Genre added : " + genre);
             genres.add(genre);
@@ -312,7 +316,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addSet(String set, Integer order) {
-        if (set != null) {
+        if (StringUtils.isBlank(set)) {
             this.isDirty = true;
             logger.debug("Set added : " + set + ", order : " + order);
             sets.put(set, order);
@@ -387,14 +391,21 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addPerson(String key, String name, String URL, String job, String character, String doublage) {
-        if (name != null && key != null && URL != null && job != null && character != null) {
+        if (StringUtils.isNotBlank(name) 
+                        && StringUtils.isNotBlank(key) 
+                        && StringUtils.isNotBlank(URL) 
+                        && StringUtils.isNotBlank(job) 
+                        && StringUtils.isNotBlank(character)) {
+            
             Filmography person = new Filmography();
+            
             if (key.indexOf(":") > 0) {
                 String[] keys = key.split(":");
                 person.setId(keys[0], keys[1]);
             } else {
                 person.setId(key);
             }
+            
             if (name.indexOf(":") > 0) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[0])) {
@@ -408,11 +419,13 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             } else {
                 person.setName(name);
             }
+            
             person.setUrl(URL);
             person.setCharacter(character);
             person.setDoublage(doublage);
             person.setJob(job);
             person.setDepartment();
+            
             int countActor = 0;
             if (person.getDepartment().equalsIgnoreCase("Actors")) {
                 for (Filmography member : people) {
@@ -421,6 +434,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                     }
                 }
             }
+            
             person.setOrder(countActor);
             person.setCastId(people.size());
             person.setScrapeLibrary(scrapeLibrary);
@@ -628,16 +642,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return sets.get(set);
     }
 
-    /**
-     * 
-     * @deprecated replaced by getId(String key). This method is kept for compatibility purpose. But you should use getId(String key, String id) instead. Ex:
-     *             movie.getId(ImdbPlugin.IMDB_PLUGIN_ID) {@link getId(String key)}
-     */
-    @Deprecated
-    public String getId() {
-        return idMap.get(ImdbPlugin.IMDB_PLUGIN_ID);
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -767,7 +771,42 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getTitleSort()
      */
+    /**
+     * Return the correct sort title based on the mjb.sortTitle parameter
+     */
     public String getTitleSort() {
+        // If we have a titleSort, return that
+        if (StringTools.isValidString(titleSort)) {
+            return titleSort;
+        }
+
+        // There are three choices for the sort title: title, original, filename
+
+        if ("title".equalsIgnoreCase(titleSortType)) {
+            // Set the title sort (so this is only done once)
+            setTitleSort(title);
+            return titleSort;
+        }
+
+        if ("filename".equalsIgnoreCase(titleSortType)) {
+            // Set the title sort (so this is only done once)
+            setTitleSort(baseName);
+            return titleSort;
+        }
+
+        if ("original".equalsIgnoreCase(titleSortType)) {
+            if (StringTools.isValidString(originalTitle)) {
+                // Set the title sort (so this is only done once)
+                setTitleSort(originalTitle);
+                return titleSort;
+            } else {
+                setTitleSort(title);
+                return titleSort;
+            }
+        }
+
+        // Set the title sort (so this is only done once)
+        setTitleSort(title);
         return titleSort;
     }
 
@@ -949,7 +988,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.isDirty = true;
         cast.clear();
     }
-    
+
     public void addWriter(String writer) {
         if (writer != null && !writers.contains(writer)) {
             this.isDirty = true;
@@ -1048,11 +1087,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             return UNKNOWN;
         }
     }
-    
+
     public Collection<String> getDirectors() {
         return directors;
     }
-    
+
     public void setDirectors(Collection<String> directors) {
         if (directors != null && !directors.isEmpty()) {
             clearDirectors();
@@ -1071,12 +1110,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             }
         }
     }
-    
+
     public void clearDirectors() {
         this.isDirty = true;
         directors.clear();
     }
-    
+
     public void addDirector(String director) {
         if (director != null && !directors.contains(director)) {
             this.isDirty = true;
@@ -1110,7 +1149,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    
+
     public void setDirty(boolean isDirty) {
         this.isDirty = isDirty;
     }
@@ -1146,7 +1185,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setFps(float fps) {
-      //Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
+        //Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
         if ( Math.abs(fps-this.fps) >0.1 ){ 
             this.isDirty = true;
             this.fps = fps;
@@ -1159,7 +1198,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             if (!genreSkipList.isEmpty()) {
                 // remove any unwanted genres from the new collection
                 SortedSet<String> genresFinal = new TreeSet<String>();
-                
+
                 Iterator<String> genreIterator = genresToAdd.iterator();
                 while (genreIterator.hasNext()) {
                     String genreToAdd = genreIterator.next();
@@ -1167,14 +1206,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                         genresFinal.add(genreToAdd);
                     }
                 }
-                
+
                 // Add the trimmed genre list
                 this.genres = new TreeSet<String>(genresFinal);
             } else {
                 // No need to remove genres, so add them all
                 this.genres = new TreeSet<String>(genresToAdd);
             }
-            
+
             this.isDirty = true;
         }
     }
@@ -1323,7 +1362,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             this.releaseDate = releaseDate;
         }
     }
-    
+
     public void setResolution(String resolution) {
         if (resolution == null) {
             resolution = UNKNOWN;
@@ -1339,8 +1378,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             this.runtime = UNKNOWN;
             return;
         }
-        
-        
+
         if (!runtime.equalsIgnoreCase(this.runtime)) {
             this.isDirty = true;
             // Escape the first "0" AlloCine gives sometimes
@@ -1366,7 +1404,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (subtitles == null) {
             subtitles = UNKNOWN;
         }
-        
+
         if (!subtitles.equals(this.subtitles)) {
             this.isDirty = true;
             this.subtitles = subtitles;
@@ -1374,20 +1412,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setTitle(String name) {
-        if (name == null) {
+        if (StringUtils.isBlank(name)) {
             name = UNKNOWN;
         }
-        
+
         if (!name.equals(this.title)) {
             this.isDirty = true;
             this.title = name;
 
-            // If we don't have a titleSort, then use the title OR if the titleSort is based on the filename, then replace it
-            if (StringTools.isNotValidString(titleSort) || baseFilename.startsWith(titleSort)) {
-                setTitleSort(name);
-            }
-
-            // If we don't have a titleSort, then use the title
+            // If we don't have a original title, then use the title
             if (StringTools.isNotValidString(originalTitle)) {
                 setOriginalTitle(name);
             }
@@ -1395,7 +1428,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setTitleSort(String text) {
-        if (text == null) {
+        if (StringUtils.isBlank(text)) {
             text = UNKNOWN;
         }
 
@@ -1404,7 +1437,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             while (idx < text.length() && !Character.isLetterOrDigit(text.charAt(idx))) {
                 idx++;
             }
-            
+
             // Issue 1908: Replace all non-standard characters in the title sort
             this.titleSort = StringTools.stringMapReplacement(new String(text.substring(idx)));
             this.isDirty = true;
@@ -1412,9 +1445,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setOriginalTitle(String name) {
-        if (name == null) {
+        if (StringUtils.isBlank(name)) {
             name = UNKNOWN;
         }
+
         if (!name.equals(this.originalTitle)) {
             this.isDirty = true;
             this.originalTitle = name;
@@ -1422,7 +1456,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setVideoCodec(String videoCodec) {
-        if (videoCodec == null) {
+        if (StringUtils.isBlank(videoCodec)) {
             videoCodec = UNKNOWN;
         }
         if (!videoCodec.equalsIgnoreCase(this.videoCodec)) {
@@ -1432,7 +1466,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setVideoOutput(String videoOutput) {
-        if (videoOutput == null) {
+        if (StringUtils.isBlank(videoOutput)) {
             videoOutput = UNKNOWN;
         }
         if (!videoOutput.equalsIgnoreCase(this.videoOutput)) {
@@ -1442,7 +1476,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setVideoSource(String videoSource) {
-        if (videoSource == null) {
+        if (StringUtils.isBlank(videoSource)) {
             videoSource = UNKNOWN;
         }
         if (!videoSource.equalsIgnoreCase(this.videoSource)) {
@@ -1452,7 +1486,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setYear(String year) {
-        if (year == null) {
+        if (StringUtils.isBlank(year)) {
             year = UNKNOWN;
         }
         if (!year.equalsIgnoreCase(this.year)) {
@@ -1466,7 +1500,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setQuote(String quote) {
-        if (quote == null) {
+        if (StringUtils.isBlank(quote)) {
             quote = UNKNOWN;
         }
         if (!quote.equalsIgnoreCase(this.quote)) {
@@ -1778,7 +1812,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         setFps(dto.getFps() > 0 ? dto.getFps() : 60);
         setSeason(dto.getSeason());
         setMovieIds(dto.getMovieIds());
-        
+
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }
@@ -1899,7 +1933,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             this.fileDate = fileDate;
         }
     }
-    
+
     /**
      * Overwrite the file date
      * @param fileDate
@@ -1907,7 +1941,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setFileDate(Date fileDate) {
         this.fileDate = fileDate;
     }
-    
+
     public Date getFileDate() {
         return fileDate;
     }
@@ -1928,7 +1962,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (StringTools.isNotValidString(aspect)) {
             return;
         }
-        
+
         String newAspect = new String(aspect);  // We can't alter the parameter, so use a new one
 
         // Format the aspect slightly and change "16/9" to "16:9"
@@ -1936,7 +1970,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (!newAspect.contains(":")) {
             newAspect += ":1";
         }
-        
+
         // Format the aspect if it is a float value to 2 decimal places
         if (newAspect.contains(".")) {
             try {
@@ -2115,12 +2149,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         // The watched NFO should override the watched file status
         return (watchedFile || watchedNFO);
     }
-    
+
     @XmlTransient
     public boolean isWatchedNFO() {
         return watchedNFO;
     }
-    
+
     @XmlTransient
     public boolean isWatchedFile() {
         return watchedFile;
@@ -2130,7 +2164,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setWatchedFile(boolean watched) {
         this.watchedFile = watched;
     }
-    
+
     // Set the watched flag for NFO
     public void setWatchedNFO(boolean watched) {
         this.watchedNFO = watched;
@@ -2139,7 +2173,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     @XmlElement
     public String getWatchedDateString() {
         long returnDate = getWatchedDate();
-        
+
         if (returnDate == 0) {
             return Movie.UNKNOWN;
         } else {
@@ -2153,7 +2187,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      */
     public long getWatchedDate() {
         long returnDate = 0;
-        
+
         for (MovieFile mf : movieFiles) {
             if (mf.isWatched() && mf.getWatchedDate() > returnDate) {
                 returnDate = mf.getWatchedDate();
@@ -2176,12 +2210,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void setArtwork(Set<Artwork> artwork) {
         this.artwork = artwork;
     }
-    
+
     public void addArtwork(Artwork artwork) {
         //TODO: Check to see if the artwork source/type/url exists and add to it rather than overwrite or append to the list
         this.artwork.add(artwork);
     }
-    
+
     /**
      * Check to see if an artwork already exists.
      * @param artwork
@@ -2196,16 +2230,16 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
         return null;
     }
-    
+
     public Collection<Artwork> getArtwork(ArtworkType artworkType) {
         Collection<Artwork> artworkList = new LinkedHashSet<Artwork>();
-        
+
         for (Artwork artwork : this.artwork) {
             if (artwork.getType() == artworkType) {
                 artworkList.add(artwork);
             }
         }
-        
+
         return artworkList;
     }
 
