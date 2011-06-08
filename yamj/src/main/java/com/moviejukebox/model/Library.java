@@ -82,7 +82,7 @@ public class Library implements Map<String, Movie> {
     private static boolean splitHD = false;
     private static boolean processExtras = true;
     private static boolean hideWatched = true;
-    private static final boolean useWatchedScanner;
+    private static final boolean enableWatchScanner;
     // Issue 1897: Cast enhancement
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
     private static boolean isDirty = false;
@@ -102,7 +102,7 @@ public class Library implements Map<String, Movie> {
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
         hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", "true");
-        useWatchedScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
+        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
         filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", "false");
         fillGenreMap(PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml"));
         
@@ -733,7 +733,7 @@ public class Library implements Map<String, Movie> {
                     }
                 }
                 
-                if (useWatchedScanner) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
+                if (enableWatchScanner) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
                     // Add to the Watched or Unwatched category
                     if (movie.isWatched()) {
                         movie.addIndex("Property", categoriesMap.get("Watched"));
@@ -745,7 +745,7 @@ public class Library implements Map<String, Movie> {
                 }
                 
                 // Add to the New Movie category
-                if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched) && useWatchedScanner) {
+                if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
                     if (categoriesMap.get("New-Movie") != null) {
                         index.addMovie(categoriesMap.get("New-Movie"), movie);
                         movie.addIndex("Property", categoriesMap.get("New-Movie"));
@@ -753,7 +753,7 @@ public class Library implements Map<String, Movie> {
                 }
                 
                 // Add to the New TV category
-                if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched) && useWatchedScanner) {
+                if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
                     if (categoriesMap.get("New-TV") != null) {
                         index.addMovie(categoriesMap.get("New-TV"), movie);
                         movie.addIndex("Property", categoriesMap.get("New-TV"));
