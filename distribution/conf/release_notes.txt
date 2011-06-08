@@ -9,6 +9,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement   #954 Better handling of regional releases
  - Enhancement  #1471 Request to use "indexing.character.replacement" when sorting movies
  - Enhancement  #1558 Use audio/language info from episode NFOs
+ - Enhancement  #1697 Use sort order for 'Other' category from category.xml config file
  - Enhancement  #1723 Option to remove TV Shows from Sets in category listings
  - Enhancement  #1853 Multiple index pages
  - Enhancement  #1856 originalTitle functionality
