@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Jukebox;
@@ -69,7 +71,7 @@ public class FileTools {
             return new byte[BUFF_SIZE];
         };
     };
-    
+
     private static class ReplaceEntry {
         private String oldText, newText;
         private int oldLength;
@@ -78,7 +80,7 @@ public class FileTools {
             this.newText = newtext;
             oldLength = oldtext.length();
         }
-        
+
         public String check(String filename) {
             String newFilename = filename;
             int pos = newFilename.indexOf(oldText, 0);
@@ -102,7 +104,7 @@ public class FileTools {
         if (encodeEscapeCharString.length() > 0) {
             // What to do if the user specifies a >1 character long string? I guess just use the first char.
             encodeEscapeChar = encodeEscapeCharString.charAt(0);
-        
+
             String repChars = PropertiesUtil.getProperty("mjb.charset.unsafeFilenameChars", "<>:\"/\\|?*");
             for (String repChar : repChars.split("")) {
                 if (repChar.length() > 0) {
@@ -116,7 +118,7 @@ public class FileTools {
                 }
             }
         }
-        
+
         // Parse transliteration map: (source_character [-] transliteration_sequence [,])+
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.charset.filename.translate", ""), ",");
         while (st.hasMoreElements()) {
@@ -140,9 +142,9 @@ public class FileTools {
     }
 
     public static int copy(InputStream is, OutputStream os, WebStats stats) throws IOException {
-      int bytesCopied = 0;
-      byte[] buffer = threadBuffer.get(); 
-      try {
+        int bytesCopied = 0;
+        byte[] buffer = threadBuffer.get(); 
+        try {
             while (true) {
                 int amountRead = is.read(buffer);
                 if (amountRead == -1) {
@@ -181,7 +183,7 @@ public class FileTools {
 
     public static void copyFile(String src, String dst) {
         File srcFile, dstFile;
-        
+
         try {
             srcFile = new File(src);
         } catch (Exception error) {
@@ -229,7 +231,7 @@ public class FileTools {
                     if (inChannel != null) {
                         inChannel.close();
                     }
-                    
+
                     if (outChannel != null) {
                         outChannel.close();
                     }
@@ -245,60 +247,100 @@ public class FileTools {
         }
     }
 
-    public static void copyDir(String srcDir, String dstDir, boolean updateDisplay) {
-        try {
-            File src = new File(srcDir);
-            if (!src.exists()) {
-                logger.error("FileTools: The specified " + srcDir + " file or directory does not exist!");
-                return;
-            }
+    public static void copyDir(String srcPathName, String dstPathName, boolean updateDisplay) {
+        copyDir(srcPathName, dstPathName, updateDisplay, null);
+    }
 
-            File dst = new File(dstDir);
-            dst.mkdirs();
-
-            if (!dst.exists()) {
-                logger.error("FileTools: The specified " + dstDir + " output directory does not exist!");
-                return;
-            }
-
-            if (src.isFile()) {
-                copyFile(src, dst);
+    /**
+     * Copy files from one directory to another
+     * @param srcPathName   The source directory to copy from
+     * @param dstPathName   The target directory to copy to
+     * @param updateDisplay Display an update to the console
+     * @param pathRoot      The root of the srcPath for display purposes
+     */
+    public static void copyDir(String srcPathName, String dstPathName, boolean updateDisplay, String pathRoot) {
+        String displayRoot;
+        if (StringTools.isNotValidString(pathRoot)) {
+            int pos = srcPathName.lastIndexOf(File.separator);
+            if (pos > 0) {
+                try {
+                    displayRoot = srcPathName.substring(pos + 1);
+                } catch (Exception error) {
+                    displayRoot = srcPathName;
+                }
             } else {
-                File[] contentList = src.listFiles();
+                displayRoot = srcPathName;
+            }
+        } else {
+            displayRoot = pathRoot;
+        }
+
+        try {
+            File srcDir = new File(srcPathName);
+            if (!srcDir.exists()) {
+                logger.error("FileTools: Source directory " + srcPathName + " does not exist!");
+                return;
+            }
+
+            File dstDir = new File(dstPathName);
+            dstDir.mkdirs();
+
+            if (!dstDir.exists()) {
+                logger.error("FileTools: Target directory " + dstPathName + " does not exist!");
+                return;
+            }
+
+            if (srcDir.isFile()) {
+                copyFile(srcDir, dstDir);
+            } else {
+
+                File[] contentList = srcDir.listFiles();
                 if (contentList != null) {
                     List<File> files = Arrays.asList(contentList);
                     Collections.sort(files);
 
                     int totalSize = files.size();
                     int currentFile = 0;
+
+                    String displayPath = srcDir.getCanonicalPath();
+
+                    int pos = displayPath.lastIndexOf(displayRoot);
+                    if (pos > 0) {
+                        displayPath = displayPath.substring(pos);
+                    }
+
                     for (File file : files) {
                         currentFile++;
                         if (!file.getName().equals(".svn")) {
                             if (file.isDirectory()) {
-                                copyDir(file.getAbsolutePath(), dstDir + File.separator + file.getName(), updateDisplay);
+                                copyDir(file.getAbsolutePath(), dstPathName + File.separator + file.getName(), updateDisplay, pathRoot);
                             } else {
                                 if (updateDisplay) {
-                                    System.out.print("\r    Copying directory " + srcDir + " (" + currentFile + "/" + totalSize + ")");
+                                    System.out.print("\r    Copying directory " + displayPath + " (" + currentFile + "/" + totalSize + ")");
                                 }
-                                copyFile(file, dst);
+                                copyFile(file, dstDir);
                             }
                         }
                     }
                     if (updateDisplay) {
                         System.out.print("\n");
                     }
-                    logger.debug("Copied " + totalSize + " files from " + srcDir);
+                    logger.debug("Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
                 }
             }
-        } catch (Exception ignore) {
-            // We're not concerned about the exception
+        } catch (Exception error) {
+            logger.error("FileTools: Failed to copy " + srcPathName + " to " + dstPathName);
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
             return;
         }
     }
 
     public static String readFileToString(File file) {
         StringBuffer out = new StringBuffer();
-        
+
         if (file != null) {
             try {
                 BufferedReader in = null;
@@ -318,10 +360,10 @@ public class FileTools {
                 logger.error("Failed reading file " + file.getName());
             }
         }
-        
+
         return out.toString();
     }
-    
+
     /**
      * Write string to a file (Used for debugging)
      * @param filename
@@ -329,10 +371,10 @@ public class FileTools {
      */
     public static void writeStringToFile(String filename, String outputString) {
         FileWriter out = null;
-        
+
         try {
             File outFile = new File(filename);
-            
+
             out = new FileWriter(outFile);
             out.write(outputString);
         } catch (Exception ignore) {
@@ -413,15 +455,15 @@ public class FileTools {
 
     public static String makeSafeFilename(String filename) {
         String newFilename = filename;
-        
+
         for (ReplaceEntry rep : unsafeChars) {
             newFilename = rep.check(newFilename);
         }
-        
+
         if (!newFilename.equals(filename)) {
             logger.debug("Encoded filename string " + filename + " to " + newFilename);
         }
-            
+
         return newFilename;
     }
 
@@ -474,7 +516,9 @@ public class FileTools {
         for (String extension : artworkExtensions) {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
-                logger.debug("FileTools: Found " + localFile + " in the file cache");
+                if (logger.isTraceEnabled()) {
+                    logger.trace("FileTools: Found " + localFile + " in the file cache");
+                }
                 return localFile;
             }
         }
@@ -493,42 +537,42 @@ public class FileTools {
     public static File findFilenameInCache(String searchFilename, Collection<String> artworkExtensions, Jukebox jukebox, String logPrefix) {
         File searchFile = null;
         String safeFilename = makeSafeFilename(searchFilename);
-        
+
         logger.debug(logPrefix + "Scanning fileCache for " + safeFilename);
         safeFilename = File.separator + safeFilename;
-        
+
         Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
 
         if (files.size() > 0) {
             // Copy the synchronized list to avoid ConcurrentModificationException
             Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(safeFilename, true)).iterator();
-            
+
             while (iter.hasNext()) {
                 File file = iter.next();
                 String abPath = file.getAbsolutePath().toLowerCase();
-                
+
                 if (abPath.startsWith(jukebox.getJukeboxRootLocationDetails().toLowerCase())) {
                     // Skip any files found in the jukebox
                     continue;
                 }
-                
+
                 // Loop round the filename+extension to see if any exist and add them to the array
                 for (String extension : artworkExtensions) {
                     if (abPath.endsWith((safeFilename + "." + extension).toLowerCase())) {
                         files.add(file);
-                        
+
                         logger.debug(logPrefix + "Found: " + file.getAbsolutePath());
-                        
+
                         if (searchFile == null) {
                             searchFile = file;
                         }
-                        
+
                         // We've found the file, so we should quit the loop
                         break;
                     }
                 }
             }
-            
+
             if (searchFile != null) {
                 logger.debug(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
             } else {
@@ -537,10 +581,10 @@ public class FileTools {
         } else {
             logger.debug(logPrefix + "No scanned files found...");
         }
-        
+
         return searchFile;
     }
-    
+
     /**
      * Download the image for the specified URL into the specified file. 
      * Utilises the WebBrowser downloadImage function to allow for proxy connections.
@@ -553,7 +597,7 @@ public class FileTools {
         WebBrowser webBrowser = new WebBrowser();
         webBrowser.downloadImage(imageFile, imageURL);
     }
-    
+
     /**
      * Find the parent directory of the movie file.
      * @param movie
@@ -562,13 +606,13 @@ public class FileTools {
      */
     public static String getParentFolder(File movieFile) {
         String parentFolder = null;
-        
+
         if (movieFile.isDirectory()) { // for VIDEO_TS
             parentFolder = movieFile.getPath();
         } else {
             parentFolder = movieFile.getParent();
         }
-        
+
         // Issue 1070, /BDMV/STREAM is being appended to the parent path
         if (parentFolder.toUpperCase().endsWith(File.separator + "BDMV" + File.separator + "STREAM")) {
             parentFolder = new String(parentFolder.substring(0, parentFolder.length() - 12));
@@ -576,7 +620,7 @@ public class FileTools {
 
         return parentFolder;
     }
-    
+
     /**
      * Recursively delete a directory
      * @param dir
@@ -585,7 +629,7 @@ public class FileTools {
     public static boolean deleteDir(String dir) {
         return deleteDir(new File(dir));
     }
-    
+
     /**
      * Recursively delete a directory 
      * @param dir
@@ -606,7 +650,7 @@ public class FileTools {
         // System.out.println("Deleting: " + dir.getAbsolutePath());
         return dir.delete();
     }
-   
+
     /**
      * Add a list of files to the jukebox filenames
      * @param filenames
@@ -614,7 +658,7 @@ public class FileTools {
     public static void addJukeboxFiles(Collection<String> filenames) {
         generatedFileNames.addAll(filenames);
     }
-   
+
     /**
      * Add an individual filename to the jukebox cleaning exclusion list
      * @param filename
@@ -623,8 +667,12 @@ public class FileTools {
         if (StringTools.isValidString(filename)) {
             generatedFileNames.add(filename);
         }
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("FileTools: Adding " + filename + " to safe jukebox files");
+        }
     }
-   
+
     /**
      * Process the movie and add all the files to the jukebox cleaning exclusion list
      * @param movie
@@ -647,7 +695,7 @@ public class FileTools {
     public static Collection<String> getJukeboxFiles() {
         return generatedFileNames;
     }
-   
+
     /**
      * Special File with "cached" attributes
      * used to minimize file system access which slows down everything
@@ -662,20 +710,20 @@ public class FileTools {
         private volatile Long    _lastModified = null;
 
         private ArchiveScanner[] archiveScanners;
-        
+
         //Standard constructors
         public FileEx(String parent, String child) {
             super(parent, child);
         }
-        
+
         public FileEx(String pathname) {
             super(pathname);
         }
-        
+
         public FileEx(File parent, String child) {
             super(parent, child);
         }
-        
+
         private FileEx(String pathname, boolean exists) {
             this(pathname);
             _exists = exists;
@@ -686,7 +734,7 @@ public class FileTools {
             super(pathname);
             this.archiveScanners = archiveScanners;
         }
-        
+
         public FileEx(File parent, String child, ArchiveScanner[] archiveScanners) {
             this(parent, child);
             this.archiveScanners = archiveScanners;
@@ -703,7 +751,7 @@ public class FileTools {
             }
             return _isdir;
         }
-        
+
         @Override
         public boolean exists() {
             if (_exists == null) {
@@ -727,7 +775,7 @@ public class FileTools {
             }
             return _isfile;
         }
-        
+
         @Override
         public long length() {
             if (_len == null) {
@@ -739,7 +787,7 @@ public class FileTools {
             }
             return _len;
         }
-        
+
         @Override
         public long lastModified() {
             if (_lastModified == null) {
@@ -774,7 +822,7 @@ public class FileTools {
                 if (nameStrings == null) {
                     return null;
                 }
-                
+
                 List<String> mutableNames = new ArrayList<String>(Arrays.asList(nameStrings));
                 List<File> files = new ArrayList<File>();
                 if (archiveScanners != null) {
@@ -782,13 +830,13 @@ public class FileTools {
                         files.addAll(as.getArchiveFiles(this,mutableNames));
                     }
                 }
-                
+
                 for (String name: mutableNames) {
                     FileEx fe = new FileEx(this, name, archiveScanners);
                     fe._exists = true;
                     files.add(fe);
                 }
-                
+
                 _listFiles = (File[])files.toArray(new File[files.size()]);
             }
             return _listFiles;
@@ -825,25 +873,25 @@ public class FileTools {
     public static class ScannedFilesCache {       
         //cache for ALL files found during initial scan
         private Map<String, File> cachedFiles = new ConcurrentHashMap<String, File>(1000);
-        
+
         /**
          * Check whether the file exists 
          */
         public boolean fileExists(String absPath) {
             return cachedFiles.containsKey(absPath.toUpperCase());
         }
-        
+
         public boolean fileExists(File file) {
             return cachedFiles.containsKey(file.getAbsolutePath().toUpperCase());
         }
-        
+
         /**
          * Add a file instance to cache 
          */
         public void fileAdd(File file) {
             cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
         }
-        
+
         /*
          * Retrieve a file from cache
          * If it is NOT found, construct one instance and mark it as non-existing
@@ -855,30 +903,30 @@ public class FileTools {
             File f = cachedFiles.get(path.toUpperCase());
             return (f == null ? new FileEx(path, false) : f);
         }
-        
+
         /*
          * Add a full directory listing; used for existing jukebox
          */
         public void addDir(File dir, int depth) {
-           File[] files = dir.listFiles();
-           if (files == null) {
-               return;
-           }
-           
-           if (files.length == 0) {
-               return;
-           }
-           
-           addFiles(files);
-           if (depth <= 0) {
-               return;
-           }
-           
-           for (File f : files) {
-               if (f.isDirectory()) {
-                   addDir(f, depth - 1);
-               }
-           }
+            File[] files = dir.listFiles();
+            if (files == null) {
+                return;
+            }
+
+            if (files.length == 0) {
+                return;
+            }
+
+            addFiles(files);
+            if (depth <= 0) {
+                return;
+            }
+
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    addDir(f, depth - 1);
+                }
+            }
         }
 
         public void addFiles(File[] files) {
@@ -895,10 +943,10 @@ public class FileTools {
         public long size() {
             return cachedFiles.size();
         }
-        
+
         public Collection<File> searchFilename(String searchName, boolean findAll) {
             ArrayList<File> files = new ArrayList<File>();
-            
+
             String upperName = searchName.toUpperCase();
 
             for (String listName : cachedFiles.keySet()) {
@@ -910,10 +958,10 @@ public class FileTools {
                     }
                 }
             }
-            
+
             return files;
         }
-        
+
         public void saveFileList(String filename) throws FileNotFoundException, UnsupportedEncodingException {
             PrintWriter p = new PrintWriter(new OutputStreamWriter( new FileOutputStream(filename, true ), "UTF-8" )); 
 
@@ -926,7 +974,7 @@ public class FileTools {
             p.close();
         }
     }
-    
+
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
- 
+
 }
