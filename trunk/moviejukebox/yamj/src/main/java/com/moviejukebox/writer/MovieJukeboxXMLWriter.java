@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,6 +39,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.MovieJukebox;
@@ -952,8 +954,28 @@ public class MovieJukeboxXMLWriter {
 
                     if ("other".equalsIgnoreCase(categoryName)) {
                         // Process the other category using the order listed in the category.xml file
-                        Map<String, String> cm = library.getCategoriesMap();
+                        Map<String, String> cm = new LinkedHashMap<String, String>(library.getCategoriesMap());
 
+                        // Tidy up the new categories if needed
+                        String newAll = cm.get("New");
+                        String newTV = cm.get("New-TV");
+                        String newMovie = cm.get("New-Movie");
+                        
+                        // If the New-TV is named the same as the New, remove it
+                        if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newTV) && newAll.equalsIgnoreCase(newTV)) {
+                            cm.remove("New-TV");
+                        }
+                        
+                        // If the New-Movie is named the same as the New, remove it
+                        if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newMovie) && newAll.equalsIgnoreCase(newMovie)) {
+                            cm.remove("New-Movie");
+                        }
+                        
+                        // If the New-TV is named the same as the New-Movie, remove it
+                        if (StringUtils.isNotBlank(newTV) && StringUtils.isNotBlank(newMovie) && newTV.equalsIgnoreCase(newMovie)) {
+                            cm.remove("New-TV");
+                        }
+                        
                         for (String catOriginalName : cm.keySet()) {
                             String catNewName = cm.get(catOriginalName);
                             if (category.getValue().containsKey(catNewName)) {
@@ -1232,7 +1254,7 @@ public class MovieJukeboxXMLWriter {
                     // This isn't the current index, so we don't want it
                     continue;
                 }
-
+                
                 writer.writeStartElement("category");
                 writer.writeAttribute("name", categoryKey);
                 if (isCurrentKey) {
@@ -1243,8 +1265,28 @@ public class MovieJukeboxXMLWriter {
                 int indexSize = 0;
                 if ("other".equalsIgnoreCase(categoryKey)) {
                     // Process the other category using the order listed in the category.xml file
-                    Map<String, String> cm = library.getCategoriesMap();
+                    Map<String, String> cm = new LinkedHashMap<String, String>(library.getCategoriesMap());
 
+                    // Tidy up the new categories if needed
+                    String newAll = cm.get("New");
+                    String newTV = cm.get("New-TV");
+                    String newMovie = cm.get("New-Movie");
+                    
+                    // If the New-TV is named the same as the New, remove it
+                    if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newTV) && newAll.equalsIgnoreCase(newTV)) {
+                        cm.remove("New-TV");
+                    }
+                    
+                    // If the New-Movie is named the same as the New, remove it
+                    if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newMovie) && newAll.equalsIgnoreCase(newMovie)) {
+                        cm.remove("New-Movie");
+                    }
+                    
+                    // If the New-TV is named the same as the New-Movie, remove it
+                    if (StringUtils.isNotBlank(newTV) && StringUtils.isNotBlank(newMovie) && newTV.equalsIgnoreCase(newMovie)) {
+                        cm.remove("New-TV");
+                    }
+                    
                     for (String catOriginalName : cm.keySet()) {
                         String catNewName = cm.get(catOriginalName);
                         if (category.getValue().containsKey(catNewName)) {
