@@ -62,7 +62,7 @@ public class Library implements Map<String, Movie> {
     private static Map<String, String> genresMap = new HashMap<String, String>();
     private static Map<String, String> ratingsMap = new HashMap<String, String>();
     private static String defaultRating = null;
-    private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>();
+    private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>(); // This is a LinkedHashMap to ensure that the order that the items are inserted into the Map is retained
     private static boolean charGroupEnglish = false;
     private HashMap<Movie, String> keys = new HashMap<Movie, String>();
     private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
