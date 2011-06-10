@@ -316,7 +316,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void addSet(String set, Integer order) {
-        if (StringUtils.isBlank(set)) {
+        if (StringTools.isValidString(set)) {
             this.isDirty = true;
             logger.debug("Set added : " + set + ", order : " + order);
             sets.put(set, order);

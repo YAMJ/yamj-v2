@@ -39,6 +39,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1966 New Category always empty when watched scanner is disabled
  - Enhancement  #1969 Add option to disable RSS.xml and CompleteMovies.XML generation
  - Fixed defect #1970 Movie index does not contain "other" categories
+ - Fixed defect #1972 All movie sets deleted from library (r2494)
 
 MovieJukebox 2.4
 ----------------
