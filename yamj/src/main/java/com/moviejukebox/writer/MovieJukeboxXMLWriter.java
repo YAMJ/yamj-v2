@@ -1630,8 +1630,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeCharacters(movie.getRuntime());
         writer.writeEndElement();
         writer.writeStartElement("certification");
-        writer.writeCharacters(Library.getIndexingRating(movie.getCertification()));
-//        writer.writeCharacters(Library.getIndexingCertification(movie.getCertification()));
+        writer.writeCharacters(Library.getIndexingCertification(movie.getCertification()));
         writer.writeEndElement();
         writer.writeStartElement("season");
         writer.writeCharacters(Integer.toString(movie.getSeason()));
