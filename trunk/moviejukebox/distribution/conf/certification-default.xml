@@ -1,0 +1,19 @@
+﻿<!--                                                                                   -->
+<!-- Certification elements allow you to merge certifications together for different   -->
+<!-- certification systems from other countries into a single format suitable for you  -->
+<!--                                                                                   -->
+<!-- Example, a USA certification of U may be PG (Parental Guidance) in your country   -->
+<!--     <certification name="PG">                                                     -->
+<!--         <subcertification>U</subcertification>                                    -->
+<!--     </certification>                                                              -->
+
+<certifications>
+    <certification name="U">
+        <subcertification>U</subcertification>
+        <subcertification>PG</subcertification>
+    </certification>
+    <certification name="R">
+        <subcertification>UNKNOWN</subcertification>
+        <subcertification>Not Rated</subcertification>
+    </certification>
+</certifications>

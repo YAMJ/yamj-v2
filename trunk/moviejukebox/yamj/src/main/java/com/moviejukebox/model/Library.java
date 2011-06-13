@@ -38,12 +38,14 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.LastModifiedComparator;
 import com.moviejukebox.model.Comparator.MovieSetComparator;
 import com.moviejukebox.model.Comparator.Top250Comparator;
+import com.moviejukebox.model.Comparator.RatingComparator;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -56,12 +58,12 @@ public class Library implements Map<String, Movie> {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean filterGenres;
-    private static boolean filterRatings;
+    private static boolean filterCertificationn;
     private static boolean singleSeriesPage;
     private static List<String> certificationOrdering = new ArrayList<String>();
     private static Map<String, String> genresMap = new HashMap<String, String>();
-    private static Map<String, String> ratingsMap = new HashMap<String, String>();
-    private static String defaultRating = null;
+    private static Map<String, String> certificationsMap = new HashMap<String, String>();
+    private static String defaultCertification = null;
     private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>(); // This is a LinkedHashMap to ensure that the order that the items are inserted into the Map is retained
     private static boolean charGroupEnglish = false;
     private HashMap<Movie, String> keys = new HashMap<Movie, String>();
@@ -98,7 +100,7 @@ public class Library implements Map<String, Movie> {
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
         setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", "false");
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
-        indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
+        indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
         hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", "true");
@@ -106,8 +108,8 @@ public class Library implements Map<String, Movie> {
         filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", "false");
         fillGenreMap(PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml"));
         
-        filterRatings = PropertiesUtil.getBooleanProperty("mjb.filter.ratings", "false");
-        fillRatingMap(PropertiesUtil.getProperty("mjb.xmlRatingFile", "ratings-default.xml"));
+        filterCertificationn = PropertiesUtil.getBooleanProperty("mjb.filter.certification", "false");
+        fillCertificationMap(PropertiesUtil.getProperty("mjb.xmlCertificationFile", "certification-default.xml"));
 
         try {
             maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", "" + maxGenresPerMovie);
@@ -293,26 +295,26 @@ public class Library implements Map<String, Movie> {
                 // We Can't use a TreeSet because MF.compareTo just compares part #
                 // so it fails when we combine multiple seasons into one collection
                 Collection<MovieFile> master_mf_col = new LinkedList<MovieFile>();
-                for (Movie m : index_list) {
-                    if (m.isTVShow()) {
+                for (Movie movie : index_list) {
+                    if (movie.isTVShow()) {
                         ++cntTV;
                     }
-                    if (m.isHD()) {
+                    if (movie.isHD()) {
                         ++cntHD;
                     }
 
-                    int mTop250 = m.getTop250();
+                    int mTop250 = movie.getTop250();
                     if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
                         top250 = mTop250;
                     }
 
-                    Collection<MovieFile> mf_col = m.getMovieFiles();
+                    Collection<MovieFile> mf_col = movie.getMovieFiles();
                     if (mf_col != null) {
                         master_mf_col.addAll(mf_col);
                     }
                     
                     // Update the master fileDate to be the latest of all the members so this indexes correctly in the New category
-                    indexMaster.addFileDate(m.getFileDate());
+                    indexMaster.addFileDate(movie.getFileDate());
                 }
 
                 indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
@@ -383,8 +385,8 @@ public class Library implements Map<String, Movie> {
                             syncindexes.put("Genres", indexByGenres(indexMovies));
                         } else if (indexStr.equals("Title")) {
                             syncindexes.put("Title", indexByTitle(indexMovies));
-                        } else if (indexStr.equals("Rating")) {
-                            syncindexes.put("Rating", indexByCertification(indexMovies));
+                        } else if (indexStr.equals("Certification")) {
+                            syncindexes.put("Certification", indexByCertification(indexMovies));
                         } else if (indexStr.equals("Year")) {
                             syncindexes.put("Year", indexByYear(indexMovies));
                         } else if (indexStr.equals("Library")) {
@@ -684,8 +686,8 @@ public class Library implements Map<String, Movie> {
 
         for (Movie movie : moviesList) {
             if (!movie.isExtra()) {
-                index.addMovie(getIndexingRating(movie.getCertification()), movie);
-                movie.addIndex("Certification", getIndexingRating(movie.getCertification()));
+                index.addMovie(getIndexingCertification(movie.getCertification()), movie);
+                movie.addIndex("Certification", getIndexingCertification(movie.getCertification()));
             }
         }
         return index;
@@ -730,6 +732,13 @@ public class Library implements Map<String, Movie> {
                     if (categoriesMap.get("Top250") != null) {
                         index.addMovie(categoriesMap.get("Top250"), movie);
                         movie.addIndex("Top250", categoriesMap.get("Top250"));
+                    }
+                }
+                
+                if (movie.getRating() > 0) {
+                    if (categoriesMap.get("Rating") != null) {
+                        index.addMovie(categoriesMap.get("Rating"), movie);
+                        movie.addIndex("Rating", categoriesMap.get("Rating"));
                     }
                 }
                 
@@ -963,24 +972,24 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) rating for the specified one.
+     * Checks if there is a master (will be shown in the index) Certification for the specified one.
      * 
-     * @param rating
-     *            rating to find the master for
-     * @return Rating itself or master if available.
+     * @param certification
+     *            Certification to find the master for
+     * @return Certification itself or master if available.
      */
-    public static String getIndexingRating(String rating) {
-        if (!filterRatings) {
-            return rating;
+    public static String getIndexingCertification(String certification) {
+        if (!filterCertificationn) {
+            return certification;
         }
 
-        String masterRating = ratingsMap.get(rating);
-        if (masterRating != null) {
-            return masterRating;
-        } else if (StringTools.isValidString(defaultRating)) {
-            return defaultRating;
+        String masterCertification = certificationsMap.get(certification);
+        if (StringUtils.isNotBlank(masterCertification)) {
+            return masterCertification;
+        } else if (StringTools.isValidString(defaultCertification)) {
+            return defaultCertification;
         } else {
-            return rating;
+            return certification;
         }
     }
 
@@ -1114,37 +1123,34 @@ public class Library implements Map<String, Movie> {
     }
 
     @SuppressWarnings("unchecked")
-    private static void fillRatingMap(String xmlRatingFilename) {
-        File xmlRatingFile = new File(xmlRatingFilename);
-        if (xmlRatingFile.exists() && xmlRatingFile.isFile() && xmlRatingFilename.toUpperCase().endsWith("XML")) {
-
+    private static void fillCertificationMap(String xmlCertificationFilename) {
+        File xmlCertificationFile = new File(xmlCertificationFilename);
+        if (xmlCertificationFile.exists() && xmlCertificationFile.isFile() && xmlCertificationFilename.toUpperCase().endsWith("XML")) {
             try {
-                XMLConfiguration c = new XMLConfiguration(xmlRatingFile);
+                XMLConfiguration conf = new XMLConfiguration(xmlCertificationFile);
 
-                List<HierarchicalConfiguration> ratings = c.configurationsAt("rating");
-                for (HierarchicalConfiguration rating : ratings) {
-                    String masterRating = rating.getString("[@name]");
-                    // logger.debug("New masterGenre parsed : (" + masterGenre+ ")");
-                    List<String> subratings = rating.getList("subrating");
-                    for (String subrating : subratings) {
-                        // logger.info("New rating added to map : (" + subrating + "," + masterRating + ")");
-                        ratingsMap.put(subrating, masterRating);
+                List<HierarchicalConfiguration> certifications = conf.configurationsAt("certification");
+                for (HierarchicalConfiguration certification : certifications) {
+                    String masterCertification = certification.getString("[@name]");
+                    List<String> subcertifications = certification.getList("subcertification");
+                    for (String subcertification : subcertifications) {
+                        certificationsMap.put(subcertification, masterCertification);
                     }
 
                 }
-                if (c.containsKey("default")) {
-                    defaultRating = c.getString("default");
-                    logger.info("Found default rating: " + defaultRating);
+                if (conf.containsKey("default")) {
+                    defaultCertification = conf.getString("default");
+                    logger.info("Found default certification: " + defaultCertification);
                 }
             } catch (Exception error) {
-                logger.error("Failed parsing moviejukebox ratings input file: " + xmlRatingFile.getName());
+                logger.error("Failed parsing moviejukebox certification input file: " + xmlCertificationFile.getName());
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
                 logger.error(eResult.toString());
             }
         } else {
-            logger.error("The moviejukebox rating input file you specified is invalid: " + xmlRatingFile.getName());
+            logger.error("The moviejukebox certification input file you specified is invalid: " + xmlCertificationFile.getName());
         }
     }
 
@@ -1200,6 +1206,7 @@ public class Library implements Map<String, Movie> {
 
     static LastModifiedComparator cmpLast = new LastModifiedComparator();
     static Top250Comparator cmp250 = new Top250Comparator();
+    static RatingComparator cmpRating = new RatingComparator();
 
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
@@ -1213,6 +1220,8 @@ public class Library implements Map<String, Movie> {
                 cmpMovie = cmpLast;
             } else if (key.equals(categoriesMap.get("Top250"))) {
                 cmpMovie = cmp250;
+            } else if (key.equals(categoriesMap.get("Rating"))) {
+                cmpMovie = cmpRating;
             }
         }
 
@@ -1253,7 +1262,7 @@ public class Library implements Map<String, Movie> {
     }
 
     public static Collection<String> getPrefixes() {
-        return Arrays.asList(new String[] { "OTHER", "RATING", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES", "AWARD", "PERSON" });
+        return Arrays.asList(new String[] { "OTHER", "CERTIFICATION", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES", "AWARD", "PERSON" });
     }
 
     /**

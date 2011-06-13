@@ -70,4 +70,8 @@
     <enable>true</enable>
     <rename>Unwatched</rename>
   </category>
+  <category name="Rating">
+    <enable>true</enable>
+    <rename>Rating</rename>
+  </category>
 </categories>
