@@ -235,6 +235,21 @@ public class GraphicTools {
         bi.createGraphics().drawImage(temp1, 0, y, null);
         return bi;
     }
+    
+    public static BufferedImage scaleToSizeStretch(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
+        /* determine thumbnail size from WIDTH and HEIGHT */
+
+        int tempWidth;
+        int tempHeight;
+
+        tempWidth = nMaxWidth;
+        tempHeight = nMaxHeight;
+
+        Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
+        BufferedImage bi = new BufferedImage(nMaxWidth, nMaxHeight, BufferedImage.TYPE_INT_ARGB);
+        bi.createGraphics().drawImage(temp1, 0, 0, null);
+        return bi;
+    }
 
     public static BufferedImage scaleToSizeBestFit(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
         /* determine thumbnail size from WIDTH and HEIGHT */
