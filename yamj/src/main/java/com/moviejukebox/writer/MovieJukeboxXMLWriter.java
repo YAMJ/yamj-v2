@@ -1631,6 +1631,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
         writer.writeStartElement("certification");
         writer.writeCharacters(Library.getIndexingRating(movie.getCertification()));
+//        writer.writeCharacters(Library.getIndexingCertification(movie.getCertification()));
         writer.writeEndElement();
         writer.writeStartElement("season");
         writer.writeCharacters(Integer.toString(movie.getSeason()));
@@ -1806,6 +1807,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("files");
         for (MovieFile mf : movie.getFiles()) {
             writer.writeStartElement("file");
+            if (movie.getSeason() > -1) {
+                writer.writeAttribute("season", Integer.toString(movie.getSeason()));
+            }
             writer.writeAttribute("firstPart", Integer.toString(mf.getFirstPart()));
             writer.writeAttribute("lastPart", Integer.toString(mf.getLastPart()));
             writer.writeAttribute("title", mf.getTitle());
