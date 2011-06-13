@@ -1,15 +1,15 @@
 <!--                                                                                   -->
 <!-- Libraries element contains all your media directories and their paths.            -->
-<!-- Both local and nmt path are specified here.                                       -->
+<!-- Both local and player path are specified here.                                    -->
 <!--                                                                                   -->
 <!-- path element contains local path                                                  -->
-<!-- nmtpath element contains nmtpath                                                  -->
+<!-- playerpath element contains playerpath                                            -->
 <!-- exclude element contains a file exclusion filter for the library                  -->
-<!-- description element contains freeform text describing this library                -->
+<!-- description element contains free form text describing this library               -->
 <!--             this description will show up on the detail page of every movie within-->
 <!--             that library (if supported by the skin). If this is undesired, then   -->
 <!--             leave the description blank.                                          -->
-<!-- prebuf element is for specifying the prebuffer size (in bytes). If this is        -->
+<!-- prebuf      element is for specifying the prebuffer size (in bytes). If this is   -->
 <!--             undesired, then leave the prebuf blank and it will use the            -->
 <!--             default of 16777216 (16MB)                                            -->
 
@@ -17,7 +17,7 @@
     <library>
         <path>/media/HD1/Movies/</path>
         <playerpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Movies/</playerpath>
-        <exclude name="sample,tmp/,temp/,RECYCLE.BIN/"/>
+        <exclude name="sample,tmp/,temp/,RECYCLE.BIN/,/._"/>
         <description></description>
         <prebuf></prebuf>
         <scrapeLibrary>true</scrapeLibrary>
@@ -26,7 +26,7 @@
     <library>
         <path>/media/HD1/TV/</path>
         <playerpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/TV/</playerpath>
-        <exclude name="sample,tmp/,temp/,RECYCLE.BIN/"/>
+        <exclude name="sample,tmp/,temp/,RECYCLE.BIN/,/._"/>
         <description></description>
         <prebuf></prebuf>
         <scrapeLibrary>true</scrapeLibrary>
@@ -35,7 +35,7 @@
     <library>
         <path>/media/HD1/Misc/</path>
         <playerpath>file:///opt/sybhttpd/localhost.drives/USB_DRIVE_A-1/Misc/</playerpath>
-        <exclude name="sample,tmp/,temp/,RECYCLE.BIN/"/>
+        <exclude name="sample,tmp/,temp/,RECYCLE.BIN/,/._"/>
         <description></description>
         <prebuf></prebuf>
         <scrapeLibrary>true</scrapeLibrary>
