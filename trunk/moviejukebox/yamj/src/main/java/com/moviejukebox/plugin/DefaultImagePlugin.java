@@ -52,6 +52,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addReflectionEffect;
     private boolean addPerspective;
     private boolean imageNormalize;
+	//stretch images
+    private boolean imageStretch;
     private boolean addHDLogo;
     private boolean addTVLogo;
     private boolean addSetLogo;
@@ -76,6 +78,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private String imageType;
     private boolean roundCorners;
     private int cornerRadius;
+    // cornerQuality/rcqfactor to improve roundCorner Quality
+    private int cornerQuality;
+    private float rcqfactor;
     private boolean addFrame;
     private int frameSize;
     private static String frameColorHD;
@@ -123,6 +128,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", "false");
         addPerspective      = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
         imageNormalize      = PropertiesUtil.getBooleanProperty(imageType + ".normalize", "false");
+        imageStretch        = PropertiesUtil.getBooleanProperty(imageType + ".stretch", "false");
         addHDLogo           = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", "false");
         addTVLogo           = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", "false");
         addSetLogo          = PropertiesUtil.getBooleanProperty(imageType + ".logoSet", "false"); // Note: This should only be for thumbnails
@@ -141,6 +147,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         textOffset          = PropertiesUtil.getIntProperty(imageType + ".addText.offset", "10");
         roundCorners        = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
         cornerRadius        = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
+        cornerQuality        = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
         
         overlayOffsetX      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
         overlayOffsetY      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
@@ -175,6 +182,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         ratio = (float)imageWidth / (float)imageHeight;
 
+        
+        if (roundCorners) {
+            rcqfactor = (float)cornerQuality / 10 + 1;   
+        } else {
+            rcqfactor = 1;
+        }
+        
         BufferedImage bi = imageGraphic;
 
         if (imageGraphic != null) {
@@ -182,17 +196,35 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             int origHeight = imageGraphic.getHeight();
             boolean skipResize = false;
             if (origWidth < imageWidth && origHeight < imageHeight && !addHDLogo && !addLanguage) {
+            //Perhaps better: if (origWidth == imageWidth && origHeight == imageHeight && !addHDLogo && !addLanguage) {
                 skipResize = true;
             }
 
             if (imageNormalize) {
                 if (skipResize) {
-                    bi = GraphicTools.scaleToSizeNormalized((int)(origHeight * ratio), origHeight, bi);
+                    bi = GraphicTools.scaleToSizeNormalized((int)(origHeight * rcqfactor * ratio), (int)(origHeight * rcqfactor), bi);
                 } else {
-                    bi = GraphicTools.scaleToSizeNormalized(imageWidth, imageHeight, bi);
+                    bi = GraphicTools.scaleToSizeNormalized((int)(imageWidth * rcqfactor), (int)(imageHeight * rcqfactor), bi);
                 }
+            } else if (imageStretch) {
+                    bi = GraphicTools.scaleToSizeStretch((int)(imageWidth * rcqfactor), (int)(imageHeight * rcqfactor), bi);
+                    
             } else if (!skipResize) {
-                bi = GraphicTools.scaleToSize(imageWidth, imageHeight, bi);
+                bi = GraphicTools.scaleToSize((int)(imageWidth * rcqfactor), (int)(imageHeight * rcqfactor), bi);
+            }
+
+            // addFrame before rounding the corners see Issue 1825
+            if (addFrame) {
+                bi = drawFrame(movie, bi);
+            }
+                       
+            // roundCornders after addFrame see Issue 1825
+            if (roundCorners) {
+                if (!addFrame) {
+                    bi = drawRoundCorners(bi);
+                }
+				//roundCorner quality resizing
+                bi = GraphicTools.scaleToSizeStretch((int)imageWidth, (int)imageHeight, bi);
             }
 
             if (imageType.equalsIgnoreCase(BANNER)) {
@@ -203,16 +235,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 if (addTextSeason && movie.isTVShow()) {
                     bi = drawText(bi, "Season " + movie.getSeason(), false);
                 }
-            }
-
-            // addFrame before rounding the corners see Issue 1825
-            if (addFrame) {
-                bi = drawFrame(movie, bi);
-            }
-                       
-            // roundCornders after addFrame see Issue 1825
-            if (roundCorners) {
-                bi = drawRoundCorners(bi);
             }
 
             bi = drawLogos(movie, bi, imageType, true);
@@ -291,13 +313,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             cornerRadius2 = cornerRadius;
         }
 
-        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius2, cornerRadius2);
+        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), rcqfactor * cornerRadius2, rcqfactor * cornerRadius2);
         newGraphics.setClip(rect);
 
         // image fitted into border
-        newGraphics.drawImage(bi, frameSize - 1, frameSize - 1, bi.getWidth() - (frameSize * 2) + 2, bi.getHeight() - (frameSize * 2) + 2, null);
+        newGraphics.drawImage(bi, (int)(rcqfactor * frameSize - 1), (int)(rcqfactor * frameSize - 1), (int)(bi.getWidth() - (rcqfactor * frameSize * 2) + 2), (int)(bi.getHeight() - (rcqfactor * frameSize * 2) + 2), null);
                
-        BasicStroke s4 = new BasicStroke(frameSize * 2);
+        BasicStroke s4 = new BasicStroke(rcqfactor * frameSize * 2);
             
         newGraphics.setStroke(s4);
         newGraphics.draw(rect);
@@ -316,7 +338,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         Graphics2D newGraphics = newImg.createGraphics();
         newGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), cornerRadius, cornerRadius);
+        RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, 0, bi.getWidth(), bi.getHeight(), rcqfactor * cornerRadius, rcqfactor * cornerRadius);
         newGraphics.setClip(rect);
         newGraphics.drawImage(bi, 0, 0, null);
         
