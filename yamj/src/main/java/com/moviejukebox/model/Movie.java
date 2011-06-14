@@ -1431,7 +1431,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             }
 
             // Issue 1908: Replace all non-standard characters in the title sort
-            this.titleSort = StringTools.stringMapReplacement(new String(text.substring(idx)));
+            this.titleSort = getStrippedTitle(StringTools.stringMapReplacement(new String(text.substring(idx))));
             this.isDirty = true;
         }
     }
