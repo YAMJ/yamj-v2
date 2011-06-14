@@ -233,7 +233,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoUpdateTVShowInfo() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Prison.Break");
-        movie.setSeason(4);
+//        movie.setSeason(4);
         MovieFile episode = new MovieFile();
         episode.setPart(1);
         movie.addMovieFile(episode);

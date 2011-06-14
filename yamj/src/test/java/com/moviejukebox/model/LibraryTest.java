@@ -82,7 +82,6 @@ public class LibraryTest extends TestCase {
     private static Movie tv(String title, int season) {
         Movie m = new Movie();
         m.setTitle(title);
-        m.setSeason(season);
         MovieFile mf = new MovieFile();
         m.addMovieFile(mf);
         return m;

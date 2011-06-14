@@ -490,11 +490,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private boolean scanTVShows(Movie movie, AnidbAnime anime, String episodeNumber) {
         final boolean isSpecial = !Character.isDigit(episodeNumber.charAt(0));
         int epNo = isSpecial ? Integer.parseInt(episodeNumber.substring(1)) : Integer.parseInt(episodeNumber);
+        int season = 1;
         
         if (isSpecial) {
-            movie.setSeason(0);
-        } else {
-            movie.setSeason(1);
+            season = 0;
         }
 
         synchronized(mainSeriesMovieObjects) {
@@ -504,6 +503,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 if (movie.getMovieFiles().size() > 1) {
                     logger.error(LOG_MESSAGE + "Discarding a movie object with more than one movie file. This will most likely cause files to be missing from the jukebox");
                 }
+                mf.setSeason(season);
                 mf.setFirstPart(epNo);
                 mf.setLastPart(epNo);
                 main.getMovieFiles().add(mf);
