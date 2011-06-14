@@ -80,11 +80,13 @@ public class LibraryTest extends TestCase {
     }
 
     private static Movie tv(String title, int season) {
-        Movie m = new Movie();
-        m.setTitle(title);
+        Movie movie = new Movie();
+        movie.setTitle(title);
         MovieFile mf = new MovieFile();
-        m.addMovieFile(mf);
-        return m;
+        mf.setSeason(season);
+        mf.setFirstPart(1);
+        movie.addMovieFile(mf);
+        return movie;
     }
 
     private static Movie movie(String title) {

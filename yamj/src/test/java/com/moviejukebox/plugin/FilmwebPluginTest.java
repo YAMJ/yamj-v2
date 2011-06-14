@@ -233,11 +233,12 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoUpdateTVShowInfo() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Prison.Break");
-//        movie.setSeason(4);
         MovieFile episode = new MovieFile();
+        episode.setSeason(4);
         episode.setPart(1);
         movie.addMovieFile(episode);
         episode = new MovieFile();
+        episode.setSeason(4);
         episode.setPart(2);
         movie.addMovieFile(episode);
         filmwebPlugin.setRequestResult("<h3>sezon 4</h3>\n   \t\t\t\t\t\t\t\t<a href=\"#\" class=\"seasonWatched common-button-third\" style=\"display:none\">\n\n   \t\t\t\t\t\t\t\t\t<span class=\"lBtbL\"></span>\n                                       <span class=\"lBtbR\"></span>\n                                       <span>Oglądałem</span>\n   \t\t\t\t\t\t\t\t</a>\n               \t\t\t\t</th>\n       \t\t\t\t\t</tr>\n               \t\t\t               \t\t\t\t   \t<tr>\n   \t\t<td>\n\n   \t\t\t   \t\t\t\todcinek&nbsp;1\n   \t\t\t   \t\t\t   \t\t</td>\n   \t\t<td>\n   \t\t\t   \t\t\t   \t\t\t\t   \t\t\t\t\t   \t\t\t\t\t   \t\t\t\t\t<div>\t\t\t\t\t\t\t\t\t\t1 września\t\t\t\t\t\t\t2008\n\t<br><span class=\"countryName\">(USA)</span></div>\n   \t\t\t\t   \t\t\t   \t\t</td>\n   \t\t<td>\n   \t\t\t   \t\t\t\tScylla\n   \t\t\t   \t\t</td>\n\n   \t\t   \t\t   \t\t   \t</tr>\n               \t\t\t               \t\t\t\t   \t<tr>\n   \t\t<td>\n   \t\t\t   \t\t\t\todcinek&nbsp;2\n   \t\t\t   \t\t\t   \t\t</td>\n   \t\t<td>\n   \t\t\t   \t\t\t   \t\t\t\t   \t\t\t\t\t   \t\t\t\t\t   \t\t\t\t\t<div>\t\t\t\t\t\t\t\t\t\t1 września\t\t\t\t\t\t\t2008\n\t<br><span class=\"countryName\">(USA)</span></div>\n\n   \t\t\t\t   \t\t\t   \t\t</td>\n   \t\t<td>\n   \t\t\t   \t\t\t\tBreaking and Entering\n   \t\t\t   \t\t</td>\n   \t\t   \t\t   \t\t   \t</tr>");
