@@ -316,9 +316,6 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<certification>")) {
                     movie.setCertification(parseCData(r));
                 }
-                if (tag.equalsIgnoreCase("<season>")) {
-                    movie.setSeason(Integer.parseInt(parseCData(r)));
-                }
                 if (tag.equalsIgnoreCase("<language>")) {
                     movie.setLanguage(parseCData(r));
                 }
@@ -513,6 +510,10 @@ public class MovieJukeboxXMLWriter {
                             mf.setTitle(attr.getValue());
                             continue;
                         }
+                        
+                        if (ns.equalsIgnoreCase("season")) {
+                            mf.setSeason(Integer.parseInt(attr.getValue()));
+                        }
 
                         if (ns.equalsIgnoreCase("firstPart")) {
                             mf.setFirstPart(Integer.parseInt(attr.getValue()));
@@ -533,6 +534,13 @@ public class MovieJukeboxXMLWriter {
                             mf.setWatched(Boolean.parseBoolean(attr.getValue()));
                             continue;
                         }
+                    }
+                    
+                    // Check to see if we got the season from the file, if not populate it from the movie.
+                    // FIXME: This can be removed once all XML files have been overwritten 
+                    if (movie.isTVShow() && mf.getSeason() == -1) {
+                        mf.setSeason(movie.getSeason());
+                        mf.setNewFile(true);    // Mark the moviefile as new to force it to be written out
                     }
 
                     while (!r.peek().toString().equalsIgnoreCase("</file>")) {
@@ -1806,9 +1814,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("files");
         for (MovieFile mf : movie.getFiles()) {
             writer.writeStartElement("file");
-            if (movie.getSeason() > -1) {
-                writer.writeAttribute("season", Integer.toString(movie.getSeason()));
-            }
+            writer.writeAttribute("season", Integer.toString(mf.getSeason()));
             writer.writeAttribute("firstPart", Integer.toString(mf.getFirstPart()));
             writer.writeAttribute("lastPart", Integer.toString(mf.getLastPart()));
             writer.writeAttribute("title", mf.getTitle());

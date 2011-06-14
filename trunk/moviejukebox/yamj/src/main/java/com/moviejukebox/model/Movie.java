@@ -111,7 +111,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String runtime = UNKNOWN;
     private String language = UNKNOWN;
     private String videoType = UNKNOWN;
-    private int season = -1;
     private String subtitles = UNKNOWN;
     private Set<String> directors = new LinkedHashSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
@@ -482,19 +481,21 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public String getStrippedTitleSort() {
-        String text = getStrippedTitle(titleSort);
+        StringBuilder text = new StringBuilder(getStrippedTitle(titleSort));
+        int season = getSeason();
 
         // Added season to handle properly sorting the season numbers
         if (season >= 0) {
             if (season < 10) {
-                text += " 0" + season;
+                text.append(" 0");
             } else {
-                text += " " + season;
+                text.append(" ");
             }
+            text.append(season);
         }
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
-
-        return text + " (" + this.getYear() + ") " + season;
+        text.append(" (").append(this.getYear()).append(") ");
+        return text.toString();
     }
 
     /**
@@ -754,7 +755,9 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      * @see com.moviejukebox.model.IMovieBasicInformation#getSeason()
      */
     public int getSeason() {
-        return season;
+        // Return the first season as the whole season
+        // This could be changed later to allow multi season movie objects
+        return getFirstFile().getSeason();
     }
 
     /*
@@ -871,8 +874,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      */
     @XmlAttribute(name = "isTV")
     public boolean isTVShow() {
-        // return (season != -1);
-        return (this.movieType.equals(TYPE_TVSHOW) || this.season != -1);
+        return (this.movieType.equals(TYPE_TVSHOW) || getSeason() != -1);
     }
 
     @XmlTransient
@@ -1390,16 +1392,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void setSeason(int season) {
-        if (season != this.season) {
-            if (season >= 0) {
-                this.setMovieType(Movie.TYPE_TVSHOW);
-            }
-            this.isDirty = true;
-            this.season = season;
-        }
-    }
-
     public void setSubtitles(String subtitles) {
         if (subtitles == null) {
             subtitles = UNKNOWN;
@@ -1571,7 +1563,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         sb.append("[country=").append(country).append("]");
         sb.append("[company=").append(company).append("]");
         sb.append("[runtime=").append(runtime).append("]");
-        sb.append("[season=").append(season).append("]");
+        sb.append("[season=").append(getSeason()).append("]");
         sb.append("[language=").append(language).append("]");
         sb.append("[subtitles=").append(subtitles).append("]");
         sb.append("[container=").append(container).append("]"); // AVI, MKV, TS, etc.
@@ -1810,9 +1802,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         setVideoSource(dto.getVideoSource());
         setContainer(dto.getContainer());
         setFps(dto.getFps() > 0 ? dto.getFps() : 60);
-        setSeason(dto.getSeason());
         setMovieIds(dto.getMovieIds());
 
+        if (dto.getSeason() > -1) {
+            // Mark the movie as a TV Show
+            setMovieType(Movie.TYPE_TVSHOW);
+        }
+        
+        
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }

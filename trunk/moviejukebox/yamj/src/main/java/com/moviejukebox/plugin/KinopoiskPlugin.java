@@ -1113,6 +1113,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             name = name.replace("(" + year + ")", "").replaceAll("\\s+$", "");
                             title = title.replace("(" + year + ")", "").replaceAll("\\s+$", "");
                             year = year.substring(0, 4);
+                            @SuppressWarnings("unused")
                             boolean found = false;
                             for (Filmography f : filmography.values()) {
                                 String Name = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X");

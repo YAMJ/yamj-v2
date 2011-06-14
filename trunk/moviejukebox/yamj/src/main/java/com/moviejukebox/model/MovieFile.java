@@ -45,10 +45,11 @@ public class MovieFile implements Comparable<MovieFile> {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String filename = Movie.UNKNOWN;
-    private int firstPart = 1; // #1, #2, CD1, CD2, etc.
+    private int season = -1;    // The season associated with the movie file
+    private int firstPart = 1;  // #1, #2, CD1, CD2, etc.
     private int lastPart = 1;
-    private boolean newFile = true; // is new file or already exists in XML data
-    private boolean subtitlesExchange = false; // Are the subtitles for this file already downloaded/uploaded to the server
+    private boolean newFile = true;             // is new file or already exists in XML data
+    private boolean subtitlesExchange = false;  // Are the subtitles for this file already downloaded/uploaded to the server
     private Map<String, String> playLink = null;
     private LinkedHashMap<Integer, String> titles = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
@@ -289,6 +290,9 @@ public class MovieFile implements Comparable<MovieFile> {
         if (dto.isExtra()) {
             setTitle(dto.getPartTitle());
         } else if (dto.getSeason() >= 0) {
+            // Set the season for the movie file
+            setSeason(dto.getSeason());
+            
             // Set the episode title for each of the episodes in the file
             for (int episodeNumber : dto.getEpisodes()) {
                 setTitle(episodeNumber, dto.getEpisodeTitle());
@@ -523,6 +527,16 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public long getWatchedDate() {
         return this.watchedDate;
+    }
+
+    
+    public int getSeason() {
+        return season;
+    }
+    
+
+    public void setSeason(int season) {
+        this.season = season;
     }
 
 }

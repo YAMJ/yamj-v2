@@ -191,15 +191,16 @@ public class Library implements Map<String, Movie> {
 
     public static String getMovieKey(IMovieBasicInformation movie) {
         // Issue 190
-        String key = movie.getTitle() + " (" + movie.getYear() + ")";
+        StringBuilder key = new StringBuilder(movie.getTitle());
+        key.append(" (").append(movie.getYear()).append(")");
 
         if (movie.isTVShow()) {
             // Issue 190
-            key += " Season " + paddedFormat.format(movie.getSeason());
+            key.append(" Season ");
+            key.append(paddedFormat.format(movie.getSeason()));
         }
 
-        key = key.toLowerCase();
-        return key;
+        return key.toString().toLowerCase();
     }
 
     // synchronized because scanning can be multi-threaded
@@ -281,7 +282,6 @@ public class Library implements Map<String, Movie> {
                 indexMaster.setSetMaster(true);
                 indexMaster.setSetSize(index_list.size());
                 indexMaster.setTitle(index_name);
-                indexMaster.setSeason(-1);
                 indexMaster.setTitleSort(index_name);
                 indexMaster.setOriginalTitle(index_name);
                 indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(index_name)) + "1");
