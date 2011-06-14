@@ -481,7 +481,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public String getStrippedTitleSort() {
-        StringBuilder text = new StringBuilder(getStrippedTitle(titleSort));
+        StringBuilder text = new StringBuilder(getStrippedTitle(getTitleSort()));
         int season = getSeason();
 
         // Added season to handle properly sorting the season numbers
