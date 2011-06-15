@@ -189,10 +189,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (overwriteCheck(moviedb.getRating(), String.valueOf(movie.getRating()))) {
             try {
                 float rating = Float.valueOf(moviedb.getRating()) * 10; // Convert rating to integer
-                movie.setRating((int) rating);
+                movie.addRating(TMDB_PLUGIN_ID, (int) rating);
             } catch (Exception error) {
                 logger.debug("TheMovieDbPlugin: Error converting rating for " + movie.getBaseName());
-                movie.setRating(-1);
             }
         }
 

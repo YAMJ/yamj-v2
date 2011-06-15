@@ -72,6 +72,7 @@ public class MovieNFOScanner {
     private static String nfoExtRegex;
     private static String[] NFOExtensions;
     private static Pattern partPattern;
+    private static String NFO_PLUGIN_ID = "NFO";
     
     private static boolean archiveScanRar;
 
@@ -445,7 +446,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
                             if (val != 0.0f) {
-                                movie.setRating(Math.round(val * 10f));
+                                movie.addRating(NFO_PLUGIN_ID, Math.round(val * 10f));
                             }
                         } else if (tag.equalsIgnoreCase("year")) {
                             String val = XMLHelper.getCData(r);
@@ -1019,7 +1020,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
                             if (val != 0.0f) {
-                                movie.setRating(Math.round(val * 10f));
+                                movie.addRating(NFO_PLUGIN_ID, Math.round(val * 10f));
                             }
                         } else if (tag.equalsIgnoreCase("mpaa") && getCertificationFromMPAA) {
                             String val = XMLHelper.getCData(r);

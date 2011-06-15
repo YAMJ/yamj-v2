@@ -331,7 +331,7 @@ public class MediaInfoScanner {
                 try {
                     float r = Float.parseFloat(infoValue);
                     r = r * 20.0f;
-                    movie.setRating(Math.round(r));
+                    movie.addRating("MI", Math.round(r));
                 } catch (Exception ignore) {
                 }
             }

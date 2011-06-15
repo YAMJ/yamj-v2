@@ -568,7 +568,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     rating = new String(rating.substring(rating.indexOf(" ") + 1, rating.indexOf("/")));
                     int ratingInt = (int) (Float.parseFloat(rating.replace(',','.')) * 20); // Rating is 0 to 5, we normalize to 100
                     if (ratingInt > 0) {
-                        movie.setRating(ratingInt);
+                        movie.addRating(COMINGSOON_PLUGIN_ID, ratingInt);
                     }
                 }
             }
@@ -810,7 +810,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         backup.setOriginalTitle(originalMovie.getOriginalTitle());
         backup.setPlot(originalMovie.getPlot());
         backup.setOutline(originalMovie.getOutline());
-        backup.setRating(originalMovie.getRating());
+        backup.setRatings(originalMovie.getRatings());
         backup.setRuntime(originalMovie.getRuntime());
         backup.setCountry(originalMovie.getCountry());
         backup.setYear(originalMovie.getYear());
@@ -856,7 +856,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         if ((what & COMINGSOON_RESTORE_RATING) > 0 && (override || targetMovie.getRating() < 0)) {
             if (!protect || sourceMovie.getRating() >= 0) {
                 logger.debug("ComingSoon: restoring rating");
-                targetMovie.setRating(sourceMovie.getRating());
+                targetMovie.addRating(COMINGSOON_PLUGIN_ID, sourceMovie.getRating());
             }
         }
         if ((what & COMINGSOON_RESTORE_RUNTIME) > 0 && (override || StringTools.isNotValidString(targetMovie.getRuntime()))) {

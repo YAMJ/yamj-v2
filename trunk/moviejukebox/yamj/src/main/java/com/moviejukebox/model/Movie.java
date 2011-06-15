@@ -101,7 +101,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String originalTitle = UNKNOWN;
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
-    private int rating = -1;
+    private HashMap<String, Integer> ratings = new HashMap<String, Integer>();
     private String plot = UNKNOWN;
     private String outline = UNKNOWN;
     private String quote = UNKNOWN;
@@ -183,6 +183,8 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");
     private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");
 
+    private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
+    
     // True if movie actually is only a entry point to movies set.
     private boolean isSetMaster = false;
 
@@ -721,10 +723,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return previous;
     }
 
-    public int getRating() {
-        return rating;
-    }
-
     public String getReleaseDate() {
         return releaseDate;
     }
@@ -1248,10 +1246,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      * @see com.moviejukebox.model.Identifiable#setId(java.lang.String, java.lang.String)
      */
     public void setId(String key, String id) {
-        if (key != null && id != null && !id.equalsIgnoreCase(this.getId(key))) {
+        if (StringTools.isValidString(key) && StringTools.isValidString(id) && !id.equalsIgnoreCase(this.getId(key))) {
             this.isDirty = true;
             this.idMap.put(key, id);
         }
+    }
+    
+    public void setId(String key, int id) {
+        setId(key, Integer.toString(id));
     }
 
     public void setLanguage(String language) {
@@ -1348,10 +1350,65 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
-    public void setRating(int rating) {
-        if (rating != this.rating) {
-            this.isDirty = true;
-            this.rating = rating;
+    public int getRating() {
+        if (ratings == null || ratings.isEmpty()) {
+            return -1;
+        }
+        
+        for (String site : ratingSource) {
+            if ("average".equalsIgnoreCase(site)) {
+                // Return the average of the ratings
+                int rating = 0;
+                int count = 0;
+                
+                for (String ratingSite : ratings.keySet()) {
+                    rating += ratings.get(ratingSite);
+                    count++;
+                }
+                
+                return (rating/count);
+            }
+            
+            if (ratings.containsKey(site)) {
+                return ratings.get(site);
+            }
+        }
+        
+        // No ratings found, so return -1
+        return -1;
+    }
+    
+    public int getRating(String site) {
+        if (ratings.containsKey(site)) {
+            return ratings.get(site);
+        } else {
+            return -1;
+        }
+    }
+    
+    @XmlElementWrapper(name = "ratings")
+    @XmlElement(name = "rating")
+    public HashMap<String, Integer> getRatings() {
+        return ratings;
+    }
+
+    public void addRating(String site, int rating) {
+        if (StringTools.isValidString(site)) {
+            if (ratings.containsKey(site)) {
+                if (ratings.get(site) != rating) {
+                    ratings.remove(site);
+                    ratings.put(site, rating);
+                    this.isDirty = true;
+                }
+            } else {
+                ratings.put(site, rating);
+            }
+        }
+    }
+    
+    public void setRatings(HashMap<String, Integer> ratings) {
+        if (ratings != null && !ratings.isEmpty()) {
+            this.ratings = ratings;
         }
     }
 
@@ -1552,7 +1609,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         sb.append("[titleSort=").append(titleSort).append("]");
         sb.append("[year=").append(year).append("]");
         sb.append("[releaseDate=").append(releaseDate).append("]");
-        sb.append("[rating=").append(rating).append("]");
+        sb.append("[ratings=").append(ratings).append("]");
         sb.append("[top250=").append(top250).append("]");
         sb.append("[posterURL=").append(posterURL).append("]");
         sb.append("[bannerURL=").append(bannerURL).append("]");

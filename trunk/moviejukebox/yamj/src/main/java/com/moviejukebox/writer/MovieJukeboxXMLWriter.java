@@ -227,7 +227,23 @@ public class MovieJukeboxXMLWriter {
                     movie.setReleaseDate(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<rating>")) {
-                    movie.setRating(Integer.parseInt(parseCData(r)));
+                    // We don't care about the main rating as this is derived
+                    //movie.setRating(Integer.parseInt(parseCData(r)));
+                }
+                if (tag.toLowerCase().startsWith("<rating ")) {
+                    String moviedb = "";
+
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("moviedb")) {
+                            moviedb = attr.getValue();
+                            continue;
+                        }
+                    }
+                    movie.addRating(moviedb, Integer.parseInt(parseCData(r)));
                 }
                 if (tag.equalsIgnoreCase("<top250>")) {
                     movie.setTop250(Integer.parseInt(parseCData(r)));
@@ -1549,9 +1565,22 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("releaseDate");
         writer.writeCharacters(movie.getReleaseDate());
         writer.writeEndElement();
+        
+        // This is the main rating
         writer.writeStartElement("rating");
         writer.writeCharacters(Integer.toString(movie.getRating()));
         writer.writeEndElement();
+        
+        // This is the list of ratings
+        writer.writeStartElement("ratings");
+        for (String site : movie.getRatings().keySet()) {
+            writer.writeStartElement("rating");
+            writer.writeAttribute("moviedb", site);
+            writer.writeCharacters(Integer.toString(movie.getRating(site)));
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
+        
         writer.writeStartElement("watched");
         writer.writeCharacters(Boolean.toString(movie.isWatched()));
         writer.writeEndElement();

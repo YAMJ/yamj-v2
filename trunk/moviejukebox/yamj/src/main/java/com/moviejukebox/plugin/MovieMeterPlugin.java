@@ -108,7 +108,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
             if (mediaFile.getRating() == -1) {
                 if (filmInfo.get("average") != null) {
-                    mediaFile.setRating(Math.round(Float.parseFloat(filmInfo.get("average").toString()) * 20));
+                    mediaFile.addRating(MOVIEMETER_PLUGIN_ID, Math.round(Float.parseFloat(filmInfo.get("average").toString()) * 20));
                 }
                 logger.debug("MovieMeterPlugin: Fetched rating: " + mediaFile.getRating());
             }

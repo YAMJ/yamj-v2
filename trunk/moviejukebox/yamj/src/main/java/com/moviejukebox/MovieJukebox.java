@@ -78,6 +78,7 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
 import com.moviejukebox.plugin.OpenSubtitlesPlugin;
+import com.moviejukebox.plugin.RottenTomatoesPlugin;
 import com.moviejukebox.plugin.trailer.AppleTrailersPlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
@@ -148,6 +149,7 @@ public class MovieJukebox {
     private static boolean bannerDownload;
     private static boolean photoDownload;
     private static boolean extraArtworkDownload;    // TODO: Rename this property and split it into clearlogo/clearart/tvthumb/seasonthumb
+    private static boolean enableRottenTomatoes;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
     private boolean recheckXML;
@@ -749,6 +751,7 @@ public class MovieJukebox {
             public AppleTrailersPlugin trailerPlugin = new AppleTrailersPlugin();
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
             public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
+            public RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -769,6 +772,7 @@ public class MovieJukebox {
         videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
         bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
         extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
+        enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", "false");
         photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", "false");
 
         boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
@@ -978,6 +982,11 @@ public class MovieJukebox {
                             // Get ClearART/LOGOS/etc
                             if (movie.isTVShow() && extraArtworkDownload) {
                                 tools.fanartTvPlugin.scan(movie);
+                            }
+                            
+                            // RottenTomatoes Ratings
+                            if (!movie.isTVShow() && enableRottenTomatoes) {
+                                tools.rtPlugin.scan(movie);
                             }
                             
                             // Get Trailers

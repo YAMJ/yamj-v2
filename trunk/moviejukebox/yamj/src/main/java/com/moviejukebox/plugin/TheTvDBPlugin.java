@@ -206,7 +206,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
-                        movie.setRating((int)(Float.parseFloat(series.getRating()) * 10));
+                        movie.addRating(THETVDB_PLUGIN_ID, (int)(Float.parseFloat(series.getRating()) * 10));
                     }
 
                     if (movie.getRuntime().equals(Movie.UNKNOWN)) {
