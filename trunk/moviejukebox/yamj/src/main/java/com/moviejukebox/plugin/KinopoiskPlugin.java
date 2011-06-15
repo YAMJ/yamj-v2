@@ -477,7 +477,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 int imdbRating = movie.getRating();
                 if (imdbRating == -1) {
                     // Get IMDB rating from kinopoisk page
-                    String rating = HTMLTools.extractTag(xml, ">IMDB:", 0, "<(");
+                    String rating = HTMLTools.extractTag(xml, ">IMDb:", 0, "<(");
                     if (!rating.equals(Movie.UNKNOWN)) {
                         try {
                             imdbRating = (int)(Float.parseFloat(rating) * 10);
@@ -1100,7 +1100,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
 
-                    if (filmography.size() > 0 && (preferredRating.equals("combine") || preferredRating.equals("avarage"))) {
+                    if (filmography.size() > 0 && (preferredRating.equals("combine") || preferredRating.equals("average"))) {
                         for (Filmography film : person.getFilmography()) {
                             String name = film.getName().replace("ё", "е").replace("Ё", "Е");
                             String title = film.getTitle().replace("ё", "е").replace("Ё", "Е");
