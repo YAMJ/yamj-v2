@@ -130,7 +130,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request(baseUrl + opinionsPageID);
             float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
-            movie.setRating((int)rating);
+            movie.addRating(FILMUPIT_PLUGIN_ID, (int)rating);
         } catch (IOException error) {
             logger.error("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
             final Writer eResult = new StringWriter();

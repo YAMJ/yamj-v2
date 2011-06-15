@@ -55,7 +55,7 @@ public class AllocinePlugin extends ImdbPlugin {
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<h1>", "</h1>"));
             }
-            movie.setRating(parseRating(HTMLTools.extractTag(xml, "<p class=\"withstars\">", "</p>")));
+            movie.addRating(ALLOCINE_PLUGIN_ID, parseRating(HTMLTools.extractTag(xml, "<p class=\"withstars\">", "</p>")));
             // logger.debug("AllocinePlugin: TV Show rating = " + movie.getRating());
             String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Synopsis :", "</p>"));
             // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
@@ -227,7 +227,7 @@ public class AllocinePlugin extends ImdbPlugin {
             if (movie.getRating() == -1) {
                 int rating = movieInfos.getRating();
                 if (rating >= 0) {
-                    movie.setRating(rating);
+                    movie.addRating(ALLOCINE_PLUGIN_ID, rating);
                 }
             }
 

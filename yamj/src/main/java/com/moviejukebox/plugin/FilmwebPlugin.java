@@ -201,7 +201,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.getTextAfterElem(xml, "average")));
+                movie.addRating(FILMWEB_PLUGIN_ID, parseRating(HTMLTools.getTextAfterElem(xml, "average")));
             }
 
             if (movie.getTop250() == -1) {

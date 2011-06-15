@@ -470,7 +470,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             }
 
             if (anime.getRating() > 0) {
-                movie.setRating((int)(anime.getRating() / 10));
+                movie.addRating(ANIDB_PLUGIN_ID, (int)(anime.getRating() / 10));
             }
             
             movie.setPlot(anime.getDescription());

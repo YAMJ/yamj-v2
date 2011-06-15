@@ -139,9 +139,9 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
             
             try {
-                movie.setRating((int)(Float.parseFloat(HTMLTools.extractTag(xml,"<td align=\"center\" style=\"color:#990000; font-size:22px; font-weight: bold;\">","</td>").replace(",", ".")) * 10));
+                movie.addRating(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, (int)(Float.parseFloat(HTMLTools.extractTag(xml,"<td align=\"center\" style=\"color:#990000; font-size:22px; font-weight: bold;\">","</td>").replace(",", ".")) * 10));
             } catch (Exception e) {
-                movie.setRating(0);
+                // Don't set a rating
             }                        
             
             movie.setPlot(HTMLTools.getTextAfterElem(xml, FA_PLOT));

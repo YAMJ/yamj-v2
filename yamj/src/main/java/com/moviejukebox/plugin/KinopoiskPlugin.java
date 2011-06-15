@@ -66,6 +66,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
     // Define plot length
     int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+    @Deprecated
     String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
     protected TheTvDBPlugin tvdb;
 
@@ -468,36 +469,26 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/" + kinopoiskId + "/\"", "</a>", "", "<")) {
                     try {
                         kinopoiskRating = (int)(Float.parseFloat(rating) * 10);
+                        movie.addRating(KINOPOISK_PLUGIN_ID, kinopoiskRating);
                     } catch (Exception ignore) {
                         // Ignore
                     }
                     break;
                 }
 
-                int imdbRating = movie.getRating();
+                int imdbRating = movie.getRating(IMDB_PLUGIN_ID);
                 if (imdbRating == -1) {
                     // Get IMDB rating from kinopoisk page
                     String rating = HTMLTools.extractTag(xml, ">IMDb:", 0, " (");
                     if (!rating.equals(Movie.UNKNOWN)) {
                         try {
                             imdbRating = (int)(Float.parseFloat(rating) * 10);
+                            movie.addRating(KINOPOISK_PLUGIN_ID, imdbRating);
                         } catch (Exception ignore) {
                             // Ignore
                         }
                     }
                 }
-
-                int r = kinopoiskRating;
-                if (imdbRating != -1) {
-                    if (preferredRating.equals("imdb") || kinopoiskRating == -1) {
-                        r = imdbRating;
-                    } else if (preferredRating.equals("average")) {
-                        r = (kinopoiskRating + imdbRating) / 2;
-                    } else if (preferredRating.equals("combine")) {
-                        r = r * 1000 + imdbRating;
-                    }
-                }
-                movie.setRating(r);
             }
 
             // Top250

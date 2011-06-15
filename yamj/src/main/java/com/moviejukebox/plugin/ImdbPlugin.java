@@ -261,7 +261,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean updateInfoOld(Movie movie, String xml) throws MalformedURLException, IOException {
         if (movie.getRating() == -1) {
             String rating = HTMLTools.extractTag(xml, "<div class=\"starbar-meta\">", "</b>").replace(",", ".");
-            movie.setRating(parseRating(HTMLTools.stripTags(rating)));
+            movie.addRating(IMDB_PLUGIN_ID, parseRating(HTMLTools.stripTags(rating)));
         }
 
         if (movie.getTop250() == -1) {
@@ -552,7 +552,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // RATING
         if (movie.getRating() == -1) {
             String rating = HTMLTools.extractTag(xml, "star-bar-user-rate\">", "</span>").replace(",", ".");
-            movie.setRating(parseRating(HTMLTools.stripTags(rating)));
+            movie.addRating(IMDB_PLUGIN_ID, parseRating(HTMLTools.stripTags(rating)));
         }
 
         // TOP250

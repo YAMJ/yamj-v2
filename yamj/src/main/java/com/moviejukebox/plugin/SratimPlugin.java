@@ -635,7 +635,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             // Prefer IMDB rating
             if (movie.getRating() == -1) {
-                movie.setRating(parseRating(HTMLTools.extractTag(xml, "width=\"120\" height=\"12\" title=\"", 0, " ")));
+                movie.addRating(SRATIM_PLUGIN_ID, parseRating(HTMLTools.extractTag(xml, "width=\"120\" height=\"12\" title=\"", 0, " ")));
             }
 
             movie.addDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:")));

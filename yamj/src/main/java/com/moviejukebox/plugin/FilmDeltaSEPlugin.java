@@ -46,10 +46,9 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     public static String FILMDELTA_PLUGIN_ID = "filmdelta";
     protected TheTvDBPlugin tvdb;
 
-    // Get properties for plotlength and rating
+    // Get properties for plotlength
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     private int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
-    private String preferredRating = PropertiesUtil.getProperty("filmdelta.rating", "filmdelta");
 
     public FilmDeltaSEPlugin() {
         super();
@@ -354,23 +353,9 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             logger.warn("FilmdeltaSE: error finding filmdelta rating for movie " + movie.getTitle());
             return;
         }
-        // set rating depending on property value set by user
-        if (preferredRating.equals("filmdelta")) {
-            // fallback to imdb if no filmdelta rating is available
-            if (newRating != 0) {
-                movie.setRating(newRating);
-            } else {
-                logger.debug("FilmdeltaSE: found no filmdelta rating. Using imdb.");
-            }
-        } else if (preferredRating.equals("average")) {
-            // don't count average rating if filmdelta has no rating
-            if (newRating != 0) {
-                newRating = (newRating + movie.getRating()) / 2;
-                movie.setRating(newRating);
-            } else {
-                logger.debug("FilmdeltaSE: found no filmdelta rating, no average calculation done. Using imdb rating");
-            }
 
+        if (newRating != 0) {
+            movie.addRating(FILMDELTA_PLUGIN_ID, newRating);
         }
     }
 
