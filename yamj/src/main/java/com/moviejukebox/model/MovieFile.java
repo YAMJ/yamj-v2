@@ -60,6 +60,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private LinkedHashMap<Integer, String> airsAfterSeason = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
     private boolean watched = false;
@@ -604,6 +605,27 @@ public class MovieFile implements Comparable<MovieFile> {
     
     public void setAirsBeforeEpisodes(List<PartDataDTO> list) {
         fromPartDataList(airsBeforeEpisode, list);
+    }
+    
+    public String getFirstAired(int part) {
+        String airDate = firstAired.get(part);
+        return StringUtils.isNotBlank(airDate) ? airDate : Movie.UNKNOWN;
+    }
+
+    public void setFirstAired(int part, String airDate) {
+        if (StringUtils.isBlank(airDate)) {
+            airDate = Movie.UNKNOWN;
+        }
+        this.firstAired.put(part, airDate);
+    }
+
+    @XmlElement(name = "firstAired")
+    public List<PartDataDTO> getFirstAired() {
+        return toPartDataList(firstAired);
+    }
+    
+    public void setFirstAired(List<PartDataDTO> list) {
+        fromPartDataList(firstAired, list);
     }
     
 }
