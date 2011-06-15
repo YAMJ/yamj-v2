@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,6 +57,9 @@ public class MovieFile implements Comparable<MovieFile> {
     private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> airsAfterSeason = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
     private boolean watched = false;
@@ -313,7 +318,6 @@ public class MovieFile implements Comparable<MovieFile> {
                 }
             }
 
-            // TODO bulletproof? :)
             if (firstPart > lastPart) {
                 firstPart = lastPart;
             }
@@ -403,7 +407,7 @@ public class MovieFile implements Comparable<MovieFile> {
     public void setFileImageFiles(List<PartDataDTO> list) {
         fromPartDataList(videoImageFilename, list);
     }
-    
+
     private static List<PartDataDTO> toPartDataList(LinkedHashMap<Integer, String> map) {
         List<PartDataDTO> list = new ArrayList<PartDataDTO>();
         for (Integer part : map.keySet()) {
@@ -539,4 +543,67 @@ public class MovieFile implements Comparable<MovieFile> {
         this.season = season;
     }
 
+    public String getAirsAfterSeason(int part) {
+        String season = airsAfterSeason.get(part);
+        return StringUtils.isNotBlank(season) ? season : Movie.UNKNOWN;
+    }
+
+    public void setAirsAfterSeason(int part, String season) {
+        if (StringUtils.isBlank(season)) {
+            season = Movie.UNKNOWN;
+        }
+        this.airsAfterSeason.put(part, season);
+    }
+
+    @XmlElement(name = "airsAfterSeason")
+    public List<PartDataDTO> getAirsAfterSeasons() {
+        return toPartDataList(airsAfterSeason);
+    }
+    
+    public void setAirsAfterSeasons(List<PartDataDTO> list) {
+        fromPartDataList(airsAfterSeason, list);
+    }
+    
+    public String getAirsBeforeSeason(int part) {
+        String season = airsBeforeSeason.get(part);
+        return StringUtils.isNotBlank(season) ? season : Movie.UNKNOWN;
+    }
+
+    public void setAirsBeforeSeason(int part, String season) {
+        if (StringUtils.isBlank(season)) {
+            season = Movie.UNKNOWN;
+        }
+        this.airsBeforeSeason.put(part, season);
+    }
+
+    @XmlElement(name = "airsAfterSeason")
+    public List<PartDataDTO> getAirsBeforeSeasons() {
+        return toPartDataList(airsBeforeSeason);
+    }
+    
+    public void setAirsBeforeSeasons(List<PartDataDTO> list) {
+        fromPartDataList(airsBeforeSeason, list);
+    }
+    
+    public String getAirsBeforeEpisode(int part) {
+        String season = airsBeforeEpisode.get(part);
+        return StringUtils.isNotBlank(season) ? season : Movie.UNKNOWN;
+    }
+
+    public void setAirsBeforeEpisode(int part, String episode) {
+        if (StringUtils.isBlank(episode)) {
+            episode = Movie.UNKNOWN;
+        }
+        this.airsBeforeEpisode.put(part, episode);
+    }
+
+    @XmlElement(name = "airsAfterEpisode")
+    public List<PartDataDTO> getAirsBeforeEpisodes() {
+        return toPartDataList(airsBeforeEpisode);
+    }
+    
+    public void setAirsBeforeEpisodes(List<PartDataDTO> list) {
+        fromPartDataList(airsBeforeEpisode, list);
+    }
+    
 }
