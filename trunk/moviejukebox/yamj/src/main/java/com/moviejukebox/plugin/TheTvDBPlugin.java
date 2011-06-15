@@ -389,6 +389,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             if (isNotValidString(file.getAirsBeforeEpisode(part))) {
                                 file.setAirsBeforeEpisode(part, "" + episode.getAirsBeforeEpisode());
                             }
+                            
+                            if (isNotValidString(file.getFirstAired(part))) {
+                                file.setFirstAired(part, episode.getFirstAired());
+                            }
 
                             // Set the title of the episode
                             if (isNotValidString(file.getTitle(part))) {

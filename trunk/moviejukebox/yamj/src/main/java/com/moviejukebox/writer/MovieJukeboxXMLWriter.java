@@ -662,6 +662,18 @@ public class MovieJukeboxXMLWriter {
                             mf.setAirsAfterSeason(part, afterSeason);
                             mf.setAirsBeforeSeason(part, beforeSeason);
                             mf.setAirsBeforeEpisode(part, beforeEpisode);
+                        } else if (tag.toLowerCase().startsWith("<firstAired")) {
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if (ns.equalsIgnoreCase("part")) {
+                                    part = Integer.parseInt(attr.getValue());
+                                }
+                            }
+                            mf.setFirstAired(part, HTMLTools.decodeUrl(parseCData(r)));
                         }
                     }
                     // add or replace MovieFile based on XML data
@@ -1920,13 +1932,21 @@ public class MovieJukeboxXMLWriter {
                 writer.writeCharacters(mf.getTitle(part));
                 writer.writeEndElement();
 
-                writer.writeStartElement("airsInfo");
-                writer.writeAttribute("part", Integer.toString(part));
-                writer.writeAttribute("afterSeason", mf.getAirsAfterSeason(part));
-                writer.writeAttribute("beforeSeason", mf.getAirsBeforeSeason(part));
-                writer.writeAttribute("beforeEpisode", mf.getAirsBeforeEpisode(part));
-                writer.writeCharacters(Integer.toString(part)); // Just write the part out. Is there something better?
-                writer.writeEndElement();
+                // Only write out these for TV Shows
+                if (movie.isTVShow()) {
+                    writer.writeStartElement("airsInfo");
+                    writer.writeAttribute("part", Integer.toString(part));
+                    writer.writeAttribute("afterSeason", mf.getAirsAfterSeason(part));
+                    writer.writeAttribute("beforeSeason", mf.getAirsBeforeSeason(part));
+                    writer.writeAttribute("beforeEpisode", mf.getAirsBeforeEpisode(part));
+                    writer.writeCharacters(Integer.toString(part)); // Just write the part out. Is there something better?
+                    writer.writeEndElement();
+                    
+                    writer.writeStartElement("firstAired");
+                    writer.writeAttribute("part", Integer.toString(part));
+                    writer.writeCharacters(mf.getFirstAired(part));
+                    writer.writeEndElement();
+                }
                 
                 if (StringTools.isValidString(mf.getWatchedDateString())) {
                     writer.writeStartElement("watchedDate");
