@@ -378,6 +378,18 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                 }
                             }
 
+                            if (isNotValidString(file.getAirsAfterSeason(part))) {
+                                file.setAirsAfterSeason(part, "" + episode.getAirsAfterSeason());
+                            }
+
+                            if (isNotValidString(file.getAirsBeforeSeason(part))) {
+                                file.setAirsBeforeSeason(part, "" + episode.getAirsBeforeSeason());
+                            }
+
+                            if (isNotValidString(file.getAirsBeforeEpisode(part))) {
+                                file.setAirsBeforeEpisode(part, "" + episode.getAirsBeforeEpisode());
+                            }
+
                             // Set the title of the episode
                             if (isNotValidString(file.getTitle(part))) {
                                 file.setTitle(part, episode.getEpisodeName());

@@ -616,6 +616,36 @@ public class MovieJukeboxXMLWriter {
                                 }
                             }
                             mf.setVideoImageFilename(part, HTMLTools.decodeUrl(parseCData(r)));
+                        } else if (tag.toLowerCase().startsWith("<airsinfo")) {
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            String afterSeason = "0";
+                            String beforeSeason = "0";
+                            String beforeEpisode = "0";
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if (ns.equalsIgnoreCase("part")) {
+                                    part = Integer.parseInt(attr.getValue());
+                                }
+                                
+                                if (ns.equalsIgnoreCase("afterSeason")) {
+                                    afterSeason = attr.getValue();
+                                }
+                                
+                                if (ns.equalsIgnoreCase("beforeSeason")) {
+                                    beforeSeason = attr.getValue();
+                                }
+                                
+                                if (ns.equalsIgnoreCase("beforeEpisode")) {
+                                    beforeEpisode = attr.getValue();
+                                }
+                            }
+                            // There is also the part number in the value, but we already have that
+                            mf.setAirsAfterSeason(part, afterSeason);
+                            mf.setAirsBeforeSeason(part, beforeSeason);
+                            mf.setAirsBeforeEpisode(part, beforeEpisode);
                         }
                     }
                     // add or replace MovieFile based on XML data
@@ -1861,6 +1891,14 @@ public class MovieJukeboxXMLWriter {
                 writer.writeCharacters(mf.getTitle(part));
                 writer.writeEndElement();
 
+                writer.writeStartElement("airsInfo");
+                writer.writeAttribute("part", Integer.toString(part));
+                writer.writeAttribute("afterSeason", mf.getAirsAfterSeason(part));
+                writer.writeAttribute("beforeSeason", mf.getAirsBeforeSeason(part));
+                writer.writeAttribute("beforeEpisode", mf.getAirsBeforeEpisode(part));
+                writer.writeCharacters(Integer.toString(part)); // Just write the part out. Is there something better?
+                writer.writeEndElement();
+                
                 if (StringTools.isValidString(mf.getWatchedDateString())) {
                     writer.writeStartElement("watchedDate");
                     writer.writeCharacters(mf.getWatchedDateString());
