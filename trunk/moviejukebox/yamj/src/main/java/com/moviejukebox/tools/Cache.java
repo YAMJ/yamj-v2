@@ -124,6 +124,8 @@ public class Cache {
         for (String value : cacheKeys) {
             if (!first) {
                 sb.append("-");
+            } else {
+                first = false;
             }
             sb.append(value);
         }
