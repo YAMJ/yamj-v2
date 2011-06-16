@@ -12,6 +12,8 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.tools.StringTools;
+
 /**
  * Class to hold the episode information scraped from the XBMC style TV Episode NFO file.
  * 
@@ -109,17 +111,19 @@ public class EpisodeDetail {
      * @param movie
      */
     public void updateMovie(Movie movie) {
-        if ((movie.getSeason() != season) || (episode < 0)) {
+        if (episode < 0) {
             return;
         }
 
         for (MovieFile mf : movie.getMovieFiles()) {
             if (episode >= mf.getFirstPart() && episode <= mf.getLastPart()) {
-                if (title != Movie.UNKNOWN) {
+                mf.setSeason(season);
+                
+                if (StringTools.isValidString(title)) {
                     mf.setTitle(episode, title);
                 }
                 
-                if (plot != Movie.UNKNOWN) {
+                if (StringTools.isValidString(plot)) {
                     mf.setPlot(episode, plot);
                 }
             }
