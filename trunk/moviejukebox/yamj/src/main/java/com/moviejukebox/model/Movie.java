@@ -755,7 +755,12 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public int getSeason() {
         // Return the first season as the whole season
         // This could be changed later to allow multi season movie objects
-        return getFirstFile().getSeason();
+        if (movieFiles.size() > 0) {
+            return getFirstFile().getSeason();
+        } else {
+            // Strictly speaking this isn't "-1" its a non-existent season.
+            return -1;
+        }
     }
 
     /*
