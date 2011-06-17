@@ -18,13 +18,14 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
+	<url>http://code.google.com/p/moviejukebox/</url>
 	<issueManagement>
 		<system>Google Code</system>
 		<url>http://code.google.com/p/moviejukebox/issues/list</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Jenkins CI</system>
-		<url>http://mediadeveloper.org:8080/job/API-Allocine/</url>
+		<url>http://jenkins.omertron.com/job/API-Allocine/</url>
 	</ciManagement>
 	<developers>
 		<developer>
