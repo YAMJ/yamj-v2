@@ -12,14 +12,17 @@
 		<artifactId>oss-parent</artifactId>
 		<version>6</version>
 	</parent>
+	<url>http://code.google.com/p/moviejukebox/</url>
 	<issueManagement>
 		<system>Google Code</system>
 		<url>http://code.google.com/p/moviejukebox/issues/list</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Jenkins CI</system>
-		<url>http://mediadeveloper.org:8080/job/YAMJ/</url>
+		<url>http://jenkins.omertron.com/job/YAMJ/</url>
 	</ciManagement>
+	<developers>
+	</developers>
 	<scm>
 		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
 		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>

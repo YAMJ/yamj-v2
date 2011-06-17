@@ -140,6 +140,8 @@
 		</dependency>
 	</dependencies>
 
+	<scm>
+	</scm>
 	<build>
 		<plugins>
 			<plugin>
@@ -263,13 +265,10 @@
 	</properties>
 
 	<ciManagement>
-		<system>Jenkins CI</system>
-		<url>http://mediadeveloper.org:8080/job/YAMJ/</url>
 	</ciManagement>
 
+	<url>http://code.google.com/p/moviejukebox/</url>
 	<issueManagement>
-		<system>Google Code</system>
-		<url>http://code.google.com/p/moviejukebox/issues/list</url>
 	</issueManagement>
 
 </project>

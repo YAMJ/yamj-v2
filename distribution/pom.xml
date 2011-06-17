@@ -17,6 +17,14 @@
 		</dependency>
 	</dependencies>
 
+	<description>Distribution module for YAMJ</description>
+	<url>http://code.google.com/p/moviejukebox/</url>
+	<issueManagement>
+	</issueManagement>
+	<ciManagement>
+	</ciManagement>
+	<scm>
+	</scm>
 	<build>
 		<plugins>
 			<plugin>
