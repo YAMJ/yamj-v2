@@ -1874,9 +1874,17 @@ public class MovieJukeboxXMLWriter {
 
         // Write the indexes that the movie belongs to
         writer.writeStartElement("indexes");
+        String originalName = Movie.UNKNOWN;
         for (Entry<String, String> index : movie.getIndexes().entrySet()) {
             writer.writeStartElement("index");
             writer.writeAttribute("type", index.getKey());
+            writer.writeAttribute("encoded", FileTools.makeSafeFilename(index.getKey()));
+            originalName = Library.getOriginalCategory(index.getKey());
+            if (StringTools.isValidString(originalName)) {
+                writer.writeAttribute("originalName", originalName);
+            } else {
+                writer.writeAttribute("originalName", index.getKey());
+            }
             writer.writeCharacters(index.getValue());
             writer.writeEndElement();
         }
