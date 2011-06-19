@@ -17,7 +17,6 @@ import java.util.Comparator;
 import com.moviejukebox.model.Movie;
 
 public class MovieSetComparator implements Comparator<Movie> {
-
     private String set;
 
     public MovieSetComparator(String set) {
@@ -26,6 +25,10 @@ public class MovieSetComparator implements Comparator<Movie> {
 
     @Override
     public int compare(Movie m1, Movie m2) {
+        if (m1.isTVShow() && m2.isTVShow()) {
+            return (m1.getSeason() - m2.getSeason());
+        }
+        
         Integer o1 = m1.getSetOrder(set);
         Integer o2 = m2.getSetOrder(set);
 
