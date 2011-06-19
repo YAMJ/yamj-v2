@@ -19,13 +19,14 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tvrage.tools.StringTools;
 
 public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
     protected static Logger logger = Logger.getLogger("moviejukebox");

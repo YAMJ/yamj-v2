@@ -14,15 +14,16 @@ package com.moviejukebox.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.fanarttv.FanartTv;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tvrage.tools.StringTools;
 
 public class FanartTvPlugin {
     private static final String THETVDB_PLUGIN_ID = "thetvdb";

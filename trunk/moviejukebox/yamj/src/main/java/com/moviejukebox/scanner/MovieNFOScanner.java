@@ -12,6 +12,10 @@
  */
 package com.moviejukebox.scanner;
 
+import static com.moviejukebox.tools.StringTools.appendToPath;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -21,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +36,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 import org.pojava.datetime.DateTimeConfig;
 
@@ -46,9 +50,7 @@ import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.XMLHelper;
-import com.moviejukebox.tvrage.tools.StringTools;
 
 /**
  * NFO file parser.
@@ -919,7 +921,7 @@ public class MovieNFOScanner {
             }
             
             // We've processed all the NFO file, so work out what to do with the title and titleSort
-            if (StringTools.isValidString(titleMain)) {
+            if (isValidString(titleMain)) {
                 // We have a valid title, so set that for title and titleSort
                 movie.setTitle(titleMain);
                 movie.setTitleSort(titleMain);
@@ -927,7 +929,7 @@ public class MovieNFOScanner {
             }
             
             // Now check the titleSort and overwrite it if necessary.
-            if (StringTools.isValidString(titleSort)) {
+            if (isValidString(titleSort)) {
                 movie.setTitleSort(titleSort);
             }
 
