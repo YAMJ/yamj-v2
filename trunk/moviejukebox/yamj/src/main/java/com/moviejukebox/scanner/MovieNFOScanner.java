@@ -1372,6 +1372,32 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 episodedetail.setPlot(val);
                             }
+                        } else if (tag.equalsIgnoreCase("aired")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                try {
+                                    DateTime dateTime = new DateTime(val);
+                                    episodedetail.setFirstAired(dateTime.toString(Movie.dateFormatString));
+                                } catch (Exception ignore) {
+                                    // Set the aired date if there is an exception
+                                    episodedetail.setFirstAired(val);
+                                }
+                            }
+                        } else if (tag.equalsIgnoreCase("airsafterseason")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                episodedetail.setAirsAfterSeason(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("airsbeforeseason")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                episodedetail.setAirsBeforeSeason(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("airsbeforeepisode")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                episodedetail.setAirsBeforeEpisode(val);
+                            }
                         //} else if (tag.equalsIgnoreCase("credits")) {
                             // Not currently used
                         //} else if (tag.equalsIgnoreCase("director")) {
