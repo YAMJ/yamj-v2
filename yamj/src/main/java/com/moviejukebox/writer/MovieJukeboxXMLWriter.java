@@ -632,12 +632,13 @@ public class MovieJukeboxXMLWriter {
                                 }
                             }
                             mf.setVideoImageFilename(part, HTMLTools.decodeUrl(parseCData(r)));
-                        } else if (tag.toLowerCase().startsWith("<airsinfo")) {
+                        } else if (tag.toLowerCase().startsWith("<airsinfo ")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
                             String afterSeason = "0";
                             String beforeSeason = "0";
                             String beforeEpisode = "0";
+                            
                             for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
                                 Attribute attr = i.next();
                                 String ns = attr.getName().toString();
@@ -662,7 +663,7 @@ public class MovieJukeboxXMLWriter {
                             mf.setAirsAfterSeason(part, afterSeason);
                             mf.setAirsBeforeSeason(part, beforeSeason);
                             mf.setAirsBeforeEpisode(part, beforeEpisode);
-                        } else if (tag.toLowerCase().startsWith("<firstAired")) {
+                        } else if (tag.toLowerCase().startsWith("<firstaired ")) {
                             StartElement element = e.asStartElement();
                             int part = 1;
                             for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
