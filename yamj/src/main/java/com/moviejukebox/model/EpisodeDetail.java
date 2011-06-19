@@ -25,7 +25,11 @@ public class EpisodeDetail {
     int season = -1;
     int episode = -1;
     String plot = Movie.UNKNOWN;
-   
+    String firstAired = Movie.UNKNOWN;
+    String airsAfterSeason = Movie.UNKNOWN;
+    String airsBeforeSeason = Movie.UNKNOWN;
+    String airsBeforeEpisode = Movie.UNKNOWN;
+
     /**
      * Set the title of the episode
      * @param title
@@ -126,8 +130,57 @@ public class EpisodeDetail {
                 if (StringTools.isValidString(plot)) {
                     mf.setPlot(episode, plot);
                 }
+                
+                if (StringTools.isValidString(firstAired)) {
+                    mf.setFirstAired(episode, firstAired);
+                }
+                
+                if (StringTools.isValidString(airsAfterSeason)) {
+                    mf.setAirsAfterSeason(episode, airsAfterSeason);
+                }
+                
+                if (StringTools.isValidString(airsBeforeSeason)) {
+                    mf.setAirsBeforeSeason(episode, airsBeforeSeason);
+                }
+                
+                if (StringTools.isValidString(airsBeforeEpisode)) {
+                    mf.setAirsBeforeEpisode(episode, airsBeforeEpisode);
+                }
+                
             }
         }
+    }
+
+    public String getFirstAired() {
+        return firstAired;
+    }
+
+    public String getAirsAfterSeason() {
+        return airsAfterSeason;
+    }
+
+    public String getAirsBeforeSeason() {
+        return airsBeforeSeason;
+    }
+
+    public String getAirsBeforeEpisode() {
+        return airsBeforeEpisode;
+    }
+
+    public void setFirstAired(String firstAired) {
+        this.firstAired = firstAired;
+    }
+
+    public void setAirsAfterSeason(String airsAfterSeason) {
+        this.airsAfterSeason = airsAfterSeason;
+    }
+
+    public void setAirsBeforeSeason(String airsBeforeSeason) {
+        this.airsBeforeSeason = airsBeforeSeason;
+    }
+
+    public void setAirsBeforeEpisode(String airsBeforeEpisode) {
+        this.airsBeforeEpisode = airsBeforeEpisode;
     }
 
 }
