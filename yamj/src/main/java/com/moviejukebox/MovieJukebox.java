@@ -2384,6 +2384,16 @@ public class MovieJukebox {
                             } // videoimages
                         } // moviefile parts loop
                     } // if
+                    
+                    
+                    for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
+                        if (isNotValidString(mf.getFirstAired(part))) {
+                            logger.debug("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV first aired date, will rescan");
+                            mf.setNewFile(true); // This forces the episodes to be rechecked
+                            recheckCount++;
+                            return true;
+                        }
+                    }
                 } // moviefiles loop
             } // isTVShow
         }
