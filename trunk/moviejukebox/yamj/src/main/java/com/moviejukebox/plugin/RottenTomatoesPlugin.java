@@ -37,7 +37,7 @@ public class RottenTomatoesPlugin {
     private static final String webhost = "rottentomatoes.com";
     private static String logMessage = "RottenTomatoesPlugin: ";
 
-    private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priorty", "critics_score,audience_score,critics_rating,audience_rating").split(",");
+    private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
     
     private RottenTomatoes rt;
     
