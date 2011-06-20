@@ -1857,6 +1857,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
     }
 
+    /**
+     * Take the passed DTO and update the movie information
+     * @param dto
+     */
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
         setTitle(dto.getTitle());
         setExtra(dto.isExtra());
@@ -1871,7 +1875,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             // Mark the movie as a TV Show
             setMovieType(Movie.TYPE_TVSHOW);
         }
-        
         
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
