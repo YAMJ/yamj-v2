@@ -49,6 +49,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1993 Index encoded name
  - Enhancement  #1994 Option to put Season 0 after all seasons
  - Enhancement  #1995 Additional TV Show information: ReleaseDate & Show Status populated
+ - Fixes defect #1997 Multi-Part BluRay disks are not recognised
 
 MovieJukebox 2.4
 ----------------

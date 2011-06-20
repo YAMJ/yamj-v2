@@ -351,9 +351,8 @@ public class MovieDirectoryScanner {
             
             movie.mergeFileNameDTO(dto);
 
-            if (bdDuration == 0) {
-                // XXX Why do we not merge Bluray information?
-                // Do not merge file information for Bluray
+            if (bdDuration == 0 || dto.getPart() > 0) {
+                // Do not merge file information for Blu-Ray unless it's a multi-part disk
                 movieFile.mergeFileNameDTO(dto);
             } else {
                 if (playFullBluRayDisk && movie.isTVShow()) {
