@@ -2358,6 +2358,18 @@ public class MovieJukebox {
                     return true;
                 }
                 
+                if (isNotValidString(movie.getShowStatus())) {
+                    logger.debug("Recheck: " + movie.getBaseName() + " is missing show status, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+                
+                if (isNotValidString(movie.getReleaseDate())) {
+                    logger.debug("Recheck: " + movie.getBaseName() + " is missing show release date, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+                
                 // scan the TV episodes
                 for (MovieFile mf : movie.getMovieFiles()) {
                     if (isNotValidString(mf.getTitle())) {
