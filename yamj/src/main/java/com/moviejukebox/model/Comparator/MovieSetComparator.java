@@ -15,9 +15,11 @@ package com.moviejukebox.model.Comparator;
 import java.util.Comparator;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class MovieSetComparator implements Comparator<Movie> {
     private String set;
+    private static boolean specialsAtEnd = PropertiesUtil.getBooleanProperty("mjb.sets.specialsAtEnd", "false");
 
     public MovieSetComparator(String set) {
         this.set = set;
@@ -26,6 +28,18 @@ public class MovieSetComparator implements Comparator<Movie> {
     @Override
     public int compare(Movie m1, Movie m2) {
         if (m1.isTVShow() && m2.isTVShow()) {
+            if (specialsAtEnd) {
+                // Sort Season 0 to the end of the list (i.e. Season 0 always wins the comparison)
+                if (m1.getSeason() == 0) {
+                    return 1;
+                }
+                
+                if (m2.getSeason() == 0) {
+                    return -1;
+                }
+            }
+            
+            // Sort the season list normally
             return (m1.getSeason() - m2.getSeason());
         }
         
