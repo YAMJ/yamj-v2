@@ -226,6 +226,9 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<releaseDate>")) {
                     movie.setReleaseDate(parseCData(r));
                 }
+                if (tag.equalsIgnoreCase("<showStatus>")) {
+                    movie.setShowStatus(parseCData(r));
+                }
                 if (tag.equalsIgnoreCase("<rating>")) {
                     // We don't care about the main rating as this is derived
                     //movie.setRating(Integer.parseInt(parseCData(r)));
@@ -1578,6 +1581,9 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("releaseDate");
         writer.writeCharacters(movie.getReleaseDate());
         writer.writeEndElement();
+        writer.writeStartElement("showStatus");
+        writer.writeCharacters(movie.getShowStatus());
+        writer.writeEndElement();
         
         // This is the main rating
         writer.writeStartElement("rating");
@@ -2236,6 +2242,12 @@ public class MovieJukeboxXMLWriter {
 
             if (StringTools.isValidString(movie.getReleaseDate())) {
                 writer.writeStartElement("premiered");
+                writer.writeCharacters(movie.getReleaseDate());
+                writer.writeEndElement();
+            }
+
+            if (StringTools.isValidString(movie.getShowStatus())) {
+                writer.writeStartElement("showStatus");
                 writer.writeCharacters(movie.getReleaseDate());
                 writer.writeEndElement();
             }

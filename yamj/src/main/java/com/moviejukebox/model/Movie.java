@@ -127,6 +127,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String videoOutput = UNKNOWN;
     private float fps = 60;
     private String certification = UNKNOWN;
+    private String showStatus = UNKNOWN;    // For TV shows a status such as "Continuing" or "Ended"
     // TODO Move extra flag to movie file
     private boolean extra = false;
     // Trailers
@@ -2300,6 +2301,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
 
         return artworkList;
+    }
+
+    public String getShowStatus() {
+        return showStatus;
+    }
+
+    public void setShowStatus(String showStatus) {
+        this.showStatus = showStatus;
     }
 
 }
