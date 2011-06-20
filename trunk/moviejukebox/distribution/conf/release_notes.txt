@@ -48,6 +48,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #1991 Add aired info to episode nfo (first aired, airs after season, airs before season, airs before episode)
  - Fixed defect #1993 Index encoded name
  - Enhancement  #1994 Option to put Season 0 after all seasons
+ - Enhancement  #1995 Additional TV Show information: ReleaseDate & Show Status populated
 
 MovieJukebox 2.4
 ----------------

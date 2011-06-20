@@ -140,7 +140,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
                     }
                 }
-
+                
                 if (series == null) {
                     series = seriesList.get(0);
                 }
@@ -203,6 +203,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         if (year != null && !year.isEmpty()) {
                             movie.setYear(year);
                         }
+                    }
+                    
+                    if (isNotValidString(movie.getReleaseDate())) {
+                        // Set the release date to be the series first aired date
+                        movie.setReleaseDate(series.getFirstAired());
+                    }
+                    
+                    if (isNotValidString(movie.getShowStatus())) {
+                        // Set the show status
+                        movie.setShowStatus(series.getStatus());
                     }
 
                     if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
@@ -393,7 +403,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             if (isNotValidString(file.getFirstAired(part))) {
                                 file.setFirstAired(part, episode.getFirstAired());
                             }
-
+                            
                             // Set the title of the episode
                             if (isNotValidString(file.getTitle(part))) {
                                 file.setTitle(part, episode.getEpisodeName());
