@@ -23,6 +23,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #1897 Cast enhancement
  - Enhancement  #1900 Functionality of the KinopoiskPlugin
  - Enhancement  #1901 Support for Awards
+ - Fixed defect #1902 Bad file found BD Scanner (Ignore none MTS & M2TS files in bluray folders)
  - Enhancement  #1903 Support for 3D movie file naming
  - Fixed defect #1907 Awards will not be downloaded if imdb.site is set other than default
  - Enhancement  #1908 Sort movies without using SortTitle (in case of accented characters)

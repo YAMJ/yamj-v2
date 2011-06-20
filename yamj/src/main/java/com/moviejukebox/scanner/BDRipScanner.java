@@ -170,6 +170,11 @@ public class BDRipScanner {
                     // Go over the playlist file names
                     for (int j = 0; j < longestFiles.length; j++) {
     
+                        if (!"MTS,M2TS".contains(FilenameUtils.getExtension(list[i].getName()).toUpperCase())) {
+                            // Only check the MTS & M2TS file types, skip everything else
+                            continue;
+                        }
+                        
                         // extensions may differ: MTS (AVCHD), m2ts (Blu-ray)
                         if (FilenameUtils.removeExtension(list[i].getName()).equalsIgnoreCase(FilenameUtils.removeExtension(longestFiles[j]))) {
                             ret.fileList[j] = list[i];

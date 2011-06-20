@@ -1221,7 +1221,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             logger.debug("Sratim Plugin: contentType:" + contentType);
 
-            // Check that the content iz zip and that the site did not blocked the download
+            // Check that the content is zip and that the site did not blocked the download
             if (!contentType.equals("application/octet-stream")) {
                 logger.error("Sratim Plugin: ********** Error - Sratim subtitle download limit may have been reached. Suspending subtitle download.");
 
@@ -1406,15 +1406,10 @@ public class SratimPlugin extends ImdbPlugin {
             File srtIndex = new File(bdFolder + "BDMV//index.srt");
             return subIndex.exists() || srtIndex.exists();
         }
-        // Check if this movie already has subtitles for it, popcorn supports .srt and .sub
-        String path = mf.getFile().getAbsolutePath();
-        int lindex = path.lastIndexOf(".");
-        String basename = new String(path.substring(0, lindex + 1));
-
-        File srtFile = new File(basename + "srt");
-        File subFile = new File(basename + "sub");
-
-        return srtFile.exists() || subFile.exists();
+        
+        // Check if this movie already has subtitles for it
+        File subtitleFile = FileTools.findSubtitles(mf.getFile());
+        return subtitleFile.exists();
     }
 
     protected static boolean containsHebrew(char[] chars) {
