@@ -13,7 +13,6 @@
 package com.moviejukebox.plugin;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
@@ -83,10 +82,8 @@ public class RottenTomatoesPlugin {
         }
             
         if (rtId == 0) {
-            HashSet<com.moviejukebox.rottentomatoes.model.Movie> movieList = rt.moviesSearch(movie.getTitle());
-            
-            for (com.moviejukebox.rottentomatoes.model.Movie tmpMovie : movieList) {
-                if (movie.getTitle().equalsIgnoreCase(tmpMovie.getTitle())) {
+            for (com.moviejukebox.rottentomatoes.model.Movie tmpMovie : rt.moviesSearch(movie.getTitle())) {
+                if (movie.getTitle().equalsIgnoreCase(tmpMovie.getTitle()) && (movie.getYear().equals(""+tmpMovie.getYear()))) {
                     rtId = tmpMovie.getId();
                     rtMovie = tmpMovie;
                     movie.setId(ROTTENTOMATOES_PLUGIN_ID, rtId);
