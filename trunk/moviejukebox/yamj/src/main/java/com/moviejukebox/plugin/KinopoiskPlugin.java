@@ -483,7 +483,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (!rating.equals(Movie.UNKNOWN)) {
                         try {
                             imdbRating = (int)(Float.parseFloat(rating) * 10);
-                            movie.addRating(KINOPOISK_PLUGIN_ID, imdbRating);
+                            movie.addRating(IMDB_PLUGIN_ID, imdbRating);
                         } catch (Exception ignore) {
                             // Ignore
                         }
