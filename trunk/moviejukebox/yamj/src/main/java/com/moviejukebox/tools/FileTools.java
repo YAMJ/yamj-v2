@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -62,6 +63,14 @@ public class FileTools {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     final static int BUFF_SIZE = 16*1024;
+    private static Collection<String> subtitleExtensions = new ArrayList<String>();
+    
+    static {
+        // Populate the subtitle extensions
+        for (String ext : PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")) {
+            subtitleExtensions.add(ext);
+        }
+    }
 
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
@@ -507,13 +516,13 @@ public class FileTools {
      * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the File
      * 
      * @param filename
-     * @param artworkExtensions
+     * @param fileExtensions
      * @return always a File, to be tested with exists() for valid file
      */
-    public static File findFileFromExtensions(String fullBaseFilename, Collection<String> artworkExtensions) {
+    public static File findFileFromExtensions(String fullBaseFilename, Collection<String> fileExtensions) {
         File localFile = null;
 
-        for (String extension : artworkExtensions) {
+        for (String extension : fileExtensions) {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
                 if (logger.isTraceEnabled()) {
@@ -529,12 +538,12 @@ public class FileTools {
     /**
      * Search for the filename in the cache and look for each with the extensions
      * @param searchFilename
-     * @param artworkExtensions
+     * @param fileExtensions
      * @param jukebox
      * @param logPrefix
      * @return
      */
-    public static File findFilenameInCache(String searchFilename, Collection<String> artworkExtensions, Jukebox jukebox, String logPrefix) {
+    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix) {
         File searchFile = null;
         String safeFilename = makeSafeFilename(searchFilename);
 
@@ -557,7 +566,7 @@ public class FileTools {
                 }
 
                 // Loop round the filename+extension to see if any exist and add them to the array
-                for (String extension : artworkExtensions) {
+                for (String extension : fileExtensions) {
                     if (abPath.endsWith((safeFilename + "." + extension).toLowerCase())) {
                         files.add(file);
 
@@ -977,4 +986,13 @@ public class FileTools {
 
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
 
+    /**
+     * Look for any subtitle files for a file
+     * @param fileToScan
+     * @return
+     */
+    public static File findSubtitles(File fileToScan) {
+        String basename = FilenameUtils.removeExtension(fileToScan.getAbsolutePath().toUpperCase());
+        return FileTools.findFileFromExtensions(basename, subtitleExtensions);
+    }
 }

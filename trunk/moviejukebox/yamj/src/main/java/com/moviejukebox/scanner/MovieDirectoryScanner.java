@@ -20,8 +20,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.log4j.Logger;
 import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
@@ -228,15 +229,8 @@ public class MovieDirectoryScanner {
 
     protected static boolean hasSubtitles(File fileToScan) {
 
-        String path = fileToScan.getAbsolutePath().toUpperCase();
-        String basename = new String(path.substring(0, path.lastIndexOf(".") + 1));
-
-        return FileTools.fileCache.fileExists(basename + "SRT") ||
-               FileTools.fileCache.fileExists(basename + "SUB") ||
-               FileTools.fileCache.fileExists(basename + "SSA") ||
-               FileTools.fileCache.fileExists(basename + "SMI") ||
-               FileTools.fileCache.fileExists(basename + "PGS") ||
-               path.contains("VOST");
+        File found = FileTools.findSubtitles(fileToScan);
+        return found.exists();
     }
 
     private void scanFile(MediaLibraryPath srcPath, File file, Library library) {
