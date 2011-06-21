@@ -335,7 +335,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.getGenres().isEmpty()) {
             for (String genre : HTMLTools.extractTags(xml, "<h5>" + siteDef.getGenre() + ":</h5>", "</div>")) {
                 genre = HTMLTools.removeHtmlTags(genre);
-                movie.addGenre(Library.getIndexingGenre(cleanSeeMore(genre)));
+                movie.addGenre(Library.getIndexingGenre(cleanStringEnding(genre)));
             }
         }
 
@@ -343,7 +343,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             for (String quote : HTMLTools.extractTags(xml, "<h5>" + siteDef.getQuotes() + ":</h5>", "</div>", "<a href=\"/name/nm", "</a class=\"")) {
                 if (quote != null) {
                     quote = HTMLTools.stripTags(quote);
-                    movie.setQuote(cleanSeeMore(quote));
+                    movie.setQuote(cleanStringEnding(quote));
                     break;
                 }
             }
@@ -368,7 +368,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         outline = outline.substring(0, outline.length() - 1);
                     }
 
-                    imdbOutline = outline.trim();
+                    imdbOutline = cleanStringEnding(outline);
                     if (isValidString(imdbOutline)) {
                         imdbOutline = trimToLength(imdbOutline, preferredOutlineLength, true, plotEnding);
                     } else {
@@ -627,7 +627,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             for (String quote : HTMLTools.extractTags(xml, "<h4>" + siteDef2.getQuotes() + "</h4>", "<span class=\"", "<a ", "<br")) {
                 if (quote != null) {
                     quote = HTMLTools.stripTags(quote);
-                    movie.setQuote(cleanSeeMore(quote));
+                    movie.setQuote(cleanStringEnding(quote));
                     break;
                 }
             }
@@ -653,6 +653,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     imdbOutline = imdbOutline.substring(beginIndex + searchText.length());
                 }
                 
+                imdbOutline = cleanStringEnding(imdbOutline);
                 imdbOutline = trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
             } else {
                 // ensure the outline is set to unknown if it's blank or null
@@ -1144,24 +1145,26 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param uncleanString
      * @return
      */
-    protected static String cleanSeeMore(String uncleanString) {
+    protected static String cleanStringEnding(String uncleanString) {
         int pos = uncleanString.indexOf("more");
-        
         // First let's check if "more" exists in the string
         if (pos > 0) {
             if (uncleanString.endsWith("more")) {
-                return uncleanString.substring(0, uncleanString.length() - 4);
+                return new String(uncleanString.substring(0, uncleanString.length() - 4));
             }
 
             pos = uncleanString.toLowerCase().indexOf("see more");
             if (pos > 0) {
-                return uncleanString.substring(0, pos).trim();
+                return new String(uncleanString.substring(0, pos).trim());
             }
-        } else {
-            return uncleanString.trim();
+        }
+
+        pos = uncleanString.toLowerCase().indexOf("see full summary");
+        if (pos > 0) {
+            return new String(uncleanString.substring(0, pos).trim());
         }
         
-        return uncleanString;
+        return new String(uncleanString.trim());
     }
 
     /**
