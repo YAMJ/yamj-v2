@@ -35,6 +35,7 @@ import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
@@ -95,30 +96,32 @@ public class TheTvDBPlugin extends ImdbPlugin {
     public boolean scan(Movie movie) {
         ThreadExecutor.enterIO(webhost);
         try {
-            return doscan(movie);
         } finally {
             ThreadExecutor.leaveIO();
         }
-    }
 
-    private boolean doscan(Movie movie) {
         List<Series> seriesList = null;
 
         String id = movie.getId(THETVDB_PLUGIN_ID);
 
         if (id == null || id.equals(Movie.UNKNOWN)) {
-            if (!movie.getTitle().equals(Movie.UNKNOWN)) {
-                seriesList = tvDB.searchSeries(movie.getTitle(), language);
-                if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                    seriesList = tvDB.searchSeries(movie.getTitle(), language2nd);
+            ThreadExecutor.enterIO(webhost);
+            try {
+                if (!movie.getTitle().equals(Movie.UNKNOWN)) {
+                    seriesList = tvDB.searchSeries(movie.getTitle(), language);
+                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
+                        seriesList = tvDB.searchSeries(movie.getTitle(), language2nd);
+                    }
                 }
-            }
-
-            if (seriesList == null || seriesList.isEmpty()) {
-                seriesList = tvDB.searchSeries(movie.getBaseName(), language);
-                if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                    seriesList = tvDB.searchSeries(movie.getBaseName(), language2nd);
+    
+                if (seriesList == null || seriesList.isEmpty()) {
+                    seriesList = tvDB.searchSeries(movie.getBaseName(), language);
+                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
+                        seriesList = tvDB.searchSeries(movie.getBaseName(), language2nd);
+                    }
                 }
+            } finally {
+                ThreadExecutor.leaveIO();
             }
 
             if (seriesList != null && !seriesList.isEmpty()) {
@@ -157,33 +160,43 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (id != null && !id.equals(Movie.UNKNOWN)) {
             Series series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language));
             
-            // Not found in cache, so look online
-            if (series == null) {
-                series = tvDB.getSeries(id, language);
-                if (series != null) {
-                    // Add to the cache
-                    Cache.addToCache(Cache.generateCacheKey("Series", id, language), series);
-                }
-            }
-            
-            if (series == null && !language2nd.isEmpty()) {
-                series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language2nd));
-                
+            ThreadExecutor.enterIO(webhost);
+            try {
+                // Not found in cache, so look online
                 if (series == null) {
-                    series = tvDB.getSeries(id, language2nd);
+                    series = tvDB.getSeries(id, language);
                     if (series != null) {
                         // Add to the cache
-                        Cache.addToCache(Cache.generateCacheKey("Series", id, language2nd), series);
+                        Cache.addToCache(Cache.generateCacheKey("Series", id, language), series);
                     }
                 }
+                
+                if (series == null && !language2nd.isEmpty()) {
+                    series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language2nd));
+                    
+                    if (series == null) {
+                        series = tvDB.getSeries(id, language2nd);
+                        if (series != null) {
+                            // Add to the cache
+                            Cache.addToCache(Cache.generateCacheKey("Series", id, language2nd), series);
+                        }
+                    }
+                }
+            } finally {
+                ThreadExecutor.leaveIO();
             }
 
             if (series != null) {
                 Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey("Banners", id, language));
                 
                 if (banners == null) {
-                    banners = tvDB.getBanners(id);
-                    Cache.addToCache(Cache.generateCacheKey("Banners", id, language), banners);
+                    ThreadExecutor.enterIO(webhost);
+                    try {
+                        banners = tvDB.getBanners(id);
+                        Cache.addToCache(Cache.generateCacheKey("Banners", id, language), banners);
+                    } finally {
+                        ThreadExecutor.leaveIO();
+                    }
                 }
                 
                 try {
@@ -196,11 +209,19 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (!movie.isOverrideYear()) {
-                        String year = tvDB.getSeasonYear(id, movie.getSeason(), language);
-                        if (year == null && !language2nd.isEmpty()) {
-                            year = tvDB.getSeasonYear(id, movie.getSeason(), language2nd);
+                        String year = Movie.UNKNOWN;
+                        
+                        ThreadExecutor.enterIO(webhost);
+                        try {
+                            year = tvDB.getSeasonYear(id, movie.getSeason(), language);
+                            if (year == null && !language2nd.isEmpty()) {
+                                year = tvDB.getSeasonYear(id, movie.getSeason(), language2nd);
+                            }
+                        } finally {
+                            ThreadExecutor.leaveIO();
                         }
-                        if (year != null && !year.isEmpty()) {
+
+                        if (StringTools.isValidString(year)) {
                             movie.setYear(year);
                         }
                     }

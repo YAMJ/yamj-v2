@@ -70,15 +70,19 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
-        ThreadExecutor.enterIO(webhost);
+        List<Series> seriesList = null;
+        
         try {
-            List<Series> seriesList = null;
-
             if (StringTools.isValidString(title)) {
-                seriesList = tvDB.searchSeries(title, language);
-                // Try Alternative Language
-                if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                    seriesList = tvDB.searchSeries(title, language2nd);
+                ThreadExecutor.enterIO(webhost);
+                try {
+                    seriesList = tvDB.searchSeries(title, language);
+                    // Try Alternative Language
+                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
+                        seriesList = tvDB.searchSeries(title, language2nd);
+                    }
+                } finally {
+                    ThreadExecutor.leaveIO();
                 }
             }
 
@@ -113,13 +117,13 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             logger.error("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for movie : " + title);
             logger.error("Error : " + e.getMessage());
         }
-        ThreadExecutor.leaveIO();
         return response;
     }
 
     @Override
     public IImage getPosterUrl(String id, int season) {
         String posterURL = Movie.UNKNOWN;
+        
         ThreadExecutor.enterIO(webhost);
 
         try {
@@ -172,8 +176,6 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 }
             }
             
-            ThreadExecutor.leaveIO();
-            
             if (StringTools.isValidString(posterURL)) {
                 logger.debug("TheTvDBPosterPlugin: Used poster " + posterURL);
                 return new Image(posterURL);
@@ -181,7 +183,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         } catch (Exception e) {
             logger.error("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id movie : " + id);
             logger.error("Error : " + e.getMessage());
+        } finally {
+            ThreadExecutor.leaveIO();
         }
+        
         return Image.UNKNOWN;
     }
 
