@@ -502,7 +502,7 @@ public class FileTools {
     }
 
     /**
-     * Returns the parent folder name only; used when searching for posters...
+     * Returns the parent folder name only; used when searching for artwork...
      */
     public static String getParentFolderName(File file) {
         if (file == null) {
@@ -609,7 +609,7 @@ public class FileTools {
 
     /**
      * Find the parent directory of the movie file.
-     * @param movie
+     * @param file (movieFile)
      * @return Parent folder
      * @author Stuart Boston
      */

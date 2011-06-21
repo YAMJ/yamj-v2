@@ -47,7 +47,15 @@ public class WatchedScanner {
             }
             
             fileWatched = false;
-            foundFile = FileTools.findFilenameInCache(mf.getFile().getName(), extensions, jukebox, "Watched Scanner: ");
+            String filename = "";
+            // BluRay stores the file differently to DVD and single files, so we need to process the path a little
+            if (movie.isBluray()) {
+                filename = new File(FileTools.getParentFolder(mf.getFile())).getName();
+            } else {
+                filename = mf.getFile().getName();
+            }
+            
+            foundFile = FileTools.findFilenameInCache(filename, extensions, jukebox, "Watched Scanner: ");
             
             if (foundFile != null) {
                 fileWatchedCount++;
