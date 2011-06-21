@@ -104,7 +104,7 @@ public class MovieJukeboxXMLWriter {
 
     static {
         if (str_categoriesDisplayList.length() == 0) {
-            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
+            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         }
         categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
 
