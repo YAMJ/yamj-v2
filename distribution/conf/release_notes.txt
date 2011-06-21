@@ -53,6 +53,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixes defect #1996 Incorrect rating in the search using NFO (Kinopoisk)
  - Fixes defect #1997 Multi-Part BluRay disks are not recognised
  - Fixes defect #1998 Incorrect score from Rotten Tomatoes
+ - Fixes defect #1999 IMDB outlines end with "See Full Summary"
 
 MovieJukebox 2.4
 ----------------

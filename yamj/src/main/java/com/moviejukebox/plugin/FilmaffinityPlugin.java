@@ -135,7 +135,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             movie.setCompany(HTMLTools.getTextAfterElem(xml, FA_COMPANY).split("/")[0].trim());
             
             for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</a></td>")).split("\\.|\\|")) {
-                movie.addGenre(Library.getIndexingGenre(cleanSeeMore(genre.trim())));
+                movie.addGenre(Library.getIndexingGenre(cleanStringEnding(genre.trim())));
             }
             
             try {
