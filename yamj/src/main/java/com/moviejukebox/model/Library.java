@@ -95,6 +95,37 @@ public class Library implements Map<String, Movie> {
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
     private static final int finalYear = currentYear - 2;
     private static final int currentDecade = (finalYear / 10) * 10;
+    
+    // Index Names
+    private static final String INDEX_OTHER = "Other";
+    private static final String INDEX_GENRES = "Genres";
+    private static final String INDEX_TITLE = "Title";
+    private static final String INDEX_CERTIFICATION = "Certification";
+    private static final String INDEX_YEAR = "Year";
+    private static final String INDEX_LIBRARY = "Library";
+    private static final String INDEX_CAST = "Cast";
+    private static final String INDEX_DIRECTOR = "Director";
+    private static final String INDEX_COUNTRY = "Country";
+    private static final String INDEX_WRITER = "Writer";
+    private static final String INDEX_AWARD = "Award";
+    private static final String INDEX_PERSON = "Person";
+    private static final String INDEX_NEW = "New";
+    private static final String INDEX_NEW_TV = "New-TV";
+    private static final String INDEX_NEW_MOVIE = "New-Movie";
+    private static final String INDEX_EXTRAS = "Extras";
+    private static final String INDEX_HD = "HD";
+    private static final String INDEX_HD1080 = "HD-1080";
+    private static final String INDEX_HD720 = "HD-720";
+    private static final String INDEX_SET = "Set";
+    private static final String INDEX_TOP250 = "Top250";
+    private static final String INDEX_RATING = "Rating";
+    private static final String INDEX_WATCHED = "Watched";
+    private static final String INDEX_UNWATCHED = "Unwatched";
+    private static final String INDEX_ALL = "All";
+    private static final String INDEX_TVSHOWS = "TV Shows";
+    private static final String INDEX_MOVIES = "Movies";
+    private static final String INDEX_ACTOR = "Actor";
+    private static final String INDEX_CATEGORIES = "Categories";
 
     static {
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
@@ -379,30 +410,30 @@ public class Library implements Map<String, Movie> {
                     public Void call() {
                         SystemTools.showMemory();
                         logger.info("  Indexing " + indexStr + "...");
-                        if (indexStr.equals("Other")) {
-                            syncindexes.put("Other", indexByProperties(indexMovies));
-                        } else if (indexStr.equals("Genres")) {
-                            syncindexes.put("Genres", indexByGenres(indexMovies));
-                        } else if (indexStr.equals("Title")) {
-                            syncindexes.put("Title", indexByTitle(indexMovies));
-                        } else if (indexStr.equals("Certification")) {
-                            syncindexes.put("Certification", indexByCertification(indexMovies));
-                        } else if (indexStr.equals("Year")) {
-                            syncindexes.put("Year", indexByYear(indexMovies));
-                        } else if (indexStr.equals("Library")) {
-                            syncindexes.put("Library", indexByLibrary(indexMovies));
-                        } else if (indexStr.equals("Cast")) {
-                            syncindexes.put("Cast", indexByCast(indexMovies));
-                        } else if (indexStr.equals("Director")) {
-                            syncindexes.put("Director", indexByDirector(indexMovies));
-                        } else if (indexStr.equals("Country")) {
-                            syncindexes.put("Country", indexByCountry(indexMovies));
-                        } else if (indexStr.equals("Writer")) {
-                            syncindexes.put("Writer", indexByWriter(indexMovies));
-                        } else if (indexStr.equals("Award")) {
-                            syncindexes.put("Award", indexByAward(indexMovies));
-                        } else if (indexStr.equals("Person")) {
-                            syncindexes.put("Person", indexByPerson(indexMovies));
+                        if (indexStr.equals(INDEX_OTHER)) {
+                            syncindexes.put(INDEX_OTHER, indexByProperties(indexMovies));
+                        } else if (indexStr.equals(INDEX_GENRES)) {
+                            syncindexes.put(INDEX_GENRES, indexByGenres(indexMovies));
+                        } else if (indexStr.equals(INDEX_TITLE)) {
+                            syncindexes.put(INDEX_TITLE, indexByTitle(indexMovies));
+                        } else if (indexStr.equals(INDEX_CERTIFICATION)) {
+                            syncindexes.put(INDEX_CERTIFICATION, indexByCertification(indexMovies));
+                        } else if (indexStr.equals(INDEX_YEAR)) {
+                            syncindexes.put(INDEX_YEAR, indexByYear(indexMovies));
+                        } else if (indexStr.equals(INDEX_LIBRARY)) {
+                            syncindexes.put(INDEX_LIBRARY, indexByLibrary(indexMovies));
+                        } else if (indexStr.equals(INDEX_CAST)) {
+                            syncindexes.put(INDEX_CAST, indexByCast(indexMovies));
+                        } else if (indexStr.equals(INDEX_DIRECTOR)) {
+                            syncindexes.put(INDEX_DIRECTOR, indexByDirector(indexMovies));
+                        } else if (indexStr.equals(INDEX_COUNTRY)) {
+                            syncindexes.put(INDEX_COUNTRY, indexByCountry(indexMovies));
+                        } else if (indexStr.equals(INDEX_WRITER)) {
+                            syncindexes.put(INDEX_WRITER, indexByWriter(indexMovies));
+                        } else if (indexStr.equals(INDEX_AWARD)) {
+                            syncindexes.put(INDEX_AWARD, indexByAward(indexMovies));
+                        } else if (indexStr.equals(INDEX_PERSON)) {
+                            syncindexes.put(INDEX_PERSON, indexByPerson(indexMovies));
                         }
                         return null;
                     }
@@ -431,14 +462,14 @@ public class Library implements Map<String, Movie> {
 
             // Now add the masters to the titles index
             // Issue 1018 - Check that this index was selected
-            if (indexList.contains("Title")) {
+            if (indexList.contains(INDEX_TITLE)) {
                 for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
                     Index mastersTitlesIndex = indexByTitle(dyn_index_masters_entry.getValue().values());
                     for (Map.Entry<String, List<Movie>> index_entry : mastersTitlesIndex.entrySet()) {
                         for (Movie m : index_entry.getValue()) {
                             int setCount = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(m.getTitle()).size();
                             if (setCount >= minSetCount) {
-                                indexes.get("Title").addMovie(index_entry.getKey(), m);
+                                indexes.get(INDEX_TITLE).addMovie(index_entry.getKey(), m);
                             }
                         }
                     }
@@ -468,26 +499,26 @@ public class Library implements Map<String, Movie> {
             SystemTools.showMemory();
 
             // Cut off the Other/New lists if they're too long AND add them to the NEW category if required
-            trimNewCategory("New-TV", newTvCount);
-            trimNewCategory("New-Movie", newMovieCount);
+            trimNewCategory(INDEX_NEW_TV, newTvCount);
+            trimNewCategory(INDEX_NEW_MOVIE, newMovieCount);
             
             // Merge the two categories into the Master "New" category
             
-            if (categoriesMap.get("New") != null) {
-                Index otherIndexes = indexes.get("Other");
+            if (categoriesMap.get(INDEX_NEW) != null) {
+                Index otherIndexes = indexes.get(INDEX_OTHER);
                 List<Movie> newList = new ArrayList<Movie>();
                 
-                if ((categoriesMap.get("New-Movie") != null)  && (otherIndexes.get(categoriesMap.get("New-Movie")) != null)){
-                    newList.addAll(otherIndexes.get(categoriesMap.get("New-Movie")));
+                if ((categoriesMap.get(INDEX_NEW_MOVIE) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)) != null)){
+                    newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)));
                 }
                 
-                if ((categoriesMap.get("New-TV") != null)  && (otherIndexes.get(categoriesMap.get("New-TV")) != null)){
-                    newList.addAll(otherIndexes.get(categoriesMap.get("New-TV")));
+                if ((categoriesMap.get(INDEX_NEW_TV) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)){
+                    newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)));
                 }
                 
                 logger.debug("Creating new category with latest Movies and TV Shows");
-                otherIndexes.put(categoriesMap.get("New"), newList);
-                Collections.sort(otherIndexes.get(categoriesMap.get("New")), cmpLast);
+                otherIndexes.put(categoriesMap.get(INDEX_NEW), newList);
+                Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), cmpLast);
                 
             }
             
@@ -514,7 +545,7 @@ public class Library implements Map<String, Movie> {
         String category = categoriesMap.get(catName);
         //logger.info("Trimming '" + catName + "' ('" + category + "') to " + catCount + " videos");
         if (catCount > 0 && category != null) {
-            Index otherIndexes = indexes.get("Other");
+            Index otherIndexes = indexes.get(INDEX_OTHER);
             if (otherIndexes != null) {
                 List<Movie> newList = otherIndexes.get(category);
                 //logger.info("Current size of '" + catName + "' ('" + category + "') is " + (newList != null ? newList.size() : "NULL"));
@@ -619,14 +650,14 @@ public class Library implements Map<String, Movie> {
 
                     if (!Character.isLetter(firstCharacter)) {
                         index.addMovie("09", movie);
-                        movie.addIndex("Title", "09");
+                        movie.addIndex(INDEX_TITLE, "09");
                     } else if (charGroupEnglish && ((firstCharacter >= 'A' && firstCharacter <= 'Z') || (firstCharacter >= 'a' && firstCharacter <= 'z'))) {
                         index.addMovie("AZ", movie);
-                        movie.addIndex("Title", "AZ");
+                        movie.addIndex(INDEX_TITLE, "AZ");
                     } else {
                         String newChar = StringTools.characterMapReplacement(firstCharacter);
                         index.addMovie(newChar, movie);
-                        movie.addIndex("Title", newChar);
+                        movie.addIndex(INDEX_TITLE, newChar);
                     }
                 }
             }
@@ -641,7 +672,7 @@ public class Library implements Map<String, Movie> {
                 String year = getYearCategory(movie.getYear());
                 if (null != year) {
                     index.addMovie(year, movie);
-                    movie.addIndex("Year", year);
+                    movie.addIndex(INDEX_YEAR, year);
                 }
             }
         }
@@ -653,7 +684,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : moviesList) {
             if (!movie.isExtra() && movie.getLibraryDescription().length() > 0) {
                 index.addMovie(movie.getLibraryDescription(), movie);
-                movie.addIndex("Library", movie.getLibraryDescription());
+                movie.addIndex(INDEX_LIBRARY, movie.getLibraryDescription());
             }
         }
         return index;
@@ -667,7 +698,7 @@ public class Library implements Map<String, Movie> {
                 for (String genre : movie.getGenres()) {
                     if (cntGenres < maxGenresPerMovie) {
                         index.addMovie(getIndexingGenre(genre), movie);
-                        movie.addIndex("Genre", getIndexingGenre(genre));
+                        movie.addIndex(INDEX_GENRES, getIndexingGenre(genre));
                         ++cntGenres;
                     }
                 }
@@ -687,7 +718,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : moviesList) {
             if (!movie.isExtra()) {
                 index.addMovie(getIndexingCertification(movie.getCertification()), movie);
-                movie.addIndex("Certification", getIndexingCertification(movie.getCertification()));
+                movie.addIndex(INDEX_CERTIFICATION, getIndexingCertification(movie.getCertification()));
             }
         }
         return index;
@@ -706,9 +737,9 @@ public class Library implements Map<String, Movie> {
             if (movie.isExtra()) {
                 // Issue 997: Skip the processing of extras
                 if (processExtras) {
-                    if (categoriesMap.get("Extras") != null) {
-                        index.addMovie(categoriesMap.get("Extras"), movie);
-                        movie.addIndex("Extras", categoriesMap.get("Extras"));
+                    if (categoriesMap.get(INDEX_EXTRAS) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_EXTRAS), movie);
+                        movie.addIndex(INDEX_EXTRAS, categoriesMap.get(INDEX_EXTRAS));
                     }
                 }
             } else {
@@ -716,79 +747,79 @@ public class Library implements Map<String, Movie> {
                     if (splitHD) {
                         // Split the HD category into two categories: HD-720 and HD-1080
                         if (movie.isHD1080()) {
-                            if (categoriesMap.get("HD-1080") != null) {
-                                index.addMovie(categoriesMap.get("HD-1080"), movie);
-                                movie.addIndex("HD", categoriesMap.get("HD-1080"));
+                            if (categoriesMap.get(INDEX_HD1080) != null) {
+                                index.addMovie(categoriesMap.get(INDEX_HD1080), movie);
+                                movie.addIndex(INDEX_HD, categoriesMap.get(INDEX_HD1080));
                             }
                         } else {
-                            if (categoriesMap.get("HD-720") != null) {
-                                index.addMovie(categoriesMap.get("HD-720"), movie);
-                                movie.addIndex("HD", categoriesMap.get("HD-720"));
+                            if (categoriesMap.get(INDEX_HD720) != null) {
+                                index.addMovie(categoriesMap.get(INDEX_HD720), movie);
+                                movie.addIndex(INDEX_HD, categoriesMap.get(INDEX_HD720));
                             }
                         }
                     } else {
-                        if (categoriesMap.get("HD") != null) {
-                            index.addMovie(categoriesMap.get("HD"), movie);
-                            movie.addIndex("HD", categoriesMap.get("HD"));
+                        if (categoriesMap.get(INDEX_HD) != null) {
+                            index.addMovie(categoriesMap.get(INDEX_HD), movie);
+                            movie.addIndex(INDEX_HD, categoriesMap.get(INDEX_HD));
                         }
                     }
                 }
 
                 if (movie.getTop250() > 0) {
-                    if (categoriesMap.get("Top250") != null) {
-                        index.addMovie(categoriesMap.get("Top250"), movie);
-                        movie.addIndex("Top250", categoriesMap.get("Top250"));
+                    if (categoriesMap.get(INDEX_TOP250) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_TOP250), movie);
+                        movie.addIndex(INDEX_TOP250, categoriesMap.get(INDEX_TOP250));
                     }
                 }
                 
                 if (movie.getRating() > 0) {
-                    if (categoriesMap.get("Rating") != null) {
-                        index.addMovie(categoriesMap.get("Rating"), movie);
-                        movie.addIndex("Rating", categoriesMap.get("Rating"));
+                    if (categoriesMap.get(INDEX_RATING) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_RATING), movie);
+                        movie.addIndex(INDEX_RATING, categoriesMap.get(INDEX_RATING));
                     }
                 }
                 
                 if (enableWatchScanner) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
                     // Add to the Watched or Unwatched category
                     if (movie.isWatched()) {
-                        index.addMovie(categoriesMap.get("Watched"), movie);
-                        movie.addIndex("Watched", categoriesMap.get("Watched"));
+                        index.addMovie(categoriesMap.get(INDEX_WATCHED), movie);
+                        movie.addIndex(INDEX_WATCHED, categoriesMap.get(INDEX_WATCHED));
                     } else {
-                        index.addMovie(categoriesMap.get("Unwatched"), movie);
-                        movie.addIndex("Unwatched", categoriesMap.get("Unwatched"));
+                        index.addMovie(categoriesMap.get(INDEX_UNWATCHED), movie);
+                        movie.addIndex(INDEX_UNWATCHED, categoriesMap.get(INDEX_UNWATCHED));
                     }
                 }
                 
                 // Add to the New Movie category
                 if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
-                    if (categoriesMap.get("New-Movie") != null) {
-                        index.addMovie(categoriesMap.get("New-Movie"), movie);
-                        movie.addIndex("New-Movie", categoriesMap.get("New-Movie"));
+                    if (categoriesMap.get(INDEX_NEW_MOVIE) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_NEW_MOVIE), movie);
+                        movie.addIndex(INDEX_NEW_MOVIE, categoriesMap.get(INDEX_NEW_MOVIE));
                     }
                 }
                 
                 // Add to the New TV category
                 if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
-                    if (categoriesMap.get("New-TV") != null) {
-                        index.addMovie(categoriesMap.get("New-TV"), movie);
-                        movie.addIndex("New-TV", categoriesMap.get("New-TV"));
+                    if (categoriesMap.get(INDEX_NEW_TV) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_NEW_TV), movie);
+                        movie.addIndex(INDEX_NEW_TV, categoriesMap.get(INDEX_NEW_TV));
                     }
                 }
 
-                if (categoriesMap.get("All") != null) {
-                    index.addMovie(categoriesMap.get("All"), movie);
-                    movie.addIndex("All", categoriesMap.get("All"));
+                if (categoriesMap.get(INDEX_ALL) != null) {
+                    index.addMovie(categoriesMap.get(INDEX_ALL), movie);
+                    movie.addIndex(INDEX_ALL, categoriesMap.get(INDEX_ALL));
                 }
 
                 if (movie.isTVShow()) {
-                    if (categoriesMap.get("TV Shows") != null) {
-                        index.addMovie(categoriesMap.get("TV Shows"), movie);
-                        movie.addIndex("TV Shows", categoriesMap.get("TV Shows"));
+                    if (categoriesMap.get(INDEX_TVSHOWS) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_TVSHOWS), movie);
+                        movie.addIndex(INDEX_TVSHOWS, categoriesMap.get(INDEX_TVSHOWS));
                     }
                 } else {
-                    if (categoriesMap.get("Movies") != null) {
-                        index.addMovie(categoriesMap.get("Movies"), movie);
-                        movie.addIndex("Movies", categoriesMap.get("Movies"));
+                    if (categoriesMap.get(INDEX_MOVIES) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_MOVIES), movie);
+                        movie.addIndex(INDEX_MOVIES, categoriesMap.get(INDEX_MOVIES));
                     }
                 }
             }
@@ -803,12 +834,12 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra()) {
                 if (singleSeriesPage && movie.isTVShow()) {
                     index.addMovie(movie.getOriginalTitle(), movie);
-                    movie.addIndex("Set", movie.getOriginalTitle());
+                    movie.addIndex(INDEX_SET, movie.getOriginalTitle());
                 }
 
                 for (String set_key : movie.getSetsKeys()) {
                     index.addMovie(set_key, movie);
-                    movie.addIndex("Set", set_key);
+                    movie.addIndex(INDEX_SET, set_key);
                 }
             }
         }
@@ -828,13 +859,13 @@ public class Library implements Map<String, Movie> {
                         String actor = person.getTitle();
                         logger.debug("Adding " + movie.getTitle() + " to cast list for " + actor);
                         index.addMovie(actor, movie);
-                        movie.addIndex("Actor", actor);
+                        movie.addIndex(INDEX_ACTOR, actor);
                     }
                 } else {
                     for (String actor : movie.getCast()) {
                         logger.debug("Adding " + movie.getTitle() + " to cast list for " + actor);
                         index.addMovie(actor, movie);
-                        movie.addIndex("Actor", actor);
+                        movie.addIndex(INDEX_ACTOR, actor);
                     }
                 }
             }
@@ -848,7 +879,7 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : list) {
             if (!movie.isExtra()) {
                 index.addMovie(movie.getCountry(), movie);
-                movie.addIndex("Country", movie.getCountry());
+                movie.addIndex(INDEX_COUNTRY, movie.getCountry());
             }
         }
 
@@ -867,13 +898,13 @@ public class Library implements Map<String, Movie> {
                         String director = person.getTitle();
                         logger.debug("Adding " + movie.getTitle() + " to director list for " + director);
                         index.addMovie(director, movie);
-                        movie.addIndex("Director", director);
+                        movie.addIndex(INDEX_DIRECTOR, director);
                     }
                 } else {
                     for (String director : movie.getDirectors()) {
                         logger.debug("Adding " + movie.getTitle() + " to director list for " + director);
                         index.addMovie(director, movie);
-                        movie.addIndex("Director", director);
+                        movie.addIndex(INDEX_DIRECTOR, director);
                     }
                 }
             }
@@ -894,13 +925,13 @@ public class Library implements Map<String, Movie> {
                         String writer = person.getTitle();
                         logger.debug("Adding " + movie.getTitle() + " to writer list for " + writer);
                         index.addMovie(writer, movie);
-                        movie.addIndex("Writer", writer);
+                        movie.addIndex(INDEX_WRITER, writer);
                     }
                 } else {
                     for (String writer : movie.getWriters()) {
                         logger.debug("Adding " + movie.getTitle() + " to writer list for " + writer);
                         index.addMovie(writer, movie);
-                        movie.addIndex("Writer", writer);
+                        movie.addIndex(INDEX_WRITER, writer);
                     }
                 }
             }
@@ -917,7 +948,7 @@ public class Library implements Map<String, Movie> {
                     String awardName = award.getName();
                     logger.debug("Adding " + movie.getTitle() + " to award list for " + awardName);
                     index.addMovie(awardName, movie);
-                    movie.addIndex("Award", awardName);
+                    movie.addIndex(INDEX_AWARD, awardName);
                 }
             }
         }
@@ -936,7 +967,7 @@ public class Library implements Map<String, Movie> {
                     String name = person.getName();
                     logger.debug("Adding " + movie.getTitle() + " to person list for " + name);
                     index.addMovie(name, movie);
-                    movie.addIndex("Person", name);
+                    movie.addIndex(INDEX_PERSON, name);
                 }
             }
         }
@@ -1219,14 +1250,14 @@ public class Library implements Map<String, Movie> {
         
         if (category.equals(SET)) {
             cmpMovie = new MovieSetComparator(key);
-        } else if (category.equals("Other")) {
-            if (key.equals(categoriesMap.get("New")) || 
-                    key.equals(categoriesMap.get("New-TV")) || 
-                    key.equals(categoriesMap.get("New-Movie"))) {
+        } else if (category.equals(INDEX_OTHER)) {
+            if (key.equals(categoriesMap.get(INDEX_NEW)) || 
+                    key.equals(categoriesMap.get(INDEX_NEW_TV)) || 
+                    key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
                 cmpMovie = cmpLast;
-            } else if (key.equals(categoriesMap.get("Top250"))) {
+            } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
                 cmpMovie = cmp250;
-            } else if (key.equals(categoriesMap.get("Rating"))) {
+            } else if (key.equals(categoriesMap.get(INDEX_RATING))) {
                 cmpMovie = cmpRating;
             }
         }
@@ -1268,7 +1299,19 @@ public class Library implements Map<String, Movie> {
     }
 
     public static Collection<String> getPrefixes() {
-        return Arrays.asList(new String[] { "OTHER", "CERTIFICATION", "TITLE", "YEAR", "GENRES", "SET", "LIBRARY", "CAST", "DIRECTOR", "COUNTRY", "CATEGORIES", "AWARD", "PERSON" });
+        return Arrays.asList(new String[] { INDEX_OTHER.toUpperCase(), 
+                        INDEX_CERTIFICATION.toUpperCase(), 
+                        INDEX_TITLE.toUpperCase(), 
+                        INDEX_YEAR.toUpperCase(), 
+                        INDEX_GENRES.toUpperCase(), 
+                        INDEX_SET.toUpperCase(), 
+                        INDEX_LIBRARY.toUpperCase(), 
+                        INDEX_CAST.toUpperCase(), 
+                        INDEX_DIRECTOR.toUpperCase(), 
+                        INDEX_COUNTRY.toUpperCase(), 
+                        INDEX_CATEGORIES.toUpperCase(), 
+                        INDEX_AWARD.toUpperCase(), 
+                        INDEX_PERSON.toUpperCase() });
     }
 
     /**
