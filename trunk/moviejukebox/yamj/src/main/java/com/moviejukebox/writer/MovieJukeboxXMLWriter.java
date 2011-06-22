@@ -71,6 +71,7 @@ import com.moviejukebox.tools.XMLWriter;
  * Parse/Write XML files for movie details and library indexes
  * 
  * @author Julien
+ * @author Stuart.Boston
  */
 public class MovieJukeboxXMLWriter {
 
@@ -414,6 +415,7 @@ public class MovieJukeboxXMLWriter {
                             continue;
                         }
                     }
+                    
                     while (!r.peek().toString().equalsIgnoreCase("</event>")) {
                         e = r.nextEvent();
                         tag = e.toString();
@@ -1027,23 +1029,23 @@ public class MovieJukeboxXMLWriter {
                         Map<String, String> cm = new LinkedHashMap<String, String>(library.getCategoriesMap());
 
                         // Tidy up the new categories if needed
-                        String newAll = cm.get("New");
-                        String newTV = cm.get("New-TV");
-                        String newMovie = cm.get("New-Movie");
+                        String newAll = cm.get(Library.INDEX_NEW);
+                        String newTV = cm.get(Library.INDEX_NEW_TV);
+                        String newMovie = cm.get(Library.INDEX_MOVIES);
                         
                         // If the New-TV is named the same as the New, remove it
                         if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newTV) && newAll.equalsIgnoreCase(newTV)) {
-                            cm.remove("New-TV");
+                            cm.remove(Library.INDEX_NEW_TV);
                         }
                         
                         // If the New-Movie is named the same as the New, remove it
                         if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newMovie) && newAll.equalsIgnoreCase(newMovie)) {
-                            cm.remove("New-Movie");
+                            cm.remove(Library.INDEX_NEW_MOVIE);
                         }
                         
                         // If the New-TV is named the same as the New-Movie, remove it
                         if (StringUtils.isNotBlank(newTV) && StringUtils.isNotBlank(newMovie) && newTV.equalsIgnoreCase(newMovie)) {
-                            cm.remove("New-TV");
+                            cm.remove(Library.INDEX_NEW_TV);
                         }
                         
                         for (String catOriginalName : cm.keySet()) {
@@ -1152,7 +1154,7 @@ public class MovieJukeboxXMLWriter {
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
                         if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName) && !separateCategories) {
-                            logger.debug("Category " + category_path + " does not contain enough movies (" + categoryCount
+                            logger.debug("Category " + category_path + " does not contain enough videos (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
                         }
@@ -1163,12 +1165,12 @@ public class MovieJukeboxXMLWriter {
                         int nbVideosPerPage = nbMoviesPerPage, nbVideosPerLine = nbMoviesPerLine;
 
                         if (movies.size() > 0) {
-                            if (key.equalsIgnoreCase("TV Shows")) {
+                            if (key.equalsIgnoreCase(Library.INDEX_TVSHOWS)) {
                                 nbVideosPerPage = nbTvShowsPerPage;
                                 nbVideosPerLine = nbTvShowsPerLine;
                             }
 
-                            if (categoryName.equalsIgnoreCase("Set")) {
+                            if (categoryName.equalsIgnoreCase(Library.INDEX_SET)) {
                                 if (movies.get(0).isTVShow()) {
                                     nbVideosPerPage = nbTVSetMoviesPerPage;
                                     nbVideosPerLine = nbTVSetMoviesPerLine;
@@ -1196,7 +1198,7 @@ public class MovieJukeboxXMLWriter {
 
                             // Issue 1263 - Allow explode of Set in category .
                             if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
-                                List<Movie> boxedSetMovies = library.getIndexes().get("Set").get(movie.getTitle());
+                                List<Movie> boxedSetMovies = library.getIndexes().get(Library.INDEX_SET).get(movie.getTitle());
                                 boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
                                 logger.debug("Exploding set for " + category_path + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
                                 //delay new instance
@@ -1220,7 +1222,7 @@ public class MovieJukeboxXMLWriter {
                         IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipindex); 
 
                         // Don't skip the indexing for sets as this overwrites the set files
-                        if ("Set".equalsIgnoreCase(categoryName) && setReindex) {
+                        if (Library.INDEX_SET.equalsIgnoreCase(categoryName) && setReindex) {
                             skipindex = false;
                         }
 
@@ -1238,16 +1240,16 @@ public class MovieJukeboxXMLWriter {
                          * When we write the watched or unwatched index, we should always write the other one.
                          */
                         if (enableWatchScanner && 
-                                        ("Unwatched".equalsIgnoreCase(key) || 
-                                                        "Watched".equalsIgnoreCase(key) || 
-                                                        "New".equalsIgnoreCase(key))) {
+                                        (Library.INDEX_UNWATCHED.equalsIgnoreCase(key) || 
+                                         Library.INDEX_WATCHED.equalsIgnoreCase(key)   || 
+                                         Library.INDEX_NEW.equalsIgnoreCase(key))) {
                             skipindex = false;
                             idx.canSkip = false;
                         }
 
 
                         for (current = 1 ; current <= last; current ++) {
-                            if ("Set".equalsIgnoreCase(categoryName) && setReindex) {
+                            if (Library.INDEX_SET.equalsIgnoreCase(categoryName) && setReindex) {
                                 idx.canSkip = false;
                             } else {
                                 idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
@@ -1338,23 +1340,23 @@ public class MovieJukeboxXMLWriter {
                     Map<String, String> cm = new LinkedHashMap<String, String>(library.getCategoriesMap());
 
                     // Tidy up the new categories if needed
-                    String newAll = cm.get("New");
-                    String newTV = cm.get("New-TV");
-                    String newMovie = cm.get("New-Movie");
+                    String newAll = cm.get(Library.INDEX_NEW);
+                    String newTV = cm.get(Library.INDEX_NEW_TV);
+                    String newMovie = cm.get(Library.INDEX_NEW_MOVIE);
                     
                     // If the New-TV is named the same as the New, remove it
                     if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newTV) && newAll.equalsIgnoreCase(newTV)) {
-                        cm.remove("New-TV");
+                        cm.remove(Library.INDEX_NEW_TV);
                     }
                     
                     // If the New-Movie is named the same as the New, remove it
                     if (StringUtils.isNotBlank(newAll) && StringUtils.isNotBlank(newMovie) && newAll.equalsIgnoreCase(newMovie)) {
-                        cm.remove("New-Movie");
+                        cm.remove(Library.INDEX_NEW_MOVIE);
                     }
                     
                     // If the New-TV is named the same as the New-Movie, remove it
                     if (StringUtils.isNotBlank(newTV) && StringUtils.isNotBlank(newMovie) && newTV.equalsIgnoreCase(newMovie)) {
-                        cm.remove("New-TV");
+                        cm.remove(Library.INDEX_NEW_TV);
                     }
                     
                     for (String catOriginalName : cm.keySet()) {
@@ -1374,7 +1376,7 @@ public class MovieJukeboxXMLWriter {
 
                 writer.writeEndElement(); // categories
             }
-            // FIXME
+            // FIXME: The count here is off. It needs to be correct
             writer.writeStartElement("movies");
             writer.writeAttribute("count", "" + idx.videosPerPage);
             writer.writeAttribute("cols", "" + idx.videosPerLine);
@@ -1430,7 +1432,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeAttribute("name", categoryName);
 
         // The category changes only occur for "Other" category
-        if ("Other".equals(categoryKey)) {
+        if (Library.INDEX_OTHER.equals(categoryKey)) {
             writer.writeAttribute("originalName", Library.getOriginalCategory(encakey));
         }
 

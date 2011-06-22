@@ -80,9 +80,8 @@ public class WatchedScanner {
             movie.setWatchedFile(movieWatched);
             movie.setDirty(Movie.DIRTY_WATCHED, true);
             
-            // Issue 1949 - Force the artwork to be overwritten
+            // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
             movie.setDirty(Movie.DIRTY_POSTER, true);
-            movie.setDirty(Movie.DIRTY_FANART, true);
             movie.setDirty(Movie.DIRTY_BANNER, true);
             
             returnStatus = true;
@@ -93,9 +92,8 @@ public class WatchedScanner {
             movie.setWatchedFile(movieWatched);
             movie.setDirty(Movie.DIRTY_WATCHED, true);
             
-            // Issue 1949 - Force the artwork to be overwritten
+            // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
             movie.setDirty(Movie.DIRTY_POSTER, true);
-            movie.setDirty(Movie.DIRTY_FANART, true);
             movie.setDirty(Movie.DIRTY_BANNER, true);
 
             returnStatus = true;
