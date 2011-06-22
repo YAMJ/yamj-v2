@@ -1178,8 +1178,9 @@ public class MovieJukebox {
                                 break;
                             }
                         }
+                        
                         if (dirty) {
-                            movie.setDirty(true);
+                            movie.setDirty(Movie.DIRTY_PERSON, true);
                         }
                     }
 
@@ -1632,11 +1633,11 @@ public class MovieJukebox {
                 // Only re-scan the nfo files if one of them is newer
                 if (FileTools.isNewer(nfoFile, xmlFile)) {
                     logger.info("NFO for " + movie.getOriginalTitle() + " (" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
-                    movie.setDirty(true);
-                    movie.setDirtyNFO(true);
-                    movie.setDirtyPoster(true);
-                    movie.setDirtyFanart(true);
-                    movie.setDirtyBanner(true);
+                    movie.setDirty(Movie.DIRTY_INFO, true);
+                    movie.setDirty(Movie.DIRTY_NFO, true);
+                    movie.setDirty(Movie.DIRTY_POSTER, true);
+                    movie.setDirty(Movie.DIRTY_FANART, true);
+                    movie.setDirty(Movie.DIRTY_BANNER, true);
                     forceXMLOverwrite = true;
                     break; // one is enough
                 }
@@ -1661,7 +1662,7 @@ public class MovieJukebox {
             MovieNFOScanner.scan(movieNFO, nfoFiles);
             if (!Arrays.equals(movieNFO.getSetsKeys().toArray(), movie.getSetsKeys().toArray())) {
                 movie.setSets(movieNFO.getSets());
-                movie.setDirtyNFO(true);
+                movie.setDirty(Movie.DIRTY_NFO, true);
             }
 
             // If we are overwiting the indexes, we need to check for an update to the library description
@@ -1671,7 +1672,7 @@ public class MovieJukebox {
                     if (movie.getFile().getAbsolutePath().startsWith(mlp.getPath()) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
                         logger.debug("Changing libray description from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
                         movie.setLibraryDescription(mlp.getDescription());
-                        movie.setDirty(true);
+                        movie.setDirty(Movie.DIRTY_INFO, true);
                         break;
                     }
                 }
@@ -1680,7 +1681,7 @@ public class MovieJukebox {
             if (recheckXML && mjbRecheck(movie)) {
                 logger.info("Recheck of " + movie.getBaseName() + " required");
                 forceXMLOverwrite = true;
-                movie.setDirty(true);
+                movie.setDirty(Movie.DIRTY_INFO, true);
             }
         }
 
@@ -1766,7 +1767,7 @@ public class MovieJukebox {
             MovieNFOScanner.scan(movie, nfoFiles);
 
             // Added forceXMLOverwrite for issue 366
-            if (!isValidString(movie.getPosterURL()) || movie.isDirtyPoster()) {
+            if (!isValidString(movie.getPosterURL()) || movie.isDirty(Movie.DIRTY_POSTER)) {
                 PosterScanner.scan(jukebox, movie);
             }
             
@@ -1779,12 +1780,12 @@ public class MovieJukebox {
             
             // Check for new fanart if we need to (Issue 1563)
             if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                if (!isValidString(movie.getFanartURL()) || movie.isDirtyFanart()) {
+                if (!isValidString(movie.getFanartURL()) || movie.isDirty(Movie.DIRTY_FANART)) {
                     FanartScanner.scan(backgroundPlugin, jukebox, movie);
                 }
             }
         }
-        return movie.isDirty() || movie.isDirtyNFO();
+        return movie.isDirty() || movie.isDirty(Movie.DIRTY_NFO);
     }
 
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
@@ -1836,7 +1837,7 @@ public class MovieJukebox {
         // Download poster
 
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
-        if ((!tmpDestFile.exists() && !posterFile.exists()) || (movie.isDirtyPoster()) || forcePosterOverwrite) {
+        if ((!tmpDestFile.exists() && !posterFile.exists()) || movie.isDirty(Movie.DIRTY_POSTER) || forcePosterOverwrite) {
             posterFile.getParentFile().mkdirs();
 
             if (!isValidString(movie.getPosterURL())) {
@@ -1873,7 +1874,7 @@ public class MovieJukebox {
         // Download banner
 
         // Do not overwrite existing banners, unless there is a new poster URL in the nfo file.
-        if ((!tmpDestFile.exists() && !bannerFile.exists()) || (movie.isDirtyBanner()) || forceBannerOverwrite) {
+        if ((!tmpDestFile.exists() && !bannerFile.exists()) || movie.isDirty(Movie.DIRTY_BANNER) || forceBannerOverwrite) {
             bannerFile.getParentFile().mkdirs();
 
             if (isNotValidString(movie.getBannerURL())) {

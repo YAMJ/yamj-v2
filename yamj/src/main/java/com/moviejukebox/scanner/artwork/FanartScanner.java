@@ -181,7 +181,7 @@ public class FanartScanner {
             // Local Fanart is newer OR ForceFanartOverwrite OR DirtyFanart
             // Can't check the file size because the jukebox fanart may have been re-sized
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
-            if (FileTools.isNewer(fullFanartFile, finalDestinationFile) || fanartOverwrite || movie.isDirtyFanart()) {
+            if (FileTools.isNewer(fullFanartFile, finalDestinationFile) || fanartOverwrite || movie.isDirty(Movie.DIRTY_FANART)) {
                 try {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(fullFanartFile);
                     if (fanartImage != null) {
@@ -298,7 +298,7 @@ public class FanartScanner {
             for (Artwork fanartArtwork : artworkList) {
                 IImage imageFanart = new Image(fanartArtwork.getUrl());
                 if (validateArtwork(imageFanart, artworkWidth, artworkHeight, true)) {
-                    movie.setDirtyFanart(true);
+                    movie.setDirty(Movie.DIRTY_FANART, true);
                     return fanartArtwork.getUrl();
                 } else {
                     logger.debug("FanartScanner: Skipped invalid artwork " + fanartArtwork.getUrl());

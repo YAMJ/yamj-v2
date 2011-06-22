@@ -264,7 +264,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setCast(series.getActors());
                     }
 
-                    if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirtyBanner()) {
+                    if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
                         final int season = movie.getSeason();
                         String urlBanner = null;
 
@@ -314,7 +314,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 // TODO remove this once all skins are using the new fanart properties
                 downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
-                if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || (movie.isDirtyFanart())) {
+                if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
                     String url = null;
                     Artwork artwork = new Artwork();
                     artwork.setSourceSite(THETVDB_PLUGIN_ID);

@@ -78,11 +78,12 @@ public class WatchedScanner {
         // Only change the watched status if we found at least 1 file
         if ((fileWatchedCount > 0) && (movie.isWatchedFile() != movieWatched)) {
             movie.setWatchedFile(movieWatched);
-            movie.setDirty(true);
+            movie.setDirty(Movie.DIRTY_WATCHED, true);
             
             // Issue 1949 - Force the artwork to be overwritten
-            movie.setDirtyPoster(true);
-            movie.setDirtyBanner(true);
+            movie.setDirty(Movie.DIRTY_POSTER, true);
+            movie.setDirty(Movie.DIRTY_FANART, true);
+            movie.setDirty(Movie.DIRTY_BANNER, true);
             
             returnStatus = true;
         }
@@ -90,11 +91,12 @@ public class WatchedScanner {
         // If there are no files found and the movie is watched(file), reset the status
         if ((fileWatchedCount == 0) && movie.isWatchedFile()) {
             movie.setWatchedFile(movieWatched);
-            movie.setDirty(true);
+            movie.setDirty(Movie.DIRTY_WATCHED, true);
             
             // Issue 1949 - Force the artwork to be overwritten
-            movie.setDirtyPoster(true);
-            movie.setDirtyBanner(true);
+            movie.setDirty(Movie.DIRTY_POSTER, true);
+            movie.setDirty(Movie.DIRTY_FANART, true);
+            movie.setDirty(Movie.DIRTY_BANNER, true);
 
             returnStatus = true;
         }
