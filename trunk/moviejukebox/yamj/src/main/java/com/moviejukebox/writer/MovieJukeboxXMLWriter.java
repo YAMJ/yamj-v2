@@ -737,7 +737,7 @@ public class MovieJukeboxXMLWriter {
             return false;
         }
 
-        movie.setDirty(forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
+        movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
 
         return true;
     }
@@ -824,7 +824,7 @@ public class MovieJukeboxXMLWriter {
             return false;
         }
 
-        movie.setDirty(forceDirtyFlag);
+        movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag);
 
         return true;
     }

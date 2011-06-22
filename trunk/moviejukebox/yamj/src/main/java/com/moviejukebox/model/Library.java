@@ -693,6 +693,12 @@ public class Library implements Map<String, Movie> {
         return index;
     }
 
+    /**
+     * Index the videos by the property values
+     * This is slightly different from the other indexes as there may be multiple entries for each of the videos 
+     * @param moviesList
+     * @return
+     */
     private static Index indexByProperties(Iterable<Movie> moviesList) {
         Index index = new Index();
         long now = System.currentTimeMillis();

@@ -181,7 +181,7 @@ public class OpenSubtitlesPlugin {
 
                     if (!subtitleFile.exists()) {
                         if (subtitleDownload(movie, mf.getFile(), subtitleFile) == true) {
-                            movie.setDirty(true);
+                            movie.setDirty(Movie.DIRTY_SUBTITLE, true);
                             mf.setSubtitlesExchange(true);
                         }
                     } else {
@@ -193,7 +193,7 @@ public class OpenSubtitlesPlugin {
                             subtitleFileArray[0] = subtitleFile;
 
                             if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
-                                movie.setDirty(true);
+                                movie.setDirty(Movie.DIRTY_SUBTITLE, true);
                                 mf.setSubtitlesExchange(true);
                             }
                         }
@@ -221,7 +221,7 @@ public class OpenSubtitlesPlugin {
                 }
 
                 if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
-                    movie.setDirty(true);
+                    movie.setDirty(Movie.DIRTY_SUBTITLE, true);
 
                     // Go over all the movie files and mark the exchange
                     for (MovieFile mf : movie.getMovieFiles()) {
