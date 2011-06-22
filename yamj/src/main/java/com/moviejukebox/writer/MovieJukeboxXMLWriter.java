@@ -1461,6 +1461,12 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("details");
         writer.writeCharacters(HTMLTools.encodeUrl(movie.getBaseName()) + ".html");
         writer.writeEndElement();
+        writer.writeStartElement("baseFilenameBase");
+        writer.writeCharacters(movie.getBaseFilename());
+        writer.writeEndElement();
+        writer.writeStartElement("baseFilename");
+        writer.writeCharacters(movie.getBaseName());
+        writer.writeEndElement();
         writer.writeStartElement("title");
         writer.writeCharacters(movie.getTitle());
         writer.writeEndElement();
