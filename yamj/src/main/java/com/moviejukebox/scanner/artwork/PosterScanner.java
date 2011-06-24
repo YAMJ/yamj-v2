@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -85,12 +87,16 @@ public class PosterScanner {
     protected static int        posterHeight;
     private static String       tvShowPosterSearchPriority;
     private static String       moviePosterSearchPriority;
+    
+    private static final String EXISTING_MOVIE = "moviename";
+    private static final String EXISTING_FIXED = "fixedcoverartname";
+    private static final String EXISTING_NO = "no";
 
     static {
         StringTokenizer st;
         
         // We get covert art scanner behaviour
-        searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", "moviename");
+        searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", EXISTING_MOVIE);
         // We get the fixed name property
         fixedPosterName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
         // See if we use folder.* image or not
@@ -142,7 +148,7 @@ public class PosterScanner {
     }
 
     public static String scan(Jukebox jukebox, Movie movie) {
-        if (searchForExistingPoster.equalsIgnoreCase("no")) {
+        if (searchForExistingPoster.equalsIgnoreCase(EXISTING_NO)) {
             // nothing to do we return
             return Movie.UNKNOWN;
         }
@@ -152,20 +158,20 @@ public class PosterScanner {
         String fullPosterFilename = parentPath;
         File localPosterFile = null;
         
-        if (searchForExistingPoster.equalsIgnoreCase("moviename")) {
+        if (searchForExistingPoster.equalsIgnoreCase(EXISTING_MOVIE)) {
             // Encode the basename to ensure that non-usable file system characters are replaced
             // Issue 1155 : YAMJ refuses to pickup fanart and poster for a movie -
             // Do not make safe file name before searching.
             localPosterBaseFilename = movie.getBaseFilename();
-        } else if (searchForExistingPoster.equalsIgnoreCase("fixedcoverartname")) {
+        } else if (searchForExistingPoster.equalsIgnoreCase(EXISTING_FIXED)) {
             localPosterBaseFilename = fixedPosterName;
         } else {
-            logger.info("PosterScanner: Wrong value for poster.scanner.searchForExistingCoverArt properties!");
-            logger.info("PosterScanner: Expected 'moviename' or 'fixedcoverartname'");
+            logger.info("PosterScanner: Wrong value for 'poster.scanner.searchForExistingCoverArt' property ('" + searchForExistingPoster + "')!");
+            logger.info("PosterScanner: Expected '" + EXISTING_MOVIE + "' or '" + EXISTING_FIXED + "'");
             return Movie.UNKNOWN;
         }
 
-        if (!posterDirectory.equals("")) {
+        if (StringUtils.isNotBlank(posterDirectory)) {
             fullPosterFilename = StringTools.appendToPath(fullPosterFilename, posterDirectory);
         }
 
@@ -176,13 +182,13 @@ public class PosterScanner {
         boolean foundLocalPoster = localPosterFile.exists();               
 
         // Try searching the fileCache for the filename, but only for non-fixed filenames
-        if (!foundLocalPoster && !searchForExistingPoster.equalsIgnoreCase("fixedcoverartname")) {
+        if (!foundLocalPoster && !searchForExistingPoster.equalsIgnoreCase(EXISTING_FIXED)) {
             localPosterFile = FileTools.findFilenameInCache(localPosterBaseFilename, posterExtensions, jukebox, "PosterScanner: ");
             if (localPosterFile != null) {
                 foundLocalPoster = true;
             }
         }
-
+        
         /**
          * This part will look for a filename with the same name as the directory for the poster or for folder.* poster The intention is for you to be able
          * to create the season / TV series art for the whole series and not for the first show. Useful if you change the files regularly.
@@ -266,7 +272,7 @@ public class PosterScanner {
                  FileTools.copyFile(localPosterFile, tempJukeboxFile);
                  logger.debug("PosterScanner: " + fullPosterFilename + " has been copied to " + tempJukeboxPosterFileName);
             }
-            // Update poster url with local poster
+            // Update poster URL with local poster
             String posterURI = localPosterFile.toURI().toString();
             movie.setPosterURL(posterURI);
             

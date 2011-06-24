@@ -922,7 +922,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setAudioCodec(String audioCodec) {
-        if (audioCodec == null) {
+        if (StringUtils.isBlank(audioCodec)) {
             audioCodec = UNKNOWN;
         }
         if (!audioCodec.equalsIgnoreCase(this.audioCodec)) {
@@ -932,7 +932,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setBaseName(String baseName) {
-        if (baseName == null) {
+        if (StringUtils.isBlank(baseName)) {
             baseName = UNKNOWN;
         }
         if (!baseName.equalsIgnoreCase(this.baseName)) {
@@ -942,7 +942,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setBaseFilename(String filename) {
-        if (filename == null) {
+        if (StringUtils.isBlank(filename)) {
             filename = UNKNOWN;
         }
         if (!filename.equalsIgnoreCase(this.baseFilename)) {
@@ -1071,7 +1071,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setCompany(String company) {
-        if (company == null) {
+        if (StringUtils.isBlank(company)) {
             company = UNKNOWN;
         }
         if (!company.equalsIgnoreCase(this.company)) {
@@ -1081,7 +1081,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setContainer(String container) {
-        if (container == null) {
+        if (StringUtils.isBlank(container)) {
             container = UNKNOWN;
         }
         if (!container.equalsIgnoreCase(this.container)) {
@@ -1091,7 +1091,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setCountry(String country) {
-        if (country == null) {
+        if (StringUtils.isBlank(country)) {
             country = UNKNOWN;
         }
         if (!country.equalsIgnoreCase(this.country)) {
@@ -1174,7 +1174,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setFirst(String first) {
-        if (first == null) {
+        if (StringUtils.isBlank(first)) {
             first = UNKNOWN;
         }
         if (!first.equalsIgnoreCase(this.first)) {
@@ -1256,7 +1256,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setLanguage(String language) {
-        if (language == null) {
+        if (StringUtils.isBlank(language)) {
             language = UNKNOWN;
         }
         if (!language.equalsIgnoreCase(this.language)) {
@@ -1266,7 +1266,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setCertification(String certification) {
-        if (certification == null) {
+        if (StringUtils.isBlank(certification)) {
             certification = NOTRATED;
         }
         this.certification = certification;
@@ -1274,7 +1274,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setLast(String last) {
-        if (last == null) {
+        if (StringUtils.isBlank(last)) {
             last = UNKNOWN;
         }
         if (!last.equalsIgnoreCase(this.last)) {
@@ -1304,7 +1304,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setNext(String next) {
-        if (next == null) {
+        if (StringUtils.isBlank(next)) {
             next = UNKNOWN;
         }
         if (!next.equalsIgnoreCase(this.next)) {
@@ -1314,7 +1314,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setPlot(String plot) {
-        if (plot == null) {
+        if (StringUtils.isBlank(plot)) {
             plot = UNKNOWN;
         }
         if (!plot.equalsIgnoreCase(this.plot)) {
@@ -1329,7 +1329,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setOutline(String outline) {
-        if (outline == null) {
+        if (StringUtils.isBlank(outline)) {
             outline = UNKNOWN;
         }
         if (!outline.equalsIgnoreCase(this.outline)) {
@@ -1340,7 +1340,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setPrevious(String previous) {
-        if (previous == null) {
+        if (StringUtils.isBlank(previous)) {
             previous = UNKNOWN;
         }
         if (!previous.equalsIgnoreCase(this.previous)) {
@@ -1412,7 +1412,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setReleaseDate(String releaseDate) {
-        if (releaseDate == null) {
+        if (StringUtils.isBlank(releaseDate)) {
             releaseDate = UNKNOWN;
         }
         if (!releaseDate.equalsIgnoreCase(this.releaseDate)) {
@@ -1422,7 +1422,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setResolution(String resolution) {
-        if (resolution == null) {
+        if (StringUtils.isBlank(resolution)) {
             resolution = UNKNOWN;
         }
         if (!resolution.equalsIgnoreCase(this.resolution)) {
@@ -1432,7 +1432,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setRuntime(String runtime) {
-        if (runtime == null) {
+        if (StringUtils.isBlank(runtime)) {
             this.runtime = UNKNOWN;
             return;
         }
@@ -1449,7 +1449,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setSubtitles(String subtitles) {
-        if (subtitles == null) {
+        if (StringUtils.isBlank(subtitles)) {
             subtitles = UNKNOWN;
         }
 
@@ -1730,7 +1730,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setMovieType(String movieType) {
-        if (movieType == null) {
+        if (StringUtils.isBlank(movieType)) {
             movieType = TYPE_UNKNOWN;
         }
         if (!this.movieType.equals(movieType)) {
@@ -1744,7 +1744,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setFormatType(String formatType) {
-        if (formatType == null) {
+        if (StringUtils.isBlank(formatType)) {
             formatType = TYPE_FILE;
         }
         if (!this.formatType.equals(formatType)) {
@@ -1758,7 +1758,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setVideoType(String videoType) {
-        if (videoType == null) {
+        if (StringUtils.isBlank(videoType)) {
             videoType = UNKNOWN;
         }
         if (!this.videoType.equals(videoType)) {
@@ -1812,7 +1812,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setLibraryDescription(String libraryDescription) {
-        if (libraryDescription == null || libraryDescription.isEmpty()) {
+        if (StringUtils.isBlank(libraryDescription)) {
             libraryDescription = UNKNOWN;
         }
         if (!libraryDescription.equals(this.libraryDescription)) {
@@ -2057,13 +2057,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      * @param url
      */
     public void setPosterURL(String url) {
-        if (url == null) {
+        if (StringUtils.isBlank(url)) {
             url = UNKNOWN;
         }
-        if (!url.equalsIgnoreCase(this.posterURL)) {
-            setDirty(DIRTY_POSTER, true);
-            this.posterURL = url;
-        }
+        
+        this.posterURL = url;
     }
 
     @XmlElement(name = "posterFile")
@@ -2073,7 +2071,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setPosterFilename(String posterFilename) {
-        if (posterFilename == null) {
+        if (StringUtils.isBlank(posterFilename)) {
             posterFilename = UNKNOWN;
         }
         this.posterFilename = posterFilename;
@@ -2086,7 +2084,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setDetailPosterFilename(String detailPosterFilename) {
-        if (detailPosterFilename == null) {
+        if (StringUtils.isBlank(detailPosterFilename)) {
             detailPosterFilename = UNKNOWN;
         }
         this.detailPosterFilename = detailPosterFilename;
@@ -2100,7 +2098,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setThumbnailFilename(String thumbnailFilename) {
-        if (thumbnailFilename == null) {
+        if (StringUtils.isBlank(thumbnailFilename)) {
             thumbnailFilename = UNKNOWN;
         }
         this.thumbnailFilename = thumbnailFilename;
@@ -2113,7 +2111,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setFanartURL(String fanartURL) {
-        if (fanartURL == null) {
+        if (StringUtils.isBlank(fanartURL)) {
             fanartURL = UNKNOWN;
         }
         this.fanartURL = fanartURL;
@@ -2126,7 +2124,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setFanartFilename(String fanartFilename) {
-        if (fanartFilename == null) {
+        if (StringUtils.isBlank(fanartFilename)) {
             fanartFilename = UNKNOWN;
         }
         this.fanartFilename = fanartFilename;
@@ -2139,7 +2137,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setBannerURL(String url) {
-        if (url == null) {
+        if (StringUtils.isBlank(url)) {
             url = UNKNOWN;
         }
         if (!url.equalsIgnoreCase(this.bannerURL)) {
@@ -2154,7 +2152,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setBannerFilename(String bannerFilename) {
-        if (bannerFilename == null) {
+        if (StringUtils.isBlank(bannerFilename)) {
             bannerFilename = UNKNOWN;
         }
         this.bannerFilename = bannerFilename;
@@ -2190,7 +2188,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void setTagline(String tagline) {
-        if (tagline == null) {
+        if (StringUtils.isBlank(tagline)) {
             tagline = UNKNOWN;
         }
         if (!tagline.equalsIgnoreCase(this.tagline)) {

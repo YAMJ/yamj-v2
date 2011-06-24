@@ -1747,10 +1747,10 @@ public class MovieJukebox {
 
             // Check for local CoverArt
             PosterScanner.scan(jukebox, movie);
-            
+
             // If we don't have a local poster, look online
             // And even though we do "recheck" for a poster URL we should always try and get one
-            if (!isValidString(movie.getPosterURL())) {
+            if (isNotValidString(movie.getPosterURL())) {
                 PosterScanner.scan(movie);
             }
 
@@ -1849,7 +1849,7 @@ public class MovieJukebox {
             } else {
                 try {
                     // Issue 201 : we now download to local temp dir
-                    logger.debug("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
+                    logger.debug("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFile.getName());
                     FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
                     logger.debug("Downloaded poster for " + movie.getBaseName());
                 } catch (Exception error) {
