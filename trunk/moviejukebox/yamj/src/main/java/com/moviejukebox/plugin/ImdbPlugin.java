@@ -1307,7 +1307,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 date += xmlInfo.substring(beginIndex + 11, beginIndex + 15);
             }
             if (!date.equals("")) {
-                person.setBirthday(date);
+                person.setYear(date);
             }
 
             beginIndex = xmlInfo.indexOf("birth_place=", beginIndex);
@@ -1367,9 +1367,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     int rating = (int)(Float.valueOf(HTMLTools.extractTag(item, "(", ")")).floatValue() * 10);
                     String id = HTMLTools.extractTag(item, "<a href=\"/title/", "/\">");
                     String name = HTMLTools.extractTag(item, "/\">", "</a>").replaceAll("\"", "");
+                    String year = Movie.UNKNOWN;
                     beginIndex = item.indexOf("</a> (");
                     if (beginIndex > -1) {
-                        name += item.substring(beginIndex + 4);
+                        year = HTMLTools.extractTag(item.substring(beginIndex), "(", ")");
                     }
                     if ((skipVG && name.endsWith("(VG)")) || (skipTV && name.endsWith("(TV)")) || (skipV && name.endsWith("(V)"))) {
                         continue;
@@ -1426,6 +1427,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         Filmography film = new Filmography();
                         film.setId(id);
                         film.setName(name);
+                        film.setYear(year);
                         film.setJob(job);
                         film.setCharacter(character);
                         film.setDepartment();

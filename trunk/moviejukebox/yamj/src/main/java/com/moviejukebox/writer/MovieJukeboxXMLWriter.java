@@ -462,6 +462,11 @@ public class MovieJukeboxXMLWriter {
                             continue;
                         }
 
+                        if (ns.equalsIgnoreCase("year")) {
+                            person.setYear(attr.getValue());
+                            continue;
+                        }
+
                         if (ns.equalsIgnoreCase("doublage")) {
                             person.setDoublage(attr.getValue());
                             continue;
@@ -878,7 +883,7 @@ public class MovieJukeboxXMLWriter {
                     continue;
                 }
                 if (tag.equalsIgnoreCase("<birthday>")) {
-                    person.setBirthday(parseCData(r));
+                    person.setYear(parseCData(r));
                     continue;
                 }
                 if (tag.equalsIgnoreCase("<birthplace>")) {
@@ -931,6 +936,10 @@ public class MovieJukeboxXMLWriter {
                         }
                         if (ns.equalsIgnoreCase("title")) {
                             film.setTitle(attr.getValue());
+                            continue;
+                        }
+                        if (ns.equalsIgnoreCase("originalTitle")) {
+                            film.setOriginalTitle(attr.getValue());
                             continue;
                         }
                         if (ns.equalsIgnoreCase("rating")) {
@@ -2086,7 +2095,7 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
 
         writer.writeStartElement("birthday");
-        writer.writeCharacters(person.getBirthday());
+        writer.writeCharacters(person.getYear());
         writer.writeEndElement();
 
         writer.writeStartElement("birthplace");
@@ -2120,6 +2129,8 @@ public class MovieJukeboxXMLWriter {
             }
             writer.writeAttribute("name", film.getName());
             writer.writeAttribute("title", film.getTitle());
+            writer.writeAttribute("originalTitle", film.getOriginalTitle());
+            writer.writeAttribute("year", film.getYear());
             writer.writeAttribute("rating", film.getRating());
             writer.writeAttribute("character", film.getCharacter());
             writer.writeAttribute("job", film.getJob());
