@@ -764,7 +764,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // Issue 1897: Cast enhancement
             for (String category : siteDef2.getDirector().split("\\|")) {
                 if (xml.indexOf(category + ":") >= 0) {
-                    for (String member : HTMLTools.extractTags(xml, category + ":", "</div>", "", "</a>")) {
+                    for (String member : HTMLTools.extractTags(xml, category + ":", "</div>", "<a ", "</a>", false)) {
                         int beginIndex = member.indexOf("href=\"/name/");
                         if (beginIndex > -1) {
                             String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
@@ -780,7 +780,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // Issue 1897: Cast enhancement
             for (String category : siteDef2.getWriter().split("\\|")) {
                 if (xml.indexOf(category + ":") >= 0) {
-                    for (String member : HTMLTools.extractTags(xml, category + ":", "</div>", "", "</a>")) {
+                    for (String member : HTMLTools.extractTags(xml, category + ":", "</div>", "<a ", "</a>", false)) {
                         int beginIndex = member.indexOf("href=\"/name/");
                         if (beginIndex > -1) {
                             String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
