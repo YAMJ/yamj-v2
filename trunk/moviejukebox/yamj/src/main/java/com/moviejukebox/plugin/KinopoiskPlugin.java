@@ -968,20 +968,38 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
                 person.setTitle(HTMLTools.extractTag(xml, "<h1 style=\"padding:0px;margin:0px\" class=\"moviename-big\">", "</h1>"));
 
-                String bd = HTMLTools.extractTag(xml, "<td class=\"birth\">", "</td>");
-                if (StringTools.isValidString(bd) && bd.indexOf("</a>") > -1) {
-                    bd = HTMLTools.removeHtmlTags(bd);
-                    bd = bd.substring(0, bd.indexOf("•")).replace(",", "").replaceAll("\\s$", "");
-                    if (StringTools.isValidString(bd)) {
-                        person.setYear(bd);
+                String date = Movie.UNKNOWN;
+                if (xml.indexOf("<td class=\"birth\">") > -1) {
+                    String bd = HTMLTools.extractTag(xml, "<td class=\"birth\">", "</td>");
+                    if (StringTools.isValidString(bd) && bd.indexOf("</a>") > -1) {
+                        bd = HTMLTools.removeHtmlTags(bd);
+                        bd = bd.substring(0, bd.indexOf("•")).replace(",", "").trim();
+                        if (StringTools.isValidString(bd)) {
+                            date = bd;
+                        }
                     }
                 }
+                if (xml.indexOf(">дата смерти</td><td>") > -1) {
+                    String dd = HTMLTools.extractTag(xml, ">дата смерти</td><td>", "</td>");
+                    if (StringTools.isValidString(dd)) {
+                        dd = HTMLTools.removeHtmlTags(dd);
+                        dd = dd.substring(0, dd.indexOf("•")).replace(",", "").trim();
+                        if (StringTools.isValidString(dd)) {
+                            date += "/" + dd;
+                        }
+                    }
+                }
+                if (StringTools.isValidString(date)) {
+                    person.setYear(date);
+                }
 
-                String bp = HTMLTools.extractTag(xml, ">место рождения</td><td>", "</td>");
-                if (StringTools.isValidString(bp)) {
-                    bp = HTMLTools.removeHtmlTags(bp);
+                if (xml.indexOf(">место рождения</td><td>") > -1) {
+                    String bp = HTMLTools.extractTag(xml, ">место рождения</td><td>", "</td>");
                     if (StringTools.isValidString(bp)) {
-                        person.setBirthPlace(bp);
+                        bp = HTMLTools.removeHtmlTags(bp);
+                        if (StringTools.isValidString(bp)) {
+                            person.setBirthPlace(bp);
+                        }
                     }
                 }
 
@@ -1134,7 +1152,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             returnStatus = true;
         } catch (Exception error) {
-            logger.error("Failed retreiving IMDb data for person : " + kinopoiskId);
+            logger.error("Failed retreiving KinopoiskPlugin data for person : " + kinopoiskId);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);

@@ -1306,9 +1306,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
                 date += xmlInfo.substring(beginIndex + 11, beginIndex + 15);
             }
-            if (!date.equals("")) {
-                person.setYear(date);
-            }
 
             beginIndex = xmlInfo.indexOf("birth_place=", beginIndex);
             String place = "";
@@ -1318,6 +1315,29 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     person.setBirthPlace(place);
                 }
             }
+        }
+
+        if (xmlInfo.indexOf("<h5>Date of Death</h5>") > -1) {
+            endIndex = xmlInfo.indexOf("<h5>Mini Biography</h5>");
+            beginIndex = xmlInfo.indexOf("<a href=\"/date/");
+            String dDate = "";
+            if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
+                dDate = xmlInfo.substring(beginIndex + 18, beginIndex + 20) + "-" + xmlInfo.substring(beginIndex + 15, beginIndex + 17);
+            }
+            beginIndex = xmlInfo.indexOf("death_date=", beginIndex);
+            if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
+                if (!dDate.equals("")) {
+                    dDate += "-";
+                }
+                dDate += xmlInfo.substring(beginIndex + 11, beginIndex + 15);
+            }
+            if (!dDate.equals("")) {
+                date += "/" + dDate;
+            }
+        }
+
+        if (!date.equals("")) {
+            person.setYear(date);
         }
 
         beginIndex = xmlInfo.indexOf("<h5>Birth Name</h5>");
