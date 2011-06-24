@@ -56,6 +56,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1999 IMDB outlines end with "See Full Summary"
  - Fixed defect #2000 Watched File for BDMV is not recognized
  - Enhancement  #2001 Include baseFilename in XML when mjb.fullMovieInfoInIndexes=false
+ - Fixed defect #2004 Movies with more than 1 director or writer, only the first is saved
 
 MovieJukebox 2.4
 ----------------
