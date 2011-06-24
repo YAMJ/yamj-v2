@@ -36,7 +36,6 @@ public class Person extends Filmography {
     private String  biography             = UNKNOWN;
     private int     version               = -1;
     private int     knownMovies           = -1;
-    private String  birthday              = UNKNOWN;
     private String  birthPlace            = UNKNOWN;
     private String  photoURL              = UNKNOWN;
     private String  photoFilename         = UNKNOWN;
@@ -81,11 +80,11 @@ public class Person extends Filmography {
         setScrapeLibrary(person.isScrapeLibrary());
         setOrder(person.getOrder());
         setCastId(person.getCastId());
+        setYear(person.getYear());
 
         setBiography(person.getBiography());
         setVersion(person.getVersion());
         setKnownMovies(person.getKnownMovies());
-        setBirthday(person.getBirthday());
         setBirthPlace(person.getBirthPlace());
         setPhotoURL(person.getPhotoURL());
         setPhotoFilename(person.getPhotoFilename());
@@ -104,10 +103,6 @@ public class Person extends Filmography {
 
     public String getBiography() {
         return biography;
-    }
-
-    public String getBirthday() {
-        return birthday;
     }
 
     public String getBirthPlace() {
@@ -182,13 +177,6 @@ public class Person extends Filmography {
     public void setBiography(String biography) {
         if (isValidString(biography) && !this.biography.equalsIgnoreCase(biography)) {
             this.biography = biography;
-            setDirty();
-        }
-    }
-
-    public void setBirthday(String birthday) {
-        if (isValidString(birthday) && !this.birthday.equalsIgnoreCase(birthday)) {
-            this.birthday = birthday;
             setDirty();
         }
     }

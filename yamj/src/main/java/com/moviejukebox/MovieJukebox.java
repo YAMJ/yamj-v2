@@ -1178,13 +1178,14 @@ public class MovieJukebox {
                                 break;
                             }
                         }
-                        
+
                         if (dirty) {
                             movie.setDirty(Movie.DIRTY_PERSON, true);
                         }
                     }
 
-                    String name = movie.getOriginalTitle().toUpperCase() + " (" + movie.getYear() + ")";
+                    String originalTitle = movie.getOriginalTitle().toUpperCase();
+                    String title = movie.getTitle().toUpperCase();
                     for (Person p : library.getPeople()) {
                         for (Filmography film : p.getFilmography()) {
                             boolean flag = false;
@@ -1196,10 +1197,12 @@ public class MovieJukebox {
                                 }
                             }
                             if (!flag) {
-                                flag = film.getName().toUpperCase().startsWith(name);
+                                flag = film.getName().toUpperCase().equalsIgnoreCase(originalTitle) || film.getTitle().toUpperCase().equalsIgnoreCase(originalTitle) ||
+                                        film.getName().toUpperCase().equalsIgnoreCase(title) || film.getTitle().toUpperCase().equalsIgnoreCase(title);
                             }
                             if (flag) {
                                 film.setFilename(movie.getBaseFilename());
+                                film.setTitle(movie.getTitle());
                                 if (film.isDirty()) {
                                     p.setDirty();
                                 }

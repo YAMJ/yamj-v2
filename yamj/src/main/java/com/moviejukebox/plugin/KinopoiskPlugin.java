@@ -973,7 +973,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     bd = HTMLTools.removeHtmlTags(bd);
                     bd = bd.substring(0, bd.indexOf("•")).replace(",", "").replaceAll("\\s$", "");
                     if (StringTools.isValidString(bd)) {
-                        person.setBirthday(bd);
+                        person.setYear(bd);
                     }
                 }
 
@@ -1045,7 +1045,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             }
                             String year = Movie.UNKNOWN;
                             if (title.lastIndexOf("(") > -1) {
-                                year = title.substring(title.lastIndexOf("(")).replace(")$", "");
+                                year = HTMLTools.extractTag(title.substring(title.lastIndexOf("(")), "(", ")");
+                                title = title.replace("(" + year + ")", "").trim();
                             }
                             String name = HTMLTools.extractTag(item, "<span style=\"color:#999\">", "</span>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
                             String character = Movie.UNKNOWN;
@@ -1059,11 +1060,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             if (name.endsWith(", The")) {
                                 name = "The " + name.replace(", The", "");
                             }
-                            if (title.contains(", The (")) {
-                                title = "The " + title.replace(", The (", " (");
-                            }
-                            if (StringTools.isValidString(year)) {
-                                name += " " + year;
+                            if (title.endsWith(", The")) {
+                                title = "The " + title.replace(", The", "");
                             }
                             String ratingStr = HTMLTools.extractTag(item, " class=\"continue\" >", "</a>");
                             Integer rating = 0;
@@ -1079,8 +1077,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             if (filmography.get(key) == null) {
                                 Filmography film = new Filmography();
                                 film.setId(KINOPOISK_PLUGIN_ID, id);
-                                film.setName(name);
-                                film.setTitle(title);
+                                film.setName(title);
+                                film.setTitle(name);
+                                film.setOriginalTitle(name);
+                                film.setYear(year);
                                 film.setJob(job);
                                 film.setCharacter(character);
                                 film.setDepartment();
@@ -1093,36 +1093,32 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                     if (filmography.size() > 0 && (preferredRating.equals("combine") || preferredRating.equals("average"))) {
                         for (Filmography film : person.getFilmography()) {
-                            String name = film.getName().replace("ё", "е").replace("Ё", "Е");
-                            String title = film.getTitle().replace("ё", "е").replace("Ё", "Е");
-                            String year = Movie.UNKNOWN;
-                            if (name.lastIndexOf("(") > -1) {
-                                year = HTMLTools.extractTag(name.substring(name.lastIndexOf("(")), "(", ")");
-                            } else if (title.lastIndexOf("(") > -1) {
-                                year = HTMLTools.extractTag(title.substring(title.lastIndexOf("(")), "(", ")");
+                            String name = film.getName().replace("ё", "е").replace("Ё", "Е").trim();
+                            String title = film.getTitle().replace("ё", "е").replace("Ё", "Е").trim();
+                            String originalTitle = film.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").trim();
+                            String year = film.getYear();
+                            if (StringTools.isValidString(year)) {
+                                year = year.substring(0, 4);
                             }
-                            name = name.replace("(" + year + ")", "").replaceAll("\\s+$", "");
-                            title = title.replace("(" + year + ")", "").replaceAll("\\s+$", "");
-                            year = year.substring(0, 4);
                             @SuppressWarnings("unused")
                             boolean found = false;
                             for (Filmography f : filmography.values()) {
-                                String Name = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X");
-                                String Title = f.getTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X");
-                                String Year = Movie.UNKNOWN;
-                                if (Name.lastIndexOf("(") > -1) {
-                                    Year = HTMLTools.extractTag(Name.substring(Name.lastIndexOf("(")), "(", ")");
-                                } else if (Title.lastIndexOf("(") > -1) {
-                                    Year = HTMLTools.extractTag(Title.substring(Title.lastIndexOf("(")), "(", ")");
+                                String Name = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
+                                String Title = f.getTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
+                                String OriginalTitle = f.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
+                                String Year = f.getYear();
+                                if (StringTools.isValidString(Year)) {
+                                    Year = Year.substring(0, 4);
                                 }
-                                Name = Name.replace("(" + Year + ")", "").replaceAll("\\s+$", "");
-                                Title = Title.replace("(" + Year + ")", "").replaceAll("\\s+$", "");
-                                Year = Year.substring(0, 4);
-                                if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title)) {
+                                if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Name.equalsIgnoreCase(originalTitle) || 
+                                        Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title) || Title.equalsIgnoreCase(originalTitle) || 
+                                        OriginalTitle.equalsIgnoreCase(name) || OriginalTitle.equalsIgnoreCase(title) || OriginalTitle.equalsIgnoreCase(originalTitle)) {
                                     String id = f.getId(KINOPOISK_PLUGIN_ID);
                                     film.setId(KINOPOISK_PLUGIN_ID, id);
                                     film.setName(f.getName());
                                     film.setTitle(f.getTitle());
+                                    film.setOriginalTitle(f.getOriginalTitle());
+                                    film.setYear(f.getYear());
                                     film.setJob(f.getJob());
                                     film.setCharacter(f.getCharacter());
                                     film.setDepartment();

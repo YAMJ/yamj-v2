@@ -34,6 +34,8 @@ public class Filmography {
     private Map<String, String> idMap   = new HashMap<String, String>(2);
     private String name                 = UNKNOWN;
     private String title                = UNKNOWN;
+    private String originalTitle        = UNKNOWN;
+    private String year                 = UNKNOWN;
     private String doublage             = UNKNOWN;
     private String filename             = UNKNOWN;
     private String job                  = UNKNOWN;
@@ -69,6 +71,14 @@ public class Filmography {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getOriginalTitle() {
+        return originalTitle;
+    }
+
+    public String getYear() {
+        return year;
     }
 
     public String getFilename() {
@@ -115,6 +125,9 @@ public class Filmography {
             if (isNotValidString(title)) {
                 title = name;
             }
+            if (isNotValidString(originalTitle)) {
+                originalTitle = name;
+            }
             setDirty();
         }
     }
@@ -125,6 +138,19 @@ public class Filmography {
         }
         if (isValidString(title) && !this.title.equalsIgnoreCase(title)) {
             this.title = title;
+            setDirty();
+        }
+    }
+
+    public void setOriginalTitle(String originalTitle) {
+        if (originalTitle != null) {
+            originalTitle = originalTitle.trim();
+        }
+        if (isValidString(originalTitle) && !this.originalTitle.equalsIgnoreCase(originalTitle)) {
+            this.originalTitle = originalTitle;
+            if (isNotValidString(title)) {
+                title = originalTitle;
+            }
             setDirty();
         }
     }
@@ -258,6 +284,13 @@ public class Filmography {
 
     public void setScrapeLibrary() {
         setScrapeLibrary(true);
+    }
+
+    public void setYear(String year) {
+        if (isValidString(year) && !this.year.equalsIgnoreCase(year)) {
+            this.year = year;
+            setDirty();
+        }
     }
 
     public void setDepartment() {
