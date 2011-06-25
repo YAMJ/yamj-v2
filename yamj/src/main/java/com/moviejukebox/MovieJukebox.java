@@ -1636,7 +1636,6 @@ public class MovieJukebox {
                 // Only re-scan the nfo files if one of them is newer
                 if (FileTools.isNewer(nfoFile, xmlFile)) {
                     logger.info("NFO for " + movie.getOriginalTitle() + " (" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
-                    movie.setDirty(Movie.DIRTY_INFO, true);
                     movie.setDirty(Movie.DIRTY_NFO, true);
                     movie.setDirty(Movie.DIRTY_POSTER, true);
                     movie.setDirty(Movie.DIRTY_FANART, true);
