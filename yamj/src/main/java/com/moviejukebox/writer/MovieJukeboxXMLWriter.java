@@ -1518,8 +1518,12 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
-    private void writeIndexAttribute(XMLWriter writer, Library l, String cat, String val) throws XMLStreamException {
-        final String index = createIndexAttribute(l, cat, val);
+    private void writeIndexAttribute(XMLWriter writer, Library library, String category, String value) throws XMLStreamException {
+        if (StringTools.isNotValidString(value)) {
+            return;
+        }
+        
+        final String index = createIndexAttribute(library, category, value);
         if (index != null) {
             writer.writeAttribute("index", index);
         }
@@ -1715,13 +1719,6 @@ public class MovieJukeboxXMLWriter {
         writer.writeStartElement("tagline");
         writer.writeCharacters(movie.getTagline());
         writer.writeEndElement();
-        writer.writeStartElement("director");
-        writeIndexAttribute(writer, library, "Director", movie.getDirector());
-        writer.writeCharacters(movie.getDirector());
-        writer.writeEndElement();
-
-        writeElementSet(writer, "directors", "director", movie.getDirectors(), library, "Directors");
-
         writer.writeStartElement("country");
         writeIndexAttribute(writer, library, "Country", movie.getCountry());
         writer.writeCharacters(movie.getCountry());
@@ -1845,9 +1842,17 @@ public class MovieJukeboxXMLWriter {
             }
             writer.writeEndElement();
         }
-        writeElementSet(writer, "cast", "actor", movie.getCast(), library, "Cast");
 
-        writeElementSet(writer, "writers", "writer", movie.getWriters(), library, "Writers");
+        writer.writeStartElement("director");
+        writeIndexAttribute(writer, library, "Director", movie.getDirector());
+        writer.writeCharacters(movie.getDirector());
+        writer.writeEndElement();
+
+        writeElementSet(writer, "directors", "director", movie.getDirectors(), library, "Director");
+
+        writeElementSet(writer, "writers", "writer", movie.getWriters(), library, "Writer");
+
+        writeElementSet(writer, "cast", "actor", movie.getCast(), library, "Cast");
 
         // Issue 1901: Awards
         Collection<AwardEvent> awards = movie.getAwards();
