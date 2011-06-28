@@ -30,9 +30,6 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -42,13 +39,13 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -60,15 +57,16 @@ import com.moviejukebox.tools.StringTools;
  * @author artem.gratchev
  */
 @XmlType
-public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovieBasicInformation {
+public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInformation {
+    /*--------------------------------------------------------------------------------
+     * Static & Final variables that are used for control and don't relate specifically to the Movie object
+     */
     public static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     public static final String dateFormatLongString = dateFormatString + " HH:mm:ss";
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
     public static final SimpleDateFormat dateFormatLong = new SimpleDateFormat(dateFormatLongString);
-
-    // Preparing to JAXB
-
     private static Logger logger = Logger.getLogger("moviejukebox");
+
     public static final String UNKNOWN = "UNKNOWN";
     public static final String NOTRATED = "Not Rated";
     public static final String REMOVE = "Remove"; // All Movie objects with this type will be removed from library before index generation
@@ -81,21 +79,38 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public static final String TYPE_DVD = "DVD"; // Used to indicate what physical format the video is
     public static final String TYPE_FILE = "FILE"; // Used to indicate what physical format the video is
     public static final String TYPE_PERSON = "PERSON";
-    
-    public static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
 
     private String mjbVersion = UNKNOWN;
     private String mjbRevision = UNKNOWN;
     private DateTime mjbGenerationDate = null;
+    
+    /*--------------------------------------------------------------------------------
+     * Caching - Dirty Flags
+     * More of these flags can be added to further classify what changed
+     */
+    public static final String DIRTY_NFO = "NFO";
+    public static final String DIRTY_FANART = "FANART";
+    public static final String DIRTY_POSTER = "POSTER";
+    public static final String DIRTY_BANNER = "BANNER";
+    public static final String DIRTY_WATCHED = "WATCHED";
+    public static final String DIRTY_INFO = "INFO"; // Information on the video (default)
 
-    // Safe name for generated files
-    private String baseName;
+    /*--------------------------------------------------------------------------------
+     * Properties that control the object
+     */
+    public static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
+    private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");    // Get the minimum width for a high-definition movies
+    private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");  // Get the minimum width for a high-definition movies
+    private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
+    private static HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
+    private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
 
-    // Base name for finding posters, nfos, banners, etc.
-    private String baseFilename;
+    /*--------------------------------------------------------------------------------
+     * Properties related to the Movie object itself
+     */
+    private String baseName;        // Safe name for generated files
+    private String baseFilename;    // Base name for finding posters, nfos, banners, etc.
 
-    private boolean scrapeLibrary;
-    // Movie properties
     private Map<String, String> idMap = new HashMap<String, String>(2);
     private String title = UNKNOWN;
     private String titleSort = UNKNOWN;
@@ -129,15 +144,15 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private float fps = 60;
     private String certification = UNKNOWN;
     private String showStatus = UNKNOWN;    // For TV shows a status such as "Continuing" or "Ended"
-    // TODO Move extra flag to movie file
-    private boolean extra = false;
-    // Trailers
-    private boolean trailerExchange = false;
-    private long trailerLastScan = 0;
-    // Issue 1901: Awards
-    Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
-    // Issue 1897: Cast enhancement
-    Collection<Filmography> people = new ArrayList<Filmography>();
+    
+    private boolean scrapeLibrary;
+    
+    private boolean extra = false;  // TODO Move extra flag to movie file
+    private boolean trailerExchange = false;    // Trailers
+    private long trailerLastScan = 0;           // Trailers
+    
+    Collection<AwardEvent> awards = new ArrayList<AwardEvent>();    // Issue 1901: Awards
+    Collection<Filmography> people = new ArrayList<Filmography>();  // Issue 1897: Cast enhancement
 
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
@@ -148,6 +163,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
+    
     // Graphics URLs & files
     private Set<Artwork> artwork = new LinkedHashSet<Artwork>();
     private String posterURL = UNKNOWN; // The original, unaltered, poster
@@ -158,11 +174,13 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
     private String bannerFilename = UNKNOWN; // The resized banner file
+    
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
     private boolean watchedFile = false;    // Watched / Unwatched - Set from the .watched files
     private boolean watchedNFO = false; // Watched / Unwatched - Set from the NFO file
+    
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
@@ -174,52 +192,26 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
     Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
 
-    /********************************************************************************
-     * Caching - Dirty Flags
-     */
-    private static Map<String, Boolean> dirtyFlags = new HashMap<String, Boolean>();
-    public static final String DIRTY_NFO = "NFO";
-    public static final String DIRTY_FANART = "FANART";
-    public static final String DIRTY_POSTER = "POSTER";
-    public static final String DIRTY_BANNER = "BANNER";
-    public static final String DIRTY_WATCHED = "WATCHED";
-    public static final String DIRTY_AWARD = "AWARD";
-    public static final String DIRTY_EXTRA = "EXTRA";
-    public static final String DIRTY_FILE = "FILE";
-    public static final String DIRTY_GENRE = "GENRE";
-    public static final String DIRTY_PERSON = "PERSON";
-    public static final String DIRTY_SET = "SET"; // Set information
-    public static final String DIRTY_INFO = "INFO"; // Information on the video
-    public static final String DIRTY_SUBTITLE = "SUBTITLE"; // Subtitle information
-    public static final String DIRTY_NAVIGATION = "NAVIGATION"; // Changes to the navigation 
-    //********************************************************************************
+    private Map<String, Boolean> dirtyFlags = new HashMap<String, Boolean>();   // List of the dirty flags associated with the Movie
     
     private File file;
     private File containerFile;
-    // Get the minimum widths for a high-definition movies
-    private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");
-    private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");
-
-    private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     
-    // True if movie actually is only a entry point to movies set.
-    private boolean isSetMaster = false;
+    // Set information
+    private boolean isSetMaster = false;    // True if movie actually is only a entry point to movies set.
+    private int setSize = 0;                // Amount of movies in set
 
-    // Amount of movies in set
-    private int setSize = 0;
-
-    // List of genres to ignore
-    private static HashSet<String> genreSkipList = new HashSet<String>();
-
-    private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
-
+    /*--------------------------------------------------------------------------------
+     * End of properties
+     *--------------------------------------------------------------------------------*/
+    
     static {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
         while (st.hasMoreTokens()) {
             genreSkipList.add(st.nextToken().toLowerCase());
         }
     }
-
+    
     // http://stackoverflow.com/questions/343669/how-to-let-jaxb-render-boolean-as-0-and-1-not-true-and-false
     public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean> {
         @Override
@@ -323,7 +315,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void addGenre(String genre) {
         if (StringTools.isValidString(genre) && !extra && !genreSkipList.contains(genre.toLowerCase())) {
-            setDirty(DIRTY_GENRE, true);
+            setDirty(DIRTY_INFO, true);
             //logger.debug("Genre added : " + genre);
             genres.add(genre);
         }
@@ -335,7 +327,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void addSet(String set, Integer order) {
         if (StringTools.isValidString(set)) {
-            setDirty(DIRTY_SET, true);
+            setDirty(DIRTY_INFO, true);
             logger.debug("Set added : " + set + ", order : " + order);
             sets.put(set, order);
         }
@@ -343,7 +335,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void addMovieFile(MovieFile movieFile) {
         if (movieFile != null) {
-            setDirty(DIRTY_FILE, true);
+            setDirty(DIRTY_INFO, true);
             // Always replace MovieFile
             for (MovieFile mf : this.movieFiles) {
                 if (mf.compareTo(movieFile) == 0) {
@@ -359,7 +351,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void addAward(AwardEvent award) {
         if (award != null) {
-            setDirty(DIRTY_AWARD, true);
+            setDirty(DIRTY_INFO, true);
             this.awards.add(award);
         }
     }
@@ -376,7 +368,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                 }
             }
             if (!duplicate) {
-                setDirty(DIRTY_PERSON, true);
+                setDirty(DIRTY_INFO, true);
                 people.add(person);
             }
         }
@@ -462,7 +454,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void removeMovieFile(MovieFile movieFile) {
         if (movieFile != null) {
-            setDirty(DIRTY_FILE, true);
+            setDirty(DIRTY_INFO, true);
             for (MovieFile mf : this.movieFiles) {
                 if (mf.compareTo(movieFile) == 0) {
                     this.movieFiles.remove(mf);
@@ -485,7 +477,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     public void addExtraFile(ExtraFile extraFile) {
         // Only add extraFile if it doesn't already exists
         if (extraFile != null && !this.extraFiles.contains(extraFile)) {
-            setDirty(DIRTY_EXTRA, true);
+            setDirty(DIRTY_INFO, true);
             this.extraFiles.add(extraFile);
         }
     }
@@ -866,6 +858,20 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         dirtyFlags.put(dirtyType, dirty);
     }
     
+    /**
+     * Clear ALL the dirty flags, and just set DIRTY_INFO to the passed value
+     * @param dirty
+     */
+    public void setDirty(boolean dirty) {
+        dirtyFlags.clear();
+        setDirty(Movie.DIRTY_INFO, dirty);
+    }
+    
+    /**
+     * Returns true if ANY of the dirty flags are set.
+     * Use with caution, it's better to test individual flags as you need them, rather than this generic flag
+     * @return
+     */
     @XmlTransient
     public boolean isDirty() {
         if (dirtyFlags.isEmpty() || dirtyFlags.containsValue(true)) {
@@ -873,6 +879,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         } else {
             return false;
         }
+    }
+    
+    @XmlTransient
+    public String showDirty() {
+        return dirtyFlags.toString();
     }
 
     @XmlTransient
@@ -953,7 +964,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void addActor(String actor) {
         if (actor != null && !cast.contains(actor)) {
-            setDirty(DIRTY_PERSON, true);
+            setDirty(DIRTY_INFO, true);
             cast.add(actor);
         }
     }
@@ -1006,13 +1017,13 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void clearCast() {
-        setDirty(DIRTY_PERSON, true);
+        setDirty(DIRTY_INFO, true);
         cast.clear();
     }
 
     public void addWriter(String writer) {
         if (writer != null && !writers.contains(writer)) {
-            setDirty(DIRTY_PERSON, true);
+            setDirty(DIRTY_INFO, true);
             writers.add(writer);
         }
     }
@@ -1066,7 +1077,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void clearWriters() {
-        setDirty(DIRTY_PERSON, true);
+        setDirty(DIRTY_INFO, true);
         writers.clear();
     }
 
@@ -1136,13 +1147,13 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
     }
 
     public void clearDirectors() {
-        setDirty(DIRTY_PERSON, true);
+        setDirty(DIRTY_INFO, true);
         directors.clear();
     }
 
     public void addDirector(String director) {
         if (director != null && !directors.contains(director)) {
-            setDirty(DIRTY_PERSON, true);
+            setDirty(DIRTY_INFO, true);
             directors.add(director);
         }
     }
@@ -1178,7 +1189,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             first = UNKNOWN;
         }
         if (!first.equalsIgnoreCase(this.first)) {
-            setDirty(DIRTY_NAVIGATION, true);
+            setDirty(DIRTY_INFO, true);
             this.first = first;
         }
     }
@@ -1213,30 +1224,17 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
                 this.genres = new TreeSet<String>(genresToAdd);
             }
 
-            setDirty(DIRTY_GENRE, true);
+            setDirty(DIRTY_INFO, true);
         }
     }
 
     public void setSets(Map<String, Integer> sets) {
-        setDirty(DIRTY_SET, true);
+        setDirty(DIRTY_INFO, true);
         this.sets = sets;
     }
 
     public Map<String, Integer> getSets() {
         return sets;
-    }
-
-    /**
-     * 
-     * @deprecated replaced by setId(String key, String id). This method is kept for compatibility purpose. But you should use setId(String key, String id)
-     *             instead. Ex: movie.setId(ImdbPlugin.IMDB_PLUGIN_ID,"tt12345") {@link setId(String key, String id)}
-     */
-    @Deprecated
-    @XmlTransient
-    public void setId(String id) {
-        if (id != null) {
-            setId(ImdbPlugin.IMDB_PLUGIN_ID, id);
-        }
     }
 
     /*
@@ -1278,28 +1276,28 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             last = UNKNOWN;
         }
         if (!last.equalsIgnoreCase(this.last)) {
-            setDirty(DIRTY_NAVIGATION, true);
+            setDirty(DIRTY_INFO, true);
             this.last = last;
         }
     }
 
     public void setMovieFiles(Collection<MovieFile> movieFiles) {
-        setDirty(DIRTY_FILE, true);
+        setDirty(DIRTY_INFO, true);
         this.movieFiles = movieFiles;
     }
 
     public void setExtraFiles(Collection<ExtraFile> extraFiles) {
-        setDirty(DIRTY_EXTRA, true);
+        setDirty(DIRTY_INFO, true);
         this.extraFiles = extraFiles;
     }
 
     public void setAwards(Collection<AwardEvent> awards) {
-        setDirty(DIRTY_AWARD, true);
+        setDirty(DIRTY_INFO, true);
         this.awards = awards;
     }
 
     public void setPeople(Collection<Filmography> people) {
-        setDirty(DIRTY_PERSON, true);
+        setDirty(DIRTY_INFO, true);
         this.people = people;
     }
 
@@ -1308,7 +1306,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             next = UNKNOWN;
         }
         if (!next.equalsIgnoreCase(this.next)) {
-            setDirty(DIRTY_NAVIGATION, true);
+            setDirty(DIRTY_INFO, true);
             this.next = next;
         }
     }
@@ -1344,7 +1342,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             previous = UNKNOWN;
         }
         if (!previous.equalsIgnoreCase(this.previous)) {
-            setDirty(DIRTY_NAVIGATION, true);
+            setDirty(DIRTY_INFO, true);
             this.previous = previous;
         }
     }
@@ -1454,7 +1452,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         }
 
         if (!subtitles.equals(this.subtitles)) {
-            setDirty(DIRTY_SUBTITLE, true);
+            setDirty(DIRTY_INFO, true);
             this.subtitles = subtitles;
         }
     }
@@ -1647,7 +1645,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      *            Boolean flag, true=extra file, false=normal file
      */
     public void setExtra(boolean extra) {
-        setDirty(DIRTY_EXTRA, true);
+        setDirty(DIRTY_INFO, true);
         this.extra = extra;
         if (extra) {
             genres.clear();
@@ -1670,7 +1668,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public void setTrailerExchange(Boolean trailerExchange) {
         if (this.trailerExchange != trailerExchange) {
-            setDirty(DIRTY_EXTRA, true);
+            setDirty(DIRTY_INFO, true);
             this.trailerExchange = trailerExchange;
         }
     }
@@ -1697,7 +1695,7 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
      */
     public void setTrailerLastScan(long lastScan) {
         if (lastScan != this.trailerLastScan) {
-            setDirty(DIRTY_EXTRA, true);
+            setDirty(DIRTY_INFO, true);
             this.trailerLastScan = lastScan;
         }
     }
@@ -1840,14 +1838,6 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
 
     public static void addSortIgnorePrefixes(String prefix) {
         sortIgnorePrefixes.add(prefix);
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ignored) {
-            return null;
-        }
     }
 
     /**
@@ -2061,7 +2051,10 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
             url = UNKNOWN;
         }
         
-        this.posterURL = url;
+        if (!url.equalsIgnoreCase(this.posterURL)) {
+        	setDirty(Movie.DIRTY_INFO, true);
+	        this.posterURL = url;
+	    }
     }
 
     @XmlElement(name = "posterFile")
@@ -2114,7 +2107,11 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         if (StringUtils.isBlank(fanartURL)) {
             fanartURL = UNKNOWN;
         }
-        this.fanartURL = fanartURL;
+        
+        if (!fanartURL.equalsIgnoreCase(this.fanartURL)) {
+            setDirty(Movie.DIRTY_INFO, true);
+            this.fanartURL = fanartURL;
+        }
     }
 
     @XmlElement(name = "fanartFile")
@@ -2136,13 +2133,14 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         return bannerURL;
     }
 
-    public void setBannerURL(String url) {
-        if (StringUtils.isBlank(url)) {
-            url = UNKNOWN;
+    public void setBannerURL(String bannerURL) {
+        if (StringUtils.isBlank(bannerURL)) {
+            bannerURL = UNKNOWN;
         }
-        if (!url.equalsIgnoreCase(this.bannerURL)) {
-            setDirty(DIRTY_BANNER, true);
-            this.bannerURL = url;
+        
+        if (!bannerURL.equalsIgnoreCase(this.bannerURL)) {
+            setDirty(DIRTY_INFO, true);
+            this.bannerURL = bannerURL;
         }
     }
 
@@ -2305,4 +2303,92 @@ public class Movie implements Comparable<Movie>, Cloneable, Identifiable, IMovie
         this.showStatus = showStatus;
     }
 
+    /**
+     * Copy the movie
+     * @param aMovie
+     * @return
+     */
+    public static Movie newInstance(Movie aMovie) {
+        Movie newMovie = new Movie();
+
+        newMovie.baseName = aMovie.baseName;
+        newMovie.baseFilename = aMovie.baseFilename;
+        
+        newMovie.title = aMovie.title;
+        newMovie.titleSort = aMovie.titleSort;
+        newMovie.originalTitle = aMovie.originalTitle;
+        newMovie.year = aMovie.year;
+        newMovie.releaseDate = aMovie.releaseDate;
+        newMovie.plot = aMovie.plot;
+        newMovie.outline = aMovie.outline;
+        newMovie.quote = aMovie.quote;
+        newMovie.tagline = aMovie.tagline;
+        newMovie.country = aMovie.country;
+        newMovie.company = aMovie.company;
+        newMovie.runtime = aMovie.runtime;
+        newMovie.language = aMovie.language;
+        newMovie.videoType = aMovie.videoType;
+        newMovie.subtitles = aMovie.subtitles;
+        newMovie.container = aMovie.container;
+        newMovie.videoCodec = aMovie.videoCodec;
+        newMovie.audioCodec = aMovie.audioCodec;
+        newMovie.audioChannels = aMovie.audioChannels;
+        newMovie.resolution = aMovie.resolution;
+        newMovie.aspect = aMovie.aspect;
+        newMovie.videoSource = aMovie.videoSource;
+        newMovie.videoOutput = aMovie.videoOutput;
+        newMovie.fps = aMovie.fps;
+        newMovie.certification = aMovie.certification;
+        newMovie.showStatus = aMovie.showStatus;
+        newMovie.scrapeLibrary = aMovie.scrapeLibrary;
+        newMovie.extra = aMovie.extra;
+        newMovie.trailerExchange = aMovie.trailerExchange;
+        newMovie.trailerLastScan = aMovie.trailerLastScan;
+        newMovie.libraryPath = aMovie.libraryPath;
+        newMovie.movieType = aMovie.movieType;
+        newMovie.formatType = aMovie.formatType;
+        newMovie.overrideTitle = aMovie.overrideTitle; 
+        newMovie.overrideYear = aMovie.overrideYear;
+        newMovie.top250 = aMovie.top250;
+        newMovie.libraryDescription = aMovie.libraryDescription;
+        newMovie.prebuf = aMovie.prebuf;
+        newMovie.posterURL = aMovie.posterURL;
+        newMovie.posterFilename = aMovie.posterFilename;
+        newMovie.detailPosterFilename = aMovie.detailPosterFilename;
+        newMovie.thumbnailFilename = aMovie.thumbnailFilename;
+        newMovie.fanartURL = aMovie.fanartURL;
+        newMovie.fanartFilename = aMovie.fanartFilename;
+        newMovie.bannerURL = aMovie.bannerURL;
+        newMovie.bannerFilename = aMovie.bannerFilename;
+        newMovie.fileDate = aMovie.fileDate;
+        newMovie.fileSize = aMovie.fileSize;
+        newMovie.watchedFile = aMovie.watchedFile;
+        newMovie.watchedNFO = aMovie.watchedNFO;
+        newMovie.first = aMovie.first;
+        newMovie.previous = aMovie.first;
+        newMovie.next = aMovie.next;
+        newMovie.last = aMovie.last;
+        newMovie.file = aMovie.file;
+        newMovie.containerFile = aMovie.containerFile;
+        newMovie.isSetMaster = aMovie.isSetMaster;
+        newMovie.setSize = aMovie.setSize;
+        
+        newMovie.idMap = new HashMap<String, String>(aMovie.idMap);
+        newMovie.ratings = new HashMap<String, Integer>(aMovie.ratings);
+        newMovie.directors = new LinkedHashSet<String>(aMovie.directors);
+        newMovie.sets = new HashMap<String, Integer>(aMovie.sets);
+        newMovie.genres = new TreeSet<String>(aMovie.genres);
+        newMovie.cast = new LinkedHashSet<String>(aMovie.cast);
+        newMovie.writers = new LinkedHashSet<String>(aMovie.writers);
+        newMovie.awards = new ArrayList<AwardEvent>(aMovie.awards);
+        newMovie.people = new ArrayList<Filmography>(aMovie.people);
+        newMovie.artwork = new LinkedHashSet<Artwork>(aMovie.artwork);
+        newMovie.indexes = new HashMap<String, String>(aMovie.indexes);
+        newMovie.movieFiles = new TreeSet<MovieFile>(aMovie.movieFiles);
+        newMovie.extraFiles = new TreeSet<ExtraFile>(aMovie.extraFiles);
+        newMovie.dirtyFlags = new HashMap<String, Boolean>(aMovie.dirtyFlags);
+
+        return newMovie;
+    }
+    
 }

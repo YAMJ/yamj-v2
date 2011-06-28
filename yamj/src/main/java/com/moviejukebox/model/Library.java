@@ -303,66 +303,69 @@ public class Library implements Map<String, Movie> {
     protected static Map<String, Movie> buildIndexMasters(String prefix, Index index, List<Movie> indexMovies) {
         Map<String, Movie> masters = new HashMap<String, Movie>();
 
-        for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
-            String index_name = index_entry.getKey();
-            List<Movie> index_list = index_entry.getValue();
+        for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
+            String indexName = indexEntry.getKey();
+            List<Movie> indexList = indexEntry.getValue();
 
-            Movie indexMaster;
-            try {
-                indexMaster = (Movie)index_list.get(0).clone();
-                indexMaster.setSetMaster(true);
-                indexMaster.setSetSize(index_list.size());
-                indexMaster.setTitle(index_name);
-                indexMaster.setTitleSort(index_name);
-                indexMaster.setOriginalTitle(index_name);
-                indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(index_name)) + "1");
-                indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
+            // We can't clone the movie because of the Collection objects in there, so we'll have to copy it
+            Movie indexMaster = Movie.newInstance(indexList.get(0));
+            indexMaster.setDirty(false);
+            
+            indexMaster.setSetMaster(true);
+            indexMaster.setSetSize(indexList.size());
+            indexMaster.setTitle(indexName);
+            indexMaster.setTitleSort(indexName);
+            indexMaster.setOriginalTitle(indexName);
+            indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(indexName)) + "1");
+            indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
+            
+            // set TV and HD properties of the master
+            int cntTV = 0;
+            int cntHD = 0;
+            int top250 = -1;
 
-                // set TV and HD properties of the master
-                int cntTV = 0;
-                int cntHD = 0;
-                int top250 = -1;
-
-                // We Can't use a TreeSet because MF.compareTo just compares part #
-                // so it fails when we combine multiple seasons into one collection
-                Collection<MovieFile> master_mf_col = new LinkedList<MovieFile>();
-                for (Movie movie : index_list) {
-                    if (movie.isTVShow()) {
-                        ++cntTV;
-                    }
-                    if (movie.isHD()) {
-                        ++cntHD;
-                    }
-
-                    int mTop250 = movie.getTop250();
-                    if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
-                        top250 = mTop250;
-                    }
-
-                    Collection<MovieFile> mf_col = movie.getMovieFiles();
-                    if (mf_col != null) {
-                        master_mf_col.addAll(mf_col);
-                    }
-                    
-                    // Update the master fileDate to be the latest of all the members so this indexes correctly in the New category
-                    indexMaster.addFileDate(movie.getFileDate());
+            // We Can't use a TreeSet because MF.compareTo just compares part #
+            // so it fails when we combine multiple seasons into one collection
+            Collection<MovieFile> masterMovieFileCollection = new LinkedList<MovieFile>();
+            for (Movie movie : indexList) {
+                if (movie.isTVShow()) {
+                    ++cntTV;
+                }
+                if (movie.isHD()) {
+                    ++cntHD;
                 }
 
-                indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : null);
-                indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
-                logger.debug("Setting index master >" + indexMaster.getTitle() + "< - isTV: " + indexMaster.isTVShow() + " - isHD: " + indexMaster.isHD()
-                                + " - top250: " + indexMaster.getTop250());
-                indexMaster.setTop250(top250);
-                indexMaster.setMovieFiles(master_mf_col);
+                int mTop250 = movie.getTop250();
+                if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
+                    top250 = mTop250;
+                }
+
+                Collection<MovieFile> movieFileCollection = movie.getMovieFiles();
+                if (movieFileCollection != null) {
+                    masterMovieFileCollection.addAll(movieFileCollection);
+                }
                 
-                masters.put(index_name, indexMaster);
-            } catch (CloneNotSupportedException error) {
-                logger.error("Failed building index masters");
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                // Update the master fileDate to be the latest of all the members so this indexes correctly in the New category
+                indexMaster.addFileDate(movie.getFileDate());
             }
+
+            indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
+            indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
+            
+            StringBuilder sb = new StringBuilder("Setting index master '");
+            sb.append(indexMaster.getTitle());
+            sb.append("' - isTV: ").append(indexMaster.isTVShow());
+            sb.append(" (").append(cntTV).append("/").append(indexList.size()).append(")");
+            sb.append(" - isHD: ").append(indexMaster.isHD());
+            sb.append(" (").append(cntHD).append("/").append(indexList.size()).append(")");
+            sb.append(" - top250: ").append(indexMaster.getTop250());
+
+            logger.debug(sb.toString());
+            
+            indexMaster.setTop250(top250);
+            indexMaster.setMovieFiles(masterMovieFileCollection);
+            
+            masters.put(indexName, indexMaster);
         }
 
         return masters;
@@ -399,9 +402,9 @@ public class Library implements Map<String, Movie> {
         moviesList.addAll(library.values());
 
         if (indexMovies.size() > 0) {
-            Map<String, Index> dynamic_indexes = new LinkedHashMap<String, Index>();
+            Map<String, Index> dynamicIndexes = new LinkedHashMap<String, Index>();
             // Add the sets FIRST! That allows users to put series inside sets
-            dynamic_indexes.put(SET, indexBySets(indexMovies));
+            dynamicIndexes.put(SET, indexBySets(indexMovies));
 
             final Map<String, Index> syncindexes = Collections.synchronizedMap(indexes);
 
@@ -445,31 +448,31 @@ public class Library implements Map<String, Movie> {
             // Make a "copy" of uncompressed index
             this.keepUncompressedIndexes();
 
-            Map<String, Map<String, Movie>> dyn_index_masters = new HashMap<String, Map<String, Movie>>();
-            for (Map.Entry<String, Index> dyn_entry : dynamic_indexes.entrySet()) {
-                Map<String, Movie> indexMasters = buildIndexMasters(dyn_entry.getKey(), dyn_entry.getValue(), indexMovies);
-                dyn_index_masters.put(dyn_entry.getKey(), indexMasters);
+            Map<String, Map<String, Movie>> dynamicIndexMasters = new HashMap<String, Map<String, Movie>>();
+            for (Map.Entry<String, Index> dynamicEntry : dynamicIndexes.entrySet()) {
+                Map<String, Movie> indexMasters = buildIndexMasters(dynamicEntry.getKey(), dynamicEntry.getValue(), indexMovies);
+                dynamicIndexMasters.put(dynamicEntry.getKey(), indexMasters);
 
-                for (Map.Entry<String, Index> indexes_entry : indexes.entrySet()) {
+                for (Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                     // For each category in index, compress this one.
-                    for (Map.Entry<String, List<Movie>> index_entry : indexes_entry.getValue().entrySet()) {
-                        compressSetMovies(index_entry.getValue(), dyn_entry.getValue(), indexMasters);
+                    for (Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
+                        compressSetMovies(indexEntry.getValue(), dynamicEntry.getValue(), indexMasters);
                     }
                 }
-                indexes.put(dyn_entry.getKey(), dyn_entry.getValue());
+                indexes.put(dynamicEntry.getKey(), dynamicEntry.getValue());
                 moviesList.addAll(indexMasters.values()); // so the driver knows what's an index master
             }
 
             // Now add the masters to the titles index
             // Issue 1018 - Check that this index was selected
             if (indexList.contains(INDEX_TITLE)) {
-                for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
-                    Index mastersTitlesIndex = indexByTitle(dyn_index_masters_entry.getValue().values());
-                    for (Map.Entry<String, List<Movie>> index_entry : mastersTitlesIndex.entrySet()) {
-                        for (Movie m : index_entry.getValue()) {
-                            int setCount = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(m.getTitle()).size();
+                for (Map.Entry<String, Map<String, Movie>> dynamicIndexMastersEntry : dynamicIndexMasters.entrySet()) {
+                    Index mastersTitlesIndex = indexByTitle(dynamicIndexMastersEntry.getValue().values());
+                    for (Map.Entry<String, List<Movie>> indexEntry : mastersTitlesIndex.entrySet()) {
+                        for (Movie m : indexEntry.getValue()) {
+                            int setCount = dynamicIndexes.get(dynamicIndexMastersEntry.getKey()).get(m.getTitle()).size();
                             if (setCount >= minSetCount) {
-                                indexes.get(INDEX_TITLE).addMovie(index_entry.getKey(), m);
+                                indexes.get(INDEX_TITLE).addMovie(indexEntry.getKey(), m);
                             }
                         }
                     }
@@ -523,11 +526,11 @@ public class Library implements Map<String, Movie> {
             }
             
             // Now set up the index masters' posters
-            for (Map.Entry<String, Map<String, Movie>> dyn_index_masters_entry : dyn_index_masters.entrySet()) {
-                for (Map.Entry<String, Movie> masters_entry : dyn_index_masters_entry.getValue().entrySet()) {
-                    List<Movie> set = dynamic_indexes.get(dyn_index_masters_entry.getKey()).get(masters_entry.getKey());
-                    masters_entry.getValue().setPosterFilename(set.get(0).getBaseName() + ".jpg");
-                    masters_entry.getValue().setFile(set.get(0).getFile()); // ensure ArtworkScanner looks in the right directory
+            for (Map.Entry<String, Map<String, Movie>> dynamicIndexMastersEntry : dynamicIndexMasters.entrySet()) {
+                for (Map.Entry<String, Movie> mastersEntry : dynamicIndexMastersEntry.getValue().entrySet()) {
+                    List<Movie> set = dynamicIndexes.get(dynamicIndexMastersEntry.getKey()).get(mastersEntry.getKey());
+                    mastersEntry.getValue().setPosterFilename(set.get(0).getBaseName() + ".jpg");
+                    mastersEntry.getValue().setFile(set.get(0).getFile()); // ensure ArtworkScanner looks in the right directory
                 }
             }
             Collections.sort(indexMovies);

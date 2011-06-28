@@ -222,7 +222,7 @@ public class VideoImageScanner {
                     // Local VideoImage is newer OR ForceVideoImageOverwrite OR DirtyVideoImage
                     // Can't check the file size because the jukebox videoimage may have been re-sized
                     // This may mean that the local art is different to the jukebox art even if the local file date is newer
-                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty()) {
+                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(Movie.DIRTY_INFO)) {
                         if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename)) {
                             logger.debug("VideoImageScanner: " + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
                         } else {

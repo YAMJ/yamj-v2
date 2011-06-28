@@ -1180,7 +1180,7 @@ public class MovieJukebox {
                         }
 
                         if (dirty) {
-                            movie.setDirty(Movie.DIRTY_PERSON, true);
+                            movie.setDirty(Movie.DIRTY_INFO, true);
                         }
                     }
 
@@ -1330,11 +1330,11 @@ public class MovieJukebox {
             SystemTools.showMemory();
 
             // Issue 1886: Html indexes recreated every time
-            for (Movie movie : library.getMoviesList()) {
-                if (movie.isSetMaster()) {
-                    File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + movie.getBaseName() + ".xml");
+            for (Movie setMovie : library.getMoviesList()) {
+                if (setMovie.isSetMaster()) {
+                    File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + setMovie.getBaseName() + ".xml");
                     if (xmlFile.exists()) {
-                        xmlWriter.parseSetXML(xmlFile, movie, library.getMoviesList());
+                        xmlWriter.parseSetXML(xmlFile, setMovie, library.getMoviesList());
                     }
                 }
             }
@@ -1787,7 +1787,7 @@ public class MovieJukebox {
                 }
             }
         }
-        return movie.isDirty() || movie.isDirty(Movie.DIRTY_NFO);
+        return movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_NFO);
     }
 
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {

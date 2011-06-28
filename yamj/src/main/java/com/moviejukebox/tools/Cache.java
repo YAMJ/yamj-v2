@@ -74,10 +74,7 @@ public class Cache {
         }
         
         if (mjbCache.contains(key)) {
-            // logger.debug("*** Cache (Remove): Removing key " + key); // XXX DEBUG
             mjbCache.remove(key);
-        } else {
-            // logger.debug("*** Cache (Remove): Nothing to remove for " + key); // XXX DEBUG
         }
     }
 
@@ -130,7 +127,6 @@ public class Cache {
             sb.append(value);
         }
         
-        // logger.debug("*** Cache: Generating cache key of: " + sb.toString()); // XXX Debug
         return sb.toString();
     }
 
