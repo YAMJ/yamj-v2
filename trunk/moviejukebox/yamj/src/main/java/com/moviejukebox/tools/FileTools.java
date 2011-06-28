@@ -326,6 +326,7 @@ public class FileTools {
                             } else {
                                 if (updateDisplay) {
                                     System.out.print("\r    Copying directory " + displayPath + " (" + currentFile + "/" + totalSize + ")");
+                                    //logger.debug("Copying: " + file.getName());
                                 }
                                 copyFile(file, dstDir);
                             }

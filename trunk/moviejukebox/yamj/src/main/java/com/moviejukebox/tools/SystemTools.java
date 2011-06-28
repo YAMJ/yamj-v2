@@ -12,6 +12,10 @@
  */
 package com.moviejukebox.tools;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import org.apache.log4j.Logger;
 import static com.moviejukebox.tools.StringTools.*;
 
@@ -85,4 +89,17 @@ public class SystemTools {
         showMemory(false);
     }
 
+    /**
+     * Helper method that throws an exception and saves it to the log as well.
+     * @param text
+     */
+    public static void logException(String text) {
+        logger.error("***** GENERATED EXCEPTION *****");
+        Exception error = new Exception(text);
+        final Writer eResult = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(eResult);
+        error.printStackTrace(printWriter);
+        logger.error(eResult.toString());
+    }
+    
 }
