@@ -22,6 +22,11 @@ import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.BannerType;
@@ -47,13 +52,17 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private TheTVDB tvDB;
     private String language;
     private String language2nd;
+    private boolean forceBannerOverwrite;
+    private boolean forceFanartOverwrite;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
+    private boolean includeWideBanners;
+    private boolean onlySeriesBanners;
+    private boolean cycleSeriesBanners;
+    private boolean textBanners;
     private boolean dvdEpisodes = false;
     private int preferredPlotLength;
-    private List<Episode> episodeList;
-    private List<Episode> episodeList2ndLanguage;
-    
+
     public TheTvDBPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
@@ -65,14 +74,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        includeWideBanners = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
+        onlySeriesBanners = PropertiesUtil.getBooleanProperty("mjb.onlySeriesBanners", "false");
+        cycleSeriesBanners = PropertiesUtil.getBooleanProperty("mjb.cycleSeriesBanners", "true");
         dvdEpisodes = PropertiesUtil.getBooleanProperty("thetvdb.dvd.episodes", "false");
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
+        forceFanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", "false");
+        forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        
-        // Make sure the episode lists are empty
-        episodeList = null;
-        episodeList2ndLanguage = null;
+        textBanners = PropertiesUtil.getBooleanProperty("banners.addText.season", "false");
 
         // We need to set the proxy parameters if set.
         tvDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
@@ -83,12 +94,105 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie movie) {
-        String id = getId(movie);
-        
-        if (isValidString(id)) {
-            Series series = getSeries(id);
+        List<Series> seriesList = null;
+
+        String id = movie.getId(THETVDB_PLUGIN_ID);
+
+        if (id == null || id.equals(Movie.UNKNOWN)) {
+            ThreadExecutor.enterIO(webhost);
+            try {
+                if (!movie.getTitle().equals(Movie.UNKNOWN)) {
+                    seriesList = tvDB.searchSeries(movie.getTitle(), language);
+                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
+                        seriesList = tvDB.searchSeries(movie.getTitle(), language2nd);
+                    }
+                }
+    
+                if (seriesList == null || seriesList.isEmpty()) {
+                    seriesList = tvDB.searchSeries(movie.getBaseName(), language);
+                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
+                        seriesList = tvDB.searchSeries(movie.getBaseName(), language2nd);
+                    }
+                }
+            } finally {
+                ThreadExecutor.leaveIO();
+            }
+
+            if (seriesList != null && !seriesList.isEmpty()) {
+                Series series = null;
+                for (Series s : seriesList) {
+                    if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
+                        if (movie.getYear() != null && !movie.getYear().equals(Movie.UNKNOWN)) {
+                            try {
+                                DateTime firstAired = DateTime.parse(s.getFirstAired());
+                                if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(movie.getYear())) {
+                                    series = s;
+                                    break;
+                                }
+                            } catch (Exception ignore) {
+                            }
+                        } else {
+                            series = s;
+                            break;
+                        }
+                    }
+                }
+                
+                if (series == null) {
+                    series = seriesList.get(0);
+                }
+
+                id = "" + series.getId();
+                movie.setId(THETVDB_PLUGIN_ID, id);
+
+                if (series.getImdbId() != null && !series.getImdbId().isEmpty()) {
+                    movie.setId(IMDB_PLUGIN_ID, series.getImdbId());
+                }
+            }
+        }
+
+        if (id != null && !id.equals(Movie.UNKNOWN)) {
+            Series series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language));
+            
+            ThreadExecutor.enterIO(webhost);
+            try {
+                // Not found in cache, so look online
+                if (series == null) {
+                    series = tvDB.getSeries(id, language);
+                    if (series != null) {
+                        // Add to the cache
+                        Cache.addToCache(Cache.generateCacheKey("Series", id, language), series);
+                    }
+                }
+                
+                if (series == null && !language2nd.isEmpty()) {
+                    series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language2nd));
+                    
+                    if (series == null) {
+                        series = tvDB.getSeries(id, language2nd);
+                        if (series != null) {
+                            // Add to the cache
+                            Cache.addToCache(Cache.generateCacheKey("Series", id, language2nd), series);
+                        }
+                    }
+                }
+            } finally {
+                ThreadExecutor.leaveIO();
+            }
 
             if (series != null) {
+                Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey("Banners", id, language));
+                
+                if (banners == null) {
+                    ThreadExecutor.enterIO(webhost);
+                    try {
+                        banners = tvDB.getBanners(id);
+                        Cache.addToCache(Cache.generateCacheKey("Banners", id, language), banners);
+                    } finally {
+                        ThreadExecutor.leaveIO();
+                    }
+                }
+                
                 try {
                     if (!movie.isOverrideTitle()) {
                         // issue 1214 : prevent replacing data with blank when TV plugin fails
@@ -114,6 +218,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         if (StringTools.isValidString(year)) {
                             movie.setYear(year);
                         }
+                    }
+                    
+                    if (isNotValidString(movie.getReleaseDate())) {
+                        // Set the release date to be the series first aired date
+                        movie.setReleaseDate(series.getFirstAired());
+                    }
+                    
+                    if (isNotValidString(movie.getShowStatus())) {
+                        // Set the show status
+                        movie.setShowStatus(series.getStatus());
                     }
 
                     if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
@@ -143,15 +257,95 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (movie.getCast().isEmpty()) {
                         movie.setCast(series.getActors());
                     }
+
+                    if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
+                        final int season = movie.getSeason();
+                        String urlBanner = null;
+
+                        // If we are adding the "Season ?" text to a banner, try searching for these first
+                        if (textBanners && !banners.getSeriesList().isEmpty()) {
+                            // Trying to grab localized banner at first...
+                            urlBanner = findBannerURL2(banners, BannerType.Blank, language, season);
+                            // In a case of failure - trying to grab banner in alternative language.
+                            if (urlBanner == null) {
+                                urlBanner = findBannerURL2(banners, BannerType.Blank, language2nd, season);
+                            }
+                        }
+
+                        // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
+                        if (!onlySeriesBanners && !banners.getSeasonList().isEmpty()) {
+                            // Trying to grab localized banner at first...
+                            urlBanner = findBannerURL(banners, BannerType.SeasonWide, language, season);
+                            // In a case of failure - trying to grab banner in alternative language.
+                            if (urlBanner == null) {
+                                urlBanner = findBannerURL(banners, BannerType.SeasonWide, language2nd, season);
+                            }
+                        }
+
+                        // If we didn't find a season banner or only want series banners, check for a series banner
+                        if (urlBanner == null && !banners.getSeriesList().isEmpty()) {
+                            urlBanner = findBannerURL2(banners, BannerType.Graphical, language, season);
+                            // In a case of failure - trying to grab banner in alternative language.
+                            if (urlBanner == null) {
+                                urlBanner = findBannerURL2(banners, BannerType.Graphical, language2nd, season);
+                            }
+                        }
+
+                        if (urlBanner != null) {
+                            movie.setBannerURL(urlBanner);
+                            
+                            ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), false);
+                            Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, urlBanner, artworkFile);
+                            movie.addArtwork(artwork);
+                            logger.debug("TheTvDBPlugin: Used banner " + urlBanner);
+                        }
+                    }
                 } catch (Exception e) {
                     logger.error("TheTvDBPlugin: Failed to retrieve TheTvDb Id for movie : " + movie.getTitle());
                     logger.error("Error : " + e.getMessage());
                 }
 
+                // TODO remove this once all skins are using the new fanart properties
+                downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
+
+                if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
+                    String url = null;
+                    Artwork artwork = new Artwork();
+                    artwork.setSourceSite(THETVDB_PLUGIN_ID);
+                    artwork.setType(ArtworkType.Fanart);
+                    
+                    if (!banners.getFanartList().isEmpty()) {
+                        int index = movie.getSeason();
+                        if (index <= 0) {
+                            index = 1;
+                        } else if (index > banners.getFanartList().size()) {
+                            index = banners.getFanartList().size();
+                        }
+                        index--;
+
+                        url = banners.getFanartList().get(index).getUrl();
+                    }
+                    
+                    if (url == null && series.getFanart() != null && !series.getFanart().isEmpty()) {
+                        url = series.getFanart();
+                    }
+                    
+                    if (url != null) {
+                        movie.setFanartURL(url);
+                        artwork.setUrl(url);
+                    }
+
+                    if (isValidString(movie.getFanartURL())) {
+                        String artworkFilename = movie.getBaseName() + fanartToken + "." + fanartExtension;
+                        movie.setFanartFilename(artworkFilename);
+                        artwork.addSize(new ArtworkFile(ArtworkSize.LARGE, artworkFilename, false));
+                    }
+                    
+                    movie.addArtwork(artwork);
+                }
+
+                // we may not have here the semaphore acquired, could lead to deadlock if limit is 1 and this function also needs a slot
                 scanTVShowTitles(movie);
-            } else {
-                // The series or ID wasn't found
-                return false;
             }
         }
 
@@ -165,129 +359,100 @@ public class TheTvDBPlugin extends ImdbPlugin {
             return;
         }
 
-        for (MovieFile file : movie.getMovieFiles()) {
-            if (movie.getSeason() >= 0) {
-                for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
-                    Episode episode = findEpisode(id, movie.getSeason(), part);
-                    
-                    if (episode != null) {
-                        // We only get the writers for the first episode, otherwise we might overwhelm the skins with data
-                        // TODO Assign the writers on a per-episode basis, rather than series.
-                        if (movie.getWriters().isEmpty()) {
-                            movie.setWriters(episode.getWriters());
-                        }
-
-                        // TODO Assign the director to each episode.
-                        if (((movie.getDirector().equals(Movie.UNKNOWN)) || (movie.getDirector().isEmpty())) && !episode.getDirectors().isEmpty()) {
-                            if (movie.getDirectors().isEmpty()) {
-                                movie.setDirectors(episode.getDirectors());
+        ThreadExecutor.enterIO(webhost);
+        try {
+            List<Episode> episodeList = tvDB.getSeasonEpisodes(id, movie.getSeason(), language);
+            List<Episode> episodeList2ndLanguage = null; // Start this null and only populate it if needed
+            
+            for (MovieFile file : movie.getMovieFiles()) {
+                if (movie.getSeason() >= 0) {
+                    for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
+                        Episode episode = null;
+                        if (dvdEpisodes) {
+                            episode = findDvdEpisode(episodeList, movie.getSeason(), part);
+                            if (episode == null && !language2nd.isEmpty()) {
+                                if (episodeList2ndLanguage == null) {
+                                    episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, movie.getSeason(), language2nd);
+                                }
+                                episode = findDvdEpisode(episodeList2ndLanguage, movie.getSeason(), part);
                             }
                         }
 
-                        if (isNotValidString(file.getAirsAfterSeason(part))) {
-                            file.setAirsAfterSeason(part, "" + episode.getAirsAfterSeason());
+                        if (episode == null) {
+                            //episode = tvDB.getEpisode(id, movie.getSeason(), part, language);
+                            episode = findEpisode(episodeList, movie.getSeason(), part);
+                            if (episode == null && !language2nd.isEmpty()) {
+                                if (episodeList2ndLanguage == null) {
+                                    episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, movie.getSeason(), language2nd);
+                                }
+                                episode = findEpisode(episodeList2ndLanguage, movie.getSeason(), part);
+                          }
                         }
 
-                        if (isNotValidString(file.getAirsBeforeSeason(part))) {
-                            file.setAirsBeforeSeason(part, "" + episode.getAirsBeforeSeason());
-                        }
-
-                        if (isNotValidString(file.getAirsBeforeEpisode(part))) {
-                            file.setAirsBeforeEpisode(part, "" + episode.getAirsBeforeEpisode());
-                        }
-                        
-                        if (isNotValidString(file.getFirstAired(part))) {
-                            file.setFirstAired(part, episode.getFirstAired());
-                        }
-
-                        // Set the title of the episode
-                        if (isNotValidString(file.getTitle(part))) {
-                            file.setTitle(part, episode.getEpisodeName());
-                        }
-
-                        if (includeEpisodePlots) {
-                            if (isNotValidString(file.getPlot(part))) {
-                                String episodePlot = episode.getOverview();
-                                episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
-                                file.setPlot(part, episodePlot);
+                        if (episode != null) {
+                            // We only get the writers for the first episode, otherwise we might overwhelm the skins with data
+                            // TODO Assign the writers on a per-episode basis, rather than series.
+                            if (movie.getWriters().isEmpty()) {
+                                movie.setWriters(episode.getWriters());
                             }
-                        }
 
-                        includeVideoImages = false;
-                        if (includeVideoImages) {
-                            file.setVideoImageURL(part, episode.getFilename());
+                            // TODO Assign the director to each episode.
+                            if (((movie.getDirector().equals(Movie.UNKNOWN)) || (movie.getDirector().isEmpty())) && !episode.getDirectors().isEmpty()) {
+                                if (movie.getDirectors().isEmpty()) {
+                                    movie.setDirectors(episode.getDirectors());
+                                }
+                            }
+
+                            if (isNotValidString(file.getAirsAfterSeason(part))) {
+                                file.setAirsAfterSeason(part, "" + episode.getAirsAfterSeason());
+                            }
+
+                            if (isNotValidString(file.getAirsBeforeSeason(part))) {
+                                file.setAirsBeforeSeason(part, "" + episode.getAirsBeforeSeason());
+                            }
+
+                            if (isNotValidString(file.getAirsBeforeEpisode(part))) {
+                                file.setAirsBeforeEpisode(part, "" + episode.getAirsBeforeEpisode());
+                            }
+                            
+                            if (isNotValidString(file.getFirstAired(part))) {
+                                file.setFirstAired(part, episode.getFirstAired());
+                            }
+                            
+                            // Set the title of the episode
+                            if (isNotValidString(file.getTitle(part))) {
+                                file.setTitle(part, episode.getEpisodeName());
+                            }
+
+                            if (includeEpisodePlots) {
+                                if (isNotValidString(file.getPlot(part))) {
+                                    String episodePlot = episode.getOverview();
+                                    episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
+                                    file.setPlot(part, episodePlot);
+                                }
+                            }
+
+                            if (includeVideoImages) {
+                                file.setVideoImageURL(part, episode.getFilename());
+                            } else {
+                                file.setVideoImageURL(part, Movie.UNKNOWN);
+                            }
                         } else {
-                            file.setVideoImageURL(part, Movie.UNKNOWN);
-                        }
-                    } else {
-                        // This occurs if the episode is not found
-                        if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
-                            // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
-                            file.setTitle(part, "Special");
+                            // This occurs if the episode is not found
+                            if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
+                                // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
+                                file.setTitle(part, "Special");
+                            }
                         }
                     }
                 }
             }
+        } finally {
+            ThreadExecutor.leaveIO();
         }
-        
-        // Clear the current episode lists
-        episodeList = null;
-        episodeList2ndLanguage = null;
     }
 
-    /**
-     * Find the episode from the list of episodes. Will automatically load the episode lists as needed and determine which type of episode (Aired/DVD) to get
-     * @param id
-     * @param seasonNumber
-     * @param episodeNumber
-     * @return
-     */
-    public Episode findEpisode(String id, int seasonNumber, int episodeNumber) {
-        Episode episode = null;
-        
-        if (isNotValidString(id)) {
-            return episode;
-        }
-        
-        // If we have no episode list, try and get one
-        if (episodeList == null || episodeList.isEmpty()) {
-            episodeList = getEpisodeList(id, seasonNumber, language);
-        }
-        
-        if (dvdEpisodes) {
-            episode = findDvdEpisode(episodeList, seasonNumber, episodeNumber);
-            if (episode == null) {
-                if (episodeList2ndLanguage == null || episodeList2ndLanguage.isEmpty()) {
-                    episodeList2ndLanguage = getEpisodeList(id, seasonNumber, language2nd);
-                }
-                episode = findDvdEpisode(episodeList2ndLanguage, seasonNumber, episodeNumber);
-            }
-        }
-
-        if (episode == null) {
-            episode = findAiredEpisode(episodeList, seasonNumber, episodeNumber);
-            if (episode == null) {
-                if (episodeList2ndLanguage == null || episodeList2ndLanguage.isEmpty()) {
-                    episodeList2ndLanguage = getEpisodeList(id, seasonNumber, language2nd);
-                }
-                episode = findAiredEpisode(episodeList2ndLanguage, seasonNumber, episodeNumber);
-          }
-        }
-        return episode;
-    }
-
-    /**
-     * Get the aired episode information from the list of episodes
-     * @param episodeList
-     * @param seasonNumber
-     * @param episodeNumber
-     * @return
-     */
-    private Episode findAiredEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
-        if (episodeList == null || episodeList.isEmpty()) {
-            return null;
-        }
-        
+    private Episode findEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
         for (Episode episode : episodeList) {
             if (episode.getSeasonNumber() == seasonNumber && episode.getEpisodeNumber() == episodeNumber) {
                 return episode;
@@ -296,18 +461,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         return null;
     }
     
-    /**
-     * Get the DVD episode imformation from the list of episode based on the DVD episode number
-     * @param episodeList
-     * @param seasonNumber
-     * @param episodeNumber
-     * @return
-     */
     private Episode findDvdEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
-        if (episodeList == null || episodeList.isEmpty()) {
-            return null;
-        }
-        
         for (Episode episode : episodeList) {
             if (episode.getSeasonNumber() == seasonNumber && episode.getDvdEpisodeNumber().equals(""+episodeNumber)) {
                 return episode;
@@ -354,7 +508,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
     }
 
-    public String findBannerURL(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
+    private String findBannerURL(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
         for (Banner banner : bannerList.getSeasonList()) {
             if (banner.getSeason() == season) {
                 if (banner.getBannerType2() == bannerType) {
@@ -367,7 +521,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         return null;
     }
 
-    public String findBannerURL2(final Banners bannerList, final BannerType bannerType, final String languageId, final int season, boolean cycleSeriesBanners) {
+    private String findBannerURL2(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
         int counter = 0;
         String urlBanner = null;
         String savedUrl = null;
@@ -385,217 +539,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
             }
         }
-        
         // Check to see if we found a banner
         if (urlBanner == null) {
             // No banner found, so use the last banner
             urlBanner = savedUrl;
         }
-        
         return urlBanner;
     }
- 
-    /**
-     * Get a list of episodes from TheTVDB
-     * @param id
-     * @param seasonNumber
-     * @param language
-     * @return
-     */
-    public List<Episode> getEpisodeList(String id, int seasonNumber, String language) {
-        if (isNotValidString(id) || isNotValidString(language) || seasonNumber < 0) {
-            return null;
-        }
-        
-        @SuppressWarnings("unchecked")
-        List<Episode> episodeList = (List<Episode>) Cache.getFromCache(Cache.generateCacheKey("EpisodeList", id, ""+seasonNumber, language));
 
-        // Not found in cache, so look online
-        if (episodeList == null) {
-            ThreadExecutor.enterIO(webhost);
-            try {
-                episodeList = tvDB.getSeasonEpisodes(id, seasonNumber, language);
-            } finally {
-                ThreadExecutor.leaveIO();
-            }
-            
-            if (episodeList != null) {
-                // Add to the cache
-                Cache.addToCache(Cache.generateCacheKey("EpisodeList", id, ""+seasonNumber, language), episodeList);
-            }
-        }
-
-        return episodeList;
-    }
-    
-    /**
-     * Get the banners using the ID from the Cache if possible.
-     * @param id
-     * @return
-     */
-    public Banners getBanners(String id) {
-        if (isNotValidString(id)) {
-            return null;
-        }
-        
-        Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey("Banners", id, language));
-        
-        // Not found in cache, so look online
-        if (banners == null) {
-            ThreadExecutor.enterIO(webhost);
-            try {
-                banners = tvDB.getBanners(id);
-            } finally {
-                ThreadExecutor.leaveIO();
-            }
-            
-            if (banners != null) {
-                // Add to the cache
-                Cache.addToCache(Cache.generateCacheKey("Banners", id, language), banners);
-                return banners;
-            }
-        }
-        
-        return banners;
-    }
-    
-    /**
-     * Get the series from the ID using the Cache if possible.
-     * @param id
-     * @return
-     */
-    public Series getSeries(String id) {
-        if (isNotValidString(id)) {
-            return null;
-        }
-        
-        Series series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language));
-        
-        // Not found in cache, so look online
-        if (series == null) {
-            ThreadExecutor.enterIO(webhost);
-            try {
-                series = tvDB.getSeries(id, language);
-                if (series != null) {
-                    // Add to the cache
-                    Cache.addToCache(Cache.generateCacheKey("Series", id, language), series);
-                    return series;
-                }
-            } finally {
-                ThreadExecutor.leaveIO();
-            }
-        }
-        
-        if (series == null && !language2nd.isEmpty()) {
-            series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language2nd));
-            
-            if (series == null) {
-                ThreadExecutor.enterIO(webhost);
-                try {
-                    series = tvDB.getSeries(id, language2nd);
-                    if (series != null) {
-                        // Add to the cache
-                        Cache.addToCache(Cache.generateCacheKey("Series", id, language2nd), series);
-                        return series;
-                    }
-                } finally {
-                    ThreadExecutor.leaveIO();
-                }
-            }
-        }
-
-        return series;
-    }
-    
-    /**
-     * Get TheTVDB ID from the movie details.
-     * @param movie
-     * @return
-     */
-    public String getId(Movie movie) {
-        String id = movie.getId(THETVDB_PLUGIN_ID);
-
-        if (isValidString(id)) {
-            return id;
-        }
-        
-        List<Series> seriesList = null;
-        
-        if (isNotValidString(id)) {
-            ThreadExecutor.enterIO(webhost);
-            try {
-                // Use the title to search
-                if (isValidString(movie.getTitle())) {
-                    seriesList = tvDB.searchSeries(movie.getTitle(), language);
-                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                        seriesList = tvDB.searchSeries(movie.getTitle(), language2nd);
-                    }
-                }
-                
-                // Try to use the original title
-                if (seriesList == null || seriesList.isEmpty()) {
-                    if (!movie.getTitle().equalsIgnoreCase(movie.getOriginalTitle())) {
-                        seriesList = tvDB.searchSeries(movie.getBaseName(), language);
-                        if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                            seriesList = tvDB.searchSeries(movie.getBaseName(), language2nd);
-                        }
-                    }
-                }
-    
-                // Finally use the base name to search
-                if (seriesList == null || seriesList.isEmpty()) {
-                    seriesList = tvDB.searchSeries(movie.getBaseName(), language);
-                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                        seriesList = tvDB.searchSeries(movie.getBaseName(), language2nd);
-                    }
-                }
-    
-                if (seriesList != null && !seriesList.isEmpty()) {
-                    Series series = null;
-                    for (Series s : seriesList) {
-                        if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
-                            if (movie.getYear() != null && !movie.getYear().equals(Movie.UNKNOWN)) {
-                                try {
-                                    DateTime firstAired = DateTime.parse(s.getFirstAired());
-                                    if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(movie.getYear())) {
-                                        series = s;
-                                        break;
-                                    }
-                                } catch (Exception ignore) {
-                                }
-                            } else {
-                                series = s;
-                                break;
-                            }
-                        }
-                    }
-    
-                    // Default to the first series returned, and hope it's correct.
-                    if (series == null) {
-                        series = seriesList.get(0);
-                        logger.debug("TheTvDBPlugin: No exact match found for " + movie.getTitle() + ", assuming " + series.getSeriesName() + "("+ series.getId() +")");
-                    }
-    
-                    id = "" + series.getId();
-                    movie.setId(THETVDB_PLUGIN_ID, id);
-    
-                    if (series.getImdbId() != null && !series.getImdbId().isEmpty()) {
-                        movie.setId(IMDB_PLUGIN_ID, series.getImdbId());
-                    }
-                }
-            } finally {
-                ThreadExecutor.leaveIO();
-            }
-        }
-        
-        return id;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public String getLanguage2nd() {
-        return language2nd;
-    }
 }
