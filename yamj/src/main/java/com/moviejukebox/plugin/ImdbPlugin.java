@@ -186,7 +186,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             title = title.replaceAll(" \\([VG|V]\\)$", ""); // Remove the (VG) or (V) tags from the title
 
             //String yearPattern = ".\\((?:TV )?(\\d{4})(?:/[^\\)]+)?\\)";
-            String yearPattern = ".\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
+            String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
             Pattern pattern = Pattern.compile(yearPattern, Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(title);
             if (matcher.find()) {
