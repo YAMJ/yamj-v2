@@ -1348,6 +1348,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
+        beginIndex = xmlInfo.indexOf("<h5>Nickname</h5>");
+        if (beginIndex > -1) {
+            String name = xmlInfo.substring(beginIndex + 17, xmlInfo.indexOf("<br/>", beginIndex));
+            if (isValidString(name)) {
+                person.addAka(name);
+            }
+        }
+
         String biography = Movie.UNKNOWN;
         if (xmlInfo.indexOf("<h5>Mini Biography</h5>") > -1) {
             biography = HTMLTools.extractTag(xmlInfo, "<h5>Mini Biography</h5>", "<b>IMDb Mini Biography By: </b>");

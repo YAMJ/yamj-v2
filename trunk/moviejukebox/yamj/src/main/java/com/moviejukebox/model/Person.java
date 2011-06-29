@@ -134,7 +134,7 @@ public class Person extends Filmography {
     }
 
     public void addAka(String alsoKnownAs) {
-        if (isValidString(alsoKnownAs)) {
+        if (isValidString(alsoKnownAs) && !getName().equals(alsoKnownAs) && !getTitle().equals(alsoKnownAs) && !this.aka.contains(alsoKnownAs)) {
             this.aka.add(alsoKnownAs);
             setDirty();
         }
@@ -169,7 +169,10 @@ public class Person extends Filmography {
 
     public void setAka(List<String> aka) {
         if (aka != null && !this.aka.equals(aka)) {
-            this.aka = aka;
+            this.aka.clear();
+            for (String akaName : aka) {
+                addAka(akaName);
+            }
             setDirty();
         }
     }
