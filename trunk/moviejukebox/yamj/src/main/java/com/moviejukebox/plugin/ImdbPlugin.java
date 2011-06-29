@@ -162,7 +162,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (!imdbID.startsWith("tt")) {
                 imdbID = "tt" + imdbID;
                 // Correct the ID if it's wrong
-                movie.setId(IMDB_PLUGIN_ID, "tt" + imdbID);
+                movie.setId(IMDB_PLUGIN_ID, imdbID);
             }
             
             String xml = getImdbUrl(movie);
