@@ -187,7 +187,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             //String yearPattern = ".\\((?:TV )?(\\d{4})(?:/[^\\)]+)?\\)";
             String yearPattern = ".\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
-            Pattern pattern = Pattern.compile(yearPattern);
+            Pattern pattern = Pattern.compile(yearPattern, Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(title);
             if (matcher.find()) {
                 // If we've found a year, set it in the movie
