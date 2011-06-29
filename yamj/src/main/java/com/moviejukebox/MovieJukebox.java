@@ -1637,6 +1637,7 @@ public class MovieJukebox {
                 if (FileTools.isNewer(nfoFile, xmlFile)) {
                     logger.info("NFO for " + movie.getOriginalTitle() + " (" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
                     movie.setDirty(Movie.DIRTY_NFO, true);
+                    movie.setDirty(Movie.DIRTY_INFO, true);
                     movie.setDirty(Movie.DIRTY_POSTER, true);
                     movie.setDirty(Movie.DIRTY_FANART, true);
                     movie.setDirty(Movie.DIRTY_BANNER, true);
@@ -1733,6 +1734,7 @@ public class MovieJukebox {
                     }
                 }
             }
+            scanLoop = null; // Free up the variable
             // *** END of file location change
 
             // update new episodes titles if new MovieFiles were added
