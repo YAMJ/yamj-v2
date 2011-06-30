@@ -93,7 +93,7 @@ public class MovieJukeboxXMLWriter {
     private static boolean isPlayOnHD;
     private static String defaultSource;
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
-    private static String str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
+    private static String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -109,10 +109,10 @@ public class MovieJukeboxXMLWriter {
     private boolean reindexUnwatched = false;
     
     static {
-        if (str_categoriesDisplayList.length() == 0) {
-            str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
+        if (strCategoriesDisplayList.length() == 0) {
+            strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         }
-        categoriesDisplayList = Arrays.asList(str_categoriesDisplayList.split(","));
+        categoriesDisplayList = Arrays.asList(strCategoriesDisplayList.split(","));
 
         writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", "false");
 
@@ -1108,14 +1108,13 @@ public class MovieJukeboxXMLWriter {
 
         logger.debug("Index: " + categoryKey + ", Category: " + indexName + ", count: " + indexMovies.size());
         // Display a message about the category we're indexing
-        // FIXME Not sure the list here is correct, and if we should get it from a property
-        if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+        if (countMovieCat < categoryMinCount && !categoriesDisplayList.contains(categoryKey)) {
             logger.debug("Category " + categoryKey + " " + indexName + " does not contain enough videos (" + countMovieCat
                             + "/" + categoryMinCount + "), not adding to categories.xml.");
             return;
         }
 
-        if (setsExcludeTV && "Set".equalsIgnoreCase(categoryKey) && indexMovies.get(0).isTVShow()) {
+        if (setsExcludeTV && categoryKey.equalsIgnoreCase(Library.INDEX_SET) && indexMovies.get(0).isTVShow()) {
             // Do not include the video in the set because it's a TV show
             return;
         }
@@ -1172,7 +1171,7 @@ public class MovieJukeboxXMLWriter {
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
-                        if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName) && !separateCategories) {
+                        if (categoryCount < categoryMinCount && !categoriesDisplayList.contains(categoryName) && !separateCategories) {
                             logger.debug("Category " + categoryPath + " does not contain enough videos (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
