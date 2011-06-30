@@ -322,6 +322,7 @@ public class Library implements Map<String, Movie> {
             int cntTV = 0;
             int cntHD = 0;
             int top250 = -1;
+            boolean watched = true; // Assume watched for the check, because any false value will reset it.
 
             // We Can't use a TreeSet because MF.compareTo just compares part #
             // so it fails when we combine multiple seasons into one collection
@@ -330,10 +331,14 @@ public class Library implements Map<String, Movie> {
                 if (movie.isTVShow()) {
                     ++cntTV;
                 }
+                
                 if (movie.isHD()) {
                     ++cntHD;
                 }
 
+                // If watched is false for any part, then set the master to unwatched
+                watched &= movie.isWatched();
+                
                 int mTop250 = movie.getTop250();
                 if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
                     top250 = mTop250;
@@ -350,6 +355,11 @@ public class Library implements Map<String, Movie> {
 
             indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
             indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
+            indexMaster.setWatchedFile(watched);
+            indexMaster.setTop250(top250);
+            indexMaster.setMovieFiles(masterMovieFileCollection);
+            
+            masters.put(indexName, indexMaster);
             
             StringBuilder sb = new StringBuilder("Setting index master '");
             sb.append(indexMaster.getTitle());
@@ -358,13 +368,9 @@ public class Library implements Map<String, Movie> {
             sb.append(" - isHD: ").append(indexMaster.isHD());
             sb.append(" (").append(cntHD).append("/").append(indexList.size()).append(")");
             sb.append(" - top250: ").append(indexMaster.getTop250());
-
+            sb.append(" - watched: ").append(indexMaster.isWatched());
             logger.debug(sb.toString());
             
-            indexMaster.setTop250(top250);
-            indexMaster.setMovieFiles(masterMovieFileCollection);
-            
-            masters.put(indexName, indexMaster);
         }
 
         return masters;
