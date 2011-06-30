@@ -21,12 +21,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -69,6 +71,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private int actorMax;
     private int directorMax;
     private int writerMax;
+    private int triviaMax;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
     protected static final String plotEnding = "...";
@@ -103,6 +106,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
         skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
         jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
+
+        triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", "15");
     }
 
     @Override
@@ -226,8 +231,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 returnStatus = updateInfoOld(movie, xml);
             }
             
-            // Issue 1901: Awards
-            updateAwards(movie);
+            updateAwards(movie);        // Issue 1901: Awards
+            
+            updateBusiness(movie);      // Issue 2012: Financial information about movie
+            
+            updateTrivia(movie);        // Issue 2013: Add trivia
             
             // TODO: Remove this check at some point when all skins have moved over to the new property
             downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
@@ -941,6 +949,81 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return true;
     }
     
+    /**
+     * Process financial information in the IMDb web page
+     * @param movie
+     * @return
+     * @throws MalformedURLException
+     * @throws IOException
+     */
+    private boolean updateBusiness(Movie movie) throws MalformedURLException, IOException, NumberFormatException {
+        String imdbId = movie.getId(IMDB_PLUGIN_ID);
+        String site = siteDef.getSite();
+        if (!siteDef.getSite().contains(".imdb.com")) {
+            site = "http://www.imdb.com/";
+        }
+        String xml = webBrowser.request(site + "title/" + imdbId + "/business");
+        if (isValidString(xml)) {
+            String budget = HTMLTools.extractTag(xml, "<h5>Budget</h5>", "<br/>").replaceAll("\\s.*", "");
+            movie.setBudget(budget);
+            NumberFormat moneyFormat = NumberFormat.getNumberInstance(new Locale("US"));
+            for (int i = 0; i<2; i++) {
+                for (String oWeek : HTMLTools.extractTags(xml, "<h5>" + (i == 0?"Opening Weekend":"Gross") + "</h5", "<h5>", "", "<br/")) {
+                    if (isValidString(oWeek)) {
+                        String currency = oWeek.replaceAll("\\d+.*", "");
+                        long value = Integer.parseInt(oWeek.replaceAll("^\\D*\\s*", "").replaceAll("\\s.*", "").replaceAll(",", ""));
+                        String country = HTMLTools.extractTag(oWeek, "(", ")");
+                        if (country.equals("Worldwide") && !currency.equals("$")) {
+                            continue;
+                        }
+                        String money = i == 0?movie.getOpenWeek(country):movie.getGross(country);
+                        if (isValidString(money)) {
+                            long m = Long.parseLong(money.replaceAll("^\\D*\\s*", "").replaceAll(",", ""));
+                            value = i == 0?value + m:value > m?value:m;
+                        }
+                        if (i == 0) {
+                            movie.setOpenWeek(country, currency + moneyFormat.format(value));
+                        } else {
+                            movie.setGross(country, currency + moneyFormat.format(value));
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Process trivia in the IMDb web page
+     * @param movie
+     * @return
+     * @throws MalformedURLException
+     * @throws IOException
+     */
+    private boolean updateTrivia(Movie movie) throws MalformedURLException, IOException {
+        String imdbId = movie.getId(IMDB_PLUGIN_ID);
+        String site = siteDef.getSite();
+        if (!siteDef.getSite().contains(".imdb.com")) {
+            site = "http://www.imdb.com/";
+        }
+        String xml = webBrowser.request(site + "title/" + imdbId + "/trivia");
+        if (isValidString(xml)) {
+            int i = 0;
+            for (String tmp : HTMLTools.extractTags(xml, "<div class=\"list\">", "<div class=\"list\">", "<div class=\"sodatext\"", "<br /></div>")) {
+                if (i < triviaMax) {
+                    tmp = HTMLTools.removeHtmlTags(tmp);
+                    movie.addDidYouKnow(tmp);
+                    i++;
+                } else {
+                    break;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Process a list of people in the source XML
      * @param sourceXml

@@ -12,6 +12,9 @@
  */
 package com.moviejukebox.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /*
  * @author ilgizar
  */
@@ -20,6 +23,8 @@ public class Award {
     private int won = 0;
     private int nominated = 0;
     private int year = -1;
+    private Collection<String> wons = new ArrayList<String>();
+    private Collection<String> nominations = new ArrayList<String>();
 
     public String getName() {
         return name;
@@ -30,7 +35,7 @@ public class Award {
     }
 
     public int getWon() {
-        return won;
+        return (wons != null && wons.size() > 0)?wons.size():won;
     }
 
     public void setWon(int won) {
@@ -38,7 +43,7 @@ public class Award {
     }
 
     public int getNominated() {
-        return nominated;
+        return (nominations != null && nominations.size() > 0)?nominations.size():nominated;
     }
 
     public void setNominated(int nominated) {
@@ -51,5 +56,47 @@ public class Award {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public void addWon(String category) {
+        wons.add(category);
+        won = wons.size();
+    }
+
+    public void addNomination(String category) {
+        nominations.add(category);
+        nominated = nominations.size();
+    }
+
+    public void clearWon() {
+        wons.clear();
+        won = 0;
+    }
+
+    public void clearNomination() {
+        nominations.clear();
+        nominated = 0;
+    }
+
+    public Collection<String> getWons() {
+        return wons;
+    }
+
+    public Collection<String> getNominations() {
+        return nominations;
+    }
+
+    public void setWons(Collection<String> wons) {
+        if (wons != null) {
+            this.wons = wons;
+            won = wons.size();
+        }
+    }
+
+    public void setNominations(Collection<String> nominations) {
+        if (nominations != null) {
+            this.nominations = nominations;
+            nominated = nominations.size();
+        }
     }
 }

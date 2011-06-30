@@ -445,6 +445,17 @@ public class MovieJukeboxXMLWriter {
                                     award.setNominated(Integer.parseInt(attr.getValue()));
                                     continue;
                                 }
+
+                                if (ns.equalsIgnoreCase("wons")) {
+                                    award.setWons(Arrays.asList(attr.getValue().split(" / ")));
+                                    continue;
+                                }
+
+                                if (ns.equalsIgnoreCase("nominations")) {
+                                    award.setNominations(Arrays.asList(attr.getValue().split(" / ")));
+                                    continue;
+                                }
+
                             }
                             award.setName(parseCData(r));
                             event.addAward(award);
@@ -526,6 +537,48 @@ public class MovieJukeboxXMLWriter {
 
                     person.setFilename(parseCData(r));
                     movie.addPerson(person);
+                }
+
+                // Issue 2012: Financial information about movie
+                if (tag.toLowerCase().startsWith("<business ")) {
+                    StartElement start = e.asStartElement();
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("budget")) {
+                            movie.setBudget(attr.getValue());
+                            continue;
+                        }
+                    }
+                }
+                if (tag.toLowerCase().startsWith("<gross ")) {
+                    StartElement start = e.asStartElement();
+                    String country = Movie.UNKNOWN;
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("country")) {
+                            country = attr.getValue();
+                            continue;
+                        }
+                    }
+                    movie.setGross(country, parseCData(r));
+                }
+                if (tag.toLowerCase().startsWith("<openweek ")) {
+                    StartElement start = e.asStartElement();
+                    String country = Movie.UNKNOWN;
+                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
+                        Attribute attr = i.next();
+                        String ns = attr.getName().toString();
+
+                        if (ns.equalsIgnoreCase("country")) {
+                            country = attr.getValue();
+                            continue;
+                        }
+                    }
+                    movie.setOpenWeek(country, parseCData(r));
                 }
 
                 if (tag.toLowerCase().startsWith("<file ")) {
@@ -1886,6 +1939,12 @@ public class MovieJukeboxXMLWriter {
                     writer.writeAttribute("won", Integer.toString(award.getWon()));
                     writer.writeAttribute("nominated", Integer.toString(award.getNominated()));
                     writer.writeAttribute("year", Integer.toString(award.getYear()));
+                    if (award.getWons() != null && award.getWons().size() > 0) {
+                        writer.writeAttribute("wons", StringUtils.join(award.getWons(), " / "));
+                    }
+                    if (award.getNominations() != null && award.getNominations().size() > 0) {
+                        writer.writeAttribute("nominations", StringUtils.join(award.getNominations(), " / "));
+                    }
                     writer.writeCharacters(award.getName());
                     writer.writeEndElement();
                 }
@@ -1920,6 +1979,32 @@ public class MovieJukeboxXMLWriter {
             }
             writer.writeEndElement();
         }
+
+        // Issue 2012: Financial information about movie
+        writer.writeStartElement("business");
+        writer.writeAttribute("budget", movie.getBudget());
+        for (Map.Entry<String, String> gross : movie.getGross().entrySet()) {
+            writer.writeStartElement("gross");
+            writer.writeAttribute("country", gross.getKey());
+            writer.writeCharacters(gross.getValue());
+            writer.writeEndElement();
+        }
+        for (Map.Entry<String, String> openweek : movie.getOpenWeek().entrySet()) {
+            writer.writeStartElement("openweek");
+            writer.writeAttribute("country", openweek.getKey());
+            writer.writeCharacters(openweek.getValue());
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
+
+        // Issue 2013: Add trivia
+        writer.writeStartElement("didyouknow");
+        for (String trivia : movie.getDidYouKnow()) {
+            writer.writeStartElement("trivia");
+            writer.writeCharacters(trivia);
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
 
         // Write the indexes that the movie belongs to
         writer.writeStartElement("indexes");
