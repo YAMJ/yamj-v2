@@ -151,8 +151,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private boolean trailerExchange = false;    // Trailers
     private long trailerLastScan = 0;           // Trailers
     
-    Collection<AwardEvent> awards = new ArrayList<AwardEvent>();    // Issue 1901: Awards
-    Collection<Filmography> people = new ArrayList<Filmography>();  // Issue 1897: Cast enhancement
+    private Collection<AwardEvent> awards = new ArrayList<AwardEvent>();    // Issue 1901: Awards
+    private Collection<Filmography> people = new ArrayList<Filmography>();  // Issue 1897: Cast enhancement
+
+    private String budget = UNKNOWN;                                        // Issue 2012: Financial information about movie
+    private Map<String, String> openweek =  new HashMap<String, String>();
+    private Map<String, String> gross =  new HashMap<String, String>();
+
+    private Collection<String> DidYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
 
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
@@ -409,14 +415,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             
             Filmography person = new Filmography();
             
-            if (key.indexOf(":") > 0) {
+            if (key.indexOf(":") > -1) {
                 String[] keys = key.split(":");
                 person.setId(keys[0], keys[1]);
             } else {
                 person.setId(key);
             }
             
-            if (name.indexOf(":") > 0) {
+            if (name.indexOf(":") > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[0])) {
                     person.setName(names[0]);
@@ -562,6 +568,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return writers;
     }
 
+    public Collection<String> getDidYouKnow() {
+        return DidYouKnow;
+    }
+
     public String getCompany() {
         return company;
     }
@@ -670,6 +680,32 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public Map<String, String> getIdMap() {
         return idMap;
+    }
+
+    public String getGross(String country) {
+        String result = gross.get(country);
+        if (result != null) {
+            return result;
+        } else {
+            return UNKNOWN;
+        }
+    }
+
+    public Map<String, String> getGross() {
+        return gross;
+    }
+
+    public String getOpenWeek(String country) {
+        String result = openweek.get(country);
+        if (result != null) {
+            return result;
+        } else {
+            return UNKNOWN;
+        }
+    }
+
+    public Map<String, String> getOpenWeek() {
+        return openweek;
     }
 
     public static class MovieId {
@@ -850,6 +886,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return year;
     }
 
+    public String getBudget() {
+        return budget;
+    }
+
     public String getSubtitles() {
         return subtitles;
     }
@@ -962,6 +1002,25 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    public void addDidYouKnow(String fact) {
+        if (fact != null && !DidYouKnow.contains(fact)) {
+            setDirty(DIRTY_INFO, true);
+            DidYouKnow.add(fact);
+        }
+    }
+
+    public void setDidYouKnow(Collection<String> facts) {
+        if (facts != null && !facts.isEmpty()) {
+            DidYouKnow = facts;
+            setDirty(DIRTY_INFO, true);
+        }
+    }
+
+    public void clearDidYouKnow() {
+        DidYouKnow.clear();
+        setDirty(DIRTY_INFO, true);
+    }
+
     public void addActor(String actor) {
         if (actor != null && !cast.contains(actor)) {
             setDirty(DIRTY_INFO, true);
@@ -972,7 +1031,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addActor(String key, String name, String character, String URL, String doublage) {
         if (name != null) {
             String Name = name;
-            if (name.indexOf(":") > 0) {
+            if (name.indexOf(":") > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
                     Name = names[1];
@@ -1251,6 +1310,32 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     
     public void setId(String key, int id) {
         setId(key, Integer.toString(id));
+    }
+
+    public void setGross(String country, String value) {
+        if (StringTools.isValidString(country) && StringTools.isValidString(value) && !value.equalsIgnoreCase(this.getGross(country))) {
+            setDirty(DIRTY_INFO, true);
+            this.gross.put(country, value);
+        }
+    }
+    
+    public void setGross(Map<String, String> gross) {
+        if (gross != null) {
+            this.gross = gross;
+        }
+    }
+
+    public void setOpenWeek(String country, String value) {
+        if (StringTools.isValidString(country) && StringTools.isValidString(value) && !value.equalsIgnoreCase(this.getOpenWeek(country))) {
+            setDirty(DIRTY_INFO, true);
+            this.openweek.put(country, value);
+        }
+    }
+    
+    public void setOpenWeek(Map<String, String> openweek) {
+        if (openweek != null) {
+            this.openweek = openweek;
+        }
     }
 
     public void setLanguage(String language) {
@@ -1538,6 +1623,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (!year.equalsIgnoreCase(this.year)) {
             setDirty(DIRTY_INFO, true);
             this.year = year;
+        }
+    }
+
+    public void setBudget(String budget) {
+        if (budget != null && !this.budget.equalsIgnoreCase(budget)) {
+            setDirty(DIRTY_INFO, true);
+            this.budget = budget;
         }
     }
 
