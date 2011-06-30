@@ -47,6 +47,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1972 All movie sets deleted from library (r2494)
  - Fixed defect #1978 Sorting strip prefixes not applied to sort title
  - Enhancement  #1981 Improve round corner quality / add image stretching
+ - Fixes issue  #1989 New categories not updated
  - Enhancement  #1991 Add aired info to episode nfo (first aired, airs after season, airs before season, airs before episode)
  - Fixed defect #1993 Index encoded name
  - Enhancement  #1994 Option to put Season 0 after all seasons

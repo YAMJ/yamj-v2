@@ -24,6 +24,8 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 
 public class WatchedScanner {
+//    private static Logger logger = Logger.getLogger("moviejukebox");
+
     /**
      * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
      * Always assumes that the file is unwatched if nothing is found.
@@ -72,7 +74,6 @@ public class WatchedScanner {
             mf.setWatched(fileWatched); // Set the watched status
             // As soon as there is an unwatched file, the whole movie becomes unwatched
             movieWatched = movieWatched && fileWatched;
-            
         }
         
         // Only change the watched status if we found at least 1 file
@@ -91,7 +92,7 @@ public class WatchedScanner {
         if ((fileWatchedCount == 0) && movie.isWatchedFile()) {
             movie.setWatchedFile(movieWatched);
             movie.setDirty(Movie.DIRTY_WATCHED, true);
-            
+
             // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
             movie.setDirty(Movie.DIRTY_POSTER, true);
             movie.setDirty(Movie.DIRTY_BANNER, true);
