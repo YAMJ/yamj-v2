@@ -56,6 +56,8 @@ public class Library implements Map<String, Movie> {
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
 
+    private Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
+
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean filterGenres;
     private static boolean filterCertificationn;
@@ -163,6 +165,8 @@ public class Library implements Map<String, Movie> {
         peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", "false");
         getNewCategoryProperties();
     }
+
+    public Library() {}
     
     /**
      * Calculate the Movie and TV New category properties
@@ -214,11 +218,6 @@ public class Library implements Map<String, Movie> {
             logger.debug("New category is disabled");
         }
 }
-
-    private Collection<IndexInfo> generated_indexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
-
-    public Library() {
-    }
 
     public static String getMovieKey(IMovieBasicInformation movie) {
         // Issue 190
@@ -1364,11 +1363,11 @@ public class Library implements Map<String, Movie> {
     }
 
     public void addGeneratedIndex(IndexInfo index) {
-        generated_indexes.add(index);
+        generatedIndexes.add(index);
     }
 
     public Collection<IndexInfo> getGeneratedIndexes() {
-        return generated_indexes;
+        return generatedIndexes;
     }
 
     public static String getPersonKey(Person person) {

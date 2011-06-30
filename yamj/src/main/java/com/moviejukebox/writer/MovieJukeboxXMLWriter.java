@@ -103,6 +103,11 @@ public class MovieJukeboxXMLWriter {
     private static String peopleFolder;
     private static boolean enableWatchScanner;
 
+    // Should we reindex the New / Watched / Unwatched categories?
+    private boolean reindexNew = false;
+    private boolean reindexWatched = false;
+    private boolean reindexUnwatched = false;
+    
     static {
         if (str_categoriesDisplayList.length() == 0) {
             str_categoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
@@ -1163,16 +1168,16 @@ public class MovieJukeboxXMLWriter {
                     public Void call() throws XMLStreamException, FileNotFoundException {
                         List<Movie> movies = group.getValue();
                         String key = FileTools.createCategoryKey(group.getKey());
-                        String category_path = categoryName + " " + key;
+                        String categoryPath = categoryName + " " + key;
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
                         if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName) && !separateCategories) {
-                            logger.debug("Category " + category_path + " does not contain enough videos (" + categoryCount
+                            logger.debug("Category " + categoryPath + " does not contain enough videos (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
                         }
-                        boolean skipindex = !forceIndexOverwrite;
+                        boolean skipIndex = !forceIndexOverwrite;
 
                         // Try and determine if the set contains TV shows and therefore use the TV show settings
                         // TODO have a custom property so that you can set this on a per-set basis.
@@ -1194,7 +1199,7 @@ public class MovieJukeboxXMLWriter {
                                     //Issue 1886: HTML indexes recreated every time
                                     for (Movie m : library.getMoviesList()) {
                                         if (m.isSetMaster() && m.getTitle().equals(key)) {
-                                            skipindex &= !m.isDirty(Movie.DIRTY_INFO);
+                                            skipIndex &= !m.isDirty(Movie.DIRTY_INFO);
                                             break;
                                         }
                                     }
@@ -1207,14 +1212,44 @@ public class MovieJukeboxXMLWriter {
                         for (Movie movie : movies) {
                             // Don't skip the index if the movie is dirty
                             if (movie.isDirty(Movie.DIRTY_INFO)) {
-                                skipindex = false;
+                                skipIndex = false;
                             }
-
+                            
+                            // Check for changes to the Watched, Unwatched and New categories whilst we are processing the All category
+                            if (enableWatchScanner && key.equals(Library.INDEX_ALL)) {
+                                if (movie.isWatched() && movie.isDirty(Movie.DIRTY_WATCHED)) {
+                                    // Don't skip the index
+                                    reindexWatched = true;
+                                    reindexUnwatched = true;
+                                    reindexNew = true;
+                                }
+                                
+                                if (!movie.isWatched() && movie.isDirty(Movie.DIRTY_WATCHED)) {
+                                    // Don't skip the index
+                                    reindexWatched = true;
+                                    reindexUnwatched = true;
+                                    reindexNew = true;
+                                }
+                            }
+                            
+                            // Check to see if we are in one of the category indexes
+                            if (reindexNew && (key.equals(Library.INDEX_NEW) || key.equals(Library.INDEX_NEW_MOVIE) || key.equals(Library.INDEX_NEW_TV) ) ) {
+                                skipIndex = false;
+                            }
+                            
+                            if (reindexWatched && key.equals(Library.INDEX_WATCHED)) {
+                                skipIndex = false;
+                            }
+                            
+                            if (reindexUnwatched && key.equals(Library.INDEX_UNWATCHED)) {
+                                skipIndex = false;
+                            }
+                            
                             // Issue 1263 - Allow explode of Set in category .
                             if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
                                 List<Movie> boxedSetMovies = library.getIndexes().get(Library.INDEX_SET).get(movie.getTitle());
                                 boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
-                                logger.debug("Exploding set for " + category_path + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
+                                logger.debug("Exploding set for " + categoryPath + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
                                 //delay new instance
                                 if(tmpMovieList == movies) {
                                     tmpMovieList = new ArrayList<Movie>(movies);
@@ -1233,46 +1268,27 @@ public class MovieJukeboxXMLWriter {
                         int next = Math.min(2, last);
                         int previous = last;
                         moviepos = 0;
-                        IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipindex); 
+                        IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipIndex); 
 
                         // Don't skip the indexing for sets as this overwrites the set files
                         if (Library.INDEX_SET.equalsIgnoreCase(categoryName) && setReindex) {
-                            skipindex = false;
+                            if (logger.isTraceEnabled()) {
+                                logger.trace("Forcing generation of set index.");
+                            }
+                            skipIndex = false;
                         }
-
-                        /*
-                         * The issue with watched/unwatched is there is no way to tell when the index has changed.
-                         * The current method relies on the isDirty flag of the movie to trigger the index to be written
-                         * However, because the movie is no longer in Unwatched (when it's marked as Watched) then there is nothing
-                         * to trigger the re-write of the index.
-                         * The same is true of the New index. If a movie was unwatched in the new index and is marked as watched, then
-                         * there is nothing to mark the new index as needed an update. The same might be true for marking a movie as unwatched
-                         * if it's within the new index's time frame.
-                         * 
-                         * FIXME This is a hack, and will re-create the indexes each time
-                         * 
-                         * When we write the watched or unwatched index, we should always write the other one.
-                         */
-                        if (enableWatchScanner && 
-                                        (Library.INDEX_UNWATCHED.equalsIgnoreCase(key) || 
-                                         Library.INDEX_WATCHED.equalsIgnoreCase(key)   || 
-                                         Library.INDEX_NEW.equalsIgnoreCase(key))) {
-                            skipindex = false;
-                            idx.canSkip = false;
-                        }
-
 
                         for (current = 1 ; current <= last; current ++) {
                             if (Library.INDEX_SET.equalsIgnoreCase(categoryName) && setReindex) {
                                 idx.canSkip = false;
                             } else {
                                 idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
-                                skipindex = skipindex && idx.canSkip;
+                                skipIndex = skipIndex && idx.canSkip;
                             }
                         }
 
-                        if (skipindex) {
-                            logger.debug("Category " + category_path + " no change detected, skipping XML generation.");
+                        if (skipIndex) {
+                            logger.debug("Category " + categoryPath + " no change detected, skipping XML generation.");
                         } else {
                             for (current = 1 ; current <= last ; current++) {
                                 // All pages are handled here
