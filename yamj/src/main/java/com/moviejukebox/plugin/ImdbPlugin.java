@@ -971,7 +971,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 for (String oWeek : HTMLTools.extractTags(xml, "<h5>" + (i == 0?"Opening Weekend":"Gross") + "</h5", "<h5>", "", "<br/")) {
                     if (isValidString(oWeek)) {
                         String currency = oWeek.replaceAll("\\d+.*", "");
-                        long value = Integer.parseInt(oWeek.replaceAll("^\\D*\\s*", "").replaceAll("\\s.*", "").replaceAll(",", ""));
+                        long value = Long.parseLong(oWeek.replaceAll("^\\D*\\s*", "").replaceAll("\\s.*", "").replaceAll(",", ""));
                         String country = HTMLTools.extractTag(oWeek, "(", ")");
                         if (country.equals("Worldwide") && !currency.equals("$")) {
                             continue;
