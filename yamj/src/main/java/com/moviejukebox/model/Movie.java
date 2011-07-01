@@ -2281,6 +2281,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(tagline)) {
             tagline = UNKNOWN;
         }
+        
         if (!tagline.equalsIgnoreCase(this.tagline)) {
             setDirty(DIRTY_INFO, true);
             this.tagline = tagline;

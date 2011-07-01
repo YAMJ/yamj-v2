@@ -23,15 +23,16 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 
 public class FanartTvPlugin {
-    private static final String THETVDB_PLUGIN_ID = "thetvdb";
     private FanartTv ft = new FanartTv();
     private List<FanartTvArtwork> ftArtwork = new ArrayList<FanartTvArtwork>();
-    private static String LogMessage = "FanartTvPlugin: ";
+    private static String logMessage = "FanartTvPlugin: ";
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    
+    private static final String webhost = "fanart.tv";
+
     public FanartTvPlugin() {
         // We need to set the proxy parameters if set.
         ft.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
@@ -40,8 +41,17 @@ public class FanartTvPlugin {
         ft.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
     
+    /**
+     * Scan and return all artwork types (Defaults type to null)
+     * @param movie
+     * @return
+     */
     public boolean scan(Movie movie) {
-        String tvdbidString = movie.getId(THETVDB_PLUGIN_ID);
+        return scan(movie, null);
+    }
+    
+    public boolean scan(Movie movie, String artworkType) {
+        String tvdbidString = movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID);
         int tvdbid = 0;
         
         if (StringTools.isValidString(tvdbidString)) {
@@ -53,8 +63,8 @@ public class FanartTvPlugin {
         }
         
         if (tvdbid > 0) {
-            ftArtwork = ft.getArtwork(tvdbid);
-            logger.info(LogMessage + "Found " + ftArtwork.size() + " artwork items"); // XXX: DEBUG
+            ftArtwork = getFanartTvArtwork(tvdbid, artworkType);
+            logger.debug(logMessage + "Found " + ftArtwork.size() + (StringTools.isValidString(artworkType)? artworkType : "") + " artwork items");
 
             Artwork movieArtwork;
             
@@ -68,8 +78,17 @@ public class FanartTvPlugin {
             
             return true;
         } else {
-            logger.debug(LogMessage + "No artwork found for " + movie.getBaseName() + " with TVDBID: " + tvdbidString);
+            logger.debug(logMessage + "No artwork found for " + movie.getBaseName() + " with TVDBID: " + tvdbidString);
             return false;
+        }
+    }
+    
+    public List<FanartTvArtwork> getFanartTvArtwork(int tvdbid, String artworkType) {
+        ThreadExecutor.enterIO(webhost);
+        try {
+            return ft.getArtwork(tvdbid, artworkType, null);
+        } finally {
+            ThreadExecutor.leaveIO();
         }
     }
 }

@@ -49,6 +49,7 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
@@ -877,6 +878,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             
             if (foundAka && isValidString(previousEntry)) {
                 movie.setOriginalTitle(HTMLTools.stripTags(previousEntry).trim());
+            }
+        }
+        
+        // TAGLINE
+        if (StringTools.isNotValidString(movie.getTagline())) {
+            for (String tagline : HTMLTools.extractTags(xml, "<h4 class=\"inline\">" + siteDef2.getTagline() + ":</h4>", "<span class=\"")) {
+                if (tagline != null) {
+                    tagline = HTMLTools.stripTags(tagline);
+                    movie.setQuote(cleanStringEnding(tagline));
+                    break;
+                }
             }
         }
         
