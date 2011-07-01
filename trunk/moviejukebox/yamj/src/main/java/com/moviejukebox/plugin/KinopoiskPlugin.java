@@ -499,7 +499,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
 
-                for (String critics : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"star\">", "</span>")) {
+                for (String critics : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"star\"", "</span>")) {
                     int plus = 0;
                     int minus = 0;
                     int kinopoiskCritics = 0;
