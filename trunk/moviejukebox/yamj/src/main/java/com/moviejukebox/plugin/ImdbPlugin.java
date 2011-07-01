@@ -886,7 +886,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             for (String tagline : HTMLTools.extractTags(xml, "<h4 class=\"inline\">" + siteDef2.getTagline() + ":</h4>", "<span class=\"")) {
                 if (tagline != null) {
                     tagline = HTMLTools.stripTags(tagline);
-                    movie.setQuote(cleanStringEnding(tagline));
+                    movie.setTagline(cleanStringEnding(tagline));
                     break;
                 }
             }
