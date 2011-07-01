@@ -63,6 +63,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #2004 Movies with more than 1 director or writer, only the first is saved
  - Enhancement  #2012 Financial information about movie
  - Enhancement  #2013 Add trivia to the movie information
+ - Enhancement  #2022 Get tagline from IMDB
 
 MovieJukebox 2.4
 ----------------
