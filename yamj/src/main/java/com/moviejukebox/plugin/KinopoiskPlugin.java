@@ -158,8 +158,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
         }
 
         if (StringTools.isNotValidString(kinopoiskId)) {
-            // store original russian title
+            // store original russian title and year
             String name = mediaFile.getOriginalTitle();
+            String year = mediaFile.getYear();
 
             // It's better to remove everything after dash (-) before call of English plugins...
             final String previousTitle = mediaFile.getTitle();
@@ -178,7 +179,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 tvdb.scan(mediaFile);
             }
 
-            String year = mediaFile.getYear();
             // Let's replace dash (-) by space ( ) in Title.
             name.replace(titleDivider, " ");
             kinopoiskId = getKinopoiskId(name, year, mediaFile.getSeason());
@@ -251,8 +251,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String xml = webBrowser.request(sb);
 
             // Checking for zero results
-            //if (xml.indexOf("найдено 0 результатов") >= 0) {
             if (xml.indexOf("class=\"search_results\"") < 0) {
+                // Checking direct movie page
+                if (xml.indexOf("class=\"moviename-big\"") > -1) {
+                    return HTMLTools.extractTag(xml, "/level/19/film/", "/");
+                }
                 return Movie.UNKNOWN;
             }
 
