@@ -24,6 +24,9 @@ public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
 
+    private static final String URL_PREFIX = "http://www.impawards.com/googlesearch.html?cx=partner-pub-6811780361519631%3A48v46vdqqnk&cof=FORID%3A9&ie=ISO-8859-1&q=";
+    private static final String URL_SUFFIX = "&sa=Search&siteurl=www.impawards.com%252F";
+    
     public ImpAwardsPosterPlugin() {
         super();
         
@@ -41,7 +44,13 @@ public class ImpAwardsPosterPlugin extends AbstractMoviePosterPlugin {
         String content = null;
 
         try {
-            content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q=" + URLEncoder.encode(title + " " + year, "UTF-8"));
+            StringBuilder searchURL = new StringBuilder();
+            searchURL.append(URL_PREFIX);
+            searchURL.append(URLEncoder.encode(title + " " + year, "UTF-8"));
+            searchURL.append(URL_SUFFIX);
+            
+            //content = webBrowser.request("http://www.google.com/custom?sitesearch=www.impawards.com&q=" + URLEncoder.encode(title + " " + year, "UTF-8"));
+            content = webBrowser.request(searchURL.toString());
         } catch (Exception error) {
             // The movie doesn't exists, so return unknown
             return Movie.UNKNOWN;
