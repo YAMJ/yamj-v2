@@ -1014,6 +1014,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws IOException
      */
     private boolean updateTrivia(Movie movie) throws MalformedURLException, IOException {
+        if (triviaMax == 0) {
+            return false;
+        }
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         String site = siteDef.getSite();
         if (!siteDef.getSite().contains(".imdb.com")) {
@@ -1023,7 +1026,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (isValidString(xml)) {
             int i = 0;
             for (String tmp : HTMLTools.extractTags(xml, "<div class=\"list\">", "<div class=\"list\">", "<div class=\"sodatext\"", "<br /></div>")) {
-                if (i < triviaMax) {
+                if (i < triviaMax || triviaMax == -1) {
                     tmp = HTMLTools.removeHtmlTags(tmp);
                     movie.addDidYouKnow(tmp);
                     i++;

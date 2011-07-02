@@ -775,18 +775,20 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Did You Know
-            xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId + "/view_info/ok/#trivia");
-            if (StringTools.isValidString(xml)) {
-                int i = 0;
-                for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class='trivia", "</li>")) {
-                    if (i < triviaMax) {
-                        if (i == 0) {
-                            movie.clearDidYouKnow();
+            if (triviaMax != 0) {
+                xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId + "/view_info/ok/#trivia");
+                if (StringTools.isValidString(xml)) {
+                    int i = 0;
+                    for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class='trivia", "</li>")) {
+                        if (i < triviaMax || triviaMax == -1) {
+                            if (i == 0) {
+                                movie.clearDidYouKnow();
+                            }
+                            movie.addDidYouKnow(tmp);
+                            i++;
+                        } else {
+                            break;
                         }
-                        movie.addDidYouKnow(tmp);
-                        i++;
-                    } else {
-                        break;
                     }
                 }
             }
