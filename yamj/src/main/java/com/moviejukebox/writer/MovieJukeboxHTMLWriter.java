@@ -76,7 +76,8 @@ public class MovieJukeboxHTMLWriter {
     private static String indexFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     private static String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
     private static boolean generateMultiPartPlaylist = PropertiesUtil.getBooleanProperty("mjb.playlist.generateMultiPart", "true");
-
+    private static int maxRetryCount = 3;   // The number of times to retry writing a HTML page
+    
     public MovieJukeboxHTMLWriter() {
         forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false");
         nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
@@ -138,7 +139,8 @@ public class MovieJukeboxHTMLWriter {
                     if (xmlSource != null && xmlResult != null) {
                         File skinFile = new File(skinHome, indexStr);
                         Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
-                        transformer.transform(xmlSource, xmlResult);
+                        
+                        doTransform(transformer, xmlSource, xmlResult, "Movie: " + movie.getBaseFilename());
                     } else {
                         logger.error("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + " source: " + (xmlSource == null ? true : false)
                                         + " result: " + (xmlResult == null ? true : false));
@@ -189,7 +191,7 @@ public class MovieJukeboxHTMLWriter {
                     if (xmlSource != null && xmlResult != null) {
                         File skinFile = new File(skinHome, indexStr);
                         Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
-                        transformer.transform(xmlSource, xmlResult);
+                        doTransform(transformer, xmlSource, xmlResult, "Person: " + person.getName());
                     } else {
                         logger.error("HTMLWriter: Unable to transform XML for person " + person.getName() + " source: " + (xmlSource == null ? true : false)
                                         + " result: " + (xmlResult == null ? true : false));
@@ -263,8 +265,8 @@ public class MovieJukeboxHTMLWriter {
                 }
                 Result xmlResult = new StreamResult(tempPlaylistFile);
 
-                transformer.transform(xmlSource, xmlResult);
-
+                doTransform(transformer, xmlSource, xmlResult, "Movie: " + movie.getBaseName());
+                
                 removeBlankLines(tempPlaylistFile.getAbsolutePath());
 
                 fileNames.add(baseName + filenameSuffix);
@@ -458,8 +460,7 @@ public class MovieJukeboxHTMLWriter {
             Source xmlSource = new StreamSource(indexFile);
             Result xmlResult = new StreamResult(htmlFile);
 
-            transformer.transform(xmlSource, xmlResult);
-
+            doTransform(transformer, xmlSource, xmlResult, "Jukebox index");
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating jukebox index.");
             final Writer eResult = new StringWriter();
@@ -557,7 +558,8 @@ public class MovieJukeboxHTMLWriter {
             Result xmlResult = new StreamResult(htmlFile);
 
             Transformer transformer = getTransformer(new File(skinHome, template), jukebox.getJukeboxTempLocation());
-            transformer.transform(xmlSource, xmlResult);
+            doTransform(transformer, xmlSource, xmlResult, "Playlist generation");
+            
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML library category index.");
             final Writer eResult = new StringWriter();
@@ -606,6 +608,7 @@ public class MovieJukeboxHTMLWriter {
 
             FileTools.addJukeboxFile(xmlFile.getName());
             String indexList = PropertiesUtil.getProperty("mjb.view.indexList", "index.xsl");
+            
             for (final String indexStr : indexList.split(",")) {
                 String Suffix = "";
                 if (!indexStr.equals("index.xsl")) {
@@ -635,7 +638,7 @@ public class MovieJukeboxHTMLWriter {
                 Source xmlSource = new StreamSource(xmlFile);
                 Result xmlResult = new StreamResult(htmlFile);
 
-                transformer.transform(xmlSource, xmlResult);
+                doTransform(transformer, xmlSource, xmlResult, "Category page");
             }
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
@@ -673,4 +676,36 @@ public class MovieJukeboxHTMLWriter {
         }
         return transformer;
     }
+    
+    /**
+     * Try to safely perform the transformation. Will retry up to maxRetryCount times before throwing the error
+     * @param transformer
+     * @param xmlSource
+     * @param xmlResult
+     * @param message   Message to print if there is an error
+     * @throws Exception 
+     */
+    private void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws Exception {
+        int retryCount = 0;
+        int retryTimes = 0;
+        
+        do {
+            try {
+                transformer.transform(xmlSource, xmlResult);
+                return;  // If the transform didn't throw an error, return
+            } catch (Throwable tw) {
+                retryTimes = maxRetryCount - ++retryCount;
+                
+                if (retryTimes == 0) {
+                    // We've exceeded the maximum number of retries, so throw the exception and quit
+                    throw new Exception(tw);
+                } else {
+                    logger.debug("HTMLWriter: Failed generating HTML, will retry " + 
+                            retryTimes + " more time" + (retryTimes == 1?". ":"s. " ) + message);
+                    Thread.sleep(500);  // Sleep for 1/2 second to hopefully let the issue go away
+                }
+            }   // Catch
+        } while (retryCount <= maxRetryCount);
+    }
+    
 }
