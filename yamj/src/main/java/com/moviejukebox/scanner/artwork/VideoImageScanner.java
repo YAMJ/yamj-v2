@@ -318,6 +318,7 @@ public class VideoImageScanner {
                     if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
                         logger.debug("VideoImageScanner: Using default videoimage");
                         mf.setVideoImageURL(part, Movie.UNKNOWN); // So we know this is a dummy videoimage
+                        mf.setVideoImageFilename(part, safeVideoImageFilename); // See MovieFile.java: setVideoImageURL sets setVideoImageFilename=UNKNOWN !!??
                     } else {
                         // Copying the default image failed, so leave everything blank
                         logger.debug("VideoImageScanner: Failed loading default videoimage");
