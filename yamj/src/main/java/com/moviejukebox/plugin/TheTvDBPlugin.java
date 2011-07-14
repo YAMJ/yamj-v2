@@ -331,8 +331,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         int countHD = 0;
                         
                         for (Banner banner : banners.getFanartList()) {
-                            logger.info("Banner: " + banner.getId() + " - " + banner.getBannerType2() + " - " + banner.getLanguage());
-                            
                             if (banner.getBannerType2() == BannerType.FanartHD) {
                                 bannerHD = banner;  // Save the current banner
                                 countHD++;
