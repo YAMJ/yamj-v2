@@ -315,22 +315,53 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     artwork.setType(ArtworkType.Fanart);
                     
                     if (!banners.getFanartList().isEmpty()) {
+                        // Pick a fanart that is not likely to be the same as a previous one.
                         int index = movie.getSeason();
-                        if (index <= 0) {
-                            index = 1;
-                        } else if (index > banners.getFanartList().size()) {
-                            index = banners.getFanartList().size();
+                        if (index < 0) {
+                            index = 0;
                         }
-                        index--;
 
-                        url = banners.getFanartList().get(index).getUrl();
+                        // Make sure that the index is not more than the list of available banners
+                        // We may still run into issues, if there are less HD than this number
+                        index = (index % banners.getFanartList().size());
+                        
+                        Banner bannerSD = null;
+                        Banner bannerHD = null;
+                        int countSD = 0;
+                        int countHD = 0;
+                        
+                        for (Banner banner : banners.getFanartList()) {
+                            logger.info("Banner: " + banner.getId() + " - " + banner.getBannerType2() + " - " + banner.getLanguage());
+                            
+                            if (banner.getBannerType2() == BannerType.FanartHD) {
+                                bannerHD = banner;  // Save the current banner
+                                countHD++;
+                                if (countHD >= index) {
+                                    // We have a HD banner, so quit
+                                    break;
+                                }
+                            } else {
+                                // This is a SD banner, So save it in case we can't find a HD one
+                                if (countSD <= index) {
+                                    // Only update the banner if we want a later one
+                                    bannerSD = banner;
+                                }
+                            }
+                        }
+                        
+                        if (bannerHD != null) {
+                            url = bannerHD.getUrl();
+                        } else if (bannerSD != null) {
+                            url = bannerSD.getUrl();
+                        }
+                        
                     }
                     
-                    if (url == null && series.getFanart() != null && !series.getFanart().isEmpty()) {
+                    if (isNotValidString(url) && isValidString(series.getFanart())) {
                         url = series.getFanart();
                     }
-                    
-                    if (url != null) {
+
+                    if (isValidString(url)) {
                         movie.setFanartURL(url);
                         artwork.setUrl(url);
                     }
@@ -344,7 +375,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     movie.addArtwork(artwork);
                 }
 
-                // we may not have here the semaphore acquired, could lead to deadlock if limit is 1 and this function also needs a slot
                 scanTVShowTitles(movie);
             }
         }
