@@ -64,6 +64,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #2012 Financial information about movie
  - Enhancement  #2013 Add trivia to the movie information
  - Enhancement  #2022 Get tagline from IMDB
+ - Enhancement  #2028 Prefer higher quality artwork from TheTVDb
 
 MovieJukebox 2.4
 ----------------
