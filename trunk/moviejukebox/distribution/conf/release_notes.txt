@@ -14,6 +14,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #1558 Use audio/language info from episode NFOs
  - Enhancement  #1697 Use sort order for 'Other' category from category.xml config file
  - Enhancement  #1723 Option to remove TV Shows from Sets in category listings
+ - Fixed defect #1816 dummy_videoimage wont be created
  - Enhancement  #1853 Multiple index pages
  - Enhancement  #1856 originalTitle functionality
  - Enhancement  #1882 Separate index files for each category
