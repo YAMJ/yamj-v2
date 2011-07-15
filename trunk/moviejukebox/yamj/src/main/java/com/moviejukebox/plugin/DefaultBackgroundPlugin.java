@@ -32,15 +32,21 @@ import com.moviejukebox.tools.StringTools;
  */
 public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
+    private static final int MAX_WIDTH = 1920;
+    private static final int MAX_HEIGHT = 1080;
+    
     private static Logger logger = Logger.getLogger("moviejukebox");
     private int backgroundWidth;
     private int backgroundHeight;
+    private boolean upscaleImage;
     private boolean addPerspective;
     private boolean addOverlay;
     private String skinHome;
     private boolean highdefDiff;
     private boolean roundCorners;
     private int cornerRadius;
+    private int cornerQuality;
+    private float rcqFactor;
     private boolean addFrame;
     private int frameSize;
     private static String frameColorHD;
@@ -66,8 +72,10 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         
         backgroundWidth     = checkWidth(movie.isTVShow(), imageType);
         backgroundHeight    = checkHeight(movie.isTVShow(), imageType);
-        addPerspective      = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
         
+        upscaleImage        = PropertiesUtil.getBooleanProperty(imageType + ".upscale", "true");
+        
+        addPerspective      = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
         addOverlay          = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
 
         addFrame            = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", "false");
@@ -79,20 +87,35 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
         roundCorners        = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
         cornerRadius        = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
+        cornerQuality       = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
+
+        if (roundCorners) {
+            rcqFactor = (float)cornerQuality / 10 + 1;   
+        } else {
+            rcqFactor = 1;
+        }
 
         BufferedImage bi = null;
         if (backgroundImage != null) {
-            bi = GraphicTools.scaleToSizeNormalized(backgroundWidth, backgroundHeight, backgroundImage);
+            if (upscaleImage || (backgroundWidth > MAX_WIDTH) || (backgroundHeight > MAX_HEIGHT)) {
+                bi = GraphicTools.scaleToSizeNormalized((int)(backgroundWidth * rcqFactor), (int)(backgroundHeight * rcqFactor), backgroundImage);
+            }
         }
         
         // addFrame before rounding the corners see Issue 1825
         if (addFrame) {
             bi = drawFrame(movie, bi);
         }
-                   
+
         // roundCornders after addFrame see Issue 1825
         if (roundCorners) {
             bi = drawRoundCorners(bi);
+
+            // Don't resize if the factor is the same
+            if (rcqFactor > 1.00f) {
+                //roundCorner quality resizing
+                bi = GraphicTools.scaleToSizeStretch((int)backgroundWidth, (int)backgroundHeight, bi);
+            }
         }
 
         if (addOverlay) {
