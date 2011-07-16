@@ -191,23 +191,20 @@ public class WebBrowser {
      * @throws IOException
      */
     public void downloadImage(File imageFile, String imageURL) throws IOException {
-        if (mjbProxyHost != null) {
-            System.getProperties().put("proxySet", "true");
-            System.getProperties().put("proxyHost", mjbProxyHost);
-            System.getProperties().put("proxyPort", mjbProxyPort);
+
+        String fixedImageURL = new String(imageURL);
+        if (fixedImageURL.contains(" ")) {
+            fixedImageURL.replaceAll(" ", "%20");
         }
 
-        URL url = new URL(imageURL);
+        URL url = new URL(fixedImageURL);
+
         ThreadExecutor.enterIO(url);
         boolean success = false;
         int retryCount = imageRetryCount;
         try {
             while (!success && retryCount > 0) {
-                URLConnection cnx = url.openConnection();
-
-                if (mjbProxyUsername != null) {
-                    cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
-                }
+                URLConnection cnx = openProxiedConnection(url);
 
                 sendHeader(cnx);
                 readHeader(cnx);
