@@ -17,6 +17,7 @@
 <script type="text/javascript">
 var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
 //<![CDATA[
+var curFocus = "";
   var title = 1;
   var lnk = 1;
   function bind() {
@@ -27,6 +28,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
     bind();
     title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
     if(lnk)lnk.setAttribute('HREF', baseFilename + '.playlist' + x + '.jsp');
+    watched(0);
   }
   function hide() {
     bind();
@@ -35,12 +37,36 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
   }
 //]]>
 </script>
+
+<script>
+  var wloc=location.href
+  wScriptLocation=wloc.substring(38,wloc.lastIndexOf("/"))+"/Watched/";
+  
+  var movieLocation="<xsl:call-template name="substring-after-last"><xsl:with-param name="string" select="files/file[1]/fileURL" /><xsl:with-param name="delimiter" select="'file:///opt/sybhttpd/localhost.drives/'" /></xsl:call-template>"
+  movieLocation=movieLocation.substring(0,movieLocation.lastIndexOf("/"))+"/";
+
+  <xsl:choose>
+    <xsl:when test="$mjb.watchedLocation = 'withJukebox'">
+      wlocation=wloc.substring(38,wloc.lastIndexOf("/"))+"/Watched/";
+    </xsl:when>
+    <xsl:when test="$mjb.watchedLocation = 'withVideo'">
+        wlocation=movieLocation;
+    </xsl:when>
+    <xsl:otherwise>
+      wlocation="<xsl:value-of select="$mjb.watchedLocation"/>"
+    </xsl:otherwise>
+  </xsl:choose>
+</script>
+<script language="JavaScript" src="Watched/watched.js" type="text/javascript">
+//<![CDATA[
+//]]>
+</script>
 </head>
 
 <xsl:variable name="star_rating">true</xsl:variable>
 <xsl:variable name="full_rating">true</xsl:variable>
 
-<body bgproperties="fixed" background="pictures/background.jpg" onloadset="Play">
+<body bgproperties="fixed" background="pictures/background.jpg" onloadset="Play" onload="watched(0);">
 <!-- xsl:attribute name="onloadset"><xsl:value-of select="//index[@current='true']/@name"/></xsl:attribute-->
 
 <xsl:choose>
@@ -337,11 +363,11 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
                   <xsl:value-of select="libraryDescription" />
                   </td>
                   <td class="title3" width="5%" valign="top">Watched:</td>
-                  <td class="normal" width="45%" valign="top"><xsl:value-of select="watched" /></td> 
+                  <td id="watched" class="normal" width="16%" valign="top"><xsl:value-of select="watched" /></td>
                 </xsl:when>
                 <xsl:otherwise>
                   <td class="title3" width="5%" valign="top">Watched:</td>
-                  <td class="normal" width="45%" valign="top"><xsl:value-of select="watched" /></td> 
+                  <td id="watched" class="normal" width="16%" valign="top"><xsl:value-of select="watched" /></td>
                 </xsl:otherwise>
                 </xsl:choose>
             </tr>
@@ -607,11 +633,29 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
   </div>
 </xsl:if>
 -->
+
+
+<script id="watchedjs" language="JavaScript" src="empty.js" type="text/javascript"><xsl:comment>JavaScript</xsl:comment></script>
+<a href="#" onclick="watched(1);" TVID="RED"><xsl:comment>Watched Key</xsl:comment></a>
 </body>
 </html>
 </xsl:for-each>
 </xsl:template>
 
+<xsl:template name="substring-after-last">
+  <xsl:param name="string" />
+  <xsl:param name="delimiter" />
+  <xsl:choose>
+    <xsl:when test="contains($string, $delimiter)">
+      <xsl:call-template name="substring-after-last">
+	<xsl:with-param	name="string"
+	  select="substring-after($string, $delimiter)"	/>
+	<xsl:with-param	name="delimiter" select="$delimiter" />
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise><xsl:value-of select="$string" /></xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
 <xsl:template name="PreserveLineBreaks">
     <xsl:param name="text"/>

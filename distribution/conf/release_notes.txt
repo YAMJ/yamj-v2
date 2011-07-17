@@ -4,6 +4,7 @@
 
 MovieJukebox 2.5 SNAPSHOT
 -------------------------
+ - Enhancement    #29 Allow a skin to mark a video as watched or unwatched
  - Enhancement	 #258 Anidb plugin development
  - Enhancement   #314 Sort title option in NFO
  - Enhancement   #367 Add Rating index
