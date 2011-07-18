@@ -1224,8 +1224,8 @@ public class MovieJukeboxXMLWriter {
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
-                        if (categoryCount < categoryMinCount && !categoriesDisplayList.contains(categoryName) && !separateCategories) {
-                            logger.debug("Category " + categoryPath + " does not contain enough videos (" + categoryCount
+                        if (categoryCount < categoryMinCount && !categoriesDisplayList.contains(categoryName) && !Library.INDEX_SET.equalsIgnoreCase(categoryName) && !separateCategories) {
+                            logger.debug("Category '" + categoryPath + "' does not contain enough videos (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
                         }
@@ -1335,7 +1335,7 @@ public class MovieJukeboxXMLWriter {
                                 idx.canSkip = false;
                             } else {
                                 idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
-                                skipIndex = skipIndex && idx.canSkip;
+                                skipIndex &= idx.canSkip;
                             }
                         }
 
