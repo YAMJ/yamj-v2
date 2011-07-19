@@ -45,10 +45,11 @@ public class JukeboxProperties {
     private final static Logger logger = Logger.getLogger("moviejukebox");
     private final static Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
     private final static String JUKEBOX = "jukebox";
+    private final static String SKIN = "skin";
     private final static String PROPERTIES = "properties";
     private final static String CATEGORY = "Category";
     private final static String GENRE = "Genre";
-    private final static String RATING = "Rating";
+    private final static String CERTIFICATION = "Certification";
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
     
     static {
@@ -246,7 +247,26 @@ public class JukeboxProperties {
             writeGenericXmlFileDetails("mjb.xmlGenreFile", GENRE, docMjbDetails, eJukebox);
 
             // save the Rating file details
-            writeGenericXmlFileDetails("mjb.xmlRatingFile", RATING, docMjbDetails, eJukebox);
+            writeGenericXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, docMjbDetails, eJukebox);
+            
+            if (StringTools.isValidString(SkinProperties.getSkinName())) {
+                Element eSkin = docMjbDetails.createElement(SKIN);
+                eRoot.appendChild(eSkin);
+                
+                DOMHelper.appendChild(docMjbDetails, eSkin, "name", SkinProperties.getSkinName());
+                
+                if (StringTools.isValidString(SkinProperties.getSkinVersion())) {
+                    DOMHelper.appendChild(docMjbDetails, eSkin, "version", SkinProperties.getSkinVersion());
+                }
+                
+                if (StringTools.isValidString(SkinProperties.getSkinDate())) {
+                    DOMHelper.appendChild(docMjbDetails, eSkin, "date", SkinProperties.getSkinDate());
+                }
+                
+                if (SkinProperties.getFileDate() > 0) {
+                    DOMHelper.appendChild(docMjbDetails, eSkin, "filedate", dateFormat.format(SkinProperties.getFileDate()));
+                }
+            }
             
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
@@ -349,7 +369,7 @@ public class JukeboxProperties {
             }
             
             // Check the Ratings file
-            if (!validXmlFileDetails("mjb.xmlRatingFile", RATING, eJukebox)) {
+            if (!validXmlFileDetails("mjb.xmlRatingFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation("Ratings", false, false, false, false, false, false, false, true, false));
                 logger.debug("JukeboxProperties: Ratings has changed, so need to update");
@@ -598,5 +618,5 @@ public class JukeboxProperties {
             this.indexOverwrite = indexOverwrite;
         }
     }
-    
+
 }
