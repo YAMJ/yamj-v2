@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 
+import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -198,11 +199,11 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         if (movie.isTVShow() && !movie.isSetMaster()) {        // Background overlay for TV shows
             source = "tv";
         } else if (movie.isTVShow() && movie.isSetMaster()) {  // Background overlay for Set index with more than one season 
-            source = "set";
+            source = Library.INDEX_SET.toLowerCase();
         } else if (movie.isExtra()) {                          // Background overlay for Extras (not tested) 
             source = "extra";
         } else if (movie.isSetMaster()) {                      // Background overlay for Set index with only one season
-            source = "set";
+            source = Library.INDEX_SET.toLowerCase();
         } else {
             source = "movie";                                  // Background overlay for Set index with only one season;
         }
