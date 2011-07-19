@@ -97,6 +97,7 @@ import com.moviejukebox.tools.FilteringLayout;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -314,6 +315,13 @@ public class MovieJukebox {
             sb.append(propEntry.getKey() + "=" + propEntry.getValue() + ",");
         }
         sb.replace(sb.length() - 1, sb.length(), "}");
+
+        // Read the information about the skin
+        SkinProperties.readSkinVersion();
+        // Display the information about the skin
+        SkinProperties.printSkinVersion();
+        
+        // Print out the properties to the log file.
         logger.debug("Properties: " + sb.toString());
 
         // Check for mjb.skipIndexGeneration and set as necessary
@@ -1473,9 +1481,11 @@ public class MovieJukebox {
             File propFile = new File(userPropertiesName);
             
             // If forceSkinOverwrite is set, the user properties file doesn't exist or is newer than the skin.date file
-            if (forceSkinOverwrite || !propFile.exists() || FileTools.isNewer(propFile, skinFile)) {
+            if (forceSkinOverwrite || !propFile.exists() || FileTools.isNewer(propFile, skinFile) || (SkinProperties.getFileDate() > skinFile.lastModified())) {
                 if (forceSkinOverwrite) {
                     logger.info("Copying skin files to Jukebox directory (forceSkinOverwrite)...");
+                } else if (SkinProperties.getFileDate() > skinFile.lastModified()) {
+                    logger.info("Copying skin files to Jukebox directory (Skin is newer)...");
                 } else if (!propFile.exists()) {
                     logger.info("Copying skin files to Jukebox directory (No property file)...");
                 } else if (FileTools.isNewer(propFile, skinFile)) {

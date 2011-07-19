@@ -16,8 +16,11 @@ import java.io.File;
 import java.text.BreakIterator;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -314,4 +317,20 @@ public class StringTools {
         }
         return changedString;
     }
+    
+    /**
+     * Cast a generic list to a specfic class
+     * See: http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
+     * @param <T>
+     * @param objClass
+     * @param c
+     * @return
+     */
+    public static <T> List<T> castList(Class<? extends T> objClass, Collection<?> c) {
+        List<T> r = new ArrayList<T>(c.size());
+        for(Object o: c)
+          r.add(objClass.cast(o));
+        return r;
+    }
+
 }
