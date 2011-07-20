@@ -68,6 +68,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #2022 Get tagline from IMDB
  - Enhancement  #2028 Prefer higher quality artwork from TheTVDb
  - Enhancement  #2032 Option to disable upscaling of fanart
+ - Fixed defect #2036 fanart.upscale causes local fanart to be ignored.
  - Enhancement  #2037 Allow skin makers to display information about their skin
 
 MovieJukebox 2.4
