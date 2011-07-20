@@ -100,6 +100,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         if (backgroundImage != null) {
             if (upscaleImage || (backgroundWidth > MAX_WIDTH) || (backgroundHeight > MAX_HEIGHT)) {
                 bi = GraphicTools.scaleToSizeNormalized((int)(backgroundWidth * rcqFactor), (int)(backgroundHeight * rcqFactor), backgroundImage);
+            } else {
+                bi = backgroundImage;
             }
         }
         
