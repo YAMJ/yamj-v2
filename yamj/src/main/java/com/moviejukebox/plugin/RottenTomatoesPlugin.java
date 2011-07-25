@@ -12,7 +12,7 @@
  */
 package com.moviejukebox.plugin;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -97,7 +97,7 @@ public class RottenTomatoesPlugin {
         int ratingFound = 0;
         
         if (rtMovie != null) {
-            HashMap<String, Integer> ratings = rtMovie.getRatings();
+            Map<String, Integer> ratings = rtMovie.getRatings();
             
             for (String type : priorityList) {
                 if (ratings.containsKey(type)) {
