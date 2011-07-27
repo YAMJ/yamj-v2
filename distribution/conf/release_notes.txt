@@ -70,6 +70,8 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #2032 Option to disable upscaling of fanart
  - Fixed defect #2036 fanart.upscale causes local fanart to be ignored.
  - Enhancement  #2037 Allow skin makers to display information about their skin
+ - Fixed defect #2045 WatchedScanner (skin CGI) incorrectly names the watched file
+ - Fixed defect #2051 Fixed issue with TheTVDb returning null series
 
 MovieJukebox 2.4
 ----------------

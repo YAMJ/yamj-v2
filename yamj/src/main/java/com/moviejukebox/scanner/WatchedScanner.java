@@ -59,6 +59,11 @@ public class WatchedScanner {
             
             foundFile = FileTools.findFilenameInCache(filename, extensions, jukebox, "Watched Scanner: ");
             
+            // If we didn't find the file, we should look without the extension
+            if (foundFile == null && !movie.isBluray()) {
+                foundFile = FileTools.findFilenameInCache(movie.getBaseFilename(), extensions, jukebox, "Watched Scanner: ");
+            }
+            
             if (foundFile != null) {
                 fileWatchedCount++;
                 if (foundFile.getName().toLowerCase().endsWith(".watched")) {
