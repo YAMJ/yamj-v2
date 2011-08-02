@@ -27,6 +27,7 @@ var curFocus = "";
   function show(x) {
     bind();
     title.nodeValue = document.getElementById('title'+x).firstChild.nodeValue;
+    curFocus = document.getElementById('e' + x);
     if(lnk)lnk.setAttribute('HREF', baseFilename + '.playlist' + x + '.jsp');
     watched(0);
   }
@@ -323,35 +324,35 @@ var curFocus = "";
 
         <tr>
           <td colspan="2">
-          <center><table width="85%">
+          <center><table width="90%">
             <tr>
-              <td class="title3" width="5%">Source</td>
-              <td class="normal" width="45%"><xsl:value-of select="videoSource" /></td>
-              <td class="title3" width="5%">Subtitles</td>
-              <td class="normal" width="45%"><xsl:value-of select="subtitles" /></td>
+              <td class="title3" width="16%">Source</td>
+              <td class="normal" width="16%"><xsl:value-of select="videoSource" /></td>
+              <td class="title3" width="16%">Subtitles</td>
+              <td class="normal" width="16%"><xsl:value-of select="subtitles" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">System</td>
-              <td class="normal" width="45%"><xsl:value-of select="container" /></td>
-              <td class="title3" width="5%">Dimension</td>
-              <td class="normal" width="45%"><xsl:value-of select="resolution" /></td>
+              <td class="title3" width="16%">System</td>
+              <td class="normal" width="16%"><xsl:value-of select="container" /></td>
+              <td class="title3" width="16%">Dimension</td>
+              <td class="normal" width="16%"><xsl:value-of select="resolution" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">Video</td>
-              <td class="normal" width="45%"><xsl:value-of select="videoCodec" /></td>
-              <td class="title3" width="5%">Output</td>
-              <td class="normal" width="45%"><xsl:value-of select="videoOutput" /></td>
+              <td class="title3" width="16%">Video</td>
+              <td class="normal" width="16%"><xsl:value-of select="videoCodec" /></td>
+              <td class="title3" width="16%">Output</td>
+              <td class="normal" width="16%"><xsl:value-of select="videoOutput" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%">Audio</td>
-              <td class="normal" width="45%"><xsl:value-of select="audioCodec" /></td>
-              <td class="title3" width="5%">FPS</td>
-              <td class="normal" width="45%"><xsl:value-of select="fps" /></td>
+              <td class="title3" width="16%">Audio</td>
+              <td class="normal" width="16%"><xsl:value-of select="audioCodec" /></td>
+              <td class="title3" width="16%">FPS</td>
+              <td class="normal" width="16%"><xsl:value-of select="fps" /></td>
             </tr>
             <tr>
-              <td class="title3" width="5%" valign="top">Channels</td>
-              <td class="normal" width="45%" valign="top"><xsl:value-of select="audioChannels" /></td>
-              <td class="title3" width="5%" valign="top">
+              <td class="title3" width="16%" valign="top">Channels</td>
+              <td class="normal" width="16%" valign="top"><xsl:value-of select="audioChannels" /></td>
+              <td class="title3" width="16%" valign="top">
                 <xsl:if test="libraryDescription != 'UNKNOWN'">
                   Library
                 </xsl:if>
@@ -359,14 +360,14 @@ var curFocus = "";
               
                 <xsl:choose>
                 <xsl:when test="libraryDescription != 'UNKNOWN'">
-                  <td class="normal" width="45%" valign="top">
+                  <td class="normal" width="16%" valign="top">
                   <xsl:value-of select="libraryDescription" />
                   </td>
-                  <td class="title3" width="5%" valign="top">Watched:</td>
+                  <td class="title3" width="16%" valign="top">Watched:</td>
                   <td id="watched" class="normal" width="16%" valign="top"><xsl:value-of select="watched" /></td>
                 </xsl:when>
                 <xsl:otherwise>
-                  <td class="title3" width="5%" valign="top">Watched:</td>
+                  <td class="title3" width="16%" valign="top">Watched:</td>
                   <td id="watched" class="normal" width="16%" valign="top"><xsl:value-of select="watched" /></td>
                 </xsl:otherwise>
                 </xsl:choose>
@@ -485,6 +486,7 @@ var curFocus = "";
                           <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                           <xsl:attribute name="TVID"><xsl:value-of select="@firstPart"/></xsl:attribute>
                           <xsl:attribute name="name">e<xsl:value-of select="position()"/></xsl:attribute>
+                          <xsl:attribute name="id">e<xsl:value-of select="position()"/></xsl:attribute>
                           <xsl:attribute name="onkeyleftset">e<xsl:value-of select="position()-1"/></xsl:attribute>
                           <xsl:attribute name="onkeyrightset">e<xsl:value-of select="position()+1"/></xsl:attribute>
                           <xsl:attribute name="onfocus">show(<xsl:value-of select="@firstPart"/>)</xsl:attribute>
