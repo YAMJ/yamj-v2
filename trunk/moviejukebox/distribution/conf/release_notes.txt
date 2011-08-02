@@ -72,6 +72,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #2037 Allow skin makers to display information about their skin
  - Fixed defect #2045 WatchedScanner (skin CGI) incorrectly names the watched file
  - Fixed defect #2051 Fixed issue with TheTVDb returning null series
+ - Fixed defect #2056 TV Shows can't be independently marked watched/unwatched
 
 MovieJukebox 2.4
 ----------------
