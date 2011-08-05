@@ -205,11 +205,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             
             // Check for the new version and correct the title if found.
             if (title.toLowerCase().endsWith(" - imdb")) {
-                title = title.substring(0, title.length() - 7);
-                imdbNewVersion = true;
-            } else {
-                imdbNewVersion = false;
+                title = new String(title.substring(0, title.length() - 7));
             }
+            
+            if (title.toLowerCase().startsWith("imdb - ")) {
+                title = new String(title.substring(7));
+            }
+            imdbNewVersion = false;
 
             String originalTitle = title;
             if (xml.indexOf("<span class=\"title-extra\">") > -1) {
