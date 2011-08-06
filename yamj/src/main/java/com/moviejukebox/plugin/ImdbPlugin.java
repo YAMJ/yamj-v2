@@ -202,16 +202,20 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 // Remove the year from the title. Removes "(TV)" and "(TV YEAR)"
                 title = title.replaceAll(yearPattern, "");
             }
+
+            // Set the version of IMDb to scrape
+            imdbNewVersion = false;
             
             // Check for the new version and correct the title if found.
             if (title.toLowerCase().endsWith(" - imdb")) {
                 title = new String(title.substring(0, title.length() - 7));
+                imdbNewVersion = true;
             }
             
             if (title.toLowerCase().startsWith("imdb - ")) {
                 title = new String(title.substring(7));
+                imdbNewVersion = true;
             }
-            imdbNewVersion = false;
 
             String originalTitle = title;
             if (xml.indexOf("<span class=\"title-extra\">") > -1) {
