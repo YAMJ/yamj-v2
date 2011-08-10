@@ -18,8 +18,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
@@ -79,7 +82,11 @@ public class XMLHelper {
         float f = 0.0f;
         String val = getCData(r);
         if (val != null && !val.isEmpty()) {
-            f = Float.parseFloat(val);
+            try {
+                f = NumberFormat.getInstance(Locale.getDefault()).parse(val).floatValue();
+            } catch (ParseException error) {
+                f = 0.0f;
+            }
         }
         return f;
     }
