@@ -180,7 +180,15 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Let's replace dash (-) by space ( ) in Title.
-            name.replace(titleDivider, " ");
+            //name.replace(titleDivider, " ");
+            dash = name.indexOf(titleDivider);
+            if (dash != -1) {
+                if (titleLeader.equals("english")) {
+                    name = name.substring(0, dash);
+                } else {
+                    name = name.substring(dash);
+                }
+            }
             kinopoiskId = getKinopoiskId(name, year, mediaFile.getSeason());
 
             if (StringTools.isValidString(year) && StringTools.isNotValidString(kinopoiskId)) {
@@ -402,13 +410,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                 // Certification from MPAA
                 if (!NFOcertification) {
-                    for (String mpaaTag : HTMLTools.extractTags(item, ">рейтинг MPAA<", "</tr>", "<a href=\'/level/38", "</a>")) {
+                    for (String mpaaTag : HTMLTools.extractTags(xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/level/38", "</a>")) {
                         // Now need scan for 'alt' attribute of 'img'
-                        String key = "alt='рейтинг ";
+                        String key = "alt=\"рейтинг ";
                         int pos = mpaaTag.indexOf(key);
                         if (pos != -1) {
                             int start = pos + key.length();
-                            pos = mpaaTag.indexOf("'", start);
+                            pos = mpaaTag.indexOf("\"", start);
                             if (pos != -1) {
                                 mpaaTag = mpaaTag.substring(start, pos);
                                 movie.setCertification(mpaaTag);
