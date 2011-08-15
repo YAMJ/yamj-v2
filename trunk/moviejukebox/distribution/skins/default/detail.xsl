@@ -85,7 +85,7 @@ var curFocus = "";
       <!-- Navigation using remote keys: Home, PageUP/PageDown (Previous/Next) -->
       <a>
         <xsl:attribute name="TVID">HOME</xsl:attribute>
-        <xsl:attribute name="href"><xsl:value-of select="$mjb.homePage" /></xsl:attribute>
+        <xsl:attribute name="href"><xsl:value-of select="$mjb.homePage" />.html</xsl:attribute>
       </a>
       <xsl:if test="$parental-control-on != 'true'">
       <a TVID="PGDN">
