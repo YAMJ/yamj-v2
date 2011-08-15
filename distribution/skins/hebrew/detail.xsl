@@ -49,7 +49,7 @@ var baseFilename = "<xsl:value-of select="/details/movie/baseFilename"/>";
       <!-- Navigation using remote keys: Home, PageUP/PageDown (Previous/Next) -->
       <a>
         <xsl:attribute name="TVID">HOME</xsl:attribute>
-        <xsl:attribute name="href"><xsl:value-of select="$mjb.homePage" /></xsl:attribute>
+        <xsl:attribute name="href"><xsl:value-of select="$mjb.homePage" />.html</xsl:attribute>
       </a>
       <a TVID="PGDN">
         <xsl:attribute name="href"><xsl:choose><xsl:when
