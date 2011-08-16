@@ -1306,7 +1306,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @return
      */
     protected String getImdbUrl(Person person, ImdbSiteDataDefinition siteDefinition) {
-        return siteDefinition.getSite().contains(".imdb.com")?siteDefinition.getSite():"http://www.imdb.com/" + "name/" + person.getId(IMDB_PLUGIN_ID) + "/";
+        return (siteDefinition.getSite().contains(".imdb.com")?siteDefinition.getSite():"http://www.imdb.com/") + "name/" + person.getId(IMDB_PLUGIN_ID) + "/";
     }
 
     @Override
