@@ -1348,6 +1348,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (title.toLowerCase().endsWith(" - imdb")) {
                 title = title.substring(0, title.length() - 7);
             }
+            if (title.toLowerCase().startsWith("imdb - ")) {
+                title = new String(title.substring(7));
+            }
             person.setName(title);
             
             returnStatus = updateInfoNew(person, xml);
