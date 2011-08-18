@@ -93,6 +93,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private List<logoOverlay> overlayLayers = new ArrayList<logoOverlay>();
     private boolean xmlOverlay;
     private boolean addRating;
+    private boolean realRating;
     private boolean addVideoSource;
     private boolean addVideoOut;
     private boolean addVideoCodec;
@@ -161,7 +162,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         frameColor1080      = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
         
         // Issue 1937: Overlay configuration XML
-        addRating           = PropertiesUtil.getBooleanProperty(imageType + ".rating", "false");
+        String tmpRating    = PropertiesUtil.getProperty(imageType + ".rating", "false");
+        addRating           = !tmpRating.equalsIgnoreCase("false");
+        realRating          = tmpRating.equalsIgnoreCase("real");
         addVideoSource      = PropertiesUtil.getBooleanProperty(imageType + ".videosource", "false");
         addVideoOut         = PropertiesUtil.getBooleanProperty(imageType + ".videoout", "false");
         addVideoCodec       = PropertiesUtil.getBooleanProperty(imageType + ".videocodec", "false");
@@ -381,7 +384,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equals("language")) {
                             value = movie.getLanguage();
                         } else if (name.equals("rating")) {
-                            value = Integer.toString((movie.getRating()/10)*10);
+                            value = Integer.toString(realRating?movie.getRating():(movie.getRating()/10)*10);
                         } else if (name.equals("videosource") || name.equals("source") || name.equals("VS")) {
                             value = movie.getVideoSource();
                         } else if (name.equals("videoout") || name.equals("out") || name.equals("VO")) {
