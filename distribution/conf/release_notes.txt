@@ -75,6 +75,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #2058 Fixed NumberFormatException when parsing IMDB score for international number formats
  - Fixed defect #2056 TV Shows can't be independently marked watched/unwatched
  - Fixed defect #2065 Skin style sheets need to include .html ext when inserting $mjb.homePage variable
+ - Fixed defect #2074 IMDB rating not working
 
 MovieJukebox 2.4
 ----------------
