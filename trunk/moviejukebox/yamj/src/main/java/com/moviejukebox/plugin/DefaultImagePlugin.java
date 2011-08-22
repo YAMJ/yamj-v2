@@ -394,7 +394,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equals("audiocodec") || name.equals("acodec") || name.equals("AC")) {
                             value = movie.getAudioCodec();
                         } else if (name.equals("audiochannels") || name.equals("channels")) {
-                            value = movie.getAudioCodec();
+                            value = movie.getAudioChannels();
                         } else if (name.equals("container")) {
                             value = movie.getContainer();
                         } else if (name.equals("aspect")) {
