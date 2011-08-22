@@ -99,7 +99,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addVideoOut;
     private boolean addVideoCodec;
     private boolean addAudioCodec;
+    private boolean blockAudioCodec;
     private boolean addAudioChannels;
+    private boolean blockAudioChannels;
     private boolean addContainer;
     private boolean addAspectRatio;
     private boolean addFPS;
@@ -118,6 +120,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private HashMap<String, ArrayList> keywordsFPS = new HashMap<String, ArrayList>();
     private HashMap<String, ArrayList> keywordsCertification = new HashMap<String, ArrayList>();
     private HashMap<String, ArrayList> keywordsKeywords = new HashMap<String, ArrayList>();
+    private HashMap<String, logosBlock> overlayBlocks = new HashMap<String, logosBlock>();
 
     public DefaultImagePlugin() {
         // Generic properties
@@ -175,13 +178,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         
         // Issue 1937: Overlay configuration XML
         String tmpRating    = PropertiesUtil.getProperty(imageType + ".rating", "false");
-        addRating           = !tmpRating.equalsIgnoreCase("false");
+        addRating           = tmpRating.equalsIgnoreCase("true") || tmpRating.equalsIgnoreCase("real");
         realRating          = tmpRating.equalsIgnoreCase("real");
+
+        String tmpAudioCodec= PropertiesUtil.getProperty(imageType + ".audiocodec", "false");
+        addAudioCodec       = tmpAudioCodec.equalsIgnoreCase("true") || tmpAudioCodec.equalsIgnoreCase("block");
+        blockAudioCodec     = tmpAudioCodec.equalsIgnoreCase("block");
+
+        String tmpAudioChannels = PropertiesUtil.getProperty(imageType + ".audiochannels", "false");
+        addAudioChannels    = tmpAudioChannels.equalsIgnoreCase("true") || tmpAudioChannels.equalsIgnoreCase("block");
+        blockAudioChannels  = tmpAudioChannels.equalsIgnoreCase("block");
+
         addVideoSource      = PropertiesUtil.getBooleanProperty(imageType + ".videosource", "false");
         addVideoOut         = PropertiesUtil.getBooleanProperty(imageType + ".videoout", "false");
         addVideoCodec       = PropertiesUtil.getBooleanProperty(imageType + ".videocodec", "false");
-        addAudioCodec       = PropertiesUtil.getBooleanProperty(imageType + ".audiocodec", "false");
-        addAudioChannels    = PropertiesUtil.getBooleanProperty(imageType + ".audiochannels", "false");
         addContainer        = PropertiesUtil.getBooleanProperty(imageType + ".container", "false");
         addAspectRatio      = PropertiesUtil.getBooleanProperty(imageType + ".aspect", "false");
         addFPS              = PropertiesUtil.getBooleanProperty(imageType + ".fps", "false");
@@ -428,9 +438,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = movie.getVideoCodec();
                         } else if (name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC")) {
                             value = movie.getAudioCodec();
-                            int pos = value.indexOf(" / ");
-                            if (pos > -1) {
-                                value = value.substring(0, pos);
+                            if (!blockAudioCodec) {
+                                int pos = value.indexOf(" / ");
+                                if (pos > -1) {
+                                    value = value.substring(0, pos);
+                                }
                                 pos = value.indexOf(" (");
                                 if (pos > -1) {
                                     value = value.substring(0, pos);
@@ -438,9 +450,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             }
                         } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
                             value = movie.getAudioChannels();
-                            int pos = value.indexOf(" / ");
-                            if (pos > -1) {
-                                value = value.substring(0, pos);
+                            if (!blockAudioChannels) {
+                                int pos = value.indexOf(" / ");
+                                if (pos > -1) {
+                                    value = value.substring(0, pos);
+                                }
                             }
                         } else if (name.equalsIgnoreCase("container")) {
                             value = movie.getContainer();
@@ -470,28 +484,36 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         if (name.equalsIgnoreCase("language") && StringTools.isValidString(value)) {
                             filename = "languages/English.png";
                         }
-                        for (imageOverlay img : layer.images) {
-                            if (img.name.equalsIgnoreCase(name)) {
-                                boolean accept = false;
-                                if (img.values.size() == 1 && cmpOverlayValue(name, img.value, value)) {
-                                    accept = true;
-                                } else if (img.values.size() > 1) {
-                                    accept = true;
-                                    for (int i = 0; i < layer.names.size(); i++) {
-                                        accept = accept && cmpOverlayValue(name, img.values.get(i), states.get(i).value);
-                                        if (!accept) {
-                                            break;
+                        String[] values = value.split(" / ");
+                        for (int j = 0; j < values.length; j++) {
+                            value = values[j];
+                            for (imageOverlay img : layer.images) {
+                                if (img.name.equalsIgnoreCase(name)) {
+                                    boolean accept = false;
+                                    if (img.values.size() == 1 && cmpOverlayValue(name, img.value, value)) {
+                                        accept = true;
+                                    } else if (img.values.size() > 1) {
+                                        accept = true;
+                                        for (int i = 0; i < layer.names.size(); i++) {
+                                            accept = accept && cmpOverlayValue(name, img.values.get(i), states.get(i).value);
+                                            if (!accept) {
+                                                break;
+                                            }
                                         }
                                     }
+                                    if (!accept) {
+                                        continue;
+                                    }
+                                    File imageFile = new File(getResourcesPath() + img.filename);
+                                    if (imageFile.exists()) {
+                                        if (StringTools.isNotValidString(filename)) {
+                                            filename = img.filename;
+                                        } else {
+                                            filename += " / " + img.filename;
+                                        }
+                                    }
+                                    break;
                                 }
-                                if (!accept) {
-                                    continue;
-                                }
-                                File imageFile = new File(getResourcesPath() + img.filename);
-                                if (imageFile.exists()) {
-                                    filename = img.filename;
-                                }
-                                break;
                             }
                         }
                         flag = flag || StringTools.isValidString(filename);
@@ -538,6 +560,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                     String filename = state.filename;
                     if (StringTools.isNotValidString(filename)) {
+                        continue;
+                    }
+
+                    if ((blockAudioCodec && ((name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC"))) ||
+                            (blockAudioChannels && (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")))) &&
+                            (overlayBlocks.get(name) != null)) {
+                        bi = drawBlock(movie, bi, name, filename, state.left, state.align, state.top, state.valign);
                         continue;
                     }
 
@@ -861,6 +890,48 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return bi;
     }
 
+    private BufferedImage drawBlock(IMovieBasicInformation movie, BufferedImage bi, String name, String files, int left, String align, int top, String valign) {
+        if (StringTools.isValidString(files)) {
+            String[] filenames = files.split(" / ");
+            try {
+                Graphics2D g2d = bi.createGraphics();
+                BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + filenames[0]);
+                g2d.drawImage(biSet, getOverlayX(bi.getWidth(), biSet.getWidth(), left, align), getOverlayY(bi.getHeight(), biSet.getHeight(), top, valign), null);
+                if (filenames.length > 1) {
+                    logosBlock block = overlayBlocks.get(name);
+                    if (block != null) {
+                        int width = biSet.getWidth();
+                        int height = biSet.getHeight();
+                        int col = 0;
+                        int row = 0;
+                        for (int i = 1; i < filenames.length; i++) {
+                            if (block.dir) {
+                                row++;
+                                if (block.rows > 0 && row >= block.rows) {
+                                    row = 0;
+                                    col++;
+                                }
+                            } else {
+                                col++;
+                                if (block.cols > 0 && col >= block.cols) {
+                                    col = 0;
+                                    row++;
+                                }
+                            }
+                            biSet = GraphicTools.loadJPEGImage(getResourcesPath() + filenames[i]);
+                            g2d.drawImage(biSet, getOverlayX(bi.getWidth(), width, left + (left>0?1:-1)*col*(width + block.hmargin), align),
+                                                getOverlayY(bi.getHeight(), height, top + (top>0?1:-1)*row*(height + block.vmargin), valign), null);
+                        }
+                    }
+                }
+                g2d.dispose();
+            } catch (IOException e) {
+                logger.warn("Failed drawing overlay block logo to thumbnail file: " + movie.getBaseName());
+            }
+        }
+        return bi;
+    }
+
     /**
      * Draw the set logo onto a poster
      * 
@@ -1052,6 +1123,24 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
     }
 
+    private class logosBlock {
+        boolean dir     = false;        // true - vertical, false - horizontal,
+        boolean size    = false;        // true - static, false - auto
+        Integer cols    = 1;            // 0 - auto count
+        Integer rows    = 0;            // 0 - auto count
+        Integer hmargin = 0;
+        Integer vmargin = 0;
+
+        public logosBlock(boolean dir, boolean size, String cols, String rows, String hmargin, String vmargin) {
+            this.dir = dir;
+            this.size = size;
+            this.cols = cols.equalsIgnoreCase("auto")?0:Integer.parseInt(cols);
+            this.rows = rows.equalsIgnoreCase("auto")?0:Integer.parseInt(rows);
+            this.hmargin = Integer.parseInt(hmargin);
+            this.vmargin = Integer.parseInt(vmargin);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void fillOverlayParams(String xmlOverlayFilename) {
         File xmlOverlayFile = new File(xmlOverlayFilename);
@@ -1169,6 +1258,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     }
                     overlayLayers.add(overlay);
                     index++;
+                }
+
+                List<HierarchicalConfiguration> blocks = c.configurationsAt("block");
+                overlayBlocks.clear();
+                for (HierarchicalConfiguration block : blocks) {
+                    String name = block.getString("name");
+                    if (StringTools.isNotValidString(name)) {
+                        continue;
+                    }
+                    overlayBlocks.put(name, new logosBlock(block.getString("dir").equalsIgnoreCase("horizontal"),
+                                                            block.getString("size").equalsIgnoreCase("static"),
+                                                            block.getString("cols"), block.getString("rows"),
+                                                            block.getString("hmargin"),
+                                                            block.getString("vmargin")));
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
