@@ -1012,6 +1012,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             try {
                 XMLConfiguration c = new XMLConfiguration(xmlOverlayFile);
                 List<HierarchicalConfiguration> layers = c.configurationsAt("layer");
+                overlayLayers.clear();
                 int index = 0;
                 for (HierarchicalConfiguration layer : layers) {
                     String name = layer.getString("name");
