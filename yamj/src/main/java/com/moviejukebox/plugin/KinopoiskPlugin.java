@@ -76,6 +76,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
     boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
     boolean trailerSetExchange = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.setExchange", "false");
     boolean trailerDownload = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.download", "false");
+    String trailerScanerPath = PropertiesUtil.getProperty("kinopoisk.trailer.path.scaner", "");
+    String trailerPlayerPath = PropertiesUtil.getProperty("kinopoisk.trailer.path.player", "");
+    boolean trailerSafeFilename = PropertiesUtil.getBooleanProperty("kinopoisk.trailer.safeFilename", "false");
 
     // Shows what name is on the first position with respect to divider
     String titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
@@ -922,13 +925,23 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 int index = name.lastIndexOf(".");
                 basename = index == -1 ? name : new String(name.substring(0, index));
             }
+            if (StringTools.isValidString(trailerScanerPath)) {
+                parentPath = trailerScanerPath;
+                (new File(parentPath)).mkdirs();
+            }
 
             String trailerExt = new String(trailerUrl.substring(trailerUrl.lastIndexOf(".")));
-            String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-ru]" + trailerExt);
+            String trailerBasename = basename + ".[TRAILER-ru]" + trailerExt;
+            if (trailerSafeFilename) {
+                trailerBasename = FileTools.makeSafeFilename(trailerBasename);
+            }
             String trailerFileName = parentPath + File.separator + trailerBasename;
 
             int slash = mf.getFilename().lastIndexOf("/");
             String playPath = slash == -1 ? mf.getFilename() : new String(mf.getFilename().substring(0, slash));
+            if (StringTools.isValidString(trailerPlayerPath)) {
+                playPath = trailerPlayerPath;
+            }
             String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
             logger.debug("KinoPoisk Plugin: Found trailer: " + trailerUrl);
