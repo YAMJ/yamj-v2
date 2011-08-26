@@ -997,11 +997,17 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String trailerXml = webBrowser.request(xmlUrl);
             int beginUrl = trailerXml.indexOf("<a href=\"/getlink.php");
             if (beginUrl >= 0) {
-                while (trailerXml.indexOf("<a href=\"/getlink.php", beginUrl + 1) > 0) {
+                while (true) {
+                    int markerUrl = trailerXml.indexOf("http://", beginUrl);
+                    String tmpUrl = new String(trailerXml.substring(markerUrl, trailerXml.indexOf("\"", markerUrl)));
+                    if (tmpUrl.endsWith(".mov") || tmpUrl.endsWith(".flv") || tmpUrl.endsWith(".mp4") || tmpUrl.endsWith(".avi")) {
+                        trailerUrl = tmpUrl;
+                    }
                     beginUrl = trailerXml.indexOf("<a href=\"/getlink.php", beginUrl + 1);
+                    if (trailerXml.indexOf("<a href=\"/getlink.php", beginUrl + 1) <= 0) {
+                        break;
+                    }
                 }
-                beginUrl = trailerXml.indexOf("http://", beginUrl);
-                trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf("\"", beginUrl)));
             } else {
                 logger.error("KinoPoisk Plugin: cannot find trailer URL in XML. Layout changed?");
             }
@@ -1143,7 +1149,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 String bio = "";
-                for (String item : HTMLTools.extractTags(xml, "<ul class=\"trivia\">", "</ul>", "<li class=\"trivia\">", "</li>")) {
+                for (String item : HTMLTools.extractTags(xml, "<ul class=\"trivia\"", "</ul>", "<li class=\"trivia\"", "</li>")) {
                     bio += HTMLTools.removeHtmlTags(item).replaceAll("\u0097", "-") + " ";
                 }
                 if (StringTools.isValidString(bio)) {
