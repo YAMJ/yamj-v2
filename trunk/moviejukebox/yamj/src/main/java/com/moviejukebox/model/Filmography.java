@@ -13,12 +13,14 @@
 
 package com.moviejukebox.model;
 
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
-import static com.moviejukebox.tools.StringTools.*;
 
 /**
  *  This is the new bean for the Person
@@ -117,35 +119,29 @@ public class Filmography {
     }
 
     public void setName(String name) {
-        if (name != null) {
-            name = name.trim();
-        }
-        if (isValidString(name) && !this.name.equalsIgnoreCase(name)) {
-            this.name = name;
+        if (isValidString(name) && !this.name.equalsIgnoreCase(name.trim())) {
+            this.name = name.trim();
+            
             if (isNotValidString(title)) {
-                title = name;
+                title = this.name;
             }
+            
             if (isNotValidString(originalTitle)) {
-                originalTitle = name;
+                originalTitle = this.name;
             }
+            
             setDirty();
         }
     }
 
     public void setTitle(String title) {
-        if (title != null) {
-            title = title.trim();
-        }
-        if (isValidString(title) && !this.title.equalsIgnoreCase(title)) {
-            this.title = title;
+        if (isValidString(title) && !this.title.equalsIgnoreCase(title.trim())) {
+            this.title = title.trim();
             setDirty();
         }
     }
 
     public void setOriginalTitle(String originalTitle) {
-        if (originalTitle != null) {
-            originalTitle = originalTitle.trim();
-        }
         if (isValidString(originalTitle) && !this.originalTitle.equalsIgnoreCase(originalTitle)) {
             this.originalTitle = originalTitle;
             if (isNotValidString(title)) {
