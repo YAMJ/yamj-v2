@@ -1022,9 +1022,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void addActor(String actor) {
-        if (actor != null && !cast.contains(actor)) {
+        if (StringTools.isNotValidString(actor)) {
+            return;
+        }
+        
+        if (!cast.contains(actor.trim())) {
             setDirty(DIRTY_INFO, true);
-            cast.add(actor);
+            cast.add(actor.trim());
         }
     }
 
@@ -1059,6 +1063,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             clearCast();
             this.cast.addAll(cast);
             Collection<Filmography> pList = new ArrayList<Filmography>();
+            
             for (Filmography p : people) {
                 if (p.getDepartment().equals("Actors")) {
                     pList.add(p);
