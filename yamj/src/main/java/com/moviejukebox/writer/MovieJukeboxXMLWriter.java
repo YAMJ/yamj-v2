@@ -1161,7 +1161,7 @@ public class MovieJukeboxXMLWriter {
 
         logger.debug("Index: " + categoryKey + ", Category: " + indexName + ", count: " + indexMovies.size());
         // Display a message about the category we're indexing
-        if (countMovieCat < categoryMinCount && !categoriesDisplayList.contains(categoryKey)) {
+        if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
             logger.debug("Category " + categoryKey + " " + indexName + " does not contain enough videos (" + countMovieCat
                             + "/" + categoryMinCount + "), not adding to categories.xml.");
             return;
@@ -1224,7 +1224,7 @@ public class MovieJukeboxXMLWriter {
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
-                        if (categoryCount < categoryMinCount && !categoriesDisplayList.contains(categoryName) && !Library.INDEX_SET.equalsIgnoreCase(categoryName) && !separateCategories) {
+                        if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName) && !Library.INDEX_SET.equalsIgnoreCase(categoryName) && !separateCategories) {
                             logger.debug("Category '" + categoryPath + "' does not contain enough videos (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
