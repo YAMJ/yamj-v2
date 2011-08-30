@@ -869,7 +869,7 @@ public class MovieJukeboxXMLWriter {
                     for (Movie film : moviesList) {
                         if (film.getBaseName().equals(movieName)) {
                             // See if the movie is in a collection OR isDirty
-                            forceDirtyFlag |= (!film.isTVShow() && !film.getSetsKeys().contains(setMaster.getBaseFilename())) || film.isDirty(Movie.DIRTY_INFO);
+                            forceDirtyFlag |= (!film.isTVShow() && !film.getSetsKeys().contains(setMaster.getTitle())) || film.isDirty(Movie.DIRTY_INFO);
                             counter--;
                             break;
                         }
