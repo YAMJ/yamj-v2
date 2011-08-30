@@ -601,6 +601,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         if (wholeArts.indexOf("<table class=\"fotos") != -1) {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/images/wallpaper/sm_", 0, ".jpg");
                             if (StringTools.isValidString(picture)) {
+                                if (picture.indexOf("_") > 0) {
+                                    picture = picture.substring(0, picture.indexOf("_"));
+                                }
                                 String size = HTMLTools.extractTag(wholeArts, "<u><a href=\"/picture/" + picture + "/w_size/", 0, "/");
                                 wholeArts = webBrowser.request("http://www.kinopoisk.ru/picture/" + picture + "/w_size/" + size);
                                 if (StringTools.isValidString(wholeArts)) {
