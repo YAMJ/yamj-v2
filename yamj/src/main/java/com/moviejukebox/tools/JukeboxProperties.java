@@ -74,7 +74,7 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("mjb.categories.minCount.Other",       false, false, false, false, false, false, false, true,  false));
         propInfo.add(new PropertyInformation("mjb.categories.minCount.Genres",      false, false, false, false, false, false, false, true,  false));
         propInfo.add(new PropertyInformation("mjb.categories.minCount.Title",       false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Rating",      false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Certification", false, false, false, false, false, false, false, true,  false));
         propInfo.add(new PropertyInformation("mjb.categories.minCount.Year",        false, false, false, false, false, false, false, true,  false));
         propInfo.add(new PropertyInformation("mjb.categories.minCount.Library",     false, false, false, false, false, false, false, true,  false));
         propInfo.add(new PropertyInformation("mjb.categories.minCount.Set",         false, false, false, false, false, false, false, true,  false));
@@ -246,7 +246,7 @@ public class JukeboxProperties {
             // Save the Genres file details
             writeGenericXmlFileDetails("mjb.xmlGenreFile", GENRE, docMjbDetails, eJukebox);
 
-            // save the Rating file details
+            // save the Certification file details
             writeGenericXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, docMjbDetails, eJukebox);
             
             if (StringTools.isValidString(SkinProperties.getSkinName())) {
@@ -368,11 +368,11 @@ public class JukeboxProperties {
                 logger.debug("JukeboxProperties: Genres has changed, so need to update");
             }
             
-            // Check the Ratings file
-            if (!validXmlFileDetails("mjb.xmlRatingFile", CERTIFICATION, eJukebox)) {
+            // Check the Certifications file
+            if (!validXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
-                piReturn.mergePropertyInformation(new PropertyInformation("Ratings", false, false, false, false, false, false, false, true, false));
-                logger.debug("JukeboxProperties: Ratings has changed, so need to update");
+                piReturn.mergePropertyInformation(new PropertyInformation("Certifications", false, false, false, false, false, false, false, true, false));
+                logger.debug("JukeboxProperties: Certifications has changed, so need to update");
             }
 
         }
