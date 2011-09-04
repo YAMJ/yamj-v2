@@ -231,8 +231,10 @@ public class MovieJukebox {
                     return;
                 } else if ("-o".equalsIgnoreCase(arg)) {
                     jukeboxRoot = args[++i];
+                    PropertiesUtil.setProperty("mjb.jukeboxRoot", jukeboxRoot);
                 } else if ("-c".equalsIgnoreCase(arg)) {
                     jukeboxClean = true;
+                    PropertiesUtil.setProperty("mjb.jukeboxClean", "true");
                 } else if ("-k".equalsIgnoreCase(arg)) {
                     setJukeboxPreserve(true);
                 } else if ("-p".equalsIgnoreCase(arg)) {
