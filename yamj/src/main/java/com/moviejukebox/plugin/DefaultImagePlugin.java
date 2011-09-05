@@ -109,6 +109,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addWatched;
     private boolean addTop250;
     private boolean addKeywords;
+    private boolean addCountry;
+    private boolean blockCountry;
+    private boolean addCompany;
+    private boolean blockCompany;
     private HashMap<String, ArrayList> keywordsRating = new HashMap<String, ArrayList>();
     private HashMap<String, ArrayList> keywordsVideoSource = new HashMap<String, ArrayList>();
     private HashMap<String, ArrayList> keywordsVideoOut = new HashMap<String, ArrayList>();
@@ -120,6 +124,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private HashMap<String, ArrayList> keywordsFPS = new HashMap<String, ArrayList>();
     private HashMap<String, ArrayList> keywordsCertification = new HashMap<String, ArrayList>();
     private HashMap<String, ArrayList> keywordsKeywords = new HashMap<String, ArrayList>();
+    private HashMap<String, ArrayList> keywordsCountry = new HashMap<String, ArrayList>();
+    private HashMap<String, ArrayList> keywordsCompany = new HashMap<String, ArrayList>();
     private HashMap<String, logosBlock> overlayBlocks = new HashMap<String, logosBlock>();
 
     public DefaultImagePlugin() {
@@ -200,6 +206,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addTop250           = PropertiesUtil.getBooleanProperty(imageType + ".top250", "false");
         addKeywords         = PropertiesUtil.getBooleanProperty(imageType + ".keywords", "false");
 
+        String tmpCountry   = PropertiesUtil.getProperty(imageType + ".country", "false");
+        addCountry          = tmpCountry.equalsIgnoreCase("true") || tmpCountry.equalsIgnoreCase("block");
+        blockCountry        = tmpCountry.equalsIgnoreCase("block");
+
+        String tmpCompany   = PropertiesUtil.getProperty(imageType + ".company", "false");
+        addCompany          = tmpCompany.equalsIgnoreCase("true") || tmpCompany.equalsIgnoreCase("block");
+        blockCompany        = tmpCompany.equalsIgnoreCase("block");
+
         xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", "false");
         if (xmlOverlay) {
             String tmp = PropertiesUtil.getProperty("overlay.keywords.rating", "");
@@ -224,6 +238,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             fillOverlayKeywords(keywordsCertification, tmp);
             tmp = PropertiesUtil.getProperty("overlay.keywords.keywords", "");
             fillOverlayKeywords(keywordsKeywords, tmp);
+            tmp = PropertiesUtil.getProperty("overlay.keywords.country", "");
+            fillOverlayKeywords(keywordsCountry, tmp);
+            tmp = PropertiesUtil.getProperty("overlay.keywords.company", "");
+            fillOverlayKeywords(keywordsCompany, tmp);
             fillOverlayParams(PropertiesUtil.getProperty(imageType + ".xmlOverlayFile", "overlay-default.xml"));
         }
 
@@ -470,6 +488,22 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = movie.getTop250() > 0?"true":"false";
                         } else if (name.equalsIgnoreCase("keywords")) {
                             value = movie.getBaseFilename().toLowerCase();
+                        } else if (name.equalsIgnoreCase("country")) {
+                            value = movie.getCountry();
+                            if (!blockCountry) {
+                                int pos = value.indexOf(" / ");
+                                if (pos > -1) {
+                                    value = value.substring(0, pos);
+                                }
+                            }
+                        } else if (name.equalsIgnoreCase("company")) {
+                            value = movie.getCompany();
+                            if (!blockCompany) {
+                                int pos = value.indexOf(" / ");
+                                if (pos > -1) {
+                                    value = value.substring(0, pos);
+                                }
+                            }
                         }
                     }
                     stateOverlay state = new stateOverlay(layer.left, layer.top, layer.align, layer.valign, value);
@@ -563,8 +597,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         continue;
                     }
 
-                    if ((blockAudioCodec && ((name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC"))) ||
-                            (blockAudioChannels && (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")))) &&
+                    if (((blockAudioCodec && ((name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC")))) ||
+                            (blockAudioChannels && (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels"))) ||
+                            (blockCountry && name.equalsIgnoreCase("country")) ||
+                            (blockCompany && name.equalsIgnoreCase("company"))) &&
                             (overlayBlocks.get(name) != null)) {
                         bi = drawBlock(movie, bi, name, filename, state.left, state.align, state.top, state.valign);
                         continue;
@@ -1322,6 +1358,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return addTop250;
         } else if (name.equalsIgnoreCase("keywords")) {
             return addKeywords;
+        } else if (name.equalsIgnoreCase("country")) {
+            return addCountry;
+        } else if (name.equalsIgnoreCase("company")) {
+            return addCompany;
         }
         return false;
     }
@@ -1388,6 +1428,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 data = keywordsCertification;
             } else if (name.equalsIgnoreCase("keywords")) {
                 data = keywordsKeywords;
+            } else if (name.equalsIgnoreCase("country")) {
+                data = keywordsCountry;
+            } else if (name.equalsIgnoreCase("company")) {
+                data = keywordsCompany;
             } else {
                 return false;
             }
