@@ -118,7 +118,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 ThreadExecutor.leaveIO();
             }
 
-            if (seriesList != null && !seriesList.isEmpty()) {
+            if (seriesList == null || seriesList.isEmpty()) {
+                return false;
+            } else {
                 Series series = null;
                 for (Series s : seriesList) {
                     if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
@@ -138,8 +140,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
                 
+                // If we can't find an exact match, select the first one
                 if (series == null) {
                     series = seriesList.get(0);
+                    logger.debug("TheTvDBPlugin: No exact match for " + movie.getTitle() + " found, using " + series.getSeriesName());
                 }
 
                 id = "" + series.getId();
@@ -180,7 +184,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 ThreadExecutor.leaveIO();
             }
 
-            if (series != null) {
+            if (series == null) {
+                logger.debug("TheTvDBPlugin: No series information found for " + movie.getTitle());
+            } else {
                 Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey("Banners", id, language));
                 
                 if (banners == null) {
