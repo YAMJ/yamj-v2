@@ -165,7 +165,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addOverlay          = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
 
         String tmpSetLogo   = PropertiesUtil.getProperty(imageType + ".logoSet", "false");
-        addSetLogo          = tmpSetLogo.equalsIgnoreCase("true") || tmpSetLogo.equalsIgnoreCase("value"); // Note: This should only be for thumbnails
+        addSetLogo          = tmpSetLogo.equalsIgnoreCase("true") || tmpSetLogo.equalsIgnoreCase("count"); // Note: This should only be for thumbnails
         countSetLogo        = tmpSetLogo.equalsIgnoreCase("count");
 
         addTextTitle        = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", "false");
