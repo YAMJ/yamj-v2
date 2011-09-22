@@ -329,7 +329,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Title
             if (!movie.isOverrideTitle()) {
-                newTitle = HTMLTools.extractTag(xml, "class=\"moviename-big\">", 0, "<>");
+                newTitle = HTMLTools.extractTag(xml, "class=\"moviename-big\" itemprop=\"name\">", 0, "</");
                 if (!newTitle.equals(Movie.UNKNOWN)) {
                     int i = newTitle.indexOf("(сериал");
                     if (i >= 0) {
@@ -343,7 +343,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                     // Original title
                     originalTitle = newTitle;
-                    for (String s : HTMLTools.extractTags(xml, "<span style=\"color: #666", "</span>", "font-size: 13px\">", "</span>")) {
+                    for (String s : HTMLTools.extractTags(xml, "<span style=\"color: #666", "</span>", "font-size: 13px\" itemprop=\"alternativeHeadline\">", "</span>")) {
                         if (!s.isEmpty()) {
                             originalTitle = s;
                             newTitle = newTitle + " / " + originalTitle;
@@ -486,7 +486,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Rating
             if (!NFOrating) {
-                for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/" + kinopoiskId + "/\"", "</a>", "", "<")) {
+                for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/" + kinopoiskId + "/\"", "</a>", "ratingValue\"", "</span>")) {
                     try {
                         int kinopoiskRating = (int)(Float.parseFloat(rating) * 10);
                         movie.addRating(KINOPOISK_PLUGIN_ID, kinopoiskRating);
