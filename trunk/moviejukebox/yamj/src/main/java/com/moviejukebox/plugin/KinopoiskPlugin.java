@@ -676,7 +676,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     int beginIndex = xml.indexOf("/level/94/award/");
                     if (beginIndex != -1) {
                         Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
-                        for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% style=\"border:1px solid #ccc; text-align: left\">", "</table>")) {
+//                        for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% style=\"border:1px solid #ccc; text-align: left\">", "</table>")) {
+                        for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% ", "</table>")) {
                             String name = Movie.UNKNOWN;
                             int year = -1;
                             int won = 0;
