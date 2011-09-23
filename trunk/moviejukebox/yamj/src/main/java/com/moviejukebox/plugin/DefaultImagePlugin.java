@@ -165,8 +165,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addOverlay          = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
 
         String tmpSetLogo   = PropertiesUtil.getProperty(imageType + ".logoSet", "false");
-        addSetLogo          = tmpSetLogo.equalsIgnoreCase("true") || tmpSetLogo.equalsIgnoreCase("count"); // Note: This should only be for thumbnails
         countSetLogo        = tmpSetLogo.equalsIgnoreCase("count");
+        addSetLogo          = tmpSetLogo.equalsIgnoreCase("true") || countSetLogo; // Note: This should only be for thumbnails
 
         addTextTitle        = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", "false");
         addTextSeason       = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", "false");
@@ -194,16 +194,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         
         // Issue 1937: Overlay configuration XML
         String tmpRating    = PropertiesUtil.getProperty(imageType + ".rating", "false");
-        addRating           = tmpRating.equalsIgnoreCase("true") || tmpRating.equalsIgnoreCase("real");
         realRating          = tmpRating.equalsIgnoreCase("real");
+        addRating           = tmpRating.equalsIgnoreCase("true") || realRating;
 
         String tmpAudioCodec= PropertiesUtil.getProperty(imageType + ".audiocodec", "false");
-        addAudioCodec       = tmpAudioCodec.equalsIgnoreCase("true") || tmpAudioCodec.equalsIgnoreCase("block");
         blockAudioCodec     = tmpAudioCodec.equalsIgnoreCase("block");
+        addAudioCodec       = tmpAudioCodec.equalsIgnoreCase("true") || blockAudioCodec;
 
         String tmpAudioChannels = PropertiesUtil.getProperty(imageType + ".audiochannels", "false");
-        addAudioChannels    = tmpAudioChannels.equalsIgnoreCase("true") || tmpAudioChannels.equalsIgnoreCase("block");
         blockAudioChannels  = tmpAudioChannels.equalsIgnoreCase("block");
+        addAudioChannels    = tmpAudioChannels.equalsIgnoreCase("true") || blockAudioChannels;
 
         addVideoSource      = PropertiesUtil.getBooleanProperty(imageType + ".videosource", "false");
         addVideoOut         = PropertiesUtil.getBooleanProperty(imageType + ".videoout", "false");
@@ -217,17 +217,17 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addKeywords         = PropertiesUtil.getBooleanProperty(imageType + ".keywords", "false");
 
         String tmpCountry   = PropertiesUtil.getProperty(imageType + ".country", "false");
-        addCountry          = tmpCountry.equalsIgnoreCase("true") || tmpCountry.equalsIgnoreCase("block");
         blockCountry        = tmpCountry.equalsIgnoreCase("block");
+        addCountry          = tmpCountry.equalsIgnoreCase("true") || blockCountry;
 
         String tmpCompany   = PropertiesUtil.getProperty(imageType + ".company", "false");
-        addCompany          = tmpCompany.equalsIgnoreCase("true") || tmpCompany.equalsIgnoreCase("block");
         blockCompany        = tmpCompany.equalsIgnoreCase("block");
+        addCompany          = tmpCompany.equalsIgnoreCase("true") || blockCompany;
 
         String tmpAward     = PropertiesUtil.getProperty(imageType + ".award", "false");
-        addAward            = tmpAward.equalsIgnoreCase("true") || tmpAward.equalsIgnoreCase("block") || tmpAward.equalsIgnoreCase("count");
         blockAward          = tmpAward.equalsIgnoreCase("block");
         countAward          = tmpAward.equalsIgnoreCase("count");
+        addAward            = tmpAward.equalsIgnoreCase("true") || blockAward || countAward;
 
         xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", "false");
         if (xmlOverlay) {
@@ -464,7 +464,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = movie.getLanguage();
                             value = movie.getBaseFilename();
                         } else if (name.equalsIgnoreCase("rating")) {
-                            value = (!movie.isTVShow() || movie.isSetMaster())?Integer.toString(realRating?movie.getRating():(movie.getRating()/10)*10):Movie.UNKNOWN;
+                            value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster()))?Integer.toString(realRating?movie.getRating():(movie.getRating()/10)*10):Movie.UNKNOWN;
                         } else if (name.equalsIgnoreCase("videosource") || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
                             value = movie.getVideoSource();
                         } else if (name.equalsIgnoreCase("videoout") || name.equalsIgnoreCase("out") || name.equalsIgnoreCase("VO")) {
@@ -521,7 +521,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = value.substring(0, pos);
                                 }
                             }
-                        } else if (name.equalsIgnoreCase("award")) {
+                        } else if (name.equalsIgnoreCase("award") && !movie.isSetMaster()) {
                             value = "";
                             int awardCount = 0;
                             for (AwardEvent awardEvent : movie.getAwards()) {
