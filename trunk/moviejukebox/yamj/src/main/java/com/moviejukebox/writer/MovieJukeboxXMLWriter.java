@@ -901,9 +901,6 @@ public class MovieJukeboxXMLWriter {
 
     @SuppressWarnings("unchecked")
     public boolean parsePersonXML(File xmlFile, Person person) {
-
-        boolean forceDirtyFlag = false; // force dirty flag for example when extras has been deleted
-
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
             XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
@@ -1005,6 +1002,10 @@ public class MovieJukeboxXMLWriter {
                             film.setOriginalTitle(attr.getValue());
                             continue;
                         }
+                        if (ns.equalsIgnoreCase("year")) {
+                            film.setYear(attr.getValue());
+                            continue;
+                        }
                         if (ns.equalsIgnoreCase("rating")) {
                             film.setRating(attr.getValue());
                             continue;
@@ -1041,7 +1042,7 @@ public class MovieJukeboxXMLWriter {
             return false;
         }
 
-        person.setDirty(forceDirtyFlag);
+        person.setDirty(false);
 
         return true;
     }
