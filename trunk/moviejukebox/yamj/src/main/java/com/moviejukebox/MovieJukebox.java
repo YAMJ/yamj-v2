@@ -1207,8 +1207,8 @@ public class MovieJukebox {
                                 }
                             }
                             if (!flag) {
-                                flag = film.getName().toUpperCase().equalsIgnoreCase(originalTitle) || film.getTitle().toUpperCase().equalsIgnoreCase(originalTitle) ||
-                                        film.getName().toUpperCase().equalsIgnoreCase(title) || film.getTitle().toUpperCase().equalsIgnoreCase(title);
+                                flag = film.getName().equalsIgnoreCase(originalTitle) || film.getTitle().equalsIgnoreCase(originalTitle) ||
+                                        film.getName().equalsIgnoreCase(title) || film.getTitle().equalsIgnoreCase(title);
                             }
                             if (flag) {
                                 film.setFilename(movie.getBaseFilename());
@@ -1350,7 +1350,7 @@ public class MovieJukebox {
             }
 
             // Issue 1882: Separate index files for each category
-            List<String> categoriesList = Arrays.asList(getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set").split(","));
+            List<String> categoriesList = Arrays.asList(getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set").split(","));
 
             if (!skipIndexGeneration) {
                 logger.info("Writing Indexes XML...");
