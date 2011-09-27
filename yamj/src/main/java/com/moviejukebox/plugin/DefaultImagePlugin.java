@@ -453,7 +453,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String value = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
                         if (name.equalsIgnoreCase("set")) {
-                            value = (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster())?countSetLogo?Integer.toString(movie.getSetSize()):"true":countSetLogo?Movie.UNKNOWN:"false";
+                            value = (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster())?countSetLogo?Integer.toString(movie.getSetSize()):"true":countSetLogo?"0":"false";
                         } else if (name.equalsIgnoreCase("TV")) {
                             value = movie.isTVShow()?"true":"false";
                         } else if (name.equalsIgnoreCase("HD")) {
@@ -521,27 +521,29 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = value.substring(0, pos);
                                 }
                             }
-                        } else if (name.equalsIgnoreCase("award") && !movie.isSetMaster()) {
+                        } else if (name.equalsIgnoreCase("award")) {
                             value = "";
                             int awardCount = 0;
-                            for (AwardEvent awardEvent : movie.getAwards()) {
-                                for (Award award : awardEvent.getAwards()) {
-                                    if (award.getWon() > 0) {
-                                        if (blockAward) {
-                                            if (value != "") {
-                                                value += " / ";
+                            if (!movie.isSetMaster()) {
+                                for (AwardEvent awardEvent : movie.getAwards()) {
+                                    for (Award award : awardEvent.getAwards()) {
+                                        if (award.getWon() > 0) {
+                                            if (blockAward) {
+                                                if (value != "") {
+                                                    value += " / ";
+                                                }
+                                                value += award.getName();
+                                            } else if (countAward) {
+                                                awardCount++;
+                                            } else {
+                                                value = "true";
+                                                break;
                                             }
-                                            value += award.getName();
-                                        } else if (countAward) {
-                                            awardCount++;
-                                        } else {
-                                            value = "true";
-                                            break;
                                         }
                                     }
-                                }
-                                if (!blockAward && !countAward && StringTools.isValidString(value)) {
-                                    break;
+                                    if (!blockAward && !countAward && StringTools.isValidString(value)) {
+                                        break;
+                                    }
                                 }
                             }
                             value = (StringTools.isNotValidString(value) && !countAward)?blockAward?Movie.UNKNOWN:"false":countAward?Integer.toString(awardCount):value;

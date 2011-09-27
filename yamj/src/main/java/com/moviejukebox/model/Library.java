@@ -361,8 +361,6 @@ public class Library implements Map<String, Movie> {
             indexMaster.setTop250(top250);
             indexMaster.setMovieFiles(masterMovieFileCollection);
             
-            indexMaster.setDirty(indexMaster.DIRTY_INFO, false);
-            
             masters.put(indexName, indexMaster);
             
             StringBuilder sb = new StringBuilder("Setting index master '");

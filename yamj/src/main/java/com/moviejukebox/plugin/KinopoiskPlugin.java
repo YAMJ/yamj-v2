@@ -110,6 +110,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
     boolean companyAll = PropertiesUtil.getProperty("kinopoisk.company", "first").equalsIgnoreCase("all");
     boolean countryAll = PropertiesUtil.getProperty("kinopoisk.country", "first").equalsIgnoreCase("all");
+    boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", "false");
 
     // Personal information
     int peopleMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "15");
@@ -672,11 +673,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // Awards
             if (!NFOawards) {
                 xml = webBrowser.request("http://www.kinopoisk.ru/level/94/film/" + kinopoiskId);
+                Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
                 if (StringTools.isValidString(xml)) {
                     int beginIndex = xml.indexOf("/level/94/award/");
                     if (beginIndex != -1) {
-                        Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
-//                        for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% style=\"border:1px solid #ccc; text-align: left\">", "</table>")) {
                         for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% ", "</table>")) {
                             String name = Movie.UNKNOWN;
                             int year = -1;
@@ -727,10 +727,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 awards.add(event);
                             }
                         }
-                        if (awards.size() > 0) {
-                            movie.setAwards(awards);
-                        }
                     }
+                }
+                if ((awards.size() > 0) || clearAward) {
+                    movie.setAwards(awards);
                 }
             }
 
