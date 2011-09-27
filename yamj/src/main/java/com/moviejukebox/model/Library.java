@@ -46,6 +46,7 @@ import com.moviejukebox.model.Comparator.LastModifiedComparator;
 import com.moviejukebox.model.Comparator.MovieSetComparator;
 import com.moviejukebox.model.Comparator.Top250Comparator;
 import com.moviejukebox.model.Comparator.RatingComparator;
+import com.moviejukebox.model.Comparator.RatingsComparator;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -111,6 +112,7 @@ public class Library implements Map<String, Movie> {
     public static final String INDEX_WRITER = "Writer";
     public static final String INDEX_AWARD = "Award";
     public static final String INDEX_PERSON = "Person";
+    public static final String INDEX_RATINGS = "Ratings";
     public static final String INDEX_NEW = "New";
     public static final String INDEX_NEW_TV = "New-TV";
     public static final String INDEX_NEW_MOVIE = "New-Movie";
@@ -359,6 +361,8 @@ public class Library implements Map<String, Movie> {
             indexMaster.setTop250(top250);
             indexMaster.setMovieFiles(masterMovieFileCollection);
             
+            indexMaster.setDirty(indexMaster.DIRTY_INFO, false);
+            
             masters.put(indexName, indexMaster);
             
             StringBuilder sb = new StringBuilder("Setting index master '");
@@ -442,6 +446,8 @@ public class Library implements Map<String, Movie> {
                             syncindexes.put(INDEX_AWARD, indexByAward(indexMovies));
                         } else if (indexStr.equals(INDEX_PERSON)) {
                             syncindexes.put(INDEX_PERSON, indexByPerson(indexMovies));
+                        } else if (indexStr.equals(INDEX_RATINGS)) {
+                            syncindexes.put(INDEX_RATINGS, indexByRatings(indexMovies));
                         }
                         return null;
                     }
@@ -983,6 +989,21 @@ public class Library implements Map<String, Movie> {
         return index;
     }
 
+    protected static Index indexByRatings(List<Movie> list) {
+        Index index = new Index(true);
+        for (Movie movie : list) {
+            if (!movie.isExtra() && (movie.getRating() > 0)) {
+                String rating = Integer.toString((int)Math.floor(movie.getRating()/10));
+                rating = rating + ".0-" + rating + ".9";
+                logger.debug("Adding " + movie.getTitle() + " to ratings list for " + rating);
+                index.addMovie(rating, movie);
+                movie.addIndex(INDEX_RATINGS, rating);
+            }
+        }
+
+        return index;
+    }
+
     public int getMovieCountForIndex(String indexName, String category) {
         Index index = unCompressedIndexes.get(indexName);
         if (index == null) {
@@ -1252,6 +1273,7 @@ public class Library implements Map<String, Movie> {
     static LastModifiedComparator cmpLast = new LastModifiedComparator();
     static Top250Comparator cmp250 = new Top250Comparator();
     static RatingComparator cmpRating = new RatingComparator();
+    static RatingsComparator cmpRatings = new RatingsComparator();
 
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
@@ -1268,6 +1290,8 @@ public class Library implements Map<String, Movie> {
             } else if (key.equals(categoriesMap.get(INDEX_RATING))) {
                 cmpMovie = cmpRating;
             }
+        } else if (category.equals(INDEX_RATINGS)) {
+            cmpMovie = cmpRatings;
         }
 
         return cmpMovie;
@@ -1319,7 +1343,8 @@ public class Library implements Map<String, Movie> {
                         INDEX_COUNTRY.toUpperCase(), 
                         INDEX_CATEGORIES.toUpperCase(), 
                         INDEX_AWARD.toUpperCase(), 
-                        INDEX_PERSON.toUpperCase() });
+                        INDEX_PERSON.toUpperCase(), 
+                        INDEX_RATINGS.toUpperCase() });
     }
 
     /**
