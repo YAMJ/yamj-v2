@@ -83,6 +83,11 @@ public class Library implements Map<String, Movie> {
     private static long newTvDays;
     private static int minSetCount = 2;
     private static boolean setsRequireAll = false;
+    private static List<String> categoriesExplodeSet;
+    private static boolean removeExplodeSet = false;
+    private static boolean keepTVExplodeSet = true;
+    private static boolean beforeSortExplodeSet = false;
+    private static String setsRating = "first";
     private static String indexList;
     private static boolean splitHD = false;
     private static boolean processExtras = true;
@@ -134,6 +139,11 @@ public class Library implements Map<String, Movie> {
     static {
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
         setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", "false");
+        setsRating = PropertiesUtil.getProperty("mjb.sets.rating", "first");
+        categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
+        removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", "false");
+        keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", "true");
+        beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", "false");
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
@@ -308,8 +318,22 @@ public class Library implements Map<String, Movie> {
             String indexName = indexEntry.getKey();
             List<Movie> indexList = indexEntry.getValue();
 
+            // Issue 2098: put to SET information from first movie by order
+            int setIndex = 0;
+            if (!indexList.get(setIndex).isTVShow()) {
+                int setOrder = indexList.get(setIndex).getSetOrder(indexName);
+                if (setOrder > 1) {
+                    for (int i = 1; i < indexList.size(); i++) {
+                        if (setOrder > indexList.get(i).getSetOrder(indexName)) {
+                            setOrder = indexList.get(i).getSetOrder(indexName);
+                            setIndex = i;
+                        }
+                    }
+                }
+            }
+
             // We can't clone the movie because of the Collection objects in there, so we'll have to copy it
-            Movie indexMaster = Movie.newInstance(indexList.get(0));
+            Movie indexMaster = Movie.newInstance(indexList.get(setIndex));
             indexMaster.setDirty(false);
             
             indexMaster.setSetMaster(true);
@@ -325,6 +349,9 @@ public class Library implements Map<String, Movie> {
             int cntHD = 0;
             int top250 = -1;
             boolean watched = true; // Assume watched for the check, because any false value will reset it.
+            int maxRating = 0;
+            int sumRating = 0;
+            int currentRating;
 
             // We Can't use a TreeSet because MF.compareTo just compares part #
             // so it fails when we combine multiple seasons into one collection
@@ -346,6 +373,14 @@ public class Library implements Map<String, Movie> {
                     top250 = mTop250;
                 }
 
+                currentRating = movie.getRating();
+                if (currentRating >= 0) {
+                    sumRating += currentRating;
+                    if (currentRating > maxRating) {
+                        maxRating = currentRating;
+                    }
+                }
+
                 Collection<MovieFile> movieFileCollection = movie.getMovieFiles();
                 if (movieFileCollection != null) {
                     masterMovieFileCollection.addAll(movieFileCollection);
@@ -359,6 +394,11 @@ public class Library implements Map<String, Movie> {
             indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
             indexMaster.setWatchedFile(watched);
             indexMaster.setTop250(top250);
+            if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexList.size() > 0))) {
+                HashMap<String, Integer> ratings = new HashMap<String, Integer>();
+                ratings.put("setrating", setsRating.equalsIgnoreCase("max")?maxRating:(sumRating/indexList.size()));
+                indexMaster.setRatings(ratings);
+            }
             indexMaster.setMovieFiles(masterMovieFileCollection);
             
             masters.put(indexName, indexMaster);
@@ -371,6 +411,7 @@ public class Library implements Map<String, Movie> {
             sb.append(" (").append(cntHD).append("/").append(indexList.size()).append(")");
             sb.append(" - top250: ").append(indexMaster.getTop250());
             sb.append(" - watched: ").append(indexMaster.isWatched());
+            sb.append(" - rating: ").append(indexMaster.getRating());
             logger.debug(sb.toString());
             
         }
@@ -378,7 +419,7 @@ public class Library implements Map<String, Movie> {
         return masters;
     }
 
-    protected static void compressSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters) {
+    protected static void compressSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters, String indexName) {
         // Construct an index that includes only the intersection of movies and index
         Index in_movies = new Index();
         for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
@@ -394,8 +435,13 @@ public class Library implements Map<String, Movie> {
         for (Map.Entry<String, List<Movie>> in_movies_entry : in_movies.entrySet()) {
             List<Movie> lm = in_movies_entry.getValue();
             if (lm.size() >= minSetCount && (!setsRequireAll || lm.size() == index.get(in_movies_entry.getKey()).size())) {
-                movies.removeAll(lm);
-                movies.add(masters.get(in_movies_entry.getKey()));
+                boolean tvSet = keepTVExplodeSet && lm.get(0).isTVShow();
+                if (!beforeSortExplodeSet || !categoriesExplodeSet.contains(indexName) || tvSet) {
+                    movies.removeAll(lm);
+                }
+                if (!removeExplodeSet || tvSet) {
+                    movies.add(masters.get(in_movies_entry.getKey()));
+                }
             }
         }
     }
@@ -465,7 +511,7 @@ public class Library implements Map<String, Movie> {
                 for (Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                     // For each category in index, compress this one.
                     for (Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
-                        compressSetMovies(indexEntry.getValue(), dynamicEntry.getValue(), indexMasters);
+                        compressSetMovies(indexEntry.getValue(), dynamicEntry.getValue(), indexMasters, indexesEntry.getKey());
                     }
                 }
                 indexes.put(dynamicEntry.getKey(), dynamicEntry.getValue());

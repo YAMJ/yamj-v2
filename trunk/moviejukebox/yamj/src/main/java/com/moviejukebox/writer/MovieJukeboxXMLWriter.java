@@ -93,6 +93,9 @@ public class MovieJukeboxXMLWriter {
     private static boolean isPlayOnHD;
     private static String defaultSource;
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
+    private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", "false");
+    private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", "true");
+    private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", "false");
     private static String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
@@ -1298,22 +1301,27 @@ public class MovieJukeboxXMLWriter {
                                 skipIndex = false;
                             }
                             
-                            // Issue 1263 - Allow explode of Set in category .
-                            if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName)) {
-                                List<Movie> boxedSetMovies = library.getIndexes().get(Library.INDEX_SET).get(movie.getTitle());
-                                boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
-                                logger.debug("Exploding set for " + categoryPath + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
-                                //delay new instance
-                                if(tmpMovieList == movies) {
-                                    tmpMovieList = new ArrayList<Movie>(movies);
-                                }
+                            if (!beforeSortExplodeSet) {
+                                // Issue 1263 - Allow explode of Set in category .
+                                if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName) && (!keepTVExplodeSet || (keepTVExplodeSet && !movie.isTVShow()))) {
+                                    List<Movie> boxedSetMovies = library.getIndexes().get(Library.INDEX_SET).get(movie.getTitle());
+                                    boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
+                                    logger.debug("Exploding set for " + categoryPath + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
+                                    //delay new instance
+                                    if(tmpMovieList == movies) {
+                                        tmpMovieList = new ArrayList<Movie>(movies);
+                                    }
 
-                                //do we want to keep the set?
-                                //tmpMovieList.remove(moviepos);
-                                tmpMovieList.addAll(moviepos, boxedSetMovies);
-                                moviepos += boxedSetMovies.size() - 1; 
+                                    //do we want to keep the set?
+                                    // Issue 2002: remove SET item after explode of Set in category
+                                    if (removeExplodeSet) {
+                                        tmpMovieList.remove(moviepos);
+                                    }
+                                    tmpMovieList.addAll(moviepos, boxedSetMovies);
+                                    moviepos += boxedSetMovies.size() - 1; 
+                                }
+                                moviepos++;
                             }
-                            moviepos++;
                         }
 
                         int current = 1;
