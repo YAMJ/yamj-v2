@@ -439,7 +439,7 @@ public class Library implements Map<String, Movie> {
                 if (!beforeSortExplodeSet || !categoriesExplodeSet.contains(indexName) || tvSet) {
                     movies.removeAll(lm);
                 }
-                if (!removeExplodeSet || tvSet) {
+                if (!removeExplodeSet || !categoriesExplodeSet.contains(indexName) || tvSet) {
                     movies.add(masters.get(in_movies_entry.getKey()));
                 }
             }
