@@ -119,20 +119,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addAward;
     private boolean blockAward;
     private boolean countAward;
-    private HashMap<String, ArrayList> keywordsRating = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsVideoSource = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsVideoOut = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsVideoCodec = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsAudioCodec = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsAudioChannels = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsContainer = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsAspectRatio = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsFPS = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsCertification = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsKeywords = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsCountry = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsCompany = new HashMap<String, ArrayList>();
-    private HashMap<String, ArrayList> keywordsAward = new HashMap<String, ArrayList>();
+    private HashMap<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsVideoCodec = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsAudioCodec = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsAudioChannels = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsContainer = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsAspectRatio = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsFPS = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsCertification = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsKeywords = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsCountry = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsCompany = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsAward = new HashMap<String, ArrayList<String>>();
     private HashMap<String, logosBlock> overlayBlocks = new HashMap<String, logosBlock>();
 
     public DefaultImagePlugin() {
@@ -1455,14 +1455,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
     }
 
-    protected void fillOverlayKeywords(HashMap<String, ArrayList> data, String value) {
+    protected void fillOverlayKeywords(HashMap<String, ArrayList<String>> data, String value) {
         data.clear();
         if (StringTools.isValidString(value)) {
             String[] temp = value.split(" ; ");
             for (int i = 0; i < temp.length ; i++) {
                 String[] values = temp[i].split(" / ");
                 if (values.length > 1) {
-                    ArrayList arr = new ArrayList(Arrays.asList(values));
+                    ArrayList<String> arr = new ArrayList<String>(Arrays.asList(values));
                     data.put(values[0], arr);
                 }
             }
@@ -1474,7 +1474,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             condition.equalsIgnoreCase(value) ||
                             condition.equalsIgnoreCase("default"));
         if (!result) {
-            HashMap<String, ArrayList> data;
+            HashMap<String, ArrayList<String>> data;
             if (name.equalsIgnoreCase("rating")) {
                 data = keywordsRating;
             } else if (name.equalsIgnoreCase("videosource") || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
@@ -1506,7 +1506,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             } else {
                 return false;
             }
-            ArrayList arr = data.get(condition);
+            ArrayList<String> arr = data.get(condition);
             if (arr != null) {
                 for (int i = 0; i < arr.size(); i++) {
                     if (name.equalsIgnoreCase("keywords")) {

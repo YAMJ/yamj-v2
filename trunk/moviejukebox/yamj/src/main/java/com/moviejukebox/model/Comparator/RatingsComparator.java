@@ -12,10 +12,7 @@
  */
 package com.moviejukebox.model.Comparator;
 
-import java.util.Comparator;
-
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Comparator.RatingComparator;
 
 /**
  * @author ilgizar 
