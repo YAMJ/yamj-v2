@@ -320,7 +320,7 @@ public class Library implements Map<String, Movie> {
 
             // Issue 2098: put to SET information from first movie by order
             int setIndex = 0;
-            if (!indexList.get(setIndex).isTVShow()) {
+            if (!indexList.get(setIndex).isTVShow() && indexList.get(setIndex).getSetOrder(indexName) != null) {
                 int setOrder = indexList.get(setIndex).getSetOrder(indexName);
                 if (setOrder > 1) {
                     for (int i = 1; i < indexList.size(); i++) {
