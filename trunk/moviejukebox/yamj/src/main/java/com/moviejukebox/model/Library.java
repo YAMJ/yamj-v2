@@ -557,8 +557,8 @@ public class Library implements Map<String, Movie> {
             SystemTools.showMemory();
 
             // Cut off the Other/New lists if they're too long AND add them to the NEW category if required
-            trimNewCategory(INDEX_NEW_TV, newTvCount);
-            trimNewCategory(INDEX_NEW_MOVIE, newMovieCount);
+            boolean trimNewTvOK = trimNewCategory(INDEX_NEW_TV, newTvCount);
+            boolean trimNewMovieOK = trimNewCategory(INDEX_NEW_MOVIE, newMovieCount);
             
             // Merge the two categories into the Master "New" category
             
@@ -566,11 +566,11 @@ public class Library implements Map<String, Movie> {
                 Index otherIndexes = indexes.get(INDEX_OTHER);
                 List<Movie> newList = new ArrayList<Movie>();
                 
-                if ((categoriesMap.get(INDEX_NEW_MOVIE) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)) != null)){
+                if (trimNewMovieOK && (categoriesMap.get(INDEX_NEW_MOVIE) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)) != null)){
                     newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)));
                 }
                 
-                if ((categoriesMap.get(INDEX_NEW_TV) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)){
+                if (trimNewTvOK && (categoriesMap.get(INDEX_NEW_TV) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)){
                     newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)));
                 }
                 
@@ -598,8 +598,10 @@ public class Library implements Map<String, Movie> {
      * Trim the new category to the required length, add the trimmed video list to the NEW category
      * @param catName   The name of the category: "New-TV" or "New-Movie"
      * @param catCount  The maximum size of the category
+     * @return 
      */
-    private void trimNewCategory(String catName, int catCount) {
+    private boolean trimNewCategory(String catName, int catCount) {
+        boolean trimOK = true;
         String category = categoriesMap.get(catName);
         //logger.info("Trimming '" + catName + "' ('" + category + "') to " + catCount + " videos");
         if (catCount > 0 && category != null) {
@@ -613,8 +615,11 @@ public class Library implements Map<String, Movie> {
                 }
             } else {
                 logger.warn("Warning : You need to enable index 'Other' to get '" + catName + "' ('" + category + "') category");
+                trimOK = false;
             }
         }
+        
+        return trimOK;
     }
 
     private void keepUncompressedIndexes() {
