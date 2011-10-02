@@ -12,8 +12,6 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -21,21 +19,18 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.Date;
-
-import org.apache.log4j.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Level;
+
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.WebStats;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.FileTools;
 
 public class AppleTrailersPlugin extends TrailersPlugin {
 

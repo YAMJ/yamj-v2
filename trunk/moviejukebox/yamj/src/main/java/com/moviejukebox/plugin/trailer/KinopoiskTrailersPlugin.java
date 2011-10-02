@@ -24,12 +24,11 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -37,12 +36,9 @@ import java.util.List;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.plugin.KinopoiskPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-
-import com.moviejukebox.plugin.KinopoiskPlugin;
 
 public class KinopoiskTrailersPlugin extends TrailersPlugin {
 
