@@ -79,6 +79,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #2065 Skin style sheets need to include .html ext when inserting $mjb.homePage variable
  - Fixed defect #2074 IMDB rating not working
  - Fixed defect #2081 Ratings file is marked as always changed
+ - Fixed defect #2087 Rating different when scraping and from NFO
  - Fixed defect #2101 Java error for sets with no order
 
 MovieJukebox 2.4
