@@ -12,25 +12,17 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.StringTokenizer;
 
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.plugin.ComingSoonPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-
-import com.moviejukebox.plugin.ComingSoonPlugin;
 
 /**
  * base on ComingSoonPlugin
