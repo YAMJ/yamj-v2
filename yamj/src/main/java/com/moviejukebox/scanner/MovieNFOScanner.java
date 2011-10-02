@@ -448,7 +448,11 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("rating")) {
                             float val = XMLHelper.parseFloat(r);
                             if (val != 0.0f) {
-                                movie.addRating(NFO_PLUGIN_ID, Math.round(val * 10f));
+                                if (val <= 10f) {
+                                    movie.addRating(NFO_PLUGIN_ID, Math.round(val * 10f));
+                                } else {
+                                    movie.addRating(NFO_PLUGIN_ID, Math.round(val * 1f));
+                                }
                             }
                         } else if (tag.equalsIgnoreCase("year")) {
                             String val = XMLHelper.getCData(r);
