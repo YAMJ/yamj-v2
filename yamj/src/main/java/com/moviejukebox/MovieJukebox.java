@@ -33,8 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -64,7 +64,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
@@ -100,11 +99,10 @@ import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.FilteringLayout;
 import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
+import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
@@ -2533,7 +2531,7 @@ public class MovieJukebox {
         try {
             context = JAXBContext.newInstance(JukeboxXml.class);
         } catch (JAXBException error) {
-            logger.debug("CompleteMovies: RSS is not generated.");
+            logger.debug("CompleteMovies: RSS is not generated (Context creation error).");
             return;
         }
         
@@ -2553,7 +2551,7 @@ public class MovieJukebox {
                 Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
                 transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
             } catch (Exception error) {
-                logger.debug("CompleteMovies: RSS is not generated." /* + e.getStackTrace().toString() */);
+                logger.debug("CompleteMovies: RSS is not generated (Jukebox error)." /* + e.getStackTrace().toString() */);
             }
         }
         // These should be added to the list of jukebox files regardless of the state of the library
