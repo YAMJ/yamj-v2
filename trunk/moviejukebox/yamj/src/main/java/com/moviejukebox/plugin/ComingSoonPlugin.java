@@ -247,7 +247,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         return scanComingSoon || firstScanImdb; 
     }
     
-    protected String getComingSoonId(String movieName, String year) {
+    public String getComingSoonId(String movieName, String year) {
         return getComingSoonId(movieName, year, searchId);
     }
     

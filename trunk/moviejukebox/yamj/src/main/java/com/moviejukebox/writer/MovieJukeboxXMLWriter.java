@@ -784,14 +784,6 @@ public class MovieJukeboxXMLWriter {
                         if (!exist) {
                             // the extra file has been delete so force the dirty flag
                             forceDirtyFlag = true;
-
-                            // fixed by ilgizar/30.04.2011
-                            // after rescan extrafiles are empty
-                            ExtraFile ef = new ExtraFile();
-                            ef.setTitle(extraTitle);
-                            ef.setFilename(extraFilename);
-                            ef.setNewFile(false);
-                            movie.addExtraFile(ef);
                         }
                     }
                 }
