@@ -33,12 +33,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -61,6 +64,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
@@ -79,7 +83,8 @@ import com.moviejukebox.plugin.MovieListingPlugin;
 import com.moviejukebox.plugin.MovieListingPluginBase;
 import com.moviejukebox.plugin.OpenSubtitlesPlugin;
 import com.moviejukebox.plugin.RottenTomatoesPlugin;
-import com.moviejukebox.plugin.trailer.AppleTrailersPlugin;
+import com.moviejukebox.plugin.trailer.ITrailersPlugin;
+import com.moviejukebox.plugin.trailer.TrailersPlugin;
 import com.moviejukebox.scanner.MediaInfoScanner;
 import com.moviejukebox.scanner.MovieDirectoryScanner;
 import com.moviejukebox.scanner.MovieFilenameScanner;
@@ -95,6 +100,7 @@ import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.FilteringLayout;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.SkinProperties;
@@ -171,6 +177,9 @@ public class MovieJukebox {
 
     private static boolean trailersScannerEnable;
     private static long trailersRescanDaysMillis;
+    private static String trailersScanner;
+    private static Map<String, ITrailersPlugin> trailerPlugins;
+    private static TrailersPlugin trailersPlugin;
 
     int MaxThreadsProcess = 1;
     int MaxThreadsDownload = 1;
@@ -701,13 +710,25 @@ public class MovieJukebox {
         fanartExtension = getProperty("fanart.format", "jpg");
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
-        try {
-            trailersRescanDaysMillis = PropertiesUtil.getIntProperty("trailers.rescan.days", "15");
-            // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
-            trailersRescanDaysMillis *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
-        } catch (Exception e) {
-            logger.error("Error trailers.rescan.days property, should be an integer");
-            throw e;
+        if (trailersScannerEnable) {
+            trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
+            trailersPlugin = new TrailersPlugin();
+
+            trailerPlugins = new HashMap<String, ITrailersPlugin>();
+
+            ServiceLoader<ITrailersPlugin> trailerPluginsSet = ServiceLoader.load(ITrailersPlugin.class);
+            for (ITrailersPlugin trailerPlugin : trailerPluginsSet) {
+                trailerPlugins.put(trailerPlugin.getName().toLowerCase().trim(), trailerPlugin);
+            }
+
+            try {
+                trailersRescanDaysMillis = PropertiesUtil.getIntProperty("trailers.rescan.days", "15");
+                // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
+                trailersRescanDaysMillis *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+            } catch (Exception e) {
+                logger.error("Error trailers.rescan.days property, should be an integer");
+                throw e;
+            }
         }
 
         File f = new File(source);
@@ -758,7 +779,6 @@ public class MovieJukebox {
             public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin",
                             "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
             public MediaInfoScanner miScanner = new MediaInfoScanner();
-            public AppleTrailersPlugin trailerPlugin = new AppleTrailersPlugin();
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
             public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
             public RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
@@ -1001,7 +1021,7 @@ public class MovieJukebox {
                             
                             // Get Trailers
                             if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
-                                boolean status = tools.trailerPlugin.generate(movie);
+                                boolean status = getTrailers(movie);
     
                                 // Update trailerExchange
                                 if (status == false) {
@@ -2436,8 +2456,7 @@ public class MovieJukebox {
      */
     private static boolean isTrailersNeedRescan(Movie movie) {
 
-        boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", "false");
-        if (trailersOverwrite) {
+        if (trailersPlugin.getOverwrite()) {
             return true;
         }
 
@@ -2454,6 +2473,34 @@ public class MovieJukebox {
         }
 
         return true;
+    }
+
+    public static String getTrailerPluginsCode() {
+        StringBuffer response = new StringBuffer();
+
+        Set<String> keySet = trailerPlugins.keySet();
+        for (String string : keySet) {
+            response.append(string + " / ");
+        }
+        return response.toString();
+    }
+
+    public static boolean getTrailers(Movie movie) {
+        boolean result = false;
+        String trailersSearchToken;
+
+        StringTokenizer st = new StringTokenizer(trailersScanner, ",");
+        while (st.hasMoreTokens() && !result) {
+            trailersSearchToken = st.nextToken();
+            ITrailersPlugin trailersPlugin = trailerPlugins.get(trailersSearchToken);
+            if (trailersPlugin == null) {
+                logger.error("MovieJukebox: TrailersScanner: '" + trailersSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : " + getTrailerPluginsCode());
+            } else {
+                result |= trailersPlugin.generate(movie);
+            }
+        }
+
+        return result;
     }
 
     public static boolean isJukeboxPreserve() {

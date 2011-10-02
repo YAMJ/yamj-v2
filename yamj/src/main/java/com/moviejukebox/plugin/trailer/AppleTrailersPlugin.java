@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.LinkedHashSet;
@@ -27,26 +26,18 @@ import java.util.Set;
 import java.util.Date;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.WebStats;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.FileTools;
 
-public class AppleTrailersPlugin {
-
-    private static Logger logger = Logger.getLogger("moviejukebox");
+public class AppleTrailersPlugin extends TrailersPlugin {
 
     private static String configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
     private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", "false");
@@ -63,12 +54,12 @@ public class AppleTrailersPlugin {
         }
     };
 
-    protected WebBrowser webBrowser;
-
     public AppleTrailersPlugin() {
-        webBrowser = new WebBrowser();
+        super();
+        trailersPluginName = "AppleTrailers";
     }
 
+    @Override
     public final boolean generate(Movie movie) {
 
         // Check if trailer resolution was selected
@@ -83,7 +74,7 @@ public class AppleTrailersPlugin {
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
         if (trailerPageUrl == Movie.UNKNOWN) {
-            logger.debug("AppleTrailers Plugin: Trailer not found for " + movie.getBaseName());
+            logger.debug(trailersPluginName + " Plugin: Trailer not found for " + movie.getBaseName());
             return false;
         }
 
@@ -97,7 +88,7 @@ public class AppleTrailersPlugin {
         int trailerDownloadCnt = 0;
 
         if (bestTrailersUrl.isEmpty()) {
-            logger.debug("AppleTrailers Plugin: No trailers found for " + movie.getBaseName());
+            logger.debug(trailersPluginName + " Plugin: No trailers found for " + movie.getBaseName());
             return false;
         }
 
@@ -106,7 +97,7 @@ public class AppleTrailersPlugin {
         for (String trailerRealUrl : bestTrailersUrl) {
 
             if (trailerDownloadCnt >= configMax) {
-                logger.debug("AppleTrailers Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
+                logger.debug(trailersPluginName + " Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
                 break;
             }
 
@@ -116,7 +107,7 @@ public class AppleTrailersPlugin {
 
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
-                logger.debug("AppleTrailers Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
+                logger.debug(trailersPluginName + " Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
                 continue; // Quit the rest of the trailer loop.
             }
 
@@ -126,56 +117,14 @@ public class AppleTrailersPlugin {
             trailerRealUrl = trailerRealUrl.replace("images.apple.com", configReplaceUrl);
             trailerRealUrl = trailerRealUrl.replace("movies.apple.com", configReplaceUrl);
 
-            logger.debug("AppleTrailers Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
+            logger.debug(trailersPluginName + " Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
             trailerDownloadCnt++;
 
             // Check if we need to download the trailer, or just link to it
             if (configDownload) {
-                // Download the trailer
-                MovieFile mf = movie.getFirstFile();
-                String parentPath = mf.getFile().getParent();
-                String name = mf.getFile().getName();
-                String basename;
-
-                if (mf.getFilename().toUpperCase().endsWith("/VIDEO_TS")) {
-                    parentPath += File.separator + name;
-                    basename = name;
-                } else if (mf.getFile().getAbsolutePath().toUpperCase().contains("BDMV")) {
-                    parentPath = new String(parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1));
-                    basename = new String(parentPath.substring(parentPath.lastIndexOf(File.separator) + 1));
-                } else {
-                    int index = name.lastIndexOf('.');
-                    basename = index == -1 ? name : new String(name.substring(0, index));
-                }
-
                 String trailerAppleName = getFilenameFromUrl(trailerRealUrl);
-                String trailerAppleExt = new String(trailerAppleName.substring(trailerAppleName.lastIndexOf('.')));
                 trailerAppleName = new String(trailerAppleName.substring(0, trailerAppleName.lastIndexOf('.')));
-                String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-" + trailerAppleName + "]" + trailerAppleExt);
-                String trailerFileName = parentPath + File.separator + trailerBasename;
-
-                int slash = mf.getFilename().lastIndexOf('/');
-                String playPath = slash == -1 ? mf.getFilename() : new String(mf.getFilename().substring(0, slash));
-                String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
-
-                logger.debug("AppleTrailers Plugin: Found trailer: " + trailerRealUrl);
-                logger.debug("AppleTrailers Plugin: Download path: " + trailerFileName);
-                logger.debug("AppleTrailers Plugin:      Play URL: " + trailerPlayFileName);
-
-                File trailerFile = new File(trailerFileName);
-
-                // Check if the file already exists - after jukebox directory was deleted for example
-                if (trailerFile.exists()) {
-                    logger.debug("AppleTrailers Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
-
-                    tmf.setFilename(trailerPlayFileName);
-                    movie.addExtraFile(new ExtraFile(tmf));
-                    isExchangeOk = true;
-                } else if (trailerDownload(movie, trailerRealUrl, trailerFile)) {
-                    tmf.setFilename(trailerPlayFileName);
-                    movie.addExtraFile(new ExtraFile(tmf));
-                    isExchangeOk = true;
-                }
+                isExchangeOk = downloadTrailer(movie, trailerRealUrl, trailerAppleName, tmf);
             } else {
                 // Just link to the trailer
                 int underscore = trailerRealUrl.lastIndexOf('_');
@@ -190,6 +139,11 @@ public class AppleTrailersPlugin {
         }
 
         return isExchangeOk;
+    }
+
+    @Override
+    public String getName() {
+        return "apple";
     }
 
     private String getTrailerPageUrl(String movieName) {
@@ -254,7 +208,7 @@ public class AppleTrailersPlugin {
             }
 
         } catch (Exception error) {
-            logger.error("AppleTrailers Plugin: Failed retreiving trailer for movie : " + movieName);
+            logger.error(trailersPluginName + " Plugin: Failed retreiving trailer for movie : " + movieName);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -325,7 +279,7 @@ public class AppleTrailersPlugin {
             // }
 
         } catch (Exception error) {
-            logger.error("AppleTrailers Plugin: Error : " + error.getMessage());
+            logger.error(trailersPluginName + " Plugin: Error : " + error.getMessage());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -420,7 +374,7 @@ public class AppleTrailersPlugin {
             return absRealURL;
 
         } catch (Exception error) {
-            logger.error("AppleTrailers Plugin: Error : " + error.getMessage());
+            logger.error(trailersPluginName + " Plugin: Error : " + error.getMessage());
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -495,65 +449,6 @@ public class AppleTrailersPlugin {
         }
 
         return newString.toString();
-    }
-
-    private boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrl, File trailerFile) {
-        URL url;
-        try {
-            url = new URL(trailerUrl);
-        } catch (MalformedURLException e) {
-            return false;
-        }
-
-        ThreadExecutor.enterIO(url);
-        HttpURLConnection connection = null;
-        Timer timer = new Timer();
-        try {
-            logger.info("AppleTrailers Plugin: Download trailer for " + movie.getBaseName());
-            final WebStats stats = WebStats.make(url);
-            final long reportDelay = 1000; // 1 second
-            // after make!
-            timer.schedule(new TimerTask() {
-                private String lastStatus = "";
-
-                public void run() {
-                    String status = stats.calculatePercentageComplete();
-                    // only print if percentage changed
-                    if (status.equals(lastStatus)) {
-                        return;
-                    }
-                    lastStatus = status;
-                    // this runs in a thread, so there is no way to output on one line...
-                    // try to keep it visible at least...
-                    System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString());
-                }
-            }, reportDelay, reportDelay);
-
-            connection = (HttpURLConnection)(url.openConnection());
-            connection.setRequestProperty("User-Agent", "QuickTime/7.6.2");
-            InputStream inputStream = connection.getInputStream();
-
-            int code = connection.getResponseCode();
-            if (code != HttpURLConnection.HTTP_OK) {
-                logger.error("AppleTrailers Plugin: Download Failed");
-                return false;
-            }
-
-            FileTools.copy(inputStream, new FileOutputStream(trailerFile), stats);
-            System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
-
-            return true;
-
-        } catch (Exception error) {
-            logger.error("AppleTrailers Plugin: Download Exception: " + error);
-            return false;
-        } finally {
-            timer.cancel(); // Close the timer
-            if (connection != null) {
-                connection.disconnect();
-            }
-            ThreadExecutor.leaveIO();
-        }
     }
 
     // Extract the filename from the URL
