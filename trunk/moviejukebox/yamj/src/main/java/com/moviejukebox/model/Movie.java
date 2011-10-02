@@ -117,7 +117,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String originalTitle = UNKNOWN;
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
-    private HashMap<String, Integer> ratings = new HashMap<String, Integer>();
+    private Map<String, Integer> ratings = new HashMap<String, Integer>();
     private String plot = UNKNOWN;
     private String outline = UNKNOWN;
     private String quote = UNKNOWN;
@@ -921,12 +921,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
     
-    @XmlTransient
+//    @XmlTransient
     public String showDirty() {
         return dirtyFlags.toString();
     }
 
-    @XmlTransient
+//    @XmlTransient
     public boolean isDirty(String dirtyType) {
         if (dirtyFlags.get(dirtyType) == null) {
             setDirty(dirtyType, false);
@@ -1473,9 +1473,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
     
-    @XmlElementWrapper(name = "ratings")
-    @XmlElement(name = "rating")
-    public HashMap<String, Integer> getRatings() {
+    public Map<String, Integer> getRatings() {
         return ratings;
     }
 
@@ -1493,7 +1491,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
     
-    public void setRatings(HashMap<String, Integer> ratings) {
+    public void setRatings(Map<String, Integer> ratings) {
         if (ratings != null && !ratings.isEmpty()) {
             this.ratings = ratings;
         }
