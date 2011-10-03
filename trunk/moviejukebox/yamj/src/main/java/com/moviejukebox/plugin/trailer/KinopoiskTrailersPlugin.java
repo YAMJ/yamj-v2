@@ -106,7 +106,7 @@ public class KinopoiskTrailersPlugin extends TrailersPlugin {
         String kinopoiskId = movie.getId(KINOPOISK_PLUGIN_ID);
         if (StringTools.isNotValidString(kinopoiskId)) {
             String year = movie.getYear();
-            kinopoiskId = pkPlugin.getKinopoiskId(movie.getOriginalTitle(), year, movie.getSeason());
+            kinopoiskId = pkPlugin.getKinopoiskId(movie);
             if (StringTools.isValidString(year) && StringTools.isNotValidString(kinopoiskId)) {
                 kinopoiskId = pkPlugin.getKinopoiskId(movie.getOriginalTitle(), Movie.UNKNOWN, movie.getSeason());
             }

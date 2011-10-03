@@ -173,12 +173,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     name = name.substring(dash);
                 }
             }
-            kinopoiskId = getKinopoiskId(name, year, mediaFile.getSeason());
 
-            if (StringTools.isValidString(year) && StringTools.isNotValidString(kinopoiskId)) {
-                // Trying without specifying the year
-                kinopoiskId = getKinopoiskId(name, Movie.UNKNOWN, mediaFile.getSeason());
-            }
+            kinopoiskId = getKinopoiskId(mediaFile, name, year, mediaFile.getSeason());
             mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
         } else {
             // If ID is specified in NFO, set original title to unknown
@@ -207,6 +203,46 @@ public class KinopoiskPlugin extends ImdbPlugin {
         super.scanNFO(nfo, movie);
     }
 
+    public String getKinopoiskId(Movie movie) {
+        String kinopoiskId = movie.getId(KINOPOISK_PLUGIN_ID);
+
+        if (StringTools.isNotValidString(kinopoiskId)) {
+            int season = movie.getSeason();
+            String name = movie.getOriginalTitle();
+            String year = movie.getYear();
+
+            int dash = name.indexOf(titleDivider);
+            if (dash > -1) {
+                name = titleLeader.equals("english")?name.substring(0, dash):name.substring(dash);
+            }
+
+            getKinopoiskId(movie, name, year, season);
+        }
+        return kinopoiskId;
+    }
+
+    public String getKinopoiskId(Movie movie, String name, String year, int season) {
+        String kinopoiskId = movie.getId(KINOPOISK_PLUGIN_ID);
+
+        if (StringTools.isNotValidString(kinopoiskId)) {
+            kinopoiskId = getKinopoiskId(name, year, season);
+
+            if (StringTools.isValidString(year) && StringTools.isNotValidString(kinopoiskId)) {
+                try {
+                    // Search for year +/-1, since the year is not always correct
+                    int y = Integer.parseInt(year);
+                    kinopoiskId = getKinopoiskId(name, Integer.toString(y - 1) + "-" + Integer.toString(y + 1), season);
+                } catch (Exception ignore) {
+                }
+                if (StringTools.isNotValidString(kinopoiskId)) {
+                    // Trying without specifying the year
+                    kinopoiskId = getKinopoiskId(name, Movie.UNKNOWN, season);
+                }
+            }
+        }
+        return kinopoiskId;
+    }
+
     /**
      * Retrieve Kinopoisk matching the specified movie name and year. This routine is base on a Google request.
      */
@@ -224,12 +260,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 sb = sb + "&m_act[content_find]=serial";
             } else {
                 if (StringTools.isValidString(year)) {
-                    try {
-                        // Search for year +/-1, since the year is not always correct
-                        int y = Integer.parseInt(year);
-                        sb = sb + "&m_act[from_year]=" + Integer.toString(y - 1);
-                        sb = sb + "&m_act[to_year]=" + Integer.toString(y + 1);
-                    } catch (Exception ignore) {
+                    if (year.indexOf("-") > -1) {
+                        String[] years = year.split("-");
+                        sb = sb + "&m_act[from_year]=" + years[0];
+                        sb = sb + "&m_act[to_year]=" + years[1];
+                    } else {
                         sb = sb + "&m_act[year]=" + year;
                     }
                 }
@@ -812,7 +847,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 int beginIndex = name.indexOf("/\">");
                 String personID = name.substring(0, beginIndex);
                 name = name.substring(beginIndex + 3);
-                String origName = HTMLTools.extractTag(item, "<span class=\"gray\">", "</span>");
+                String origName = HTMLTools.extractTag(item, "<span class=\"gray\">", "</span>").replace('\u00A0', ' ').trim();
                 if (StringTools.isNotValidString(origName)) {
                     origName = name;
                 }
@@ -890,11 +925,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 person.setTitle(HTMLTools.extractTag(xml, "<h1 style=\"padding:0px;margin:0px\" class=\"moviename-big\">", "</h1>"));
 
                 String date = Movie.UNKNOWN;
-                if (xml.indexOf("<td class=\"birth\">") > -1) {
-                    String bd = HTMLTools.extractTag(xml, "<td class=\"birth\">", "</td>");
+                if (xml.indexOf("<td class=\"birth\"") > -1) {
+                    String bd = HTMLTools.extractTag(xml, "<td class=\"birth\"", "</td>");
                     if (StringTools.isValidString(bd) && bd.indexOf("</a>") > -1) {
-                        bd = HTMLTools.removeHtmlTags(bd);
-                        bd = bd.substring(0, bd.indexOf("•")).replace(",", "").trim();
+                        bd = HTMLTools.removeHtmlTags(bd).replaceAll("^[^>]*>", "");
+                        if (bd.indexOf("•") > -1) {
+                            bd = bd.substring(0, bd.indexOf("•")).replace(",", "").trim();
+                        }
                         if (StringTools.isValidString(bd)) {
                             date = bd;
                         }
@@ -918,7 +955,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     String bp = HTMLTools.extractTag(xml, ">место рождения</td><td>", "</td>");
                     if (StringTools.isValidString(bp)) {
                         bp = HTMLTools.removeHtmlTags(bp);
-                        if (StringTools.isValidString(bp)) {
+                        if (StringTools.isValidString(bp) && !bp.equals("-")) {
                             person.setBirthPlace(bp);
                         }
                     }
@@ -947,7 +984,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/sort/rating/");
                 if (StringTools.isValidString(xml)) {
                     TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
-                    for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</table><br />")) {
+                    for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</div>        </td></tr>")) {
                         String job = HTMLTools.extractTag(block, "<div style=\"padding-left: 9px\" id=\"", "\">");
                         if (job.equals("producer")) {
                             job = "Producer";
@@ -973,10 +1010,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         if (!jobsInclude.contains(job)) {
                             continue;
                         }
-                        for (String item : HTMLTools.extractTags(block + "</table>", "<table cellspacing=0 cellpadding=3 border=0 width=100%>", "</table>" , "<tr>", "</tr>")) {
-                            String id = HTMLTools.extractTag(item, " href=\"/level/1/film/", "/\">");
+                        for (String item : HTMLTools.extractTags(block + "endmarker", "<tr><td colspan=3 style=\"padding-left:20px\">", "endmarker" , "<div class=\"item\">", "</div></div>")) {
+                            String id = HTMLTools.extractTag(item, " href=\"/level/1/film/", "/\"");
                             String URL = "http://www.kinopoisk.ru/level/1/film/" + id + "/";
-                            String title = HTMLTools.extractTag(item, " href=\"/level/1/film/" + id + "/\">", "</a>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
+                            String title = HTMLTools.extractTag(item, " href=\"/level/1/film/" + id + "/\"", "</a>").replaceAll("[^>]*>", "").replaceAll("\u00A0", " ").trim();
                             if (skipTV && (title.indexOf(" (сериал)") > -1 || title.indexOf(" (ТВ)") > -1)) {
                                 continue;
                             } else if (skipV && title.indexOf(" (видео)") > -1) {
@@ -987,26 +1024,27 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 year = HTMLTools.extractTag(title.substring(title.lastIndexOf("(")), "(", ")");
                                 title = title.replace("(" + year + ")", "").trim();
                             }
-                            String name = HTMLTools.extractTag(item, "<span style=\"color:#999\">", "</span>").replaceAll("\u00A0", " ").replaceAll("&nbsp;", " ");
+                            String name = HTMLTools.extractTag(item, "<span class=\"role\">", "</span>").replaceAll("\u00A0", " ").trim();
                             String character = Movie.UNKNOWN;
-                            if (name.indexOf(" ... ") > -1) {
-                                String[] names = name.split(" \\.\\.\\. ");
-                                name = names[0];
+                            if (name.indexOf("... ") > -1) {
+                                String[] names = name.split("\\.\\.\\. ");
+                                name = names[0].trim();
                                 if (job.equals("Actor")) {
                                     character = names[1];
                                 }
                             }
-                            if (name.endsWith(", The")) {
-                                name = "The " + name.replace(", The", "");
-                            }
                             if (title.endsWith(", The")) {
                                 title = "The " + title.replace(", The", "");
                             }
-                            String ratingStr = HTMLTools.extractTag(item, " class=\"continue\" >", "</a>");
-                            Integer rating = 0;
-                            if (StringTools.isNotValidString(ratingStr)) {
-                                ratingStr = HTMLTools.extractTag(item, " class=\"continue\" style='color: #777;'>", "</a>");
+                            if (StringTools.isNotValidString(name)) {
+                                name = title;
+                            } else {
+                                if (name.endsWith(", The")) {
+                                    name = "The " + name.replace(", The", "");
+                                }
                             }
+                            String ratingStr = HTMLTools.extractTag(item, "<div class=\"rating\"><a href=\"", "</a>").replaceAll("[^>]*>", "");
+                            Integer rating = 0;
                             if (StringTools.isValidString(ratingStr)) {
                                 rating = (int)(Float.valueOf(ratingStr).floatValue() * 10);
                             }
@@ -1030,42 +1068,46 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
 
-                    if (filmography.size() > 0 && (preferredRating.equals("combine") || preferredRating.equals("average"))) {
-                        for (Filmography film : person.getFilmography()) {
-                            String name = film.getName().replace("ё", "е").replace("Ё", "Е").trim();
-                            String title = film.getTitle().replace("ё", "е").replace("Ё", "Е").trim();
-                            String originalTitle = film.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").trim();
-                            String year = film.getYear();
-                            if (StringTools.isValidString(year)) {
-                                year = year.substring(0, 4);
-                            }
-                            @SuppressWarnings("unused")
-                            boolean found = false;
-                            for (Filmography f : filmography.values()) {
-                                String Name = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
-                                String Title = f.getTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
-                                String OriginalTitle = f.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
-                                String Year = f.getYear();
-                                if (StringTools.isValidString(Year)) {
-                                    Year = Year.substring(0, 4);
+                    if (filmography.size() > 0) {
+                        if ((person.getFilmography().size() > 0) && (preferredRating.equals("combine") || preferredRating.equals("average"))) {
+                            for (Filmography film : person.getFilmography()) {
+                                String name = film.getName().replace("ё", "е").replace("Ё", "Е").trim();
+                                String title = film.getTitle().replace("ё", "е").replace("Ё", "Е").trim();
+                                String originalTitle = film.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").trim();
+                                String year = film.getYear();
+                                if (StringTools.isValidString(year)) {
+                                    year = year.substring(0, 4);
                                 }
-                                if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Name.equalsIgnoreCase(originalTitle) || 
-                                        Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title) || Title.equalsIgnoreCase(originalTitle) || 
-                                        OriginalTitle.equalsIgnoreCase(name) || OriginalTitle.equalsIgnoreCase(title) || OriginalTitle.equalsIgnoreCase(originalTitle)) {
-                                    String id = f.getId(KINOPOISK_PLUGIN_ID);
-                                    film.setId(KINOPOISK_PLUGIN_ID, id);
-                                    film.setName(f.getName());
-                                    film.setTitle(f.getTitle());
-                                    film.setOriginalTitle(f.getOriginalTitle());
-                                    film.setYear(f.getYear());
-                                    film.setJob(f.getJob());
-                                    film.setCharacter(f.getCharacter());
-                                    film.setDepartment();
-                                    film.setRating(Integer.toString((int)(preferredRating.equals("combine")?(Float.valueOf(f.getRating()).floatValue() * 1000 + Float.valueOf(film.getRating()).floatValue()):((Float.valueOf(film.getRating()).floatValue() + Float.valueOf(f.getRating()).floatValue())/2))));
-                                    film.setUrl(f.getUrl());
-                                    found = true;
+                                @SuppressWarnings("unused")
+                                boolean found = false;
+                                for (Filmography f : filmography.values()) {
+                                    String Name = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
+                                    String Title = f.getTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
+                                    String OriginalTitle = f.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
+                                    String Year = f.getYear();
+                                    if (StringTools.isValidString(Year)) {
+                                        Year = Year.substring(0, 4);
+                                    }
+                                    if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Name.equalsIgnoreCase(originalTitle) || 
+                                            Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title) || Title.equalsIgnoreCase(originalTitle) || 
+                                            OriginalTitle.equalsIgnoreCase(name) || OriginalTitle.equalsIgnoreCase(title) || OriginalTitle.equalsIgnoreCase(originalTitle)) {
+                                        String id = f.getId(KINOPOISK_PLUGIN_ID);
+                                        film.setId(KINOPOISK_PLUGIN_ID, id);
+                                        film.setName(f.getName());
+                                        film.setTitle(f.getTitle());
+                                        film.setOriginalTitle(f.getOriginalTitle());
+                                        film.setYear(f.getYear());
+                                        film.setJob(f.getJob());
+                                        film.setCharacter(f.getCharacter());
+                                        film.setDepartment();
+                                        film.setRating(Integer.toString((int)(preferredRating.equals("combine")?(Float.valueOf(f.getRating()).floatValue() * 1000 + Float.valueOf(film.getRating()).floatValue()):((Float.valueOf(film.getRating()).floatValue() + Float.valueOf(f.getRating()).floatValue())/2))));
+                                        film.setUrl(f.getUrl());
+                                        found = true;
+                                    }
                                 }
                             }
+                        } else if (preferredRating.equals("kinopoisk") || (person.getFilmography().size() == 0)) {
+                            person.setFilmography(new ArrayList(filmography.values()));
                         }
                     }
                 }
