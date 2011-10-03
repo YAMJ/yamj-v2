@@ -158,6 +158,11 @@ public class Filmography {
         }
     }
 
+    public void clearFilename() {
+        this.filename = Movie.UNKNOWN;
+        setDirty();
+    }
+
     public void setFilename() {
         if (isValidString(name) && isNotValidString(filename)) {
             setFilename(FileTools.makeSafeFilename(name));

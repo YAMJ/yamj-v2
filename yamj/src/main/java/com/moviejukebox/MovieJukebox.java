@@ -1182,13 +1182,14 @@ public class MovieJukebox {
                 }
                 tasks.waitFor();
                 logger.info("Fill in personal information to the movies...");
+                boolean dirty;
                 for (Movie movie : library.values()) {
                     // Issue 997: Skip the processing of extras if not required
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
                     for (Filmography person : movie.getPeople()) {
-                        boolean dirty = false;
+                        dirty = false;
                         for (Person p : library.getPeople()) {
                             if (person.getName().equals(p.getName())) {
                                 if (!person.getFilename().equals(p.getFilename()) && isValidString(p.getFilename())) {
@@ -1212,30 +1213,38 @@ public class MovieJukebox {
                         }
                     }
 
-                    String originalTitle = movie.getOriginalTitle().toUpperCase();
-                    String title = movie.getTitle().toUpperCase();
                     for (Person p : library.getPeople()) {
                         for (Filmography film : p.getFilmography()) {
-                            boolean flag = false;
-                            for (Entry<String, String> e : movie.getIdMap().entrySet()) {
-                                String value = film.getId(e.getKey());
-                                flag |= isValidString(e.getValue()) && isValidString(value) && value.equals(e.getValue());
-                                if (flag) {
-                                    break;
-                                }
-                            }
-                            if (!flag) {
-                                flag = film.getName().equalsIgnoreCase(originalTitle) || film.getTitle().equalsIgnoreCase(originalTitle) ||
-                                        film.getName().equalsIgnoreCase(title) || film.getTitle().equalsIgnoreCase(title);
-                            }
-                            if (flag) {
-                                film.setFilename(movie.getBaseFilename());
+                            if (compareMovieAndFilm(movie, film)) {
+                                film.setFilename(movie.getBaseName());
                                 film.setTitle(movie.getTitle());
                                 if (film.isDirty()) {
                                     p.setDirty();
                                 }
                                 break;
                             }
+                        }
+                    }
+                }
+
+                for (Person p : library.getPeople()) {
+                    for (Filmography film : p.getFilmography()) {
+                        if (film.isDirty() || StringTools.isNotValidString(film.getFilename())) {
+                            continue;
+                        }
+                        dirty = false;
+                        for (Movie movie : library.values()) {
+                            if (movie.isExtra() && !processExtras) {
+                                continue;
+                            }
+                            dirty = compareMovieAndFilm(movie, film);
+                            if (dirty) {
+                                break;
+                            }
+                        }
+                        if (!dirty) {
+                            film.clearFilename();
+                            p.setDirty();
                         }
                     }
                 }
@@ -1574,6 +1583,22 @@ public class MovieJukebox {
         logger.info("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
 
         return;
+    }
+
+    private boolean compareMovieAndFilm(Movie movie, Filmography film) {
+        boolean dirty = false;
+        for (Entry<String, String> e : movie.getIdMap().entrySet()) {
+            String value = film.getId(e.getKey());
+            dirty |= isValidString(e.getValue()) && isValidString(value) && value.equals(e.getValue());
+            if (dirty) {
+                break;
+            }
+        }
+        if (!dirty) {
+            dirty = film.getName().equalsIgnoreCase(movie.getOriginalTitle()) || film.getTitle().equalsIgnoreCase(movie.getOriginalTitle()) ||
+                    film.getName().equalsIgnoreCase(movie.getTitle()) || film.getTitle().equalsIgnoreCase(movie.getTitle());
+        }
+        return dirty;
     }
 
     /**
