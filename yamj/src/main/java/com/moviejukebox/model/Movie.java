@@ -972,6 +972,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return (getWidth() >= highdef1080);
     }
 
+    @XmlTransient
+    public boolean is3D() {
+        return (getVideoSource().indexOf("3D") > -1);
+    }
+
     public void setAudioCodec(String audioCodec) {
         if (StringUtils.isBlank(audioCodec)) {
             audioCodec = UNKNOWN;
