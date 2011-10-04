@@ -587,6 +587,18 @@ public class MovieNFOScanner {
                                     // Don't change the watched status
                                 }
                             }
+                        } else if (tag.equalsIgnoreCase("fps")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                float fps = 0.0f;
+                                try {
+                                    fps = Float.parseFloat(val);
+                                } catch (NumberFormatException error) {
+                                    logger.warn("MovieNFOScanner: Error reading FPS value " + val);
+                                    fps = 0.0f;
+                                }
+                                movie.setFps(fps);
+                            }
                         } else if (tag.equalsIgnoreCase("tvdbid")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
@@ -1148,6 +1160,18 @@ public class MovieNFOScanner {
                                 } else {
                                     break;
                                 }
+                            }
+                        } else if (tag.equalsIgnoreCase("fps")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                float fps = 0.0f;
+                                try {
+                                    fps = Float.parseFloat(val);
+                                } catch (NumberFormatException error) {
+                                    logger.warn("MovieNFOScanner: Error reading FPS value " + val);
+                                    fps = 0.0f;
+                                }
+                                movie.setFps(fps);
                             }
                         } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
                             // NEW START multiple TV audio info from episode
