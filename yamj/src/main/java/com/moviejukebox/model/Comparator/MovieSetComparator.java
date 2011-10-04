@@ -38,9 +38,6 @@ public class MovieSetComparator implements Comparator<Movie> {
                     return -1;
                 }
             }
-            
-            // Sort the season list normally
-            return (m1.getSeason() - m2.getSeason());
         }
         
         Integer o1 = m1.getSetOrder(set);
@@ -49,13 +46,19 @@ public class MovieSetComparator implements Comparator<Movie> {
         // If one is explicitly ordered and the other isn't, the ordered one comes first
         if (o1 == null && o2 != null || o1 != null && o2 == null) {
             return o2 == null ? -1 : 1;
+        }
 
-            // If they're both ordered and the value is different, order by that
-        } else if (o1 != null && !o1.equals(o2)) {
+        // If they're both ordered and the value is different, order by that
+        if (o1 != null && !o1.equals(o2)) {
             return o1.compareTo(o2);
+        }
 
-            // Either the order is the same, or neither have an order, so fall back to releaseDate, then titleSort
+        // If these are TV shows, then use the season to sort
+        if (m1.isTVShow() && m2.isTVShow()) {
+            // Sort the season list by season number
+            return (m1.getSeason() - m2.getSeason());
         } else {
+            // Either the order is the same, or neither have an order, so fall back to releaseDate, then titleSort
             int c = m1.getYear().compareTo(m2.getYear());
             if (c == 0) {
                 c = m1.getTitleSort().compareTo(m2.getTitleSort());

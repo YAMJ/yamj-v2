@@ -81,6 +81,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #2081 Ratings file is marked as always changed
  - Enhancement  #2085 New FPS tag in NFO file
  - Fixed defect #2087 Rating different when scraping and from NFO
+ - Fixed defect #2091 TV Shows NFO set order not respected
  - Fixed defect #2101 Java error for sets with no order
 
 MovieJukebox 2.4
