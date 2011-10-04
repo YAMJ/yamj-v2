@@ -995,7 +995,7 @@ public class MovieJukebox {
                             // Get Banner if requested and is a TV show
                             if (bannerDownload && movie.isTVShow()) {
                                 if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
-                                    updateTvBanner(jukebox, movie);
+                                    updateTvBanner(jukebox, movie, tools.imagePlugin);
                                 }
                             }
                             
@@ -1316,7 +1316,7 @@ public class MovieJukebox {
                             // Set a default banner filename in case it's not found during the scan
                             movie.setBannerFilename(safeSetMasterBaseName + bannerToken + "." + bannerExtension);
                             if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
-                                updateTvBanner(jukebox, movie);
+                                updateTvBanner(jukebox, movie, tools.imagePlugin);
                                 logger.debug("Local set banner (" + safeSetMasterBaseName + bannerToken + ") not found, using "
                                                 + oldPosterFilename);
                             } else {
@@ -1922,10 +1922,11 @@ public class MovieJukebox {
      * 
      * @param tempJukeboxDetailsRoot
      */
-    public void updateTvBanner(Jukebox jukebox, Movie movie) {
+    public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
         String bannerFilename = movie.getBannerFilename();
         File bannerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + bannerFilename);
-        File tmpDestFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + bannerFilename);
+        String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + bannerFilename;
+        File tmpDestFile = new File(tmpDestFilename);
 
         // Check to see if there is a local banner.
         // Check to see if there are banners in the jukebox directories (target and temp)
@@ -1947,6 +1948,16 @@ public class MovieJukebox {
                     logger.debug("Failed downloading banner: " + movie.getBannerURL());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
                 }
+            }
+
+            try {
+                BufferedImage bannerImage = GraphicTools.loadJPEGImage(tmpDestFile);
+                if (bannerImage != null) {
+                    bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
+                    GraphicTools.saveImageToDisk(bannerImage, tmpDestFilename);
+                }
+            } catch (Exception error) {
+                logger.debug("MovieJukebox: Failed generate banner : " + tmpDestFilename);
             }
         }
     }
