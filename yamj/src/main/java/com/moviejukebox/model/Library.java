@@ -87,6 +87,7 @@ public class Library implements Map<String, Movie> {
     private static boolean removeExplodeSet = false;
     private static boolean keepTVExplodeSet = true;
     private static boolean beforeSortExplodeSet = false;
+    private static boolean removeTitleExplodeSet = false;
     private static String setsRating = "first";
     private static String indexList;
     private static boolean splitHD = false;
@@ -145,6 +146,7 @@ public class Library implements Map<String, Movie> {
         removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", "false");
         keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", "true");
         beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", "false");
+        removeTitleExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet.title", "false");
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
@@ -707,7 +709,7 @@ public class Library implements Map<String, Movie> {
     private static Index indexByTitle(Iterable<Movie> moviesList) {
         Index index = new Index();
         for (Movie movie : moviesList) {
-            if (!movie.isExtra()) {
+            if (!movie.isExtra() && (!removeTitleExplodeSet || !movie.isSetMaster())) {
                 String title = movie.getStrippedTitleSort();
                 if (title.length() > 0) {
                     Character firstCharacter = Character.toUpperCase(title.charAt(0));
