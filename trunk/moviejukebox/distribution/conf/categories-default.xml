@@ -46,6 +46,10 @@
     <enable>true</enable>
     <rename>TV Shows</rename>
   </category>
+  <category name="3D">
+    <enable>true</enable>
+    <rename>3D</rename>
+  </category>
   <category name="HD">
     <enable>true</enable>
     <rename>HD</rename>

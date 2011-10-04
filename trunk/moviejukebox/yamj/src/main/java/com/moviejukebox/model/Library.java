@@ -125,6 +125,7 @@ public class Library implements Map<String, Movie> {
     public static final String INDEX_HD = "HD";
     public static final String INDEX_HD1080 = "HD-1080";
     public static final String INDEX_HD720 = "HD-720";
+    public static final String INDEX_3D = "3D";
     public static final String INDEX_SET = "Set";
     public static final String INDEX_TOP250 = "Top250";
     public static final String INDEX_RATING = "Rating";
@@ -825,6 +826,13 @@ public class Library implements Map<String, Movie> {
                             index.addMovie(categoriesMap.get(INDEX_HD), movie);
                             movie.addIndex(INDEX_HD, categoriesMap.get(INDEX_HD));
                         }
+                    }
+                }
+
+                if (movie.is3D()) {
+                    if (categoriesMap.get(INDEX_3D) != null) {
+                        index.addMovie(categoriesMap.get(INDEX_3D), movie);
+                        movie.addIndex(INDEX_3D, categoriesMap.get(INDEX_3D));
                     }
                 }
 
