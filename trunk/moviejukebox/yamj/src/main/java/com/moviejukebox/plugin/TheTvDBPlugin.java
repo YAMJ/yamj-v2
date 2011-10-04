@@ -49,6 +49,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final String webhost = "thetvdb.com";
     private static final String defaultLanguage = "en";
 
+    private static final String CACHE_SERIES = "Series";
+    private static final String CACHE_BANNERS = "Banners";
+    
     private TheTVDB tvDB;
     private String language;
     private String language2nd;
@@ -114,6 +117,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         seriesList = tvDB.searchSeries(movie.getBaseName(), language2nd);
                     }
                 }
+            } catch (Exception error) {
+                logger.warn("TheTVDBPlugin: Error getting ID: " + error.getMessage());
             } finally {
                 ThreadExecutor.leaveIO();
             }
@@ -156,44 +161,48 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         if (id != null && !id.equals(Movie.UNKNOWN)) {
-            Series series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language));
-            
-            ThreadExecutor.enterIO(webhost);
-            try {
+            Series series = (Series) Cache.getFromCache(Cache.generateCacheKey(CACHE_SERIES, id, language));
+
+            if (series == null) {
                 // Not found in cache, so look online
-                if (series == null) {
+                ThreadExecutor.enterIO(webhost);
+                try {
                     series = tvDB.getSeries(id, language);
                     if (series != null) {
                         // Add to the cache
-                        Cache.addToCache(Cache.generateCacheKey("Series", id, language), series);
+                        Cache.addToCache(Cache.generateCacheKey(CACHE_SERIES, id, language), series);
                     }
-                }
-                
-                if (series == null && !language2nd.isEmpty()) {
-                    series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language2nd));
-                    
-                    if (series == null) {
-                        series = tvDB.getSeries(id, language2nd);
-                        if (series != null) {
-                            // Add to the cache
-                            Cache.addToCache(Cache.generateCacheKey("Series", id, language2nd), series);
+
+                    if (series == null && !language2nd.isEmpty()) {
+                        series = (Series)Cache.getFromCache(Cache.generateCacheKey(CACHE_SERIES, id, language2nd));
+
+                        if (series == null) {
+                            series = tvDB.getSeries(id, language2nd);
+                            if (series != null) {
+                                // Add to the cache
+                                Cache.addToCache(Cache.generateCacheKey(CACHE_SERIES, id, language2nd), series);
+                            }
                         }
                     }
+                } catch (Exception error) {
+                    logger.warn("TheTVDBPlugin: Error getting Series: " + error.getMessage());
+                } finally {
+                    ThreadExecutor.leaveIO();
                 }
-            } finally {
-                ThreadExecutor.leaveIO();
             }
 
             if (series == null) {
                 logger.debug("TheTvDBPlugin: No series information found for " + movie.getTitle());
             } else {
-                Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey("Banners", id, language));
+                Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey(CACHE_BANNERS, id, language));
                 
                 if (banners == null) {
                     ThreadExecutor.enterIO(webhost);
                     try {
                         banners = tvDB.getBanners(id);
-                        Cache.addToCache(Cache.generateCacheKey("Banners", id, language), banners);
+                        Cache.addToCache(Cache.generateCacheKey(CACHE_BANNERS, id, language), banners);
+                    } catch (Exception error) {
+                        logger.warn("TheTVDBPlugin: Error getting Banners: " + error.getMessage());
                     } finally {
                         ThreadExecutor.leaveIO();
                     }
@@ -306,9 +315,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             logger.debug("TheTvDBPlugin: Used banner " + urlBanner);
                         }
                     }
-                } catch (Exception e) {
+                } catch (Exception error) {
                     logger.error("TheTvDBPlugin: Failed to retrieve TheTvDb Id for movie : " + movie.getTitle());
-                    logger.error("Error : " + e.getMessage());
+                    logger.error("Error : " + error.getMessage());
                 }
 
                 // TODO remove this once all skins are using the new fanart properties
@@ -481,12 +490,18 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
             }
+        } catch (Exception error) {
+            logger.warn("TheTVDBPlugin: Error getting episode information: " + error.getMessage());
         } finally {
             ThreadExecutor.leaveIO();
         }
     }
 
     private Episode findEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
+        if (episodeList == null || episodeList.isEmpty()) {
+            return null;
+        }
+        
         for (Episode episode : episodeList) {
             if (episode.getSeasonNumber() == seasonNumber && episode.getEpisodeNumber() == episodeNumber) {
                 return episode;
@@ -496,6 +511,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
     
     private Episode findDvdEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
+        if (episodeList == null || episodeList.isEmpty()) {
+            return null;
+        }
+        
         for (Episode episode : episodeList) {
             if (episode.getSeasonNumber() == seasonNumber && episode.getDvdEpisodeNumber().equals(""+episodeNumber)) {
                 return episode;
