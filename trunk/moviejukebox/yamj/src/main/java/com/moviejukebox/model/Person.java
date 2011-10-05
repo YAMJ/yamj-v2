@@ -155,15 +155,15 @@ public class Person extends Filmography {
     }
 
     public void setPhotoFilename(String filename) {
-        if (isValidString(filename) && !this.photoFilename.equalsIgnoreCase(filename)) {
-            this.photoFilename = filename;
+        if (isValidString(filename) && !this.photoFilename.equalsIgnoreCase(FileTools.makeSafeFilename(filename))) {
+            this.photoFilename = FileTools.makeSafeFilename(filename);
             setDirty();
         }
     }
 
     public void setPhotoFilename() {
-        if (isValidString(getName()) && isNotValidString(photoFilename)) {
-            setPhotoFilename(FileTools.makeSafeFilename(getName() + ".jpg"));
+        if (isValidString(getTitle()) && isNotValidString(photoFilename)) {
+            setPhotoFilename(getTitle() + ".jpg");
         }
     }
 
