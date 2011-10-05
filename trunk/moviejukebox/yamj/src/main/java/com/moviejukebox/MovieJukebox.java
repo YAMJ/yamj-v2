@@ -1782,8 +1782,16 @@ public class MovieJukebox {
                         for (MediaLibraryPath mlp : mediaLibraryPaths) {
                             // Check to see if the paths match and then update the description and quit
                             if (scannedFilename.startsWith(mlp.getPlayerRootPath())) {
-                                movie.setLibraryDescription(mlp.getDescription());
-                                break;
+                                String libraryDescription = Movie.UNKNOWN;
+                                boolean flag = true;
+                                for (String exclude : mlp.getExcludes()) {
+                                    flag &= (scannedFilename.toUpperCase().indexOf(exclude.toUpperCase()) == -1);
+                                }
+                                if (flag) {
+                                    logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                                    movie.setLibraryDescription(mlp.getDescription());
+                                    break;
+                                }
                             }
                         }
                     }
