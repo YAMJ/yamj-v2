@@ -1321,6 +1321,7 @@ public class MovieJukeboxXMLWriter {
                         int next = Math.min(2, last);
                         int previous = last;
                         moviepos = 0;
+                        skipIndex = (skipIndex && Library.INDEX_LIBRARY.equalsIgnoreCase(categoryName))?!library.isDirtyLibrary(group.getKey()):skipIndex;
                         IndexInfo idx = new IndexInfo(categoryName, key, last, nbVideosPerPage, nbVideosPerLine, skipIndex); 
 
                         // Don't skip the indexing for sets as this overwrites the set files

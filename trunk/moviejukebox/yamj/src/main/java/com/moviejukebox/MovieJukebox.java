@@ -975,7 +975,7 @@ public class MovieJukebox {
                         }
 
                         // First get movie data (title, year, director, genre, etc...)
-                        library.toggleDirty(updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie));
+                        library.toggleDirty(updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
                         if (!movie.getMovieType().equals(Movie.REMOVE)) {
                             // Then get this movie's poster
                             logger.debug("Updating poster for: " + movieTitleExt);
@@ -1671,7 +1671,7 @@ public class MovieJukebox {
      * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. 
      * Once scanned, the <tt>movie</tt> object is persisted.
      */
-    public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) throws FileNotFoundException, XMLStreamException {
+    public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
         boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", "true");
 
@@ -1728,7 +1728,8 @@ public class MovieJukebox {
                 for (MediaLibraryPath mlp : mediaLibraryPaths) {
                     // Check to see if the paths match and then update the description and quit
                     if (movie.getFile().getAbsolutePath().startsWith(mlp.getPath()) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
-                        logger.debug("Changing libray description from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                        logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                        library.addDirtyLibrary(movie.getLibraryDescription());
                         movie.setLibraryDescription(mlp.getDescription());
                         movie.setDirty(Movie.DIRTY_INFO, true);
                         break;
@@ -1782,13 +1783,13 @@ public class MovieJukebox {
                         for (MediaLibraryPath mlp : mediaLibraryPaths) {
                             // Check to see if the paths match and then update the description and quit
                             if (scannedFilename.startsWith(mlp.getPlayerRootPath())) {
-                                String libraryDescription = Movie.UNKNOWN;
                                 boolean flag = true;
                                 for (String exclude : mlp.getExcludes()) {
                                     flag &= (scannedFilename.toUpperCase().indexOf(exclude.toUpperCase()) == -1);
                                 }
                                 if (flag) {
                                     logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                                    library.addDirtyLibrary(movie.getLibraryDescription());
                                     movie.setLibraryDescription(mlp.getDescription());
                                     break;
                                 }
