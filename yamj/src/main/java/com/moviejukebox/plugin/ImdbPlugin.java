@@ -119,7 +119,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
 
-        boolean retval = true;
+        boolean retval = false;
         if (isValidString(imdbId)) {
             retval = updateImdbMediaInfo(movie);
         }

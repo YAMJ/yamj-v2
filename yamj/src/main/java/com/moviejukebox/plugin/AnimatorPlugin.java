@@ -63,7 +63,7 @@ public class AnimatorPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean retval = true;
+        boolean retval = false;
         String animatorId = mediaFile.getId(ANIMATOR_PLUGIN_ID);
         if (StringTools.isNotValidString(animatorId)) {
 // It's better to remove everything after dash (-) before call of English plugins...

@@ -118,7 +118,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean retval = true;
+        boolean retval = false;
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
 
         if (NFOpriority) {

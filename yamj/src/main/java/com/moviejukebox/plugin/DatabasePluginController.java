@@ -43,6 +43,10 @@ public class DatabasePluginController {
             movieDatabasePlugin.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
             movieDatabasePlugin.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin").trim()));
             movieDatabasePlugin.put(Movie.TYPE_PERSON, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.person.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
+            String alternatePlugin = PropertiesUtil.getProperty("mjb.internet.alternate.plugin", "").trim();
+            if (!alternatePlugin.equals("")) {
+                movieDatabasePlugin.put("ALTERNATE", getMovieDatabasePlugin(alternatePlugin));
+            }
             
             return movieDatabasePlugin;
         }
@@ -76,9 +80,15 @@ public class DatabasePluginController {
                 // so if the movie wasn't scanned and it is now a different valid type, then rescan
                 if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE) && !newType.equals(origType)) {
                     isScanned = PluginMap.get().get(newType).scan(movie);
-                    if (!isScanned) {
-                        logger.warn("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                }
+                if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE)) {
+                    MovieDatabasePlugin alternatePlugin = PluginMap.get().get("ALTERNATE");
+                    if (alternatePlugin != null) {
+                        isScanned = alternatePlugin.scan(movie);
                     }
+                }
+                if (!isScanned) {
+                    logger.warn("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
                 }
             }
         }
