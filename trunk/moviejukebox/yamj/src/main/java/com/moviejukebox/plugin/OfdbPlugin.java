@@ -65,8 +65,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             getOfdbId(mediaFile);
         }
 
-        this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb);
-        return true;
+        return this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb);
     }
 
     public void getOfdbId(Movie mediaFile) {
