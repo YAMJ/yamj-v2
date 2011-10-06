@@ -176,10 +176,10 @@ public class OfdbPlugin implements MovieDatabasePlugin {
      * 
      * @param plotBeforeImdb
      */
-    private void updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
+    private boolean updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
         try {
             if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
-                return;
+                return false;
             }
             String xml = request(new URL(movie.getId(OFDB_PLUGIN_ID)));
 
@@ -209,7 +209,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.error(eResult.toString());
+            return false;
         }
+        return true;
     }
 
     private static String request(URL url) throws IOException {

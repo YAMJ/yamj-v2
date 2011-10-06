@@ -149,7 +149,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean retval = true;
+        boolean retval = false;
         try {
             String FilmUpITId = mediaFile.getId(FILMUPIT_PLUGIN_ID);
             if (StringTools.isNotValidString(FilmUpITId)) {

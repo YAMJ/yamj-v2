@@ -86,7 +86,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     public boolean scan(Movie mediaFile) {
-        boolean retval = true;
+        boolean retval = false;
 
         String sratimUrl = mediaFile.getId(SRATIM_PLUGIN_ID);
         if (StringTools.isNotValidString(sratimUrl)) {

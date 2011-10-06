@@ -198,6 +198,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
         } else {
             logger.debug("MovieMeterPlugin: No info found");
+            return false;
         }
 
         return true;

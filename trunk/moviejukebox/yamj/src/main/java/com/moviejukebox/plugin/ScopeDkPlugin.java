@@ -87,7 +87,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean retval = true;
+        boolean retval = false;
         try {
             String scopeDkId = mediaFile.getId(SCOPEDK_PLUGIN_ID);
             

@@ -339,7 +339,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean retval = true;
+        boolean retval = false;
         try {
             String allocineId = mediaFile.getId(ALLOCINE_PLUGIN_ID);
             if (isNotValidString(allocineId)) {

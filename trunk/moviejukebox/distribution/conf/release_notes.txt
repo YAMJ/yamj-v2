@@ -11,10 +11,12 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement   #828 Save airing information from TheTVDb
  - Enhancement   #906 Allow use of Rotten Tomatoes ratings
  - Enhancement   #954 Better handling of regional releases
+ - Enhancement  #1314 Refactor Trailer code to be able to search multiple trailer sites
  - Enhancement  #1471 Request to use "indexing.character.replacement" when sorting movies
  - Enhancement  #1558 Use audio/language info from episode NFOs
  - Enhancement  #1697 Use sort order for 'Other' category from category.xml config file
  - Enhancement  #1723 Option to remove TV Shows from Sets in category listings
+ - Enhancement  #1733 Option to use alternate plugin to extract information not found using the first plugin
  - Fixed defect #1816 dummy_videoimage wont be created
  - Enhancement  #1853 Multiple index pages
  - Enhancement  #1856 originalTitle functionality
@@ -41,6 +43,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1942 TV episodes with a digit first in episode name fail title detection
  - Fixed defect #1949 Changing the watched status should overwrite the artwork
  - Fixed defect #1950 sorttitle displays the basefile name
+ - Fixed defect #1951 Incorrect work of Explode Set
  - Fixed defect #1954 Only 1 actor read from NFO file
  - Enhancement  #1960 Option to specify which field to use for the sorting of titles on the index pages
  - Fixed defect #1961 IMDB and direct to video movie titles
@@ -62,27 +65,45 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #1999 IMDB outlines end with "See Full Summary"
  - Fixed defect #2000 Watched File for BDMV is not recognized
  - Enhancement  #2001 Include baseFilename in XML when mjb.fullMovieInfoInIndexes=false
+ - Fixed defect #2002 Set movies not sorted when mjb.categories.explodeSet is used
  - Fixed defect #2004 Movies with more than 1 director or writer, only the first is saved
  - Enhancement  #2012 Financial information about movie
  - Enhancement  #2013 Add trivia to the movie information
+ - Fixed defect #2015 New aka in people´s xml everytime rerun YAMJ
+ - Fixed defect #2021 Error with Business function
  - Enhancement  #2022 Get tagline from IMDB
  - Fixed defect #2024 mjb.categories.minCount.Director not working
  - Enhancement  #2028 Prefer higher quality artwork from TheTVDb
  - Enhancement  #2032 Option to disable upscaling of fanart
+ - Enhancement  #2033 Add 3D category
  - Fixed defect #2036 fanart.upscale causes local fanart to be ignored.
  - Enhancement  #2037 Allow skin makers to display information about their skin
+ - Fixed defect #2038 Error scrapper person when imdb.site=fr
+ - Fixed defect #2041 UNKNOWN value, after rescanning in the filmography
+ - Fixed defect #2043 Library in category index not update when movies is moved to other library
  - Fixed defect #2045 WatchedScanner (skin CGI) incorrectly names the watched file
  - Fixed defect #2051 Fixed issue with TheTVDb returning null series
  - Fixed defect #2054 mjb.categories.minCount not working
  - Fixed defect #2058 Fixed NumberFormatException when parsing IMDB score for international number formats
  - Fixed defect #2056 TV Shows can't be independently marked watched/unwatched
  - Fixed defect #2065 Skin style sheets need to include .html ext when inserting $mjb.homePage variable
+ - Fixed defect #2066 Overlays for multiple imagetypes are applied for all imagetypes
+ - Fixed defect #2067 Overlay XML audiochannels compares to wrong data
+ - Fixed defect #2068 Overlay xml improved data comparisons
  - Fixed defect #2074 IMDB rating not working
+ - Fixed defect #2077 Rewrite all file each time (detection of changes in SETs)
+ - Enhancement  #2080 OverlayXML company and country parameters
  - Fixed defect #2081 Ratings file is marked as always changed
  - Enhancement  #2085 New FPS tag in NFO file
  - Fixed defect #2087 Rating different when scraping and from NFO
  - Fixed defect #2091 TV Shows NFO set order not respected
+ - Enhancement  #2097 New index caterory Ratings
+ - Fixed defect #2098 SET when creating the information taken from the first movie in SET order
+ - Fixed defect #2100 In personal information doesn't update removed items
  - Fixed defect #2101 Java error for sets with no order
+ - Fixed defect #2106 Wrong naming for people image file
+ - Fixed defect #2107 Overlay XML is not applied to the banners
+ - Fixed defect #2109 Explode Set by items of category Other
 
 MovieJukebox 2.4
 ----------------
