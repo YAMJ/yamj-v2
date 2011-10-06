@@ -1295,7 +1295,8 @@ public class MovieJukeboxXMLWriter {
                             
                             if (!beforeSortExplodeSet) {
                                 // Issue 1263 - Allow explode of Set in category .
-                                if (movie.isSetMaster() && categoriesExplodeSet.contains(categoryName) && (!keepTVExplodeSet || (keepTVExplodeSet && !movie.isTVShow()))) {
+                                if (movie.isSetMaster() && (categoriesExplodeSet.contains(categoryName) || categoriesExplodeSet.contains(group.getKey())) && 
+                                        (!keepTVExplodeSet || !movie.isTVShow())) {
                                     List<Movie> boxedSetMovies = library.getIndexes().get(Library.INDEX_SET).get(movie.getTitle());
                                     boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
                                     logger.debug("Exploding set for " + categoryPath + "[" + movie.getTitle() + "] " + boxedSetMovies.size());

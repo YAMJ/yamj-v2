@@ -423,7 +423,7 @@ public class Library implements Map<String, Movie> {
         return masters;
     }
 
-    protected static void compressSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters, String indexName) {
+    protected static void compressSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters, String indexName, String subIndexName) {
         // Construct an index that includes only the intersection of movies and index
         Index in_movies = new Index();
         for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
@@ -440,10 +440,11 @@ public class Library implements Map<String, Movie> {
             List<Movie> lm = in_movies_entry.getValue();
             if (lm.size() >= minSetCount && (!setsRequireAll || lm.size() == index.get(in_movies_entry.getKey()).size())) {
                 boolean tvSet = keepTVExplodeSet && lm.get(0).isTVShow();
-                if (!beforeSortExplodeSet || !categoriesExplodeSet.contains(indexName) || tvSet) {
+                boolean explodeSet = categoriesExplodeSet.contains(indexName) || (indexName.equalsIgnoreCase(INDEX_OTHER) && categoriesExplodeSet.contains(subIndexName));
+                if (!beforeSortExplodeSet || !explodeSet || tvSet) {
                     movies.removeAll(lm);
                 }
-                if (!removeExplodeSet || !categoriesExplodeSet.contains(indexName) || tvSet) {
+                if (!beforeSortExplodeSet || !explodeSet || tvSet || !removeExplodeSet) {
                     movies.add(masters.get(in_movies_entry.getKey()));
                 }
             }
@@ -515,7 +516,7 @@ public class Library implements Map<String, Movie> {
                 for (Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                     // For each category in index, compress this one.
                     for (Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
-                        compressSetMovies(indexEntry.getValue(), dynamicEntry.getValue(), indexMasters, indexesEntry.getKey());
+                        compressSetMovies(indexEntry.getValue(), dynamicEntry.getValue(), indexMasters, indexesEntry.getKey(), indexEntry.getKey());
                     }
                 }
                 indexes.put(dynamicEntry.getKey(), dynamicEntry.getValue());
