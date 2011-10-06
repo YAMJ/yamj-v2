@@ -94,6 +94,7 @@ public class Library implements Map<String, Movie> {
     private static boolean processExtras = true;
     private static boolean hideWatched = true;
     private static final boolean enableWatchScanner;
+    private static List<String> dirtyLibraries = new ArrayList<String>();
     // Issue 1897: Cast enhancement
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
     private static boolean isDirty = false;
@@ -1521,6 +1522,17 @@ public class Library implements Map<String, Movie> {
 
     public void toggleDirty(boolean dirty) {
         isDirty |= dirty;
+    }
+
+    public void addDirtyLibrary(String name) {
+        if (StringTools.isValidString(name) && !dirtyLibraries.contains(name)) {
+            dirtyLibraries.add(name);
+            setDirty();
+        }
+    }
+
+    public boolean isDirtyLibrary(String name) {
+        return StringTools.isValidString(name) && dirtyLibraries.contains(name);
     }
 
 }
