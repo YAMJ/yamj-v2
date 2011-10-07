@@ -1003,12 +1003,18 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             if (block.rows > 0 && row >= rows) {
                                 row = 0;
                                 col++;
+                                if (block.cols > 0 && col >= cols) {
+                                    break;
+                                }
                             }
                         } else {
                             col++;
                             if (block.cols > 0 && col >= cols) {
                                 col = 0;
                                 row++;
+                                if (block.rows > 0 && row >= rows) {
+                                    break;
+                                }
                             }
                         }
                         biSet = GraphicTools.loadJPEGImage(getResourcesPath() + filenames[i]);
