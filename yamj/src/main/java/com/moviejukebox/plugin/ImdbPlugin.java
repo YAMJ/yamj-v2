@@ -660,26 +660,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // OUTLINE
         if (movie.getOutline().equals(Movie.UNKNOWN)) {
             // The new outline is at the end of the review section with no preceding text
-            String imdbOutline = HTMLTools.extractTag(xml, "reviews</a>", "<div class=\"txt-block\">");
+            String imdbOutline = HTMLTools.extractTag(xml, "<p itemprop=\"description\">", "</p>");
             imdbOutline = HTMLTools.removeHtmlTags(imdbOutline).trim();
-            
-            if (isValidString(imdbOutline)) {
-                String searchText = " reviews";
-                int beginIndex = imdbOutline.indexOf(searchText);
-                if (beginIndex > 0) {
-                    imdbOutline = imdbOutline.substring(beginIndex + searchText.length());
-                }
-                
-                // See if the outline has the "metacritic" text and remove it
-                searchText = "Metacritic.com)";
-                beginIndex = imdbOutline.indexOf(searchText);
-                if (beginIndex > 0) {
-                    imdbOutline = imdbOutline.substring(beginIndex + searchText.length());
-                }
-                
-                imdbOutline = cleanStringEnding(imdbOutline);
-                imdbOutline = trimToLength(imdbOutline, preferredPlotLength, true, plotEnding);
-            } else {
+
+            if (isNotValidString(imdbOutline)) {
                 // ensure the outline is set to unknown if it's blank or null
                 imdbOutline = Movie.UNKNOWN;
             }
