@@ -432,6 +432,10 @@ public class MediaInfoScanner {
             // Frames per second
             infoValue = infosMainVideo.get("Frame rate");
             if (infoValue != null) {
+                int inxDiv = infoValue.indexOf(" / ");
+                if (inxDiv > -1) {
+                    infoValue = infoValue.substring(0, inxDiv);
+                }
                 Float fps;
                 fps = Float.parseFloat(infoValue);
 
