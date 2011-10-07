@@ -45,7 +45,7 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // Id found
             if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
-                logger.debug(this.getName() + " posterPlugin: id found setting it to movie " + id);
+                logger.debug(this.getName() + " posterPlugin: id found setting it to >" + id + "<");
                 ident.setId(getName(), id);
             }
         } else {

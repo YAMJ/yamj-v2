@@ -93,20 +93,22 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
                 }
 
                 String scanName = new String(xml.substring(index, endIndex)).trim();
-
                 index = endIndex + 7;
 
                 if (scanName.equalsIgnoreCase(title)) {
                     posterID = scanPosterID;
+                    // We have a correct ID, so quit
+                    break;
                 }
             }
+            
             if (!Movie.UNKNOWN.equals(posterID)) {
                 response = posterID;
             }
 
         } catch (Exception e) {
-            logger.error("Failed retreiving SubBaba Id for movie : " + title);
-            logger.error("Error : " + e.getMessage());
+            logger.error("SubBabbaPosterPlugin: Failed retreiving SubBaba Id for movie : " + title);
+            logger.error("SubBabbaPosterPlugin: Error : " + e.getMessage());
         }
         return response;
     }
@@ -126,12 +128,13 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
                 // DVD Cover
                 if (Integer.parseInt(width) > Integer.parseInt(height)) {
+                    logger.debug("SubBabbaPosterPlugin: Detected DVD Cover, cropping image to poster size.");
                     posterImage.setSubimage("0, 0, 47, 100");
                 }
 
                 return posterImage;
             } catch (IOException error) {
-                logger.error("Failed retreiving SubBaba poster for movie : " + id);
+                logger.error("SubBabbaPosterPlugin: Failed retreiving SubBaba poster for movie : " + id);
                 final Writer eResult = new StringWriter();
                 final PrintWriter printWriter = new PrintWriter(eResult);
                 error.printStackTrace(printWriter);
