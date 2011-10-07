@@ -11,6 +11,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement   #828 Save airing information from TheTVDb
  - Enhancement   #906 Allow use of Rotten Tomatoes ratings
  - Enhancement   #954 Better handling of regional releases
+ - Enhancement  #1236 Add Sets category on Other
  - Enhancement  #1314 Refactor Trailer code to be able to search multiple trailer sites
  - Enhancement  #1471 Request to use "indexing.character.replacement" when sorting movies
  - Enhancement  #1558 Use audio/language info from episode NFOs
