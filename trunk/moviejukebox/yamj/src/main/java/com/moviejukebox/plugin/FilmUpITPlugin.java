@@ -349,10 +349,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
         return tags;
     }
 
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         // Always look for imdb id look for ttXXXXXX
         super.scanNFO(nfo, movie);
 
+        boolean result = false;
         // If we use FilmUpIT plugin look for
         // http://www.FilmUpIT.fr/...=XXXXX.html
         logger.debug("Scanning NFO for Filmup Id");
@@ -364,6 +365,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 if (endIdIndex != -1) {
                     logger.debug("Filmup Id found in nfo = " + nfo.substring(beginIdIndex + 3, endIdIndex));
                     movie.setId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID, nfo.substring(beginIdIndex + 3, endIdIndex));
+                    result = true;
                 } else {
                     logger.debug("No Filmup Id found in nfo !");
                 }
@@ -373,5 +375,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
         } else {
             logger.debug("No Filmup Id found in nfo !");
         }
+        return result;
     }
 }

@@ -524,9 +524,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
     
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie);
 
+        boolean result = false;
         logger.debug("Scanning NFO for TheTVDB Id");
         String compareString = nfo.toUpperCase();
         int idx = compareString.indexOf("THETVDB.COM");
@@ -556,9 +557,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 if (id != null && !id.isEmpty()) {
                     movie.setId(THETVDB_PLUGIN_ID, id.trim());
                     logger.debug("TheTVDB Id found in nfo = " + id.trim());
+                    result = true;
                 }
             }
         }
+        return result;
     }
 
     private String findBannerURL(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {

@@ -236,7 +236,7 @@ public class TVRagePlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         // There are two formats for the URL. The first is a vanity URL with the show name in it,
         // http://www.tvrage.com/House
         // the second is an id based URL
@@ -255,7 +255,7 @@ public class TVRagePlugin extends ImdbPlugin {
             String id = new String(st.nextToken().substring("id-".length()));
             movie.setId(TVRAGE_PLUGIN_ID, id);
             logger.debug("TVRage Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
-            return;
+            return true;
         }
         
         text = "tvrage.com/";
@@ -264,10 +264,11 @@ public class TVRagePlugin extends ImdbPlugin {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + text.length())), "/ \n,:!&\"'=$");
             movie.setId(TVRAGE_PLUGIN_ID, st.nextToken());
             logger.debug("TVRage Vanity Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
-            return;
+            return true;
         }
         
         logger.debug("No TVRage Id found in nfo!");
+        return false;
     }
 
 }

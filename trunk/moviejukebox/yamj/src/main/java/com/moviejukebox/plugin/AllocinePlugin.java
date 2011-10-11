@@ -486,10 +486,11 @@ public class AllocinePlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         // Always look for imdb id look for ttXXXXXX
         super.scanNFO(nfo, movie);
 
+        boolean result = false;
         // If we use allocine plugin look for
         // http://www.allocine.fr/...=XXXXX.html
         logger.debug("AllocinePlugin: Scanning NFO for Allocine Id");
@@ -501,6 +502,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 if (endIdIndex != -1) {
                     logger.debug("AllocinePlugin: Allocine Id found in nfo = " + new String(nfo.substring(beginIdIndex + 1, endIdIndex)));
                     movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, new String(nfo.substring(beginIdIndex + 1, endIdIndex)));
+                    result = true;
                 } else {
                     logger.debug("AllocinePlugin: No Allocine Id found in nfo !");
                 }
@@ -510,5 +512,6 @@ public class AllocinePlugin extends ImdbPlugin {
         } else {
             logger.debug("AllocinePlugin: No Allocine Id found in nfo !");
         }
+        return result;
     }
 }

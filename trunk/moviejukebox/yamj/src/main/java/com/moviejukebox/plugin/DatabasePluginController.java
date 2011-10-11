@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import org.apache.log4j.Logger;
 
 /**
@@ -75,20 +76,26 @@ public class DatabasePluginController {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
             String origType = movie.getMovieType();
             if (!origType.equals(Movie.TYPE_UNKNOWN)) {
-                boolean isScanned = PluginMap.get().get(origType).scan(movie);
-                String newType = movie.getMovieType();
-                // so if the movie wasn't scanned and it is now a different valid type, then rescan
-                if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE) && !newType.equals(origType)) {
-                    isScanned = PluginMap.get().get(newType).scan(movie);
-                }
-                if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE)) {
-                    MovieDatabasePlugin alternatePlugin = PluginMap.get().get("ALTERNATE");
-                    if (alternatePlugin != null) {
-                        isScanned = alternatePlugin.scan(movie);
-                    }
+                boolean isScanned = false;
+                if (movie.getMovieScanner() != null) {
+                    isScanned = movie.getMovieScanner().scan(movie);
                 }
                 if (!isScanned) {
-                    logger.warn("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                    isScanned = PluginMap.get().get(origType).scan(movie);
+                    String newType = movie.getMovieType();
+                    // so if the movie wasn't scanned and it is now a different valid type, then rescan
+                    if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE) && !newType.equals(origType)) {
+                        isScanned = PluginMap.get().get(newType).scan(movie);
+                    }
+                    if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE)) {
+                        MovieDatabasePlugin alternatePlugin = PluginMap.get().get("ALTERNATE");
+                        if (alternatePlugin != null) {
+                            isScanned = alternatePlugin.scan(movie);
+                        }
+                    }
+                    if (!isScanned) {
+                        logger.warn("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                    }
                 }
             }
         }
@@ -105,7 +112,15 @@ public class DatabasePluginController {
     }
 
     public static void scanNFO(String nfo, Movie movie) {
-        PluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie);
+        if (!PluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie)) {
+            ServiceLoader<MovieDatabasePlugin> movieDBPluginsSet = ServiceLoader.load(MovieDatabasePlugin.class);
+            for (MovieDatabasePlugin movieDBPlugin : movieDBPluginsSet) {
+                if (movieDBPlugin.scanNFO(nfo, movie)) {
+                    movie.setMovieScanner(movieDBPlugin);
+                    break;
+                }
+            }
+        }
     }
 
     public static void scanTVShowTitles(Movie movie) {
