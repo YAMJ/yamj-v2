@@ -190,17 +190,20 @@ public class KinopoiskPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
+        boolean result = false;
         logger.debug("Scanning NFO for Kinopoisk Id");
         int beginIndex = nfo.indexOf("kinopoisk.ru/level/1/film/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 26), "/");
             movie.setId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID, st.nextToken());
             logger.debug("Kinopoisk Id found in nfo = " + movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID));
+            result = true;
         } else {
             logger.debug("No Kinopoisk Id found in nfo !");
         }
         super.scanNFO(nfo, movie);
+        return result;
     }
 
     public String getKinopoiskId(Movie movie) {

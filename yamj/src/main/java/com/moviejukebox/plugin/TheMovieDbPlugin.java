@@ -316,15 +316,17 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         int beginIndex;
         
+        boolean result = false;
         logger.debug("Scanning NFO for TheMovieDb Id");
         beginIndex = nfo.indexOf("/movie/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 7)), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(TMDB_PLUGIN_ID, st.nextToken());
             logger.debug("TheMovieDb Id found in nfo = " + movie.getId(TMDB_PLUGIN_ID));
+            result = true;
         } else {
             logger.debug("No TheMovieDb Id found in nfo!");
         }
@@ -343,6 +345,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 logger.debug("Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             }
         }
+        return result;
     }
 
     @Override

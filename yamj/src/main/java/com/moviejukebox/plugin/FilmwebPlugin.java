@@ -361,7 +361,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         scanTVShowTitles(movie, mainXML);
     }
 
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB if filmweb doesn't know movie
         logger.debug("Scanning NFO for filmweb url");
         Matcher m = nfoPattern.matcher(nfo);
@@ -378,5 +378,6 @@ public class FilmwebPlugin extends ImdbPlugin {
         } else {
             logger.debug("No filmweb url found in nfo !");
         }
+        return found;
     }
 }

@@ -177,10 +177,11 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         Pattern filtroFAiD = Pattern.compile("http://www.filmaffinity.com/es/film([0-9]{6})\\.html|filmaffinity=((?:film)?[0-9]{6}(?:\\.html)?)|<id moviedb=\"filmaffinity\">((?:film)?[0-9]{6}(?:\\.html)?)</id>",Pattern.CASE_INSENSITIVE);
         Matcher nfoMatcher = filtroFAiD.matcher(nfo);
 
+        boolean result = false;
         if (nfoMatcher.find()) {
             if (nfoMatcher.group(1) != null) {
                 movie.setId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, filmAffinityInfo.arrangeId(nfoMatcher.group(1)));                
@@ -191,10 +192,12 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             else {
                 movie.setId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, filmAffinityInfo.arrangeId(nfoMatcher.group(3)));                                                
             }
+            result = true;
         }
         
         // Look for IMDb id
         super.scanNFO(nfo, movie);
+        return result;
     }
     
 }

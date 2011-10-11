@@ -65,5 +65,5 @@ public interface MovieDatabasePlugin {
      * @param nfo
      * @param movie
      */
-    public void scanNFO(String nfo, Movie movie);
+    public boolean scanNFO(String nfo, Movie movie);
 }

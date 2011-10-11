@@ -789,16 +789,19 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
+        boolean result = false;
         logger.debug(LOG_MESSAGE + "Scanning NFO for AniDb Id");
         int beginIndex = nfo.indexOf("aid=");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 4)), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
             movie.setId(ANIDB_PLUGIN_ID, st.nextToken());
             logger.debug(LOG_MESSAGE + "AniDb Id found in nfo = " + movie.getId(ANIDB_PLUGIN_ID));
+            result = true;
         } else {
             logger.debug(LOG_MESSAGE + "No AniDb Id found in nfo!");
         }
+        return result;
     }
     
     // TODO: Make this thread safe

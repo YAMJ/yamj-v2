@@ -46,6 +46,7 @@ import org.pojava.datetime.DateTime;
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -206,6 +207,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // Set information
     private boolean isSetMaster = false;    // True if movie actually is only a entry point to movies set.
     private int setSize = 0;                // Amount of movies in set
+
+    private MovieDatabasePlugin movieScanner = null;
 
     /*--------------------------------------------------------------------------------
      * End of properties
@@ -2402,6 +2405,16 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setShowStatus(String showStatus) {
         this.showStatus = showStatus;
+    }
+
+    public void setMovieScanner(MovieDatabasePlugin movieScanner) {
+        if (movieScanner != null) {
+            this.movieScanner = movieScanner;
+        }
+    }
+
+    public MovieDatabasePlugin getMovieScanner() {
+        return movieScanner;
     }
 
     /**

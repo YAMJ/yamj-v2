@@ -252,15 +252,18 @@ public class MovieMeterPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
+        boolean result = false;
         logger.debug("MovieMeterPlugin: Scanning NFO for Moviemeter Id");
         int beginIndex = nfo.indexOf("www.moviemeter.nl/film/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 23), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(MOVIEMETER_PLUGIN_ID, st.nextToken());
             logger.debug("MovieMeterPlugin: Moviemeter Id found in nfo = " + movie.getId(MOVIEMETER_PLUGIN_ID));
+            result = true;
         } else {
             logger.debug("MovieMeterPlugin: No Moviemeter Id found in nfo !");
         }
+        return result;
     }
 }

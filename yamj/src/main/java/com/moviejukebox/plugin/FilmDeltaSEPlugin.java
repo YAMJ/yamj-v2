@@ -99,11 +99,12 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
      * http://www.filmdelta.se/prevsearch/<text>/filmer/<digits>/<movie_name>
      */
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         // Always look for imdb id look for ttXXXXXX
         super.scanNFO(nfo, movie);
         logger.debug("FilmDeltaSEPlugin: Scanning NFO for Filmdelta Id");
 
+        boolean result = true;
         int beginIndex = nfo.indexOf("www.filmdelta.se/prevsearch");
         if (beginIndex != -1) {
             beginIndex = beginIndex + 27;
@@ -117,7 +118,9 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             logger.debug("FilmdeltaSEPlugin: id found in nfo = " + movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
         } else {
             logger.debug("FilmdeltaSEPlugin: no id found in nfo for movie: " + movie.getTitle());
+            result = false;
         }
+        return result;
     }
 
     /**

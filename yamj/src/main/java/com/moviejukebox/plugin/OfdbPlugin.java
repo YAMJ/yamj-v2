@@ -335,7 +335,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         logger.debug("Scanning NFO for Imdb Id");
         int beginIndex = nfo.indexOf("/tt");
         if (beginIndex != -1) {
@@ -351,15 +351,18 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 logger.debug("No Imdb Id found in nfo !");
             }
         }
+        boolean result = false;
         beginIndex = nfo.indexOf("http://www.ofdb.de/film/");
 
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex), " \n\t\r\f!&é\"'(èçà)=$<>");
             movie.setId(OfdbPlugin.OFDB_PLUGIN_ID, st.nextToken());
             logger.debug("Ofdb Id found in nfo = " + movie.getId(OfdbPlugin.OFDB_PLUGIN_ID));
+            result = true;
         } else {
             logger.debug("No Ofdb Id found in nfo !");
         }
+        return result;
     }
 
     @Override

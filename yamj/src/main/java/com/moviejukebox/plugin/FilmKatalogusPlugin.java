@@ -174,9 +174,10 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB as basis
 
+        boolean result = false;
         int beginIndex = nfo.indexOf("filmkatalogus.hu/");
         if (beginIndex != -1) {
             beginIndex = nfo.indexOf("--f", beginIndex);
@@ -184,7 +185,9 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 StringTokenizer filmKatID = new StringTokenizer(nfo.substring(beginIndex + 3), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID, filmKatID.nextToken());
                 logger.debug("FilmKatalogusPlugin: Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+                result = true;
             }
         }
+        return result;
     }
 }

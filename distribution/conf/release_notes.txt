@@ -107,6 +107,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #2107 Overlay XML is not applied to the banners
  - Fixed defect #2109 Explode Set by items of category Other
  - Fixed defect #2112 Failed grab multiFPS value
+ - Enhancement  #2124 URL from NFO define movie scanner plugin
 
 MovieJukebox 2.4
 ----------------

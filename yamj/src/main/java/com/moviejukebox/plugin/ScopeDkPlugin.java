@@ -164,7 +164,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         // Always look for imdb id look for ttXXXXXX
         super.scanNFO(nfo, movie);
 
@@ -176,13 +176,16 @@ public class ScopeDkPlugin extends ImdbPlugin {
             idMatcher = patternScopeDkIpMovidedb.matcher(nfo);
         }
 
+        boolean result = false;
         if (idMatcher.matches()) {
             String idMovie = idMatcher.group(3);
             logger.debug("ScopeDkPlugin: Scope.dk Id found in nfo = " + idMovie);
             movie.setId(SCOPEDK_PLUGIN_ID, idMovie);
+            result = true;
         } else {
             logger.debug("ScopeDkPlugin: No Scope.dk Id found in nfo !");
         }
+        return result;
     }
 
 }

@@ -790,17 +790,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB as basis
 
+        boolean result = false;
         int beginIndex = nfo.indexOf("?key=");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 5)), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(COMINGSOON_PLUGIN_ID, st.nextToken());
             logger.debug("ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
+            result = true;
         } else {
             logger.debug("No ComingSoon Id found in nfo!");
         }
+        return result;
     }
     
     private Movie backupMovieInfo(Movie originalMovie) {

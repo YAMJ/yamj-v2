@@ -100,17 +100,20 @@ public class AnimatorPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
+        boolean result = false;
         logger.debug("Scanning NFO for Animator Id");
         int beginIndex = nfo.indexOf("animator.ru/db/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 33)), "");
             movie.setId(AnimatorPlugin.ANIMATOR_PLUGIN_ID, st.nextToken());
             logger.debug("Animator Id found in nfo = " + movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
+            result = true;
         } else {
             logger.debug("No Animator Id found in nfo !");
         }
         super.scanNFO(nfo, movie);
+        return result;
     }
 
 /**

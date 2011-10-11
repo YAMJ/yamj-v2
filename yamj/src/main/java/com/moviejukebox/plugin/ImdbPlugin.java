@@ -1160,7 +1160,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
-    public void scanNFO(String nfo, Movie movie) {
+    public boolean scanNFO(String nfo, Movie movie) {
+        boolean result = true;
         logger.debug("Scanning NFO for Imdb Id");
         String id = searchIMDB(nfo, movie);
         if (isValidString(id)) {
@@ -1180,9 +1181,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     logger.debug("IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
                 } else {
                     logger.debug("No IMDb Id found in nfo !");
+                    result = false;
                 }
             }
         }
+        return result;
     }
 
     /**
