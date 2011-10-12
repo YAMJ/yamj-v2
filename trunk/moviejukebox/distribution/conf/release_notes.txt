@@ -105,6 +105,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #2102 SubBabba plugin returning DVD covers
  - Fixed defect #2106 Wrong naming for people image file
  - Fixed defect #2107 Overlay XML is not applied to the banners
+ - Enhancement  #2108 Option to disable use of URL entries in NFO files
  - Fixed defect #2109 Explode Set by items of category Other
  - Fixed defect #2112 Failed grab multiFPS value
  - Enhancement  #2124 URL from NFO define movie scanner plugin
