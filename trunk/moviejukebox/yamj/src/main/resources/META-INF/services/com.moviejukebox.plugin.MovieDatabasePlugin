@@ -8,7 +8,6 @@ com.moviejukebox.plugin.FilmUpITPlugin
 com.moviejukebox.plugin.FilmwebPlugin
 com.moviejukebox.plugin.ImdbPlugin
 com.moviejukebox.plugin.KinopoiskPlugin
-com.moviejukebox.plugin.MovieDatabasePlugin
 com.moviejukebox.plugin.MovieMeterPlugin
 com.moviejukebox.plugin.OfdbPlugin
 com.moviejukebox.plugin.ScopeDkPlugin
