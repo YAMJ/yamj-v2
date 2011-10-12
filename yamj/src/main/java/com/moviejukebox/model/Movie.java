@@ -1232,25 +1232,26 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void addDirector(String key, String name, String URL) {
         if (name != null) {
-            String Name = name;
+            String directorName = name;
             if (name.indexOf(":") > 0) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
-                    Name = names[1];
+                    directorName = names[1];
                 } else if (StringTools.isValidString(names[0])) {
-                    Name = names[0];
+                    directorName = names[0];
                 }
             }
-            Name = Name.trim();
+            
+            directorName = directorName.trim();
             boolean found = false;
             for (Filmography p : people) {
-                if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Directing")) {
+                if (p.getName().equalsIgnoreCase(directorName) && p.getDepartment().equals("Directing")) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                addDirector(Name);
+                addDirector(directorName);
                 addPerson(key, name, URL, "Director");
             }
         }
