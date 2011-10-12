@@ -62,8 +62,7 @@ import com.moviejukebox.tools.XMLHelper;
 public class MovieNFOScanner {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    static final int BUFF_SIZE = 100000;
-    static final byte[] buffer = new byte[BUFF_SIZE];
+    private static final String splitPattern = "\\||\\.|,|/";
     private static String fanartToken;
     private static String fanartExtension;
     private static String forceNFOEncoding;
@@ -662,8 +661,11 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
+                            
                             if (isValidString(val)) {
-                                movie.addDirector(Movie.UNKNOWN, val, Movie.UNKNOWN);
+                                for (String director : val.split(splitPattern)) {
+                                    movie.addDirector(Movie.UNKNOWN, director, Movie.UNKNOWN);
+                                }
                             }
                         } else if (tag.equalsIgnoreCase("actor")) {
                             String event = r.nextEvent().toString();
