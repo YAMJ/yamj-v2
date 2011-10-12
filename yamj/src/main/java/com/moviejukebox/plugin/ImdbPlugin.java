@@ -580,11 +580,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // TOP250
-        if (movie.getTop250() == -1) {
+        int currentTop250 = movie.getTop250();
+        // Check to see if the top250 is empty or the movie needs re-checking (in which case overwrite it)
+        if (currentTop250 == -1 || movie.isDirty(Movie.DIRTY_RECHECK)) {
             try {
                 movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "Top 250 #")));
             } catch (NumberFormatException error) {
-                movie.setTop250(-1);
+                // We failed to convert the value, so replace it with the old one.
+                movie.setTop250(currentTop250);
             }
         }
 

@@ -95,6 +95,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String DIRTY_BANNER = "BANNER";
     public static final String DIRTY_WATCHED = "WATCHED";
     public static final String DIRTY_INFO = "INFO"; // Information on the video (default)
+    public static final String DIRTY_RECHECK = "RECHECK"; // The movie needs to be rechecked.
 
     /*--------------------------------------------------------------------------------
      * Properties that control the object
