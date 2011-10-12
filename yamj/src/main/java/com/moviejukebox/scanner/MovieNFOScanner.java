@@ -63,6 +63,10 @@ public class MovieNFOScanner {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static final String splitPattern = "\\||\\.|,|/";
+    
+    private static boolean skipNfoUrl;
+    private static boolean skipNfoTrailer;
+    
     private static String fanartToken;
     private static String fanartExtension;
     private static String forceNFOEncoding;
@@ -78,6 +82,9 @@ public class MovieNFOScanner {
     private static boolean archiveScanRar;
 
     static {
+        skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
+        skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", "false");
+        
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         
@@ -511,19 +518,22 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 movie.setPlot(val);
                             }
-                        //} else if (tag.equalsIgnoreCase("tagline")) {
-                            // Not currently used
+                        } else if (tag.equalsIgnoreCase("tagline")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                movie.setTagline(val);
+                            }
                         } else if (tag.equalsIgnoreCase("runtime")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 movie.setRuntime(val);
                             }
-                        } else if (tag.equalsIgnoreCase("thumb")) {
+                        } else if (tag.equalsIgnoreCase("thumb") && !skipNfoUrl) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 movie.setPosterURL(val);
                             }
-                        } else if (tag.equalsIgnoreCase("fanart")) { // This is a custom YAMJ tag
+                        } else if (tag.equalsIgnoreCase("fanart") && !skipNfoUrl) { // This is a custom YAMJ tag
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 movie.setFanartURL(val);
@@ -622,7 +632,7 @@ public class MovieNFOScanner {
                             }
                         //} else if (tag.equalsIgnoreCase("filenameandpath")) {
                             // Not currently used
-                        } else if (tag.equalsIgnoreCase("trailer")) {
+                        } else if (tag.equalsIgnoreCase("trailer")  && !skipNfoTrailer) {
                             String trailer = XMLHelper.getCData(r).trim();
                             if (!trailer.isEmpty()) {
                                 ExtraFile ef = new ExtraFile();
@@ -1124,19 +1134,19 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 movie.setCountry(val);
                             }
-                        } else if (tag.equalsIgnoreCase("thumb")) {
+                        } else if (tag.equalsIgnoreCase("thumb") && !skipNfoUrl) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 movie.setPosterURL(val);
                             }
-                        } else if (tag.equalsIgnoreCase("fanart")) {
+                        } else if (tag.equalsIgnoreCase("fanart") && !skipNfoUrl) {
                             // TODO Validate the URL and see if it's a local file
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
                                 movie.setFanartURL(val);
                                 movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
                             }
-                        } else if (tag.equalsIgnoreCase("trailer")) {
+                        } else if (tag.equalsIgnoreCase("trailer") && !skipNfoTrailer) {
                             String trailer = XMLHelper.getCData(r).trim();
                             if (!trailer.isEmpty()) {
                                 ExtraFile ef = new ExtraFile();
