@@ -154,10 +154,14 @@ public class FilmaffinityPlugin extends ImdbPlugin {
              * to improve the chance to find the right movie in IMDb. 
              */
             boolean overrideTitle = movie.isOverrideTitle();
+            String title = movie.getTitle();
+            String originalTitle = movie.getOriginalTitle();
             movie.setOverrideTitle(true);            
             movie.setTitle(movie.getOriginalTitle());
             super.scan(movie);
-            movie.setTitle(spanishTitle);
+            // Change the title back to the way it was
+            movie.setTitle(title);
+            movie.setOriginalTitle(originalTitle);
             movie.setOverrideTitle(overrideTitle);
                         
         } catch (Exception error) {
