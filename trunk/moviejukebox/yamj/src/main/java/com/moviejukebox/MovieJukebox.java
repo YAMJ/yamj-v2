@@ -1740,7 +1740,9 @@ public class MovieJukebox {
             if (recheckXML && mjbRecheck(movie)) {
                 logger.info("Recheck of " + movie.getBaseName() + " required");
                 forceXMLOverwrite = true;
-                movie.setDirty(Movie.DIRTY_INFO, true);
+                // Don't think we need the DIRTY_INFO with the RECHECK, so long as it is checked for specifically
+                //movie.setDirty(Movie.DIRTY_INFO, true);
+                movie.setDirty(Movie.DIRTY_RECHECK, true);
             }
         }
 
