@@ -15,6 +15,7 @@ package com.moviejukebox.plugin.trailer;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Date;
 import java.util.StringTokenizer;
 
 import com.moviejukebox.model.ExtraFile;
@@ -32,28 +33,21 @@ import com.moviejukebox.tools.StringTools;
 
 public class ComingSoonTrailersPlugin extends TrailersPlugin {
 
-    public static String COMINGSOON_PLUGIN_ID = "comingsoon";
-    private static String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
-    private static String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
     private static String COMINGSOON_VIDEO_URL = "Film/Scheda/Video/?";
-    private static String COMINGSOON_KEY_PARAM= "key=";
     private ComingSoonPlugin csPlugin = new ComingSoonPlugin();
 
     protected String trailerMaxResolution;
     protected String trailerPreferredFormat;
     protected boolean trailerSetExchange;
-    protected boolean trailerDownload;
     protected String trailerLabel;
 
     public ComingSoonTrailersPlugin() {
         super();
         trailersPluginName = "ComingSoonTrailers";
 
-        trailerMaxResolution = PropertiesUtil.getProperty("comingsoon.trailer.resolution", "");
-        trailerPreferredFormat = PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "wmv,mov");
-        trailerSetExchange = PropertiesUtil.getBooleanProperty("comingsoon.trailer.setExchange", "false");
-        trailerDownload = PropertiesUtil.getBooleanProperty("comingsoon.trailer.download", "false");
-        trailerLabel = PropertiesUtil.getProperty("comingsoon.trailer.label", "ita");
+        trailerMaxResolution = PropertiesUtil.getProperty("comingsoontrailers.maxResolution", "1080p");
+        trailerPreferredFormat = PropertiesUtil.getProperty("comingsoontrailers.preferredFormat", "wmv,mov");
+        trailerLabel = PropertiesUtil.getProperty("comingsoontrailers.label", "ita");
     }
     
     @Override
@@ -61,27 +55,13 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
         if (trailerMaxResolution.length() == 0) {
             return false;
         }
-        if (movie.isExtra() || movie.isTVShow()) {
-            return false;
-        }
         
-        if (movie.isTrailerExchange()) {
-            logger.debug(trailersPluginName + " Plugin: Movie has previously been checked for trailers, skipping");
-            return false;
-        }
-        
-        if (!movie.getExtraFiles().isEmpty()) {
-            logger.debug(trailersPluginName + " Plugin: Movie has trailers, skipping");
-            return false;
-        }
+        movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
         
         String trailerUrl = getTrailerUrl(movie);
         
         if (StringTools.isNotValidString(trailerUrl)) {
             logger.debug(trailersPluginName + " Plugin: no trailer found");
-            if (trailerSetExchange) {
-                movie.setTrailerExchange(true);
-            }
             return false;
         }
         
@@ -90,18 +70,13 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
         MovieFile tmf = new MovieFile();
         tmf.setTitle("TRAILER-" + trailerLabel);
         
-        boolean isExchangeOk = false;
-        
-        if (trailerDownload) {
-            isExchangeOk = downloadTrailer(movie, trailerUrl, trailerLabel, tmf);
+        if (getDownload()) {
+            return downloadTrailer(movie, trailerUrl, trailerLabel, tmf);
         } else {
             tmf.setFilename(trailerUrl);
             movie.addExtraFile(new ExtraFile(tmf));
-            movie.setTrailerExchange(true);
-            isExchangeOk = true;
+            return true;
         }
-        
-        return isExchangeOk;
     }
     
     @Override
@@ -111,7 +86,7 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
     
     protected String getTrailerUrl(Movie movie) {
         String trailerUrl = Movie.UNKNOWN;
-        String comingSoonId = movie.getId(COMINGSOON_PLUGIN_ID);
+        String comingSoonId = movie.getId(ComingSoonPlugin.COMINGSOON_PLUGIN_ID);
         if (StringTools.isNotValidString(comingSoonId)) {
             comingSoonId = csPlugin.getComingSoonId(movie.getOriginalTitle(), movie.getYear());
             if (StringTools.isNotValidString(comingSoonId)) {
@@ -120,10 +95,10 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
         }
         
         try {
-            String searchUrl = COMINGSOON_BASE_URL + COMINGSOON_VIDEO_URL + COMINGSOON_KEY_PARAM + comingSoonId;
+            String searchUrl = ComingSoonPlugin.COMINGSOON_BASE_URL + COMINGSOON_VIDEO_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId;
             logger.debug(trailersPluginName + " Plugin: searching for trailer at URL " + searchUrl);
             String xml = webBrowser.request(searchUrl);
-            if (xml.indexOf(COMINGSOON_SEARCH_URL + COMINGSOON_KEY_PARAM + comingSoonId) < 0) {
+            if (xml.indexOf(ComingSoonPlugin.COMINGSOON_SEARCH_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId) < 0) {
                 // No link to movie page found. We have been redirected to the general video page
                 logger.debug(trailersPluginName + " Plugin: no video found for movie " + movie.getTitle());
                 return Movie.UNKNOWN;

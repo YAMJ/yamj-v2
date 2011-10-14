@@ -12,33 +12,19 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebStats;
 
 /**
  * @author iuk
@@ -49,10 +35,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     public static String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static String COMINGSOON_NOT_PRESENT = "na";
-    private static String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
-    private static String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
-    private static String COMINGSOON_VIDEO_URL = "Film/Scheda/Video/?";
-    private static String COMINGSOON_KEY_PARAM= "key=";
+    public static String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
+    public static String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
+    public static String COMINGSOON_KEY_PARAM= "key=";
     
     private static int COMINGSOON_MAX_DIFF = 1000;
     
@@ -81,13 +66,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
     protected int preferImdbMask = 0;
     protected String searchId;
     
-    protected boolean trailersScannerEnable;
-    protected String trailerMaxResolution;
-    protected String trailerPreferredFormat;
-    protected boolean trailerSetExchange;
-    protected boolean trailerDownload;
-    protected String trailerLabel;
-
     public ComingSoonPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
@@ -97,7 +75,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
         
         scanImdb = PropertiesUtil.getProperty("comingsoon.imdb.scan", "always"); 
-        String preferImdbFor = PropertiesUtil.getProperty("comingsoon.imdb.perferredFor", "rating,runtime,country,year,company,cast,writers");
+        String preferImdbFor = PropertiesUtil.getProperty("comingsoon.imdb.perferredFor", "runtime,country,year,company,cast,writers");
         if (preferImdbFor.length() > 0) {
             StringTokenizer st = new StringTokenizer(preferImdbFor, ",");
             
@@ -108,14 +86,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
             } else {
                 preferImdbMask |= getInfoMask(preferImdbFor);
             }
+            if ((preferImdbMask & COMINGSOON_RESTORE_RATING) > 0) {
+                logger.error("ComingSoon: comingsoon.imdb.perferredFor cannot include \"rating\" anymore. Please use mjb.rating.source property.");
+            }
         }
         
-        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
-        trailerMaxResolution = PropertiesUtil.getProperty("comingsoon.trailer.resolution", "");
-        trailerPreferredFormat = PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "wmv,mov");
-        trailerSetExchange = PropertiesUtil.getBooleanProperty("comingsoon.trailer.setExchange", "false");
-        trailerDownload = PropertiesUtil.getBooleanProperty("comingsoon.trailer.download", "false");
-        trailerLabel = PropertiesUtil.getProperty("comingsoon.trailer.label", "ita");
+        if (
+            ! PropertiesUtil.getProperty("comingsoon.trailer.resolution", "DEPRECATED").equals("DEPRECATED") ||
+            ! PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "DEPRECATED").equals("DEPRECATED") ||
+            ! PropertiesUtil.getProperty("comingsoon.trailer.setExchange", "DEPRECATED").equals("DEPRECATED") ||
+            ! PropertiesUtil.getProperty("comingsoon.trailer.download", "DEPRECATED").equals("DEPRECATED") ||
+            ! PropertiesUtil.getProperty("comingsoon.trailer.label", "DEPRECATED").equals("DEPRECATED")
+            ) {
+            logger.error("ComingSoon: comingsoon.trailer.* properties are not supported anymore. Please add comingsoon to trailers.scanner property and configure the plugin using comingsoontrailers.* properties.");
+        }
     }
     
     private int getInfoMask(String infoDescription) {
@@ -238,10 +222,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
         
         if (StringTools.isNotValidString(movie.getOriginalTitle())) {
             movie.setOriginalTitle(movie.getTitle());
-        }
-        
-        if (trailersScannerEnable) {
-            generateTrailer(movie);
         }
         
         return scanComingSoon || firstScanImdb; 
@@ -561,7 +541,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
             // RATING
             
-            if (movie.getRating() == -1) {
+            if (movie.getRating(COMINGSOON_PLUGIN_ID) == -1) {
                 String rating = HTMLTools.extractTag(xml, "<li class=\"current-rating\"", 1, "<>", false).trim();
                 logger.debug("ComingSoon: found rating " + rating);
                 if (StringTools.isValidString(rating)) {
@@ -813,7 +793,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         backup.setOriginalTitle(originalMovie.getOriginalTitle());
         backup.setPlot(originalMovie.getPlot());
         backup.setOutline(originalMovie.getOutline());
-        backup.setRatings(originalMovie.getRatings());
+        //backup.setRatings(originalMovie.getRatings());
         backup.setRuntime(originalMovie.getRuntime());
         backup.setCountry(originalMovie.getCountry());
         backup.setYear(originalMovie.getYear());
@@ -856,12 +836,14 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 targetMovie.setOutline(sourceMovie.getOutline());
             }
         }
+        /*
         if ((what & COMINGSOON_RESTORE_RATING) > 0 && (override || targetMovie.getRating() < 0)) {
             if (!protect || sourceMovie.getRating() >= 0) {
                 logger.debug("ComingSoon: restoring rating");
                 targetMovie.addRating(COMINGSOON_PLUGIN_ID, sourceMovie.getRating());
             }
         }
+        */
         if ((what & COMINGSOON_RESTORE_RUNTIME) > 0 && (override || StringTools.isNotValidString(targetMovie.getRuntime()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getRuntime())) {
                 logger.debug("ComingSoon: restoring runtime");
@@ -909,247 +891,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 logger.debug("ComingSoon: restoring writers");
                 targetMovie.setWriters(sourceMovie.getWriters());
             }
-        }
-    }
-    
-    protected void generateTrailer(Movie movie) {
-        if (trailerMaxResolution.length() == 0) {
-            return;
-        }
-        if (movie.isExtra() || movie.isTVShow()) {
-            return;
-        }
-        
-        if (movie.isTrailerExchange()) {
-            logger.debug("ComingSoon: Movie has previously been checked for trailers, skipping");
-            return;
-        }
-        
-        if (!movie.getExtraFiles().isEmpty()) {
-            logger.debug("ComingSoon: Movie has trailers, skipping");
-            return;
-        }
-        
-        String trailerUrl = getTrailerUrl(movie);
-        
-        if (StringTools.isNotValidString(trailerUrl)) {
-            logger.debug("ComingSoon: no trailer found");
-            if (trailerSetExchange) {
-                movie.setTrailerExchange(true);
-            }
-            return;
-        }
-        
-        logger.debug("ComingSoon: found trailer at URL " + trailerUrl);
-        
-        MovieFile tmf = new MovieFile();
-        tmf.setTitle("TRAILER-" + trailerLabel);
-        
-        if (trailerDownload) {
-            
-            // Copied from AppleTrailersPlugin.java
-            
-            MovieFile mf = movie.getFirstFile();
-            String parentPath = mf.getFile().getParent();
-            String name = mf.getFile().getName();
-            String basename;
-
-            if (mf.getFilename().toUpperCase().endsWith("/VIDEO_TS")) {
-                parentPath += File.separator + name;
-                basename = name;
-            } else if (mf.getFile().getAbsolutePath().toUpperCase().contains("BDMV")) {
-                parentPath = new String(parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1));
-                basename = new String(parentPath.substring(parentPath.lastIndexOf(File.separator) + 1));
-            } else {
-                int index = name.lastIndexOf(".");
-                basename = index == -1 ? name : new String(name.substring(0, index));
-            }
-            
-            String trailerExt = new String(trailerUrl.substring(trailerUrl.lastIndexOf(".")));
-            String trailerBasename = FileTools.makeSafeFilename(basename + ".[TRAILER-" + trailerLabel + "]" + trailerExt);
-            String trailerFileName = parentPath + File.separator + trailerBasename;
-            
-            int slash = mf.getFilename().lastIndexOf("/");
-            String playPath = slash == -1 ? mf.getFilename() : new String(mf.getFilename().substring(0, slash));
-            String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
-            
-            logger.debug("ComingSoon: Found trailer: " + trailerUrl);
-            logger.debug("ComingSoon: Download path: " + trailerFileName);
-            logger.debug("ComingSoon:      Play URL: " + trailerPlayFileName);
-            
-            File trailerFile = new File(trailerFileName);
-            
-            // Check if the file already exists - after jukebox directory was deleted for example
-            if (trailerFile.exists()) {
-                logger.debug("ComingSoon: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
-            
-                tmf.setFilename(trailerPlayFileName);
-                movie.addExtraFile(new ExtraFile(tmf));
-            } else if (trailerDownload(movie, trailerUrl, trailerFile)) {
-                tmf.setFilename(trailerPlayFileName);
-                movie.addExtraFile(new ExtraFile(tmf));
-            }
-            movie.setTrailerExchange(true);
-            
-        } else {
-            tmf.setFilename(trailerUrl);
-            movie.addExtraFile(new ExtraFile(tmf));
-            movie.setTrailerExchange(true);
-        }
-        
-
-    }
-    
-    protected String getTrailerUrl(Movie movie) {
-        String trailerUrl = Movie.UNKNOWN;
-        String comingSoonId = movie.getId("comingsoon");
-        if (StringTools.isNotValidString(comingSoonId)) {
-            return Movie.UNKNOWN;
-        }
-        
-        try {
-            String searchUrl = COMINGSOON_BASE_URL + COMINGSOON_VIDEO_URL + COMINGSOON_KEY_PARAM + comingSoonId;
-            logger.debug("ComingSoon: searching for trailer at URL " + searchUrl);
-            String xml = webBrowser.request(searchUrl);
-            if (xml.indexOf(COMINGSOON_SEARCH_URL + COMINGSOON_KEY_PARAM + comingSoonId) < 0) {
-                // No link to movie page found. We have been redirected to the general video page
-                logger.debug("ComingSoon: no video found for movie " + movie.getTitle());
-                return Movie.UNKNOWN;
-            }
-            
-            String xmlUrl = Movie.UNKNOWN;
-            
-            if (trailerPreferredFormat.indexOf(",") < 0) {
-                xmlUrl = parseVideoPage(xml, trailerPreferredFormat); 
-            } else {
-                StringTokenizer st = new StringTokenizer(trailerPreferredFormat, ",");
-                while (st.hasMoreTokens()) {
-                    xmlUrl = parseVideoPage(xml, st.nextToken());
-                    if (StringTools.isValidString(xmlUrl)) {
-                        break;
-                    }
-                }
-            }
-            
-            if (StringTools.isNotValidString(xmlUrl)) {
-                logger.debug("No downloadable trailer found for movie: " + movie.getTitle());
-                return Movie.UNKNOWN;
-            }
-            
-            String trailerXml = webBrowser.request(xmlUrl);
-            int beginUrl = trailerXml.indexOf("http://");
-            if (beginUrl >= 0) {
-                trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf("\"", beginUrl)));
-            } else {
-                logger.error("ComingSoon: cannot find trailer URL in XML. Layout changed?");
-            }
-            
-
-        } catch (Exception error) {
-            logger.error("ComingSoon: Failed retreiving trailer for movie: " + movie.getTitle());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
-            return Movie.UNKNOWN;
-        }
-        
-        return trailerUrl;
-    }
-    
-    private String parseVideoPage(String xml, String format) {
-        String trailerUrl = Movie.UNKNOWN;
-        
-        int indexOfTrailer = -1;
-        String extension;
-        
-        if (format.equalsIgnoreCase("mov")) {
-            extension = "qtl";
-        } else if (format.equalsIgnoreCase("wmv")) {
-            extension = "wvx";
-        } else {
-            logger.info("ComingSoon: unknown trailer format " + format);
-            return Movie.UNKNOWN;
-        }
-
-        if (trailerMaxResolution.equalsIgnoreCase("1080p")) {
-            indexOfTrailer = xml.indexOf("1080P." + extension);
-        }
-
-        if (indexOfTrailer < 0 && (trailerMaxResolution.equalsIgnoreCase("720p") || trailerMaxResolution.equalsIgnoreCase("1080p"))) {
-            indexOfTrailer = xml.indexOf("720P." + extension);
-        }
-        
-        if (indexOfTrailer < 0 && (trailerMaxResolution.equalsIgnoreCase("480p") || trailerMaxResolution.equalsIgnoreCase("720p") || trailerMaxResolution.equalsIgnoreCase("1080p"))) {
-            indexOfTrailer = xml.indexOf("480P." + extension);
-        }
-        
-        if (indexOfTrailer >= 0 ) {
-            int beginUrl = new String(xml.substring(0, indexOfTrailer)).lastIndexOf("http://");
-            trailerUrl = new String(xml.substring(beginUrl, xml.indexOf("\"", beginUrl)));
-            logger.debug("ComingSoon: found trailer XML URL " + trailerUrl);
-        }
-        
-        return trailerUrl;
-    }
-    
-    private boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrl, File trailerFile) {
-        
-        // Copied from AppleTrailersPlugin.java
-        
-        URL url;
-        try {
-            url = new URL(trailerUrl);
-        } catch (MalformedURLException e) {
-            return false;
-        }
-
-        ThreadExecutor.enterIO(url);
-        HttpURLConnection connection = null;
-        Timer timer = new Timer();
-        try {
-            logger.info("ComingSoon: Download trailer for " + movie.getBaseName());
-            final WebStats stats = WebStats.make(url);
-            // after make!
-            timer.schedule(new TimerTask() {
-                private String lastStatus = "";
-                public void run() {
-                    String status = stats.calculatePercentageComplete();
-                    // only print if percentage changed
-                    if (status.equals(lastStatus)) {
-                        return;
-                    }
-                    lastStatus = status;
-                    // this runs in a thread, so there is no way to output on one line...
-                    // try to keep it visible at least...
-                    System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString());
-                }
-            }, 1000, 1000);
-
-            connection = (HttpURLConnection) (url.openConnection());
-            //connection.setRequestProperty("User-Agent", "QuickTime/7.6.2");
-            InputStream inputStream = connection.getInputStream();
-
-            int code = connection.getResponseCode();
-            if (code != HttpURLConnection.HTTP_OK) {
-                logger.error("ComingSoon: Download Failed");
-                return false;
-            }
-
-            FileTools.copy(inputStream, new FileOutputStream(trailerFile), stats);
-            System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
-
-            return true;
-
-        } catch (Exception error) {
-            logger.error("ComingSoon: Download Exception");
-            return false;
-        } finally {
-            timer.cancel();         // Close the timer
-            if(connection != null){
-                connection.disconnect();
-            }
-            ThreadExecutor.leaveIO();
         }
     }
 

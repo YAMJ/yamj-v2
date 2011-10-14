@@ -111,6 +111,7 @@ MovieJukebox 2.5 SNAPSHOT
  - Enhancement  #2124 URL from NFO define movie scanner plugin
  - Fixed defect #2127 Recheck and Top250 not updating
  - Fixed defect #2128 Out a large amount of error codes while scanning
+ - Fixed defect #2126 ComingSoon plugin code refactoring 
 
 MovieJukebox 2.4
 ----------------
