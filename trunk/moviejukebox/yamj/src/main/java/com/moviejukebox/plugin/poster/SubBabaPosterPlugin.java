@@ -12,18 +12,17 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.net.URLEncoder;
-import org.apache.log4j.Logger;
+import java.awt.Dimension;
 import java.io.IOException;
-import java.io.Writer;
-import java.io.StringWriter;
-import java.io.PrintWriter;
+import java.net.URLEncoder;
 
-import com.moviejukebox.model.Movie;
+import org.apache.log4j.Logger;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tools.HTMLTools;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -48,37 +47,39 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
     public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
-            String searchURL = "http://www.sub-baba.com/search?page=search&type=all&submit=%E7%F4%F9&search=" + URLEncoder.encode(title, "iso-8859-8");
-
-            String xml = webBrowser.request(searchURL);
-
+//            String searchURL = "http://www.sub-baba.com/search?page=search&type=all&submit=%E7%F4%F9&search=" + URLEncoder.encode(title, "iso-8859-8");
+            StringBuilder searchURL = new StringBuilder("http://www.sub-baba.com/search/query/");
+            searchURL.append(URLEncoder.encode(title, "iso-8859-8"));
+            searchURL.append("/type/1/");
+            
+            String xml = webBrowser.request(searchURL.toString());
             String posterID = Movie.UNKNOWN;
 
             int index = 0;
             int endIndex = 0;
             while (true) {
-                index = xml.indexOf("<div align=\"center\"><a href=\"content?id=", index);
+                index = xml.indexOf("<div align=\"center\"><a href=\"/content/poster/", index);
                 if (index == -1) {
                     break;
                 }
 
-                index += 40;
+                index += 45;
 
-                index = xml.indexOf("<a href=\"content?id=", index);
+                index = xml.indexOf("<a href=\"/content/poster/", index);
                 if (index == -1) {
                     break;
                 }
 
-                index += 20;
+                index += 25;
 
-                endIndex = xml.indexOf("\">", index);
+                endIndex = xml.indexOf("/\" ", index);
                 if (endIndex == -1) {
                     break;
                 }
 
                 String scanPosterID = new String(xml.substring(index, endIndex));
 
-                index = endIndex + 2;
+                index = endIndex + 3;
 
                 index = xml.indexOf("<span dir=\"ltr\">", index);
                 if (index == -1) {
@@ -87,13 +88,13 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
                 index += 16;
 
-                endIndex = xml.indexOf("</span>", index);
+                endIndex = xml.indexOf("</span></a>", index);
                 if (endIndex == -1) {
                     break;
                 }
 
                 String scanName = new String(xml.substring(index, endIndex)).trim();
-                index = endIndex + 7;
+                index = endIndex + 11;
 
                 if (scanName.equalsIgnoreCase(title)) {
                     posterID = scanPosterID;
@@ -106,9 +107,9 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
                 response = posterID;
             }
 
-        } catch (Exception e) {
-            logger.error("SubBabbaPosterPlugin: Failed retreiving SubBaba Id for movie : " + title);
-            logger.error("SubBabbaPosterPlugin: Error : " + e.getMessage());
+        } catch (Exception error) {
+            logger.error("SubBabaPosterPlugin: Failed retreiving SubBaba Id for movie : " + title);
+            logger.error("SubBabaPosterPlugin: Error : " + error.getMessage());
         }
         return response;
     }
@@ -116,30 +117,47 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
     @Override
     public IImage getPosterUrl(String id) {
         if (!Movie.UNKNOWN.equals(id)) {
+            Image posterImage = new Image();
+
+            // This is the page that contains the poster URL
+            StringBuilder posterUrl = new StringBuilder("http://www.sub-baba.com/download/");
+            posterUrl.append(id).append("/2");
+            
+            // Load the poster page and extract the image filename
             try {
-                // poster URL
-                Image posterImage = new Image("http://www.sub-baba.com/site/download.php?type=1&id=" + id);
-
-                // checking poster dimension
-                String xml = webBrowser.request("http://www.sub-baba.com/content?id=" + id);
-                String imgTag = HTMLTools.extractTag(xml, "<img src=\"site/thumbs/", "/>");
-                String width = HTMLTools.extractTag(imgTag, "width=\"", 0, "\"");
-                String height = HTMLTools.extractTag(imgTag, "height=\"", 0, "\"");
-
-                // DVD Cover
-                if (Integer.parseInt(width) > Integer.parseInt(height)) {
-                    logger.debug("SubBabbaPosterPlugin: Detected DVD Cover, cropping image to poster size.");
-                    posterImage.setSubimage("0, 0, 47, 100");
+                String xml = webBrowser.request(posterUrl.toString());
+                
+                int startIndex = xml.indexOf("<img src=\"");
+                if (startIndex == -1) {
+                    return posterImage;
                 }
-
-                return posterImage;
+                startIndex += 10;
+                
+                int endIndex = xml.indexOf("\" width=", startIndex);
+                if (endIndex == -1) {
+                    return posterImage;
+                }
+                
+                posterUrl = new StringBuilder("http://www.sub-baba.com");
+                posterUrl.append(xml.substring(startIndex, endIndex));
+                
             } catch (IOException error) {
-                logger.error("SubBabbaPosterPlugin: Failed retreiving SubBaba poster for movie : " + id);
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error("SubBabaPosterPlugin: Failed retreiving SubBaba poster information (" + posterUrl + "): " + error.getMessage());
             }
+
+            // Save the filename to the poster.
+            posterImage.setUrl(posterUrl.toString());
+
+            // checking poster dimension
+            Dimension imageDimension = PosterScanner.getUrlDimensions(posterUrl.toString());
+            
+            // DVD Cover
+            if (imageDimension.getWidth() > imageDimension.getHeight()) {
+                logger.debug("SubBabaPosterPlugin: Detected DVD Cover, cropping image to poster size.");
+                posterImage.setSubimage("0, 0, 47, 100");
+            }
+
+            return posterImage;
         }
         return Image.UNKNOWN;
     }
