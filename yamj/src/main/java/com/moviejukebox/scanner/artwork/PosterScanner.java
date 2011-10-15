@@ -375,12 +375,7 @@ public class PosterScanner {
      * @return True if the poster is good, false otherwise
      */
     public static boolean validatePoster(IImage posterImage, int posterWidth, int posterHeight, boolean checkAspect) {
-        @SuppressWarnings("rawtypes")
-        Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
-        ImageReader reader = (ImageReader)readers.next();
-        int urlWidth = 0, urlHeight = 0;
         float urlAspect;
-
         if (!posterValidate) {
             return true;
         }
@@ -389,26 +384,10 @@ public class PosterScanner {
             return false;
         }
 
-        try {
-            URL url = new URL(posterImage.getUrl());
-            InputStream in = url.openStream();
-            ImageInputStream iis = ImageIO.createImageInputStream(in);
-            reader.setInput(iis, true);
-            urlWidth = reader.getWidth(0);
-            urlHeight = reader.getHeight(0);
-            
-            if (in != null) {
-                in.close();
-            }
-            
-            if (iis != null) {
-                iis.close();
-            }
-        } catch (IOException error) {
-            logger.debug("PosterScanner: ValidatePoster error: " + error.getMessage() + ": can't open url");
-            return false; // Quit and return a false poster
-        }
-
+        Dimension imageDimension = getUrlDimensions(posterImage.getUrl());
+        double urlWidth = imageDimension.getWidth();
+        double urlHeight = imageDimension.getHeight();
+        
         // Check if we need to cut the poster into a sub image
         if (StringTools.isValidString(posterImage.getSubimage())) {
             StringTokenizer st = new StringTokenizer(posterImage.getSubimage(), ", ");
@@ -442,6 +421,48 @@ public class PosterScanner {
             return false;
         }
         return true;
+    }
+    
+    /**
+     * Read an URL and get the dimensions of the image
+     * @param imageUrl
+     * @return
+     */
+    public static Dimension getUrlDimensions(String imageUrl) {
+        Dimension imageDimension = new Dimension(0, 0);
+        
+        @SuppressWarnings("rawtypes")
+        Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
+        ImageReader reader = (ImageReader)readers.next();
+
+        InputStream in = null;
+        ImageInputStream iis = null;
+        
+        try {
+            URL url = new URL(imageUrl);
+            in = url.openStream();
+            iis = ImageIO.createImageInputStream(in);
+            reader.setInput(iis, true);
+            
+            imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
+            return imageDimension;
+        } catch (IOException error) {
+            logger.debug("PosterScanner: getUrlDimensions error: " + error.getMessage() + ": can't open url");
+            return imageDimension; // Quit and return a false poster
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                // Ignore the error, it's already closed
+            }
+            
+            try {
+                iis.close();
+            } catch (IOException e) {
+                // Ignore the error, it's already closed
+            }
+        }
+        
     }
 
     public static void register(String key, IPosterPlugin posterPlugin) {
