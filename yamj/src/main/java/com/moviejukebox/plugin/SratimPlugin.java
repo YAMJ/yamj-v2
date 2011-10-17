@@ -657,7 +657,7 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
-            String tmpPlot = removeHtmlTags(extractTag(xml, "<div id=\"profilememo\" style=\"font-size:14px;text-align:justify;\">", "</div>"));
+            String tmpPlot = removeHtmlTags(extractTag(xml, "<meta name=\"description\" content=\"", "\""));
             
             if (tmpPlot.length()>30) { //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used. 
                 movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
@@ -1349,7 +1349,7 @@ public class SratimPlugin extends ImdbPlugin {
         return r.toString();
     }
 
-    public boolean scanNFO(String nfo, Movie movie) {
+    public void scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB if sratim doesn't know movie
         logger.debug("Sratim Plugin: Scanning NFO for sratim url");
         Matcher m = nfoPattern.matcher(nfo);
@@ -1366,7 +1366,7 @@ public class SratimPlugin extends ImdbPlugin {
         } else {
             logger.debug("Sratim Plugin: No URL found in nfo!");
         }
-        return found;
+        //return found;
     }
 
     private int findEndOfHebrewSubtitlesSection(String mainXML) {
