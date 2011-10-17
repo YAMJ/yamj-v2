@@ -109,9 +109,10 @@ MovieJukebox 2.5 SNAPSHOT
  - Fixed defect #2109 Explode Set by items of category Other
  - Fixed defect #2112 Failed grab multiFPS value
  - Enhancement  #2124 URL from NFO define movie scanner plugin
+ - Fixed defect #2126 ComingSoon plugin code refactoring 
  - Fixed defect #2127 Recheck and Top250 not updating
  - Fixed defect #2128 Out a large amount of error codes while scanning
- - Fixed defect #2126 ComingSoon plugin code refactoring 
+ - Enhancement  #2132 Trailer plugin for www.trailersland.com  
 
 MovieJukebox 2.4
 ----------------
