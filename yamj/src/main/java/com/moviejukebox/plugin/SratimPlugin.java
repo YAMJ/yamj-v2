@@ -1349,11 +1349,13 @@ public class SratimPlugin extends ImdbPlugin {
         return r.toString();
     }
 
-    public void scanNFO(String nfo, Movie movie) {
-        super.scanNFO(nfo, movie); // use IMDB if sratim doesn't know movie
+    public boolean scanNFO(String nfo, Movie movie) {
+        boolean found=super.scanNFO(nfo, movie); 
+        if (found){
+            return true; // IMDB nfo found, no need of further scanning.
+        }
         logger.debug("Sratim Plugin: Scanning NFO for sratim url");
         Matcher m = nfoPattern.matcher(nfo);
-        boolean found = false;
         while (m.find()) {
             String url = m.group();
             if (!url.endsWith(".jpg") && !url.endsWith(".jpeg") && !url.endsWith(".gif") && !url.endsWith(".png") && !url.endsWith(".bmp")) {
@@ -1366,7 +1368,7 @@ public class SratimPlugin extends ImdbPlugin {
         } else {
             logger.debug("Sratim Plugin: No URL found in nfo!");
         }
-        //return found;
+        return found;
     }
 
     private int findEndOfHebrewSubtitlesSection(String mainXML) {
