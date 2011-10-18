@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -65,6 +66,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addSetLogo;
     private boolean addSubTitle;
     private boolean addLanguage;
+    private boolean blockLanguage;
     private boolean addOverlay;
     private int imageWidth;
     private int imageHeight;
@@ -107,6 +109,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockAudioCodec;
     private boolean addAudioChannels;
     private boolean blockAudioChannels;
+    private boolean addAudioLang;
+    private boolean blockAudioLang;
     private boolean addContainer;
     private boolean addAspectRatio;
     private boolean addFPS;
@@ -122,12 +126,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addAward;
     private boolean blockAward;
     private boolean countAward;
+    private boolean blockClones;
     private HashMap<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsVideoCodec = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsAudioCodec = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsAudioChannels = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> keywordsAudioLang = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsContainer = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsAspectRatio = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsFPS = new HashMap<String, ArrayList<String>>();
@@ -164,7 +170,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addHDLogo           = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", "false");
         addTVLogo           = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", "false");
         addSubTitle         = PropertiesUtil.getBooleanProperty(imageType + ".logoSubTitle", "false");
-        addLanguage         = PropertiesUtil.getBooleanProperty(imageType + ".language", "false");
+
+        String tmpLanguage  = PropertiesUtil.getProperty(imageType + ".language", "false");
+        blockLanguage       = tmpLanguage.equalsIgnoreCase("block");
+        addLanguage         = tmpLanguage.equalsIgnoreCase("true") || blockLanguage;
+
         addOverlay          = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
 
         String tmpSetLogo   = PropertiesUtil.getProperty(imageType + ".logoSet", "false");
@@ -208,6 +218,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         blockAudioChannels  = tmpAudioChannels.equalsIgnoreCase("block");
         addAudioChannels    = tmpAudioChannels.equalsIgnoreCase("true") || blockAudioChannels;
 
+        String tmpAudioLang = PropertiesUtil.getProperty(imageType + ".audiolang", "false");
+        blockAudioLang      = tmpAudioCodec.equalsIgnoreCase("block");
+        addAudioLang        = tmpAudioLang.equalsIgnoreCase("true") || blockAudioLang;
+
         addVideoSource      = PropertiesUtil.getBooleanProperty(imageType + ".videosource", "false");
         addVideoOut         = PropertiesUtil.getBooleanProperty(imageType + ".videoout", "false");
         addVideoCodec       = PropertiesUtil.getBooleanProperty(imageType + ".videocodec", "false");
@@ -218,6 +232,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addWatched          = PropertiesUtil.getBooleanProperty(imageType + ".watched", "false");
         addTop250           = PropertiesUtil.getBooleanProperty(imageType + ".top250", "false");
         addKeywords         = PropertiesUtil.getBooleanProperty(imageType + ".keywords", "false");
+        blockClones         = PropertiesUtil.getBooleanProperty(imageType + ".clones", "false");
 
         String tmpCountry   = PropertiesUtil.getProperty(imageType + ".country", "false");
         blockCountry        = tmpCountry.equalsIgnoreCase("block");
@@ -246,6 +261,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             fillOverlayKeywords(keywordsAudioCodec, tmp);
             tmp = PropertiesUtil.getProperty("overlay.keywords.audiochannels", "");
             fillOverlayKeywords(keywordsAudioChannels, tmp);
+            tmp = PropertiesUtil.getProperty("overlay.keywords.audiolang", "");
+            fillOverlayKeywords(keywordsAudioLang, tmp);
             tmp = PropertiesUtil.getProperty("overlay.keywords.container", "");
             fillOverlayKeywords(keywordsContainer, tmp);
             tmp = PropertiesUtil.getProperty("overlay.keywords.aspect", "");
@@ -465,7 +482,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO"))?"false":"true";
                         } else if (name.equalsIgnoreCase("language")) {
                             value = movie.getLanguage();
-                            value = movie.getBaseFilename();
                         } else if (name.equalsIgnoreCase("rating")) {
                             value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster()))?Integer.toString(realRating?movie.getRating():(movie.getRating()/10)*10):Movie.UNKNOWN;
                         } else if (name.equalsIgnoreCase("videosource") || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
@@ -485,6 +501,30 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 if (pos > -1) {
                                     value = value.substring(0, pos);
                                 }
+                            } else {
+                                while (value.indexOf(" (") > 0 && value.indexOf(" (") < value.indexOf(")")) {
+                                    value = value.substring(0, value.indexOf(" (")) + value.substring(value.indexOf(")") + 1);
+                                }
+                            }
+                        } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
+                            value = "";
+                            for (String tmp : movie.getAudioCodec().split(" / ")) {
+                                if (tmp.indexOf(" (") > 0 && tmp.indexOf(" (") < tmp.indexOf(")")) {
+                                    tmp = tmp.substring(tmp.indexOf(" (") + 2, tmp.indexOf(")"));
+                                } else {
+                                    tmp = Movie.UNKNOWN;
+                                }
+                                if (!blockAudioLang) {
+                                    value = tmp;
+                                    break;
+                                }
+                                if (!value.equals("")) {
+                                    value += " / ";
+                                }
+                                value += tmp;
+                            }
+                            if (value.equals("")) {
+                                value = Movie.UNKNOWN;
                             }
                         } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
                             value = movie.getAudioChannels();
@@ -570,7 +610,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String value = states.get(inx).value;
                     String filename = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
-                        if (name.equalsIgnoreCase("language") && StringTools.isValidString(value)) {
+                        if (!blockLanguage && name.equalsIgnoreCase("language") && StringTools.isValidString(value)) {
                             filename = "languages/English.png";
                         }
                         String[] values = value.split(" / ");
@@ -584,7 +624,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     } else if (img.values.size() > 1) {
                                         accept = true;
                                         for (int i = 0; i < layer.names.size(); i++) {
-                                            accept = accept && cmpOverlayValue(name, img.values.get(i), states.get(i).value);
+                                            accept = accept && cmpOverlayValue(layer.names.get(i), img.values.get(i), states.get(i).value);
                                             if (!accept) {
                                                 break;
                                             }
@@ -642,7 +682,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 for (int i = 0; i < layer.names.size(); i++) {
                     stateOverlay state = states.get(i);
                     String name = layer.names.get(i);
-                    if (name.equalsIgnoreCase("language")) {
+                    if (!blockLanguage && name.equalsIgnoreCase("language")) {
                         bi = drawLanguage(movie, bi, getOverlayX(bi.getWidth(), 62, state.left, state.align), getOverlayY(bi.getHeight(), 40, state.top, state.valign));
                         continue;
                     }
@@ -654,9 +694,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                     if (((blockAudioCodec && ((name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC")))) ||
                             (blockAudioChannels && (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels"))) ||
+                            (blockAudioLang && (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL"))) ||
                             (blockCountry && name.equalsIgnoreCase("country")) ||
                             (blockCompany && name.equalsIgnoreCase("company")) ||
-                            (blockAward && name.equalsIgnoreCase("award"))) &&
+                            (blockAward && name.equalsIgnoreCase("award")) ||
+                            (blockLanguage && name.equalsIgnoreCase("language"))) &&
                             (overlayBlocks.get(name) != null)) {
                         bi = drawBlock(movie, bi, name, filename, state.left, state.align, state.width, state.top, state.valign, state.height);
                         continue;
@@ -988,6 +1030,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             try {
                 Graphics2D g2d = bi.createGraphics();
                 BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + filenames[0]);
+                List<String> uniqueFiles = new ArrayList<String>();
+                uniqueFiles.add(filenames[0]);
                 int width = Width.matches("\\d+")?Integer.parseInt(Width):biSet.getWidth();
                 int height = Height.matches("\\d+")?Integer.parseInt(Height):biSet.getHeight();
                 logosBlock block = overlayBlocks.get(name);
@@ -1014,6 +1058,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     int offsetX =block.dir?width:0;
                     int offsetY = block.dir?0:height;
                     for (int i = 1; i < filenames.length; i++) {
+                        if (!blockClones) {
+                            if (uniqueFiles.contains(filenames[i])) {
+                                continue;
+                            } else {
+                                uniqueFiles.add(filenames[i]);
+                            }
+                        }
                         if (block.dir) {
                             col++;
                             if (block.cols > 0 && col >= cols) {
@@ -1485,6 +1536,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return addAudioCodec;
         } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
             return addAudioChannels;
+        } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
+            return addAudioLang;
         } else if (name.equalsIgnoreCase("container")) {
             return addContainer;
         } else if (name.equalsIgnoreCase("aspect")) {
@@ -1561,6 +1614,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 data = keywordsAudioCodec;
             } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
                 data = keywordsAudioChannels;
+            } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
+                data = keywordsAudioLang;
             } else if (name.equalsIgnoreCase("container")) {
                 data = keywordsContainer;
             } else if (name.equalsIgnoreCase("aspect")) {
