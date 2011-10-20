@@ -31,7 +31,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -1652,6 +1651,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return result;
     }
 
+    @SuppressWarnings("rawtypes")
     class ValueComparator implements Comparator {
         Map base;
 
