@@ -451,13 +451,17 @@ public class PosterScanner {
             return imageDimension; // Quit and return a false poster
         } finally {
             try {
-                in.close();
+                if (in != null) {
+                    in.close();
+                }
             } catch (IOException e) {
                 // Ignore the error, it's already closed
             }
             
             try {
-                iis.close();
+                if (iis != null) {
+                    iis.close();
+                }
             } catch (IOException e) {
                 // Ignore the error, it's already closed
             }
