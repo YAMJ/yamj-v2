@@ -321,7 +321,7 @@ public class PosterScanner {
             
             // Check that plugin is register even on movie or tv
             if (iPosterPlugin == null) {
-                logger.error("PosterScanner: '" + posterSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : "
+                logger.error("PosterScanner: '" + posterSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : "
                                 + getPluginsCode());
             }
             

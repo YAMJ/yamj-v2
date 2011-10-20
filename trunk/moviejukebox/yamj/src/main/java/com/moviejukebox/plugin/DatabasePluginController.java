@@ -94,7 +94,7 @@ public class DatabasePluginController {
                         }
                     }
                     if (!isScanned) {
-                        logger.warn("Movie '" + movie.getTitle() + "' was not able to be scanned using the current plugins");
+                        logger.warn("Video '" + movie.getBaseName() + "' was not able to be scanned using the current plugins");
                     }
                 }
             }
