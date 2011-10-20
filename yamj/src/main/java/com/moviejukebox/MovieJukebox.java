@@ -2539,7 +2539,7 @@ public class MovieJukebox {
             trailersSearchToken = st.nextToken();
             ITrailersPlugin trailersPlugin = trailerPlugins.get(trailersSearchToken);
             if (trailersPlugin == null) {
-                logger.error("MovieJukebox: TrailersScanner: '" + trailersSearchToken + "' plugin doesn't exist, please check you moviejukebox properties. Valid plugins are : " + getTrailerPluginsCode());
+                logger.error("MovieJukebox: TrailersScanner: '" + trailersSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : " + getTrailerPluginsCode());
             } else {
                 result |= trailersPlugin.generate(movie);
             }

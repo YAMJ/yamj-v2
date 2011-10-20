@@ -887,7 +887,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             anidbConn.authenticate(anidbUsername, anidbPassword, ANIDB_CLIENT_NAME, ANIDB_CLIENT_VERSION);
             anidbConnectionProtection = false;
         } catch (IllegalArgumentException error) {
-            logger.error(LOG_MESSAGE + "Error logging in, please check you username & password");
+            logger.error(LOG_MESSAGE + "Error logging in, please check your username & password");
             logger.error(LOG_MESSAGE + error.getMessage());
             anidbConn = null;
             anidbConnectionProtection = true;

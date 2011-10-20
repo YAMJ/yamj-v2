@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.plugin.FilmUpITPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.StringTools;
@@ -59,11 +60,11 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
                 return searchResult;
             }
 
-            logger.debug("No ID Found with request : " + sb.toString());
+            logger.debug("FilmUpItPosterPlugin: No ID Found with request : " + sb.toString());
             return Movie.UNKNOWN;
 
         } catch (Exception error) {
-            logger.error("Failed to retrieve FilmUp ID for movie : " + title);
+            logger.error("FilmUpItPosterPlugin: Failed to retrieve FilmUp ID for movie : " + title);
         }
         return response;
     }
@@ -82,11 +83,11 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             String tmpPosterURL = HTMLTools.extractTag(xml, "\"../loc/", "\"");
             if (StringTools.isValidString(tmpPosterURL)) {
                 posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
-                logger.debug("Movie PosterURL : " + posterPageUrl);
+                logger.debug("FilmUpItPosterPlugin: Movie PosterURL : " + posterPageUrl);
             }
 
         } catch (Exception error) {
-            logger.error("Failed retreiving poster : " + id);
+            logger.error("FilmUpItPosterPlugin: Failed retreiving poster : " + id);
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
@@ -106,7 +107,7 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getName() {
-        return "filmupit";
+        return FilmUpITPlugin.FILMUPIT_PLUGIN_ID;
     }
 
 }
