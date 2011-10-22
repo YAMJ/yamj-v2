@@ -49,12 +49,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final String webhost = "thetvdb.com";
     private static final String defaultLanguage = "en";
 
-    private static final String CACHE_SERIES = "Series";
-    private static final String CACHE_BANNERS = "Banners";
+    public static final String CACHE_SERIES = "Series";
+    public static final String CACHE_BANNERS = "Banners";
     
-    private TheTVDB tvDB;
-    private String language;
-    private String language2nd;
+    private static TheTVDB tvDB;
+    private static String language;
+    private static String language2nd;
     private boolean forceBannerOverwrite;
     private boolean forceFanartOverwrite;
     private boolean includeEpisodePlots;
@@ -120,7 +120,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         ThreadExecutor.enterIO(webhost);
                         try {
                             year = tvDB.getSeasonYear(id, movie.getSeason(), language);
-                            if (year == null && !language2nd.isEmpty()) {
+                            if (StringTools.isNotValidString(year) && StringTools.isValidString(language2nd)) {
                                 year = tvDB.getSeasonYear(id, movie.getSeason(), language2nd);
                             }
                         } finally {
@@ -181,7 +181,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             // Trying to grab localized banner at first...
                             urlBanner = findBannerURL2(banners, BannerType.Blank, language, season);
                             // In a case of failure - trying to grab banner in alternative language.
-                            if (urlBanner == null) {
+                            if (StringTools.isNotValidString(urlBanner) && StringTools.isValidString(language2nd)) {
                                 urlBanner = findBannerURL2(banners, BannerType.Blank, language2nd, season);
                             }
                         }
@@ -309,7 +309,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         ThreadExecutor.enterIO(webhost);
         try {
             episodeList = tvDB.getSeasonEpisodes(id, movie.getSeason(), language);
-            if (!language.equalsIgnoreCase(language2nd)) {
+            if (!language.equalsIgnoreCase(language2nd)  && StringTools.isValidString(language2nd)) {
                 episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, movie.getSeason(), language2nd);
             }
         } catch (Exception error) {
@@ -325,7 +325,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     Episode episode = null;
                     if (dvdEpisodes) {
                         episode = findDvdEpisode(episodeList, movie.getSeason(), part);
-                        if (episode == null && !language2nd.isEmpty()) {
+                        if (episode == null && StringTools.isValidString(language2nd)) {
                             episode = findDvdEpisode(episodeList2ndLanguage, movie.getSeason(), part);
                         }
                     }
@@ -333,7 +333,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (episode == null) {
                         //episode = tvDB.getEpisode(id, movie.getSeason(), part, language);
                         episode = findEpisode(episodeList, movie.getSeason(), part);
-                        if (episode == null && !language2nd.isEmpty()) {
+                        if (episode == null && StringTools.isValidString(language2nd)) {
                             episode = findEpisode(episodeList2ndLanguage, movie.getSeason(), part);
                         }
                     }
@@ -480,6 +480,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
 
     private String findBannerURL(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
+        if (StringTools.isNotValidString(languageId)) {
+            return null;
+        }
+        
         for (Banner banner : bannerList.getSeasonList()) {
             if (banner.getSeason() == season) {
                 if (banner.getBannerType2() == bannerType) {
@@ -493,6 +497,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
 
     private String findBannerURL2(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
+        if (StringTools.isNotValidString(languageId)) {
+            return null;
+        }
+        
         int counter = 0;
         String urlBanner = null;
         String savedUrl = null;
@@ -523,7 +531,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
      * @param id
      * @return
      */
-    public Series getSeries(String id) {
+    public static Series getSeries(String id) {
         Series series = (Series) Cache.getFromCache(Cache.generateCacheKey(CACHE_SERIES, id, language));
 
         if (series == null) {
@@ -562,7 +570,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
      * @param movie
      * @return
      */
-    public String findId(Movie movie) {
+    public static String findId(Movie movie) {
         String id = movie.getId(THETVDB_PLUGIN_ID);
 
         if (StringTools.isNotValidString(id)) {
@@ -637,7 +645,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
      * @param id
      * @return
      */
-    public Banners getBanners(String id) {
+    public static Banners getBanners(String id) {
         Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey(CACHE_BANNERS, id, language));
         
         if (banners == null) {
@@ -654,4 +662,5 @@ public class TheTvDBPlugin extends ImdbPlugin {
         
         return banners;
     }
+
 }

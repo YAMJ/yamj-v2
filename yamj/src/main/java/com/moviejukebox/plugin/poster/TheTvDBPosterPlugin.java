@@ -22,12 +22,12 @@ import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.BannerType;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
-import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
@@ -78,7 +78,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 try {
                     seriesList = tvDB.searchSeries(title, language);
                     // Try Alternative Language
-                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
+                    if ((seriesList == null || seriesList.isEmpty()) && StringTools.isValidString(language2nd)) {
                         seriesList = tvDB.searchSeries(title, language2nd);
                     }
                 } finally {
@@ -129,44 +129,25 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         try {
             if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
                 String urlNormal = null;
-                Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey("Banners", id, language));
                 
-                if (banners == null) {
-                    banners = tvDB.getBanners(id);
-                    Cache.addToCache(Cache.generateCacheKey("Banners", id, language), banners);
-                }
-
+                Banners banners = TheTvDBPlugin.getBanners(id);
+                
                 if (!banners.getSeasonList().isEmpty()) {
                     // Trying to grab localized banners at first...
                     urlNormal = findPosterURL(banners, season, language);
-                    if (urlNormal == null && !language2nd.isEmpty()) {
+                    if (StringTools.isNotValidString(urlNormal) && !language2nd.isEmpty()) {
                         // In a case of failure - trying to grab banner in alternative language.
                         urlNormal = findPosterURL(banners, season, language2nd);
                     }
                 }
                 
-                if (urlNormal == null && !banners.getPosterList().isEmpty()) {
+                if (StringTools.isNotValidString(urlNormal) && !banners.getPosterList().isEmpty()) {
                     urlNormal = banners.getPosterList().get(0).getUrl();
                 }
                 
                 if (urlNormal == null) {
-                    Series series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language));
-                    
-                    if (series == null) {
-                        series = tvDB.getSeries(id, language);
-                        Cache.addToCache(Cache.generateCacheKey("Series", id, language), series);
-                    }
-                    
-                    if (series == null && !language2nd.isEmpty()) {
-                        series = (Series) Cache.getFromCache(Cache.generateCacheKey("Series", id, language2nd));
-                        
-                        if (series == null) {
-                            series = tvDB.getSeries(id, language2nd);
-                            Cache.addToCache(Cache.generateCacheKey("Series", id, language2nd), series);
-                        }
-                    }
-                    
-                    if (series.getPoster() != null && !series.getPoster().isEmpty()) {
+                    Series series = TheTvDBPlugin.getSeries(id);
+                    if (series != null && StringTools.isValidString(series.getPoster())) {
                         urlNormal = series.getPoster();
                     }
                 }
