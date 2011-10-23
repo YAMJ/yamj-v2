@@ -29,7 +29,7 @@ public class VideoFileDTO implements Serializable {
     public static final String TABLE_KEY    = "ID";
     public static final String CREATE_TABLE = "create table if not exists " + TABLE_NAME + 
         " (ID integer primary key, VIDEO_ID integer, FILE_LOCATION text, FILE_URL text, CONTAINER text," +
-        " AUDIO_CHANNELS integer, VIDEO_CODEC_ID integer, AUDIO_CODEC_ID integer, RESOLUTION text," +
+        " AUDIO_CHANNELS text, VIDEO_CODEC_ID integer, AUDIO_CODEC_ID integer, RESOLUTION text," +
         " VIDEO_SOURCE text, VIDEO_OUTPUT text, ASPECT text, FPS FLOAT, FILE_DATE TEXT, FILE_SIZE LONG," +
         " NUMBER_PARTS integer, FIRST_PART integer, LAST_PART integer)";
     public static final String INSERT_TABLE = "insert into " + TABLE_NAME + 

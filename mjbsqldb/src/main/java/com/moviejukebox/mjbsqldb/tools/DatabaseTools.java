@@ -100,7 +100,6 @@ public class DatabaseTools {
         }
 
         Statement stmt = null;
-        ResultSet rs = null;
 
         try {
             stmt = connection.createStatement();
@@ -128,7 +127,6 @@ public class DatabaseTools {
         } catch (Throwable tw) {
             throw new RuntimeException("Error deleting the tables: " + tw.getMessage(), tw);
         } finally {
-            SQLTools.close(rs);
             SQLTools.close(stmt);
         }
     }
