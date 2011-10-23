@@ -26,7 +26,7 @@ import com.moviejukebox.mjbsqldb.tools.DatabaseTools;
 import com.moviejukebox.mjbsqldb.tools.SQLTools;
 
 public class MjbSqlDb {
-    private static final float VERSION = 1.35f;
+    private static final float VERSION = 1.4f;
     protected static Connection connection = null;
 
     static {
@@ -69,7 +69,7 @@ public class MjbSqlDb {
             connection.setAutoCommit(false);
 
             // Check the version of the database against the program version
-            Float dbVersion = 0.0f;
+            Float dbVersion;
             try {
                 dbVersion = DatabaseTools.getDatabaseVersion(connection);
             } catch (Exception error) {
@@ -88,8 +88,6 @@ public class MjbSqlDb {
         } catch (Throwable tw) {
             SQLTools.close(connection);
             throw new RuntimeException("Error opening the database: " + tw.getMessage(), tw);
-        } finally {
-            // Anything to do here?
         }
     }
 
