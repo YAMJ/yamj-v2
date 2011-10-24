@@ -2,8 +2,12 @@
 ** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.5 SNAPSHOT
+MovieJukebox 2.6 SNAPSHOT
 -------------------------
+
+
+MovieJukebox 2.5 (24-Oct-2011)
+------------------------------
  - Enhancement    #29 Allow a skin to mark a video as watched or unwatched
  - Enhancement	 #258 Anidb plugin development
  - Enhancement   #314 Sort title option in NFO
