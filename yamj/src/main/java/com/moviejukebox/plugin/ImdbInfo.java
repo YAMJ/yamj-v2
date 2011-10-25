@@ -39,36 +39,36 @@ public class ImdbInfo {
 
     private ImdbSiteDataDefinition siteDef;
     static {
-        matchesDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director", "Cast", "Release Date", "Runtime", "Country",
-                        "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer", "Taglines"));
+        matchesDataPerSite.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director|Directed by", "Cast", "Release Date", "Runtime", "Country",
+                        "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer|Writing credits", "Taglines"));
 
-        matchesDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Pays",
-                        "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes", "Taglines"));
+        matchesDataPerSite.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", "ISO-8859-1", "R&#xE9;alisateur|R&#xE9;alis&#xE9; par", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Pays",
+                        "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines"));
 
-        matchesDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Pa&#xED;s",
-                        "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Quotes", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores", "Taglines"));
+        matchesDataPerSite.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director|Dirigida por", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Pa&#xED;s",
+                        "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Quotes", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines"));
 
-        matchesDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur", "Besetzung", "Premierendatum", "L&#xE4;nge", "Land",
-                        "Firma", "Genre", "Quotes", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Guionista", "Taglines"));
+        matchesDataPerSite.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Land",
+                        "Firma", "Genre", "Quotes", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Guionista|Buch", "Taglines"));
 
-        matchesDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Cast", "Data di uscita", "Durata",
-                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore", "Taglines"));
+        matchesDataPerSite.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi|Regia di", "Cast", "Data di uscita", "Durata",
+                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines"));
 
-        matchesDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
+        matchesDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor|Dirigido por", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
                         "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
-                        "Roteirista", "Taglines"));
+                        "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines"));
         
         // Use this as a workaround for English speakers abroad who get localised versions of imdb.com
-        matchesDataPerSite.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", "ISO-8859-1", "Director|Directors", "Cast", "Release Date", "Runtime", "Country",
-                        "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers", "Taglines"));
+        matchesDataPerSite.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", "ISO-8859-1", "Director|Directors|Directed by", "Cast", "Release Date", "Runtime", "Country",
+                        "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines"));
         
         // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
-        matchesDataPerSite.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", "ISO-8859-1", "Director|Directors", "Cast", "Release Date", "Runtime", "Country",
-                        "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers", "Taglines"));
+        matchesDataPerSite.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", "ISO-8859-1", "Director|Directors|Directed by", "Cast", "Release Date", "Runtime", "Country",
+                        "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines"));
 
         // Not 100% sure these are correct
-        matchesDataPerSite.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi", "Attori", "Data di uscita", "Durata",
-                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore", "Taglines"));
+        matchesDataPerSite.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", "ISO-8859-1", "Regista|Registi|Regia di", "Attori", "Data di uscita", "Durata",
+                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Certification", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines"));
     }
 
     public void setPreferredSearchEngine(String preferredSearchEngine) {

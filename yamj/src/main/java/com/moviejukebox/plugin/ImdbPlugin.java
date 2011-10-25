@@ -770,16 +770,22 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
+        String personXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "fullcredits", siteDef2.getCharset());
         // DIRECTOR(S)
         if (movie.getPerson("Directing").isEmpty()) {
             // Issue 1897: Cast enhancement
             for (String category : siteDef2.getDirector().split("\\|")) {
-                if (xml.indexOf(category + ":") >= 0) {
-                    for (String member : HTMLTools.extractTags(xml, category + ":", "</div>", "<a ", "</a>", false)) {
+                if (personXML.indexOf(">" + category + "</a>") >= 0) {
+                    int count = 0;
+                    for (String member : HTMLTools.extractTags(personXML, ">" + category + "</a>", "</table>", "<a ", "</a>", false)) {
                         int beginIndex = member.indexOf("href=\"/name/");
                         if (beginIndex > -1) {
                             String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
                             movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
+                            count++;
+                            if (count == directorMax) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -790,14 +796,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.getPerson("Writing").isEmpty()) {
             // Issue 1897: Cast enhancement
             for (String category : siteDef2.getWriter().split("\\|")) {
-                if (xml.indexOf(category + ":") >= 0) {
-                    for (String member : HTMLTools.extractTags(xml, category + ":", "</div>", "<a ", "</a>", false)) {
+                if (personXML.indexOf(">" + category + "</a>") >= 0) {
+                int count = 0;
+                    for (String member : HTMLTools.extractTags(personXML, ">" + category + "</a>", "</table>", "<a ", "</a>", false)) {
                         int beginIndex = member.indexOf("href=\"/name/");
                         if (beginIndex > -1) {
                             String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
                             String name = member.substring(member.indexOf("\">", beginIndex) + 2);
                             if (name.indexOf("more credit") == -1) {
                                 movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + "name/" + personID + "/");
+                                count++;
+                                if (count == writerMax) {
+                                    break;
+                                }
                             }
                         }
                     }

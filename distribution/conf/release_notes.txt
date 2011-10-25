@@ -118,6 +118,7 @@ MovieJukebox 2.5 (24-Oct-2011)
  - Fixed defect #2127 Recheck and Top250 not updating
  - Fixed defect #2128 Out a large amount of error codes while scanning
  - Enhancement  #2132 Trailer plugin for www.trailersland.com  
+ - Fixed defect #2143 Director and writer scraper doesn't work for more persons behind the imdb link "and xx more credit"
 
 MovieJukebox 2.4
 ----------------
