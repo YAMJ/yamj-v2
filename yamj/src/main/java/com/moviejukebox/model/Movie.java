@@ -2157,9 +2157,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
         
         if (!url.equalsIgnoreCase(this.posterURL)) {
-        	setDirty(Movie.DIRTY_INFO, true);
-	        this.posterURL = url;
-	    }
+            setDirty(Movie.DIRTY_INFO, true);
+            this.posterURL = url;
+        }
     }
 
     @XmlElement(name = "posterFile")

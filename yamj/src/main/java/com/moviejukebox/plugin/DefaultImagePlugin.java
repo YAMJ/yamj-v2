@@ -58,7 +58,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addReflectionEffect;
     private boolean addPerspective;
     private boolean imageNormalize;
-	//stretch images
+    //stretch images
     private boolean imageStretch;
     private boolean addHDLogo;
     private boolean addTVLogo;
@@ -80,8 +80,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static String textFontColor;
     private static String textFontShadow;
     private static int textOffset;
-    private static int overlayOffsetX;
-    private static int overlayOffsetY;
+    private int overlayOffsetX;
+    private int overlayOffsetY;
     private String imageType;
     private boolean roundCorners;
     private int cornerRadius;
@@ -191,7 +191,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         textOffset          = PropertiesUtil.getIntProperty(imageType + ".addText.offset", "10");
         roundCorners        = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
         cornerRadius        = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
-        cornerQuality        = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
+        cornerQuality       = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
         
         overlayOffsetX      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
         overlayOffsetY      = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
@@ -326,7 +326,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 
                 // Don't resize if the factor is the same
                 if (rcqFactor > 1.00f) {
-    				//roundCorner quality resizing
+                    //roundCorner quality resizing
                     bi = GraphicTools.scaleToSizeStretch((int)imageWidth, (int)imageHeight, bi);
                 }
             }
@@ -586,11 +586,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     }
                                 }
                             }
+                            
                             if (blockAward) {
                                 ValueComparator bvc =  new ValueComparator(awards);
-                                TreeMap<String, Integer> sorted_awards = new TreeMap(bvc);
-                                sorted_awards.putAll(awards);
-                                for (String award : sorted_awards.keySet()) {
+                                TreeMap<String, Integer> sortedAwards = new TreeMap<String, Integer>(bvc);
+                                sortedAwards.putAll(awards);
+                                for (String award : sortedAwards.keySet()) {
                                     if (!value.equals("")) {
                                         value += " / ";
                                     }

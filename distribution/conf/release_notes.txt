@@ -4,6 +4,7 @@
 
 MovieJukebox 2.6 SNAPSHOT
 -------------------------
+ - Fixed defect #2064 Overlay misplaced when mjb.MaxThreadsProcess > 1
 
 
 MovieJukebox 2.5 (24-Oct-2011)
