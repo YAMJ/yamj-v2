@@ -501,7 +501,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Rating
             if (!NFOrating) {
-                for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/" + kinopoiskId + "/\"", "</a>", "ratingValue\"", "</span>")) {
+                for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/" + kinopoiskId + "/\"", "</a>", "none\"><span", "</span>")) {
                     try {
                         int kinopoiskRating = (int)(Float.parseFloat(rating) * 10);
                         movie.addRating(KINOPOISK_PLUGIN_ID, kinopoiskRating);
