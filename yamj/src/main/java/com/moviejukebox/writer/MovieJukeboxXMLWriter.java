@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +31,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 import javax.xml.stream.XMLEventReader;
@@ -1124,7 +1127,49 @@ public class MovieJukeboxXMLWriter {
                         }
                     } else {
                         // Process the remaining categories
-                        for (Map.Entry<String, List<Movie>> index : category.getValue().entrySet()) {
+                        TreeMap<String, List<Movie>> sortedMap = new TreeMap(new Comparator() {
+                                                                                private final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
+                                                                                private boolean inited = false;
+
+                                                                                public int compare(Object o1, Object o2) {
+                                                                                    if (!inited) {
+                                                                                        initSortIgnorePrefixes();
+                                                                                    }
+
+                                                                                    return getStrippedTitle((String) o1).compareToIgnoreCase(getStrippedTitle((String) o2));
+                                                                                }
+
+                                                                                private String getStrippedTitle(String title) {
+                                                                                    String lowerTitle = title.toLowerCase();
+
+                                                                                    for (String prefix : sortIgnorePrefixes) {
+                                                                                        if (lowerTitle.startsWith(prefix.toLowerCase())) {
+                                                                                            title = new String(title.substring(prefix.length()));
+                                                                                            break;
+                                                                                        }
+                                                                                    }
+
+                                                                                    return title;
+                                                                                }
+
+                                                                                public void initSortIgnorePrefixes() {
+                                                                                    String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
+                                                                                    if (temp != null) {
+                                                                                        StringTokenizer st = new StringTokenizer(temp, ",");
+                                                                                        while (st.hasMoreTokens()) {
+                                                                                            String token = st.nextToken().trim();
+                                                                                            if (token.startsWith("\"") && token.endsWith("\"")) {
+                                                                                                token = new String(token.substring(1, token.length() - 1));
+                                                                                            }
+                                                                                            sortIgnorePrefixes.add(token.toLowerCase());
+                                                                                        }
+                                                                                    }
+                                                                                    inited = true;
+                                                                                }
+                                                                            });
+                        sortedMap.putAll(category.getValue());
+
+                        for (Map.Entry<String, List<Movie>> index : sortedMap.entrySet()) {
                             processCategoryIndex(index.getKey(), index.getKey(), index.getValue(), categoryName, categoryMinCount, library, writer);
                         }
                     }
