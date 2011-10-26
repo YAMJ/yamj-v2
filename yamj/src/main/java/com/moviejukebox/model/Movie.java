@@ -1430,6 +1430,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(outline)) {
             outline = UNKNOWN;
         }
+        
         if (!outline.equalsIgnoreCase(this.outline)) {
             setDirty(DIRTY_INFO, true);
             outline = outline.replaceAll("\"", "'");
