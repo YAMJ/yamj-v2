@@ -384,8 +384,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         outline = outline.substring(0, outline.length() - 1);
                     }
 
-                    imdbOutline = cleanStringEnding(outline);
                     if (isValidString(imdbOutline)) {
+                        imdbOutline = cleanStringEnding(outline);
                         imdbOutline = trimToLength(imdbOutline, preferredOutlineLength, true, plotEnding);
                     } else {
                         // Ensure the outline isn't blank or null
@@ -664,7 +664,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.getOutline().equals(Movie.UNKNOWN)) {
             // The new outline is at the end of the review section with no preceding text
             String imdbOutline = HTMLTools.extractTag(xml, "<p itemprop=\"description\">", "</p>");
-            imdbOutline = HTMLTools.removeHtmlTags(imdbOutline).trim();
+            imdbOutline = cleanStringEnding(HTMLTools.removeHtmlTags(imdbOutline)).trim();
 
             if (isNotValidString(imdbOutline)) {
                 // ensure the outline is set to unknown if it's blank or null
@@ -693,6 +693,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             
             // Check the length of the plot is OK
             if (isValidString(imdbPlot)) {
+                imdbPlot = cleanStringEnding(imdbPlot);
                 imdbPlot = trimToLength(imdbPlot, preferredPlotLength, true, plotEnding);
             } else {
                 // The plot might be blank or null so set it to UNKNOWN
