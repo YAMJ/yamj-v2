@@ -62,7 +62,7 @@ import com.moviejukebox.tools.XMLHelper;
 public class MovieNFOScanner {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    private static final String splitPattern = "\\||\\.|,|/";
+    private static final String splitPattern = "\\||,|/";
     
     private static boolean skipNfoUrl;
     private static boolean skipNfoTrailer;
