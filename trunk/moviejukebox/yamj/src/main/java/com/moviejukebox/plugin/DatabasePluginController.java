@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 public class DatabasePluginController {
 
     private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static boolean autoDetect = PropertiesUtil.getBooleanProperty("mjb.internet.plugin.autodetect", "true");
 
     /**
      * @author Gabriel Corneanu:
@@ -112,7 +113,7 @@ public class DatabasePluginController {
     }
 
     public static void scanNFO(String nfo, Movie movie) {
-        if (!PluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie)) {
+        if (!PluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie) && autoDetect) {
             ServiceLoader<MovieDatabasePlugin> movieDBPluginsSet = ServiceLoader.load(MovieDatabasePlugin.class);
             for (MovieDatabasePlugin movieDBPlugin : movieDBPluginsSet) {
                 if (movieDBPlugin.scanNFO(nfo, movie)) {
