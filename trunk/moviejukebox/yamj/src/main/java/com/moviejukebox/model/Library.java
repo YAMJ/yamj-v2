@@ -329,7 +329,7 @@ public class Library implements Map<String, Movie> {
                 int setOrder = indexList.get(setIndex).getSetOrder(indexName);
                 if (setOrder > 1) {
                     for (int i = 1; i < indexList.size(); i++) {
-                        if (setOrder > indexList.get(i).getSetOrder(indexName)) {
+                        if ((indexList.get(i).getSetOrder(indexName) != null) && setOrder > indexList.get(i).getSetOrder(indexName)) {
                             setOrder = indexList.get(i).getSetOrder(indexName);
                             setIndex = i;
                         }
