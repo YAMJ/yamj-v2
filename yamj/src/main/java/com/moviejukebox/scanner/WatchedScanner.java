@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.io.FilenameUtils;
 import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Jukebox;
@@ -61,7 +62,10 @@ public class WatchedScanner {
             
             // If we didn't find the file, we should look without the extension
             if (foundFile == null && !movie.isBluray()) {
-                foundFile = FileTools.findFilenameInCache(movie.getBaseFilename(), extensions, jukebox, "Watched Scanner: ");
+                // Remove the extension from the filename
+                filename = FilenameUtils.removeExtension(filename);
+                // Check again without the extension
+                foundFile = FileTools.findFilenameInCache(filename, extensions, jukebox, "Watched Scanner: ");
             }
             
             if (foundFile != null) {
