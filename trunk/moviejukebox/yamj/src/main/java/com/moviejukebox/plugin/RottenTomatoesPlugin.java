@@ -16,12 +16,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.moviejukebox.fanarttv.tools.WebBrowser;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.rottentomatoes.RottenTomatoes;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * API for getting the ratings from RottenTomatoes.com
@@ -44,10 +44,10 @@ public class RottenTomatoesPlugin {
         rt = new RottenTomatoes(API_KEY);
 
         // We need to set the proxy parameters if set.
-        rt.setProxy(WebBrowser.getProxyHost(), WebBrowser.getProxyPort(), WebBrowser.getTvdbProxyUsername(), WebBrowser.getProxyPassword());
+        rt.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
         
         // Set the timeout values
-        rt.setTimeout(WebBrowser.getWebTimeoutConnect(), WebBrowser.getWebTimeoutRead());
+        rt.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
     
     public boolean scan(Movie movie) {
