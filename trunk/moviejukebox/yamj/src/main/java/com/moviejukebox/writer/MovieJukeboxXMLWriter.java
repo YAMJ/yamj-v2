@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
@@ -62,6 +60,7 @@ import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -1127,46 +1126,7 @@ public class MovieJukeboxXMLWriter {
                         }
                     } else {
                         // Process the remaining categories
-                        TreeMap<String, List<Movie>> sortedMap = new TreeMap(new Comparator() {
-                                                                                private final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
-                                                                                private boolean inited = false;
-
-                                                                                public int compare(Object o1, Object o2) {
-                                                                                    if (!inited) {
-                                                                                        initSortIgnorePrefixes();
-                                                                                    }
-
-                                                                                    return getStrippedTitle((String) o1).compareToIgnoreCase(getStrippedTitle((String) o2));
-                                                                                }
-
-                                                                                private String getStrippedTitle(String title) {
-                                                                                    String lowerTitle = title.toLowerCase();
-
-                                                                                    for (String prefix : sortIgnorePrefixes) {
-                                                                                        if (lowerTitle.startsWith(prefix.toLowerCase())) {
-                                                                                            title = new String(title.substring(prefix.length()));
-                                                                                            break;
-                                                                                        }
-                                                                                    }
-
-                                                                                    return title;
-                                                                                }
-
-                                                                                public void initSortIgnorePrefixes() {
-                                                                                    String temp = PropertiesUtil.getProperty("sorting.strip.prefixes");
-                                                                                    if (temp != null) {
-                                                                                        StringTokenizer st = new StringTokenizer(temp, ",");
-                                                                                        while (st.hasMoreTokens()) {
-                                                                                            String token = st.nextToken().trim();
-                                                                                            if (token.startsWith("\"") && token.endsWith("\"")) {
-                                                                                                token = new String(token.substring(1, token.length() - 1));
-                                                                                            }
-                                                                                            sortIgnorePrefixes.add(token.toLowerCase());
-                                                                                        }
-                                                                                    }
-                                                                                    inited = true;
-                                                                                }
-                                                                            });
+                        TreeMap<String, List<Movie>> sortedMap = new TreeMap<String, List<Movie>>(new SortIgnorePrefixesComparator());
                         sortedMap.putAll(category.getValue());
 
                         for (Map.Entry<String, List<Movie>> index : sortedMap.entrySet()) {
@@ -1265,7 +1225,9 @@ public class MovieJukeboxXMLWriter {
 
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
-                        if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName) && !Library.INDEX_SET.equalsIgnoreCase(categoryName) && !separateCategories) {
+                        if (categoryCount < categoryMinCount && 
+                                        !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName) && 
+                                        !Library.INDEX_SET.equalsIgnoreCase(categoryName) && !separateCategories) {
                             logger.debug("Category '" + categoryPath + "' does not contain enough videos (" + categoryCount
                                             + "/" + categoryMinCount + "), skipping XML generation.");
                             return null;
@@ -1277,7 +1239,7 @@ public class MovieJukeboxXMLWriter {
                         int nbVideosPerPage = nbMoviesPerPage, nbVideosPerLine = nbMoviesPerLine;
 
                         if (movies.size() > 0) {
-                            if (key.equalsIgnoreCase(Library.INDEX_TVSHOWS)) {
+                            if (key.equalsIgnoreCase(Library.getRenamedCategory(Library.INDEX_TVSHOWS))) {
                                 nbVideosPerPage = nbTvShowsPerPage;
                                 nbVideosPerLine = nbTvShowsPerLine;
                             }
@@ -1309,7 +1271,7 @@ public class MovieJukeboxXMLWriter {
                             }
                             
                             // Check for changes to the Watched, Unwatched and New categories whilst we are processing the All category
-                            if (enableWatchScanner && key.equals(Library.INDEX_ALL)) {
+                            if (enableWatchScanner && key.equals(Library.getRenamedCategory(Library.INDEX_ALL))) {
                                 if (movie.isWatched() && movie.isDirty(Movie.DIRTY_WATCHED)) {
                                     // Don't skip the index
                                     reindexWatched = true;
@@ -1326,15 +1288,17 @@ public class MovieJukeboxXMLWriter {
                             }
                             
                             // Check to see if we are in one of the category indexes
-                            if (reindexNew && (key.equals(Library.INDEX_NEW) || key.equals(Library.INDEX_NEW_MOVIE) || key.equals(Library.INDEX_NEW_TV) ) ) {
+                            if (reindexNew && (key.equals(Library.getRenamedCategory(Library.INDEX_NEW)) || 
+                                            key.equals(Library.getRenamedCategory(Library.INDEX_NEW_MOVIE)) || 
+                                            key.equals(Library.getRenamedCategory(Library.INDEX_NEW_TV)) ) ) {
                                 skipIndex = false;
                             }
                             
-                            if (reindexWatched && key.equals(Library.INDEX_WATCHED)) {
+                            if (reindexWatched && key.equals(Library.getRenamedCategory(Library.INDEX_WATCHED))) {
                                 skipIndex = false;
                             }
                             
-                            if (reindexUnwatched && key.equals(Library.INDEX_UNWATCHED)) {
+                            if (reindexUnwatched && key.equals(Library.getRenamedCategory(Library.INDEX_UNWATCHED))) {
                                 skipIndex = false;
                             }
                             
