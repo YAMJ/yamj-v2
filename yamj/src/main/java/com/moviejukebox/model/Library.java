@@ -1383,6 +1383,17 @@ public class Library implements Map<String, Movie> {
         return Movie.UNKNOWN;
     }
     
+    /**
+     * Find the renamed category name from the original name
+     * The Category name could be changed by the use of the Category XML file.
+     * This function will return the new name.
+     * @param test
+     * @return
+     */
+    public static String getRenamedCategory(String newCategory) {
+        return categoriesMap.get(newCategory);
+    }
+    
     public static boolean isFilterGenres() {
         return filterGenres;
     }
