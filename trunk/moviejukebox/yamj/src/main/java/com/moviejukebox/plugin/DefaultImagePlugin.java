@@ -599,6 +599,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 }
                             }
                             value = (StringTools.isNotValidString(value) && !countAward)?blockAward?Movie.UNKNOWN:"false":countAward?Integer.toString(awardCount):value;
+                        } else {
+                            value = PropertiesUtil.getProperty(name, Movie.UNKNOWN);
                         }
                     }
                     stateOverlay state = new stateOverlay(layer.left, layer.top, layer.align, layer.valign, layer.width, layer.height, value);
@@ -1559,7 +1561,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         } else if (name.equalsIgnoreCase("award")) {
             return addAward;
         }
-        return false;
+        return !PropertiesUtil.getProperty(name, Movie.UNKNOWN).equals(Movie.UNKNOWN);
     }
 
     protected int getOverlayX(int fieldWidth, int itemWidth, Integer left, String align) {
