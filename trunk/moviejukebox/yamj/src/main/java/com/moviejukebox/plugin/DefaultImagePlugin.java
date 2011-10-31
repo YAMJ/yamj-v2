@@ -27,10 +27,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -42,6 +40,7 @@ import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -1654,16 +1653,4 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return result;
     }
 
-    @SuppressWarnings("rawtypes")
-    class ValueComparator implements Comparator {
-        Map base;
-
-        public ValueComparator(Map base) {
-            this.base = base;
-        }
-
-        public int compare(Object a, Object b) {
-            return ((Integer)base.get(a) < (Integer)base.get(b))?1:-1;
-        }
-    }
 }

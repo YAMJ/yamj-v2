@@ -12,10 +12,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.tools.PropertiesUtil;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -23,8 +19,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.StringTokenizer;
+
 import org.apache.log4j.Logger;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  *
