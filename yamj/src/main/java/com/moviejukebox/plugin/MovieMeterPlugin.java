@@ -60,6 +60,11 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
     }
 
+    @Override
+    public String getPluginID() {
+        return MOVIEMETER_PLUGIN_ID;
+    }
+
     @SuppressWarnings("rawtypes")
     @Override
     public boolean scan(Movie mediaFile) {

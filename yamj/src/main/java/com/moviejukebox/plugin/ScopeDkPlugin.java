@@ -40,6 +40,11 @@ public class ScopeDkPlugin extends ImdbPlugin {
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Danish");
     }
 
+    @Override
+    public String getPluginID() {
+        return SCOPEDK_PLUGIN_ID;
+    }
+
     /**
      * Scan Scope.Dk HTML page for the specified movie
      */

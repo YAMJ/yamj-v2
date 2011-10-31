@@ -85,6 +85,11 @@ public class SratimPlugin extends ImdbPlugin {
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
     }
 
+    @Override
+    public String getPluginID() {
+        return SRATIM_PLUGIN_ID;
+    }
+
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
 

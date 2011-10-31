@@ -117,6 +117,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
     }
 
     @Override
+    public String getPluginID() {
+        return KINOPOISK_PLUGIN_ID;
+    }
+
+    @Override
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
@@ -337,41 +342,48 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String originalTitle = movie.getTitle();
             String newTitle = originalTitle;
             String xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId);
-
+            boolean etalonFlag = kinopoiskId.equals("251733");
             // Work-around for issue #649
             xml = xml.replace((CharSequence)"&#133;", (CharSequence)"&hellip;");
             xml = xml.replace((CharSequence)"&#151;", (CharSequence)"&mdash;");
 
             // Title
-            if (!movie.isOverrideTitle()) {
+            if (!movie.isOverrideTitle() || etalonFlag) {
                 newTitle = HTMLTools.extractTag(xml, "class=\"moviename-big\" itemprop=\"name\">", 0, "</");
                 if (!newTitle.equals(Movie.UNKNOWN)) {
-                    int i = newTitle.indexOf("(сериал");
-                    if (i >= 0) {
-                        newTitle = newTitle.substring(0, i);
-                        movie.setMovieType(Movie.TYPE_TVSHOW);
-                    }
-                    newTitle = newTitle.replace('\u00A0', ' ').trim();
-                    if (movie.getSeason() != -1) {
-                        newTitle = newTitle + ", сезон " + String.valueOf(movie.getSeason());
-                    }
-
-                    // Original title
-                    originalTitle = newTitle;
-                    for (String s : HTMLTools.extractTags(xml, "<span style=\"color: #666", "</span>", "font-size: 13px\" itemprop=\"alternativeHeadline\">", "</span>")) {
-                        if (!s.isEmpty()) {
-                            originalTitle = s;
-                            newTitle = newTitle + " / " + originalTitle;
+                    if (!movie.isOverrideTitle()) {
+                        int i = newTitle.indexOf("(сериал");
+                        if (i >= 0) {
+                            newTitle = newTitle.substring(0, i);
+                            movie.setMovieType(Movie.TYPE_TVSHOW);
                         }
-                        break;
+                        newTitle = newTitle.replace('\u00A0', ' ').trim();
+                        if (movie.getSeason() != -1) {
+                            newTitle = newTitle + ", сезон " + String.valueOf(movie.getSeason());
+                        }
+
+                        // Original title
+                        originalTitle = newTitle;
+                        for (String s : HTMLTools.extractTags(xml, "<span style=\"color: #666", "</span>", "font-size: 13px\" itemprop=\"alternativeHeadline\">", "</span>")) {
+                            if (!s.isEmpty()) {
+                                originalTitle = s;
+                                newTitle = newTitle + " / " + originalTitle;
+                            }
+                            break;
+                        }
+                    } else {
+                        newTitle = originalTitle;
                     }
                 } else {
+                    if (etalonFlag) {
+                        logger.error("KinopoiskPlugin: Site design changed - failed get movie title!");
+                    }
                     newTitle = originalTitle;
                 }
             }
 
             // Plot
-            if (!NFOplot) {
+            if (!NFOplot || etalonFlag) {
                 StringBuffer plot = new StringBuffer();
                 for (String subPlot : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
                     if (!subPlot.isEmpty()) {
@@ -389,8 +401,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     newPlot = plot.toString();
                 }
 
-                newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
-                movie.setPlot(newPlot);
+                if (!NFOplot) {
+                    newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
+                    movie.setPlot(newPlot);
+                }
+
+                if (etalonFlag && (plot.length() == 0)) {
+                    logger.error("KinopoiskPlugin: Site design changed - failed get plot!");
+                }
             }
 
             for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr>", "</tr>")) {

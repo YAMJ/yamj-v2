@@ -49,6 +49,11 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         webBrowser = new WebBrowser();
     }
 
+    @Override
+    public String getPluginID() {
+        return FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID;
+    }
+
     public boolean scan(Movie movie) {
         String filmAffinityId = filmAffinityInfo.arrangeId(movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID));
         

@@ -96,6 +96,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
 
     @Override
+    public String getPluginID() {
+        return THETVDB_PLUGIN_ID;
+    }
+
+    @Override
     public boolean scan(Movie movie) {
         String id = findId(movie);
 

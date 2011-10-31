@@ -57,8 +57,9 @@ public class AnimatorPlugin extends ImdbPlugin {
     boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
     boolean multsDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "allmults") != -1);
 
-    public AnimatorPlugin() {
-        super();
+    @Override
+    public String getPluginID() {
+        return ANIMATOR_PLUGIN_ID;
     }
 
     @Override

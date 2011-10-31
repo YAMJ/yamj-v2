@@ -225,6 +225,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         initTvdb();
     }
     
+    @Override
+    public String getPluginID() {
+        return ANIDB_PLUGIN_ID;
+    }
+
     private void setupDatabase() {
         /*
          * Lets just pray that the current directory is writable

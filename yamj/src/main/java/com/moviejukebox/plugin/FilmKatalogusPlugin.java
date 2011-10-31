@@ -51,6 +51,11 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         tvdb = new TheTvDBPlugin();
     }
 
+    @Override
+    public String getPluginID() {
+        return FILMKAT_PLUGIN_ID;
+    }
+
     public void init() {
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         if (preferredPlotLength < 50) {
