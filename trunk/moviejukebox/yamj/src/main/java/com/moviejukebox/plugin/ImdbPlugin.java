@@ -112,6 +112,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
+    public String getPluginID() {
+        return IMDB_PLUGIN_ID;
+    }
+
+    @Override
     public boolean scan(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         if (isNotValidString(imdbId)) {

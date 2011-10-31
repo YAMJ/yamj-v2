@@ -57,6 +57,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
+    public String getPluginID() {
+        return OFDB_PLUGIN_ID;
+    }
+
+    @Override
     public boolean scan(Movie mediaFile) {
         boolean plotBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getPlot()); // Issue 797 - we don't want to override plot from NFO
         imdbp.scan(mediaFile); // Grab data from imdb

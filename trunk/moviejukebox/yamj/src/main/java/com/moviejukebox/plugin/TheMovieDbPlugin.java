@@ -69,6 +69,11 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
     }
 
+    @Override
+    public String getPluginID() {
+        return TMDB_PLUGIN_ID;
+    }
+
     public boolean scan(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         String tmdbID = movie.getId(TMDB_PLUGIN_ID);

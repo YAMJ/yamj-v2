@@ -43,6 +43,11 @@ public class AllocinePlugin extends ImdbPlugin {
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
     }
 
+    @Override
+    public String getPluginID() {
+        return ALLOCINE_PLUGIN_ID;
+    }
+
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     /**

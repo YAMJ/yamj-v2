@@ -35,6 +35,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
     }
 
+    @Override
+    public String getPluginID() {
+        return FILMUPIT_PLUGIN_ID;
+    }
+
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     /**

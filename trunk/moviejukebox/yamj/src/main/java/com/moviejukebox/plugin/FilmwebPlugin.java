@@ -50,6 +50,11 @@ public class FilmwebPlugin extends ImdbPlugin {
         init();
     }
 
+    @Override
+    public String getPluginID() {
+        return FILMWEB_PLUGIN_ID;
+    }
+
     public void init() {
         filmwebPreferredSearchEngine = PropertiesUtil.getProperty("filmweb.id.search", "filmweb");
         try {

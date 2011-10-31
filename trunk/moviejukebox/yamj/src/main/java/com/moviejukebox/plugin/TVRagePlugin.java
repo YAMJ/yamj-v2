@@ -55,6 +55,11 @@ public class TVRagePlugin extends ImdbPlugin {
     }
 
     @Override
+    public String getPluginID() {
+        return TVRAGE_PLUGIN_ID;
+    }
+
+    @Override
     public boolean scan(Movie movie) {
         ShowInfo showInfo = new ShowInfo();
         List<ShowInfo> showList = null;

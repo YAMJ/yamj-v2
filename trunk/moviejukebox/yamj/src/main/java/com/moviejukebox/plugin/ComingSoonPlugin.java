@@ -102,6 +102,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
     }
     
+    @Override
+    public String getPluginID() {
+        return COMINGSOON_PLUGIN_ID;
+    }
+
     private int getInfoMask(String infoDescription) {
         if (infoDescription.equalsIgnoreCase("title")) {
             return COMINGSOON_RESTORE_TITLE;

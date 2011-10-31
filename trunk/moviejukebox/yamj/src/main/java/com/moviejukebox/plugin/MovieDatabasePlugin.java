@@ -66,4 +66,6 @@ public interface MovieDatabasePlugin {
      * @param movie
      */
     public boolean scanNFO(String nfo, Movie movie);
+
+    public String getPluginID();
 }

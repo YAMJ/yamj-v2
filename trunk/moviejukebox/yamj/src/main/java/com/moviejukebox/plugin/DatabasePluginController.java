@@ -19,9 +19,11 @@ import com.moviejukebox.tools.PropertiesUtil;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,7 +33,8 @@ import org.apache.log4j.Logger;
 public class DatabasePluginController {
 
     private static final Logger logger = Logger.getLogger("moviejukebox");
-    private static boolean autoDetect = PropertiesUtil.getBooleanProperty("mjb.internet.plugin.autodetect", "true");
+    private static boolean autoDetect = false;
+    private static ArrayList<String> autoDetectList = new ArrayList<String>();
 
     /**
      * @author Gabriel Corneanu:
@@ -49,7 +52,22 @@ public class DatabasePluginController {
             if (!alternatePlugin.equals("")) {
                 movieDatabasePlugin.put("ALTERNATE", getMovieDatabasePlugin(alternatePlugin));
             }
-            
+
+            String tmpAutoDetect = PropertiesUtil.getProperty("mjb.internet.plugin.autodetect", "false").toLowerCase();
+            autoDetect = !tmpAutoDetect.equalsIgnoreCase("false");
+            if (autoDetect) {
+                String pluginID;
+                boolean emptyList = tmpAutoDetect.equalsIgnoreCase("true");
+                ServiceLoader<MovieDatabasePlugin> movieDBPluginsSet = ServiceLoader.load(MovieDatabasePlugin.class);
+                for (MovieDatabasePlugin movieDBPlugin : movieDBPluginsSet) {
+                    pluginID = movieDBPlugin.getPluginID().toLowerCase();
+                    if (emptyList || (autoDetectList.indexOf(pluginID) > -1)) {
+                        movieDatabasePlugin.put(pluginID, movieDBPlugin);
+                        autoDetectList.add(pluginID);
+                    }
+                }
+            }
+
             return movieDatabasePlugin;
         }
     };
@@ -114,8 +132,8 @@ public class DatabasePluginController {
 
     public static void scanNFO(String nfo, Movie movie) {
         if (!PluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie) && autoDetect) {
-            ServiceLoader<MovieDatabasePlugin> movieDBPluginsSet = ServiceLoader.load(MovieDatabasePlugin.class);
-            for (MovieDatabasePlugin movieDBPlugin : movieDBPluginsSet) {
+            for (String pluginID : autoDetectList) {
+                MovieDatabasePlugin movieDBPlugin = PluginMap.get().get(pluginID);
                 if (movieDBPlugin.scanNFO(nfo, movie)) {
                     movie.setMovieScanner(movieDBPlugin);
                     break;

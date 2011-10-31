@@ -56,6 +56,11 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     }
 
     @Override
+    public String getPluginID() {
+        return FILMDELTA_PLUGIN_ID;
+    }
+
+    @Override
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
         boolean imdbScanned = false;
