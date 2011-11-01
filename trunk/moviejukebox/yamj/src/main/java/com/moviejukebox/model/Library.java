@@ -571,19 +571,40 @@ public class Library implements Map<String, Movie> {
             if (categoriesMap.get(INDEX_NEW) != null) {
                 Index otherIndexes = indexes.get(INDEX_OTHER);
                 List<Movie> newList = new ArrayList<Movie>();
+                int newMovies = 0;
+                int newTVShows = 0;
                 
                 if (trimNewMovieOK && (categoriesMap.get(INDEX_NEW_MOVIE) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)) != null)){
                     newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)));
+                    newMovies = otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)).size();
+                } else {
+                    // Remove the empty "New Movie" category
+                    otherIndexes.remove(categoriesMap.get(INDEX_NEW_MOVIE));
                 }
                 
                 if (trimNewTvOK && (categoriesMap.get(INDEX_NEW_TV) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)){
                     newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)));
+                    newTVShows = otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)).size();
+                } else {
+                    // Remove the empty "New TV" category
+                    otherIndexes.remove(categoriesMap.get(INDEX_NEW_TV));
                 }
                 
-                logger.debug("Creating new category with latest Movies and TV Shows");
-                otherIndexes.put(categoriesMap.get(INDEX_NEW), newList);
-                Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), cmpLast);
-                
+                // If we have new videos, then create the super "New" category
+                if ((newMovies + newTVShows) > 0) {
+                    StringBuilder logMessage = new StringBuilder("Creating new category with ");
+                    if (newMovies > 0) {
+                        logMessage.append(newMovies).append(" new movie").append(newMovies > 1?"s":"");
+                    }
+                    if (newTVShows > 0) {
+                        logMessage.append(newMovies > 0?" & ":"");
+                        logMessage.append(newTVShows).append(" new TV Show").append(newTVShows > 1?"s":"");
+                    }
+                    
+                    logger.debug(logMessage.toString());
+                    otherIndexes.put(categoriesMap.get(INDEX_NEW), newList);
+                    Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), cmpLast);
+                }
             }
             
             // Now set up the index masters' posters
