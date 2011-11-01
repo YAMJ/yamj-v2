@@ -34,8 +34,8 @@
 	</modules>
 
 	<properties>
-		<allocine-api.version>1.0.2</allocine-api.version>
-		<mjbsqldb.version>1.1</mjbsqldb.version>
+		<allocine-api.version>1.0.3-SNAPSHOT</allocine-api.version>
+		<mjbsqldb.version>1.2-SNAPSHOT</mjbsqldb.version>
 		<distribution.format>zip</distribution.format>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -93,7 +93,7 @@
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>fanarttvapi</artifactId>
-				<version>1.1</version>
+				<version>1.2-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
@@ -105,25 +105,25 @@
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>themoviedbapi</artifactId>
-				<version>1.1</version>
+				<version>1.2-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>thetvdbapi</artifactId>
-				<version>1.2</version>
+				<version>1.3-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>tvrageapi</artifactId>
-				<version>1.1</version>
+				<version>1.2-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>apirottentomatoes</artifactId>
-				<version>1.0</version>
+				<version>1.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
