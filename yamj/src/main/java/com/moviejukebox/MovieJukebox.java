@@ -2431,6 +2431,13 @@ public class MovieJukebox {
                 }
             }
             
+            // Only get ratings if the rating list is null or empty - We assume it's OK to have a -1 rating if there are entries in the array
+            if (movie.getRatings() == null || movie.getRatings().isEmpty()) {
+                logger.debug("Recheck: " + movie.getBaseName() + " is missing rating, will rescan");
+                recheckCount++;
+                return true;
+            }
+            
             if (movie.isTVShow()) {
                 boolean recheckEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
                 

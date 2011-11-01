@@ -14,7 +14,7 @@ MovieJukebox 2.6 SNAPSHOT
  - Enhancement  #2152 OverlayXML can use value of any YAMJ variable
  - Fixed defect #2153 Remove New categories if they are empty
  - Enhancement  #2155 Subcategory "SETS" is missing in file categories-default.xml
-  
+ - Enhancement  #2157 Recheck for missing ratings
 
 MovieJukebox 2.5 (24-Oct-2011)
 ------------------------------
