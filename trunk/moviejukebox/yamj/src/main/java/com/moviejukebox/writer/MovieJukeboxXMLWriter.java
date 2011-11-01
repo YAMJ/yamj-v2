@@ -863,10 +863,10 @@ public class MovieJukeboxXMLWriter {
             int counter = setMaster.getSetSize();
             if (counter == xmlSetMovieNames.size()) {
                 for (String movieName : xmlSetMovieNames) {
-                    for (Movie film : moviesList) {
-                        if (film.getBaseName().equals(movieName)) {
+                    for (Movie movie : moviesList) {
+                        if (movie.getBaseName().equals(movieName)) {
                             // See if the movie is in a collection OR isDirty
-                            forceDirtyFlag |= (!film.isTVShow() && !film.getSetsKeys().contains(setMaster.getTitle())) || film.isDirty(Movie.DIRTY_INFO);
+                            forceDirtyFlag |= (!movie.isTVShow() && !movie.getSetsKeys().contains(setMaster.getTitle())) || movie.isDirty(Movie.DIRTY_INFO);
                             counter--;
                             break;
                         }
@@ -1266,7 +1266,7 @@ public class MovieJukeboxXMLWriter {
                         int moviepos = 0;
                         for (Movie movie : movies) {
                             // Don't skip the index if the movie is dirty
-                            if (movie.isDirty(Movie.DIRTY_INFO)) {
+                            if (movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_RECHECK)) {
                                 skipIndex = false;
                             }
                             
@@ -2163,7 +2163,7 @@ public class MovieJukeboxXMLWriter {
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 
-        if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(Movie.DIRTY_INFO)) {
+        if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_RECHECK)) {
 
             XMLWriter writer = new XMLWriter(tempXmlFile);
 
