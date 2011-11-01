@@ -579,7 +579,9 @@ public class Library implements Map<String, Movie> {
                     newMovies = otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)).size();
                 } else {
                     // Remove the empty "New Movie" category
-                    otherIndexes.remove(categoriesMap.get(INDEX_NEW_MOVIE));
+                    if (categoriesMap.get(INDEX_NEW_MOVIE) != null) {
+                        otherIndexes.remove(categoriesMap.get(INDEX_NEW_MOVIE));
+                    }
                 }
                 
                 if (trimNewTvOK && (categoriesMap.get(INDEX_NEW_TV) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)){
@@ -587,7 +589,9 @@ public class Library implements Map<String, Movie> {
                     newTVShows = otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)).size();
                 } else {
                     // Remove the empty "New TV" category
-                    otherIndexes.remove(categoriesMap.get(INDEX_NEW_TV));
+                    if (categoriesMap.get(INDEX_NEW_MOVIE) != null) {
+                        otherIndexes.remove(categoriesMap.get(INDEX_NEW_TV));
+                    }
                 }
                 
                 // If we have new videos, then create the super "New" category
