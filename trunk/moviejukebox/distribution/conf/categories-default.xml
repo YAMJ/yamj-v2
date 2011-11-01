@@ -78,4 +78,8 @@
     <enable>true</enable>
     <rename>Rating</rename>
   </category>
+  <category name="Sets">
+    <enable>true</enable>
+    <rename>Sets</rename>
+  </category>
 </categories>
