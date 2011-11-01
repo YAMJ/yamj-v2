@@ -11,6 +11,7 @@ MovieJukebox 2.6 SNAPSHOT
  - Fixed defect #2147 Watched Scanner looks for S01E01 for every file
  - Fixed defect #2150 mjb.nbTvThumbnailsPerPage value isn't taken to split XML when category is renamed
  - Enhancement  #2152 OverlayXML can use value of any YAMJ variable
+ - Enhancement  #2155 Subcategory "SETS" is missing in file categories-default.xml
   
 
 MovieJukebox 2.5 (24-Oct-2011)
