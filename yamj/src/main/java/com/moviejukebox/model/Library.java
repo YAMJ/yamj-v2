@@ -589,7 +589,7 @@ public class Library implements Map<String, Movie> {
                     newTVShows = otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)).size();
                 } else {
                     // Remove the empty "New TV" category
-                    if (categoriesMap.get(INDEX_NEW_MOVIE) != null) {
+                    if (categoriesMap.get(INDEX_NEW_TV) != null) {
                         otherIndexes.remove(categoriesMap.get(INDEX_NEW_TV));
                     }
                 }
