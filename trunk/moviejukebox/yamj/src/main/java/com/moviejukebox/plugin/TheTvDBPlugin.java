@@ -103,7 +103,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     @Override
     public boolean scan(Movie movie) {
         String id = findId(movie);
-
+        
         if (StringTools.isValidString(id)) {
             Series series = getSeries(id);
 
@@ -147,7 +147,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setShowStatus(series.getStatus());
                     }
 
-                    if (movie.getRating() == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
+                    if (movie.getRating(THETVDB_PLUGIN_ID) == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
                         movie.addRating(THETVDB_PLUGIN_ID, (int)(Float.parseFloat(series.getRating()) * 10));
                     }
 
