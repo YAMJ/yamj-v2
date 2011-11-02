@@ -19,6 +19,7 @@ MovieJukebox 2.5.1 (01-Nov-2011)
  - Fixed defect #2153 Remove New categories if they are empty
  - Enhancement  #2155 Subcategory "SETS" is missing in file categories-default.xml
  - Enhancement  #2157 Recheck for missing ratings
+ - Fixed defect #2158 Set overlay doesn't work with TV banner
  - Fixed defect #2159 Videos that have been rechecked are never saved
 
 MovieJukebox 2.5 (24-Oct-2011)

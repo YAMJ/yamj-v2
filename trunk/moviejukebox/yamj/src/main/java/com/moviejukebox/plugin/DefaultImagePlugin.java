@@ -471,7 +471,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String value = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
                         if (name.equalsIgnoreCase("set")) {
-                            value = (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster())?countSetLogo?Integer.toString(movie.getSetSize()):"true":countSetLogo?"0":"false";
+                            value = ((imageType.equalsIgnoreCase(THUMBNAIL) || imageType.equalsIgnoreCase(BANNER)) && movie.isSetMaster())?countSetLogo?Integer.toString(movie.getSetSize()):"true":countSetLogo?"0":"false";
                         } else if (name.equalsIgnoreCase("TV")) {
                             value = movie.isTVShow()?"true":"false";
                         } else if (name.equalsIgnoreCase("HD")) {
