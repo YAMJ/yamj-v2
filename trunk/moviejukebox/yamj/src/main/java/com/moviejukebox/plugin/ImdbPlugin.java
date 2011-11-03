@@ -80,6 +80,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean skipTV;
     private boolean skipV;
     private List<String> jobsInclude;
+    private boolean scrapeAwards;   // Should we scrape the award information
+    private boolean scrapeBusiness; // Should we scrape the business information
+    private boolean scrapeTrivia;   // Shoulw we scrape the trivia information
+    
 
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
@@ -109,6 +113,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
 
         triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", "15");
+        
+        scrapeAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false");
+        scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
+        scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
     }
 
     @Override
@@ -243,11 +251,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 returnStatus = updateInfoOld(movie, xml);
             }
             
-            updateAwards(movie);        // Issue 1901: Awards
+            if (scrapeAwards) {
+                updateAwards(movie);        // Issue 1901: Awards
+            }
             
-            updateBusiness(movie);      // Issue 2012: Financial information about movie
+            if (scrapeBusiness) {
+                updateBusiness(movie);      // Issue 2012: Financial information about movie
+            }
             
-            updateTrivia(movie);        // Issue 2013: Add trivia
+            if (scrapeTrivia) {
+                updateTrivia(movie);        // Issue 2013: Add trivia
+            }
             
             // TODO: Remove this check at some point when all skins have moved over to the new property
             downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
