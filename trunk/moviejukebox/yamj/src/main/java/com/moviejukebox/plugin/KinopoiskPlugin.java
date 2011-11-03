@@ -1140,7 +1140,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 }
                             }
                         } else if (preferredRating.equals("kinopoisk") || (person.getFilmography().size() == 0)) {
-                            person.setFilmography(new ArrayList(filmography.values()));
+                            person.setFilmography(new ArrayList<Filmography>(filmography.values()));
                         }
                     }
                 }
