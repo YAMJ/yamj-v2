@@ -83,6 +83,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
     protected boolean NFOposter = false;
     protected boolean NFOawards = false;
 
+    boolean scrapeAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false");
+    boolean scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
+    boolean scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
+    
     // Set priority fanart & poster by kinopoisk.ru
     boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", "false");
     boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", "false");
@@ -703,7 +707,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Awards
-            if (!NFOawards) {
+            if (scrapeAwards && !NFOawards) {
                 xml = webBrowser.request("http://www.kinopoisk.ru/level/94/film/" + kinopoiskId);
                 Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
                 if (StringTools.isValidString(xml)) {
@@ -793,28 +797,34 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Business
-            xml = webBrowser.request("http://www.kinopoisk.ru/level/85/film/" + kinopoiskId);
-            if (StringTools.isValidString(xml)) {
-                for (String tmp : HTMLTools.extractTags(xml, ">Итого:<", "</table>", "<font color=\"#ff6600\"", "</h3>")) {
-                    if (StringTools.isValidString(tmp)) {
-                        movie.setBudget(tmp.replaceAll("\u00A0", ",").replaceAll(",$", ""));
-                        break;
-                    }
-                }
-                for (String tmp : HTMLTools.extractTags(xml, ">Первый уик-энд (США)<", "</table>", "<h3 style=\"font-size: 18px; margin: 0; padding: 0;color:#f60\"", "</h3>")) {
-                    if (StringTools.isValidString(tmp)) {
-                        movie.setOpenWeek("USA", tmp.replaceAll("\u00A0", ",").replaceAll(",$", ""));
-                        break;
-                    }
-                }
+            if (scrapeBusiness) {
+                xml = webBrowser.request("http://www.kinopoisk.ru/level/85/film/" + kinopoiskId);
                 if (StringTools.isValidString(xml)) {
-                    for (String tmp : HTMLTools.extractTags(xml, ">Кассовые сборы<", "</table>", "<tr><td colspan=2", "</h3>")) {
-                        tmp += "</h3>";
-                        String country = HTMLTools.extractTag(tmp, ">", ":");
-                        if (StringTools.isValidString(country)) {
-                            String money = HTMLTools.removeHtmlTags("<h3 " + HTMLTools.extractTag(tmp, "<h3 ", "</h3>")).replaceAll("\u00A0", ",").replaceAll(",$", "");
-                            if (!money.equals("--")) {
-                                movie.setGross(country.equals("В России")?"Russia":country.equals("В США")?"USA":country.equals("Общие сборы")?"Worldwide":country.equals("В других странах")?"Others":country, money);
+                    for (String tmp : HTMLTools.extractTags(xml, ">Итого:<", "</table>", "<font color=\"#ff6600\"", "</h3>")) {
+                        if (StringTools.isValidString(tmp)) {
+                            movie.setBudget(tmp.replaceAll("\u00A0", ",").replaceAll(",$", ""));
+                            break;
+                        }
+                    }
+                    for (String tmp : HTMLTools.extractTags(xml, ">Первый уик-энд (США)<", "</table>",
+                                    "<h3 style=\"font-size: 18px; margin: 0; padding: 0;color:#f60\"", "</h3>")) {
+                        if (StringTools.isValidString(tmp)) {
+                            movie.setOpenWeek("USA", tmp.replaceAll("\u00A0", ",").replaceAll(",$", ""));
+                            break;
+                        }
+                    }
+                    if (StringTools.isValidString(xml)) {
+                        for (String tmp : HTMLTools.extractTags(xml, ">Кассовые сборы<", "</table>", "<tr><td colspan=2", "</h3>")) {
+                            tmp += "</h3>";
+                            String country = HTMLTools.extractTag(tmp, ">", ":");
+                            if (StringTools.isValidString(country)) {
+                                String money = HTMLTools.removeHtmlTags("<h3 " + HTMLTools.extractTag(tmp, "<h3 ", "</h3>")).replaceAll("\u00A0", ",")
+                                                .replaceAll(",$", "");
+                                if (!money.equals("--")) {
+                                    movie.setGross(country.equals("В России") ? "Russia" : country.equals("В США") ? "USA"
+                                                    : country.equals("Общие сборы") ? "Worldwide" : country.equals("В других странах") ? "Others" : country,
+                                                    money);
+                                }
                             }
                         }
                     }
@@ -822,19 +832,21 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Did You Know
-            if (triviaMax != 0) {
-                xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId + "/view_info/ok/#trivia");
-                if (StringTools.isValidString(xml)) {
-                    int i = 0;
-                    for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class='trivia", "</li>")) {
-                        if (i < triviaMax || triviaMax == -1) {
-                            if (i == 0) {
-                                movie.clearDidYouKnow();
+            if (scrapeTrivia) {
+                if (triviaMax != 0) {
+                    xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId + "/view_info/ok/#trivia");
+                    if (StringTools.isValidString(xml)) {
+                        int i = 0;
+                        for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class='trivia", "</li>")) {
+                            if (i < triviaMax || triviaMax == -1) {
+                                if (i == 0) {
+                                    movie.clearDidYouKnow();
+                                }
+                                movie.addDidYouKnow(tmp);
+                                i++;
+                            } else {
+                                break;
                             }
-                            movie.addDidYouKnow(tmp);
-                            i++;
-                        } else {
-                            break;
                         }
                     }
                 }

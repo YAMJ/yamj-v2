@@ -12,6 +12,7 @@ MovieJukebox 2.5.1 (01-Nov-2011)
  - Fixed defect #2064 Overlay misplaced when mjb.MaxThreadsProcess > 1
  - Fixed defect #2114 Categories order is case-sensitive and use sorting.strip.prefixes
  - Fixed defect #2134 MovieDB DOM parser error
+ - Enhancement  #2140 Trimming down the XML
  - Fixed defect #2143 Director and writer scraper doesn't work for more persons behind the IMDB link "and xx more credit"
  - Fixed defect #2146 All plugins run when not enabled
  - Fixed defect #2147 Watched Scanner looks for S01E01 for every file
@@ -22,6 +23,10 @@ MovieJukebox 2.5.1 (01-Nov-2011)
  - Enhancement  #2157 Recheck for missing ratings
  - Fixed defect #2158 Set overlay doesn't work with TV banner
  - Fixed defect #2159 Videos that have been rechecked are never saved
+ - Enhancement  #2161 XML Options: Turn off awards scraping
+ - Enhancement  #2162 XML Options: Option to turn off "business" scraping
+ - Enhancement  #2163 XML Options: Option to turn off "did you know" scraping
+
 
 MovieJukebox 2.5 (24-Oct-2011)
 ------------------------------
