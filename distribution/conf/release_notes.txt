@@ -4,6 +4,7 @@
 
 MovieJukebox 2.6-SNAPSHOT
 -------------------------
+ - Enhancement  #2076 MediaInfo Codec priority changes & Aspect Ratio rounding
  - Fixed defect #2160 TV NFO ratings are not normalised to x/100 correctly
 
 MovieJukebox 2.5.1 (01-Nov-2011)
