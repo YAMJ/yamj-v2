@@ -393,19 +393,19 @@ public class MediaInfoScanner {
 
             // Codec (most relevant Info depending on mediainfo result)
             if (movie.getVideoCodec().equals(Movie.UNKNOWN)) {
-                infoValue = infosMainVideo.get("Codec ID/Hint");
+                infoValue = infosMainVideo.get("Codec ID");
                 if (infoValue != null) {
                     movie.setVideoCodec(infoValue);
                 } else {
-                    infoValue = infosMainVideo.get("Codec");
+                    infoValue = infosMainVideo.get("Codec ID/Hint");
                     if (infoValue != null) {
                         movie.setVideoCodec(infoValue);
                     } else {
-                        infoValue = infosMainVideo.get("Format");
+                        infoValue = infosMainVideo.get("Codec");
                         if (infoValue != null) {
                             movie.setVideoCodec(infoValue);
                         } else {
-                            infoValue = infosMainVideo.get("Codec ID");
+                            infoValue = infosMainVideo.get("Format");
                             if (infoValue != null) {
                                 movie.setVideoCodec(infoValue);
                             }
@@ -532,9 +532,12 @@ public class MediaInfoScanner {
                 }
             }
 
-            infoValue = infosCurAudio.get("Codec ID/Hint");
+            infoValue = infosCurAudio.get("Codec ID");
             if (infoValue == null) {
-                infoValue = infosCurAudio.get("Codec");
+                infoValue = infosCurAudio.get("Codec ID/Hint");
+                if (infoValue == null) {
+                    infoValue = infosCurAudio.get("Codec");
+                }
             }
 
             if (infoValue != null) { // Make sure we have a codec before continuing
