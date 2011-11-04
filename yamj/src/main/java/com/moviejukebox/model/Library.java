@@ -162,7 +162,7 @@ public class Library implements Map<String, Movie> {
         fillCertificationMap(PropertiesUtil.getProperty("mjb.xmlCertificationFile", "certification-default.xml"));
 
         try {
-            maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", "" + maxGenresPerMovie);
+            maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", String.valueOf(maxGenresPerMovie));
         } catch (Exception ignore) {
             maxGenresPerMovie = 3;
         }
@@ -1463,16 +1463,16 @@ public class Library implements Map<String, Movie> {
         String yearCat = Movie.UNKNOWN;
         if (StringTools.isValidString(filmYear)) {
             try {
-                if (filmYear.equals("" + currentYear)) {
+                if (filmYear.equals(String.valueOf(currentYear))) {
                     yearCat = "This Year";
-                } else if (filmYear.equals("" + (currentYear - 1))) {
+                } else if (filmYear.equals(String.valueOf(currentYear - 1))) {
                     yearCat = "Last Year";
                 } else {
                     String beginYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "0";
                     String endYear = Movie.UNKNOWN;
                     if (Integer.parseInt(filmYear) >= currentDecade) {
                         // The film year is in the current decade, so we need to adjust the end year
-                        endYear = "" + finalYear;
+                        endYear = String.valueOf(finalYear);
                     } else {
                         // Otherwise it's 9
                         endYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "9";

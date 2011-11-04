@@ -192,21 +192,21 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "FPS")) {
                 sb.append(prep(Float.toString(movie.getFps())));
             } else if (checkHeaderField(header, "# Files")) {
-                sb.append(prep("" + (null == movieFiles ? "0" : movieFiles.size())));
+                sb.append(prep(String.valueOf(null == movieFiles ? "0" : movieFiles.size())));
             } else if (checkHeaderField(header, "# Extras")) {
-                sb.append(prep("" + (null == extras ? "0" : extras.size())));
+                sb.append(prep(String.valueOf(null == extras ? "0" : extras.size())));
             } else if (checkHeaderField(header, "# Genres")) {
-                sb.append(prep("" + (null == genres ? "0" : genres.size())));
+                sb.append(prep(String.valueOf(null == genres ? "0" : genres.size())));
             } else if (checkHeaderField(header, "# Cast")) {
-                sb.append(prep("" + (null == cast ? "0" : cast.size())));
+                sb.append(prep(String.valueOf(null == cast ? "0" : cast.size())));
             } else if (checkHeaderField(header, "SubTitles?")) {
                 sb.append(prep(movie.getSubtitles()));
             } else if (checkHeaderField(header, "Poster?")) {
-                sb.append(prep("" + (StringTools.isValidString(movie.getPosterFilename()) ? "True" : "False")));
+                sb.append(prep(String.valueOf(StringTools.isValidString(movie.getPosterFilename()) ? "True" : "False")));
             } else if (checkHeaderField(header, "Poster Filename")) {
                 sb.append(prep(movie.getPosterFilename()));
             } else if (checkHeaderField(header, "Fanart?")) {
-                sb.append(prep("" + (StringTools.isValidString(movie.getFanartFilename()) ? "True" : "False")));
+                sb.append(prep(String.valueOf(StringTools.isValidString(movie.getFanartFilename()) ? "True" : "False")));
             } else if (checkHeaderField(header, "Fanart Filename")) {
                 sb.append(prep(movie.getFanartFilename()));
             } else if (checkHeaderField(header, "Rating #")) {
@@ -285,7 +285,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "Detail Poster Filename")) {
                 sb.append(prep(movie.getDetailPosterFilename()));
             } else if (checkHeaderField(header, "Watched")) {
-                sb.append(prep("" + movie.isWatched()));
+                sb.append(prep(String.valueOf(movie.isWatched())));
             }
         }
         return sb.toString();
@@ -296,11 +296,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @return empty string if input = -1
      */
     private String blankNegatives(int i) {
-        String sResult = "";
         if (0 <= i) {
-            sResult = "" + i;
+            return String.valueOf(i);
+        } else {
+            return "";
         }
-        return sResult;
     } // blankNegatives()
 
     /**

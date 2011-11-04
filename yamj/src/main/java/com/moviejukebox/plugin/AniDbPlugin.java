@@ -401,7 +401,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 if (anime != null) {
                     animeId = anime.getAnimeId();
                     // Update the movie's Id
-                    movie.setId(ANIDB_PLUGIN_ID, "" + animeId);
+                    movie.setId(ANIDB_PLUGIN_ID, String.valueOf(animeId));
                 }
             }
         } catch (UdpConnectionException error) {
@@ -447,7 +447,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             logger.info("getRating          : " + anime.getRating());
             // XXX: DEBUG END
 
-            movie.setId(ANIDB_PLUGIN_ID, "" + anime.getAnimeId());
+            movie.setId(ANIDB_PLUGIN_ID, String.valueOf(anime.getAnimeId()));
 
             if (isValidString(anime.getEnglishName())) {
                 movie.setTitle(anime.getEnglishName());

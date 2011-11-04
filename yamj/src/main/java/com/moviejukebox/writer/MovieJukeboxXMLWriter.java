@@ -1068,7 +1068,7 @@ public class MovieJukeboxXMLWriter {
         List<Movie> allMovies = library.getMoviesList();
 
         // Add the movie count to the library
-        writer.writeAttribute("count", "" + allMovies.size());
+        writer.writeAttribute("count", String.valueOf(allMovies.size()));
 
         if (includeMoviesInCategories) {
             for (Movie movie : library.getMoviesList()) {
@@ -1092,7 +1092,7 @@ public class MovieJukeboxXMLWriter {
                     
                     writer.writeStartElement("category");
                     writer.writeAttribute("name", category.getKey());
-                    writer.writeAttribute("count", "" + category.getValue().size());
+                    writer.writeAttribute("count", String.valueOf(category.getValue().size()));
 
                     if ("other".equalsIgnoreCase(categoryName)) {
                         // Process the other category using the order listed in the category.xml file
@@ -1408,7 +1408,7 @@ public class MovieJukeboxXMLWriter {
 
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("library");
-            writer.writeAttribute("count", "" + library.getIndexes().size());
+            writer.writeAttribute("count", String.valueOf(library.getIndexes().size()));
 
             for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
                 String categoryKey = category.getKey();
@@ -1426,7 +1426,7 @@ public class MovieJukeboxXMLWriter {
                 if (isCurrentKey) {
                     writer.writeAttribute("current", "true");
                 }
-                writer.writeAttribute("count", "" + category.getValue().size());
+                writer.writeAttribute("count", String.valueOf(category.getValue().size()));
 
                 int indexSize = 0;
                 if ("other".equalsIgnoreCase(categoryKey)) {
@@ -1472,8 +1472,8 @@ public class MovieJukeboxXMLWriter {
             }
             // FIXME: The count here is off. It needs to be correct
             writer.writeStartElement("movies");
-            writer.writeAttribute("count", "" + idx.videosPerPage);
-            writer.writeAttribute("cols", "" + idx.videosPerLine);
+            writer.writeAttribute("count", String.valueOf(idx.videosPerPage));
+            writer.writeAttribute("cols", String.valueOf(idx.videosPerLine));
 
             if (fullMovieInfoInIndexes) {
                 for (Movie movie : movies) {
@@ -1634,7 +1634,7 @@ public class MovieJukeboxXMLWriter {
     private int calcMinCategoryCount(String categoryName) {
         int categoryMinCount = categoryMinCountMaster;
         try {
-            categoryMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount." + categoryName, "" + categoryMinCountMaster);
+            categoryMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount." + categoryName, String.valueOf(categoryMinCountMaster));
         } catch (Exception ignore) {
             categoryMinCount = categoryMinCountMaster;
         }
@@ -1754,7 +1754,7 @@ public class MovieJukeboxXMLWriter {
             if (artworkList.size() > 0) {
                 for (Artwork artwork : artworkList) {
                     writer.writeStartElement(artworkType.toString());
-                    writer.writeAttribute("count", "" + artworkList.size());
+                    writer.writeAttribute("count", String.valueOf(artworkList.size()));
 
                     writer.writeStartElement("sourceSite");
                     writer.writeCharacters(artwork.getSourceSite());
@@ -1766,7 +1766,7 @@ public class MovieJukeboxXMLWriter {
 
                     for (ArtworkFile artworkFile : artwork.getSizes()) {
                         writer.writeStartElement(artworkFile.getSize().toString());
-                        writer.writeAttribute("downloaded", "" + artworkFile.isDownloaded());
+                        writer.writeAttribute("downloaded", String.valueOf(artworkFile.isDownloaded()));
                         writer.writeCharacters(artworkFile.getFilename());
                         writer.writeEndElement(); // size
                     }
@@ -1775,7 +1775,7 @@ public class MovieJukeboxXMLWriter {
             } else {
                 // Write a dummy node
                 writer.writeStartElement(artworkType.toString());
-                writer.writeAttribute("count", "" + 0);
+                writer.writeAttribute("count", String.valueOf(0));
 
                 writer.writeStartElement("url");
                 writer.writeCharacters(Movie.UNKNOWN);

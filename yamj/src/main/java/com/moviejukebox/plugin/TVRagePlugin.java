@@ -115,7 +115,7 @@ public class TVRagePlugin extends ImdbPlugin {
             logger.debug("TVRage Plugin: Show '" + movie.getTitle() + "' not found");
             return false;
         } else {
-            id = "" + showInfo.getShowID();
+            id = String.valueOf(showInfo.getShowID());
             movie.setId(TVRAGE_PLUGIN_ID, id);
             showInfo = tvRage.getShowInfo(id);
 
@@ -142,7 +142,7 @@ public class TVRagePlugin extends ImdbPlugin {
             }
             
             if (isNotValidString(movie.getYear())) {
-                movie.setYear("" + showInfo.getStarted());
+                movie.setYear(String.valueOf(showInfo.getStarted()));
             }
             
             if (isNotValidString(movie.getCompany())) {
@@ -155,7 +155,7 @@ public class TVRagePlugin extends ImdbPlugin {
             }
             
             if (isNotValidString(movie.getRuntime())) {
-                movie.setRuntime("" + showInfo.getRuntime());
+                movie.setRuntime(String.valueOf(showInfo.getRuntime()));
             }
             
             if (isNotValidString(movie.getReleaseDate())) {

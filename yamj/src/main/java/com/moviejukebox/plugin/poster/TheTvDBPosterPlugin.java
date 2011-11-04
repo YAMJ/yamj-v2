@@ -110,7 +110,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                     series = seriesList.get(0);
                 }
                 
-                response = "" + series.getId();
+                response = String.valueOf(series.getId());
             }
 
         } catch (Exception e) {
