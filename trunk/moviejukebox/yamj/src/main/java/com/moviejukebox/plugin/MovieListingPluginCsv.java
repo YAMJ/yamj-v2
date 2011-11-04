@@ -121,15 +121,15 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput(movie.getVideoCodec())
                 + prepOutput(movie.getVideoOutput())
                 + prepOutput(Float.toString(movie.getFps()))
-                + prepOutput("" + (null == movieFiles ? "0" : movieFiles.size()))
-                + prepOutput("" + (null == extras ? "0" : extras.size()))
-                + prepOutput("" + (null == genres ? "0" : genres.size()))
-                + prepOutput("" + (null == cast ? "0" : cast.size()))
+                + prepOutput(String.valueOf(null == movieFiles ? "0" : movieFiles.size()))
+                + prepOutput(String.valueOf(null == extras ? "0" : extras.size()))
+                + prepOutput(String.valueOf(null == genres ? "0" : genres.size()))
+                + prepOutput(String.valueOf(null == cast ? "0" : cast.size()))
                 + prepOutput(movie.getSubtitles())
-                + prepOutput("" + (null != movie.getPosterURL() ? "True" : "False"))
-                + prepOutput("" + (null != movie.getDetailPosterFilename() ? "True" : "False"))
-                + prepOutput("" + movie.getRating())
-                + prepOutput("" + movie.getTop250())
+                + prepOutput((null != movie.getPosterURL() ? "True" : "False"))
+                + prepOutput(String.valueOf(null != movie.getDetailPosterFilename() ? "True" : "False"))
+                + prepOutput(String.valueOf(movie.getRating()))
+                + prepOutput(String.valueOf(movie.getTop250()))
                 + prepOutput(movie.getLibraryDescription())
                 + prepOutput(movie.getLibraryPath())
                 + prepOutput(movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID))
@@ -141,7 +141,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID))
                 + prepOutput(new Timestamp(movie.getLastModifiedTimestamp()).toString()) //, false)
                 + prepOutput(movie.getFileSizeString())
-                + prepOutput("" + movie.isWatched())
+                + prepOutput(String.valueOf(movie.isWatched()))
                 ;
     } // toCSV()
 
@@ -150,11 +150,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      * @return empty string if input = -1
      */
     protected String blankNegatives(int i) {
-        String sResult = "";
         if (0 <= i) {
-            sResult = "" + i;
+            return String.valueOf(i);
+        } else {
+            return "";
         }
-        return sResult;
     } // blankNegatives()
 
     /**

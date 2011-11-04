@@ -261,7 +261,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             String comingSoonId = Movie.UNKNOWN;
                         
             StringBuffer sb = new StringBuffer(searchUrl);
-            sb.append("\"" + URLEncoder.encode(movieName, "UTF-8") + "\"");              
+            sb.append("\"").append(URLEncoder.encode(movieName, "UTF-8")).append("\"");              
 
             sb.append("+site%3Acomingsoon.it");
 

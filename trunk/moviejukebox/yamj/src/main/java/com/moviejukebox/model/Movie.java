@@ -1970,7 +1970,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }
-        setYear(dto.getYear() > 0 ? "" + dto.getYear() : null);
+        setYear(dto.getYear() > 0 ? String.valueOf(dto.getYear()) : null);
         setLanguage(dto.getLanguages().size() > 0 ? dto.getLanguages().get(0) : null);
 
         if (dto.getHdResolution() != null) {

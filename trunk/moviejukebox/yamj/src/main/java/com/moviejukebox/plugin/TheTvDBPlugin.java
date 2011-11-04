@@ -358,15 +358,15 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
 
                         if (isNotValidString(file.getAirsAfterSeason(part))) {
-                            file.setAirsAfterSeason(part, "" + episode.getAirsAfterSeason());
+                            file.setAirsAfterSeason(part, String.valueOf(episode.getAirsAfterSeason()));
                         }
 
                         if (isNotValidString(file.getAirsBeforeSeason(part))) {
-                            file.setAirsBeforeSeason(part, "" + episode.getAirsBeforeSeason());
+                            file.setAirsBeforeSeason(part, String.valueOf(episode.getAirsBeforeSeason()));
                         }
 
                         if (isNotValidString(file.getAirsBeforeEpisode(part))) {
-                            file.setAirsBeforeEpisode(part, "" + episode.getAirsBeforeEpisode());
+                            file.setAirsBeforeEpisode(part, String.valueOf(episode.getAirsBeforeEpisode()));
                         }
                         
                         if (isNotValidString(file.getFirstAired(part))) {
@@ -633,7 +633,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 // Add the series to the cache (no need to get it again
                 Cache.addToCache(Cache.generateCacheKey(CACHE_SERIES, id, language), series);
                 
-                id = "" + series.getId();
+                id = String.valueOf(series.getId());
                 movie.setId(THETVDB_PLUGIN_ID, id);
 
                 if (StringTools.isValidString(series.getImdbId())) {
