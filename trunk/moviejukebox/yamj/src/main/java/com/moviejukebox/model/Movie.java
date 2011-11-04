@@ -14,6 +14,7 @@ package com.moviejukebox.model;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -2118,7 +2119,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         String newAspectRatio = new String(aspectRatio);  // We can't alter the parameter, so use a new one
         boolean appendRatio = false;
-
+        
+        // Use the "." as a decimal format separator, ignoring localisation
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        
         // Format the aspect slightly and change "16/9" to "16:9"
         newAspectRatio.replaceAll("/", ":");
         
@@ -2137,9 +2142,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (newAspectRatio.contains(".")) {
             try {
                 switch (aspectRationPrecision) {
-                    case 1:  newAspectRatio = new DecimalFormat("#.#").format(Float.parseFloat(newAspectRatio));   break;
-                    case 2:  newAspectRatio = new DecimalFormat("#.##").format(Float.parseFloat(newAspectRatio));  break;
-                    default: newAspectRatio = new DecimalFormat("#.###").format(Float.parseFloat(newAspectRatio)); break;
+                    case 1:  newAspectRatio = new DecimalFormat("#.#", symbols).format(Float.parseFloat(newAspectRatio));   break;
+                    case 2:  newAspectRatio = new DecimalFormat("#.##", symbols).format(Float.parseFloat(newAspectRatio));  break;
+                    default: newAspectRatio = new DecimalFormat("#.###", symbols).format(Float.parseFloat(newAspectRatio)); break;
                 }
             } catch (NumberFormatException nfe) {
                 // Don't change the number because there was an error
