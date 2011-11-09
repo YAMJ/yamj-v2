@@ -452,12 +452,22 @@ public class MovieNFOScanner {
                             Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
                             movie.addSet(set, orderAttribute == null ? null : Integer.parseInt(orderAttribute.getValue()));
                         } else if (tag.equalsIgnoreCase("rating")) {
-                            float val = XMLHelper.parseFloat(r);
-                            if (val != 0.0f) {
-                                if (val <= 10f) {
-                                    movie.addRating(NFO_PLUGIN_ID, Math.round(val * 10f));
+                            Attribute movieDbAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
+                            float ratingFloat = XMLHelper.parseFloat(r);
+                            if (ratingFloat != 0.0f) {
+                                int ratingInt;
+                                if (ratingFloat <= 10f) {
+                                    ratingInt = Math.round(ratingFloat * 10f);
                                 } else {
-                                    movie.addRating(NFO_PLUGIN_ID, Math.round(val * 1f));
+                                    ratingInt = Math.round(ratingFloat * 1f);
+                                }
+
+                                if (movieDbAttribute != null) { 
+                                    // if we have a moviedb attribute
+                                    movie.addRating(movieDbAttribute.getValue(), ratingInt);
+                                } else {
+                                    // Use "NFO" instead.
+                                    movie.addRating(NFO_PLUGIN_ID, ratingInt);
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("year")) {

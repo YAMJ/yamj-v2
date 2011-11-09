@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -42,6 +43,8 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Award;
@@ -62,6 +65,7 @@ import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -103,6 +107,7 @@ public class MovieJukeboxXMLWriter {
     private static int categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean writeNfoFiles;
+    private static boolean writeSimpleNfoFiles;
     private boolean extractCertificationFromMPAA;
     private boolean setsExcludeTV;
     private static String peopleFolder;
@@ -120,6 +125,7 @@ public class MovieJukeboxXMLWriter {
         categoriesDisplayList = Arrays.asList(strCategoriesDisplayList.split(","));
 
         writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", "false");
+        writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", "false");
 
         enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
     }
@@ -2306,171 +2312,139 @@ public class MovieJukeboxXMLWriter {
         if (movie.isSetMaster() || movie.isExtra()) {
             return;
         }
-
-        String nfoFolder = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), "NFO");
-        (new File(nfoFolder)).mkdirs();
-        //File rootNfoFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), nfoBaseName));
-        File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
-
-        logger.debug("MovieJukeboxXMLWriter: Writing NFO file for " + movie.getBaseName() + ".nfo");
-        FileTools.addJukeboxFile(tempNfoFile.getName());
-
-        XMLWriter writer = null;
+        
+        Document docNFO;
+        Element eRoot, eRatings, eCredits, eDirectors, eActors;
 
         try {
-            writer = new XMLWriter(tempNfoFile);
+            docNFO = DOMHelper.createDocument();
+        } catch (ParserConfigurationException e1) {
+            logger.warn("Failed to create NFO file for " + movie.getBaseFilename());
+            return;
+        }
+        
+        String nfoFolder = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), "NFO");
+        (new File(nfoFolder)).mkdirs();
+        File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
 
-            writer.writeStartDocument("UTF-8", "1.0");
-            if (movie.isTVShow()) {
-                writer.writeStartElement("tvshow");
-            } else {
-                writer.writeStartElement("movie");
-            }
-            for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
-                writer.writeStartElement("id");
-                writer.writeAttribute("moviedb", e.getKey());
-                writer.writeCharacters(e.getValue());
-                writer.writeEndElement();
-            }
+        logger.debug("MovieJukeboxXMLWriter: Writing " + (writeSimpleNfoFiles?"simple ":"") +"NFO file for " + movie.getBaseName() + ".nfo");
+        FileTools.addJukeboxFile(tempNfoFile.getName());
 
+        // Define the root element
+        if (movie.isTVShow()) {
+            eRoot = docNFO.createElement("tvshow");
+        } else {
+            eRoot = docNFO.createElement("movie");
+        }
+        docNFO.appendChild(eRoot);
+        
+        for (String site : movie.getIdMap().keySet()) {
+            DOMHelper.appendChild(docNFO, eRoot, "id", movie.getId(site), "moviedb", site);
+        }
+
+        if (!writeSimpleNfoFiles) {
             if (StringTools.isValidString(movie.getTitle())) {
-                writer.writeStartElement("title");
-                writer.writeCharacters(movie.getTitle());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "title", movie.getTitle());
             }
 
             if (StringTools.isValidString(movie.getOriginalTitle())) {
-                writer.writeStartElement("originaltitle");
-                writer.writeCharacters(movie.getOriginalTitle());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "originaltitle", movie.getOriginalTitle());
             }
 
             if (StringTools.isValidString(movie.getTitleSort())) {
-                writer.writeStartElement("sorttitle");
-                writer.writeCharacters(movie.getTitleSort());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "sorttitle", movie.getTitleSort());
             }
 
             if (StringTools.isValidString(movie.getYear())) {
-                writer.writeStartElement("year");
-                writer.writeCharacters(movie.getYear());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "year", movie.getYear());
             }
 
             if (StringTools.isValidString(movie.getOutline())) {
-                writer.writeStartElement("outline");
-                writer.writeCharacters(movie.getOutline());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "outline", movie.getOutline());
             }
 
             if (StringTools.isValidString(movie.getPlot())) {
-                writer.writeStartElement("plot");
-                writer.writeCharacters(movie.getPlot());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "plot", movie.getPlot());
             }
 
             if (StringTools.isValidString(movie.getTagline())) {
-                writer.writeStartElement("tagline");
-                writer.writeCharacters(movie.getTagline());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "tagline", movie.getTagline());
             }
 
             if (StringTools.isValidString(movie.getRuntime())) {
-                writer.writeStartElement("runtime");
-                writer.writeCharacters(movie.getRuntime());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "runtime", movie.getRuntime());
             }
 
             if (StringTools.isValidString(movie.getReleaseDate())) {
-                writer.writeStartElement("premiered");
-                writer.writeCharacters(movie.getReleaseDate());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "premiered", movie.getReleaseDate());
             }
 
             if (StringTools.isValidString(movie.getShowStatus())) {
-                writer.writeStartElement("showStatus");
-                writer.writeCharacters(movie.getReleaseDate());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "showStatus", movie.getReleaseDate());
             }
 
             if (movie.getRating() >= 0) {
-                writer.writeStartElement("rating");
-                writer.writeCharacters(Integer.toString(movie.getRating()));
-                writer.writeEndElement();
+                eRatings = docNFO.createElement("ratings");
+                eRoot.appendChild(eRatings);
+
+                for (String site : movie.getRatings().keySet()) {
+                    DOMHelper.appendChild(docNFO, eRatings, "rating", String.valueOf(movie.getRating(site)), "moviedb", site);
+                }
             }
 
             if (StringTools.isValidString(movie.getCertification())) {
                 if (extractCertificationFromMPAA) {
-                    writer.writeStartElement("mpaa");
+                    DOMHelper.appendChild(docNFO, eRoot, "mpaa", movie.getCertification());
                 } else {
-                    writer.writeStartElement("certification");
+                    DOMHelper.appendChild(docNFO, eRoot, "certification", movie.getCertification());
                 }
-                writer.writeCharacters(movie.getCertification());
-                writer.writeEndElement();
             }
 
             if (!movie.getGenres().isEmpty()) {
                 for (String genre : movie.getGenres()) {
-                    writer.writeStartElement("genre");
-                    writer.writeCharacters(genre);
-                    writer.writeEndElement();
+                    DOMHelper.appendChild(docNFO, eRoot, "genre", genre);
                 }
             }
 
             if (!movie.getWriters().isEmpty()) {
-                writer.writeStartElement("credits");
+                eCredits = docNFO.createElement("credits");
+                eRoot.appendChild(eCredits);
+                
                 for (String writerCredit : movie.getWriters()) {
-                    writer.writeStartElement("writer");
-                    writer.writeCharacters(writerCredit);
-                    writer.writeEndElement();
+                    DOMHelper.appendChild(docNFO, eCredits, "writer", writerCredit);
                 }
-                writer.writeEndElement(); // credits
             }
 
             if (!movie.getDirectors().isEmpty()) {
-                writer.writeStartElement("directors");
+                eDirectors = docNFO.createElement("directors");
+                eRoot.appendChild(eDirectors);
                 for (String director : movie.getDirectors()) {
-                    writer.writeStartElement("director");
-                    writer.writeCharacters(director);
-                    writer.writeEndElement();
+                    DOMHelper.appendChild(docNFO, eDirectors, "director", director);
                 }
-                writer.writeEndElement();
             }
 
             if (StringTools.isValidString(movie.getCompany())) {
-                writer.writeStartElement("company");
-                writer.writeCharacters(movie.getCompany());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "company", movie.getCompany());
             }
 
             if (StringTools.isValidString(movie.getCountry())) {
-                writer.writeStartElement("country");
-                writer.writeCharacters(movie.getCountry());
-                writer.writeEndElement();
+                DOMHelper.appendChild(docNFO, eRoot, "country", movie.getCountry());
             }
 
             if (!movie.getCast().isEmpty()) {
-                writer.writeStartElement("actor");
+                eActors = docNFO.createElement("actor");
+                
                 for (String actor : movie.getCast()) {
-                    writer.writeStartElement("name");
-                    writer.writeCharacters(actor);
-                    writer.writeEndElement();
-                    writer.writeStartElement("role");
-                    writer.writeCharacters("");
-                    writer.writeEndElement();
+                    DOMHelper.appendChild(docNFO, eActors, "name", actor);
+                    DOMHelper.appendChild(docNFO, eActors, "role", "");
                 }
-                writer.writeEndElement();
+                eRoot.appendChild(eActors);
             }
 
-            writer.writeEndElement();
-            writer.writeEndDocument();
-        } catch (Exception ignore) {
-            logger.debug("MovieJukeboxXMLWriter: Error creating the NFO file: " + movie.getBaseName() + ".nfo");
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
         }
+        
+        DOMHelper.writeDocumentToFile(docNFO, tempNfoFile.getAbsolutePath());
+        
     }
 
 }
