@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.log4j.Logger;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,6 +30,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -47,69 +48,59 @@ public class DOMHelper {
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     /**
-     * Gets the string value of the tag element name passed
-     * @param element
-     * @param tagName
-     * @return
+     * Add a child element to a parent element
+     * @param doc
+     * @param parentElement
+     * @param elementName
+     * @param elementValue
      */
-    public static String getValueFromElement(Element element, String tagName) {
-        String returnValue = "";
+    public static void appendChild(Document doc, Element parentElement, String elementName, String elementValue) {
+        appendChild(doc, parentElement, elementName, elementValue, null);
+    }
+
+    /**
+     * Add a child element to a parent element with a set of attributes
+     * @param doc
+     * @param parentElement
+     * @param elementName
+     * @param elementValue
+     * @param childAttributes
+     */
+    public static void appendChild(Document doc, Element parentElement, String elementName, String elementValue, Map<String, String> childAttributes) {
+        Element child = doc.createElement(elementName);
+        Text text = doc.createTextNode(elementValue);
+        child.appendChild(text);
         
-        try {
-            NodeList elementNodeList = element.getElementsByTagName(tagName);
-            Element tagElement = (Element) elementNodeList.item(0);
-            NodeList tagNodeList = tagElement.getChildNodes();
-            returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
-        } catch (Exception ignore) {
-            return returnValue;
+        if (childAttributes != null && !childAttributes.isEmpty()) {
+            for (String attrib : childAttributes.keySet()) {
+                child.setAttribute(attrib, childAttributes.get(attrib));
+            }
         }
         
-        return returnValue;
-    }
+        parentElement.appendChild(child);
 
-    /**
-     * Get a DOM document from the supplied URL
-     * @param url
-     * @return
-     * @throws MalformedURLException
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     */
-    public static Document getEventDocFromUrl(String url) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
-        InputStream in = (new URL(url)).openStream();
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(in);
-        doc.getDocumentElement().normalize();
-        return doc;
+        return;
     }
     
     /**
-     * Get a DOM document from the supplied file
-     * @param file
-     * @return
-     * @throws MalformedURLException
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
+     * Append a child element to a parent element with a single attribute/value pair
+     * @param doc
+     * @param parentElement
+     * @param elementName
+     * @param elementValue
+     * @param attribName
+     * @param attribValue
      */
-    public static Document getEventDocFromUrl(File file) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
-        return getEventDocFromUrl(file.toURI().toURL().toString());
+    public static void appendChild(Document doc, Element parentElement, String elementName, String elementValue, String attribName, String attribValue) {
+        Element child = doc.createElement(elementName);
+        Text text = doc.createTextNode(elementValue);
+        child.appendChild(text);
+        child.setAttribute(attribName, attribValue);
+        parentElement.appendChild(child);
+
+        return;
     }
 
-    /**
-     * Create a blank Document
-     * @return a Document
-     * @throws ParserConfigurationException
-     */
-    public static Document createDocument() throws ParserConfigurationException {
-        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
-        Document doc = docBuilder.newDocument();
-        return doc;
-    }
-    
     /**
      * Convert a DOM document to a string
      * @param doc
@@ -132,6 +123,70 @@ public class DOMHelper {
     }
     
     /**
+     * Create a blank Document
+     * @return a Document
+     * @throws ParserConfigurationException
+     */
+    public static Document createDocument() throws ParserConfigurationException {
+        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+        Document doc = docBuilder.newDocument();
+        return doc;
+    }
+    
+    /**
+     * Get a DOM document from the supplied file
+     * @param file
+     * @return
+     * @throws MalformedURLException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
+    public static Document getEventDocFromUrl(File file) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
+        return getEventDocFromUrl(file.toURI().toURL().toString());
+    }
+
+    /**
+     * Get a DOM document from the supplied URL
+     * @param url
+     * @return
+     * @throws MalformedURLException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
+    public static Document getEventDocFromUrl(String url) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
+        InputStream in = (new URL(url)).openStream();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(in);
+        doc.getDocumentElement().normalize();
+        return doc;
+    }
+
+    /**
+     * Gets the string value of the tag element name passed
+     * @param element
+     * @param tagName
+     * @return
+     */
+    public static String getValueFromElement(Element element, String tagName) {
+        String returnValue = "";
+        
+        try {
+            NodeList elementNodeList = element.getElementsByTagName(tagName);
+            Element tagElement = (Element) elementNodeList.item(0);
+            NodeList tagNodeList = tagElement.getChildNodes();
+            returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
+        } catch (Exception ignore) {
+            return returnValue;
+        }
+        
+        return returnValue;
+    }
+    
+    /**
      * Write the Document out to a file using nice formatting
      * @param doc   The document to save
      * @param localFile The file to write to
@@ -139,10 +194,15 @@ public class DOMHelper {
      */
     public static boolean writeDocumentToFile(Document doc, String localFile) {
         try {
-            TransformerFactory transfact = TransformerFactory.newInstance();
-            Transformer trans = transfact.newTransformer();
-            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            Transformer trans = TransformerFactory.newInstance().newTransformer();
+
+            // Define the output properties
+            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
+            trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            doc.setXmlStandalone(true);
+            
             trans.transform(new DOMSource(doc), new StreamResult(new File(localFile)));
             return true;
         } catch (Exception error) {
@@ -150,21 +210,5 @@ public class DOMHelper {
             logger.error("Message: " + error.getMessage());
             return false;
         }
-    }
-
-    /**
-     * Add a child element to a parent element
-     * @param doc
-     * @param parentElement
-     * @param elementName
-     * @param elementValue
-     */
-    public static void appendChild(Document doc, Element parentElement, String elementName, String elementValue) {
-        Element child = doc.createElement(elementName);
-        Text text = doc.createTextNode(elementValue);
-        child.appendChild(text);
-        parentElement.appendChild(child);
-
-        return;
     }
 }
