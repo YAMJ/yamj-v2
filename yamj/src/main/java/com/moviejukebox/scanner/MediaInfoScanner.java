@@ -28,11 +28,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import org.apache.log4j.Logger;
 
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 
+import org.apache.log4j.Logger;
+
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -62,6 +64,7 @@ public class MediaInfoScanner {
     private static boolean activated;
     private static boolean enableMetadata;
     private String randomDirName;
+    private static AspectRatioTools aspectTools = new AspectRatioTools();
 
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
@@ -446,7 +449,7 @@ public class MediaInfoScanner {
             if (movie.getAspectRatio().equals(Movie.UNKNOWN)) {
                 infoValue = infosMainVideo.get("Display aspect ratio");
                 if (infoValue != null) {
-                    movie.setAspectRatio(infoValue);
+                    movie.setAspectRatio(aspectTools.cleanAspectRatio(infoValue));
                 }
             }
 

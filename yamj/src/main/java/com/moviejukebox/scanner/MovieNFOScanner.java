@@ -47,6 +47,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
+import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -80,6 +81,7 @@ public class MovieNFOScanner {
     private static String NFO_PLUGIN_ID = "NFO";
     
     private static boolean archiveScanRar;
+    private static AspectRatioTools aspectTools = new AspectRatioTools();
 
     static {
         skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
@@ -760,7 +762,7 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                movie.setAspectRatio(val);
+                                                movie.setAspectRatio(aspectTools.cleanAspectRatio(val));
                                             }
                                         }
 
@@ -1221,7 +1223,7 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<aspect>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                movie.setAspectRatio(val);
+                                                movie.setAspectRatio(aspectTools.cleanAspectRatio(val));
                                             }
                                         }
 

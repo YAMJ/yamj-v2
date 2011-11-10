@@ -65,6 +65,7 @@ import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -112,6 +113,8 @@ public class MovieJukeboxXMLWriter {
     private boolean setsExcludeTV;
     private static String peopleFolder;
     private static boolean enableWatchScanner;
+
+    private static AspectRatioTools aspectTools = new AspectRatioTools();
 
     // Should we reindex the New / Watched / Unwatched categories?
     private boolean reindexNew = false;
@@ -386,7 +389,7 @@ public class MovieJukeboxXMLWriter {
                     movie.setVideoOutput(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<aspect>")) {
-                    movie.setAspectRatio(parseCData(r));
+                    movie.setAspectRatio(aspectTools.cleanAspectRatio(parseCData(r)));
                 }
                 if (tag.equalsIgnoreCase("<fps>")) {
                     movie.setFps(Float.parseFloat(parseCData(r)));
