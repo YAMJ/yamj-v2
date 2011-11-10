@@ -13,8 +13,6 @@
 package com.moviejukebox.model;
 
 import java.io.File;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -107,7 +105,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private static HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
     private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
-    private static int aspectRationPrecision = PropertiesUtil.getIntProperty("mjb.aspectRatioPrecision", "3");
     
     /*--------------------------------------------------------------------------------
      * Properties related to the Movie object itself
@@ -2113,50 +2110,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setAspectRatio(String aspectRatio) {
-        if (StringTools.isNotValidString(aspectRatio)) {
-            return;
-        }
-
-        String newAspectRatio = new String(aspectRatio);  // We can't alter the parameter, so use a new one
-        boolean appendRatio = false;
-        
-        // Use the "." as a decimal format separator, ignoring localisation
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setDecimalSeparator('.');
-        
-        // Format the aspect slightly and change "16/9" to "16:9"
-        newAspectRatio.replaceAll("/", ":");
-        
-        // If we don't have a ":" then we should add ":1" after processing
-        if (!newAspectRatio.contains(":")) {
-            appendRatio = true;
-        }
-        
-        // Remove the ":1" at the end of the ratio so we can format it.
-        if (newAspectRatio.endsWith(":1")) {
-            newAspectRatio = new String(newAspectRatio.substring(0, newAspectRatio.length() - 2));
-            appendRatio = true;
-        }
-
-        // Format the aspect if it is a float value to 2 decimal places
-        if (newAspectRatio.contains(".")) {
-            try {
-                switch (aspectRationPrecision) {
-                    case 1:  newAspectRatio = new DecimalFormat("#.#", symbols).format(Float.parseFloat(newAspectRatio));   break;
-                    case 2:  newAspectRatio = new DecimalFormat("#.##", symbols).format(Float.parseFloat(newAspectRatio));  break;
-                    default: newAspectRatio = new DecimalFormat("#.###", symbols).format(Float.parseFloat(newAspectRatio)); break;
-                }
-            } catch (NumberFormatException nfe) {
-                // Don't change the number because there was an error
-            }
-        }
-
-        // Add the ratio back to the end of the value if needed
-        if (appendRatio) {
-            newAspectRatio = new String(newAspectRatio + ":1");
-        }
-        
-        this.aspect = newAspectRatio;
+        this.aspect = aspectRatio;
     }
 
     public String getAspectRatio() {
