@@ -16,9 +16,11 @@ import static com.moviejukebox.tools.XMLHelper.parseCData;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +47,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Award;
@@ -813,40 +818,63 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    public Map<String, Integer> parseMovieXML_set(File xmlFile) {
+    public Map<String, Integer> parseMovieXMLForSets(File xmlFile) {
         Map<String, Integer> sets = new HashMap<String, Integer>();
+        
+        Document xmlDoc;
         try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
-                String tag = e.toString();
-
-                if (tag.toLowerCase().startsWith("<set ") || tag.equalsIgnoreCase("<set>")) {
-                    // String set = null;
-                    Integer order = null;
-
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
-
-                        if (ns.equalsIgnoreCase("order")) {
-                            order = Integer.parseInt(attr.getValue());
-                            continue;
-                        }
-                    }
-                    sets.put(parseCData(r), order);
-                }
-            }
-        } catch (Exception error) {
-            logger.error("Failed parsing movie xml for set : please fix it or remove it.");
+            xmlDoc = DOMHelper.getEventDocFromUrl(xmlFile);
+        } catch (MalformedURLException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
             logger.error(eResult.toString());
             return sets;
+        } catch (IOException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return sets;
+        } catch (ParserConfigurationException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return sets;
+        } catch (SAXException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return sets;
+        }
+        
+        NodeList nlElements;
+        Node nDetails;
+        
+        nlElements = xmlDoc.getElementsByTagName("set");
+        
+        for (int looper = 0; looper < nlElements.getLength(); looper++) {
+            nDetails = nlElements.item(looper);
+            if (nDetails.getNodeType() == Node.ELEMENT_NODE) {
+                Element eSet = (Element) nDetails;
+                
+                String setOrder = eSet.getAttribute("order");
+                if (StringTools.isValidString(setOrder)) {
+                    try {
+                        sets.put(eSet.getTextContent(), Integer.parseInt(setOrder));
+                    } catch (NumberFormatException error) {
+                        sets.put(eSet.getTextContent(), null);
+                    }
+                } else {
+                    sets.put(eSet.getTextContent(), null);
+                }
+            }
         }
 
         return sets;
