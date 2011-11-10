@@ -14,6 +14,7 @@ package com.moviejukebox.tools;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.moviejukebox.model.Movie;
@@ -140,6 +141,7 @@ public class AspectRatioTools {
      * @param aspectList
      */
     private void createAspectList(List<AspectRatio> aspectList) {
+        aspectList = new ArrayList<AspectRatio>();
         aspectList.add(new AspectRatio("1:1", 1.000f, 1.075f, 1.000f, 1.00f, 1.0f));
         aspectList.add(new AspectRatio("Movietone", 1.076f, 1.200f, 1.150f, 1.15f, 1.2f));
         aspectList.add(new AspectRatio("SVGA", 1.201f, 1.292f, 1.250f, 1.25f, 1.3f));
