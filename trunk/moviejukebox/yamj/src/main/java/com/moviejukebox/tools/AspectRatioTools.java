@@ -20,24 +20,26 @@ import java.util.List;
 import com.moviejukebox.model.Movie;
 
 public class AspectRatioTools {
-    private static List<AspectRatio> aspectList;
+    private static List<AspectRatio> aspectList = new ArrayList<AspectRatio>();
     private static int aspectRationPrecision = PropertiesUtil.getIntProperty("mjb.aspectRatioPrecision", "3");
     private static DecimalFormatSymbols symbols = new DecimalFormatSymbols();
 
     public AspectRatioTools() {
-        createAspectList(aspectList);
+        // Don't create the aspectList if it's already populated
+        if (aspectList == null || aspectList.isEmpty()) {
+            createAspectList();
+            
+            if (aspectRationPrecision > 3) {
+                aspectRationPrecision = 3;
+            }
 
-        if (aspectRationPrecision > 3) {
-            aspectRationPrecision = 3;
+            if (aspectRationPrecision < 1) {
+                aspectRationPrecision = 1;
+            }
+
+            // Use the "." as a decimal format separator, ignoring localisation
+            symbols.setDecimalSeparator('.');
         }
-
-        if (aspectRationPrecision < 1) {
-            aspectRationPrecision = 1;
-        }
-
-        // Use the "." as a decimal format separator, ignoring localisation
-        symbols.setDecimalSeparator('.');
-
     }
 
     /**
@@ -140,8 +142,7 @@ public class AspectRatioTools {
      * 
      * @param aspectList
      */
-    private void createAspectList(List<AspectRatio> aspectList) {
-        aspectList = new ArrayList<AspectRatio>();
+    private void createAspectList() {
         aspectList.add(new AspectRatio("1:1", 1.000f, 1.075f, 1.000f, 1.00f, 1.0f));
         aspectList.add(new AspectRatio("Movietone", 1.076f, 1.200f, 1.150f, 1.15f, 1.2f));
         aspectList.add(new AspectRatio("SVGA", 1.201f, 1.292f, 1.250f, 1.25f, 1.3f));
@@ -197,6 +198,15 @@ public class AspectRatioTools {
         private float ratio2digit;
         private float ratio1digit;
 
+        /**
+         * Constructor for Aspect Ratio
+         * @param ratioName
+         * @param minFloat
+         * @param maxFloat
+         * @param ratio3digit
+         * @param ratio2digit
+         * @param ratio1digit
+         */
         public AspectRatio(String ratioName, float minFloat, float maxFloat, float ratio3digit, float ratio2digit, float ratio1digit) {
             this.ratioName = ratioName;
             this.minFloat = minFloat;
@@ -205,6 +215,11 @@ public class AspectRatioTools {
             this.ratio2digit = ratio2digit;
             this.ratio1digit = ratio1digit;
         }
+
+        /**
+         * Default constructor
+         */
+        public AspectRatio() {}
 
         /**
          * Test to see if a passed value is in the range of this aspect ratio
