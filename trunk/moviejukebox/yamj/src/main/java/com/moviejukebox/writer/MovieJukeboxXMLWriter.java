@@ -118,6 +118,15 @@ public class MovieJukeboxXMLWriter {
     private boolean setsExcludeTV;
     private static String peopleFolder;
     private static boolean enableWatchScanner;
+    
+    // Should we scrape the award information
+    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false");
+    
+    // Should we scrape the business information
+    private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
+
+    // Should we scrape the trivia information
+    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
 
     private static AspectRatioTools aspectTools = new AspectRatioTools();
 
@@ -1081,7 +1090,7 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    public void writeCategoryXML(Jukebox jukebox, Library library, String filename, boolean isDirty) throws FileNotFoundException, XMLStreamException {
+    public void writeCategoryXML(Jukebox jukebox, Library library, String filename, boolean isDirty) throws FileNotFoundException, XMLStreamException, ParserConfigurationException {
         // Issue 1886: HTML indexes recreated every time
         File oldFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + filename + ".xml");
 
@@ -1098,22 +1107,28 @@ public class MovieJukeboxXMLWriter {
         FileTools.addJukeboxFile(filename + ".xml");
 
         XMLWriter writer = new XMLWriter(xmlFile);
+        
+        Document xmlDoc = DOMHelper.createDocument();
+        Element eLibrary = xmlDoc.createElement("library");
 
-        writer.writeStartDocument("UTF-8", "1.0");
-        writer.writeStartElement("library");
-
-        List<Movie> allMovies = library.getMoviesList();
+//        writer.writeStartDocument("UTF-8", "1.0");
+//        writer.writeStartElement("library");
 
         // Add the movie count to the library
-        writer.writeAttribute("count", String.valueOf(allMovies.size()));
+//        writer.writeAttribute("count", String.valueOf(library.getMoviesList().size()));
+        eLibrary.setAttribute("count", String.valueOf(library.getMoviesList().size()));
 
         if (includeMoviesInCategories) {
+            Element eMovie;
             for (Movie movie : library.getMoviesList()) {
                 if (fullMovieInfoInIndexes) {
-                    writeMovie(writer, movie, library);
+                    eMovie = writeMovie(xmlDoc, movie, library);
                 } else {
-                    writeMovieForIndex(writer, movie);
+                    eMovie = writeMovieForIndex(xmlDoc, movie);
                 }
+                
+                // Add the movie
+                eLibrary.appendChild(eMovie);
             }
         }
 
@@ -1583,6 +1598,39 @@ public class MovieJukeboxXMLWriter {
     
     }
 
+    /**
+     * Return an Element with the movie details
+     * @param doc
+     * @param movie
+     * @return
+     */
+    private Element writeMovieForIndex(Document doc, Movie movie) {
+        Element eMovie = doc.createElement("movie");
+        
+        eMovie.setAttribute("isExtra", Boolean.toString(movie.isExtra()));
+        eMovie.setAttribute("isSet", Boolean.toString(movie.isSetMaster()));
+        if (movie.isSetMaster()) {
+            eMovie.setAttribute("setSize", Integer.toString(movie.getSetSize()));
+        }
+        eMovie.setAttribute("isTV", Boolean.toString(movie.isTVShow()));
+
+        DOMHelper.appendChild(doc, eMovie, "details", HTMLTools.encodeUrl(movie.getBaseName()) + ".html");
+        DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
+        DOMHelper.appendChild(doc, eMovie, "baseFilename", movie.getBaseName());
+        DOMHelper.appendChild(doc, eMovie, "title", movie.getTitle());
+        DOMHelper.appendChild(doc, eMovie, "titleSort", movie.getTitleSort());
+        DOMHelper.appendChild(doc, eMovie, "originalTitle", movie.getOriginalTitle());
+        DOMHelper.appendChild(doc, eMovie, "detailPosterFile", HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
+        DOMHelper.appendChild(doc, eMovie, "thumbnail", HTMLTools.encodeUrl(movie.getThumbnailFilename()));
+        DOMHelper.appendChild(doc, eMovie, "bannerFile", HTMLTools.encodeUrl(movie.getBannerFilename()));
+        DOMHelper.appendChild(doc, eMovie, "certification", movie.getCertification());
+        DOMHelper.appendChild(doc, eMovie, "season", Integer.toString(movie.getSeason()));
+
+        // Return the generated movie
+        return eMovie;
+    }
+    
+    @Deprecated
     private void writeMovieForIndex(XMLWriter writer, Movie movie) throws XMLStreamException {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
@@ -1627,6 +1675,20 @@ public class MovieJukeboxXMLWriter {
         writer.writeEndElement();
     }
 
+    private Element writeElementSet(Document doc, String set, String element, Collection<String> items, Library library, String cat) {
+        
+        if (items.size() > 0) {
+            Element eSet = doc.createElement(set);
+            for (String item : items) {
+                writeIndexedElement(doc, eSet, element, item, createIndexAttribute(library, cat, item));
+            }
+            return eSet;
+        } else {
+            return null;
+        }
+    }
+    
+    @Deprecated
     private void writeElementSet(XMLWriter writer, String set, String element, Collection<String> items, Library library, String cat) throws XMLStreamException {
         if (items.size() > 0) {
             writer.writeStartElement(set);
@@ -1640,24 +1702,48 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
+    @Deprecated
     private void writeIndexAttribute(XMLWriter writer, Library library, String category, String value) throws XMLStreamException {
-        if (StringTools.isNotValidString(value)) {
-            return;
-        }
-        
         final String index = createIndexAttribute(library, category, value);
         if (index != null) {
             writer.writeAttribute("index", index);
         }
     }
 
-    private String createIndexAttribute(Library library, String categoryName, String val) throws XMLStreamException {
+    /**
+     * Write the element with the indexed attribute. If there is a non-null value in the indexValue, this will be appended to the element.  
+     * @param doc
+     * @param parentElement
+     * @param attributeName
+     * @param attributeValue
+     * @param indexValue
+     */
+    private void writeIndexedElement(Document doc, Element parentElement, String attributeName, String attributeValue, String indexValue) {
+        if (indexValue == null) {
+            DOMHelper.appendChild(doc, parentElement, attributeName, attributeValue);
+        } else {
+            DOMHelper.appendChild(doc, parentElement, attributeName, attributeValue, "index", indexValue);
+        }
+    }
+    
+    /**
+     * Create the index filename for a category & value. Will return "null" if no index found
+     * @param library
+     * @param categoryName
+     * @param value
+     * @return
+     */
+    private String createIndexAttribute(Library library, String categoryName, String value) {
+        if (StringTools.isNotValidString(value)) {
+            return null;
+        }
+        
         Index index = library.getIndexes().get(categoryName);
         if (null != index) {
             int categoryMinCount = calcMinCategoryCount(categoryName);
 
-            if (library.getMovieCountForIndex(categoryName, val) >= categoryMinCount) {
-                return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, val)) + 1);
+            if (library.getMovieCountForIndex(categoryName, value) >= categoryMinCount) {
+                return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, value)) + 1);
             }
         }
         return null;
@@ -1678,6 +1764,383 @@ public class MovieJukeboxXMLWriter {
         return categoryMinCount;
     }
 
+    private Element writeMovie(Document doc, Movie movie, Library library) {
+        Element eMovie = doc.createElement("movie");
+        
+        eMovie.setAttribute("isExtra", Boolean.toString(movie.isExtra()));
+        eMovie.setAttribute("isSet", Boolean.toString(movie.isSetMaster()));
+        if (movie.isSetMaster()) {
+            eMovie.setAttribute("setSize", Integer.toString(movie.getSetSize()));
+        }
+        eMovie.setAttribute("isTV", Boolean.toString(movie.isTVShow()));
+        
+        for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
+            DOMHelper.appendChild(doc, eMovie, "id", e.getKey(), "moviedb", e.getValue());
+        }
+        
+        DOMHelper.appendChild(doc, eMovie, "mjbVersion", movie.getCurrentMjbVersion());
+        DOMHelper.appendChild(doc, eMovie, "mjbRevision", movie.getCurrentMjbRevision());
+        DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", Movie.dateFormatLong.format(new Date()));
+        DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
+        DOMHelper.appendChild(doc, eMovie, "baseFilename", movie.getBaseName());
+        DOMHelper.appendChild(doc, eMovie, "title", movie.getTitle());
+        DOMHelper.appendChild(doc, eMovie, "titleSort", movie.getTitleSort());
+        DOMHelper.appendChild(doc, eMovie, "originalTitle", movie.getOriginalTitle());
+
+        DOMHelper.appendChild(doc, eMovie, "year", movie.getYear(), "Year", Library.getYearCategory(movie.getYear()));
+//        writeIndexAttribute(writer, library, "Year", Library.getYearCategory(movie.getYear()));
+
+        DOMHelper.appendChild(doc, eMovie, "releaseDate", movie.getReleaseDate());
+        DOMHelper.appendChild(doc, eMovie, "showStatus", movie.getShowStatus());
+        
+        // This is the main rating
+        DOMHelper.appendChild(doc, eMovie, "rating", Integer.toString(movie.getRating()));
+        
+        // This is the list of ratings
+        Element eRatings = doc.createElement("ratings");
+        for (String site : movie.getRatings().keySet()) {
+            DOMHelper.appendChild(doc, eRatings, "rating", Integer.toString(movie.getRating(site)), "moviedb", site);
+        }
+        eMovie.appendChild(eRatings);
+        
+        DOMHelper.appendChild(doc, eRatings, "watched", Boolean.toString(movie.isWatched()));
+        DOMHelper.appendChild(doc, eRatings, "watchedNFO", Boolean.toString(movie.isWatchedNFO()));
+        if (movie.isWatched()) {
+            DOMHelper.appendChild(doc, eRatings, "watchedDate", movie.getWatchedDateString());
+        }
+        DOMHelper.appendChild(doc, eRatings, "top250", Integer.toString(movie.getTop250()));
+        DOMHelper.appendChild(doc, eRatings, "details", HTMLTools.encodeUrl(movie.getBaseName()) + ".html");
+        DOMHelper.appendChild(doc, eRatings, "posterURL", HTMLTools.encodeUrl(movie.getPosterURL()));
+        DOMHelper.appendChild(doc, eRatings, "posterFile", HTMLTools.encodeUrl(movie.getPosterFilename()));
+        DOMHelper.appendChild(doc, eRatings, "fanartURL", HTMLTools.encodeUrl(movie.getFanartURL()));
+        DOMHelper.appendChild(doc, eRatings, "fanartFile", HTMLTools.encodeUrl(movie.getFanartFilename()));
+        DOMHelper.appendChild(doc, eRatings, "detailPosterFile", HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
+        DOMHelper.appendChild(doc, eRatings, "thumbnail", HTMLTools.encodeUrl(movie.getThumbnailFilename()));
+        DOMHelper.appendChild(doc, eRatings, "bannerURL", HTMLTools.encodeUrl(movie.getBannerURL()));
+        DOMHelper.appendChild(doc, eRatings, "bannerFile", HTMLTools.encodeUrl(movie.getBannerFilename()));
+
+        Element eArtwork = doc.createElement("artwork");
+        for (ArtworkType artworkType : ArtworkType.values()) {
+            Collection<Artwork> artworkList = movie.getArtwork(artworkType);
+            if (artworkList.size() > 0) {
+                Element eArtworkType;
+                
+                for (Artwork artwork : artworkList) {
+                    eArtworkType = doc.createElement(artworkType.toString());
+                    eArtworkType.setAttribute("count", String.valueOf(artworkList.size()));
+
+                    DOMHelper.appendChild(doc, eArtworkType, "sourceSite", artwork.getSourceSite());
+                    DOMHelper.appendChild(doc, eArtworkType, "url", artwork.getUrl());
+
+                    for (ArtworkFile artworkFile : artwork.getSizes()) {
+                        DOMHelper.appendChild(doc, eArtworkType, artworkFile.getSize().toString(), artworkFile.getFilename(), "downloaded", String.valueOf(artworkFile.isDownloaded()));
+                    }
+                    eArtwork.appendChild(eArtworkType);
+                }
+            } else {
+                // Write a dummy node
+                Element eArtworkType = doc.createElement(artworkType.toString());
+                eArtworkType.setAttribute("count", String.valueOf(0));
+
+                DOMHelper.appendChild(doc, eArtworkType, "url", Movie.UNKNOWN);
+                DOMHelper.appendChild(doc, eArtworkType, ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", "false");
+                
+                eArtwork.appendChild(eArtworkType);
+            }
+        }
+        eMovie.appendChild(eArtwork);
+
+        DOMHelper.appendChild(doc, eMovie, "plot", movie.getPlot());
+        DOMHelper.appendChild(doc, eMovie, "outline", movie.getOutline());
+        DOMHelper.appendChild(doc, eMovie, "quote", movie.getQuote());
+        DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline());
+        
+        writeIndexedElement(doc, eMovie, "country", movie.getCountry(), createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry()));
+        
+        DOMHelper.appendChild(doc, eMovie, "company", movie.getCompany());
+        DOMHelper.appendChild(doc, eMovie, "runtime", movie.getRuntime());
+        DOMHelper.appendChild(doc, eMovie, "certification", Library.getIndexingCertification(movie.getCertification()));
+        DOMHelper.appendChild(doc, eMovie, "season", Integer.toString(movie.getSeason()));
+        DOMHelper.appendChild(doc, eMovie, "language", movie.getLanguage());
+        DOMHelper.appendChild(doc, eMovie, "subtitles", movie.getSubtitles());
+        DOMHelper.appendChild(doc, eMovie, "trailerExchange", movie.isTrailerExchange() ? "YES" : "NO");
+        
+        if (movie.getTrailerLastScan() == 0) {
+            DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.UNKNOWN);
+        } else {
+            DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.dateFormat.format(movie.getTrailerLastScan()));
+        }
+        
+        DOMHelper.appendChild(doc, eMovie, "container", movie.getContainer());
+        DOMHelper.appendChild(doc, eMovie, "videoCodec", movie.getVideoCodec());
+        DOMHelper.appendChild(doc, eMovie, "audioCodec", movie.getAudioCodec());
+        DOMHelper.appendChild(doc, eMovie, "audioChannels", movie.getAudioChannels());
+        DOMHelper.appendChild(doc, eMovie, "resolution", movie.getResolution());
+        
+        // If the source is unknown, use the default source
+        if (StringTools.isNotValidString(movie.getVideoSource())) {
+            DOMHelper.appendChild(doc, eMovie, "videoSource", defaultSource);
+        } else {
+            DOMHelper.appendChild(doc, eMovie, "videoSource", movie.getVideoSource());
+        }
+        
+        DOMHelper.appendChild(doc, eMovie, "videoOutput", movie.getVideoOutput());
+        DOMHelper.appendChild(doc, eMovie, "aspect", movie.getAspectRatio());
+        DOMHelper.appendChild(doc, eMovie, "fps", Float.toString(movie.getFps()));
+
+        if (movie.getFileDate() == null) {
+            DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.UNKNOWN);
+        } else {
+            // Try to catch any date re-formatting errors
+            try {
+                DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.dateFormat.format(movie.getFileDate()));
+            } catch (ArrayIndexOutOfBoundsException error) {
+                DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.UNKNOWN);
+            }
+        }
+        DOMHelper.appendChild(doc, eMovie, "fileSize", movie.getFileSizeString());
+        DOMHelper.appendChild(doc, eMovie, "first", HTMLTools.encodeUrl(movie.getFirst()));
+        DOMHelper.appendChild(doc, eMovie, "previous", HTMLTools.encodeUrl(movie.getPrevious()));
+        DOMHelper.appendChild(doc, eMovie, "next", HTMLTools.encodeUrl(movie.getNext()));
+        DOMHelper.appendChild(doc, eMovie, "last", HTMLTools.encodeUrl(movie.getLast()));
+        DOMHelper.appendChild(doc, eMovie, "libraryDescription", movie.getLibraryDescription());
+        DOMHelper.appendChild(doc, eMovie, "prebuf", Long.toString(movie.getPrebuf()));
+
+        
+        if (movie.getGenres().size() > 0) {
+            Element eGenres = doc.createElement("genres");
+            for (String genre : movie.getGenres()) {
+                writeIndexedElement(doc, eGenres, "genre", genre, createIndexAttribute(library, Library.INDEX_GENRES, Library.getIndexingGenre(genre)));
+            }
+            eMovie.appendChild(eGenres);
+        }
+        
+        Collection<String> items = movie.getSetsKeys();
+        if (items.size() > 0) {
+            Element eSets = doc.createElement("sets");
+            for (String item : items) {
+                Element eSetItem = doc.createElement("set");
+                Integer order = movie.getSetOrder(item);
+                if (null != order) {
+                    eSetItem.setAttribute("order", String.valueOf(order));
+                }
+                String index = createIndexAttribute(library, Library.INDEX_SET, item);
+                if (null != index) {
+                    eSetItem.setAttribute("index", index);
+                }
+
+                eSetItem.setTextContent(item);
+                eSets.appendChild(eSetItem);
+            }
+            eMovie.appendChild(eSets);
+        }
+
+        writeIndexedElement(doc, eMovie, "director", movie.getDirector(), createIndexAttribute(library, Library.INDEX_DIRECTOR, movie.getDirector()));
+
+        writeElementSet(doc, "directors", "director", movie.getDirectors(), library, Library.INDEX_DIRECTOR);
+
+        writeElementSet(doc, "writers", "writer", movie.getWriters(), library, Library.INDEX_WRITER);
+
+        writeElementSet(doc, "cast", "actor", movie.getCast(), library, Library.INDEX_CAST);
+
+        // Issue 1901: Awards
+        if (enableAwards) {
+            Collection<AwardEvent> awards = movie.getAwards();
+            if (awards != null && awards.size() > 0) {
+                Element eAwards = doc.createElement("awards");
+                for (AwardEvent event : awards) {
+                    Element eEvent = doc.createElement("event");
+                    eEvent.setAttribute("name", event.getName());
+                    for (Award award : event.getAwards()) {
+                        Element eAwardItem = doc.createElement("award");
+                        eAwardItem.setAttribute("won", Integer.toString(award.getWon()));
+                        eAwardItem.setAttribute("nominated", Integer.toString(award.getNominated()));
+                        eAwardItem.setAttribute("year", Integer.toString(award.getYear()));
+                        if (award.getWons() != null && award.getWons().size() > 0) {
+                            eAwardItem.setAttribute("wons", StringUtils.join(award.getWons(), " / "));
+                        }
+                        if (award.getNominations() != null && award.getNominations().size() > 0) {
+                            eAwardItem.setAttribute("nominations", StringUtils.join(award.getNominations(), " / "));
+                        }
+                        eAwardItem.setTextContent(award.getName());
+                        eEvent.appendChild(eAwardItem);
+                    }
+                    eAwards.appendChild(eEvent);
+                }
+                eMovie.appendChild(eAwards);
+            }
+        }
+
+        // Issue 1897: Cast enhancement
+        Collection<Filmography> people = movie.getPeople();
+        if (people != null && people.size() > 0) {
+            Element ePeople = doc.createElement("people");
+            for (Filmography person : people) {
+                Element ePerson = doc.createElement("person");
+                
+                ePerson.setAttribute("name", person.getName());
+                ePerson.setAttribute("doublage", person.getDoublage());
+                ePerson.setAttribute("title", person.getTitle());
+                ePerson.setAttribute("character", person.getCharacter());
+                ePerson.setAttribute("job", person.getJob());
+                ePerson.setAttribute("id", person.getId());
+                for (Map.Entry<String, String> personID : person.getIdMap().entrySet()) {
+                    if (!personID.getKey().equals(ImdbPlugin.IMDB_PLUGIN_ID)) {
+                        ePerson.setAttribute("id_" + personID.getKey(), personID.getValue());
+                    }
+                }
+                ePerson.setAttribute("department", person.getDepartment());
+                ePerson.setAttribute("url", person.getUrl());
+                ePerson.setAttribute("order", Integer.toString(person.getOrder()));
+                ePerson.setAttribute("cast_id", Integer.toString(person.getCastId()));
+                ePerson.setTextContent(person.getFilename());
+                ePeople.appendChild(ePerson);
+            }
+            eMovie.appendChild(ePeople);
+        }
+
+        // Issue 2012: Financial information about movie
+        if (enableBusiness) {
+            Element eBusiness = doc.createElement("business");
+            eBusiness.setAttribute("budget", movie.getBudget());
+            
+            for (Map.Entry<String, String> gross : movie.getGross().entrySet()) {
+                DOMHelper.appendChild(doc, eBusiness, "gross", gross.getValue(), "country", gross.getKey());
+            }
+            
+            for (Map.Entry<String, String> openweek : movie.getOpenWeek().entrySet()) {
+                DOMHelper.appendChild(doc, eBusiness, "openweek", openweek.getValue(), "country", openweek.getKey());
+            }
+            
+            eMovie.appendChild(eBusiness);
+        }
+        
+        // Issue 2013: Add trivia
+        if (enableTrivia) {
+            Element eTrivia = doc.createElement("didyouknow");
+
+            for (String trivia : movie.getDidYouKnow()) {
+                DOMHelper.appendChild(doc, eTrivia, "trivia", trivia);
+            }
+
+            eMovie.appendChild(eTrivia);
+        }
+        
+        // Write the indexes that the movie belongs to
+        Element eIndexes = doc.createElement("indexes");
+        String originalName = Movie.UNKNOWN;
+        for (Entry<String, String> index : movie.getIndexes().entrySet()) {
+            Element eIndexEntry = doc.createElement("index");
+            eIndexEntry.setAttribute("type", index.getKey());
+            originalName = Library.getOriginalCategory(index.getKey());
+            if (StringTools.isValidString(originalName)) {
+                eIndexEntry.setAttribute("originalName", originalName);
+            } else {
+                eIndexEntry.setAttribute("originalName", index.getKey());
+            }
+            eIndexEntry.setAttribute("encoded", FileTools.makeSafeFilename(index.getValue()));
+            eIndexEntry.setTextContent(index.getValue());
+            eIndexes.appendChild(eIndexEntry);
+        }
+        eMovie.appendChild(eIndexes);
+
+        // Write details about the files
+        Element eFiles = doc.createElement("files");
+        for (MovieFile mf : movie.getFiles()) {
+            Element eFileItem = doc.createElement("file");
+            eFileItem.setAttribute("season", Integer.toString(mf.getSeason()));
+            eFileItem.setAttribute("firstPart", Integer.toString(mf.getFirstPart()));
+            eFileItem.setAttribute("lastPart", Integer.toString(mf.getLastPart()));
+            eFileItem.setAttribute("title", mf.getTitle());
+            eFileItem.setAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
+            
+            // Fixes an issue with null file lengths
+            try {
+                if (mf.getFile() == null) {
+                    eFileItem.setAttribute("size", "0");
+                } else {
+                    eFileItem.setAttribute("size", Long.toString(mf.getSize()));
+                }
+            } catch (Exception error) {
+                logger.debug("XML Writer: File length error for file " + mf.getFilename());
+                eFileItem.setAttribute("size", "0");
+            }
+
+            // Playlink values; can be empty, but not null
+            for (Map.Entry<String, String> e : mf.getPlayLink().entrySet()) {
+                eFileItem.setAttribute(e.getKey().toLowerCase(), e.getValue());
+            }
+
+            eFileItem.setAttribute("watched", mf.isWatched()?"true":"false");
+
+            if (mf.getFile() != null) {
+                DOMHelper.appendChild(doc, eFileItem, "fileLocation", mf.getFile().getAbsolutePath());
+            }
+
+            // Write the fileURL
+            String filename = mf.getFilename();
+            // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD VIDEO_TS path names
+            if (isPlayOnHD) {
+                if (filename.toUpperCase().endsWith("VIDEO_TS")) {
+                    filename = filename + "/VIDEO_TS.IFO";
+                }
+            }
+            DOMHelper.appendChild(doc, eFileItem, "fileURL", filename);
+            
+
+            for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
+                DOMHelper.appendChild(doc, eFileItem, "fileTitle", mf.getTitle(part), "part", Integer.toString(part));
+
+                // Only write out these for TV Shows
+                if (movie.isTVShow()) {
+                    Map<String, String> tvAttribs = new HashMap<String, String>();
+                    tvAttribs.put("part", Integer.toString(part));
+                    tvAttribs.put("afterSeason", mf.getAirsAfterSeason(part));
+                    tvAttribs.put("beforeSeason", mf.getAirsBeforeSeason(part));
+                    tvAttribs.put("beforeEpisode", mf.getAirsBeforeEpisode(part));
+                    DOMHelper.appendChild(doc, eFileItem, "airsInfo", String.valueOf(part), tvAttribs);
+                    
+                    DOMHelper.appendChild(doc, eFileItem, "firstAired", mf.getFirstAired(part), "part", String.valueOf(part));
+                }
+                
+                if (StringTools.isValidString(mf.getWatchedDateString())) {
+                    DOMHelper.appendChild(doc, eFileItem, "watchedDate", mf.getWatchedDateString());
+                }
+
+                if (includeEpisodePlots) {
+                    DOMHelper.appendChild(doc, eFileItem, "filePlot", mf.getPlot(part), "part", String.valueOf(part));
+                }
+
+                if (includeVideoImages) {
+                    DOMHelper.appendChild(doc, eFileItem, "fileImageURL", HTMLTools.encodeUrl(mf.getVideoImageURL(part)), "part", String.valueOf(part));
+                    DOMHelper.appendChild(doc, eFileItem, "fileImageFile", HTMLTools.encodeUrl(mf.getVideoImageFilename(part)), "part", String.valueOf(part));
+                }
+            }
+            eFiles.appendChild(eFileItem);
+        }
+        eMovie.appendChild(eFiles);
+
+        Collection<ExtraFile> extraFiles = movie.getExtraFiles();
+        if (extraFiles != null && extraFiles.size() > 0) {
+            Element eExtras = doc.createElement("extras");
+            for (ExtraFile ef : extraFiles) {
+                Element eExtraItem = doc.createElement("extra");
+                eExtraItem.setAttribute("title", ef.getTitle());
+                if (ef.getPlayLink() != null) {
+                    // Playlink values
+                    for (Map.Entry<String, String> e : ef.getPlayLink().entrySet()) {
+                        eExtraItem.setAttribute(e.getKey().toLowerCase(), e.getValue());
+                    }
+                }
+                eExtraItem.setTextContent(ef.getFilename()); // should already be URL-encoded
+                eExtras.appendChild(eExtraItem);
+            }
+            eMovie.appendChild(eExtras);
+        }
+
+        return eMovie;
+    }
+    
     private void writeMovie(XMLWriter writer, Movie movie, Library library) throws XMLStreamException {
         writer.writeStartElement("movie");
         writer.writeAttribute("isExtra", Boolean.toString(movie.isExtra()));
