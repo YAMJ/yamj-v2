@@ -1106,7 +1106,7 @@ public class MovieJukeboxXMLWriter {
         File xmlFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), filename + ".xml");
         FileTools.addJukeboxFile(filename + ".xml");
 
-        XMLWriter writer = new XMLWriter(xmlFile);
+//        XMLWriter writer = new XMLWriter(xmlFile);
         
         Document xmlDoc = DOMHelper.createDocument();
         Element eLibrary = xmlDoc.createElement("library");
@@ -1136,15 +1136,14 @@ public class MovieJukeboxXMLWriter {
         logger.info("  Indexing " + filename + "...");
         for (String categoryName : categoriesDisplayList) {
             int categoryMinCount = calcMinCategoryCount(categoryName);
-            boolean openedCategory = false;
+            
             for (Entry<String, Index> category : library.getIndexes().entrySet()) {
                 // Category not empty and match the current cat.
                 if (!category.getValue().isEmpty() && categoryName.equalsIgnoreCase(category.getKey()) && (filename.equals("Categories") || filename.equals(category.getKey()))) {
-                    openedCategory = true;
+                    Element eCategory = xmlDoc.createElement("category");
+                    eCategory.setAttribute("name", category.getKey());
+                    eCategory.setAttribute("count", String.valueOf(category.getValue().size()));
                     
-                    writer.writeStartElement("category");
-                    writer.writeAttribute("name", category.getKey());
-                    writer.writeAttribute("count", String.valueOf(category.getValue().size()));
 
                     if ("other".equalsIgnoreCase(categoryName)) {
                         // Process the other category using the order listed in the category.xml file
@@ -1173,7 +1172,10 @@ public class MovieJukeboxXMLWriter {
                         for (String catOriginalName : cm.keySet()) {
                             String catNewName = cm.get(catOriginalName);
                             if (category.getValue().containsKey(catNewName)) {
-                                processCategoryIndex(catNewName, catOriginalName, category.getValue().get(catNewName), categoryName, categoryMinCount, library, writer);
+                                Element eCatIndex = processCategoryIndex(xmlDoc, catNewName, catOriginalName, category.getValue().get(catNewName), categoryName, categoryMinCount, library);
+                                if (eCatIndex != null) {
+                                    eCategory.appendChild(eCatIndex);
+                                }
                             }
                         }
                     } else {
@@ -1182,19 +1184,56 @@ public class MovieJukeboxXMLWriter {
                         sortedMap.putAll(category.getValue());
 
                         for (Map.Entry<String, List<Movie>> index : sortedMap.entrySet()) {
-                            processCategoryIndex(index.getKey(), index.getKey(), index.getValue(), categoryName, categoryMinCount, library, writer);
+                            Element eCatIndex = processCategoryIndex(xmlDoc, index.getKey(), index.getKey(), index.getValue(), categoryName, categoryMinCount, library);
+                            if (eCatIndex != null) {
+                                eCategory.appendChild(eCatIndex);
+                            }
                         }
                     }
+                    eLibrary.appendChild(eCategory);
                 }
             }
-            if (openedCategory) {
-                writer.writeEndElement(); // category
-            }
         }
-        writer.writeEndElement(); // library
-        writer.writeEndDocument();
-        writer.close();
+        xmlDoc.appendChild(eLibrary);
+        DOMHelper.writeDocumentToFile(xmlDoc, xmlFile);
     }
+    
+    private Element processCategoryIndex(Document doc, String indexName, String indexOriginalName, List<Movie> indexMovies, String categoryKey, int categoryMinCount, Library library) {
+        List<Movie> allMovies = library.getMoviesList();
+        int countMovieCat = library.getMovieCountForIndex(categoryKey, indexName);
+
+        logger.debug("Index: " + categoryKey + ", Category: " + indexName + ", count: " + indexMovies.size());
+        // Display a message about the category we're indexing
+        if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+            logger.debug("Category " + categoryKey + " " + indexName + " does not contain enough videos (" + countMovieCat
+                            + "/" + categoryMinCount + "), not adding to categories.xml.");
+            return null;
+        }
+
+        if (setsExcludeTV && categoryKey.equalsIgnoreCase(Library.INDEX_SET) && indexMovies.get(0).isTVShow()) {
+            // Do not include the video in the set because it's a TV show
+            return null;
+        }
+
+        String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, indexName)) + "1";
+
+        Element eCategory = doc.createElement("index");
+        eCategory.setAttribute("name", indexName);
+        eCategory.setAttribute("originalName", indexOriginalName);
+
+        if (includeMoviesInCategories) {
+            eCategory.setAttribute("filename", indexFilename);
+
+            for (Identifiable movie : indexMovies) {
+                DOMHelper.appendChild(doc, eCategory, "movie", String.valueOf(allMovies.indexOf(movie)));
+            }
+        } else {
+            eCategory.setTextContent(indexFilename);
+        }
+        
+        return eCategory;
+    }
+    
 
     /**
      * Used in the writeCategoryXML method to process each index
@@ -1207,6 +1246,7 @@ public class MovieJukeboxXMLWriter {
      * @param writer
      * @throws XMLStreamException
      */
+    @Deprecated
     private void processCategoryIndex(String indexName, String indexOriginalName, List<Movie> indexMovies, String categoryKey, int categoryMinCount, Library library, XMLWriter writer) throws XMLStreamException {
 
         List<Movie> allMovies = library.getMoviesList();

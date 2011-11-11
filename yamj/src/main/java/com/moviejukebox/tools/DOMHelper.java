@@ -192,7 +192,17 @@ public class DOMHelper {
      * @param localFile The file to write to
      * @return
      */
-    public static boolean writeDocumentToFile(Document doc, String localFile) {
+    public static boolean writeDocumentToFile(Document doc, String localFilename) {
+        return writeDocumentToFile(doc, new File(localFilename));
+    }
+    
+    /**
+     * Write the Document out to a file using nice formatting
+     * @param doc   The document to save
+     * @param localFile The file to write to
+     * @return
+     */
+    public static boolean writeDocumentToFile(Document doc, File localFile) {
         try {
             Transformer trans = TransformerFactory.newInstance().newTransformer();
 
@@ -203,7 +213,7 @@ public class DOMHelper {
             trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             doc.setXmlStandalone(true);
             
-            trans.transform(new DOMSource(doc), new StreamResult(new File(localFile)));
+            trans.transform(new DOMSource(doc), new StreamResult(localFile));
             return true;
         } catch (Exception error) {
             logger.error("Error writing the document to " + localFile);
