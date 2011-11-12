@@ -58,6 +58,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean forceBannerOverwrite;
     private boolean forceFanartOverwrite;
     private boolean includeEpisodePlots;
+    private boolean includeEpisodeRating;
     private boolean includeVideoImages;
     private boolean includeWideBanners;
     private boolean onlySeriesBanners;
@@ -76,6 +77,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             language2nd = "";
         }
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
         includeWideBanners = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
         onlySeriesBanners = PropertiesUtil.getBooleanProperty("mjb.onlySeriesBanners", "false");
@@ -378,6 +380,15 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             file.setTitle(part, episode.getEpisodeName());
                         }
 
+						// Set the rating of the episode
+						if (includeEpisodeRating) {
+							if (isNotValidString(file.getRating(part))) {
+								float episodeRating1 = new Float (episode.getRating());
+								String episodeRating2 = String.valueOf(Math.round(episodeRating1 * 10f));
+								file.setRating(part, episodeRating2);
+							}
+						}
+						
                         if (includeEpisodePlots) {
                             if (isNotValidString(file.getPlot(part))) {
                                 String episodePlot = episode.getOverview();

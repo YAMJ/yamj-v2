@@ -102,6 +102,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeMoviesInCategories;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
+    private boolean includeEpisodeRating;
     private static boolean isPlayOnHD;
     private static String defaultSource;
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
@@ -163,6 +164,7 @@ public class MovieJukeboxXMLWriter {
         includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", "false");
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
         isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", "false");
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
@@ -2654,7 +2656,14 @@ public class MovieJukeboxXMLWriter {
                     writer.writeCharacters(mf.getPlot(part));
                     writer.writeEndElement();
                 }
-
+                
+                if (includeEpisodeRating) {
+                    writer.writeStartElement("fileRating");
+                    writer.writeAttribute("part", Integer.toString(part));
+                    writer.writeCharacters(mf.getRating(part));
+                    writer.writeEndElement();
+                }
+                
                 if (includeVideoImages) {
                     writer.writeStartElement("fileImageURL");
                     writer.writeAttribute("part", Integer.toString(part));

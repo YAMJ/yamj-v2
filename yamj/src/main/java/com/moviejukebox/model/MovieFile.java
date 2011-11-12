@@ -61,6 +61,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private LinkedHashMap<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
     private LinkedHashMap<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
+    private LinkedHashMap<Integer, String> ratings = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
     private boolean watched = false;
@@ -68,6 +69,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", "true");
     private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
     private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+    private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
 
@@ -138,6 +140,18 @@ public class MovieFile implements Comparable<MovieFile> {
             plot = Movie.UNKNOWN;
         }
         plots.put(part, plot);
+    }
+
+    public String getRating(int part) {
+        String rating = ratings.get(part);
+        return StringUtils.isNotBlank(rating) ? rating : Movie.UNKNOWN;
+    }
+
+    public void setRating(int part, String rating) {
+        if (StringUtils.isBlank(rating)) {
+            rating = Movie.UNKNOWN;
+        }
+        this.ratings.put(part, rating);
     }
 
     public String getVideoImageURL(int part) {
@@ -383,6 +397,19 @@ public class MovieFile implements Comparable<MovieFile> {
         fromPartDataList(plots, list);
     }
     
+    @XmlElement(name = "fileRating")
+    public List<PartDataDTO> getFileRating() {
+        if (!includeEpisodeRating) {
+            return null;
+        }
+        
+        return toPartDataList(ratings);
+    }
+    
+    public void setFileRating(List<PartDataDTO> list) {
+        fromPartDataList(ratings, list);
+    }
+        
     @XmlElement(name = "fileImageURL")
     public List<PartDataDTO> getFileImageUrls() {
         if (!includeVideoImages) {

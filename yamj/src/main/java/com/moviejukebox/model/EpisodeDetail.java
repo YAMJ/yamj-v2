@@ -29,7 +29,8 @@ public class EpisodeDetail {
     String airsAfterSeason = Movie.UNKNOWN;
     String airsBeforeSeason = Movie.UNKNOWN;
     String airsBeforeEpisode = Movie.UNKNOWN;
-
+    String rating = Movie.UNKNOWN;
+    
     /**
      * Set the title of the episode
      * @param title
@@ -111,6 +112,26 @@ public class EpisodeDetail {
     }
     
     /**
+     * Set the rating
+     * @param rating
+     */
+    public void setRating(String rating) {
+        if (rating == null || rating.isEmpty()) {
+            this.rating = Movie.UNKNOWN;
+        } else {
+            this.rating = rating;
+        }
+    }
+    
+    /**
+     * Return the rating
+     * @return
+     */
+    public String getRating() {
+        return rating;
+    }
+    
+    /**
      * Update the movie object with the episode details
      * @param movie
      */
@@ -129,6 +150,10 @@ public class EpisodeDetail {
                 
                 if (StringTools.isValidString(plot)) {
                     mf.setPlot(episode, plot);
+                }
+                
+                if (StringTools.isValidString(rating)) {
+                    mf.setRating(episode, rating);
                 }
                 
                 if (StringTools.isValidString(firstAired)) {
