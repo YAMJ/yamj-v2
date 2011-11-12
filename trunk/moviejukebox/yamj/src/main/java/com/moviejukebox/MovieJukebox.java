@@ -167,7 +167,7 @@ public class MovieJukebox {
     private static int peopleMax = 10;
     private static int popularity = 5;
     private static String peopleFolder = "";
-
+    private static boolean includeEpisodeRating;
     // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
@@ -802,7 +802,7 @@ public class MovieJukebox {
         extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
         enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", "false");
         photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", "false");
-
+        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
         boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
 
         // Multi-thread: Processing thread settings
@@ -2490,6 +2490,15 @@ public class MovieJukebox {
                     for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                         if (isNotValidString(mf.getFirstAired(part))) {
                             logger.debug("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV first aired date, will rescan");
+                            mf.setNewFile(true); // This forces the episodes to be rechecked
+                            recheckCount++;
+                            return true;
+                        }
+                    }
+                    
+                    for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
+                        if (includeEpisodeRating && isNotValidString(mf.getRating(part))) {
+                            logger.info("Recheck: " + movie.getBaseName() + " - Part " + part + " XML is missing TV rating, will rescan");
                             mf.setNewFile(true); // This forces the episodes to be rechecked
                             recheckCount++;
                             return true;

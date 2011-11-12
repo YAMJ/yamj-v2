@@ -1430,6 +1430,18 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 episodedetail.setPlot(val);
                             }
+                        } else if (tag.equalsIgnoreCase("rating")) {
+                            float val1 = XMLHelper.parseFloat(r);
+                            if (val1 != 0.0f) {
+                                if (val1 <= 10f) {
+                                    String val = String.valueOf(Math.round(val1 * 10f));
+                                    episodedetail.setRating(val);
+                                } else {
+                                    String val = String.valueOf(Math.round(val1 * 1f));
+                                    episodedetail.setRating(val);
+                                }
+                            }
+
                         } else if (tag.equalsIgnoreCase("aired")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
