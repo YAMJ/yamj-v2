@@ -72,16 +72,19 @@ public class AspectRatioTools {
 
         AspectRatio aspectRatioFind = findAspectRatio(newAspectRatio);
 
-        switch (aspectRationPrecision) {
-        case 1:
-            newAspectRatio = new DecimalFormat("#.0", symbols).format(aspectRatioFind.getRatio1digit());
-            break;
-        case 2:
-            newAspectRatio = new DecimalFormat("#.00", symbols).format(aspectRatioFind.getRatio2digit());
-            break;
-        default:
-            newAspectRatio = new DecimalFormat("#.000", symbols).format(aspectRatioFind.getRatio3digit());
-            break;
+        // Check that we got a return value and then try and format it.
+        if (aspectRatioFind != null) {
+            switch (aspectRationPrecision) {
+            case 1:
+                newAspectRatio = new DecimalFormat("#.0", symbols).format(aspectRatioFind.getRatio1digit());
+                break;
+            case 2:
+                newAspectRatio = new DecimalFormat("#.00", symbols).format(aspectRatioFind.getRatio2digit());
+                break;
+            default:
+                newAspectRatio = new DecimalFormat("#.000", symbols).format(aspectRatioFind.getRatio3digit());
+                break;
+            }
         }
 
         // Add the ratio back to the end of the value if needed
