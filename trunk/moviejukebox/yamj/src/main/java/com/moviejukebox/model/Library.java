@@ -1100,10 +1100,13 @@ public class Library implements Map<String, Movie> {
 
     public int getMovieCountForIndex(String indexName, String category) {
         Index index = unCompressedIndexes.get(indexName);
+        
         if (index == null) {
             index = indexes.get(indexName);
         }
+        
         List<Movie> categoryList = index.get(category);
+        
         if (categoryList != null) {
             return categoryList.size();
         } else {
