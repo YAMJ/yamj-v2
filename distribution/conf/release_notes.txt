@@ -10,6 +10,8 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2165 AspectRatio-Icons not displayed anymore (localization problem)
  - Enhancement  #2167 Clean aspect ratios
  - Fixed defect #2168 Problem with mjb.aspectRatioPrecision
+ - Fixed defect #2169 Director, Writer & Person counts are wrong in categories.xml
+ - Fixed defect #2172 Writer category is empty in categories.xml 
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
