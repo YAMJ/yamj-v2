@@ -31,6 +31,7 @@ import org.w3c.dom.NodeList;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 
@@ -178,7 +179,7 @@ public class JukeboxProperties {
      * @param mjbDetails
      * @param jukebox
      */
-    public static void writeFile(Jukebox jukebox, Collection<MediaLibraryPath> mediaLibraryPaths) {
+    public static void writeFile(Jukebox jukebox, Library library, Collection<MediaLibraryPath> mediaLibraryPaths) {
         File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
         FileTools.addJukeboxFile(mjbDetails.getName());
 
@@ -268,6 +269,10 @@ public class JukeboxProperties {
                 }
             }
             
+            // Create the statistics node
+            eRoot.appendChild(generateStatistics(docMjbDetails, library));
+            
+            // Create the properties node
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
             
@@ -281,6 +286,31 @@ public class JukeboxProperties {
             logger.error("JukeboxProperties: Error creating " + mjbDetails.getName() + " file");
             error.printStackTrace();
         }
+    }
+    
+    /**
+     * Generate some statistics for the library
+     * @param doc
+     * @param library
+     * @return
+     */
+    private static Element generateStatistics(Document doc, Library library) {
+        Element eStats = doc.createElement("statistics");
+
+        int stat = library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_ALL);
+        DOMHelper.appendChild(doc, eStats, "Videos", String.valueOf(stat));
+
+        stat=library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_MOVIES);
+        if (stat > 0) {
+            DOMHelper.appendChild(doc, eStats, "Movies", String.valueOf(stat));
+        }
+        
+        stat=library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_TVSHOWS);
+        if (stat > 0) {
+            DOMHelper.appendChild(doc, eStats, "TVShows", String.valueOf(stat));
+        }
+        
+        return eStats;
     }
 
     /**
