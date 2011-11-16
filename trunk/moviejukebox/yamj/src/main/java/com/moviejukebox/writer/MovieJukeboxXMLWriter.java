@@ -1546,7 +1546,7 @@ public class MovieJukeboxXMLWriter {
         eMovies.setAttribute("count", String.valueOf(idx.videosPerPage));
         
         eMovies.setAttribute("indexCount", String.valueOf(library.getMovieCountForIndex(idx.categoryName, idx.key)));
-        eMovies.setAttribute("totalCount", String.valueOf(library.getMoviesList().size()));
+        eMovies.setAttribute("totalCount", String.valueOf(library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_ALL)));
 
         if (fullMovieInfoInIndexes) {
             for (Movie movie : movies) {

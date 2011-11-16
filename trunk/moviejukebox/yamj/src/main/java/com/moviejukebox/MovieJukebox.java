@@ -1571,7 +1571,7 @@ public class MovieJukebox {
         }
 
         // Write the jukebox details file at the END of the run (Issue 1830)
-        JukeboxProperties.writeFile(jukebox, mediaLibraryPaths);
+        JukeboxProperties.writeFile(jukebox, library, mediaLibraryPaths);
 
         timeEnd = System.currentTimeMillis();
 
