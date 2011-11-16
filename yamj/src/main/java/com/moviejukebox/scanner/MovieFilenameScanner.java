@@ -439,12 +439,6 @@ public class MovieFilenameScanner {
             }
         }
 
-        dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
-        dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
-        dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
-        dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
-        dto.setVideoSource(seekPatternAndUpdateRest(videoSourceMap, dto.getVideoSource(), PART_PATTERNS));
-
         // SEASON + EPISODES
         {
             final Matcher matcher = TV_PATTERN.matcher(rest);
@@ -627,6 +621,14 @@ public class MovieFilenameScanner {
                 }
             }
         }
+
+        // Search for the remaining parts
+        dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
+        dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
+        dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
+        dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
+        dto.setVideoSource(seekPatternAndUpdateRest(videoSourceMap, dto.getVideoSource(), PART_PATTERNS));
+
     }
 
     private String cleanUp(String filename) {
