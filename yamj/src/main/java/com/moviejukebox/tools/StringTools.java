@@ -333,4 +333,20 @@ public class StringTools {
         return r;
     }
 
+    /**
+     * Split a list using a regex and return a list of trimmed strings
+     * @param stringToSplit
+     * @param regexDelim
+     * @return
+     */
+    public static List<String> splitList(String stringToSplit, String regexDelim) {
+        List<String> finalValues = new ArrayList<String>();
+        
+        for (String output : stringToSplit.split(regexDelim)) {
+            finalValues.add(output.trim());
+        }
+        
+        return finalValues;
+    }
+
 }

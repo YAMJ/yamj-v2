@@ -20,11 +20,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -32,7 +28,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.XMLEvent;
 
-import com.moviejukebox.tools.WebBrowser;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -99,18 +95,5 @@ public class XMLHelper {
         }
         return HTMLTools.decodeHtml(sb.toString());
     }
-
-    public static List<String> parseList(String input, String delim) {
-        List<String> result = new ArrayList<String>();
-
-        StringTokenizer st = new StringTokenizer(input, delim);
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken().trim();
-            if (token.length() > 0) {
-                result.add(token);
-            }
-        }
-
-        return result;
-    }
+    
 }

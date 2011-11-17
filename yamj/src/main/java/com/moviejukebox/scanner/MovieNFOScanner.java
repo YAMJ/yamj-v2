@@ -51,6 +51,7 @@ import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.XMLHelper;
 
 /**
@@ -64,7 +65,8 @@ public class MovieNFOScanner {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static final String splitPattern = "\\||,|/";
-    
+    private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
+
     private static boolean skipNfoUrl;
     private static boolean skipNfoTrailer;
     
@@ -661,7 +663,7 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("genre")) {
                             Collection<String> genres = movie.getGenres();
-                            List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
+                            List<String> newGenres = StringTools.splitList(XMLHelper.getCData(r), SPLIT_GENRE);
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
                         } else if (tag.equalsIgnoreCase("credits")) {
@@ -1108,7 +1110,7 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("genre")) {
                             Collection<String> genres = movie.getGenres();
-                            List<String> newGenres = XMLHelper.parseList(XMLHelper.getCData(r), "|/,");
+                            List<String> newGenres = StringTools.splitList(XMLHelper.getCData(r), SPLIT_GENRE);
                             genres.addAll(newGenres);
                             movie.setGenres(genres);
                         } else if (tag.equalsIgnoreCase("premiered") || tag.equalsIgnoreCase("releasedate")) {

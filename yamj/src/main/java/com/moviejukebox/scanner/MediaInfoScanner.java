@@ -38,7 +38,6 @@ import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.XMLHelper;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
@@ -50,6 +49,8 @@ import com.mucommander.file.impl.iso.IsoArchiveFile;
 public class MediaInfoScanner {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
+
+    private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
 
     // mediaInfo repository
     private static File mediaInfoPath;
@@ -307,7 +308,7 @@ public class MediaInfoScanner {
             }
             infoValue = infosGeneral.get("Genre");
             if (infoValue != null) {
-                List<String> list = XMLHelper.parseList(infoValue, "|/,");
+                List<String> list = StringTools.splitList(infoValue, SPLIT_GENRE);
                 if (!list.isEmpty()) {
                     movie.setGenres(list);
                 }
@@ -317,7 +318,7 @@ public class MediaInfoScanner {
                 infoValue = infosGeneral.get("Performer");
             }
             if (infoValue != null) {
-                List<String> list = XMLHelper.parseList(infoValue, "|/,");
+                List<String> list = StringTools.splitList(infoValue, SPLIT_GENRE);
                 if (!list.isEmpty()) {
                     movie.setCast(list);
                 }
