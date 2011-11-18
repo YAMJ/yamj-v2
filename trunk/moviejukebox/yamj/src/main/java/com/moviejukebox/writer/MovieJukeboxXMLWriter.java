@@ -1756,7 +1756,7 @@ public class MovieJukeboxXMLWriter {
         eMovie.setAttribute("isTV", Boolean.toString(movie.isTVShow()));
 
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
-            DOMHelper.appendChild(doc, eMovie, "id", e.getKey(), "moviedb", e.getValue());
+            DOMHelper.appendChild(doc, eMovie, "id", e.getValue(), "moviedb", e.getKey());
         }
 
         DOMHelper.appendChild(doc, eMovie, "mjbVersion", movie.getCurrentMjbVersion());
