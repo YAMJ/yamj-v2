@@ -40,7 +40,7 @@ var curFocus = "";
 </script>
 
 <script>
-  var wloc=location.href
+  var wloc=location.href;
   wScriptLocation=wloc.substring(38,wloc.lastIndexOf("/"))+"/Watched/";
   
   var movieLocation="<xsl:call-template name="substring-after-last"><xsl:with-param name="string" select="files/file[1]/fileURL" /><xsl:with-param name="delimiter" select="'file:///opt/sybhttpd/localhost.drives/'" /></xsl:call-template>"
@@ -85,7 +85,7 @@ var curFocus = "";
       <!-- Navigation using remote keys: Home, PageUP/PageDown (Previous/Next) -->
       <a>
         <xsl:attribute name="TVID">HOME</xsl:attribute>
-        <xsl:attribute name="href"><xsl:value-of select="$mjb.homePage" />.html</xsl:attribute>
+        <xsl:attribute name="href"><xsl:value-of select="$mjb.homePage" /></xsl:attribute>
       </a>
       <xsl:if test="$parental-control-on != 'true'">
       <a TVID="PGDN">
