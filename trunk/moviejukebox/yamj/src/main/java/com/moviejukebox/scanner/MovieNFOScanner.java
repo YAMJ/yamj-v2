@@ -1002,7 +1002,9 @@ public class MovieNFOScanner {
             boolean isEpisode = false;
             boolean isOK = false;
             EpisodeDetail episodedetail = new EpisodeDetail();
-            
+            String titleMain = null;
+            String titleSort = null;
+
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
                 
@@ -1023,8 +1025,17 @@ public class MovieNFOScanner {
                         if (tag.equalsIgnoreCase("title")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
-                                movie.setTitle(val);
-                                movie.setOverrideTitle(true);
+                                titleMain = val;
+                            }
+                        } else if (tag.equalsIgnoreCase("originaltitle")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                movie.setOriginalTitle(val);
+                            }
+                        } else if (tag.equalsIgnoreCase("sorttitle")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                titleSort = val;
                             }
                         } else if (tag.equalsIgnoreCase("tvdbid")) {
                             String val = XMLHelper.getCData(r);
@@ -1490,6 +1501,20 @@ public class MovieNFOScanner {
                     }
                 }
             }
+            
+            // We've processed all the NFO file, so work out what to do with the title and titleSort
+            if (isValidString(titleMain)) {
+                // We have a valid title, so set that for title and titleSort
+                movie.setTitle(titleMain);
+                movie.setTitleSort(titleMain);
+                movie.setOverrideTitle(true);
+            }
+            
+            // Now check the titleSort and overwrite it if necessary.
+            if (isValidString(titleSort)) {
+                movie.setTitleSort(titleSort);
+            }
+
             return isOK;
         } catch (Exception error) {
             logger.error("NFOScanner: Failed parsing NFO file: " + nfoFile.getAbsolutePath() + ". Please fix or remove it.");
