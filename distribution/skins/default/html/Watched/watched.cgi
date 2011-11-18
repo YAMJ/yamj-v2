@@ -12,7 +12,7 @@ wStatus=0
 
 checkWatched()
 {
-if [ -f "$wFile" ]
+if [ -f "$wFile" ];
 then
  wStatus=1
 fi
@@ -34,9 +34,9 @@ deleteWatched()
 
 checkWatched
 
-if [ $wAction -eq 1 ]
+if [ $wAction -eq 1 ];
 then
- if [ $wStatus -eq 1 ]
+ if [ $wStatus -eq 1 ];
   then
    deleteWatched
   else

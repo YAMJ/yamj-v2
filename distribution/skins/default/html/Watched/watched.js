@@ -61,7 +61,7 @@ function watched(wAction) {
     break;
   }
   try {
-   document.getElementById("watchedjs").setAttribute('src', wSrc);
+   document.getElementById("watchedjs").setAttribute('src', unescape(wSrc));
   } catch(e) { }
 }
 
