@@ -62,6 +62,7 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("fanart.tv.download",                  false, false, false, false, true,  false, false, false, false));
         
         propInfo.add(new PropertyInformation("mjb.includeEpisodePlots",             true,  false, false, false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("mjb.includeEpisodeRating",            true,  false, false, false, false, false, false, false, false));
         propInfo.add(new PropertyInformation("mjb.includeVideoImages",              true,  false, false, false, false, false, true,  false, false));
         propInfo.add(new PropertyInformation("mjb.includeWideBanners",              false, false, false, false, false, true,  false, false, false));
         propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle",  true,  true,  false, false, false, false, false, false, false));
