@@ -707,6 +707,18 @@ public class MovieJukeboxXMLWriter {
                                 }
                             }
                             mf.setPlot(part, parseCData(r));
+                        } else if (tag.toLowerCase().startsWith("<filerating")) {
+                            StartElement element = e.asStartElement();
+                            int part = 1;
+                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
+                                Attribute attr = i.next();
+                                String ns = attr.getName().toString();
+
+                                if (ns.equalsIgnoreCase("part")) {
+                                    part = Integer.parseInt(attr.getValue());
+                                }
+                            }
+                            mf.setRating(part, parseCData(r));
                         } else if (tag.toLowerCase().startsWith("<fileimageurl")) {
                             StartElement element = e.asStartElement();
                             int part = 1;

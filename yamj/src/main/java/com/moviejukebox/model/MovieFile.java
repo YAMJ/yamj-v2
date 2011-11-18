@@ -144,14 +144,14 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public String getRating(int part) {
         String rating = ratings.get(part);
-        return StringUtils.isNotBlank(rating) ? rating : Movie.UNKNOWN;
+        return rating != null ? rating : Movie.UNKNOWN;
     }
 
     public void setRating(int part, String rating) {
         if (StringUtils.isBlank(rating)) {
             rating = Movie.UNKNOWN;
         }
-        this.ratings.put(part, rating);
+        ratings.put(part, rating);
     }
 
     public String getVideoImageURL(int part) {
