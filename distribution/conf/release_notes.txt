@@ -17,6 +17,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2190 Some genres are incorrectly split
  - Fixed defect #2191 HD is incorrectly removed from TV Show name
  - Fixed defect #2195 episodeRating is always rechecked
+ - Fixed defect #2196 AC3 in title sorted as TV show
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
