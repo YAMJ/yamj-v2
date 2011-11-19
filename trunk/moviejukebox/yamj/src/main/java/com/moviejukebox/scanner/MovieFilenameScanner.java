@@ -178,7 +178,6 @@ public class MovieFilenameScanner {
         protected abstract void put(String key, Collection<String> tokens);
     }
 
-
     /**
      * Mapping exact tokens to language. Strict mapping is case sensitive and must be obvious. 
      * E.q. it must avoid confusing movie name words and language markers. 
@@ -194,6 +193,7 @@ public class MovieFilenameScanner {
      */
     private static final TokensPatternMap strictLanguageMap = new TokensPatternMap() {
         
+        @Override
         protected void put(String key, Collection<String> tokens) {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
@@ -223,6 +223,7 @@ public class MovieFilenameScanner {
         /** 
          * {@inheritDoc}
          */
+        @Override
         protected void put(String key, Collection<String> tokens) {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
@@ -292,9 +293,10 @@ public class MovieFilenameScanner {
 
         @Override
         public void put(String key, Collection<String> tokens) {
-            StringBuffer patt = new StringBuffer(key);
+            StringBuilder patt = new StringBuilder(key);
             for (String token : tokens) {
-                patt.append("|" + token);
+                patt.append("|");
+                patt.append(token);
             }
             put(key, iwpatt(patt.toString()));
         }
@@ -309,7 +311,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Exact pattern
      */
-    private static final Pattern patt(String regex) {
+    private static Pattern patt(String regex) {
         return Pattern.compile(regex);
     }
 
@@ -317,7 +319,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Case insensitive pattern
      */
-    private static final Pattern ipatt(String regex) {
+    private static Pattern ipatt(String regex) {
         return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
 
@@ -325,7 +327,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Case insensitive pattern matched somewhere in square brackets
      */
-    private static final Pattern pattInSBrackets(String regex) {
+    private static Pattern pattInSBrackets(String regex) {
         return ipatt("\\[([^\\[\\]]*" + regex + "[^\\[]*)\\]");
     }
 
@@ -333,7 +335,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Case insensitive pattern with word delimiters around
      */
-    public static final Pattern iwpatt(String regex) {
+    public static Pattern iwpatt(String regex) {
         return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN 
                 + ")(?:" + regex + ")(?=" 
                 + WORD_DELIMITERS_MATCH_PATTERN + ")", Pattern.CASE_INSENSITIVE);
@@ -343,7 +345,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Case sensitive pattern with word delimiters around
      */
-    public static final Pattern wpatt(String regex) {
+    public static Pattern wpatt(String regex) {
         return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN 
                 + ")(?:" + regex + ")(?=" 
                 + WORD_DELIMITERS_MATCH_PATTERN + ")");
@@ -353,7 +355,7 @@ public class MovieFilenameScanner {
      * @param regex
      * @return Case sensitive pattern with token delimiters around
      */
-    private static final Pattern tpatt(String regex) {
+    private static Pattern tpatt(String regex) {
         return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN + "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + "(?:" + regex + ")" + "(?:"
                         + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + TOKEN_DELIMITERS_MATCH_PATTERN);
     }
@@ -457,6 +459,12 @@ public class MovieFilenameScanner {
                 }
             }
         }
+
+        dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
+        dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
+        dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
+        dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
+        dto.setVideoSource(seekPatternAndUpdateRest(videoSourceMap, dto.getVideoSource(), PART_PATTERNS));
 
         // PART
         {
@@ -621,13 +629,6 @@ public class MovieFilenameScanner {
                 }
             }
         }
-
-        // Search for the remaining parts
-        dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
-        dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
-        dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
-        dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
-        dto.setVideoSource(seekPatternAndUpdateRest(videoSourceMap, dto.getVideoSource(), PART_PATTERNS));
 
     }
 

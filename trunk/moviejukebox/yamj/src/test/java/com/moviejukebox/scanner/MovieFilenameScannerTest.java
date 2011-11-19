@@ -179,7 +179,6 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("The French Connection", d.getTitle());
         assertEquals(0, d.getLanguages().size());
 
-
         d = scan("Burn-E.[2008].[Pixar.Short].[BDrip.720p.x264].mkv");
         assertEquals(2008, d.getYear());
         assertEquals("Burn-E", d.getTitle());
@@ -243,6 +242,17 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Cowboy Bebop", d.getTitle());
         assertEquals(7, d.getPart());
         assertNull(d.getPartTitle());
+        
+        // Ensure that the AC3 is correctly picked up in the title
+        d = scan("Avatar.AC3.mkv");
+        assertEquals("Avatar", d.getTitle());
+        assertEquals(-1, d.getSeason());
+        assertEquals("AC3", d.getAudioCodec());
+        
+        // This test fails because the "HD" is removed from the title
+//        d = scan("WWII in HD S01E01.avi");
+//        assertEquals("WWII in HD", d.getTitle());
+//        assertEquals(1, d.getSeason());
 
     }
     
