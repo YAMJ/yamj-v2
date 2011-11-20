@@ -18,6 +18,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2191 HD is incorrectly removed from TV Show name
  - Fixed defect #2195 episodeRating is always rechecked
  - Fixed defect #2196 AC3 in title sorted as TV show
+ - Fixed defect #2199 Library indexing does not work correctly when library path also a part of another library path
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

@@ -1727,7 +1727,8 @@ public class MovieJukebox {
             if (PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false")) {
                 for (MediaLibraryPath mlp : mediaLibraryPaths) {
                     // Check to see if the paths match and then update the description and quit
-                    if (movie.getFile().getAbsolutePath().startsWith(mlp.getPath()) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
+                    String mlpPath = mlp.getPath().concat(File.separator);
+                    if (movie.getFile().getAbsolutePath().startsWith(mlpPath) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
                         logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
                         library.addDirtyLibrary(movie.getLibraryDescription());
                         movie.setLibraryDescription(mlp.getDescription());
