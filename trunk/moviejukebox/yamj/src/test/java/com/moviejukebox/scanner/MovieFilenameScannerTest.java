@@ -244,10 +244,11 @@ public class MovieFilenameScannerTest extends TestCase {
         assertNull(d.getPartTitle());
         
         // Ensure that the AC3 is correctly picked up in the title
-        d = scan("Avatar.AC3.mkv");
-        assertEquals("Avatar", d.getTitle());
-        assertEquals(-1, d.getSeason());
-        assertEquals("AC3", d.getAudioCodec());
+        d = scan("Air.Force.One.1997.720p.BluRay.DD5.1.x264.avi");
+        assertEquals("Air Force One", d.getTitle());
+        assertEquals(1997, d.getYear());
+        assertEquals("720p", d.getHdResolution());
+        assertEquals("This should be -1 as it is not a TV Show", -1, d.getSeason());
         
         // This test fails because the "HD" is removed from the title
 //        d = scan("WWII in HD S01E01.avi");
