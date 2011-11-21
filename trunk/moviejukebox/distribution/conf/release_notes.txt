@@ -19,6 +19,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2195 episodeRating is always rechecked
  - Fixed defect #2196 AC3 in title sorted as TV show
  - Fixed defect #2199 Library indexing does not work correctly when library path also a part of another library path
+ - Fixed defect #2200 People XML files are incorrectly generated
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
