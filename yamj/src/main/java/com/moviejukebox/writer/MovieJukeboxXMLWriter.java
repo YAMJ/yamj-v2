@@ -2177,7 +2177,7 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
-    private Element writePerson(Document doc, Person person, Library library) throws XMLStreamException {
+    private Element writePerson(Document doc, Person person) {
         Element ePerson = doc.createElement("person");
 
         for (Map.Entry<String, String> e : person.getIdMap().entrySet()) {
@@ -2238,7 +2238,7 @@ public class MovieJukeboxXMLWriter {
         return ePerson;
     }
 
-    public void writePersonXML(Jukebox jukebox, Person person, Library library) throws FileNotFoundException, XMLStreamException {
+    public void writePersonXML(Jukebox jukebox, Person person, Library library) {
         String baseName = person.getFilename();
         File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + baseName + ".xml");
         File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + peopleFolder + baseName + ".xml");
@@ -2250,7 +2250,9 @@ public class MovieJukeboxXMLWriter {
         if (!finalXmlFile.exists() || forceXMLOverwrite || person.isDirty()) {
             try {
                 Document personDoc = DOMHelper.createDocument();
-                personDoc.appendChild(writePerson(personDoc, person, library));
+                Element eDetails = personDoc.createElement("details");
+                eDetails.appendChild(writePerson(personDoc, person));
+                personDoc.appendChild(eDetails);
                 DOMHelper.writeDocumentToFile(personDoc, tempXmlFile);
             } catch (ParserConfigurationException error) {
                 logger.error("Failed writing person XML for " + tempXmlFile.getName());
