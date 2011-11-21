@@ -380,15 +380,15 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             file.setTitle(part, episode.getEpisodeName());
                         }
 
-						// Set the rating of the episode
-						if (includeEpisodeRating) {
-							if (isNotValidString(file.getRating(part))) {
-								float episodeRating1 = new Float (episode.getRating());
-								String episodeRating2 = String.valueOf(Math.round(episodeRating1 * 10f));
-								file.setRating(part, episodeRating2);
-							}
-						}
-						
+                        // Set the rating of the episode
+                        if (includeEpisodeRating) {
+                            if (isNotValidString(file.getRating(part)) && isValidString(episode.getRating())) {
+                                float episodeRating1 = new Float(episode.getRating());
+                                String episodeRating2 = String.valueOf(Math.round(episodeRating1 * 10f));
+                                file.setRating(part, episodeRating2);
+                            }
+                        }
+	
                         if (includeEpisodePlots) {
                             if (isNotValidString(file.getPlot(part))) {
                                 String episodePlot = episode.getOverview();
