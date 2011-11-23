@@ -51,6 +51,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private final String POSTER = "posters";
     private final String VIDEOIMAGE = "videoimages";
     private final String THUMBNAIL = "thumbnails";
+    private final String FOOTER = "footer";
     
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String skinHome;
@@ -152,7 +153,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String gImageType, String perspectiveDirection) {
         imageType = gImageType.toLowerCase();
 
-        if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE).indexOf(imageType) < 0) {
+        if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE + FOOTER).indexOf(imageType) < 0) {
             // This is an error with the calling function
             logger.error("YAMJ Error with calling function in DefaultImagePlugin.java");
             return imageGraphic;
@@ -471,7 +472,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String value = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
                         if (name.equalsIgnoreCase("set")) {
-                            value = ((imageType.equalsIgnoreCase(THUMBNAIL) || imageType.equalsIgnoreCase(BANNER)) && movie.isSetMaster())?countSetLogo?Integer.toString(movie.getSetSize()):"true":countSetLogo?"0":"false";
+                            value = ((imageType.equalsIgnoreCase(THUMBNAIL) || imageType.equalsIgnoreCase(BANNER) || imageType.equalsIgnoreCase(FOOTER)) && movie.isSetMaster())?countSetLogo?Integer.toString(movie.getSetSize()):"true":countSetLogo?"0":"false";
                         } else if (name.equalsIgnoreCase("TV")) {
                             value = movie.isTVShow()?"true":"false";
                         } else if (name.equalsIgnoreCase("HD")) {

@@ -177,6 +177,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String posterFilename = UNKNOWN; // The poster filename
     private String detailPosterFilename = UNKNOWN; // The resized poster for skins
     private String thumbnailFilename = UNKNOWN; // The thumbnail version of the poster for skins
+    private String footerFilename = UNKNOWN; // The footer image for skins
     private String fanartURL = UNKNOWN; // The fanart URL
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
@@ -2181,6 +2182,20 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         this.thumbnailFilename = thumbnailFilename;
     }
 
+    // ***** Footer
+    @XmlElement(name = "footer")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getFooterFilename() {
+        return this.footerFilename;
+    }
+
+    public void setFooterFilename(String footerFilename) {
+        if (StringUtils.isBlank(footerFilename)) {
+            footerFilename = UNKNOWN;
+        }
+        this.footerFilename = footerFilename;
+    }
+
     // ***** Fanart
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getFanartURL() {
@@ -2451,6 +2466,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.posterFilename = aMovie.posterFilename;
         newMovie.detailPosterFilename = aMovie.detailPosterFilename;
         newMovie.thumbnailFilename = aMovie.thumbnailFilename;
+        newMovie.footerFilename = aMovie.footerFilename;
         newMovie.fanartURL = aMovie.fanartURL;
         newMovie.fanartFilename = aMovie.fanartFilename;
         newMovie.bannerURL = aMovie.bannerURL;

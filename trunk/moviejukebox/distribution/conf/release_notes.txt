@@ -4,6 +4,7 @@
 
 MovieJukebox 2.6-SNAPSHOT
 -------------------------
+ - Enhancement  #1189 Generating a Footer image for every movie with Video/Audio/Studio/Subtitles logos
  - Fixed defect #2059 Can not set a movie to watched with brackets in the file names
  - Enhancement  #2076 MediaInfo Codec priority changes & Aspect Ratio rounding
  - Enhancement  #2137 Rating for TV Episodes
@@ -19,6 +20,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2191 HD is incorrectly removed from TV Show name
  - Fixed defect #2195 episodeRating is always rechecked
  - Fixed defect #2196 AC3 in title sorted as TV show
+ - Enhancement  #2197 Mediaflag overlayXML
  - Fixed defect #2199 Library indexing does not work correctly when library path also a part of another library path
  - Fixed defect #2200 People XML files are incorrectly generated
 
