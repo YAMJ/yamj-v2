@@ -1855,6 +1855,8 @@ public class MovieJukebox {
                     FanartScanner.scan(backgroundPlugin, jukebox, movie);
                 }
             }
+
+            movie.setCertification(library.getIndexingCertification(movie.getCertification()));
         }
         return movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_NFO);
     }
