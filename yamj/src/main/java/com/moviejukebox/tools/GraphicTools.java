@@ -173,6 +173,11 @@ public class GraphicTools {
         }
     }
 
+    public static BufferedImage createBlankImage(int width, int height) {
+        BufferedImage bufImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        return bufImage;
+    }
+
     public static void saveImageAsPng(BufferedImage bi, String filename) {
         if (bi == null || filename == null) {
             return;

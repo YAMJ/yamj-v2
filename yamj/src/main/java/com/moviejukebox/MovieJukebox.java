@@ -134,6 +134,7 @@ public class MovieJukebox {
     private boolean forceThumbnailOverwrite;
     private boolean forceBannerOverwrite;
     private boolean forceSkinOverwrite;
+    private boolean forceFooterOverwrite;
 
     // Scanner Tokens
     private static String posterToken;
@@ -142,11 +143,17 @@ public class MovieJukebox {
     @SuppressWarnings("unused")
     private static String videoimageToken;
     private static String fanartToken;
+    private static String footerToken;
     
     private static String posterExtension;
     private static String thumbnailExtension;
     private static String bannerExtension;
     private static String fanartExtension;
+    private static String footerExtension;
+
+    private static boolean footerEnable;
+    private static int footerWidth;
+    private static int footerHeight;
 
     private static boolean fanartMovieDownload;
     private static boolean fanartTvDownload;
@@ -684,6 +691,7 @@ public class MovieJukebox {
         this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", "false");
         this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
         this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", "false");
+        this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", "false");
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
         // This is what these properties should look like
@@ -701,11 +709,17 @@ public class MovieJukebox {
         posterToken = getProperty("mjb.scanner.posterToken", "_large");
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
         videoimageToken = getProperty("mjb.scanner.videoimageToken", ".videoimage");
+        footerToken = getProperty("mjb.scanner.footerToken", ".footer");
         
         posterExtension = getProperty("posters.format", "png");
         thumbnailExtension = getProperty("thumbnails.format", "png");
         bannerExtension = getProperty("banners.format", "jpg");
         fanartExtension = getProperty("fanart.format", "jpg");
+        footerExtension = getProperty("footer.format", "png");
+
+        this.footerEnable = PropertiesUtil.getBooleanProperty("mjb.footerEnable", "false");
+        this.footerWidth  = PropertiesUtil.getIntProperty("footer.width", "400");
+        this.footerHeight = PropertiesUtil.getIntProperty("footer.height", "80");
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
         if (trailersScannerEnable) {
@@ -1027,7 +1041,11 @@ public class MovieJukebox {
                                     status = trailersRescanDaysMillis < 0 ? true : false;
                                 }
                                 movie.setTrailerExchange(status);
-                            } 
+                            }
+
+                            if (footerEnable) {
+                                updateFooter(jukebox, movie, tools.imagePlugin);
+                            }
                         } else {
                             library.remove(movie);
                         }
@@ -1813,6 +1831,7 @@ public class MovieJukebox {
             // Update poster format if needed
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
+
             // Check for local CoverArt
             PosterScanner.scan(jukebox, movie);
 
@@ -1858,6 +1877,12 @@ public class MovieJukebox {
 
             movie.setCertification(library.getIndexingCertification(movie.getCertification()));
         }
+
+        // Update footer format if needed
+        if (footerEnable) {
+            movie.setFooterFilename(movie.getBaseName() + footerToken + "." + footerExtension);
+        }
+
         return movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_NFO);
     }
 
@@ -1972,6 +1997,27 @@ public class MovieJukebox {
                 }
             } catch (Exception error) {
                 logger.debug("MovieJukebox: Failed generate banner : " + tmpDestFilename);
+            }
+        }
+    }
+
+    public void updateFooter(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
+        String footerFilename = movie.getFooterFilename();
+        File footerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + footerFilename);
+        String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + footerFilename;
+        File tmpDestFile = new File(tmpDestFilename);
+
+        if ((!tmpDestFile.exists() && !footerFile.exists()) || movie.isDirty() || forceFooterOverwrite) {
+            footerFile.getParentFile().mkdirs();
+
+            try {
+                BufferedImage footerImage = GraphicTools.createBlankImage(footerWidth, footerHeight);
+                if (footerImage != null) {
+                    footerImage = imagePlugin.generate(movie, footerImage, "footer", null);
+                    GraphicTools.saveImageToDisk(footerImage, tmpDestFilename);
+                }
+            } catch (Exception error) {
+                logger.debug("MovieJukebox: Failed generate footer: " + tmpDestFilename);
             }
         }
     }
