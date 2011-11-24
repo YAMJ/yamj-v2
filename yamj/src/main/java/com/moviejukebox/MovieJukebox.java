@@ -1367,6 +1367,11 @@ public class MovieJukebox {
                         logger.debug("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
                         createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, forceThumbnailOverwrite);
 
+                        if (footerEnable) {
+                            movie.setFooterFilename(safeSetMasterBaseName + footerToken + "." + footerExtension);
+                            updateFooter(jukebox, movie, tools.imagePlugin);
+                        }
+
                         // No playlist for index masters
                         // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
 
