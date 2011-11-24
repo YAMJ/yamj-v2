@@ -21,6 +21,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2195 episodeRating is always rechecked
  - Fixed defect #2196 AC3 in title sorted as TV show
  - Enhancement  #2197 Mediaflag overlayXML
+ - Fixed defect #2198 FilmAffinity plugin stopped working
  - Fixed defect #2199 Library indexing does not work correctly when library path also a part of another library path
  - Fixed defect #2200 People XML files are incorrectly generated
 

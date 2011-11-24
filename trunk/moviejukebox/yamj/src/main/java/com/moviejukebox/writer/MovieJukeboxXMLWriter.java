@@ -78,8 +78,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 
-//import com.moviejukebox.tools.XMLWriter;
-
 /**
  * Parse/Write XML files for movie details and library indexes
  * 
@@ -242,10 +240,10 @@ public class MovieJukeboxXMLWriter {
                 if (tag.equalsIgnoreCase("<xmlGenerationDate>")) {
                     movie.setMjbGenerationDateString(parseCData(r));
                 }
-                if (tag.equalsIgnoreCase("<baseFilenameBase>") && (movie.getBaseFilename() == null || movie.getBaseFilename() == Movie.UNKNOWN)) {
+                if (tag.equalsIgnoreCase("<baseFilenameBase>") && (movie.getBaseFilename() == null || movie.getBaseFilename().equalsIgnoreCase(Movie.UNKNOWN))) {
                     movie.setBaseFilename(parseCData(r));
                 }
-                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName() == Movie.UNKNOWN)) {
+                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName().equalsIgnoreCase(Movie.UNKNOWN))) {
                     movie.setBaseName(parseCData(r));
                 }
                 if (tag.equalsIgnoreCase("<title>")) {
@@ -1226,12 +1224,30 @@ public class MovieJukeboxXMLWriter {
                     int categoryMinCount, Library library) {
         List<Movie> allMovies = library.getMoviesList();
         int countMovieCat = library.getMovieCountForIndex(categoryKey, indexName);
-
-        logger.debug("Index: " + categoryKey + ", Category: " + indexName + ", count: " + indexMovies.size());
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("Index: ");
+        sb.append(categoryKey);
+        sb.append(", Category: ");
+        sb.append(indexName);
+        sb.append(", count: ");
+        sb.append(indexMovies.size());
+        logger.debug(sb.toString());
+        
         // Display a message about the category we're indexing
         if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
-            logger.debug("Category '" + categoryKey + "' '" + indexName + "' does not contain enough videos (" + countMovieCat + "/" + categoryMinCount
-                            + "), not adding to categories.xml.");
+            sb = new StringBuilder();
+            sb.append("Category '");
+            sb.append(categoryKey);
+            sb.append("' '");
+            sb.append(indexName);
+            sb.append("' does not contain enough videos (");
+            sb.append(countMovieCat);
+            sb.append("/");
+            sb.append(categoryMinCount);
+            sb.append("), not adding to categories.xml.");
+            
+            logger.debug(sb.toString());
             return null;
         }
 
@@ -1282,6 +1298,7 @@ public class MovieJukeboxXMLWriter {
             logger.info("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes");
             for (final Map.Entry<String, List<Movie>> group : index.entrySet()) {
                 tasks.submit(new Callable<Void>() {
+                    @Override
                     public Void call() throws XMLStreamException, FileNotFoundException {
                         List<Movie> movies = group.getValue();
                         String key = FileTools.createCategoryKey(group.getKey());
@@ -1435,7 +1452,6 @@ public class MovieJukeboxXMLWriter {
                 });
             }
         }
-        ;
         tasks.waitFor();
     }
 

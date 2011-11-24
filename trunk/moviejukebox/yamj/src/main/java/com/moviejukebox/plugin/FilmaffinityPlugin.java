@@ -25,21 +25,31 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.commons.lang.StringUtils;
 
 public class FilmaffinityPlugin extends ImdbPlugin {
 
     /*
      * Literals of web of each movie info 
      */    
-    private final String FA_ORIGINAL_TITLE = "<b>T\u00CDTULO ORIGINAL</b>";
-    private final String FA_YEAR = "<b>A\u00D1O</b>";
-    private final String FA_RUNTIME = "<b>DURACI\u00D3N</b>";
-    private final String FA_DIRECTOR = "<b>DIRECTOR</b>";
-    private final String FA_WRITER = "<b>GUI\u00D3N</b>";
-    private final String FA_CAST = "<b>REPARTO</b>";
-    private final String FA_GENRE = "<b>G\u00C9NERO</b>";
-    private final String FA_COMPANY = "<b>PRODUCTORA</b>";    
-    private final String FA_PLOT = "<b>SINOPSIS</b>";    
+//    private final String FA_ORIGINAL_TITLE = "<b>T\u00CDTULO ORIGINAL</b>";
+//    private final String FA_YEAR = "<b>A\u00D1O</b>";
+//    private final String FA_RUNTIME = "<b>DURACI\u00D3N</b>";
+//    private final String FA_DIRECTOR = "<b>DIRECTOR</b>";
+//    private final String FA_WRITER = "<b>GUI\u00D3N</b>";
+//    private final String FA_CAST = "<b>REPARTO</b>";
+//    private final String FA_GENRE = "<b>G\u00C9NERO</b>";
+//    private final String FA_COMPANY = "<b>PRODUCTORA</b>";    
+//    private final String FA_PLOT = "<b>SINOPSIS</b>";    
+    private final String FA_ORIGINAL_TITLE = "<th>T&Iacute;TULO ORIGINAL</th>";
+    private final String FA_YEAR = "<th>A&Ntilde;O</th>";
+    private final String FA_RUNTIME = "<th>DURACI&Oacute;N</th>";
+    private final String FA_DIRECTOR = "<th>DIRECTOR</th>";
+    private final String FA_WRITER = "<th>GUI&Oacute;N</th>";
+    private final String FA_CAST = "<th>REPARTO</th>";
+    private final String FA_GENRE = "<th>G&Eacute;NERO</th>";
+    private final String FA_COMPANY = "<th>PRODUCTORA</th>";
+    private final String FA_PLOT = "<th>SINOPSIS</th>";
     
     private FilmAffinityInfo filmAffinityInfo;
 
@@ -54,6 +64,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         return FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID;
     }
 
+    @Override
     public boolean scan(Movie movie) {
         String filmAffinityId = filmAffinityInfo.arrangeId(movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID));
         
@@ -91,6 +102,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+                    logger.debug("FilmAffinity: " + movie.getTitle() + " is a TV Show, skipping.");
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                     return false;
                 }
@@ -103,8 +115,12 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }                       
             
             movie.setYear(HTMLTools.getTextAfterElem(xml, FA_YEAR));
+            // check to see if the year is numeric, if not, try a different approach
+            if(!StringUtils.isNumeric(movie.getYear())) {
+                movie.setYear(HTMLTools.getTextAfterElem(xml, FA_YEAR, 1));
+            }
             
-            String runTime = HTMLTools.getTextAfterElem(xml, FA_RUNTIME).replace(" min.","m");
+            String runTime = HTMLTools.getTextAfterElem(xml, FA_RUNTIME, 1).replace(" min.","m");
             if (!runTime.equals("min.")) {
                 movie.setRuntime(runTime);                
             }
@@ -139,7 +155,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             // TODO: Save more than one company.
             movie.setCompany(HTMLTools.getTextAfterElem(xml, FA_COMPANY).split("/")[0].trim());
             
-            for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</a></td>")).split("\\.|\\|")) {
+            for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</td>")).split("\\.|\\|")) {
                 movie.addGenre(Library.getIndexingGenre(cleanStringEnding(genre.trim())));
             }
             
@@ -149,7 +165,11 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 // Don't set a rating
             }                        
             
-            movie.setPlot(HTMLTools.getTextAfterElem(xml, FA_PLOT));
+            String plot = HTMLTools.getTextAfterElem(xml, FA_PLOT);
+            if (plot.endsWith("(FILMAFFINITY)")) {
+                plot = new String(plot.substring(0, plot.length() - 14));
+            }
+            movie.setPlot(plot.trim());
             
             /*
              * Fill the rest of the fields from IMDB, 
@@ -157,7 +177,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
              * 
              * I change temporally: title = Original title 
              * to improve the chance to find the right movie in IMDb. 
-             */
+             */            
             boolean overrideTitle = movie.isOverrideTitle();
             String title = movie.getTitle();
             String originalTitle = movie.getOriginalTitle();
