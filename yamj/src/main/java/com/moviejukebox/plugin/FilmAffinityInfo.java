@@ -65,7 +65,7 @@ public class FilmAffinityInfo {
         Matcher idMatcher;
                 
         try {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append("http://www.filmaffinity.com/es/advsearch.php?stext=");
 
             sb.append(URLEncoder.encode(title, "ISO-8859-1"));
