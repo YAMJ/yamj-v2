@@ -55,6 +55,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String skinHome;
+    private String overlayRoot;
+    private String overlayResources;
     private boolean addReflectionEffect;
     private boolean addPerspective;
     private boolean imageNormalize;
@@ -146,6 +148,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public DefaultImagePlugin() {
         // Generic properties
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        overlayRoot = PropertiesUtil.getProperty("mjb.xmlOverlay.dir", Movie.UNKNOWN);
+        overlayResources = PropertiesUtil.getProperty("mjb.xmlOverlay.resources", getResourcesPath());
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
     }
 
@@ -635,7 +639,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     if (!accept) {
                                         continue;
                                     }
-                                    File imageFile = new File(getResourcesPath() + img.filename);
+                                    File imageFile = new File(overlayResources + File.separator + img.filename);
                                     if (imageFile.exists()) {
                                         if (StringTools.isNotValidString(filename)) {
                                             filename = img.filename;
@@ -707,7 +711,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     }
 
                     try {
-                        BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + filename);
+                        BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + File.separator + filename);
 
                         Graphics2D g2d = bi.createGraphics();
                         g2d.drawImage(biSet, getOverlayX(bi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(bi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches("\\d+")?Integer.parseInt(state.width):biSet.getWidth(), state.height.matches("\\d+")?Integer.parseInt(state.height):biSet.getHeight(), null);
@@ -969,7 +973,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             try {
 
                 Graphics2D g2d = bi.createGraphics();
-                File imageFile = new File(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + fullLanguage + ".png");
+                File imageFile = new File(getResourcesPath() + "languages" + File.separator + fullLanguage + ".png");
                 if (imageFile.exists()) {
                     BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
                     g2d.drawImage(biLang, 1, 1, null);
@@ -989,7 +993,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         // Looking for image file
                         for (int i = 0; i < languages.length; i++) {
                             String language = languages[i].trim();
-                            imageFile = new File(skinHome + File.separator + "resources" + File.separator + "languages" + File.separator + language + ".png");
+                            imageFile = new File(getResourcesPath() + "languages" + File.separator + language + ".png");
                             if (imageFile.exists()) {
 
                                 BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
@@ -1031,7 +1035,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             String[] filenames = files.split(" / ");
             try {
                 Graphics2D g2d = bi.createGraphics();
-                BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + filenames[0]);
+                BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + File.separator + filenames[0]);
                 List<String> uniqueFiles = new ArrayList<String>();
                 uniqueFiles.add(filenames[0]);
                 int width = Width.matches("\\d+")?Integer.parseInt(Width):biSet.getWidth();
@@ -1086,7 +1090,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 }
                             }
                         }
-                        biSet = GraphicTools.loadJPEGImage(getResourcesPath() + filenames[i]);
+                        biSet = GraphicTools.loadJPEGImage(overlayResources + File.separator + filenames[i]);
                         if (block.size || Width.equalsIgnoreCase("equal") || Width.matches("\\d+")) {
                             offsetX = (left>0?1:-1)*col*(width + block.hmargin);
                         } else if (Width.equalsIgnoreCase("auto")) {
@@ -1343,8 +1347,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     @SuppressWarnings("unchecked")
     private void fillOverlayParams(String xmlOverlayFilename) {
-        File xmlOverlayFile = new File(xmlOverlayFilename);
-        if (xmlOverlayFile.exists() && xmlOverlayFile.isFile() && xmlOverlayFilename.toUpperCase().endsWith("XML")) {
+        if (!xmlOverlayFilename.toUpperCase().endsWith("XML")) {
+            return;
+        }
+        File xmlOverlayFile = new File((StringTools.isValidString(overlayRoot)?(overlayRoot + File.separator):"") + xmlOverlayFilename);
+        if (xmlOverlayFile.exists() && xmlOverlayFile.isFile()) {
             try {
                 XMLConfiguration c = new XMLConfiguration(xmlOverlayFile);
                 List<HierarchicalConfiguration> layers = c.configurationsAt("layer");
