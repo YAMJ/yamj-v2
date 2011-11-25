@@ -321,16 +321,16 @@ public class Library implements Map<String, Movie> {
 
         for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
             String indexName = indexEntry.getKey();
-            List<Movie> indexList = indexEntry.getValue();
+            List<Movie> indexMovieList = indexEntry.getValue();
 
             // Issue 2098: put to SET information from first movie by order
             int setIndex = 0;
-            if (!indexList.get(setIndex).isTVShow() && indexList.get(setIndex).getSetOrder(indexName) != null) {
-                int setOrder = indexList.get(setIndex).getSetOrder(indexName);
+            if (!indexMovieList.get(setIndex).isTVShow() && indexMovieList.get(setIndex).getSetOrder(indexName) != null) {
+                int setOrder = indexMovieList.get(setIndex).getSetOrder(indexName);
                 if (setOrder > 1) {
-                    for (int i = 1; i < indexList.size(); i++) {
-                        if ((indexList.get(i).getSetOrder(indexName) != null) && setOrder > indexList.get(i).getSetOrder(indexName)) {
-                            setOrder = indexList.get(i).getSetOrder(indexName);
+                    for (int i = 1; i < indexMovieList.size(); i++) {
+                        if ((indexMovieList.get(i).getSetOrder(indexName) != null) && setOrder > indexMovieList.get(i).getSetOrder(indexName)) {
+                            setOrder = indexMovieList.get(i).getSetOrder(indexName);
                             setIndex = i;
                         }
                     }
@@ -338,11 +338,11 @@ public class Library implements Map<String, Movie> {
             }
 
             // We can't clone the movie because of the Collection objects in there, so we'll have to copy it
-            Movie indexMaster = Movie.newInstance(indexList.get(setIndex));
+            Movie indexMaster = Movie.newInstance(indexMovieList.get(setIndex));
             indexMaster.setDirty(false);
             
             indexMaster.setSetMaster(true);
-            indexMaster.setSetSize(indexList.size());
+            indexMaster.setSetSize(indexMovieList.size());
             indexMaster.setTitle(indexName);
             indexMaster.setTitleSort(indexName);
             indexMaster.setOriginalTitle(indexName);
@@ -361,7 +361,7 @@ public class Library implements Map<String, Movie> {
             // We Can't use a TreeSet because MF.compareTo just compares part #
             // so it fails when we combine multiple seasons into one collection
             Collection<MovieFile> masterMovieFileCollection = new LinkedList<MovieFile>();
-            for (Movie movie : indexList) {
+            for (Movie movie : indexMovieList) {
                 if (movie.isTVShow()) {
                     ++cntTV;
                 }
@@ -399,9 +399,9 @@ public class Library implements Map<String, Movie> {
             indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
             indexMaster.setWatchedFile(watched);
             indexMaster.setTop250(top250);
-            if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexList.size() > 0))) {
+            if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
                 HashMap<String, Integer> ratings = new HashMap<String, Integer>();
-                ratings.put("setrating", setsRating.equalsIgnoreCase("max")?maxRating:(sumRating/indexList.size()));
+                ratings.put("setrating", setsRating.equalsIgnoreCase("max")?maxRating:(sumRating/indexMovieList.size()));
                 indexMaster.setRatings(ratings);
             }
             indexMaster.setMovieFiles(masterMovieFileCollection);
@@ -411,9 +411,9 @@ public class Library implements Map<String, Movie> {
             StringBuilder sb = new StringBuilder("Setting index master '");
             sb.append(indexMaster.getTitle());
             sb.append("' - isTV: ").append(indexMaster.isTVShow());
-            sb.append(" (").append(cntTV).append("/").append(indexList.size()).append(")");
+            sb.append(" (").append(cntTV).append("/").append(indexMovieList.size()).append(")");
             sb.append(" - isHD: ").append(indexMaster.isHD());
-            sb.append(" (").append(cntHD).append("/").append(indexList.size()).append(")");
+            sb.append(" (").append(cntHD).append("/").append(indexMovieList.size()).append(")");
             sb.append(" - top250: ").append(indexMaster.getTop250());
             sb.append(" - watched: ").append(indexMaster.isWatched());
             sb.append(" - rating: ").append(indexMaster.getRating());
@@ -469,6 +469,7 @@ public class Library implements Map<String, Movie> {
 
             for (final String indexStr : indexList.split(",")) {
                 tasks.submit(new Callable<Void>() {
+                    @Override
                     public Void call() {
                         SystemTools.showMemory();
                         logger.info("  Indexing " + indexStr + "...");
@@ -547,6 +548,7 @@ public class Library implements Map<String, Movie> {
             for (final Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                 for (final Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
                     tasks.submit(new Callable<Void>() {
+                        @Override
                         public Void call() {
                             Comparator<Movie> comp = getComparator(indexesEntry.getKey(), indexEntry.getKey());
                             if (null != comp) {
@@ -961,7 +963,7 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra()) {
                 if (peopleScan) {
                     for (Filmography person : movie.getPeople()) {
-                        if (!person.getDepartment().equalsIgnoreCase("Actors") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
+                        if (!person.getDepartment().equalsIgnoreCase(Filmography.DEPT_ACTORS) || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
                         }
                         String actor = person.getTitle();
@@ -1000,7 +1002,7 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra()) {
                 if (peopleScan) {
                     for (Filmography person : movie.getPeople()) {
-                        if (!person.getDepartment().equalsIgnoreCase("Directing") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
+                        if (!person.getDepartment().equalsIgnoreCase(Filmography.DEPT_DIRECTING) || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
                         }
                         String director = person.getTitle();
@@ -1027,7 +1029,7 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra()) {
                 if (peopleScan) {
                     for (Filmography person : movie.getPeople()) {
-                        if (!person.getDepartment().equalsIgnoreCase("Writing") || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
+                        if (!person.getDepartment().equalsIgnoreCase(Filmography.DEPT_WRITING) || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
                         }
                         String writer = person.getTitle();
@@ -1156,55 +1158,68 @@ public class Library implements Map<String, Movie> {
         }
     }
 
+    @Override
     public void clear() {
         library.clear();
         people.clear();
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return library.clone();
     }
 
+    @Override
     public boolean containsKey(Object key) {
         return library.containsKey(key);
     }
 
+    @Override
     public boolean containsValue(Object value) {
         return library.containsValue(value);
     }
 
+    @Override
     public Set<Entry<String, Movie>> entrySet() {
         return library.entrySet();
     }
 
+    @Override
     public boolean equals(Object arg0) {
         return library.equals(arg0);
     }
 
+    @Override
     public Movie get(Object key) {
         return library.get(key);
     }
 
+    @Override
     public int hashCode() {
         return library.hashCode();
     }
 
+    @Override
     public boolean isEmpty() {
         return library.isEmpty();
     }
 
+    @Override
     public Set<String> keySet() {
         return library.keySet();
     }
 
+    @Override
     public Movie put(String key, Movie value) {
         return library.put(key, value);
     }
 
+    @Override
     public void putAll(Map<? extends String, ? extends Movie> m) {
         library.putAll(m);
     }
 
+    @Override
     public Movie remove(Object key) {
         Movie m = library.remove(key);
         if (m != null) {
@@ -1218,14 +1233,17 @@ public class Library implements Map<String, Movie> {
         return library.remove(key);
     }
 
+    @Override
     public int size() {
         return library.size();
     }
 
+    @Override
     public String toString() {
         return library.toString();
     }
 
+    @Override
     public List<Movie> values() {
         List<Movie> retour = new ArrayList<Movie>(library.values());
         return retour;
