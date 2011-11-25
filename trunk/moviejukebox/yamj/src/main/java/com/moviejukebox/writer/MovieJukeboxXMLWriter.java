@@ -1103,8 +1103,8 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    public void writeCategoryXML(Jukebox jukebox, Library library, String filename, boolean isDirty) throws FileNotFoundException, XMLStreamException,
-                    ParserConfigurationException {
+    public void writeCategoryXML(Jukebox jukebox, Library library, String filename, boolean isDirty) 
+            throws FileNotFoundException, XMLStreamException, ParserConfigurationException {
         // Issue 1886: HTML indexes recreated every time
         File oldFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + filename + ".xml");
 
