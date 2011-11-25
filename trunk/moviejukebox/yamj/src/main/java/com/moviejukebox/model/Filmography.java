@@ -33,6 +33,31 @@ public class Filmography {
 
     private static final String UNKNOWN = Movie.UNKNOWN;
 
+    // Define the list of jobs
+    public static final String JOB_ACTOR    = "actor";
+    public static final String JOB_ACTRESS  = "actress";
+    public static final String JOB_PRODUCER = "producer";
+    public static final String JOB_CASTING  = "casting";
+    public static final String JOB_DESIGN   = "design";
+    public static final String JOB_DIRECTOR = "director";
+    public static final String JOB_AUTHOR   = "author";
+    public static final String JOB_WRITER   = "writer";
+    public static final String JOB_EDITOR   = "editor";
+    public static final String JOB_MUSIC    = "music";
+    public static final String JOB_COMPOSER = "composer";
+    public static final String JOB_PHOTO    = "photo";
+    public static final String JOB_CAMERA   = "camera";
+    public static final String JOB_OPERATOR = "operator";
+    
+    // Define the list of departments
+    public static final String DEPT_ACTORS     = "Actors";
+    public static final String DEPT_PRODUCTION = "Production";
+    public static final String DEPT_DIRECTING  = "Directing";
+    public static final String DEPT_WRITING    = "Writing";
+    public static final String DEPT_EDITING    = "Editing";
+    public static final String DEPT_SOUND      = "Sound";
+    public static final String DEPT_CAMERA     = "Camera";
+
     private Map<String, String> idMap   = new HashMap<String, String>(2);
     private String name                 = UNKNOWN;
     private String title                = UNKNOWN;
@@ -296,21 +321,21 @@ public class Filmography {
 
     public void setDepartment() {
         if (isNotValidString(department)) {
-            if (job.equalsIgnoreCase("actor") || job.equalsIgnoreCase("actress")) {
-                setDepartment("Actors");
-            } else if (job.toLowerCase().contains("producer") || job.toLowerCase().contains("casting") || job.toLowerCase().contains("design")) {
-                setDepartment("Production");
-            } else if (job.toLowerCase().contains("director")) {
-                setDepartment("Directing");
-            } else if (job.toLowerCase().contains("author") || job.toLowerCase().contains("writer")) {
-                setDepartment("Writing");
-            } else if (job.toLowerCase().contains("editor")) {
-                setDepartment("Editing");
-            } else if (job.toLowerCase().contains("music") || job.toLowerCase().contains("composer")) {
-                setDepartment("Sound");
-            } else if (job.toLowerCase().contains("photo") || job.toLowerCase().contains("camera") || job.toLowerCase().contains("operator")) {
-                setDepartment("Camera");
+            if (job.equalsIgnoreCase(JOB_ACTOR) || job.equalsIgnoreCase(JOB_ACTRESS)) {
+                setDepartment(DEPT_ACTORS);
+            } else if (job.toLowerCase().contains(JOB_PRODUCER) || job.toLowerCase().contains(JOB_CASTING) || job.toLowerCase().contains(JOB_DESIGN)) {
+                setDepartment(DEPT_PRODUCTION);
+            } else if (job.toLowerCase().contains(JOB_DIRECTOR)) {
+                setDepartment(DEPT_DIRECTING);
+            } else if (job.toLowerCase().contains(JOB_AUTHOR) || job.toLowerCase().contains(JOB_WRITER)) {
+                setDepartment(DEPT_WRITING);
+            } else if (job.toLowerCase().contains(JOB_EDITOR)) {
+                setDepartment(DEPT_EDITING);
+            } else if (job.toLowerCase().contains(JOB_MUSIC) || job.toLowerCase().contains(JOB_COMPOSER)) {
+                setDepartment(DEPT_SOUND);
+            } else if (job.toLowerCase().contains(JOB_PHOTO) || job.toLowerCase().contains(JOB_CAMERA) || job.toLowerCase().contains(JOB_OPERATOR)) {
+                setDepartment(DEPT_CAMERA);
             }
         }
-    }
+    }   
 }
