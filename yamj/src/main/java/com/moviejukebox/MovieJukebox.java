@@ -1417,7 +1417,8 @@ public class MovieJukebox {
                 
                 logger.info("Writing Category XML...");
                 boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
-                xmlWriter.writeCategoryXML(jukebox, library, "Categories", library.isDirty() || forceIndexOverwrite);
+                library.setDirty(library.isDirty() || forceIndexOverwrite);
+                xmlWriter.writeCategoryXML(jukebox, library, "Categories", library.isDirty());
 
                 // Issue 1882: Separate index files for each category
                 if (separateCategories) {
