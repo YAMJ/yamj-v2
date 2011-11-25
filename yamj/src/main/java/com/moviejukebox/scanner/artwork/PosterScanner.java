@@ -70,12 +70,21 @@ public class PosterScanner {
     private static Map<String, IMoviePosterPlugin> moviePosterPlugins = new HashMap<String, IMoviePosterPlugin>();
     private static Map<String, ITvShowPosterPlugin> tvShowPosterPlugins = new HashMap<String, ITvShowPosterPlugin>();
 
-    protected static Logger     logger = Logger.getLogger("moviejukebox");
+    private static final String EXISTING_MOVIE = "moviename";
+    private static final String EXISTING_FIXED = "fixedcoverartname";
+    private static final String EXISTING_NO = "no";
+
+    protected static final Logger     logger = Logger.getLogger("moviejukebox");
+        // We get covert art scanner behaviour
+    protected static final String     searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", EXISTING_MOVIE);
+    // See if we use folder.* image or not
+    // Note: We need the useFolderImage because of the special "folder.jpg" case in windows.
+    protected static final Boolean    useFolderImage = PropertiesUtil.getBooleanProperty("poster.scanner.useFolderImage", "false");
+    // We get the fixed name property    
+    protected static final String     fixedPosterName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
+    
     protected static Collection<String> posterExtensions  = new ArrayList<String>();
-    protected static String     searchForExistingPoster;
-    protected static String     fixedPosterName;
     protected static String     posterDirectory;
-    protected static Boolean    useFolderImage;
     protected static Collection<String> posterImageName;
     protected static WebBrowser webBrowser;
     protected static String     preferredPosterSearchEngine;
@@ -88,21 +97,9 @@ public class PosterScanner {
     private static String       tvShowPosterSearchPriority;
     private static String       moviePosterSearchPriority;
     
-    private static final String EXISTING_MOVIE = "moviename";
-    private static final String EXISTING_FIXED = "fixedcoverartname";
-    private static final String EXISTING_NO = "no";
-
     static {
         StringTokenizer st;
         
-        // We get covert art scanner behaviour
-        searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", EXISTING_MOVIE);
-        // We get the fixed name property
-        fixedPosterName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
-        // See if we use folder.* image or not
-        // Note: We need the useFolderImage because of the special "folder.jpg" case in windows.
-        useFolderImage = PropertiesUtil.getBooleanProperty("poster.scanner.useFolderImage", "false");
-
         if (useFolderImage) {
             st = new StringTokenizer(PropertiesUtil.getProperty("poster.scanner.imageName", "folder,poster"), ",;|");
             posterImageName = new ArrayList<String>();
@@ -287,11 +284,11 @@ public class PosterScanner {
     }
 
     private static String getPluginsCode() {
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
 
         Set<String> keySet = posterPlugins.keySet();
         for (String string : keySet) {
-            response.append(string + " / ");
+            response.append(string).append(" / ");
         }
         return response.toString();
     }
@@ -529,8 +526,7 @@ public class PosterScanner {
                     reader.setInput(in);
                     return new Dimension(reader.getWidth(0), reader.getHeight(0));
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.error("PosterScanner: Failed to read image dimensions for " + imageFile.getName());
                 } finally {
                     reader.dispose();
                 }
