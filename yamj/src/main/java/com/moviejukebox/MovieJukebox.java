@@ -111,7 +111,7 @@ import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 
 public class MovieJukebox {
 
-    private static String logFilename = "moviejukebox";
+    private static final String logFilename = "moviejukebox";
     private static Logger logger = Logger.getLogger(logFilename);    // TODO change all instances to "xxx.class" so we can inherit
     private static Collection<MediaLibraryPath> mediaLibraryPaths;
     private String movieLibraryRoot;
@@ -328,7 +328,10 @@ public class MovieJukebox {
 
         StringBuilder sb = new StringBuilder("{");
         for (Map.Entry<Object, Object> propEntry : PropertiesUtil.getEntrySet()) {
-            sb.append(propEntry.getKey() + "=" + propEntry.getValue() + ",");
+            sb.append(propEntry.getKey());
+            sb.append("=");
+            sb.append(propEntry.getValue());
+            sb.append(",");
         }
         sb.replace(sb.length() - 1, sb.length(), "}");
 
@@ -473,7 +476,7 @@ public class MovieJukebox {
      * @param logFilename
      */
     private static void renameLogFile() {
-        StringBuffer newLogFilename = new StringBuffer(logFilename);    // Use the base log filename
+        StringBuilder newLogFilename = new StringBuilder(logFilename);    // Use the base log filename
         boolean renameFile = false;
         
         String libraryName = "_Library";
@@ -717,9 +720,9 @@ public class MovieJukebox {
         fanartExtension = getProperty("fanart.format", "jpg");
         footerExtension = getProperty("footer.format", "png");
 
-        this.footerEnable = PropertiesUtil.getBooleanProperty("mjb.footerEnable", "false");
-        this.footerWidth  = PropertiesUtil.getIntProperty("footer.width", "400");
-        this.footerHeight = PropertiesUtil.getIntProperty("footer.height", "80");
+        MovieJukebox.footerEnable = PropertiesUtil.getBooleanProperty("mjb.footerEnable", "false");
+        MovieJukebox.footerWidth  = PropertiesUtil.getIntProperty("footer.width", "400");
+        MovieJukebox.footerHeight = PropertiesUtil.getIntProperty("footer.height", "80");
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
         if (trailersScannerEnable) {
@@ -797,6 +800,7 @@ public class MovieJukebox {
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
+            @Override
             protected ToolSet initialValue() {
                 return new ToolSet();
             };
@@ -928,6 +932,7 @@ public class MovieJukebox {
         for (final MediaLibraryPath mediaLibraryPath : mediaLibraryPaths) {
             // Multi-thread parallel processing
             tasks.submit(new Callable<Void>() {
+                @Override
                 public Void call() {
                     logger.debug("Scanning media library " + mediaLibraryPath.getPath());
                     MovieDirectoryScanner mds = new MovieDirectoryScanner();
@@ -976,6 +981,7 @@ public class MovieJukebox {
                 // Multi-thread parallel processing
                 tasks.submit(new Callable<Void>() {
 
+                    @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
 
                         ToolSet tools = threadTools.get();
@@ -1128,6 +1134,7 @@ public class MovieJukebox {
                         // Multi-thread parallel processing
                         tasks.submit(new Callable<Void>() {
 
+                            @Override
                             public Void call() throws FileNotFoundException, XMLStreamException {
 
                                 ToolSet tools = threadTools.get();
@@ -1174,6 +1181,7 @@ public class MovieJukebox {
                             // Multi-thread parallel processing
                             tasks.submit(new Callable<Void>() {
 
+                                @Override
                                 public Void call() throws FileNotFoundException, XMLStreamException {
 
                                     ToolSet tools = threadTools.get();
@@ -1304,6 +1312,7 @@ public class MovieJukebox {
             for (final Movie movie : indexMasters) {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
+                    @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
 
@@ -1405,8 +1414,10 @@ public class MovieJukebox {
             if (!skipIndexGeneration) {
                 logger.info("Writing Indexes XML...");
                 xmlWriter.writeIndexXML(jukebox, library, tasks);
+                
                 logger.info("Writing Category XML...");
-                xmlWriter.writeCategoryXML(jukebox, library, "Categories", library.isDirty());
+                boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
+                xmlWriter.writeCategoryXML(jukebox, library, "Categories", library.isDirty() || forceIndexOverwrite);
 
                 // Issue 1882: Separate index files for each category
                 if (separateCategories) {
@@ -1429,6 +1440,7 @@ public class MovieJukebox {
                 
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
+                    @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
                         // Update movie XML files with computed index information
@@ -1469,6 +1481,7 @@ public class MovieJukebox {
                 for (final Person person : library.getPeople()) {
                     // Multi-tread: Start Parallel Processing
                     tasks.submit(new Callable<Void>() {
+                        @Override
                         public Void call() throws FileNotFoundException, XMLStreamException {
                             @SuppressWarnings("unused")
                             ToolSet tools = threadTools.get();
@@ -1737,8 +1750,8 @@ public class MovieJukebox {
             // Issue 1886: HTML indexes recreated every time
             // after remove NFO set data restoring from XML - compare NFO and XML sets
             Movie movieNFO = new Movie();
-            for (String s : movie.getSetsKeys()) {
-                movieNFO.addSet(s);
+            for (String set : movie.getSetsKeys()) {
+                movieNFO.addSet(set);
             }
             MovieNFOScanner.scan(movieNFO, nfoFiles);
             if (!Arrays.equals(movieNFO.getSetsKeys().toArray(), movie.getSetsKeys().toArray())) {
@@ -1880,7 +1893,7 @@ public class MovieJukebox {
                 }
             }
 
-            movie.setCertification(library.getIndexingCertification(movie.getCertification()));
+            movie.setCertification(Library.getIndexingCertification(movie.getCertification()));
         }
 
         // Update footer format if needed
@@ -2591,11 +2604,12 @@ public class MovieJukebox {
     }
 
     public static String getTrailerPluginsCode() {
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
 
         Set<String> keySet = trailerPlugins.keySet();
         for (String string : keySet) {
-            response.append(string + " / ");
+            response.append(string);
+            response.append(" / ");
         }
         return response.toString();
     }
@@ -2630,7 +2644,7 @@ public class MovieJukebox {
      * Return the Jukebox object
      * @return the jukebox
      */
-    public static final Jukebox getJukebox() {
+    public static Jukebox getJukebox() {
         return jukebox;
     }
 
