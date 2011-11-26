@@ -128,7 +128,6 @@ public class WebBrowser {
 
     public String request(URL url, Charset charset) throws IOException {
         logger.debug("WebBrowser: Requesting " + url.toString());
-        
         StringWriter content = null;
 
         // get the download limit for the host
