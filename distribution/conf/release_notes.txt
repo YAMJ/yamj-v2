@@ -5,6 +5,7 @@
 MovieJukebox 2.6-SNAPSHOT
 -------------------------
  - Enhancement  #1189 Generating a Footer image for every movie with Video/Audio/Studio/Subtitles logos
+ - Fixed defect #2019 Caratulasdecine Poster Plugin does not work
  - Fixed defect #2059 Can not set a movie to watched with brackets in the file names
  - Enhancement  #2076 MediaInfo Codec priority changes & Aspect Ratio rounding
  - Enhancement  #2137 Rating for TV Episodes

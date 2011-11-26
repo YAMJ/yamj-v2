@@ -21,12 +21,13 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+//    private static Logger logger = Logger.getLogger("moviejukebox");
 
-    private WebBrowser webBrowser;
+    private WebBrowser webBrowser = new WebBrowser();
 
     public CaratulasdecinePosterPlugin() {
         super();
@@ -35,8 +36,6 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
         if (!isNeeded()) {
             return;
         }
-        
-        webBrowser = new WebBrowser();
     }
 
     private String getMovieUrl(String xml) throws IOException {
@@ -54,16 +53,12 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.es/custom?hl=es&domains=caratulasdecine.com&ie=ISO-8859-1&oe=ISO-8859-1&q=");
-
+            StringBuilder sb = new StringBuilder("http://www.google.es/custom?hl=es&domains=caratulasdecine.com&sa=Search&sitesearch=caratulasdecine.com&client=pub-8773978869337108&forid=1&q=");
             sb.append(URLEncoder.encode(title, "ISO-8859-1"));
-            sb.append("&btnG=Buscar&sitesearch=caratulasdecine.com&meta=");
             String xml = webBrowser.request(sb.toString());
-
             response = getMovieUrl(xml);
 
-            if (Movie.UNKNOWN.equals(response)) {
-
+            if (StringTools.isNotValidString(response)) {
                 // Did we've a link to the movie list
                 String searchString = "http://www.caratulasdecine.com/listado.php";
                 int beginIndex = xml.indexOf(searchString);
@@ -83,26 +78,20 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                         }
                     }
                 }
-                // }else{
-                // logger.info("Movie " + title + " not found on www.caratulasdecine.com");
-                // }
-
             }
-
-        } catch (Exception e) {
-            logger.error("Failed retreiving CaratulasdecinePoster Id for movie : " + title);
-            logger.error("Error : " + e.getMessage());
+        } catch (Exception error) {
+            logger.error("Failed retreiving CaratulasdecinePoster Id for movie: " + title);
+            logger.error("Error : " + error.getMessage());
         }
         return response;
     }
 
     @Override
     public IImage getPosterUrl(String id) {
-        // <td><img src="
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equals(id)) {
             try {
-                StringBuffer sb = new StringBuffer("http://www.caratulasdecine.com/caratula.php?pel=");
+                StringBuilder sb = new StringBuilder("http://www.caratulasdecine.com/caratula.php?pel=");
                 sb.append(id);
 
                 String xml = webBrowser.request(sb.toString());

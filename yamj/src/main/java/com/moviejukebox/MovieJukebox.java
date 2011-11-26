@@ -732,6 +732,7 @@ public class MovieJukebox {
             trailerPlugins = new HashMap<String, ITrailersPlugin>();
 
             ServiceLoader<ITrailersPlugin> trailerPluginsSet = ServiceLoader.load(ITrailersPlugin.class);
+            
             for (ITrailersPlugin trailerPlugin : trailerPluginsSet) {
                 trailerPlugins.put(trailerPlugin.getName().toLowerCase().trim(), trailerPlugin);
             }
@@ -2450,8 +2451,8 @@ public class MovieJukebox {
             //System.out.println("- mjbRevision: " + movie.getMjbRevision() + " (" + movie.getCurrentMjbRevision() + ")");
             //System.out.println("- Difference : " + (Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision())) );
             String currentRevision = movie.getCurrentMjbRevision();
-            String mjbRevision = movie.getMjbRevision();
-            int revDiff = Integer.parseInt(isNotValidString(currentRevision) ? "0" : currentRevision) - Integer.parseInt(isNotValidString(mjbRevision) ? "0" : mjbRevision); 
+            String movieMjbRevision = movie.getMjbRevision();
+            int revDiff = Integer.parseInt(isNotValidString(currentRevision) ? "0" : currentRevision) - Integer.parseInt(isNotValidString(movieMjbRevision) ? "0" : movieMjbRevision); 
             if (revDiff > recheckRevision) {
                 logger.debug("Recheck: " + movie.getBaseName() + " XML is " + revDiff + " revisions old (" + recheckRevision + " maximum), will rescan");
                 recheckCount++;
