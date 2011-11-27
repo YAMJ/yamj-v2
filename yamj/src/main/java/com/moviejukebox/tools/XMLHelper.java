@@ -58,7 +58,7 @@ public class XMLHelper {
     }
 
     public static String getCData(XMLEventReader r) throws XMLStreamException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (r.peek().isCharacters()) {
             sb.append(r.nextEvent().asCharacters().getData());
         }
@@ -88,7 +88,7 @@ public class XMLHelper {
     }
 
     public static String parseCData(XMLEventReader r) throws XMLStreamException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         XMLEvent e;
         while ((e = r.nextEvent()) instanceof Characters) {
             sb.append(e.toString());

@@ -144,7 +144,7 @@ public class StringTools {
     }
     
     public static String formatDuration(int duration) {
-        StringBuffer returnString = new StringBuffer("");
+        StringBuilder returnString = new StringBuilder("");
 
         int nbHours = duration / 3600;
         if (nbHours != 0) {

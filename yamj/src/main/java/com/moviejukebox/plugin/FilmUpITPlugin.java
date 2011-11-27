@@ -196,7 +196,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         String FilmUpITId = Movie.UNKNOWN;
 
         try {
-            StringBuffer sb = new StringBuffer("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
+            StringBuilder sb = new StringBuilder("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
             sb.append(URLEncoder.encode(movieName.replace(' ', '+'), "iso-8859-1"));
             sb.append("&ul=%25%2Fsc_%25&x=0&y=0&m=any&wf=0020&wm=wrd&sy=0");
             String xml = webBrowser.request(sb.toString());

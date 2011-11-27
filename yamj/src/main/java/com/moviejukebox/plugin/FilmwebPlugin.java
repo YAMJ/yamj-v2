@@ -102,7 +102,7 @@ public class FilmwebPlugin extends ImdbPlugin {
      */
     private String getFilmwebUrlFromYahoo(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://search.yahoo.com/search?p=");
+            StringBuilder sb = new StringBuilder("http://search.yahoo.com/search?p=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {
@@ -131,7 +131,7 @@ public class FilmwebPlugin extends ImdbPlugin {
      */
     private String getFilmwebUrlFromGoogle(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.pl/search?hl=pl&q=");
+            StringBuilder sb = new StringBuilder("http://www.google.pl/search?hl=pl&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {
@@ -159,7 +159,7 @@ public class FilmwebPlugin extends ImdbPlugin {
      */
     private String getFilmwebUrlFromFilmweb(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.filmweb.pl/search/film?q=");
+            StringBuilder sb = new StringBuilder("http://www.filmweb.pl/search/film?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {

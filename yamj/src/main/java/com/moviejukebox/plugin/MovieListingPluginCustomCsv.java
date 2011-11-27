@@ -88,7 +88,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @return CSV-formatted header row
      */
     private String headerLine() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Iterator<String> iterator = mFields.iterator(); iterator.hasNext();) {
             if (sb.length() > 0) {
                 sb.append(mDelimiter);
@@ -139,7 +139,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         Collection<String> genres = movie.getGenres();
         Collection<String> cast = movie.getCast();
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (String header : mFields) {
             if (sb.length() > 0) {
@@ -247,7 +247,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "Genres")) {
                 if (null != genres) {
                     int counter = 1;
-                    StringBuffer tmp = new StringBuffer();
+                    StringBuilder tmp = new StringBuilder();
                     for (String string : genres) {
                         if (counter++ > limitGenres) {
                             break;
@@ -263,7 +263,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "Cast")) {
                 if (null != cast) {
                     int counter = 1;
-                    StringBuffer tmp = new StringBuffer();
+                    StringBuilder tmp = new StringBuilder();
                     for (String string : cast) {
                         if (counter++ > limitCast) {
                             break;

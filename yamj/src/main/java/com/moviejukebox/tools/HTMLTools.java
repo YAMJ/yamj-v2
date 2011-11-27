@@ -629,7 +629,7 @@ public class HTMLTools {
         Pattern strip_tags_regex = Pattern.compile("([^\\<]*)(?:\\<[^\\>]*\\>)?");
         Matcher m = strip_tags_regex.matcher(s);
 
-        StringBuffer res = new StringBuffer();
+        StringBuilder res = new StringBuilder();
         while (m.find()) {
             res.append(m.group(1));
         }

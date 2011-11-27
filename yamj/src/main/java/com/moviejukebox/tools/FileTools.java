@@ -351,7 +351,7 @@ public class FileTools {
     }
 
     public static String readFileToString(File file) {
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
 
         if (file != null) {
             try {

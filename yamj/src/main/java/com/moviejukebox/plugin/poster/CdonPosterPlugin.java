@@ -78,8 +78,8 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         }
         try {
             //try getting the search results from cdon.se
-            StringBuffer sb = new StringBuffer("");
-            sb = new StringBuffer("http://cdon.se/search?q=");
+            StringBuilder sb = new StringBuilder("");
+            sb = new StringBuilder("http://cdon.se/search?q=");
             String searchTitle = URLEncoder.encode(title, "UTF-8");
             if (tvSeason >= 0) {
                 searchTitle +=("+" + URLEncoder.encode("säsong", "UTF-8"));
@@ -292,7 +292,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             // sanity check on result before trying to load details page from url
             if (!movieURL.isEmpty() && movieURL.contains("http")) {
                 // fetch movie page from cdon
-                StringBuffer buf = new StringBuffer(movieURL);
+                StringBuilder buf = new StringBuilder(movieURL);
                 cdonMoviePage = webBrowser.request(buf.toString());
                 return cdonMoviePage;
             } else {

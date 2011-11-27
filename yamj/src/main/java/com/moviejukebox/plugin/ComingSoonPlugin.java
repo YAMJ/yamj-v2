@@ -260,7 +260,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         try {
             String comingSoonId = Movie.UNKNOWN;
                         
-            StringBuffer sb = new StringBuffer(searchUrl);
+            StringBuilder sb = new StringBuilder(searchUrl);
             sb.append("\"").append(URLEncoder.encode(movieName, "UTF-8")).append("\"");              
 
             sb.append("+site%3Acomingsoon.it");
@@ -299,7 +299,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
             String comingSoonId = Movie.UNKNOWN;
             
-            StringBuffer sb = new StringBuffer("http://www.comingsoon.it/Film/Database/?titoloFilm=");
+            StringBuilder sb = new StringBuilder("http://www.comingsoon.it/Film/Database/?titoloFilm=");
             sb.append(URLEncoder.encode(movieName, "iso-8859-1"));              
 
             if (StringTools.isValidString(year)) {
@@ -310,7 +310,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             
             while (searchPage++ < COMINGSOON_MAX_SEARCH_PAGES) {
                 
-                StringBuffer sbPage = new StringBuffer(sb);
+                StringBuilder sbPage = new StringBuilder(sb);
                 if (searchPage > 1) {
                     sbPage.append("&p="+searchPage);
                 }
@@ -755,7 +755,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
      */
     private String correctCapsTitle(String title) {
         if (title.equals(title.toUpperCase())) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             StringTokenizer st = new StringTokenizer(title);
             while (st.hasMoreTokens()) {
                 String word = st.nextToken();

@@ -149,7 +149,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     private String getofdbIDfromGoogle(String movieName, String year) {
         try {
             String ofdbID = Movie.UNKNOWN;
-            StringBuffer sb = new StringBuffer("http://www.google.de/search?hl=de&q=");
+            StringBuilder sb = new StringBuilder("http://www.google.de/search?hl=de&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {

@@ -43,7 +43,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
         String returnString = Movie.UNKNOWN;
         
         try {
-            StringBuffer sb = new StringBuffer("http://www.moviecovers.com/multicrit.html?titre=");
+            StringBuilder sb = new StringBuilder("http://www.moviecovers.com/multicrit.html?titre=");
             sb.append(URLEncoder.encode(title.replace("\u0153", "oe"), "iso-8859-1"));
             
             if (StringTools.isValidString(year)) {
@@ -83,7 +83,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 }
                 // Search the forum if no answer
                 if (returnString == Movie.UNKNOWN) {
-                    sb = new StringBuffer("http://www.moviecovers.com/forum/search-mysql.html?forum=MovieCovers&query=");
+                    sb = new StringBuilder("http://www.moviecovers.com/forum/search-mysql.html?forum=MovieCovers&query=");
                     sb.append(URLEncoder.encode(formattedTitle, "iso-8859-1"));
                     // logger.debug("MovieCoversPosterPlugin: We have to explore the forums: " + sb);
                     content = webBrowser.request(sb.toString());

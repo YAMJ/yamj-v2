@@ -54,7 +54,7 @@ public class FilteringLayout extends PatternLayout {
      * Once the properties files have been loaded then add the API_KEYs to the static list
      */
     public static void addApiKeys() {
-        StringBuffer apis = new StringBuffer("");
+        StringBuilder apis = new StringBuilder("");
         
         for (Map.Entry<Object, Object> propEntry : PropertiesUtil.getEntrySet()) {
             if (propEntry.getKey().toString().toUpperCase().startsWith("API_KEY")) {

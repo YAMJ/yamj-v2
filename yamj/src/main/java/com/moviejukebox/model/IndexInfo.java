@@ -34,7 +34,7 @@ public class IndexInfo {
     }
 
     public String toString() {
-        StringBuffer indexinfo = new StringBuffer("[IndexInfo ");
+        StringBuilder indexinfo = new StringBuilder("[IndexInfo ");
         
         indexinfo.append("[categoryName=").append(categoryName).append("]");
         indexinfo.append("[key=").append(key).append("]");
