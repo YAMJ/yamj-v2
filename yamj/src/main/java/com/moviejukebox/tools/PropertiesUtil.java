@@ -48,12 +48,12 @@ public class PropertiesUtil {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static Properties props = new Properties();
     private static String propertiesFilename = "preferences.xsl";
-    
+
     public static boolean setPropertiesStreamName(String streamName) {
         logger.info("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
         Reader reader = null;
-        
+
         try {
             if (propertiesStream == null) {
                 propertiesStream = new FileInputStream(streamName);
@@ -80,7 +80,7 @@ public class PropertiesUtil {
             } catch (IOException e) {
                 // Ignore
             }
-            
+
             try {
                 if (reader != null) {
                     reader.close();
@@ -100,7 +100,7 @@ public class PropertiesUtil {
         return props.getProperty(
                 key, defaultValue);
     }
-    
+
     /**
      * Return the key property as an integer
      * @param key
@@ -130,7 +130,7 @@ public class PropertiesUtil {
             return Long.parseLong(defaultValue);
         }
     }
-    
+
     /**
      * Return the key property as a boolean
      * @param key
@@ -146,29 +146,46 @@ public class PropertiesUtil {
         }
     }
 
+    /**
+     * Return the key property as a float
+     * @param key
+     * @param defaultValue
+     * @return 
+     */
+    public static float getFloatProperty(String key, String defaultValue) {
+        String property = getProperty(key, defaultValue).trim();
+        
+        try {
+            return Float.parseFloat(property);
+        } catch (NumberFormatException nfe) {
+            return Float.parseFloat(defaultValue);
+        }
+    }
+
     // Issue 309
     public static Set<Entry<Object, Object>> getEntrySet() {
         // Issue 728
         // Shamelessly adapted from: http://stackoverflow.com/questions/54295/how-to-write-java-util-properties-to-xml-with-sorted-keys
         return new TreeMap<Object, Object>(props).entrySet();
     }
-    
+
     public static void setProperty(String key, String value) {
         props.setProperty(key, value);
     }
-    
+
     /**
      * Store list (ordered) and keyword map.
      */
     @SuppressWarnings("serial")
     public static class KeywordMap extends HashMap<String, String> {
+
         private final List<String> keywords = new ArrayList<String>();
-        
+
         public List<String> getKeywords() {
             return keywords;
         }
     }
-    
+
     /**
      * Collect keywords list and appropriate keyword values.
      * Example:
@@ -190,13 +207,13 @@ public class PropertiesUtil {
                     continue;
                 }
                 m.keywords.add(lang);
-                String values = getProperty(prefix  + "." + lang);
+                String values = getProperty(prefix + "." + lang);
                 if (values != null) {
                     m.put(lang, values);
                 }
             }
         }
-        
+
         return m;
     }
 
@@ -206,20 +223,20 @@ public class PropertiesUtil {
         // Save the properties in order
         List<String> propertiesList = new ArrayList<String>();
         for (Object propertyObject : props.keySet()) {
-            propertiesList.add((String)propertyObject);
+            propertiesList.add((String) propertyObject);
         }
         // Sort the properties
         Collections.sort(propertiesList);
-        
+
         try {
             logger.debug("PropertiesUtil: Writing skin preferences file to " + getPropertiesFilename(true));
 
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(getPropertiesFilename(true)), "UTF-8"));
-             
+
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             out.write("<!-- This file is written automatically by YAMJ -->\n");
-            out.write("<!-- Last updated: " + (new Date())  + " -->\n");
-            
+            out.write("<!-- Last updated: " + (new Date()) + " -->\n");
+
             out.write("<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n");
             out.write("    <xsl:output method=\"xml\" omit-xml-declaration=\"yes\" />\n");
 
@@ -228,7 +245,7 @@ public class PropertiesUtil {
                     out.write("    <xsl:param name=\"" + property + "\" />\n");
                 }
             }
-            
+
             out.write("</xsl:stylesheet>\n");
             out.flush();
             out.close();
@@ -249,7 +266,7 @@ public class PropertiesUtil {
         } finally {
             // Free up memory
             propertiesList = null;
-            
+
             if (out != null) {
                 try {
                     out.flush();
@@ -259,7 +276,7 @@ public class PropertiesUtil {
                 }
             }
         }
-        
+
     }
 
     public static String getPropertiesFilename(boolean fullPath) {
@@ -269,5 +286,4 @@ public class PropertiesUtil {
             return propertiesFilename;
         }
     }
-    
 }

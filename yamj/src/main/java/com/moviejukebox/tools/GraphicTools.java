@@ -336,7 +336,7 @@ public class GraphicTools {
         
         float reflectionHeight = 12.5f;
         
-        reflectionHeight = getFloatProperty(graphicType + ".reflectionHeight", "12.5");
+        reflectionHeight = PropertiesUtil.getFloatProperty(graphicType + ".reflectionHeight", "12.5");
         
         BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight, graphicType);
         BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight, reflectionHeight);
@@ -358,10 +358,10 @@ public class GraphicTools {
         float reflectionStart, reflectionEnd, opacityStart, opacityEnd;
         float reflectionHeightAbsolute = avatarHeight * (reflectionHeight / 100);
 
-        reflectionStart = (getFloatProperty(graphicType + ".reflectionStart", "0.0") / 100) * reflectionHeightAbsolute;
-        reflectionEnd   = (getFloatProperty(graphicType + ".reflectionEnd", "100.0") / 100) * reflectionHeightAbsolute;
-        opacityStart    = getFloatProperty(graphicType + ".opacityStart", "30.0") / 100;
-        opacityEnd      = getFloatProperty(graphicType + ".opacityEnd", "100.0") / 100;
+        reflectionStart = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionStart", "0.0") / 100) * reflectionHeightAbsolute;
+        reflectionEnd   = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionEnd", "100.0") / 100) * reflectionHeightAbsolute;
+        opacityStart    =  PropertiesUtil.getFloatProperty(graphicType + ".opacityStart",   "30.0") / 100;
+        opacityEnd      =  PropertiesUtil.getFloatProperty(graphicType + ".opacityEnd",    "100.0") / 100;
 
         GradientPaint painter = new GradientPaint(0.0f, reflectionStart, new Color(1.0f, 1.0f, 1.0f, opacityStart), 0.0f, reflectionEnd, new Color(1.0f, 1.0f, 1.0f, opacityEnd));
         g.setPaint(painter);
@@ -371,22 +371,6 @@ public class GraphicTools {
         gradient.flush();
 
         return gradient;
-    }
-    
-    /*
-     * This function will load a float property and convert it to a proper float before returning it.
-     * If the property errors, it will return the default value.
-     */
-    private static float getFloatProperty(String propertyName, String propertyDefault) {
-        float propertyValue = Float.valueOf(propertyDefault);
-
-        try {
-            propertyValue = Float.valueOf(PropertiesUtil.getProperty(propertyName, propertyDefault));
-        } catch (NumberFormatException nfe) {
-            logger.error("NumberFormatException " + nfe.getMessage() + " in property " + propertyName);
-        }
-
-        return propertyValue;
     }
     
     /*
