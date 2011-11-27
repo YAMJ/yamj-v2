@@ -71,7 +71,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
         String response = Movie.UNKNOWN;
 
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.com/cse?cx=partner-pub-1232145664289710%3Aleabr0-srj4&cof=FORID%3A10&ie=ISO-8859-1&q=");
+            StringBuilder sb = new StringBuilder("http://www.google.com/cse?cx=partner-pub-1232145664289710%3Aleabr0-srj4&cof=FORID%3A10&ie=ISO-8859-1&q=");
             sb.append(URLEncoder.encode(title, "ISO-8859-1"));
             sb.append("&sa=Search&siteurl=www.motechposters.com%2F&ad=w9&num=10&rurl=http%3A%2F%2Fwww.motechposters.com%2Fsearch%2F%3Fcx%3Dpartner-pub-1232145664289710%253Aleabr0-srj4%26cof%3DFORID%253A10%26ie%3DISO-8859-1%26q%3Dgladiator%26sa%3DSearch%26siteurl%3Dwww.motechposters.com%252F");
             String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));

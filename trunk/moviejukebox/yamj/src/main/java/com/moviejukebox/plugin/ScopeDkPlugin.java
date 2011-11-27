@@ -130,7 +130,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
         String FilmUpITId = Movie.UNKNOWN;
 
         try {
-            StringBuffer sb = new StringBuffer("http://www.scope.dk/sogning.php?sog=");// 9&type=film");
+            StringBuilder sb = new StringBuilder("http://www.scope.dk/sogning.php?sog=");// 9&type=film");
             sb.append(URLEncoder.encode(movieName.replace(' ', '+'), "iso-8859-1"));
             sb.append("&type=film");
             String xml = webBrowser.request(sb.toString());

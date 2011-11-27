@@ -48,7 +48,7 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
         try {
             // TODO Change out the French Yahoo for English
-            StringBuffer sb = new StringBuffer("http://fr.images.search.yahoo.com/search/images?p=");
+            StringBuilder sb = new StringBuilder("http://fr.images.search.yahoo.com/search/images?p=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
             sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
 

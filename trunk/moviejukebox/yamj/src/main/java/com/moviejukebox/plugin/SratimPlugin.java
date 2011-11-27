@@ -1345,7 +1345,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     public static String removeChar(String str, char c) {
-        StringBuffer r = new StringBuffer();
+        StringBuilder r = new StringBuilder();
         for (int loop = 0; loop < str.length(); loop++) {
             if (str.charAt(loop) != c) {
                 r.append(str.charAt(loop));

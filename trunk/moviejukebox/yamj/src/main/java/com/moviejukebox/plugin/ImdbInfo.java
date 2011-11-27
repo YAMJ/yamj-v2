@@ -129,7 +129,7 @@ public class ImdbInfo {
      */
     private String getImdbIdFromYahoo(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
+            StringBuilder sb = new StringBuilder("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {
@@ -169,7 +169,7 @@ public class ImdbInfo {
         try {
             logger.debug("ImdbInfo querying Google for " + movieName);
 
-            StringBuffer sb = new StringBuffer("http://www.google.com/search?q=");
+            StringBuilder sb = new StringBuilder("http://www.google.com/search?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {
@@ -219,7 +219,7 @@ public class ImdbInfo {
         //logger.fine("Movie Name: " + movieName + " - " + year);
 
         try {
-            StringBuffer sb = new StringBuffer(siteDef.getSite() + "find?q=");
+            StringBuilder sb = new StringBuilder(siteDef.getSite() + "find?q=");
             sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
 
             if (StringTools.isValidString(year)) {
@@ -248,7 +248,7 @@ public class ImdbInfo {
                     formattedMovieName = otherMovieName + "</a>";
                 }
             } else {
-                sb = new StringBuffer(URLEncoder.encode(movieName, "iso-8859-1").replace("+"," ")+"</a>");
+                sb = new StringBuilder(URLEncoder.encode(movieName, "iso-8859-1").replace("+"," ")+"</a>");
                 if (StringTools.isValidString(year)) {
                     sb.append(" (").append(year).append(")");
                 }

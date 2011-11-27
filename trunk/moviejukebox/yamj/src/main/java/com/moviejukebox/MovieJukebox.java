@@ -198,7 +198,7 @@ public class MovieJukebox {
         PropertyConfigurator.configure("properties/log4j.properties");
         
         // Just create a pretty underline.
-        StringBuffer mjbTitle = new StringBuffer();
+        StringBuilder mjbTitle = new StringBuilder();
         
         if (mjbVersion == null) {
             mjbVersion = "";

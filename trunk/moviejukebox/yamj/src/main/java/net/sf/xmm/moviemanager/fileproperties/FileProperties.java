@@ -182,7 +182,7 @@ abstract class FileProperties {
      */
     String fromByteToAscii(int id, int numberOfBytes) throws Exception {
         /* Transforms the id in a string... */
-        StringBuffer buffer = new StringBuffer(4);
+        StringBuilder buffer = new StringBuilder(4);
 
         for (int i = 0; i < numberOfBytes; i++) {
             int c = id & 0xff;
@@ -198,7 +198,7 @@ abstract class FileProperties {
      */
     int getDecimalValue(int[] bits, int start, int stop, boolean printBits) {
 
-        StringBuffer dec = new StringBuffer();
+        StringBuilder dec = new StringBuilder();
 
         for (int i = start; i >= stop; i--) {
             dec.append(bits[i]);

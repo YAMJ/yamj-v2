@@ -307,7 +307,7 @@ public class MovieJukeboxHTMLWriter {
      */
     private void removeBlankLines(String filename) {
         BufferedReader reader = null;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         FileWriter outFile = null;
 
         try {

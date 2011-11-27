@@ -44,7 +44,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
     public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
-            StringBuffer sb = new StringBuffer("http://www.scope.dk/sogning.php?sog=");// 9&type=film");
+            StringBuilder sb = new StringBuilder("http://www.scope.dk/sogning.php?sog=");// 9&type=film");
             sb.append(URLEncoder.encode(title.replace(' ', '+'), "iso-8859-1"));
             sb.append("&type=film");
             String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));
@@ -86,7 +86,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equals(id)) {
             try {
-                StringBuffer sb = new StringBuffer("http://www.scope.dk/film/");
+                StringBuilder sb = new StringBuilder("http://www.scope.dk/film/");
                 sb.append(id);
 
                 String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));

@@ -92,7 +92,7 @@ public class MovieFile implements Comparable<MovieFile> {
                     mappedScannerTypes = scannerTypeDefaults.get(s);
                 }
 
-                StringBuffer patt = new StringBuffer(s);
+                StringBuilder patt = new StringBuilder(s);
                 if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
                     for (String t : mappedScannerTypes.split(",")) {
                         patt.append("|" + t);

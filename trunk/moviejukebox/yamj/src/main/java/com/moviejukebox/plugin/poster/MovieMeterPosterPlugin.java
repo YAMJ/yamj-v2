@@ -58,7 +58,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
 
     private String getMovieMeterIdFromGoogle(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.nl/search?hl=nl&q=");
+            StringBuilder sb = new StringBuilder("http://www.google.nl/search?hl=nl&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {

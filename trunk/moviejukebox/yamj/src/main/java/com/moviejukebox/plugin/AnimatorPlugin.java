@@ -275,7 +275,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 }
             }
 
-            StringBuffer plot = new StringBuffer();
+            StringBuilder plot = new StringBuilder();
 // Plot (animator.ru)
             if (!animatorId.equals(Movie.UNKNOWN)) {
                 for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", "</td>")) {

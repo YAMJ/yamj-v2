@@ -31,7 +31,7 @@ public class SystemTools {
 
         public static String base64Encode(String string) {
             String unEncoded = string; // Copy the string so we can modify it
-            StringBuffer encoded = new StringBuffer();
+            StringBuilder encoded = new StringBuilder();
             // determine how many padding bytes to add to the output
             int paddingCount = (3 - (unEncoded.length() % 3)) % 3;
             // add any necessary padding to the input

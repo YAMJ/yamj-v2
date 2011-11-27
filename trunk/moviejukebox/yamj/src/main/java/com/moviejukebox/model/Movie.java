@@ -1704,7 +1704,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("[Movie ");
+        StringBuilder sb = new StringBuilder("[Movie ");
         for (Map.Entry<String, String> e : idMap.entrySet()) {
             sb.append("[id_").append(e.getKey()).append("=").append(e.getValue()).append("]");
         }

@@ -62,7 +62,7 @@ public class MediaLibraryPath {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("[MediaLibraryPath");
+        StringBuilder sb = new StringBuilder("[MediaLibraryPath");
         sb.append("[path=").append(path).append("]");
         sb.append("[playerRootPath=").append(playerRootPath).append("]");
         sb.append("[scrape=").append(scrapeLibrary).append("]");

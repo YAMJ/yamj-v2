@@ -390,7 +390,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Plot
             if (!NFOplot) {
-                StringBuffer plot = new StringBuffer();
+                StringBuilder plot = new StringBuilder();
                 for (String subPlot : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
                     if (!subPlot.isEmpty()) {
                         if (plot.length() > 0) {

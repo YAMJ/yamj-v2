@@ -52,7 +52,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
     public IImage getPosterUrl(String title, String year) {
         Image posterImage = new Image();
         try {
-            StringBuffer sb = new StringBuffer("http://images.google.fr/images?q=");
+            StringBuilder sb = new StringBuilder("http://images.google.fr/images?q=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
             sb.append("&gbv=2");
 

@@ -390,7 +390,7 @@ public class AllocinePlugin extends ImdbPlugin {
             // Add '/1' in the URL to obtain the 20 first matches
             String allocineBaseRequest = "http://www.allocine.fr/recherche/1/?q=";
             try {
-                StringBuffer sb = new StringBuffer(allocineBaseRequest);
+                StringBuilder sb = new StringBuilder(allocineBaseRequest);
                 sb.append(URLEncoder.encode(movieName, "UTF-8"));
                 String xml = webBrowser.request(sb.toString());
 
@@ -457,7 +457,7 @@ public class AllocinePlugin extends ImdbPlugin {
      */
     private String getAllocineIdFromGoogle(String movieName, String year) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.fr/search?hl=fr&q=");
+            StringBuilder sb = new StringBuilder("http://www.google.fr/search?hl=fr&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (isValidString(year)) {

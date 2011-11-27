@@ -51,7 +51,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equals(id)) {
             try {
-                StringBuffer sb = new StringBuffer("http://www.filmaffinity.com/es/");
+                StringBuilder sb = new StringBuilder("http://www.filmaffinity.com/es/");
                 sb.append(id);
 
                 String xml = webBrowser.request(sb.toString());

@@ -532,7 +532,7 @@ public class OpenSubtitlesPlugin {
 
     private static String sendRPC(String xml) throws MalformedURLException, IOException {
 
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         String strona = OSdbServer;
         String logowanie = xml;
         URL url = new URL(strona);
@@ -587,7 +587,7 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String hashstring(byte[] arayhash) {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         String hex = "0123456789abcdef";
         for (int i = 0; i < arayhash.length; i++) {
             int m = arayhash[i] & 0xff;
@@ -611,7 +611,7 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String generateXMLRPC(String procname, String s[]) {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
         str.append(procname + "</methodName><params>");
         

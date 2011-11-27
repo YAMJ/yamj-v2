@@ -133,7 +133,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
      */
     protected String getFilmdeltaId(String movieName, String year, int season) {
         try {
-            StringBuffer sb = new StringBuffer("http://www.google.se/search?hl=sv&q=");
+            StringBuilder sb = new StringBuilder("http://www.google.se/search?hl=sv&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
             if (StringTools.isValidString(year)) {
                 sb.append("+").append(year);
@@ -304,7 +304,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     private void getFilmdeltaDirector(Movie movie, String fdeltaHtml) {
         ArrayList<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
-        StringBuffer newDirector = new StringBuffer();
+        StringBuilder newDirector = new StringBuilder();
         
         if (!filmdeltaDirectors.isEmpty()) {
             for (String dir : filmdeltaDirectors) {

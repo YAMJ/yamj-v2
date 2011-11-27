@@ -962,7 +962,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (StringTools.isValidString(lang)) {
             String[] languages = lang.split("/");
 
-            StringBuffer fullLanguage = new StringBuffer();
+            StringBuilder fullLanguage = new StringBuilder();
             for (String language : languages) {
                 if (fullLanguage.length() > 0) {
                     fullLanguage.append("_");

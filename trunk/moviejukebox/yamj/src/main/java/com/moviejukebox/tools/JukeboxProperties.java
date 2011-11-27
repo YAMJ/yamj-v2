@@ -613,7 +613,7 @@ public class JukeboxProperties {
         }
         
         public String toString() {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append("Name: ");
             sb.append(getPropertyName());
             sb.append(", xmlOverwrite: ");

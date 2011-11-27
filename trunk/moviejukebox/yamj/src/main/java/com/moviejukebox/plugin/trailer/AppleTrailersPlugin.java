@@ -356,7 +356,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
             String mov = new String(buf);
 
             int pos = 44;
-            StringBuffer realUrl = new StringBuffer();
+            StringBuilder realUrl = new StringBuilder();
 
             while (mov.charAt(pos) != 0) {
                 realUrl.append(mov.charAt(pos));
@@ -386,7 +386,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
             return Movie.UNKNOWN;
         }
 
-        StringBuffer title = new StringBuffer();
+        StringBuilder title = new StringBuilder();
 
         for (int i = start + 1; i < end; i++) {
             if ((url.charAt(i) == '-') || (url.charAt(i) == '_')) {
@@ -414,7 +414,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
     }
 
     private String decodeEscapeICU(String str) {
-        StringBuffer newString = new StringBuffer();
+        StringBuilder newString = new StringBuilder();
 
         int loop = 0;
         while (loop < str.length()) {
