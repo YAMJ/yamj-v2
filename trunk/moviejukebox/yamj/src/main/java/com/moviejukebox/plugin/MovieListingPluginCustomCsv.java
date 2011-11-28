@@ -44,8 +44,8 @@ import com.moviejukebox.tools.StringTools;
  * User: nmn Date: Aug 15, 2010
  */
 public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
 
+    private static Logger logger = Logger.getLogger("moviejukebox");
     private List<String> mFields;
     private String mDelimiter = ",";
     private String mSecondDelimiter = "|";
@@ -54,16 +54,15 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     private NumberFormat mRatingFormatter = null;
     private int limitCast;
     private int limitGenres;
-
     // The default list of fields
-    private static final String DEFAULT_FIELDS = "Type," + "Title," + "TitleSort," + "IMDB ID," + "TheTVDB ID," + "Director," 
-        + "Company," + "Country," + "Language," + "Runtime," + "Release Date," + "Year," + "Certification," + "Season #," + "VideoSource," 
-        + "Container," + "File," + "Audio Codec," + "Audio Channels," + "Resolution," + "Video Codec," + "Video Output," + "FPS," 
-        + "# Files," + "# Extras," + "# Genres," + "# Cast," + "SubTitles?," + "Poster?," + "Poster Filename," + "Fanart?," 
-        + "Fanart Filename," + "Rating #," + "Top 250 #," + "Library Description," + "Library Path," + "Allocine ID," + "FilmDelta ID," 
-        + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Animator ID," + "Sratim ID," + "Last Modified Date," + "File Size," + "Genres," + "Cast,"  
-        + "Plot," + "Outline," + "Thumbnail Filename," + "Detail Poster Filename" + "Watched"; 
-    
+    private static final String DEFAULT_FIELDS = "Type," + "Title," + "TitleSort," + "IMDB ID," + "TheTVDB ID," + "Director,"
+            + "Company," + "Country," + "Language," + "Runtime," + "Release Date," + "Year," + "Certification," + "Season #," + "VideoSource,"
+            + "Container," + "File," + "Audio Codec," + "Audio Channels," + "Resolution," + "Video Codec," + "Video Output," + "FPS,"
+            + "# Files," + "# Extras," + "# Genres," + "# Cast," + "SubTitles?," + "Poster?," + "Poster Filename," + "Fanart?,"
+            + "Fanart Filename," + "Rating #," + "Top 250 #," + "Library Description," + "Library Path," + "Allocine ID," + "FilmDelta ID,"
+            + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Animator ID," + "Sratim ID," + "Last Modified Date," + "File Size," + "Genres," + "Cast,"
+            + "Plot," + "Outline," + "Thumbnail Filename," + "Detail Poster Filename" + "Watched";
+
     /**
      * Take a comma-separated list of field names and split them into separate fields
      * 
@@ -110,21 +109,21 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         if (field == null || knownType == null) {
             return false; // no need to compare
         }
-        
+
         if (field.equalsIgnoreCase(knownType)) {
             return true; // it matched
         }
 
         // Last try - Remove all spaces, and any trailing ? or #
-        String type = knownType.replace((CharSequence)" ", (CharSequence)"");
+        String type = knownType.replace((CharSequence) " ", (CharSequence) "");
         if (type.endsWith("?") || type.endsWith("#")) {
             type = type.substring(0, type.length() - 1).trim();
         }
-        
+
         if (field.equalsIgnoreCase(type)) {
             return true;
         }
-        
+
         return false;
     } // checkHeaderField()
 
@@ -252,7 +251,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                         if (counter++ > limitGenres) {
                             break;
                         }
-                        
+
                         if (tmp.length() > 0) {
                             tmp.append(mSecondDelimiter);
                         }
@@ -309,13 +308,13 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      */
     private String prep(String input) {
         String str = input;
-        
+
         if (null == str || (blankUNKNOWN && (UNKNOWN.equals(str) || UNDEFINED.equals(str)))) {
             // clean 'UNKNOWN' values
             str = "";
-        }        
+        }
         // convert all whitespace to a single space
-        str = str.replaceAll("[\\s]", " ").trim();;
+        str = str.replaceAll("[\\s]", " ").trim();
         // remove quotes from the string (before encapsulation)
         if (str.contains("\"")) {
             str = str.replace("\"", "");
@@ -333,6 +332,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param jukebox
      * @param library
      */
+    @Override
     public void generate(Jukebox jukebox, Library library) {
         initialize(jukebox);
         String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
@@ -341,14 +341,14 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             fields = DEFAULT_FIELDS;
         }
         initFields(fields);
-        
+
         mDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.delimiter", ",");
         mSecondDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.secondDelimiter", "|");
         String dateFormat = PropertiesUtil.getProperty("mjb.listing.csv.dateFormat", "");
         String ratingFactor = PropertiesUtil.getProperty("mjb.listing.csv.ratingFactor", "1.00");
         DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.US);
         mRatingFormatter = new DecimalFormat("#0.00", decimalFormatSymbols);
-        
+
         try {
             limitCast = PropertiesUtil.getIntProperty("mjb.listing.csv.limitCast", "100");
         } catch (Exception ignore) {
@@ -424,6 +424,5 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         copyListingFile(csvFile, filename);
 
     } // generate()
-
 } // class MovieListingPluginCustomCsv
 

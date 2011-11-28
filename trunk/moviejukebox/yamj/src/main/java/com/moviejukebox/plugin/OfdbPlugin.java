@@ -375,6 +375,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         imdbp.scanTVShowTitles(movie);
     }
 
+    @Override
     public boolean scan(Person person) {
         return false;
     }

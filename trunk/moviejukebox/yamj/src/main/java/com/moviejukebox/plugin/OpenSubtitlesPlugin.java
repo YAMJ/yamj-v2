@@ -10,7 +10,6 @@
  *      For any reuse or distribution, you must make clear to others the 
  *      license terms of this work.  
  */
-
 // Based on some code from the opensubtitles.org subtitle upload java applet
 package com.moviejukebox.plugin;
 
@@ -41,14 +40,14 @@ import com.moviejukebox.tools.StringTools;
 
 public class OpenSubtitlesPlugin {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger("moviejukebox");
     private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
     private static String useragent = "moviejukebox 1.0.15";
     //private static String useragent = "Yet Another Movie Jukebox";
     private static String OSdbServer = "http://api.opensubtitles.org/xml-rpc";
     private static String token = "";
-    private static String sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
+    private static final String sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
 
     static {
         // Check if subtitle language was selected
@@ -70,7 +69,7 @@ public class OpenSubtitlesPlugin {
     private static void logIn() {
         try {
             if (token.equals("")) {
-                String parm[] = { login, pass, "", useragent };
+                String parm[] = {login, pass, "", useragent};
                 String xml = generateXMLRPC("LogIn", parm);
                 String ret = sendRPC(xml);
                 getValue("status", ret);
@@ -100,13 +99,13 @@ public class OpenSubtitlesPlugin {
         }
 
         try {
-            String p1[] = { token };
+            String p1[] = {token};
             String xml = generateXMLRPC("LogOut", p1);
             sendRPC(xml);
         } catch (Exception error) {
             logger.error("OpenSubtitles Plugin: Logout Failed");
         }
-        ;
+
     }
 
     public void generate(Movie movie) {
@@ -145,8 +144,8 @@ public class OpenSubtitlesPlugin {
                     // The file pointer doesn't exist, so skip the file
                     continue;
                 }
-                
-                
+
+
                 String path = mf.getFile().getAbsolutePath();
                 int index = path.lastIndexOf(".");
                 String basename = path.substring(0, index + 1);
@@ -230,7 +229,7 @@ public class OpenSubtitlesPlugin {
                 }
             }
         } else {
-            logger.debug("OpenSubtitles Plugin: Skipping subtitle download for " + movie.getTitle() +", subtitles already exist: " + movie.getSubtitles());
+            logger.debug("OpenSubtitles Plugin: Skipping subtitle download for " + movie.getTitle() + ", subtitles already exist: " + movie.getSubtitles());
         }
     }
 
@@ -274,7 +273,7 @@ public class OpenSubtitlesPlugin {
             logger.debug("OpenSubtitles Plugin: Download subtitle for " + movie.getBaseName());
 
             URL url = new URL(subDownloadLink);
-            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
             connection.setRequestProperty("Connection", "Close");
             InputStream inputStream = connection.getInputStream();
 
@@ -307,7 +306,7 @@ public class OpenSubtitlesPlugin {
         ByteArrayOutputStream baos = null;
         DeflaterOutputStream deflaterOS = null;
         FileInputStream fisSubtitleFile = null;
-        
+
         try {
 
             String ret = "";
@@ -345,14 +344,14 @@ public class OpenSubtitlesPlugin {
                 byte s[] = new byte[fisSubtitleFile.available()];
                 fisSubtitleFile.read(s);
                 fisSubtitleFile.close();
-                
+
                 md.update(s);
                 subhash[i] = hashstring(md.digest());
                 baos = new ByteArrayOutputStream();
                 deflaterOS = new DeflaterOutputStream(baos);
                 deflaterOS.write(s);
                 deflaterOS.finish();
-                
+
                 subcontent[i] = tuBase64(baos.toByteArray());
             }
 
@@ -388,7 +387,7 @@ public class OpenSubtitlesPlugin {
             } catch (IOException e) {
                 // Ignore
             }
-            
+
             try {
                 if (deflaterOS != null) {
                     deflaterOS.close();
@@ -396,7 +395,7 @@ public class OpenSubtitlesPlugin {
             } catch (IOException e) {
                 // Ignore
             }
-            
+
             try {
                 if (baos != null) {
                     baos.close();
@@ -425,7 +424,9 @@ public class OpenSubtitlesPlugin {
 
         str += "</struct></value></param></params></methodCall>";
         return str;
-    };
+    }
+
+    ;
 
     private static String generateXMLRPCSS(String query) {
         String str = "";
@@ -444,10 +445,12 @@ public class OpenSubtitlesPlugin {
 
         str += "</struct></value></param></params></methodCall>";
         return str;
-    };
+    }
+
+    ;
 
     private static String generateXMLRPCUS(String idmovieimdb, String subhash[], String subcontent[], String subfilename[], String moviehash[],
-                    String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
+            String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
         String str = "";
         str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
         str += "UploadSubtitles";
@@ -484,7 +487,7 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String generateXMLRPCTUS(String subhash[], String subfilename[], String moviehash[], String moviebytesize[], String movietimems[],
-                    String movieframes[], String moviefps[], String moviefilename[]) {
+            String movieframes[], String moviefps[], String moviefilename[]) {
         String str = "";
         str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
         str += "TryUploadSubtitles";
@@ -508,7 +511,9 @@ public class OpenSubtitlesPlugin {
 
         str += "</struct></value></param></params></methodCall>";
         return str;
-    };
+    }
+
+    ;
 
     /*
      * 
@@ -547,13 +552,13 @@ public class OpenSubtitlesPlugin {
 
         Scanner in;
         in = new Scanner(connection.getInputStream());
-        
+
         while (in.hasNextLine()) {
             str.append(in.nextLine());
         }
-        
+
         in.close();
-        ((HttpURLConnection)connection).disconnect();
+        ((HttpURLConnection) connection).disconnect();
 
         return str.toString();
     }
@@ -582,7 +587,6 @@ public class OpenSubtitlesPlugin {
                 return xml.substring(b + 5, c);
             }
         }
-        ;
         return str;
     }
 
@@ -593,7 +597,6 @@ public class OpenSubtitlesPlugin {
             int m = arayhash[i] & 0xff;
             str.append(hex.charAt(m >> 4) + hex.charAt(m & 0xf));
         }
-        ;
         return str.toString();
     }
 
@@ -613,12 +616,12 @@ public class OpenSubtitlesPlugin {
     private static String generateXMLRPC(String procname, String s[]) {
         StringBuilder str = new StringBuilder();
         str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
-        str.append(procname + "</methodName><params>");
-        
+        str.append(procname).append("</methodName><params>");
+
         for (int i = 0; i < s.length; i++) {
-            str.append("<param><value><string>" + s[i] + "</string></value></param>");
+            str.append("<param><value><string>").append(s[i]).append("</string></value></param>");
         }
-        
+
         str.append("</params></methodCall>");
         return str.toString();
     }
@@ -653,13 +656,13 @@ public class OpenSubtitlesPlugin {
                 tri |= (s[iii + 2] & 0xff);
             } catch (Exception error) {
             }
-            ;
+            
             for (int j = 0; j < 4; j++) {
                 wynik[i * 4 + j] = (iii * 8 + j * 6 >= s.length * 8) ? '=' : t2[(tri >> 6 * (3 - j)) & 0x3f];
             }
             // if((i+1) % 19 ==0 ) str +="\n";
         }
-        ;
+        
         str = new String(wynik);
         if (str.endsWith("====")) {
             str = str.substring(0, str.length() - 4);

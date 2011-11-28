@@ -52,7 +52,7 @@ public class BannerScanner {
     protected static Collection<String> bannerExtensions = new ArrayList<String>();
     protected static String bannerToken;
     protected static boolean bannerOverwrite;
-    protected static boolean useFolderBanner;
+    protected static final boolean useFolderBanner;
     protected static Collection<String> bannerImageName;
 
     static {

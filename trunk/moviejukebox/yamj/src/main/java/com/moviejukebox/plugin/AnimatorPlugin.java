@@ -402,7 +402,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 }
             }
 // Director (allmults.org)
-            if (newDirectors.size() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
+            if (newDirectors.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
                 for (String tmp : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
                     if (!tmp.equals("")) {
                         newDirectors.add(tmp);

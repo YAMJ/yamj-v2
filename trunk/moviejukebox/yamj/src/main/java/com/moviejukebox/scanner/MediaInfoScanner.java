@@ -48,22 +48,19 @@ import com.mucommander.file.impl.iso.IsoArchiveFile;
  */
 public class MediaInfoScanner {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
-
+    private static final Logger logger = Logger.getLogger("moviejukebox");
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
-
     // mediaInfo repository
-    private static File mediaInfoPath;
-
+    private static final File mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
     // mediaInfo command line, depend on OS
     private static String[] mediaInfoExe;
-    private static String[] mediaInfoExeWindows = { "cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f" };
-    private static String[] mediaInfoExeLinux = { "./mediainfo", "-f" };
+    private static final String[] mediaInfoExeWindows = {"cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f"};
+    private static final String[] mediaInfoExeLinux = {"./mediainfo", "-f"};
     public final static String OS_NAME = System.getProperty("os.name");
     public final static String OS_VERSION = System.getProperty("os.version");
     public final static String OS_ARCH = System.getProperty("os.arch");
     private static boolean activated;
-    private static boolean enableMetadata;
+    private static boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
 
@@ -71,9 +68,6 @@ public class MediaInfoScanner {
         logger.debug("Operating System Name   : " + OS_NAME);
         logger.debug("Operating System Version: " + OS_VERSION);
         logger.debug("Operating System Type   : " + OS_ARCH);
-
-        mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
-        enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
 
         File checkMediainfo = null;
 
@@ -93,7 +87,6 @@ public class MediaInfoScanner {
             activated = true;
         }
     }
-
     // Dvd rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
@@ -128,14 +121,14 @@ public class MediaInfoScanner {
             }
 
             IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
-            File tempRep = new File(randomDirName  + "/VIDEO_TS");
+            File tempRep = new File(randomDirName + "/VIDEO_TS");
             tempRep.mkdirs();
 
             try {
                 Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
-                    ArchiveEntry currentArchiveEntry = (ArchiveEntry)parcoursEntries.next();
+                    ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
                     if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
                         File currentIFO = new File(randomDirName + "/VIDEO_TS" + File.separator + currentArchiveEntry.getName());
                         OutputStream fosCurrentIFO = FileTools.createFileOutputStream(currentIFO);
@@ -174,7 +167,7 @@ public class MediaInfoScanner {
 
         try {
             // Create the command line
-            ArrayList<String> commandMedia = new ArrayList<String>(Arrays.asList(mediaInfoExe));;
+            ArrayList<String> commandMedia = new ArrayList<String>(Arrays.asList(mediaInfoExe));
             commandMedia.add(movieFilePath);
 
             ProcessBuilder pb = new ProcessBuilder(commandMedia);
@@ -212,12 +205,12 @@ public class MediaInfoScanner {
     }
 
     public void parseMediaInfo(InputStream in, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
+            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(in));
         // Improvement, less code line, each cat have same code, so use the same for all.
         Map<String, ArrayList<HashMap<String, String>>> matches = new HashMap<String, ArrayList<HashMap<String, String>>>();
         // Create a fake one for General, we got only one, but to use the same algo we must create this one.
-        String generalKey[] = { "General", "Géneral", "* Général" };
+        String generalKey[] = {"General", "Géneral", "* Général"};
         matches.put(generalKey[0], new ArrayList<HashMap<String, String>>());
         matches.put(generalKey[1], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and Général
         matches.put(generalKey[2], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and * Général
@@ -273,13 +266,13 @@ public class MediaInfoScanner {
     }
 
     private void parseMediaInfo(Process p, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
+            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
 
         this.parseMediaInfo(p.getInputStream(), infosGeneral, infosVideo, infosAudio, infosText);
     }
 
     private void updateMovieInfo(Movie movie, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-                    ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) {
+            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) {
 
         String infoValue;
 
@@ -477,24 +470,24 @@ public class MediaInfoScanner {
                     normeHD = "SD";
                     String videoOutput;
                     switch (Math.round(movie.getFps())) {
-                    case 24:
-                        videoOutput = "24";
-                        break;
-                    case 25:
-                        videoOutput = "PAL 25";
-                        break;
-                    case 30:
-                        videoOutput = "NTSC 30";
-                        break;
-                    case 50:
-                        videoOutput = "PAL 50";
-                        break;
-                    case 60:
-                        videoOutput = "NTSC 60";
-                        break;
-                    default:
-                        videoOutput = "NTSC";
-                        break;
+                        case 24:
+                            videoOutput = "24";
+                            break;
+                        case 25:
+                            videoOutput = "PAL 25";
+                            break;
+                        case 30:
+                            videoOutput = "NTSC 30";
+                            break;
+                        case 50:
+                            videoOutput = "PAL 50";
+                            break;
+                        case 60:
+                            videoOutput = "NTSC 60";
+                            break;
+                        default:
+                            videoOutput = "NTSC";
+                            break;
                     }
                     infoValue = infosMainVideo.get("Scan type");
                     if (infoValue != null) {
@@ -590,12 +583,12 @@ public class MediaInfoScanner {
 
             String infoLanguage = "";
             infoValue = infosCurText.get("Language");
-            
+
             // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an value of "UNDEFINED" to make it appear
             if (StringTools.isNotValidString(infoValue)) {
                 infoValue = "UNDEFINED";
             }
-            
+
             if (StringTools.isValidString(infoValue)) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
@@ -609,9 +602,9 @@ public class MediaInfoScanner {
 
             // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an UNKNOWN value to make it appear
             if (infoValue == null || infoValue.trim().length() == 0) {
-                infoValue= Movie.UNKNOWN;
+                infoValue = Movie.UNKNOWN;
             }
-            
+
             if (infoValue != null) {
                 infoFormat = infoValue;
             } else {
@@ -623,13 +616,13 @@ public class MediaInfoScanner {
             }
 
             // Make sure we have a codec & language before continuing
-            if (StringTools.isValidString(infoFormat) && StringTools.isValidString(infoLanguage)) { 
-                if (infoFormat.equalsIgnoreCase("SRT") || 
-                        infoFormat.equalsIgnoreCase("UTF-8") || 
-                        infoFormat.equalsIgnoreCase("RLE") || 
-                        infoFormat.equalsIgnoreCase("PGS") || 
-                        infoFormat.equalsIgnoreCase("ASS") || 
-                        infoFormat.equalsIgnoreCase("VobSub")) {
+            if (StringTools.isValidString(infoFormat) && StringTools.isValidString(infoLanguage)) {
+                if (infoFormat.equalsIgnoreCase("SRT")
+                        || infoFormat.equalsIgnoreCase("UTF-8")
+                        || infoFormat.equalsIgnoreCase("RLE")
+                        || infoFormat.equalsIgnoreCase("PGS")
+                        || infoFormat.equalsIgnoreCase("ASS")
+                        || infoFormat.equalsIgnoreCase("VobSub")) {
                     String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
                     if (StringTools.isNotValidString(oldInfo) || oldInfo.equalsIgnoreCase("NO")) {
                         movie.setSubtitles(infoLanguage);
@@ -646,5 +639,4 @@ public class MediaInfoScanner {
             }
         }
     }
-
 }

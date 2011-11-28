@@ -53,6 +53,7 @@ public class AllocinePlugin extends ImdbPlugin {
     /**
      * Scan Allocine html page for the specified TV Show
      */
+    @Override
     protected void updateTVShowInfo(Movie movie) {
         try {
             String xml = webBrowser.request("http://www.allocine.fr/series/ficheserie_gen_cserie=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
@@ -136,6 +137,7 @@ public class AllocinePlugin extends ImdbPlugin {
         }
     }
 
+    @Override
     public void scanTVShowTitles(Movie movie) {
         String allocineId = movie.getId(ALLOCINE_PLUGIN_ID);
         if (!movie.isTVShow() || !movie.hasNewMovieFiles() || isNotValidString(allocineId)) {

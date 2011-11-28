@@ -63,63 +63,67 @@ import com.moviejukebox.tools.XMLHelper;
  */
 public class MovieNFOScanner {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger("moviejukebox");
     private static final String splitPattern = "\\||,|/";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
-
     private static boolean skipNfoUrl;
     private static boolean skipNfoTrailer;
-    
     private static String fanartToken;
     private static String fanartExtension;
     private static String forceNFOEncoding;
     private static String NFOdirectory;
     private static boolean getCertificationFromMPAA;
     private static String imdbPreferredCountry;
-    private static boolean acceptAllNFO;
+    private static final boolean acceptAllNFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", "false");
     private static String nfoExtRegex;
-    private static String[] NFOExtensions;
+    private static final String[] NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
     private static Pattern partPattern;
     private static String NFO_PLUGIN_ID = "NFO";
-    
     private static boolean archiveScanRar;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
 
     static {
         skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
         skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", "false");
-        
+
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
-        
+
         forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
         if (forceNFOEncoding.equalsIgnoreCase("AUTO")) {
             forceNFOEncoding = null;
         }
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
-        NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
         getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
         imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
-        acceptAllNFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", "false");
         if (acceptAllNFO) {
             logger.info("NFOScanner: Accepting all NFO files in the directory");
         }
-        
+
         // Construct regex for filtering NFO files
         // Target format is: ".*\\(ext1|ext2|ext3|..|extN)"
-        nfoExtRegex = "";
-        for (String ext : NFOExtensions) {
-            nfoExtRegex += "|" + ext + "$";
+        {
+            boolean first = true;
+            StringBuilder sb = new StringBuilder("(?i).*\\.("); // Start of REGEX
+            for (String ext : NFOExtensions) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append("|"); // Add seperator
+                }
+                sb.append(ext).append("$"); // Add extension
+            }
+            sb.append(")"); // End of REGEX
+            nfoExtRegex = sb.toString();
         }
-        // Skip beginning "|" and sandwich extensions between rest of regex
-        nfoExtRegex = "(?i).*\\.(" + new String(nfoExtRegex.substring(1)) + ")";
-        
+
+
         partPattern = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
-        
+
         // Set the date format to dd-MM-yyyy
         DateTimeConfig.globalEuropeanDateFormat();
-        
+
         archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false");
     }
 
@@ -159,9 +163,9 @@ public class MovieNFOScanner {
 
                             // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
                             if ((currentUrlStartIndex < 8)
-                                            || (new String(nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex)).compareToIgnoreCase("<fanart>") != 0)) {
+                                    || (new String(nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex)).compareToIgnoreCase("<fanart>") != 0)) {
                                 String foundUrl = new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-                                
+
                                 // Check for some invalid characters to see if the URL is valid
                                 if (foundUrl.contains(" ") || foundUrl.contains("*")) {
                                     urlStartIndex = currentUrlStartIndex + 3;
@@ -197,23 +201,23 @@ public class MovieNFOScanner {
     public static List<File> locateNFOs(Movie movie) {
         List<File> nfos = new ArrayList<File>();
         GenericFileFilter fFilter = null;
-        
+
         File currentDir = movie.getFirstFile().getFile();
-        
+
         if (currentDir == null) {
             return nfos;
         }
-        
+
         String baseFileName = currentDir.getName();
         String pathFileName = currentDir.getAbsolutePath();
-        
+
         // Get the folder if it's a BluRay disk
         if (pathFileName.toUpperCase().contains(File.separator + "BDMV" + File.separator)) {
             currentDir = new File(FileTools.getParentFolder(currentDir));
             baseFileName = currentDir.getName();
             pathFileName = currentDir.getAbsolutePath();
         }
-        
+
         if (archiveScanRar && pathFileName.toLowerCase().contains(".rar")) {
             currentDir = new File(FileTools.getParentFolder(currentDir));
             baseFileName = currentDir.getName();
@@ -222,7 +226,7 @@ public class MovieNFOScanner {
 
         // If "pathFileName" is a file then strip the extension from the file.
         if (currentDir.isFile()) {
-            pathFileName = new String( pathFileName.substring(0, pathFileName.lastIndexOf(".")));
+            pathFileName = new String(pathFileName.substring(0, pathFileName.lastIndexOf(".")));
             baseFileName = new String(baseFileName.substring(0, baseFileName.lastIndexOf(".")));
         } else {
             // *** First step is to check for VIDEO_TS
@@ -234,10 +238,10 @@ public class MovieNFOScanner {
         if (movie.isTVShow()) {
             String mfFilename;
             int pos;
-            
+
             for (MovieFile mf : movie.getMovieFiles()) {
                 mfFilename = mf.getFile().getParent().toUpperCase();
-                
+
                 if (mfFilename.contains("BDMV")) {
                     mfFilename = FileTools.getParentFolder(mf.getFile());
                     mfFilename = new String(mfFilename.substring(mfFilename.lastIndexOf(File.separator) + 1));
@@ -257,7 +261,7 @@ public class MovieNFOScanner {
         // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
         checkNFO(nfos, pathFileName);
-        
+
         if (isValidString(NFOdirectory)) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
@@ -275,12 +279,12 @@ public class MovieNFOScanner {
              * Therefore, we first check for specific filenames (cfr. old behaviour) before
              * doing an entire scan of the directory -- and only if the user has decided to
              * accept any NFO file!
-            */
+             */
 
             // Check the current directory
             fFilter = new GenericFileFilter(nfoExtRegex);
             checkRNFO(nfos, currentDir.getParentFile(), fFilter);
-            
+
             // Also check the directory above, for the case where movies are in a multi-part named directory (CD/PART/DISK/Etc.)
             Matcher allNfoMatch = partPattern.matcher(currentDir.getAbsolutePath());
             if (allNfoMatch.find()) {
@@ -288,40 +292,40 @@ public class MovieNFOScanner {
                 checkRNFO(nfos, currentDir.getParentFile().getParentFile(), fFilter);
             }
 
-         } else {
+        } else {
             // This file should be named the same as the directory that it is in
             // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
             // We search up through all containing directories up to the library root
 
-             if (currentDir != null) {
-                 // Check the current directory for the video filename
-                 fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + nfoExtRegex);
-                 checkRNFO(nfos, currentDir, fFilter);
-             }
-         }
-        
+            if (currentDir != null) {
+                // Check the current directory for the video filename
+                fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + nfoExtRegex);
+                checkRNFO(nfos, currentDir, fFilter);
+            }
+        }
+
         // Recurse through the directories to the library root looking for NFO files
-         String libraryRootPath = new File(movie.getLibraryPath()).getAbsolutePath();
-         while (currentDir != null && !currentDir.getAbsolutePath().equals(libraryRootPath)) {
-             //fFilter.setPattern("(?i)" + currentDir.getName() + nfoExtRegex);
-             //checkRNFO(nfos, currentDir, fFilter);
-             currentDir = currentDir.getParentFile();
-             if (currentDir != null) {
-                 final String path = currentDir.getPath();
-                 // Path is not empty
-                 if (!path.isEmpty()) {
-                     // Path is not the root
-                     if (!path.endsWith(File.separator)) {
-                         checkNFO(nfos, appendToPath(path, currentDir.getName()));
-                     }
-                 }
-             }
-         }
+        String libraryRootPath = new File(movie.getLibraryPath()).getAbsolutePath();
+        while (currentDir != null && !currentDir.getAbsolutePath().equals(libraryRootPath)) {
+            //fFilter.setPattern("(?i)" + currentDir.getName() + nfoExtRegex);
+            //checkRNFO(nfos, currentDir, fFilter);
+            currentDir = currentDir.getParentFile();
+            if (currentDir != null) {
+                final String path = currentDir.getPath();
+                // Path is not empty
+                if (!path.isEmpty()) {
+                    // Path is not the root
+                    if (!path.endsWith(File.separator)) {
+                        checkNFO(nfos, appendToPath(path, currentDir.getName()));
+                    }
+                }
+            }
+        }
 
         // we added the most specific ones first, and we want to parse those the last,
         // so nfo files in sub-directories can override values in directories above.
         Collections.reverse(nfos);
-        
+
         return nfos;
     }
 
@@ -334,7 +338,7 @@ public class MovieNFOScanner {
     private static void checkRNFO(List<File> nfoFiles, File currentDir, GenericFileFilter fFilter) {
         File[] fFiles = currentDir.listFiles(fFilter);
         if (fFiles != null && fFiles.length > 0) {
-            for (File foundFile : fFiles ) {
+            for (File foundFile : fFiles) {
                 logger.debug("NFOScanner: Found " + foundFile.getName());
                 nfoFiles.add(foundFile);
             }
@@ -351,7 +355,7 @@ public class MovieNFOScanner {
      */
     private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
         File nfoFile;
-        
+
         for (String ext : NFOExtensions) {
             nfoFile = FileTools.fileCache.getFile(checkNFOfilename + "." + ext);
             if (nfoFile.exists()) {
@@ -403,9 +407,9 @@ public class MovieNFOScanner {
             fileContainsEncoding = (i > 0 && i < 100);
         }
 
-        XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding) 
-                        ? factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile), forceNFOEncoding)
-                        : factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile));
+        XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding)
+                ? factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile), forceNFOEncoding)
+                : factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile));
         return r;
     }
 
@@ -466,7 +470,7 @@ public class MovieNFOScanner {
                                     ratingInt = Math.round(ratingFloat * 1f);
                                 }
 
-                                if (movieDbAttribute != null) { 
+                                if (movieDbAttribute != null) {
                                     // if we have a moviedb attribute
                                     movie.addRating(movieDbAttribute.getValue(), ratingInt);
                                 } else {
@@ -488,9 +492,9 @@ public class MovieNFOScanner {
                                         // Assume just the year an append "-01-01" to the end
                                         val += "-01-01";
                                         // Warn the user
-                                        logger.debug("NFOScanner: Partial date detected in premiered field of NFO for " + nfo); 
+                                        logger.debug("NFOScanner: Partial date detected in premiered field of NFO for " + nfo);
                                     }
-                                    
+
                                     DateTime dateTime = new DateTime(val);
 
                                     movie.setReleaseDate(dateTime.toString(Movie.dateFormatString));
@@ -520,7 +524,7 @@ public class MovieNFOScanner {
                             if (val > 0) {
                                 movie.setTop250(val);
                             }
-                        //} else if (tag.equalsIgnoreCase("votes")) {
+                            //} else if (tag.equalsIgnoreCase("votes")) {
                             // Not currently used
                         } else if (tag.equalsIgnoreCase("outline")) {
                             String val = XMLHelper.getCData(r);
@@ -599,7 +603,7 @@ public class MovieNFOScanner {
                                 }
                                 movie.setCertification(val);
                             }
-                        //} else if (tag.equalsIgnoreCase("playcount")) {
+                            //} else if (tag.equalsIgnoreCase("playcount")) {
                             // Not currently used
                         } else if (tag.equalsIgnoreCase("watched")) {
                             String val = XMLHelper.getCData(r);
@@ -638,15 +642,15 @@ public class MovieNFOScanner {
                                     movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, val); // without attribute we assume it's an IMDB Id
                                     logger.debug("NFOScanner: In parseMovieNFO Id=" + val + " found for default IMDB");
                                 }
-                                
+
                                 // Any value of 0 (Zero) or -1 will stop the movie being scraped
                                 if (val.equals("0") || val.equals("-1")) {
                                     movie.setScrapeLibrary(false);
                                 }
                             }
-                        //} else if (tag.equalsIgnoreCase("filenameandpath")) {
+                            //} else if (tag.equalsIgnoreCase("filenameandpath")) {
                             // Not currently used
-                        } else if (tag.equalsIgnoreCase("trailer")  && !skipNfoTrailer) {
+                        } else if (tag.equalsIgnoreCase("trailer") && !skipNfoTrailer) {
                             String trailer = XMLHelper.getCData(r).trim();
                             if (!trailer.isEmpty()) {
                                 ExtraFile ef = new ExtraFile();
@@ -674,7 +678,7 @@ public class MovieNFOScanner {
                                     if (isValidString(val)) {
                                         movie.addWriter(Movie.UNKNOWN, val, Movie.UNKNOWN);
                                     }
-                                //} else if (event.equalsIgnoreCase("<otherCredits>")) {
+                                    //} else if (event.equalsIgnoreCase("<otherCredits>")) {
                                     // Not currently used
                                 }
                                 if (r.hasNext()) {
@@ -685,7 +689,7 @@ public class MovieNFOScanner {
                             }
                         } else if (tag.equalsIgnoreCase("director")) {
                             String val = XMLHelper.getCData(r);
-                            
+
                             if (isValidString(val)) {
                                 for (String director : val.split(splitPattern)) {
                                     movie.addDirector(Movie.UNKNOWN, director, Movie.UNKNOWN);
@@ -695,7 +699,7 @@ public class MovieNFOScanner {
                             String event = r.nextEvent().toString();
                             String name = Movie.UNKNOWN;
                             String role = Movie.UNKNOWN;
-                            
+
                             /*
                              * There can be multiple actors listed in the nfo in the format
                              * <actor>
@@ -714,7 +718,7 @@ public class MovieNFOScanner {
                                         name = Movie.UNKNOWN;
                                         role = Movie.UNKNOWN;
                                     }
-                                    
+
                                     // Get the actor name
                                     String val = XMLHelper.getCData(r);
                                     if (isValidString(val)) {
@@ -727,7 +731,7 @@ public class MovieNFOScanner {
                                         role = val;
                                     }
                                 }
-                                
+
                                 // Only write if we have a valid name and role
                                 if (isValidString(name) && isValidString(role)) {
                                     movie.addActor(Movie.UNKNOWN, name, role, Movie.UNKNOWN, Movie.UNKNOWN);
@@ -810,7 +814,7 @@ public class MovieNFOScanner {
                                                 if (val.toLowerCase().equals(val)) {
                                                     val = val.toUpperCase();
                                                 }
-                                                
+
                                                 if (isNotValidString(tmpCodec)) {
                                                     tmpCodec = val;
                                                 } else {
@@ -856,7 +860,7 @@ public class MovieNFOScanner {
                                         }
 
                                     }
-                                    
+
                                     if (isValidString(tmpLanguage)) {
                                         // First one.
                                         if (isNotValidString(finalLanguage)) {
@@ -866,7 +870,7 @@ public class MovieNFOScanner {
                                         }
 
                                     }
-                                    
+
                                     if (isValidString(tmpChannels)) {
                                         // First one.
                                         if (isNotValidString(finalChannels)) {
@@ -905,20 +909,20 @@ public class MovieNFOScanner {
                                 }
 
                             }
-                            
+
                             // Everything is parsed, override all audio info. - NFO Always right.
                             if (isValidString(finalChannels)) {
                                 movie.setAudioChannels(finalChannels);
                             }
-                            
+
                             if (isValidString(finalCodec)) {
                                 movie.setAudioCodec(finalCodec);
                             }
-                            
+
                             if (isValidString(finalLanguage)) {
                                 movie.setLanguage(finalLanguage);
                             }
-                            
+
                             if (isValidString(tmpSubtitleLanguage)) {
                                 movie.setSubtitles(tmpSubtitleLanguage);
                             }
@@ -961,7 +965,7 @@ public class MovieNFOScanner {
                     }
                 }
             }
-            
+
             // We've processed all the NFO file, so work out what to do with the title and titleSort
             if (isValidString(titleMain)) {
                 // We have a valid title, so set that for title and titleSort
@@ -969,7 +973,7 @@ public class MovieNFOScanner {
                 movie.setTitleSort(titleMain);
                 movie.setOverrideTitle(true);
             }
-            
+
             // Now check the titleSort and overwrite it if necessary.
             if (isValidString(titleSort)) {
                 movie.setTitleSort(titleSort);
@@ -1007,7 +1011,7 @@ public class MovieNFOScanner {
 
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
-                
+
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
                     if (tag.equalsIgnoreCase("tvshow")) {
@@ -1104,15 +1108,15 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 movie.setCertification(val);
                             }
-                        //} else if (tag.equalsIgnoreCase("season")) {
+                            //} else if (tag.equalsIgnoreCase("season")) {
                             // Not currently used
-                        //} else if (tag.equalsIgnoreCase("episode")) {
+                            //} else if (tag.equalsIgnoreCase("episode")) {
                             // Not currently used
-                        //} else if (tag.equalsIgnoreCase("votes")) {
+                            //} else if (tag.equalsIgnoreCase("votes")) {
                             // Not currently used
-                        //} else if (tag.equalsIgnoreCase("displayseason")) {
+                            //} else if (tag.equalsIgnoreCase("displayseason")) {
                             // Not currently used
-                        //} else if (tag.equalsIgnoreCase("displayepisode")) {
+                            //} else if (tag.equalsIgnoreCase("displayepisode")) {
                             // Not currently used
                         } else if (tag.equalsIgnoreCase("plot")) {
                             String val = XMLHelper.getCData(r);
@@ -1191,9 +1195,9 @@ public class MovieNFOScanner {
                                     if (isValidString(val)) {
                                         movie.addActor(val);
                                     }
-                                //} else if (event.equalsIgnoreCase("<role>")) {
+                                    //} else if (event.equalsIgnoreCase("<role>")) {
                                     // Not currently used
-                                //} else if (event.equalsIgnoreCase("<thumb>")) {
+                                    //} else if (event.equalsIgnoreCase("<thumb>")) {
                                     // Not currently used
                                 }
                                 if (r.hasNext()) {
@@ -1281,7 +1285,7 @@ public class MovieNFOScanner {
                                                 if (val.toLowerCase().equals(val)) {
                                                     val = val.toUpperCase();
                                                 }
-                                                
+
                                                 if (isNotValidString(tmpTVCodec)) {
                                                     tmpTVCodec = val;
                                                 } else {
@@ -1302,7 +1306,7 @@ public class MovieNFOScanner {
                                                 // reasons for inactivation above: 
                                                 // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!     
                                                 // 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
-                                                if (isValidString(tmpTVCodec) && !val.contains("/")){
+                                                if (isValidString(tmpTVCodec) && !val.contains("/")) {
                                                     tmpTVCodec += " (" + val + ")";
                                                 }
                                                 // movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
@@ -1331,7 +1335,7 @@ public class MovieNFOScanner {
                                         }
 
                                     }
-                                    
+
                                     if (isValidString(tmpTVLanguage)) {
                                         // First one.
                                         if (isNotValidString(finalTVLanguage)) {
@@ -1341,7 +1345,7 @@ public class MovieNFOScanner {
                                         }
 
                                     }
-                                    
+
                                     if (isValidString(tmpTVChannels)) {
                                         // First one.
                                         if (isNotValidString(finalTVChannels)) {
@@ -1365,7 +1369,7 @@ public class MovieNFOScanner {
                                                     tmpSubtitleLanguage = tmpSubtitleLanguage + " / " + val;
                                                 }
                                             }
-                                            
+
                                         }
 
                                         if (r.hasNext()) {
@@ -1381,25 +1385,25 @@ public class MovieNFOScanner {
                                 }
 
                             }
-                            
+
                             // Everything is parsed, override all audio info. - NFO Always right.
                             if (isValidString(finalTVChannels)) {
                                 movie.setAudioChannels(finalTVChannels);
                             }
-                            
+
                             if (isValidString(finalTVCodec)) {
                                 movie.setAudioCodec(finalTVCodec);
                             }
-                            
+
                             if (isValidString(finalTVLanguage)) {
                                 movie.setLanguage(finalTVLanguage);
                             }
-                            
+
                             if (isValidString(tmpSubtitleLanguage)) {
                                 movie.setSubtitles(tmpSubtitleLanguage);
                             }
                             // end multiple TV audio info
- 
+
                         } else if (tag.equalsIgnoreCase("VideoSource")) {
                             // Issue 506 - Even though it's not strictly XBMC standard
                             String val = XMLHelper.getCData(r);
@@ -1413,7 +1417,7 @@ public class MovieNFOScanner {
                             }
                         }
                     }
-                    
+
                     /************************************************************
                      * Process the episode details section
                      * 
@@ -1426,7 +1430,7 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 episodedetail.setTitle(val);
                             }
-                        //} else if (tag.equalsIgnoreCase("rating")) {
+                            //} else if (tag.equalsIgnoreCase("rating")) {
                             // Not currently used
                         } else if (tag.equalsIgnoreCase("season")) {
                             String val = XMLHelper.getCData(r);
@@ -1481,14 +1485,14 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 episodedetail.setAirsBeforeEpisode(val);
                             }
-                        //} else if (tag.equalsIgnoreCase("credits")) {
+                            //} else if (tag.equalsIgnoreCase("credits")) {
                             // Not currently used
-                        //} else if (tag.equalsIgnoreCase("director")) {
+                            //} else if (tag.equalsIgnoreCase("director")) {
                             // Not currently used
-                        //} else if (tag.equalsIgnoreCase("actor")) {
+                            //} else if (tag.equalsIgnoreCase("actor")) {
                             // Not currently used
                         }
-                    }                    
+                    }
                 } else if (e.isEndElement()) {
                     if (e.asEndElement().getName().toString().equalsIgnoreCase("tvshow")) {
                         isTVTag = false;
@@ -1501,7 +1505,7 @@ public class MovieNFOScanner {
                     }
                 }
             }
-            
+
             // We've processed all the NFO file, so work out what to do with the title and titleSort
             if (isValidString(titleMain)) {
                 // We have a valid title, so set that for title and titleSort
@@ -1509,7 +1513,7 @@ public class MovieNFOScanner {
                 movie.setTitleSort(titleMain);
                 movie.setOverrideTitle(true);
             }
-            
+
             // Now check the titleSort and overwrite it if necessary.
             if (isValidString(titleSort)) {
                 movie.setTitleSort(titleSort);
@@ -1526,5 +1530,4 @@ public class MovieNFOScanner {
 
         return false;
     }
-
 }

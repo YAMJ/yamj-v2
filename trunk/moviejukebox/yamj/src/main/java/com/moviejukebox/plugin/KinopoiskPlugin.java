@@ -768,7 +768,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             }
                         }
                     }
-                    if (xml.indexOf(">Прокат:<") != -1 && (companyAll || studio.size() == 0)) {
+                    if (xml.indexOf(">Прокат:<") != -1 && (companyAll || studio.isEmpty())) {
                         for (String tmp : HTMLTools.extractTags(xml, ">Прокат:<", "</table>", "<a href=\"/level/10/m_act%5B", "</a>")) {
                             studio.add(HTMLTools.removeHtmlTags(tmp));
                         }
@@ -1240,7 +1240,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                     }
                                 }
                             }
-                        } else if (preferredRating.equals("kinopoisk") || (person.getFilmography().size() == 0)) {
+                        } else if (preferredRating.equals("kinopoisk") || (person.getFilmography().isEmpty())) {
                             person.setFilmography(new ArrayList<Filmography>(filmography.values()));
                         }
                     }

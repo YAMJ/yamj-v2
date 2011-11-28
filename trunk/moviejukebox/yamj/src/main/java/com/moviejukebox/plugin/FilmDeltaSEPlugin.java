@@ -250,7 +250,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         if (!movie.isOverrideTitle()) {
             String newTitle = HTMLTools.extractTag(fdeltaHtml, "title>", 0, "<");
             // check if everything is ok
-            if (newTitle != Movie.UNKNOWN) {
+            if (StringTools.isValidString(newTitle)) {
                 //split the string so that we get the title at index 0
                 String[] titleArray = newTitle.split("-\\sFilmdelta");
                 newTitle = titleArray[0];
@@ -309,10 +309,10 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         if (!filmdeltaDirectors.isEmpty()) {
             for (String dir : filmdeltaDirectors) {
                 dir = new String(dir.substring(0, dir.length() - 4));
-                newDirector.append(dir + " / ");
+                newDirector.append(dir).append(" / ");
             }
             
-            movie.addDirector(new String(newDirector.substring(0, newDirector.length() - 3)));
+            movie.addDirector(newDirector.substring(0, newDirector.length() - 3).toString());
             logger.debug("FilmdeltaSE: scraped director: " + movie.getDirector());
         }
     }

@@ -170,6 +170,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * 
      * @return the status of the save. True if saved correctly, false otherwise.
      */
+    @Override
     public boolean saveArtworkToJukebox(Jukebox jukebox, Movie movie) {
         
         String artworkUrl = getArtworkUrl(movie);
@@ -245,6 +246,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param movie
      * @return the Artwork Filename
      */
+    @Override
     public abstract String getArtworkFilename(Movie movie);
     
     /**
@@ -252,13 +254,16 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param movie
      * @return the Artwork URL
      */
+    @Override
     public abstract String getArtworkUrl(Movie movie);
 
+    @Override
     public abstract boolean isDirtyArtwork(Movie movie);
     
     /**
      * A catch all routine to scan local artwork and then online artwork.
      */
+    @Override
     public String scan(Jukebox jukebox, Movie movie) {
         /*
          * We need to check some things before we start scanning
@@ -363,10 +368,13 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         return movieArtwork;
     }
     
+    @Override
     public abstract void setArtworkFilename(Movie movie, String artworkFilename);
     
+    @Override
     public abstract void setArtworkImagePlugin();
     
+    @Override
     public abstract void setArtworkUrl(Movie movie, String artworkUrl);
     
     /**
@@ -418,6 +426,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         }
     }
     
+    @Override
     public boolean validateArtwork(IImage artworkImage) {
         return validateArtwork(artworkImage, artworkWidth, artworkHeight, artworkValidateAspect);
     }
@@ -432,6 +441,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param checkAspect Should the aspect ratio be checked
      * @return True if the poster is good, false otherwise
      */
+    @Override
     public boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect) {
         @SuppressWarnings("rawtypes")
         Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
@@ -804,6 +814,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * Check the scrapeLibrary and ID settings for the movie to see if we should scrape online sources
      * As soon as we hit a "false" then we should return.
      */
+    @Override
     public boolean getOnlineArtwork(Movie movie) {
         if (!movie.isScrapeLibrary()) {
             return false;
@@ -818,7 +829,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         }
         
         for (Entry<String, String> e : movie.getIdMap().entrySet()) {
-            if ((e.getValue() == "0") || (e.getValue() == "-1") ) {
+            if (("0".equals(e.getValue())) || ("-1".equals(e.getValue())) ) {
                 // Stop and return
                 return false;
             }

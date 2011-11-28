@@ -68,11 +68,11 @@ public class FanartTvPlugin {
 
             Artwork movieArtwork;
             
-            for (FanartTvArtwork ft : ftArtwork) {
+            for (FanartTvArtwork ftSingle : ftArtwork) {
                 movieArtwork = new Artwork();
                 movieArtwork.setSourceSite("fanarttv");
-                movieArtwork.setType(ArtworkType.fromString(ft.getType()));
-                movieArtwork.setUrl(ft.getUrl());
+                movieArtwork.setType(ArtworkType.fromString(ftSingle.getType()));
+                movieArtwork.setUrl(ftSingle.getUrl());
                 movie.addArtwork(movieArtwork);
             }
             

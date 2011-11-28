@@ -84,7 +84,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                                 "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
             }
 
-            if (movie.getGenres().size() == 0) {
+            if (movie.getGenres().isEmpty()) {
                 for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                                 "</font></td></tr>").split(",")) {
                     for (String genre : tmp_genre.split("/")) {
@@ -98,7 +98,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
                                 "</font></td></tr>")));
             }
 
-            if (movie.getCast().size() == 0) {
+            if (movie.getCast().isEmpty()) {
                 for (String actor : removeHtmlTags(
                                 extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"))
                                 .split(",")) {

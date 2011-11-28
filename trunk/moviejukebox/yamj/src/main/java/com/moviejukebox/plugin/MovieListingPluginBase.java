@@ -86,6 +86,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      * @param Jukebox
      * @param library
      */
+    @Override
     public void generate(Jukebox jukebox, Library library) {
         logger.info("  MovieListingPluginBase: not generating listing file.");
     } // generate()
