@@ -1,0 +1,35 @@
+General
+Count                            : 278
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+Complete name                    : _ISO_DVD_DD_5.1.iso
+File name                        : _ISO_DVD_DD_5.1.iso
+File extension                   : iso
+Format                           : ISO 9660
+Format                           : ISO 9660
+Format/Extensions usually used   : iso
+Commercial name                  : ISO 9660
+Codec                            : ISO 9660
+Codec                            : ISO 9660
+Codec/Extensions usually used    : iso
+File size                        : 11675648
+File size                        : 11.1 MiB
+File size                        : 11 MiB
+File size                        : 11 MiB
+File size                        : 11.1 MiB
+File size                        : 11.13 MiB
+Stream size                      : 11675648
+Stream size                      : 11.1 MiB (100%)
+Stream size                      : 11 MiB
+Stream size                      : 11 MiB
+Stream size                      : 11.1 MiB
+Stream size                      : 11.13 MiB
+Stream size                      : 11.1 MiB (100%)
+Proportion of this stream        : 1.00000
+File creation date               : UTC 2011-11-28 08:45:32.711
+File creation date (local)       : 2011-11-28 08:45:32.711
+File last modification date      : UTC 2010-07-20 23:57:28.312
+File last modification date (loc : 2010-07-20 23:57:28.312
+

@@ -12,6 +12,8 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.Codec.CodecType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -87,7 +89,7 @@ public class MediaInfoScanner {
             activated = true;
         }
     }
-    // Dvd rip infos Scanner
+    // DVD rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
     public MediaInfoScanner() {
@@ -390,19 +392,19 @@ public class MediaInfoScanner {
 
             // Codec (most relevant Info depending on mediainfo result)
             if (movie.getVideoCodec().equals(Movie.UNKNOWN)) {
-                infoValue = infosMainVideo.get("Codec ID");
+                infoValue = infosMainVideo.get("Codec ID/Hint");
                 if (infoValue != null) {
                     movie.setVideoCodec(infoValue);
                 } else {
-                    infoValue = infosMainVideo.get("Codec ID/Hint");
+                    infoValue = infosMainVideo.get("Codec");
                     if (infoValue != null) {
                         movie.setVideoCodec(infoValue);
                     } else {
-                        infoValue = infosMainVideo.get("Codec");
+                        infoValue = infosMainVideo.get("Format");
                         if (infoValue != null) {
                             movie.setVideoCodec(infoValue);
                         } else {
-                            infoValue = infosMainVideo.get("Format");
+                            infoValue = infosMainVideo.get("Codec ID");
                             if (infoValue != null) {
                                 movie.setVideoCodec(infoValue);
                             }
@@ -411,7 +413,9 @@ public class MediaInfoScanner {
                 }
             }
 
-            // Resolution
+            // Add the video codec to the list
+            movie.addCodec(getCodecInfo(Codec.CodecType.VIDEO, infosMainVideo));
+
             if (movie.getResolution().equals(Movie.UNKNOWN)) {
                 int width = 0;
 
@@ -529,13 +533,13 @@ public class MediaInfoScanner {
                 }
             }
 
-            infoValue = infosCurAudio.get("Codec ID");
+            infoValue = infosCurAudio.get("Codec ID/Hint");
             if (infoValue == null) {
-                infoValue = infosCurAudio.get("Codec ID/Hint");
-                if (infoValue == null) {
-                    infoValue = infosCurAudio.get("Codec");
-                }
+                infoValue = infosCurAudio.get("Codec");
             }
+
+            // Add the audio codec to the list
+            movie.addCodec(getCodecInfo(Codec.CodecType.AUDIO, infosCurAudio));
 
             if (infoValue != null) { // Make sure we have a codec before continuing
                 // String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
@@ -638,5 +642,25 @@ public class MediaInfoScanner {
                 }
             }
         }
+    }
+
+    /**
+     * Create a Codec object with the information from the file
+     * @param codecType
+     * @param Video
+     * @return 
+     */
+    protected Codec getCodecInfo(CodecType codecType, HashMap<String, String> codecInfos) {
+        Codec codec = new Codec(codecType);
+
+        codec.setCodec(codecInfos.get(Codec.MI_CODEC));
+        codec.setCodecFormat(codecInfos.get(Codec.MI_CODEC_FORMAT));
+        codec.setCodecFormatProfile(codecInfos.get(Codec.MI_CODEC_FORMAT_PROFILE));
+        codec.setCodecFormatVersion(codecInfos.get(Codec.MI_CODEC_FORMAT_VERSION));
+        codec.setCodecId(codecInfos.get(Codec.MI_CODEC_ID));
+        codec.setCodecIdHint(codecInfos.get(Codec.MI_CODEC_ID_HINT));
+        codec.setCodecLanguage(codecInfos.get(Codec.MI_CODEC_LANGUAGE));
+
+        return codec;
     }
 }

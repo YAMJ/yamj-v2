@@ -1,0 +1,215 @@
+General
+Count                            : 278
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+Count of video streams           : 1
+Count of audio streams           : 1
+Video_Format_List                : MPEG-4 Visual
+Video_Format_WithHint_List       : MPEG-4 Visual (XviD)
+Codecs Video                     : XviD
+Audio_Format_List                : DTS
+Audio_Format_WithHint_List       : DTS
+Audio codecs                     : DTS-HD
+Complete name                    : _AVI_DTS_MA_7.1.AVI
+File name                        : _AVI_DTS_MA_7.1.AVI
+File extension                   : avi
+Format                           : AVI
+Format                           : AVI
+Format/Info                      : Audio Video Interleave
+Format/Extensions usually used   : avi
+Commercial name                  : AVI
+Internet media type              : video/vnd.avi
+Interleaved                      : Yes
+Codec                            : AVI
+Codec                            : AVI
+Codec/Info                       : Audio Video Interleave
+Codec/Extensions usually used    : avi
+File size                        : 5786578
+File size                        : 5.52 MiB
+File size                        : 6 MiB
+File size                        : 5.5 MiB
+File size                        : 5.52 MiB
+File size                        : 5.519 MiB
+Duration                         : 12000
+Duration                         : 12s 0ms
+Duration                         : 12s 0ms
+Duration                         : 12s 0ms
+Duration                         : 00:00:12.000
+Overall bit rate                 : 3857718
+Overall bit rate                 : 3 858 Kbps
+Stream size                      : 12973
+Stream size                      : 12.7 KiB (0%)
+Stream size                      : 13 KiB
+Stream size                      : 13 KiB
+Stream size                      : 12.7 KiB
+Stream size                      : 12.67 KiB
+Stream size                      : 12.7 KiB (0%)
+Proportion of this stream        : 0.00224
+Director                         : created.with.SUPER(C).v2010.bld.38
+File creation date               : UTC 2011-11-28 08:45:32.654
+File creation date (local)       : 2011-11-28 08:45:32.654
+File last modification date      : UTC 2010-07-21 02:15:34.830
+File last modification date (loc : 2010-07-21 02:15:34.830
+Writing application              : SUPER(C) - by eRightSoft
+
+Video
+Count                            : 200
+Count of stream of this kind     : 1
+Kind of stream                   : Video
+Kind of stream                   : Video
+Stream identifier                : 0
+ID                               : 0
+ID                               : 0
+Format                           : MPEG-4 Visual
+Commercial name                  : MPEG-4 Visual
+Format profile                   : Advanced Simple@L5
+Format settings                  : BVOP2
+Format settings, BVOP            : 2
+Format settings, BVOP            : 2
+Format settings, QPel            : No
+Format settings, QPel            : No
+Format settings, GMC             : 0
+Format settings, GMC             : No warppoints
+Format settings, Matrix          : Default (MPEG)
+Format settings, Matrix          : Default (MPEG)
+Internet media type              : video/MP4V-ES
+Codec ID                         : XVID
+Codec ID/Hint                    : XviD
+Codec ID/Url                     : http://mediaarea.net/XVID
+Codec                            : XVID
+Codec                            : XviD
+Codec/Family                     : MPEG-4V
+Codec/Info                       : XviD project
+Codec/Url                        : http://www.xvid.org/Downloads.15.0.html
+Codec/CC                         : XVID
+Codec profile                    : Advanced Simple@L5
+Codec settings                   : BVOP
+Codec settings, Packet bitstream : No
+Codec settings, BVOP             : Yes
+Codec settings, QPel             : No
+Codec settings, GMC              : 0
+Codec settings, GMC              : No warppoints
+Codec settings, Matrix           : Default (MPEG)
+Duration                         : 11245
+Duration                         : 11s 245ms
+Duration                         : 11s 245ms
+Duration                         : 11s 245ms
+Duration                         : 00:00:11.245
+Bit rate                         : 2468464
+Bit rate                         : 2 468 Kbps
+Width                            : 1920
+Width                            : 1 920 pixels
+Height                           : 1080
+Height                           : 1 080 pixels
+Pixel aspect ratio               : 1.000
+Display aspect ratio             : 1.778
+Display aspect ratio             : 16:9
+Frame rate                       : 29.970
+Frame rate                       : 29.970 fps
+Frame count                      : 337
+Resolution                       : 8
+Resolution                       : 8 bits
+Colorimetry                      : 4:2:0
+Color space                      : YUV
+Chroma subsampling               : 4:2:0
+Bit depth                        : 8
+Bit depth                        : 8 bits
+Scan type                        : Progressive
+Scan type                        : Progressive
+Interlacement                    : PPF
+Interlacement                    : Progressive
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Bits/(Pixel*Frame)               : 0.040
+Delay                            : 0
+Delay                            : 00:00:00.000
+Stream size                      : 3469605
+Stream size                      : 3.31 MiB (60%)
+Stream size                      : 3 MiB
+Stream size                      : 3.3 MiB
+Stream size                      : 3.31 MiB
+Stream size                      : 3.309 MiB
+Stream size                      : 3.31 MiB (60%)
+Proportion of this stream        : 0.59960
+Writing library                  : XviD0046
+Writing library                  : XviD 1.1.2 (UTC 2006-11-01)
+Writing library/Name             : XviD
+Writing library/Version          : 1.1.2
+Writing library/Date             : UTC 2006-11-01
+
+Audio
+Count                            : 169
+Count of stream of this kind     : 1
+Kind of stream                   : Audio
+Kind of stream                   : Audio
+Stream identifier                : 0
+ID                               : 1
+ID                               : 1
+Format                           : DTS
+Format/Info                      : Digital Theater Systems
+Commercial name                  : DTS
+Format profile                   : MA / Core
+Codec ID                         : 2001
+Codec ID/Info                    : Digital Theater Systems
+Codec                            : DTS-HD
+Codec                            : DTS-HD
+Codec/Family                     : DTS
+Codec/Info                       : Digital Theater Systems
+Codec/CC                         : 2001
+Duration                         : 12000
+Duration                         : 12s 0ms
+Duration                         : 12s 0ms
+Duration                         : 12s 0ms
+Duration                         : 00:00:12.000
+Bit rate mode                    : VBR
+Bit rate mode                    : Variable
+Bit rate                         : 1605750 / 1509750
+Bit rate                         : 1 606 Kbps / 1 510 Kbps
+Channel(s)                       : 8 / 6
+Channel(s)                       : 8 channels / 6 channels
+Channel positions                : Front: L C R, Side: L R, Back: L R, LFE / Front: L C R, Side: L R, LFE
+Channel positions                : 3/2/2.1 / 3/2/0.1
+Sampling rate                    : 96000 / 48000
+Sampling rate                    : 96.0 KHz / 48.0 KHz
+Samples count                    : 1152000
+Resolution                       : 24
+Resolution                       : 24 bits
+Bit depth                        : 24
+Bit depth                        : 24 bits
+Compression mode                 : Lossless / Lossy
+Compression mode                 : Lossless / Lossy
+Delay                            : 33
+Delay                            : 33ms
+Delay                            : 33ms
+Delay                            : 33ms
+Delay                            : 00:00:00.033
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay relative to video          : 33
+Delay relative to video          : 33ms
+Delay relative to video          : 33ms
+Delay relative to video          : 33ms
+Delay relative to video          : 00:00:00.033
+Video0 delay                     : 33
+Video0 delay                     : 33ms
+Video0 delay                     : 33ms
+Video0 delay                     : 33ms
+Video0 delay                     : 00:00:00.033
+Stream size                      : 2304000
+Stream size                      : 2.20 MiB (40%)
+Stream size                      : 2 MiB
+Stream size                      : 2.2 MiB
+Stream size                      : 2.20 MiB
+Stream size                      : 2.197 MiB
+Stream size                      : 2.20 MiB (40%)
+Proportion of this stream        : 0.39816
+Alignment                        : Split
+Alignment                        : Split accross interleaves
+Interleave, duration             : 14.04
+Interleave, duration             : 469
+Interleave, duration             : 469 ms (14.04 video frames)
+Interleave, preload duration     : 500
+Interleave, preload duration     : 500 ms
+

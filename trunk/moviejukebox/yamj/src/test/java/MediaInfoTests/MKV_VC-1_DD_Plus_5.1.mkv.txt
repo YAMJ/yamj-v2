@@ -1,0 +1,224 @@
+General
+Count                            : 278
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+Unique ID                        : 251174040361912660298197084924182956892
+Unique ID                        : 251174040361912660298197084924182956892 (0xBCF65C4D9111CFB5A4D9C57B476A8B5C)
+Count of video streams           : 1
+Count of audio streams           : 1
+Video_Format_List                : VC-1
+Video_Format_WithHint_List       : VC-1 (Microsoft)
+Codecs Video                     : VC-1
+Video_Language_List              : English
+Audio_Format_List                : E-AC-3
+Audio_Format_WithHint_List       : E-AC-3
+Audio codecs                     : AC3+
+Audio_Language_List              : English
+Complete name                    : _MKV_VC-1_DD_Plus_5.1.mkv
+File name                        : _MKV_VC-1_DD_Plus_5.1.mkv
+File extension                   : mkv
+Format                           : Matroska
+Format                           : Matroska
+Format/Url                       : http://packs.matroska.org/
+Format/Extensions usually used   : mkv mk3d mka mks
+Commercial name                  : Matroska
+Format version                   : Version 2
+Codec                            : Matroska
+Codec                            : Matroska
+Codec/Url                        : http://packs.matroska.org/
+Codec/Extensions usually used    : mkv mk3d mka mks
+File size                        : 9801069
+File size                        : 9.35 MiB
+File size                        : 9 MiB
+File size                        : 9.3 MiB
+File size                        : 9.35 MiB
+File size                        : 9.347 MiB
+Duration                         : 5654
+Duration                         : 5s 654ms
+Duration                         : 5s 654ms
+Duration                         : 5s 654ms
+Duration                         : 00:00:05.654
+Overall bit rate                 : 13867801
+Overall bit rate                 : 13.9 Mbps
+Stream size                      : 219327
+Stream size                      : 214 KiB (2%)
+Stream size                      : 214 KiB
+Stream size                      : 214 KiB
+Stream size                      : 214 KiB
+Stream size                      : 214.2 KiB
+Stream size                      : 214 KiB (2%)
+Proportion of this stream        : 0.02238
+Encoded date                     : UTC 2010-07-21 10:19:11
+File creation date               : UTC 2011-11-28 08:45:32.765
+File creation date (local)       : 2011-11-28 08:45:32.765
+File last modification date      : UTC 2010-07-21 11:19:11.265
+File last modification date (loc : 2010-07-21 11:19:11.265
+Writing application              : mkvmerge v4.1.0 ('Boiling Point') built on Jul  1 2010 14:37:28
+Writing library                  : libebml v1.0.0 + libmatroska v1.0.0
+Writing library                  : libebml v1.0.0 + libmatroska v1.0.0
+
+Video
+Count                            : 200
+Count of stream of this kind     : 1
+Kind of stream                   : Video
+Kind of stream                   : Video
+Stream identifier                : 0
+ID                               : 1
+ID                               : 1
+Unique ID                        : 1
+Format                           : VC-1
+Commercial name                  : VC-1
+Format profile                   : AP@L3
+Internet media type              : video/vc1
+Codec ID                         : WVC1
+Codec ID/Hint                    : Microsoft
+Codec                            : WVC1
+Codec                            : VC-1
+Codec/Family                     : VC-1
+Codec/Info                       : Microsoft
+Codec/CC                         : WVC1
+Codec profile                    : AP@L3
+Duration                         : 5639
+Duration                         : 5s 639ms
+Duration                         : 5s 639ms
+Duration                         : 5s 639ms
+Duration                         : 00:00:05.639
+Bit rate                         : 12951832
+Bit rate                         : 13.0 Mbps
+Width                            : 1920
+Width                            : 1 920 pixels
+Height                           : 1080
+Height                           : 1 080 pixels
+Pixel aspect ratio               : 1.000
+Display aspect ratio             : 1.778
+Display aspect ratio             : 16:9
+Frame rate                       : 29.970
+Frame rate                       : 29.970 fps
+Frame count                      : 169
+Resolution                       : 8
+Resolution                       : 8 bits
+Colorimetry                      : 4:2:0
+Chroma subsampling               : 4:2:0
+Bit depth                        : 8
+Bit depth                        : 8 bits
+Scan type                        : Progressive
+Scan type                        : Progressive
+Interlacement                    : PPF
+Interlacement                    : Progressive
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Bits/(Pixel*Frame)               : 0.208
+Delay                            : 42
+Delay                            : 42ms
+Delay                            : 42ms
+Delay                            : 42ms
+Delay                            : 00:00:00.042
+Delay, origin                    : Container
+Delay, origin                    : Container
+Stream size                      : 9129422
+Stream size                      : 8.71 MiB (93%)
+Stream size                      : 9 MiB
+Stream size                      : 8.7 MiB
+Stream size                      : 8.71 MiB
+Stream size                      : 8.706 MiB
+Stream size                      : 8.71 MiB (93%)
+Proportion of this stream        : 0.93147
+Title                            : 1080p VC-1
+Language                         : en
+Language                         : English
+Language                         : English
+Language                         : en
+Language                         : eng
+Language                         : en
+Buffer size                      : 1843200
+
+Audio
+Count                            : 188
+Count of stream of this kind     : 1
+Kind of stream                   : Audio
+Kind of stream                   : Audio
+Stream identifier                : 0
+ID                               : 2
+ID                               : 2
+Unique ID                        : 2
+Format                           : E-AC-3
+Format/Info                      : Audio Coding 3
+Commercial name                  : E-AC-3
+Internet media type              : audio/eac3
+Muxing mode                      : Header stripping
+Codec ID                         : A_EAC3
+Codec                            : AC3+
+Codec                            : AC3+
+Codec/Family                     : AC3
+Codec/Info                       : Dolby Ehanced AC3
+Duration                         : 5654
+Duration                         : 5s 654ms
+Duration                         : 5s 654ms
+Duration                         : 5s 654ms
+Duration                         : 00:00:05.654
+Bit rate mode                    : CBR
+Bit rate mode                    : Constant
+Bit rate                         : 640000
+Bit rate                         : 640 Kbps
+Channel(s)                       : 6
+Channel(s)                       : 6 channels
+Channel positions                : Front: L C R, Side: L R, LFE
+Sampling rate                    : 48000
+Sampling rate                    : 48.0 KHz
+Samples count                    : 271392
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Delay                            : 64
+Delay                            : 64ms
+Delay                            : 64ms
+Delay                            : 64ms
+Delay                            : 00:00:00.064
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay relative to video          : 22
+Delay relative to video          : 22ms
+Delay relative to video          : 22ms
+Delay relative to video          : 22ms
+Delay relative to video          : 00:00:00.022
+Video0 delay                     : 22
+Video0 delay                     : 22ms
+Video0 delay                     : 22ms
+Video0 delay                     : 22ms
+Video0 delay                     : 00:00:00.022
+Stream size                      : 452320
+Stream size                      : 442 KiB (5%)
+Stream size                      : 442 KiB
+Stream size                      : 442 KiB
+Stream size                      : 442 KiB
+Stream size                      : 441.7 KiB
+Stream size                      : 442 KiB (5%)
+Proportion of this stream        : 0.04615
+Title                            : Dolby Digital Plus 5.1 640kbps
+Language                         : en
+Language                         : English
+Language                         : English
+Language                         : en
+Language                         : eng
+Language                         : en
+dialnorm                         : -27
+dialnorm/String                  : -27 dB
+compr                            : -3.25
+compr/String                     : -3.25 dB
+bsid                             : 16
+dialnorm_Average                 : -27
+dialnorm_Average/String          : -27 dB
+dialnorm_Minimum                 : -27
+dialnorm_Minimum/String          : -27 dB
+dialnorm_Maximum                 : -27
+dialnorm_Maximum/String          : -27 dB
+dialnorm_Count                   : 2
+compr_Average                    : -3.25
+compr_Average/String             : -3.25 dB
+compr_Minimum                    : -3.25
+compr_Minimum/String             : -3.25 dB
+compr_Maximum                    : -3.25
+compr_Maximum/String             : -3.25 dB
+compr_Count                      : 2
+
