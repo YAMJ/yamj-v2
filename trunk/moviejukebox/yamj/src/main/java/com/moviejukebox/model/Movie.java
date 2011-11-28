@@ -673,6 +673,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * 
      * @see com.moviejukebox.model.Identifiable#getId(java.lang.String)
      */
+    @Override
     public String getId(String key) {
         String result = idMap.get(key);
         if (result != null) {

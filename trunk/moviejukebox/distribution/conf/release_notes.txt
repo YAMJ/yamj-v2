@@ -27,6 +27,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2198 FilmAffinity plugin stopped working
  - Fixed defect #2199 Library indexing does not work correctly when library path also a part of another library path
  - Fixed defect #2200 People XML files are incorrectly generated
+ - Fixed defect #2210 No poster from Caratulasdecine when FilmAffinity plugin is used
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
