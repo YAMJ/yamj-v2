@@ -69,9 +69,7 @@ public class MovieDirectoryScanner {
     private ArchiveScanner archiveScanners[];
 
     public MovieDirectoryScanner() {
-        for (String ext : PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")) {
-            supportedExtensions.add(ext);
-        }
+        supportedExtensions.addAll(Arrays.asList(PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")));
         thumbnailsFormat = PropertiesUtil.getProperty("thumbnails.format", "png");
         postersFormat = PropertiesUtil.getProperty("posters.format", "png");
         bannersFormat = PropertiesUtil.getProperty("banners.format", "png");

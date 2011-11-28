@@ -225,7 +225,9 @@ public class ImdbInfo {
             if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
-            sb.append(";s=" + (objectType.equals("movie")?"tt":"nm") + ";site=aka");
+            sb.append(";s=");
+            sb.append(objectType.equals("movie")?"tt":"nm");
+            sb.append(";site=aka");
 
             logger.debug("ImdbInfo Querying IMDB for " + sb.toString());
             String xml = webBrowser.request(sb.toString());

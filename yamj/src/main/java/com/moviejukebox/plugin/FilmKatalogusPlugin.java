@@ -38,7 +38,6 @@ import com.moviejukebox.tools.StringTools;
 public class FilmKatalogusPlugin extends ImdbPlugin {
 
     public static String FILMKAT_PLUGIN_ID = "filmkatalogus";
-    private static Logger logger = Logger.getLogger("moviejukebox");
     boolean getplot = true;
     boolean gettitle = true;
     protected int preferredPlotLength;

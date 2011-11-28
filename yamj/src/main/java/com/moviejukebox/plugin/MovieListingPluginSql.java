@@ -50,6 +50,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
     private static String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
     private static String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
     
+    @Override
     public void generate(Jukebox jukebox, Library library) {
         MjbSqlDb mjbSqlDb = new MjbSqlDb(dbLocation, dbName);
         mjbConn = MjbSqlDb.getConnection();

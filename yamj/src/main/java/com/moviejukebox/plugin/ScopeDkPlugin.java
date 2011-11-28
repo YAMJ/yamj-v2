@@ -67,14 +67,14 @@ public class ScopeDkPlugin extends ImdbPlugin {
                 movie.setRuntime(removeHtmlTags(extractTag(xml, "<th>Spilletid", ".</td>")));
             }
 
-            if (movie.getGenres().size() == 0) {
+            if (movie.getGenres().isEmpty()) {
                 for (String tmp_genre : extractTag(xml, "<th>Genre</th>", "</td>").split(",")) {
                     movie.addGenre(removeHtmlTags(tmp_genre));
 
                 }
             }
 
-            if (movie.getCast().size() == 0) {
+            if (movie.getCast().isEmpty()) {
                 for (String actor : extractTag(xml, "<th>Medvirkende</th>", "</td>").split(",")) {
                     movie.addActor(removeHtmlTags(actor).trim());
                 }

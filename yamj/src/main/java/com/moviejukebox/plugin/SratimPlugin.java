@@ -43,7 +43,6 @@ public class SratimPlugin extends ImdbPlugin {
     protected static String PHPSESSID = "COOKIE";
 
     private static AbstractStringMetric metric = new MongeElkan();
-    private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
     private static String[] genereStringEnglish = { "Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
                     "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
@@ -90,6 +89,7 @@ public class SratimPlugin extends ImdbPlugin {
         return SRATIM_PLUGIN_ID;
     }
 
+    @Override
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
 
@@ -707,6 +707,7 @@ public class SratimPlugin extends ImdbPlugin {
         return imdbId;
     }
 
+    @Override
     public void scanTVShowTitles(Movie movie) {
         scanTVShowTitles(movie, null);
     }
@@ -1354,6 +1355,7 @@ public class SratimPlugin extends ImdbPlugin {
         return r.toString();
     }
 
+    @Override
     public boolean scanNFO(String nfo, Movie movie) {
         boolean found=super.scanNFO(nfo, movie); 
         if (found){

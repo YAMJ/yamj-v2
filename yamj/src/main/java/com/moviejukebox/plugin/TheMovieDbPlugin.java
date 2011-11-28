@@ -74,6 +74,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         return TMDB_PLUGIN_ID;
     }
 
+    @Override
     public boolean scan(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         String tmdbID = movie.getId(TMDB_PLUGIN_ID);
@@ -278,8 +279,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         
         // Language
         if (overwriteCheck(moviedb.getLanguage(), movie.getLanguage())) {
-            String language = MovieFilenameScanner.determineLanguage(moviedb.getLanguage());
-            movie.setLanguage(language);
+            movie.setLanguage(MovieFilenameScanner.determineLanguage(moviedb.getLanguage()));
         }
         
         // Genres

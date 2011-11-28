@@ -80,7 +80,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 logger.debug("MovieMeterPlugin: Searching google.nl to get moviemeter.nl id");
                 moviemeterId = getMovieMeterIdFromGoogle(mediaFile.getTitle(), mediaFile.getYear());
                 logger.debug("MovieMeterPlugin: Returned id: " + moviemeterId);
-                if (moviemeterId != Movie.UNKNOWN) {
+                if (StringTools.isValidString(moviemeterId)) {
                     filmInfo = session.getMovieDetailsById(Integer.parseInt(moviemeterId));
                 }
             } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {

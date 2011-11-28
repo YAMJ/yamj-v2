@@ -44,7 +44,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private static int COMINGSOON_MAX_SEARCH_PAGES = 5;
     
 
-    private static int COMINGSOON_RESTORE_TITLE         = 1 << 0;
+    private static int COMINGSOON_RESTORE_TITLE         = 1;
     private static int COMINGSOON_RESTORE_ORIGINALTITLE = 1 << 1;
     private static int COMINGSOON_RESTORE_PLOT          = 1 << 2;
     private static int COMINGSOON_RESTORE_OUTLINE       = 1 << 3;
@@ -303,7 +303,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             sb.append(URLEncoder.encode(movieName, "iso-8859-1"));              
 
             if (StringTools.isValidString(year)) {
-                sb.append("&anno=" + year);
+                sb.append("&anno=").append(year);
             }
             
             int searchPage = 0;
@@ -312,7 +312,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 
                 StringBuilder sbPage = new StringBuilder(sb);
                 if (searchPage > 1) {
-                    sbPage.append("&p="+searchPage);
+                    sbPage.append("&p=").append(searchPage);
                 }
 
                 logger.debug("ComingSoon: Fetching ComingSoon search URL: " + sbPage.toString());

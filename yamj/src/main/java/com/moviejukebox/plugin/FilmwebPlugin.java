@@ -18,7 +18,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.List;
@@ -35,7 +34,6 @@ import com.moviejukebox.tools.StringTools;
 public class FilmwebPlugin extends ImdbPlugin {
 
     public static String FILMWEB_PLUGIN_ID = "filmweb";
-    private static Logger logger = Logger.getLogger("moviejukebox");
     private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
@@ -65,6 +63,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         }
     }
 
+    @Override
     public boolean scan(Movie mediaFile) {
         String filmwebUrl = mediaFile.getId(FILMWEB_PLUGIN_ID);
         if (StringTools.isNotValidString(filmwebUrl)) {
