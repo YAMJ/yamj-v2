@@ -1,0 +1,216 @@
+General
+Count                            : 278
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+Count of video streams           : 1
+Count of audio streams           : 1
+Count of menu streams            : 1
+Video_Format_List                : MPEG Video
+Video_Format_WithHint_List       : MPEG Video
+Codecs Video                     : MPEG-2 Video
+Audio_Format_List                : PCM
+Audio_Format_WithHint_List       : PCM
+Audio codecs                     : PCM
+Menu_Format_List                 : DVD-Video
+Menu_Format_WithHint_List        : DVD-Video
+Menu codecs                      : DVD-Video
+Complete name                    : _MPG_PCM_2.0.mpg
+File name                        : _MPG_PCM_2.0.mpg
+File extension                   : mpg
+Format                           : MPEG-PS
+Format                           : MPEG-PS
+Format/Extensions usually used   : mpeg mpg m2p vob pss
+Commercial name                  : MPEG-PS
+Internet media type              : video/MP2P
+Codec                            : MPEG-PS
+Codec                            : MPEG-PS
+Codec/Extensions usually used    : mpeg mpg m2p vob pss
+File size                        : 9558016
+File size                        : 9.12 MiB
+File size                        : 9 MiB
+File size                        : 9.1 MiB
+File size                        : 9.12 MiB
+File size                        : 9.115 MiB
+Duration                         : 11964
+Duration                         : 11s 964ms
+Duration                         : 11s 964ms
+Duration                         : 11s 964ms
+Duration                         : 00:00:11.964
+Overall bit rate                 : 6391184
+Overall bit rate                 : 6 391 Kbps
+Stream size                      : 220937
+Stream size                      : 216 KiB (2%)
+Stream size                      : 216 KiB
+Stream size                      : 216 KiB
+Stream size                      : 216 KiB
+Stream size                      : 215.8 KiB
+Stream size                      : 216 KiB (2%)
+Proportion of this stream        : 0.02312
+File creation date               : UTC 2011-11-28 08:45:32.831
+File creation date (local)       : 2011-11-28 08:45:32.831
+File last modification date      : UTC 2010-08-27 17:43:27.266
+File last modification date (loc : 2010-08-27 17:43:27.266
+
+Video
+Count                            : 201
+Count of stream of this kind     : 1
+Kind of stream                   : Video
+Kind of stream                   : Video
+Stream identifier                : 0
+ID                               : 224
+ID                               : 224 (0xE0)
+Format                           : MPEG Video
+Commercial name                  : MPEG-2 Video
+Format version                   : Version 2
+Format profile                   : Main@Main
+Format settings                  : BVOP
+Format settings, BVOP            : Yes
+Format settings, BVOP            : Yes
+Format settings, Matrix          : Default
+Format settings, Matrix          : Default
+Format settings, GOP             : M=3, N=12
+Internet media type              : video/MPV
+Codec                            : MPEG-2V
+Codec                            : MPEG-2 Video
+Codec/Family                     : MPEG-V
+Codec profile                    : Main@Main
+Codec settings, Matrix           : Default
+Duration                         : 11912
+Duration                         : 11s 912ms
+Duration                         : 11s 912ms
+Duration                         : 11s 912ms
+Duration                         : 00:00:11.912
+Bit rate mode                    : VBR
+Bit rate mode                    : Variable
+Bit rate                         : 4727999
+Bit rate                         : 4 728 Kbps
+Maximum bit rate                 : 7000000
+Maximum bit rate                 : 7 000 Kbps
+Width                            : 720
+Width                            : 720 pixels
+Height                           : 480
+Height                           : 480 pixels
+Pixel aspect ratio               : 1.185
+Display aspect ratio             : 1.778
+Display aspect ratio             : 16:9
+Frame rate                       : 29.970
+Frame rate                       : 29.970 fps
+Frame count                      : 357
+Standard                         : NTSC
+Resolution                       : 8
+Resolution                       : 8 bits
+Colorimetry                      : 4:2:0
+Color space                      : YUV
+Chroma subsampling               : 4:2:0
+Bit depth                        : 8
+Bit depth                        : 8 bits
+Scan type                        : Interlaced
+Scan type                        : Interlaced
+Scan order                       : BFF
+Scan order                       : Bottom Field First
+Interlacement                    : BFF
+Interlacement                    : Bottom Field First
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Bits/(Pixel*Frame)               : 0.456
+Delay                            : 262.133
+Delay                            : 262ms
+Delay                            : 262ms
+Delay                            : 262ms
+Delay                            : 00:00:00.262
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay_Original                   : 0
+Delay_Original                   : 00:00:00.000
+Delay_Original_Settings          : drop_frame_flag=0 / closed_gop=1 / broken_link=0
+Delay_Original_Source            : Stream
+Stream size                      : 7039991
+Stream size                      : 6.71 MiB (74%)
+Stream size                      : 7 MiB
+Stream size                      : 6.7 MiB
+Stream size                      : 6.71 MiB
+Stream size                      : 6.714 MiB
+Stream size                      : 6.71 MiB (74%)
+Proportion of this stream        : 0.73655
+Buffer size                      : 229376
+intra_dc_precision               : 9
+
+Audio
+Count                            : 169
+Count of stream of this kind     : 1
+Kind of stream                   : Audio
+Kind of stream                   : Audio
+Stream identifier                : 0
+ID                               : 189-160
+ID                               : 189 (0xBD)-160 (0xA0)
+Format                           : PCM
+Commercial name                  : PCM
+Format settings                  : Big / Signed
+Format settings, Endianness      : Big
+Format settings, Sign            : Signed
+Muxing mode                      : DVD-Video
+Codec                            : PCM
+Codec                            : PCM
+Codec/Family                     : PCM
+Codec settings                   : Big / Signed
+Codec settings, Endianness       : Big
+Codec settings, Sign             : Signed
+Duration                         : 11964
+Duration                         : 11s 964ms
+Duration                         : 11s 964ms
+Duration                         : 11s 964ms
+Duration                         : 00:00:11.964
+Bit rate mode                    : CBR
+Bit rate mode                    : Constant
+Bit rate                         : 1536000
+Bit rate                         : 1 536 Kbps
+Channel(s)                       : 2
+Channel(s)                       : 2 channels
+Channel positions                : Front: L R
+Channel positions                : 2/0/0.0
+Sampling rate                    : 48000
+Sampling rate                    : 48.0 KHz
+Samples count                    : 574272
+Resolution                       : 16
+Resolution                       : 16 bits
+Bit depth                        : 16
+Bit depth                        : 16 bits
+Delay                            : 272.600
+Delay                            : 273ms
+Delay                            : 273ms
+Delay                            : 273ms
+Delay                            : 00:00:00.273
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay relative to video          : 11
+Delay relative to video          : 11ms
+Delay relative to video          : 11ms
+Delay relative to video          : 11ms
+Delay relative to video          : 00:00:00.011
+Video0 delay                     : 11
+Video0 delay                     : 11ms
+Video0 delay                     : 11ms
+Video0 delay                     : 11ms
+Video0 delay                     : 00:00:00.011
+Stream size                      : 2297088
+Stream size                      : 2.19 MiB (24%)
+Stream size                      : 2 MiB
+Stream size                      : 2.2 MiB
+Stream size                      : 2.19 MiB
+Stream size                      : 2.191 MiB
+Stream size                      : 2.19 MiB (24%)
+Proportion of this stream        : 0.24033
+
+Menu
+Count                            : 72
+Count of stream of this kind     : 1
+Kind of stream                   : Menu
+Kind of stream                   : Menu
+Stream identifier                : 0
+Format                           : DVD-Video
+Commercial name                  : DVD-Video
+Codec                            : DVD-Video
+Codec                            : DVD-Video
+

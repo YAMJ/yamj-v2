@@ -127,12 +127,12 @@ public class AspectRatioTools {
 
         if (!found) {
             if (ratioValue > aspectRatioFind.getMaxFloat()) {
-                System.out.println("Too big! Using last value");
+//                System.out.println("Too big! Using last value");
             } else if (ratioValue < aspectList.get(0).getMinFloat()) {
-                System.out.println("Too small! Using lowest value");
+//                System.out.println("Too small! Using lowest value");
                 aspectRatioFind = aspectList.get(0);
             } else {
-                System.out.println("Some other error!");
+//                System.out.println("Some other error!");
                 aspectRatioFind = null;
             }
         }

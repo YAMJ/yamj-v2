@@ -1,0 +1,175 @@
+General
+Count                            : 279
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+Count of video streams           : 1
+Count of audio streams           : 1
+Video_Format_List                : VC-1
+Video_Format_WithHint_List       : VC-1 (WMV3)
+Codecs Video                     : WMV3
+Video_Language_List              : English (US)
+Audio_Format_List                : WMA
+Audio_Format_WithHint_List       : WMA
+Audio codecs                     : WMA3
+Audio_Language_List              : English (US)
+Complete name                    : _WMV_720_HD.wmv
+File name                        : _WMV_720_HD.wmv
+File extension                   : wmv
+Format                           : Windows Media
+Format                           : Windows Media
+Format/Extensions usually used   : asf wmv wma
+Commercial name                  : Windows Media
+Internet media type              : video/x-ms-wmv
+Codec                            : Windows Media
+Codec                            : Windows Media
+Codec/Extensions usually used    : asf wmv wma
+File size                        : 16235222
+File size                        : 15.5 MiB
+File size                        : 15 MiB
+File size                        : 15 MiB
+File size                        : 15.5 MiB
+File size                        : 15.48 MiB
+Duration                         : 20778
+Duration                         : 20s 778ms
+Duration                         : 20s 778ms
+Duration                         : 20s 778ms
+Duration                         : 00:00:20.778
+Overall bit rate mode            : CBR
+Overall bit rate mode            : Constant
+Overall bit rate                 : 6250927
+Overall bit rate                 : 6 251 Kbps
+Maximum Overall bit rate         : 6904045
+Maximum Overall bit rate         : 6 904 Kbps
+HeaderSize                       : 2764
+DataSize                         : 16232252
+Encoded date                     : UTC 2003-12-20 02:42:55.493 / UTC 1995-06-29 23:25:52
+File creation date               : UTC 2011-11-28 08:45:32.861
+File creation date (local)       : 2011-11-28 08:45:32.861
+File last modification date      : UTC 2010-07-20 17:00:30.520
+File last modification date (loc : 2010-07-20 17:00:30.520
+MediaFoundationVersion           : 2.112
+
+Video
+Count                            : 200
+Count of stream of this kind     : 1
+Kind of stream                   : Video
+Kind of stream                   : Video
+Stream identifier                : 0
+ID                               : 2
+ID                               : 2
+Format                           : VC-1
+Commercial name                  : VC-1
+Format profile                   : MP@HL
+Internet media type              : video/vc1
+Codec ID                         : WMV3
+Codec ID/Info                    : Windows Media Video 9
+Codec ID/Hint                    : WMV3
+Codec ID/Url                     : http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx
+Description of the codec         : Windows Media Video 9 - Professional
+Codec                            : WMV3
+Codec                            : WMV3
+Codec/Family                     : VC-1
+Codec/Info                       : Windows Media Video 9
+Codec/Url                        : http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx
+Codec/CC                         : WMV3
+Codec profile                    : MP
+Codec description                : Windows Media Video 9 - Professional
+Duration                         : 20792
+Duration                         : 20s 792ms
+Duration                         : 20s 792ms
+Duration                         : 20s 792ms
+Duration                         : 00:00:20.792
+Bit rate mode                    : CBR
+Bit rate mode                    : Constant
+Bit rate                         : 6500000
+Bit rate                         : 6 500 Kbps
+Width                            : 1280
+Width                            : 1 280 pixels
+Height                           : 720
+Height                           : 720 pixels
+Pixel aspect ratio               : 1.000
+Display aspect ratio             : 1.778
+Display aspect ratio             : 16:9
+Frame rate                       : 24.000
+Frame rate                       : 24.000 fps
+Frame count                      : 499
+Resolution                       : 8
+Resolution                       : 8 bits
+Bit depth                        : 8
+Bit depth                        : 8 bits
+Scan type                        : Progressive
+Scan type                        : Progressive
+Interlacement                    : PPF
+Interlacement                    : Progressive
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Bits/(Pixel*Frame)               : 0.294
+Stream size                      : 16893500
+Stream size                      : 16.1 MiB
+Stream size                      : 16 MiB
+Stream size                      : 16 MiB
+Stream size                      : 16.1 MiB
+Stream size                      : 16.11 MiB
+Language                         : en-us
+Language                         : English (US)
+Language                         : English (US)
+Language                         : en
+Language                         : eng
+Language                         : en-us
+
+Audio
+Count                            : 169
+Count of stream of this kind     : 1
+Kind of stream                   : Audio
+Kind of stream                   : Audio
+Stream identifier                : 0
+ID                               : 1
+ID                               : 1
+Format                           : WMA
+Commercial name                  : WMA
+Format profile                   : Pro
+Codec ID                         : 162
+Codec ID/Info                    : Windows Media Audio
+Codec ID/Url                     : http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx
+Description of the codec         : Windows Media Audio 9 Professional - 384 kbps, 48 kHz, 5.1 channel 24 bit (A/V) 2-pass CBR
+Codec                            : 162
+Codec                            : WMA3
+Codec/Info                       : Windows Media Audio 3
+Codec/Url                        : http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx
+Codec/CC                         : 162
+Codec description                : Windows Media Audio 9 Professional - 384 kbps, 48 kHz, 5.1 channel 24 bit (A/V) 2-pass CBR
+Duration                         : 20778
+Duration                         : 20s 778ms
+Duration                         : 20s 778ms
+Duration                         : 20s 778ms
+Duration                         : 00:00:20.778
+Bit rate mode                    : CBR
+Bit rate mode                    : Constant
+Bit rate                         : 384000
+Bit rate                         : 384 Kbps
+Channel(s)                       : 6
+Channel(s)                       : 6 channels
+Sampling rate                    : 48000
+Sampling rate                    : 48.0 KHz
+Samples count                    : 997344
+Resolution                       : 24
+Resolution                       : 24 bits
+Bit depth                        : 24
+Bit depth                        : 24 bits
+Stream size                      : 997344
+Stream size                      : 974 KiB (6%)
+Stream size                      : 974 KiB
+Stream size                      : 974 KiB
+Stream size                      : 974 KiB
+Stream size                      : 974.0 KiB
+Stream size                      : 974 KiB (6%)
+Proportion of this stream        : 0.06143
+Language                         : en-us
+Language                         : English (US)
+Language                         : English (US)
+Language                         : en
+Language                         : eng
+Language                         : en-us
+

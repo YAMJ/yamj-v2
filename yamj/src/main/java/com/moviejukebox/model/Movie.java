@@ -61,12 +61,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /*--------------------------------------------------------------------------------
      * Static & Final variables that are used for control and don't relate specifically to the Movie object
      */
+
     public static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     public static final String dateFormatLongString = dateFormatString + " HH:mm:ss";
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
     public static final SimpleDateFormat dateFormatLong = new SimpleDateFormat(dateFormatLongString);
     private static Logger logger = Logger.getLogger("moviejukebox");
-
     public static final String UNKNOWN = "UNKNOWN";
     public static final String NOTRATED = "Not Rated";
     public static final String REMOVE = "Remove"; // All Movie objects with this type will be removed from library before index generation
@@ -79,11 +79,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String TYPE_DVD = "DVD"; // Used to indicate what physical format the video is
     public static final String TYPE_FILE = "FILE"; // Used to indicate what physical format the video is
     public static final String TYPE_PERSON = "PERSON";
-
     private String mjbVersion = UNKNOWN;
     private String mjbRevision = UNKNOWN;
     private DateTime mjbGenerationDate = null;
-    
     /*--------------------------------------------------------------------------------
      * Caching - Dirty Flags
      * More of these flags can be added to further classify what changed
@@ -105,13 +103,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private static HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
     private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
-    
     /*--------------------------------------------------------------------------------
      * Properties related to the Movie object itself
      */
     private String baseName;        // Safe name for generated files
     private String baseFilename;    // Base name for finding posters, nfos, banners, etc.
-
     private Map<String, String> idMap = new HashMap<String, String>(2);
     private String title = UNKNOWN;
     private String titleSort = UNKNOWN;
@@ -137,6 +133,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
+    private Set<Codec> codecs = new LinkedHashSet<Codec>();
     private String audioChannels = UNKNOWN; // Number of audio channels
     private String resolution = UNKNOWN; // 1280x528
     private String aspect = UNKNOWN;
@@ -145,32 +142,24 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private float fps = 60;
     private String certification = UNKNOWN;
     private String showStatus = UNKNOWN;    // For TV shows a status such as "Continuing" or "Ended"
-    
     private boolean scrapeLibrary;
-    
     private boolean extra = false;  // TODO Move extra flag to movie file
     private boolean trailerExchange = false;    // Trailers
     private long trailerLastScan = 0;           // Trailers
-    
     private Collection<AwardEvent> awards = new ArrayList<AwardEvent>();    // Issue 1901: Awards
     private Collection<Filmography> people = new ArrayList<Filmography>();  // Issue 1897: Cast enhancement
-
     private String budget = UNKNOWN;                                        // Issue 2012: Financial information about movie
-    private Map<String, String> openweek =  new HashMap<String, String>();
-    private Map<String, String> gross =  new HashMap<String, String>();
-
+    private Map<String, String> openweek = new HashMap<String, String>();
+    private Map<String, String> gross = new HashMap<String, String>();
     private Collection<String> DidYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
-
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
     private String formatType = TYPE_FILE;
     private boolean overrideTitle = false;
     private boolean overrideYear = false;
-
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
-    
     // Graphics URLs & files
     private Set<Artwork> artwork = new LinkedHashSet<Artwork>();
     private String posterURL = UNKNOWN; // The original, unaltered, poster
@@ -182,48 +171,41 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
     private String bannerFilename = UNKNOWN; // The resized banner file
-    
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
     private boolean watchedFile = false;    // Watched / Unwatched - Set from the .watched files
     private boolean watchedNFO = false; // Watched / Unwatched - Set from the NFO file
-    
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
     private String next = UNKNOWN;
     private String last = UNKNOWN;
     private Map<String, String> indexes = new HashMap<String, String>();
-
     // Media file properties
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
     Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
-
     private Map<String, Boolean> dirtyFlags = new HashMap<String, Boolean>();   // List of the dirty flags associated with the Movie
-    
     private File file;
     private File containerFile;
-    
     // Set information
     private boolean isSetMaster = false;    // True if movie actually is only a entry point to movies set.
     private int setSize = 0;                // Amount of movies in set
-
     private MovieDatabasePlugin movieScanner = null;
 
     /*--------------------------------------------------------------------------------
      * End of properties
      *--------------------------------------------------------------------------------*/
-    
     static {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
         while (st.hasMoreTokens()) {
             genreSkipList.add(st.nextToken().toLowerCase());
         }
     }
-    
+
     // http://stackoverflow.com/questions/343669/how-to-let-jaxb-render-boolean-as-0-and-1-not-true-and-false
     public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean> {
+
         @Override
         public Boolean unmarshal(String s) {
             return s == null ? null : "YES".equalsIgnoreCase(s);
@@ -236,6 +218,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public static class UrlCodecAdapter extends XmlAdapter<String, String> {
+
         @Override
         public String unmarshal(String s) {
             return s == null ? null : HTMLTools.decodeUrl(s);
@@ -411,21 +394,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void addPerson(String key, String name, String URL, String job, String character, String doublage) {
-        if (StringUtils.isNotBlank(name) 
-                        && StringUtils.isNotBlank(key) 
-                        && StringUtils.isNotBlank(URL) 
-                        && StringUtils.isNotBlank(job) 
-                        && StringUtils.isNotBlank(character)) {
-            
+        if (StringUtils.isNotBlank(name)
+                && StringUtils.isNotBlank(key)
+                && StringUtils.isNotBlank(URL)
+                && StringUtils.isNotBlank(job)
+                && StringUtils.isNotBlank(character)) {
+
             Filmography person = new Filmography();
-            
+
             if (key.indexOf(":") > -1) {
                 String[] keys = key.split(":");
                 person.setId(keys[0], keys[1]);
             } else {
                 person.setId(key);
             }
-            
+
             if (name.indexOf(":") > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[0])) {
@@ -439,13 +422,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             } else {
                 person.setName(name);
             }
-            
+
             person.setUrl(URL);
             person.setCharacter(character);
             person.setDoublage(doublage);
             person.setJob(job);
             person.setDepartment();
-            
+
             int countActor = 0;
             if (person.getDepartment().equalsIgnoreCase("Actors")) {
                 for (Filmography member : people) {
@@ -454,7 +437,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     }
                 }
             }
-            
+
             person.setOrder(countActor);
             person.setCastId(people.size());
             person.setScrapeLibrary(scrapeLibrary);
@@ -714,6 +697,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public static class MovieId {
+
         @XmlAttribute
         public String movieDatabase;
         @XmlValue
@@ -902,7 +886,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setDirty(String dirtyType, boolean dirty) {
         dirtyFlags.put(dirtyType, dirty);
     }
-    
+
     /**
      * Clear ALL the dirty flags, and just set DIRTY_INFO to the passed value
      * @param dirty
@@ -911,7 +895,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         dirtyFlags.clear();
         setDirty(Movie.DIRTY_INFO, dirty);
     }
-    
+
     /**
      * Returns true if ANY of the dirty flags are set.
      * Use with caution, it's better to test individual flags as you need them, rather than this generic flag
@@ -925,7 +909,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             return false;
         }
     }
-    
+
 //    @XmlTransient
     public String showDirty() {
         return dirtyFlags.toString();
@@ -936,10 +920,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (dirtyFlags.get(dirtyType) == null) {
             setDirty(dirtyType, false);
         }
-        
+
         return dirtyFlags.get(dirtyType);
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -1035,7 +1019,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringTools.isNotValidString(actor)) {
             return;
         }
-        
+
         if (!cast.contains(actor.trim())) {
             setDirty(DIRTY_INFO, true);
             cast.add(actor.trim());
@@ -1073,17 +1057,17 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             clearCast();
             this.cast.addAll(cast);
             Collection<Filmography> pList = new ArrayList<Filmography>();
-            
+
             for (Filmography p : people) {
                 if (p.getDepartment().equals("Actors")) {
                     pList.add(p);
                 }
             }
-            
+
             for (Filmography p : pList) {
                 removePerson(p);
             }
-            
+
             for (String member : cast) {
                 addActor(Movie.UNKNOWN, member, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
             }
@@ -1113,17 +1097,17 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     Name = names[0];
                 }
             }
-            
+
             Name = Name.trim();
             boolean found = false;
-            
+
             for (Filmography p : people) {
                 if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Writing")) {
                     found = true;
                     break;
                 }
             }
-            
+
             if (!found) {
                 addWriter(Name);
                 addPerson(key, name, URL, "Writer");
@@ -1243,7 +1227,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     directorName = names[0];
                 }
             }
-            
+
             directorName = directorName.trim();
             boolean found = false;
             for (Filmography p : people) {
@@ -1271,7 +1255,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setFps(float fps) {
         //Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
-        if ( Math.abs(fps-this.fps) >0.1 ){ 
+        if (Math.abs(fps - this.fps) > 0.1) {
             setDirty(DIRTY_INFO, true);
             this.fps = fps;
         }
@@ -1323,7 +1307,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.idMap.put(key, id);
         }
     }
-    
+
     public void setId(String key, int id) {
         setId(key, Integer.toString(id));
     }
@@ -1334,7 +1318,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.gross.put(country, value);
         }
     }
-    
+
     public void setGross(Map<String, String> gross) {
         if (gross != null) {
             this.gross = gross;
@@ -1347,7 +1331,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.openweek.put(country, value);
         }
     }
-    
+
     public void setOpenWeek(Map<String, String> openweek) {
         if (openweek != null) {
             this.openweek = openweek;
@@ -1431,7 +1415,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(outline)) {
             outline = UNKNOWN;
         }
-        
+
         if (!outline.equalsIgnoreCase(this.outline)) {
             setDirty(DIRTY_INFO, true);
             outline = outline.replaceAll("\"", "'");
@@ -1453,30 +1437,30 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (ratings == null || ratings.isEmpty()) {
             return -1;
         }
-        
+
         for (String site : ratingSource) {
             if ("average".equalsIgnoreCase(site)) {
                 // Return the average of the ratings
                 int rating = 0;
                 int count = 0;
-                
+
                 for (String ratingSite : ratings.keySet()) {
                     rating += ratings.get(ratingSite);
                     count++;
                 }
-                
-                return (rating/count);
+
+                return (rating / count);
             }
-            
+
             if (ratings.containsKey(site)) {
                 return ratings.get(site);
             }
         }
-        
+
         // No ratings found, so return -1
         return -1;
     }
-    
+
     public int getRating(String site) {
         if (ratings.containsKey(site)) {
             return ratings.get(site);
@@ -1484,7 +1468,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             return -1;
         }
     }
-    
+
     public Map<String, Integer> getRatings() {
         return ratings;
     }
@@ -1502,7 +1486,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
         }
     }
-    
+
     public void setRatings(Map<String, Integer> ratings) {
         if (ratings != null && !ratings.isEmpty()) {
             this.ratings = ratings;
@@ -1679,7 +1663,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setContainerFile(File containerFile) {
         this.containerFile = containerFile;
     }
-
     private Long tmstmp = null; // cache value
 
     public long getLastModifiedTimestamp() {
@@ -1965,7 +1948,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             // Mark the movie as a TV Show
             setMovieType(Movie.TYPE_TVSHOW);
         }
-        
+
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }
@@ -1981,72 +1964,72 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
 
             switch (dto.getFps()) {
-            case 23:
-                videoOutput = "1080p 23.976Hz";
-                break;
-            case 24:
-                videoOutput = "1080p 24Hz";
-                break;
-            case 25:
-                videoOutput = "1080p 25Hz";
-                break;
-            case 29:
-                videoOutput = "1080p 29.97Hz";
-                break;
-            case 30:
-                videoOutput = "1080p 30Hz";
-                break;
-            case 50:
-                if (!videoOutput.equals("")) {
-                    videoOutput += " ";
-                }
-                videoOutput += "50Hz";
-                break;
-            case 59:
-                videoOutput = "1080p 59.94Hz";
-                break;
-            case 60:
-                if (!videoOutput.equals("")) {
-                    videoOutput += " ";
-                }
-                videoOutput += "60Hz";
-                break;
-            default:
-                if (videoOutput.equals("")) {
-                    videoOutput = Movie.UNKNOWN;
-                } else {
-                    videoOutput += " 60Hz";
-                }
+                case 23:
+                    videoOutput = "1080p 23.976Hz";
+                    break;
+                case 24:
+                    videoOutput = "1080p 24Hz";
+                    break;
+                case 25:
+                    videoOutput = "1080p 25Hz";
+                    break;
+                case 29:
+                    videoOutput = "1080p 29.97Hz";
+                    break;
+                case 30:
+                    videoOutput = "1080p 30Hz";
+                    break;
+                case 50:
+                    if (!videoOutput.equals("")) {
+                        videoOutput += " ";
+                    }
+                    videoOutput += "50Hz";
+                    break;
+                case 59:
+                    videoOutput = "1080p 59.94Hz";
+                    break;
+                case 60:
+                    if (!videoOutput.equals("")) {
+                        videoOutput += " ";
+                    }
+                    videoOutput += "60Hz";
+                    break;
+                default:
+                    if (videoOutput.equals("")) {
+                        videoOutput = Movie.UNKNOWN;
+                    } else {
+                        videoOutput += " 60Hz";
+                    }
             }
         } else {
             switch (dto.getFps()) {
-            case 23:
-                videoOutput = "23p";
-                break;
-            case 24:
-                videoOutput = "24p";
-                break;
-            case 25:
-                videoOutput = "PAL";
-                break;
-            case 29:
-                videoOutput = "NTSC";
-                break;
-            case 30:
-                videoOutput = "NTSC";
-                break;
-            case 49:
-                videoOutput = "PAL";
-                break;
-            case 50:
-                videoOutput = "PAL";
-                break;
-            case 60:
-                videoOutput = "NTSC";
-                break;
-            default:
-                videoOutput = Movie.UNKNOWN;
-                break;
+                case 23:
+                    videoOutput = "23p";
+                    break;
+                case 24:
+                    videoOutput = "24p";
+                    break;
+                case 25:
+                    videoOutput = "PAL";
+                    break;
+                case 29:
+                    videoOutput = "NTSC";
+                    break;
+                case 30:
+                    videoOutput = "NTSC";
+                    break;
+                case 49:
+                    videoOutput = "PAL";
+                    break;
+                case 50:
+                    videoOutput = "PAL";
+                    break;
+                case 60:
+                    videoOutput = "NTSC";
+                    break;
+                default:
+                    videoOutput = Movie.UNKNOWN;
+                    break;
             }
         }
     }
@@ -2120,7 +2103,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     // ***** All the graphics methods go here *****
-
     // ***** Posters
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getPosterURL() {
@@ -2136,7 +2118,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(url)) {
             url = UNKNOWN;
         }
-        
+
         if (!url.equalsIgnoreCase(this.posterURL)) {
             setDirty(Movie.DIRTY_INFO, true);
             this.posterURL = url;
@@ -2207,7 +2189,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(fanartURL)) {
             fanartURL = UNKNOWN;
         }
-        
+
         if (!fanartURL.equalsIgnoreCase(this.fanartURL)) {
             setDirty(Movie.DIRTY_INFO, true);
             this.fanartURL = fanartURL;
@@ -2237,7 +2219,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(bannerURL)) {
             bannerURL = UNKNOWN;
         }
-        
+
         if (!bannerURL.equalsIgnoreCase(this.bannerURL)) {
             setDirty(DIRTY_INFO, true);
             this.bannerURL = bannerURL;
@@ -2257,7 +2239,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     // ***** END of graphics *****
-
     public Map<String, String> getIndexes() {
         return indexes;
     }
@@ -2289,7 +2270,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(tagline)) {
             tagline = UNKNOWN;
         }
-        
+
         if (!tagline.equalsIgnoreCase(this.tagline)) {
             setDirty(DIRTY_INFO, true);
             this.tagline = tagline;
@@ -2424,7 +2405,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         newMovie.baseName = aMovie.baseName;
         newMovie.baseFilename = aMovie.baseFilename;
-        
+
         newMovie.title = aMovie.title;
         newMovie.titleSort = aMovie.titleSort;
         newMovie.originalTitle = aMovie.originalTitle;
@@ -2458,7 +2439,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.libraryPath = aMovie.libraryPath;
         newMovie.movieType = aMovie.movieType;
         newMovie.formatType = aMovie.formatType;
-        newMovie.overrideTitle = aMovie.overrideTitle; 
+        newMovie.overrideTitle = aMovie.overrideTitle;
         newMovie.overrideYear = aMovie.overrideYear;
         newMovie.top250 = aMovie.top250;
         newMovie.libraryDescription = aMovie.libraryDescription;
@@ -2484,7 +2465,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.containerFile = aMovie.containerFile;
         newMovie.isSetMaster = aMovie.isSetMaster;
         newMovie.setSize = aMovie.setSize;
-        
+
         newMovie.idMap = new HashMap<String, String>(aMovie.idMap);
         newMovie.ratings = new HashMap<String, Integer>(aMovie.ratings);
         newMovie.directors = new LinkedHashSet<String>(aMovie.directors);
@@ -2499,8 +2480,33 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.movieFiles = new TreeSet<MovieFile>(aMovie.movieFiles);
         newMovie.extraFiles = new TreeSet<ExtraFile>(aMovie.extraFiles);
         newMovie.dirtyFlags = new HashMap<String, Boolean>(aMovie.dirtyFlags);
+        newMovie.codecs = new LinkedHashSet<Codec>(aMovie.codecs);
 
         return newMovie;
     }
-    
+
+    public Set<Codec> getCodecs() {
+        return codecs;
+    }
+
+    public void setCodecs(Set<Codec> codecs) {
+        this.codecs = codecs;
+        setDirty(DIRTY_INFO, true);
+    }
+
+    public void addCodec(Codec codec) {
+        // Check to see if the codec already exists
+        boolean alreadyExists = false;
+        for (Codec existingCodec : codecs) {
+            if (existingCodec.equals(codec)) {
+                alreadyExists = true;
+                break;
+            }
+        }
+
+        if (!alreadyExists) {
+            this.codecs.add(codec);
+            setDirty(DIRTY_INFO, true);
+        }
+    }
 }

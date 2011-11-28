@@ -1,0 +1,215 @@
+General
+Count                            : 278
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+ID                               : 0
+ID                               : 0 (0x0)
+Count of video streams           : 1
+Count of audio streams           : 1
+Video_Format_List                : AVC
+Video_Format_WithHint_List       : AVC
+Codecs Video                     : AVC
+Audio_Format_List                : E-AC-3
+Audio_Format_WithHint_List       : E-AC-3
+Audio codecs                     : AC3+
+Complete name                    : _M2TS_DD_Plus_5.m2ts
+File name                        : _M2TS_DD_Plus_5.m2ts
+File extension                   : m2ts
+Format                           : BDAV
+Format                           : BDAV
+Format/Info                      : Blu-ray Video
+Format/Extensions usually used   : m2ts
+Commercial name                  : BDAV
+Codec                            : BDAV
+Codec                            : BDAV
+Codec/Info                       : Blu-ray Video
+Codec/Extensions usually used    : m2ts
+File size                        : 11452416
+File size                        : 10.9 MiB
+File size                        : 11 MiB
+File size                        : 11 MiB
+File size                        : 10.9 MiB
+File size                        : 10.92 MiB
+Duration                         : 11699.960667
+Duration                         : 11s 700ms
+Duration                         : 11s 700ms
+Duration                         : 11s 700ms
+Duration                         : 00:00:11.700
+Overall bit rate                 : 7812752
+Overall bit rate                 : 7 813 Kbps
+Maximum Overall bit rate         : 48000000
+Maximum Overall bit rate         : 48.0 Mbps
+Stream size                      : 1044379
+Stream size                      : 1 020 KiB (9%)
+Stream size                      : 1 020 KiB
+Stream size                      : 1 020 KiB
+Stream size                      : 1 020 KiB
+Stream size                      : 1 019.9 KiB
+Stream size                      : 1 020 KiB (9%)
+Proportion of this stream        : 0.09119
+File creation date               : UTC 2011-11-28 08:45:32.725
+File creation date (local)       : 2011-11-28 08:45:32.725
+File last modification date      : UTC 2010-06-23 07:02:57.676
+File last modification date (loc : 2010-06-23 07:02:57.676
+
+Video
+Count                            : 203
+Count of stream of this kind     : 1
+Kind of stream                   : Video
+Kind of stream                   : Video
+Stream identifier                : 0
+ID                               : 4113
+ID                               : 4113 (0x1011)
+Menu ID                          : 1
+Menu ID                          : 1 (0x1)
+Format                           : AVC
+Format/Info                      : Advanced Video Codec
+Format/Url                       : http://developers.videolan.org/x264.html
+Commercial name                  : AVC
+Format profile                   : High@L4.1
+Format settings                  : CABAC / 4 Ref Frames
+Format settings, CABAC           : Yes
+Format settings, CABAC           : Yes
+Format settings, ReFrames        : 4
+Format settings, ReFrames        : 4 frames
+Internet media type              : video/H264
+Codec ID                         : 27
+Codec                            : AVC
+Codec                            : AVC
+Codec/Family                     : AVC
+Codec/Info                       : Advanced Video Codec
+Codec/Url                        : http://developers.videolan.org/x264.html
+Codec profile                    : High@L4.1
+Codec settings                   : CABAC / 4 Ref Frames
+Codec settings, CABAC            : Yes
+Codec_Settings_RefFrames         : 4
+Duration                         : 11111
+Duration                         : 11s 111ms
+Duration                         : 11s 111ms
+Duration                         : 11s 111ms
+Duration                         : 00:00:11.111
+Bit rate mode                    : VBR
+Bit rate mode                    : Variable
+Bit rate                         : 6470507
+Bit rate                         : 6 471 Kbps
+Maximum bit rate                 : 35999744
+Maximum bit rate                 : 36.0 Mbps
+Width                            : 1920
+Width                            : 1 920 pixels
+Height                           : 1080
+Height                           : 1 080 pixels
+Pixel aspect ratio               : 1.000
+Display aspect ratio             : 1.778
+Display aspect ratio             : 16:9
+Frame rate                       : 29.970
+Frame rate                       : 29.970 fps
+Frame count                      : 333
+Standard                         : NTSC
+Resolution                       : 8
+Resolution                       : 8 bits
+Colorimetry                      : 4:2:0
+Color space                      : YUV
+Chroma subsampling               : 4:2:0
+Bit depth                        : 8
+Bit depth                        : 8 bits
+Scan type                        : MBAFF
+Scan type                        : MBAFF
+Interlacement                    : MBAFF
+Interlacement                    : MBAFF
+Bits/(Pixel*Frame)               : 0.104
+Delay                            : 600000.000
+Delay                            : 10mn 0s
+Delay                            : 10mn 0s 0ms
+Delay                            : 10mn 0s
+Delay                            : 00:10:00.000
+Delay, origin                    : Container
+Delay, origin                    : Container
+Stream size                      : 8986725
+Stream size                      : 8.57 MiB (78%)
+Stream size                      : 9 MiB
+Stream size                      : 8.6 MiB
+Stream size                      : 8.57 MiB
+Stream size                      : 8.570 MiB
+Stream size                      : 8.57 MiB (78%)
+Proportion of this stream        : 0.78470
+Buffer size                      : 3749952
+Color primaries                  : BT.709-5, BT.1361, IEC 61966-2-4, SMPTE RP177
+Transfer characteristics         : BT.709-5, BT.1361
+Matrix coefficients              : BT.709-5, BT.1361, IEC 61966-2-4 709, SMPTE RP177
+
+Audio
+Count                            : 188
+Count of stream of this kind     : 1
+Kind of stream                   : Audio
+Kind of stream                   : Audio
+Stream identifier                : 0
+ID                               : 4352
+ID                               : 4352 (0x1100)
+Menu ID                          : 1
+Menu ID                          : 1 (0x1)
+Format                           : E-AC-3
+Format/Info                      : Audio Coding 3
+Commercial name                  : E-AC-3
+Internet media type              : audio/eac3
+Muxing mode                      : Stream extension
+Codec ID                         : 132
+Codec                            : AC3+
+Codec                            : AC3+
+Codec/Family                     : AC3
+Codec/Info                       : Dolby Ehanced AC3
+Duration                         : 11104
+Duration                         : 11s 104ms
+Duration                         : 11s 104ms
+Duration                         : 11s 104ms
+Duration                         : 00:00:11.104
+Bit rate mode                    : CBR
+Bit rate mode                    : Constant
+Bit rate                         : 1024000
+Bit rate                         : 1 024 Kbps
+Channel(s)                       : 5
+Channel(s)                       : 5 channels
+Sampling rate                    : 48000
+Sampling rate                    : 48.0 KHz
+Samples count                    : 532992
+Frame count                      : 347
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Delay                            : 600000.000
+Delay                            : 10mn 0s
+Delay                            : 10mn 0s 0ms
+Delay                            : 10mn 0s
+Delay                            : 00:10:00.000
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay relative to video          : 0
+Video0 delay                     : 0
+Stream size                      : 1421312
+Stream size                      : 1.36 MiB (12%)
+Stream size                      : 1 MiB
+Stream size                      : 1.4 MiB
+Stream size                      : 1.36 MiB
+Stream size                      : 1.355 MiB
+Stream size                      : 1.36 MiB (12%)
+Proportion of this stream        : 0.12411
+dialnorm                         : -31
+dialnorm/String                  : -31 dB
+compr                            : -0.28
+compr/String                     : -0.28 dB
+bsid                             : 16
+dialnorm_Average                 : -31
+dialnorm_Average/String          : -31 dB
+dialnorm_Minimum                 : -31
+dialnorm_Minimum/String          : -31 dB
+dialnorm_Maximum                 : -31
+dialnorm_Maximum/String          : -31 dB
+dialnorm_Count                   : 2
+compr_Average                    : -0.28
+compr_Average/String             : -0.28 dB
+compr_Minimum                    : -0.28
+compr_Minimum/String             : -0.28 dB
+compr_Maximum                    : -0.28
+compr_Maximum/String             : -0.28 dB
+compr_Count                      : 2
+
