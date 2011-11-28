@@ -15,7 +15,6 @@ package com.moviejukebox.plugin.poster;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
@@ -23,30 +22,67 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.util.ArrayList;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 //    private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser = new WebBrowser();
+    private static final String SEARCH_START = "La Web";
+    private static final String SEARCH_END = "Sugerencias de búsqueda";
+    private static final String TITLE_START = "Carátula de la película: ";
+    private static final String TITLE_END = "</a>";
+    private static final String SEARCH_ID_START = "caratula.php?pel=";
 
     public CaratulasdecinePosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
     }
 
-    private String getMovieUrl(String xml) throws IOException {
-        String response = Movie.UNKNOWN;
+    /**
+     * Look for the movie URL in the XML.
+     * If there is no title, or the title is not found, return the first movie URL
+     * @param xml
+     * @param title
+     * @return
+     * @throws IOException 
+     */
+    private String getMovieId(String xml, String title) throws IOException {
+        String movieId = Movie.UNKNOWN;
 
-        String searchString = "caratula.php?pel=";
-        int beginIndex = xml.indexOf(searchString);
-        if (beginIndex > -1) {
-            response = new String(xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length())));
+        ArrayList<String> foundTitles = HTMLTools.extractTags(xml, SEARCH_START, SEARCH_END, TITLE_START, TITLE_END, false);
+
+        for (String searchTitle : foundTitles) {
+            String cleanTitle = HTMLTools.stripTags(searchTitle);
+            if (title != null && title.equalsIgnoreCase(cleanTitle)) {
+                movieId = findIdInXml(xml, searchTitle);
+                if (StringTools.isValidString(movieId)) {
+                    // Found the movie ID, so quit
+                    break;
+                }
+            }
         }
-        return response;
+
+        // If we didn't find the title, try just getting the first returned one
+        if (StringTools.isNotValidString(movieId) && foundTitles.size() > 0) {
+            movieId = findIdInXml(xml, foundTitles.get(0));
+        }
+
+        return movieId;
+    }
+
+    private String findIdInXml(String xml, String searchTitle) {
+        String movieId = Movie.UNKNOWN;
+        int beginIndex = xml.indexOf(SEARCH_ID_START, xml.indexOf(TITLE_START + searchTitle + TITLE_END));
+        if (beginIndex > -1) {
+            movieId = new String(xml.substring(beginIndex + SEARCH_ID_START.length(), xml.indexOf(" ", beginIndex + SEARCH_ID_START.length())));
+        }
+        
+        return movieId;
     }
 
     @Override
@@ -56,7 +92,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
             StringBuilder sb = new StringBuilder("http://www.google.es/custom?hl=es&domains=caratulasdecine.com&sa=Search&sitesearch=caratulasdecine.com&client=pub-8773978869337108&forid=1&q=");
             sb.append(URLEncoder.encode(title, "ISO-8859-1"));
             String xml = webBrowser.request(sb.toString());
-            response = getMovieUrl(xml);
+            response = getMovieId(xml, title);
 
             if (StringTools.isNotValidString(response)) {
                 // Did we've a link to the movie list
@@ -73,7 +109,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                     String[] extractTags = extractTag.split("<a class=\"A\"");
                     for (String string : extractTags) {
                         if (string.contains(title)) {
-                            response = getMovieUrl(string);
+                            response = getMovieId(string, title);
                             break;
                         }
                     }
@@ -83,6 +119,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
             logger.error("Failed retreiving CaratulasdecinePoster Id for movie: " + title);
             logger.error("Error : " + error.getMessage());
         }
+
         return response;
     }
 
@@ -99,17 +136,19 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 int beginIndex = xml.indexOf(searchString);
                 if (beginIndex > -1) {
                     posterURL = "http://www.caratulasdecine.com/"
-                                    + new String(xml.substring(beginIndex + searchString.length(), xml.indexOf("\"", beginIndex + searchString.length())));
+                            + new String(xml.substring(beginIndex + searchString.length(), xml.indexOf(" ", beginIndex + searchString.length()) - 1 ));
                 }
 
-            } catch (Exception e) {
+            } catch (Exception error) {
                 logger.error("Failed retreiving CaratulasdecinePoster url for movie : " + id);
-                logger.error("Error : " + e.getMessage());
+                logger.error("Error : " + error.getMessage());
             }
         }
+        
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
         }
+        
         return Image.UNKNOWN;
     }
 

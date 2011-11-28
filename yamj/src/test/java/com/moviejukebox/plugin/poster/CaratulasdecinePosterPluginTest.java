@@ -1,69 +1,70 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *      Copyright (c) 2004-2011 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list 
+ *  
+ *      Web: http://code.google.com/p/moviejukebox/
+ *  
+ *      This software is licensed under a Creative Commons License
+ *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *  
+ *      For any reuse or distribution, you must make clear to others the 
+ *      license terms of this work.  
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.model.Image;
-import com.moviejukebox.model.IImage;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author Stuart
- */
 public class CaratulasdecinePosterPluginTest {
-    private static final CaratulasdecinePosterPlugin cPlugin = new CaratulasdecinePosterPlugin();
-    
+
+    CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
+
     public CaratulasdecinePosterPluginTest() {
     }
 
-    /**
-     * Test of getIdFromMovieInfo method, of class CaratulasdecinePosterPlugin.
-     */
     @Test
-    public void testGetIdFromMovieInfo() {
-        String title = "Avatar";
-        String year = "2009";
-        String expResult = "4736";
-        String result = cPlugin.getIdFromMovieInfo(title, year);
-        assertEquals(expResult, result);
+    public void testGetId() {
+
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Millennium 1", null);
+        assertEquals("4504", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        assertEquals("http://www.caratulasdecine.com/Caratulas5/millennium1_loshombresquenoamabanalasmujeres.jpg", posterUrl);
     }
 
-    /**
-     * Test of getPosterUrl method, of class CaratulasdecinePosterPlugin.
-     */
     @Test
-    public void testGetPosterUrl_String() {
-        String idForAvatar = "4736";
-        IImage result = cPlugin.getPosterUrl(idForAvatar);
-        
-        assertEquals("http://www.caratulasdecine.com/Caratulas5/avatar.jpg", result.getUrl());
+    public void testGetList() {
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("El ultimátum de Bourne", null);
+        assertEquals("3654", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        assertEquals("http://www.caratulasdecine.com/Caratulas4/elultimatumdebourne.jpg", posterUrl);
     }
 
-    /**
-     * Test of getPosterUrl method, of class CaratulasdecinePosterPlugin.
-     */
     @Test
-    public void testGetPosterUrl_String_String() {
-        String title = "Avatar";
-        String year = "2009";
-        IImage result = cPlugin.getPosterUrl(title, year);
-        
-        assertEquals("http://www.caratulasdecine.com/Caratulas5/avatar.jpg", result.getUrl());
+    public void testGetTroya() {
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", null);
+        assertEquals("2141", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        assertEquals("http://www.caratulasdecine.com/Caratulas1/Troya.jpg", posterUrl);
     }
 
-    /**
-     * Test of getName method, of class CaratulasdecinePosterPlugin.
-     */
     @Test
-    public void testGetName() {
-        String result = cPlugin.getName();
-        assertEquals("caratulasdecine", result);
+    public void testGetEnTierraHostil() {
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil", null);
+        assertEquals("4783", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
+    }
+
+    @Test
+    public void testGetUp() {
+        String idFromMovieInfo = toTest.getIdFromMovieInfo("Up", null);
+        assertEquals("4568", idFromMovieInfo);
+
+        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        assertEquals("http://www.caratulasdecine.com/Caratulas5/up.jpg", posterUrl);
     }
 }

@@ -20,15 +20,17 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
+
     protected static Logger logger = Logger.getLogger("moviejukebox");
-    protected static String searchPriorityMovie = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie","").toLowerCase();
-    protected static String searchPriorityTv = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv","").toLowerCase();
+    protected static String searchPriorityMovie = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
+    protected static String searchPriorityTv = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
 
     public AbstractMoviePosterPlugin() {
     }
-    
+
     @Override
     public boolean isNeeded() {
         if (searchPriorityMovie.contains(this.getName())) {
@@ -37,25 +39,33 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
             return false;
         }
     }
-    
+
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
-        if (Movie.UNKNOWN.equalsIgnoreCase(id)) {
+        if (StringTools.isNotValidString(id)) {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
-            // Id found
-            if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
-                logger.debug(this.getName() + " posterPlugin: id found setting it to >" + id + "<");
+            // ID found
+            if (StringTools.isValidString(id)) {
+                logger.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
                 ident.setId(getName(), id);
+            } else if (!movieInformation.getOriginalTitle().equalsIgnoreCase(movieInformation.getTitle())) {
+                // Didn't find the movie with the original title, try the normal title if it's different
+                id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
+                // ID found
+                if (StringTools.isValidString(id)) {
+                    logger.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
+                    ident.setId(getName(), id);
+                }
             }
         } else {
-            logger.debug(this.getName() + " posterPlugin: id already in movie using it, skipping id search : " + id);
+            logger.debug(this.getName() + " posterPlugin: ID already in movie using it, skipping ID search: '" + id + "'");
         }
 
-        if (!(Movie.UNKNOWN.equalsIgnoreCase(id) || "-1".equals(id) || "0".equals(id))) {
+        if (!(StringTools.isNotValidString(id) || "-1".equals(id) || "0".equals(id))) {
             return getPosterUrl(id);
         }
-        
+
         return Image.UNKNOWN;
     }
 
@@ -69,5 +79,4 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
         }
         return response;
     }
-
 }
