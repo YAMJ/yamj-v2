@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 public class MediaInfoScannerTest {
 
     private static MediaInfoScanner toTest = new MediaInfoScanner();
-    private static final String testDir = "src/test/java/MediaInfoTests/";
+    private static final String testDir = "src/test/java/TestFiles/MediaInfo/";
     HashMap<String, String> infosGeneral = new HashMap<String, String>();
     ArrayList<HashMap<String, String>> infosVideo = new ArrayList<HashMap<String, String>>();
     ArrayList<HashMap<String, String>> infosAudio = new ArrayList<HashMap<String, String>>();

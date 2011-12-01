@@ -1,0 +1,210 @@
+General
+Count                            : 278
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+Count of video streams           : 1
+Count of audio streams           : 1
+Count of menu streams            : 1
+Video_Format_List                : MPEG Video
+Video_Format_WithHint_List       : MPEG Video
+Codecs Video                     : MPEG-2 Video
+Audio_Format_List                : DTS
+Audio_Format_WithHint_List       : DTS
+Audio codecs                     : DTS
+Menu_Format_List                 : DVD-Video
+Menu_Format_WithHint_List        : DVD-Video
+Menu codecs                      : DVD-Video
+Complete name                    : _MPG DTS_5.1.mpg
+File name                        : _MPG DTS_5.1.mpg
+File extension                   : mpg
+Format                           : MPEG-PS
+Format                           : MPEG-PS
+Format/Extensions usually used   : mpeg mpg m2p vob pss
+Commercial name                  : MPEG-PS
+Internet media type              : video/MP2P
+Codec                            : MPEG-PS
+Codec                            : MPEG-PS
+Codec/Extensions usually used    : mpeg mpg m2p vob pss
+File size                        : 21430272
+File size                        : 20.4 MiB
+File size                        : 20 MiB
+File size                        : 20 MiB
+File size                        : 20.4 MiB
+File size                        : 20.44 MiB
+Duration                         : 19052
+Duration                         : 19s 52ms
+Duration                         : 19s 52ms
+Duration                         : 19s 52ms
+Duration                         : 00:00:19.052
+Overall bit rate                 : 8998644
+Overall bit rate                 : 8 999 Kbps
+Stream size                      : 464962
+Stream size                      : 454 KiB (2%)
+Stream size                      : 454 KiB
+Stream size                      : 454 KiB
+Stream size                      : 454 KiB
+Stream size                      : 454.1 KiB
+Stream size                      : 454 KiB (2%)
+Proportion of this stream        : 0.02170
+File creation date               : UTC 2011-11-28 08:45:32.788
+File creation date (local)       : 2011-11-28 08:45:32.788
+File last modification date      : UTC 2010-06-23 07:03:03.190
+File last modification date (loc : 2010-06-23 07:03:03.190
+
+Video
+Count                            : 201
+Count of stream of this kind     : 1
+Kind of stream                   : Video
+Kind of stream                   : Video
+Stream identifier                : 0
+ID                               : 224
+ID                               : 224 (0xE0)
+Format                           : MPEG Video
+Commercial name                  : MPEG-2 Video
+Format version                   : Version 2
+Format profile                   : Main@Main
+Format settings                  : CustomMatrix / BVOP
+Format settings, BVOP            : Yes
+Format settings, BVOP            : Yes
+Format settings, Matrix          : Custom
+Format settings, Matrix          : Custom
+Format_Settings_Matrix_Data      : 0810101310131616161616161A181A1B1B1B1A1A1A1A1B1B1B1D1D1D2222221D1D1D1B1B1D1D2020222225262523232223262628282830302E2E38383A454553 / 101111121212131313131414141414151515151515161616161616161717171717171717181818181818181919191919191A1A1A1A1A1B1B1B1B1C1C1C1D1D1E
+Format settings, GOP             : M=3, N=12
+Internet media type              : video/MPV
+Codec                            : MPEG-2V
+Codec                            : MPEG-2 Video
+Codec/Family                     : MPEG-V
+Codec profile                    : Main@Main
+Codec settings                   : CustomMatrix
+Codec settings, Matrix           : Custom
+Duration                         : 19052
+Duration                         : 19s 52ms
+Duration                         : 19s 52ms
+Duration                         : 19s 52ms
+Duration                         : 00:00:19.052
+Bit rate mode                    : VBR
+Bit rate mode                    : Variable
+Bit rate                         : 7309821
+Bit rate                         : 7 310 Kbps
+Maximum bit rate                 : 7500000
+Maximum bit rate                 : 7 500 Kbps
+Width                            : 720
+Width                            : 720 pixels
+Height                           : 480
+Height                           : 480 pixels
+Pixel aspect ratio               : 1.185
+Display aspect ratio             : 1.778
+Display aspect ratio             : 16:9
+Frame rate                       : 29.970
+Frame rate                       : 29.970 fps
+Frame count                      : 571
+Standard                         : NTSC
+Resolution                       : 8
+Resolution                       : 8 bits
+Colorimetry                      : 4:2:0
+Color space                      : YUV
+Chroma subsampling               : 4:2:0
+Bit depth                        : 8
+Bit depth                        : 8 bits
+Scan type                        : Interlaced
+Scan type                        : Interlaced
+Scan order                       : TFF
+Scan order                       : Top Field First
+Interlacement                    : TFF
+Interlacement                    : Top Field First
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Bits/(Pixel*Frame)               : 0.706
+Delay                            : 233.567
+Delay                            : 234ms
+Delay                            : 234ms
+Delay                            : 234ms
+Delay                            : 00:00:00.234
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay_Original                   : 3600000
+Delay_Original                   : 1h 0mn
+Delay_Original                   : 1h 0mn 0s 0ms
+Delay_Original                   : 1h 0mn
+Delay_Original                   : 01:00:00.000
+Delay_Original_Settings          : drop_frame_flag=0 / closed_gop=1 / broken_link=0
+Delay_Original_Source            : Stream
+Stream size                      : 17408339
+Stream size                      : 16.6 MiB (81%)
+Stream size                      : 17 MiB
+Stream size                      : 17 MiB
+Stream size                      : 16.6 MiB
+Stream size                      : 16.60 MiB
+Stream size                      : 16.6 MiB (81%)
+Proportion of this stream        : 0.81232
+Buffer size                      : 229376
+intra_dc_precision               : 9
+
+Audio
+Count                            : 169
+Count of stream of this kind     : 1
+Kind of stream                   : Audio
+Kind of stream                   : Audio
+Stream identifier                : 0
+ID                               : 189-136
+ID                               : 189 (0xBD)-136 (0x88)
+Format                           : DTS
+Format/Info                      : Digital Theater Systems
+Commercial name                  : DTS
+Muxing mode                      : DVD-Video
+Codec                            : DTS
+Codec                            : DTS
+Duration                         : 18848
+Duration                         : 18s 848ms
+Duration                         : 18s 848ms
+Duration                         : 18s 848ms
+Duration                         : 00:00:18.848
+Bit rate mode                    : CBR
+Bit rate mode                    : Constant
+Bit rate                         : 1509750
+Bit rate                         : 1 510 Kbps
+Channel(s)                       : 6
+Channel(s)                       : 6 channels
+Channel positions                : Front: L C R, Side: L R, LFE
+Channel positions                : 3/2/0.1
+Sampling rate                    : 48000
+Sampling rate                    : 48.0 KHz
+Samples count                    : 904704
+Frame count                      : 589
+Resolution                       : 20
+Resolution                       : 20 bits
+Bit depth                        : 20
+Bit depth                        : 20 bits
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Delay                            : 233.567
+Delay                            : 234ms
+Delay                            : 234ms
+Delay                            : 234ms
+Delay                            : 00:00:00.234
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay relative to video          : 0
+Video0 delay                     : 0
+Stream size                      : 3556971
+Stream size                      : 3.39 MiB (17%)
+Stream size                      : 3 MiB
+Stream size                      : 3.4 MiB
+Stream size                      : 3.39 MiB
+Stream size                      : 3.392 MiB
+Stream size                      : 3.39 MiB (17%)
+Proportion of this stream        : 0.16598
+
+Menu
+Count                            : 72
+Count of stream of this kind     : 1
+Kind of stream                   : Menu
+Kind of stream                   : Menu
+Stream identifier                : 0
+Format                           : DVD-Video
+Commercial name                  : DVD-Video
+Codec                            : DVD-Video
+Codec                            : DVD-Video
+

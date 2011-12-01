@@ -99,4 +99,9 @@ public class Award {
             nominated = nominations.size();
         }
     }
+
+    @Override
+    public String toString() {
+        return "Award{" + "name=" + name + ", won=" + won + ", nominated=" + nominated + ", year=" + year + ", wons=" + wons + ", nominations=" + nominations + '}';
+    }
 }
