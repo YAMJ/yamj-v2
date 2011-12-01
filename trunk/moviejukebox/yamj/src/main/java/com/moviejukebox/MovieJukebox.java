@@ -151,9 +151,11 @@ public class MovieJukebox {
     private static String fanartExtension;
     private static String footerExtension;
 
-    private static boolean footerEnable;
-    private static int footerWidth;
-    private static int footerHeight;
+    private static Integer footerCount;
+    private static ArrayList<String> footerName = new ArrayList<String>();
+    private static ArrayList<Boolean> footerEnable = new ArrayList<Boolean>();
+    private static ArrayList<Integer> footerWidth = new ArrayList<Integer>();
+    private static ArrayList<Integer> footerHeight = new ArrayList<Integer>();
 
     private static boolean fanartMovieDownload;
     private static boolean fanartTvDownload;
@@ -311,6 +313,9 @@ public class MovieJukebox {
 
         // Load the skin-user.properties file (ignore the error)
         setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin-user.properties");
+
+        // Load the overlay.properties file (ignore the error)
+        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/overlay.properties");
 
         // Load the apikeys.properties file
         if (!setPropertiesStreamName("./properties/apikeys.properties")) {
@@ -720,9 +725,14 @@ public class MovieJukebox {
         fanartExtension = getProperty("fanart.format", "jpg");
         footerExtension = getProperty("footer.format", "png");
 
-        MovieJukebox.footerEnable = PropertiesUtil.getBooleanProperty("mjb.footerEnable", "false");
-        MovieJukebox.footerWidth  = PropertiesUtil.getIntProperty("footer.width", "400");
-        MovieJukebox.footerHeight = PropertiesUtil.getIntProperty("footer.height", "80");
+        footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
+        for (int i = 0; i < MovieJukebox.footerCount; i++) {
+            footerEnable.add(PropertiesUtil.getBooleanProperty("mjb.footer[" + i + "].enable", "false"));
+            String fName = getProperty("mjb.footer[" + i + "].name", "footer[" + i + "]");
+            footerName.add(fName);
+            footerWidth.add(PropertiesUtil.getIntProperty(fName + ".width", "400"));
+            footerHeight.add(PropertiesUtil.getIntProperty(fName + ".height", "80"));
+        }
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
         if (trailersScannerEnable) {
@@ -1050,8 +1060,10 @@ public class MovieJukebox {
                                 movie.setTrailerExchange(status);
                             }
 
-                            if (footerEnable) {
-                                updateFooter(jukebox, movie, tools.imagePlugin);
+                            for (int i = 0; i < footerCount; i++) {
+                                if (footerEnable.get(i)) {
+                                    updateFooter(jukebox, movie, tools.imagePlugin, i);
+                                }
                             }
                         } else {
                             library.remove(movie);
@@ -1377,9 +1389,11 @@ public class MovieJukebox {
                         logger.debug("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
                         createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, forceThumbnailOverwrite);
 
-                        if (footerEnable) {
-                            movie.setFooterFilename(safeSetMasterBaseName + footerToken + "." + footerExtension);
-                            updateFooter(jukebox, movie, tools.imagePlugin);
+                        for (int i = 0; i < footerCount; i++) {
+                            if (footerEnable.get(i)) {
+                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension, i);
+                                updateFooter(jukebox, movie, tools.imagePlugin, i);
+                            }
                         }
 
                         // No playlist for index masters
@@ -1899,8 +1913,10 @@ public class MovieJukebox {
         }
 
         // Update footer format if needed
-        if (footerEnable) {
-            movie.setFooterFilename(movie.getBaseName() + footerToken + "." + footerExtension);
+        for (int i = 0; i < footerCount; i++) {
+            if (footerEnable.get(i)) {
+                movie.setFooterFilename(movie.getBaseName() + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension, i);
+            }
         }
 
         return movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_NFO);
@@ -2021,8 +2037,8 @@ public class MovieJukebox {
         }
     }
 
-    public void updateFooter(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
-        String footerFilename = movie.getFooterFilename();
+    public void updateFooter(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin, Integer inx) {
+        String footerFilename = movie.getFooterFilename().get(inx);
         File footerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + footerFilename);
         String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + footerFilename;
         File tmpDestFile = new File(tmpDestFilename);
@@ -2031,13 +2047,13 @@ public class MovieJukebox {
             footerFile.getParentFile().mkdirs();
 
             try {
-                BufferedImage footerImage = GraphicTools.createBlankImage(footerWidth, footerHeight);
+                BufferedImage footerImage = GraphicTools.createBlankImage(footerWidth.get(inx), footerHeight.get(inx));
                 if (footerImage != null) {
-                    footerImage = imagePlugin.generate(movie, footerImage, "footer", null);
+                    footerImage = imagePlugin.generate(movie, footerImage, "footer" + footerName.get(inx), null);
                     GraphicTools.saveImageToDisk(footerImage, tmpDestFilename);
                 }
             } catch (Exception error) {
-                logger.debug("MovieJukebox: Failed generate footer: " + tmpDestFilename);
+                logger.debug("MovieJukebox: Failed generate footer " + inx + " (" + footerName.get(inx) + "): " + tmpDestFilename);
             }
         }
     }
