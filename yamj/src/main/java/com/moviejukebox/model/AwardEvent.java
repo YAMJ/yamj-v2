@@ -17,7 +17,9 @@ import java.util.Collection;
 /*
  * @author ilgizar
  */
+
 public class AwardEvent {
+
     private String event = Movie.UNKNOWN;
     private Collection<Award> awards = new ArrayList<Award>();
 
@@ -43,5 +45,10 @@ public class AwardEvent {
         if (award != null) {
             this.awards.add(award);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "AwardEvent{" + "event=" + event + ", awards=" + awards + '}';
     }
 }

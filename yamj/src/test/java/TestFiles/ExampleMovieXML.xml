@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<details>
+   <movie isExtra="false" isSet="false" isTV="false">
+      <id moviedb="imdb">tt0068646</id>
+      <mjbVersion>2.6-SNAPSHOT</mjbVersion>
+      <mjbRevision>2819</mjbRevision>
+      <xmlGenerationDate>2011-11-29 21:47:43</xmlGenerationDate>
+      <baseFilenameBase>The Godfather (1972)</baseFilenameBase>
+      <baseFilename>The Godfather (1972)</baseFilename>
+      <title>The Godfather</title>
+      <titleSort>Godfather</titleSort>
+      <originalTitle>The Godfather</originalTitle>
+      <year Year="1970-79">1972</year>
+      <releaseDate>15 March 1972</releaseDate>
+      <showStatus>UNKNOWN</showStatus>
+      <rating>92</rating>
+      <ratings>
+         <rating moviedb="imdb">92</rating>
+      </ratings>
+      <watched>false</watched>
+      <watchedNFO>false</watchedNFO>
+      <top250>2</top250>
+      <details>The%20Godfather%20%281972%29.html</details>
+      <posterURL>http%3A%2F%2Fcf2.imgobject.com%2Ft%2Fp%2Foriginal%2Fd4KNaTrltq6bpkFS01pYtyXa09m.jpg</posterURL>
+      <posterFile>The%20Godfather%20%281972%29.jpg</posterFile>
+      <fanartURL>UNKNOWN</fanartURL>
+      <fanartFile>UNKNOWN</fanartFile>
+      <detailPosterFile>The%20Godfather%20%281972%29_large.png</detailPosterFile>
+      <thumbnail>The%20Godfather%20%281972%29_small.png</thumbnail>
+      <bannerURL>UNKNOWN</bannerURL>
+      <bannerFile>The%20Godfather%20%281972%29.banner.jpg</bannerFile>
+      <artwork>
+         <Poster count="1">
+            <sourceSite>themoviedb</sourceSite>
+            <url>http://cf2.imgobject.com/t/p/original/d4KNaTrltq6bpkFS01pYtyXa09m.jpg</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </Poster>
+         <Fanart count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </Fanart>
+         <Banner count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </Banner>
+         <ClearArt count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </ClearArt>
+         <ClearLogo count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </ClearLogo>
+         <TvThumb count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </TvThumb>
+         <SeasonThumb count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </SeasonThumb>
+         <VideoImage count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </VideoImage>
+      </artwork>
+      <plot>The story begins as 'Don' Vito Corleone, the head of a New York Mafia 'family', oversees his daughter's wedding. His beloved son Michael has just come home from the war, but does not intend to become part of his father's business. Through Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the...</plot>
+      <outline>The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.</outline>
+      <quote>Bonasera:I believe in America. America has made my fortune. And I raised my daughter in the American fashion. I gave her freedom but I taught her never to dishonor her family. She found a "boy friend," not an Italian. She went to the movies with him. She stayed out late. I didn't protest. Two months ago he took her for a drive, with another boy friend. They made her drink whiskey and then they tried to take advantage of her. She resisted. She kept her honor. So they beat her. Like an animal. When I went to the hospital her nose was broken. Her jaw was shattered, held together by wire. She couldn't even weep because of the pain. But I wept. Why did I weep? She was the light of my life. A beautiful girl. Now she will never be beautiful again.</quote>
+      <tagline>Genres:Crime </tagline>
+      <country>USA</country>
+      <company>Paramount Pictures</company>
+      <runtime>175 min</runtime>
+      <certification>R</certification>
+      <season>-1</season>
+      <language>UNKNOWN</language>
+      <subtitles>NO</subtitles>
+      <trailerExchange>NO</trailerExchange>
+      <trailerLastScan>UNKNOWN</trailerLastScan>
+      <container>AVI</container>
+      <videoCodec>H264</videoCodec>
+      <audioCodec>DTS</audioCodec>
+      <codecs>
+         <audio>
+            <codec codecId="2001" codecIdHint="UNKNOWN" format="DTS" formatProfile="ES"
+                   formatVersion="UNKNOWN"
+                   language="UNKNOWN">DTS</codec>
+         </audio>
+         <video>
+            <codec codecId="H264" codecIdHint="UNKNOWN" format="AVC" formatProfile="Baseline@L1.3"
+                   formatVersion="UNKNOWN"
+                   language="UNKNOWN">H264</codec>
+         </video>
+      </codecs>
+      <audioChannels>7 / 6</audioChannels>
+      <resolution>720x480</resolution>
+      <videoSource>UNKNOWN</videoSource>
+      <videoOutput>NTSC 30p</videoOutput>
+      <aspect>1.777:1</aspect>
+      <fps>29.97</fps>
+      <fileDate>2010-07-20</fileDate>
+      <fileSize>5.58 MB</fileSize>
+      <first>Avatar</first>
+      <previous>Avatar</previous>
+      <next>Iron%20Man</next>
+      <last>Jumper</last>
+      <libraryDescription>Test</libraryDescription>
+      <prebuf>-1</prebuf>
+      <genres count="1">
+         <genre>Drama</genre>
+      </genres>
+      <sets count="2">
+         <set index="Set_Action%20Movies_1" order="1">Action Movies</set>
+         <set index="Set_Classics_1">Classics</set>
+      </sets>
+      <director>Francis Ford Coppola</director>
+      <directors count="1">
+         <director>Francis Ford Coppola</director>
+      </directors>
+      <writers count="2">
+         <writer>Mario Puzo</writer>
+         <writer>Francis Ford Coppola</writer>
+      </writers>
+      <cast count="15">
+         <actor>Marlon Brando</actor>
+         <actor>Al Pacino</actor>
+         <actor>James Caan</actor>
+         <actor>Richard S. Castellano</actor>
+         <actor>Robert Duvall</actor>
+         <actor>Sterling Hayden</actor>
+         <actor>John Marley</actor>
+         <actor>Richard Conte</actor>
+         <actor>Al Lettieri</actor>
+         <actor>Diane Keaton</actor>
+         <actor>Abe Vigoda</actor>
+         <actor>Talia Shire</actor>
+         <actor>Gianni Russo</actor>
+         <actor>John Cazale</actor>
+         <actor>Rudy Bond</actor>
+      </cast>
+      <awards>
+         <event name="Academy Awards, USA">
+            <award nominated="8" won="3" year="1973">Oscar</award>
+         </event>
+         <event name="American Cinema Editors, USA">
+            <award nominated="1" won="0" year="1973">Eddie</award>
+         </event>
+         <event name="BAFTA Awards">
+            <award nominated="4" won="1" year="1973">Anthony Asquith Award for Film Music</award>
+         </event>
+         <event name="DVD Exclusive Awards">
+            <award nominated="1" won="0" year="2001">Video Premiere Award</award>
+         </event>
+         <event name="David di Donatello Awards">
+            <award nominated="0" won="2" year="1973">David</award>
+         </event>
+         <event name="Directors Guild of America, USA">
+            <award nominated="0" won="1" year="1973">DGA Award</award>
+         </event>
+         <event name="Golden Globes, USA">
+            <award nominated="2" won="5" year="1973">Golden Globe</award>
+         </event>
+         <event name="Golden Screen, Germany">
+            <award nominated="0" won="1" year="1973">Golden Screen</award>
+         </event>
+         <event name="Grammy Awards">
+            <award nominated="0" won="1" year="1973">Grammy</award>
+         </event>
+         <event name="Kansas City Film Critics Circle Awards">
+            <award nominated="0" won="2" year="1973">KCFCC Award</award>
+         </event>
+         <event name="Las Vegas Film Critics Society Awards">
+            <award nominated="0" won="1" year="2002">Sierra Award</award>
+         </event>
+         <event name="National Board of Review, USA">
+            <award nominated="0" won="1" year="1972">NBR Award</award>
+         </event>
+         <event name="National Film Preservation Board, USA">
+            <award nominated="0" won="1" year="1990">National Film Registry</award>
+         </event>
+         <event name="National Society of Film Critics Awards, USA">
+            <award nominated="0" won="1" year="1973">NSFC Award</award>
+         </event>
+         <event name="New York Film Critics Circle Awards">
+            <award nominated="0" won="1" year="1973">NYFCC Award</award>
+         </event>
+         <event name="Online Film Critics Society Awards">
+            <award nominated="1" won="0" year="2002">OFCS Award</award>
+         </event>
+         <event name="Writers Guild of America, USA">
+            <award nominated="0" won="1" year="1973">WGA Award (Screen)</award>
+         </event>
+      </awards>
+      <people>
+         <person cast_id="0" character="UNKNOWN" department="Directing" doublage="UNKNOWN"
+                 id="nm0000338"
+                 job="Director"
+                 name="Francis Ford Coppola"
+                 order="0"
+                 title="Francis Ford Coppola"
+                 url="http://www.imdb.com/name/nm0000338/">Francis Ford Coppola</person>
+         <person cast_id="1" character="UNKNOWN" department="Writing" doublage="UNKNOWN"
+                 id="nm0701374"
+                 job="Writer"
+                 name="Mario Puzo"
+                 order="0"
+                 title="Mario Puzo"
+                 url="http://www.imdb.com/name/nm0701374/">Mario Puzo</person>
+         <person cast_id="2" character="UNKNOWN" department="Writing" doublage="UNKNOWN"
+                 id="nm0000338"
+                 job="Writer"
+                 name="Francis Ford Coppola"
+                 order="0"
+                 title="Francis Ford Coppola"
+                 url="http://www.imdb.com/name/nm0000338/">Francis Ford Coppola</person>
+         <person cast_id="3" character="Don Vito Corleone" department="Actors"
+                 doublage="UNKNOWN"
+                 id="nm0000008"
+                 job="Actor"
+                 name="Marlon Brando"
+                 order="0"
+                 title="Marlon Brando"
+                 url="http://www.imdb.com/name/nm0000008/">UNKNOWN</person>
+         <person cast_id="4" character="Michael" department="Actors" doublage="UNKNOWN"
+                 id="nm0000199"
+                 job="Actor"
+                 name="Al Pacino"
+                 order="1"
+                 title="Al Pacino"
+                 url="http://www.imdb.com/name/nm0000199/">UNKNOWN</person>
+         <person cast_id="5" character="Sonny" department="Actors" doublage="UNKNOWN"
+                 id="nm0001001"
+                 job="Actor"
+                 name="James Caan"
+                 order="2"
+                 title="James Caan"
+                 url="http://www.imdb.com/name/nm0001001/">UNKNOWN</person>
+         <person cast_id="6" character="Clemenza" department="Actors" doublage="UNKNOWN"
+                 id="nm0144710"
+                 job="Actor"
+                 name="Richard S. Castellano"
+                 order="3"
+                 title="Richard S. Castellano"
+                 url="http://www.imdb.com/name/nm0144710/">UNKNOWN</person>
+         <person cast_id="7" character="Tom Hagen" department="Actors" doublage="UNKNOWN"
+                 id="nm0000380"
+                 job="Actor"
+                 name="Robert Duvall"
+                 order="4"
+                 title="Robert Duvall"
+                 url="http://www.imdb.com/name/nm0000380/">UNKNOWN</person>
+         <person cast_id="8" character="Capt. McCluskey" department="Actors" doublage="UNKNOWN"
+                 id="nm0001330"
+                 job="Actor"
+                 name="Sterling Hayden"
+                 order="5"
+                 title="Sterling Hayden"
+                 url="http://www.imdb.com/name/nm0001330/">UNKNOWN</person>
+         <person cast_id="9" character="Jack Woltz" department="Actors" doublage="UNKNOWN"
+                 id="nm0549134"
+                 job="Actor"
+                 name="John Marley"
+                 order="6"
+                 title="John Marley"
+                 url="http://www.imdb.com/name/nm0549134/">UNKNOWN</person>
+         <person cast_id="10" character="Barzini" department="Actors" doublage="UNKNOWN"
+                 id="nm0002017"
+                 job="Actor"
+                 name="Richard Conte"
+                 order="7"
+                 title="Richard Conte"
+                 url="http://www.imdb.com/name/nm0002017/">UNKNOWN</person>
+         <person cast_id="11" character="Sollozzo" department="Actors" doublage="UNKNOWN"
+                 id="nm0504803"
+                 job="Actor"
+                 name="Al Lettieri"
+                 order="8"
+                 title="Al Lettieri"
+                 url="http://www.imdb.com/name/nm0504803/">UNKNOWN</person>
+         <person cast_id="12" character="Kay Adams" department="Actors" doublage="UNKNOWN"
+                 id="nm0000473"
+                 job="Actor"
+                 name="Diane Keaton"
+                 order="9"
+                 title="Diane Keaton"
+                 url="http://www.imdb.com/name/nm0000473/">UNKNOWN</person>
+         <person cast_id="13" character="Tessio" department="Actors" doublage="UNKNOWN"
+                 id="nm0001820"
+                 job="Actor"
+                 name="Abe Vigoda"
+                 order="10"
+                 title="Abe Vigoda"
+                 url="http://www.imdb.com/name/nm0001820/">UNKNOWN</person>
+         <person cast_id="14" character="Connie Corleone Rizzi" department="Actors"
+                 doublage="UNKNOWN"
+                 id="nm0001735"
+                 job="Actor"
+                 name="Talia Shire"
+                 order="11"
+                 title="Talia Shire"
+                 url="http://www.imdb.com/name/nm0001735/">UNKNOWN</person>
+         <person cast_id="15" character="Carlo" department="Actors" doublage="UNKNOWN"
+                 id="nm0751625"
+                 job="Actor"
+                 name="Gianni Russo"
+                 order="12"
+                 title="Gianni Russo"
+                 url="http://www.imdb.com/name/nm0751625/">UNKNOWN</person>
+         <person cast_id="16" character="Fredo" department="Actors" doublage="UNKNOWN"
+                 id="nm0001030"
+                 job="Actor"
+                 name="John Cazale"
+                 order="13"
+                 title="John Cazale"
+                 url="http://www.imdb.com/name/nm0001030/">UNKNOWN</person>
+         <person cast_id="17" character="Cuneo" department="Actors" doublage="UNKNOWN"
+                 id="nm0094036"
+                 job="Actor"
+                 name="Rudy Bond"
+                 order="14"
+                 title="Rudy Bond"
+                 url="http://www.imdb.com/name/nm0094036/">UNKNOWN</person>
+      </people>
+      <business budget="$6,000,000">
+         <gross country="USA">$134,966,411</gross>
+         <gross country="Spain">ESP 344,665,770</gross>
+         <gross country="Worldwide">$245,066,411</gross>
+         <gross country="UK">£58,854</gross>
+         <gross country="Sweden">SEK 11,201,000</gross>
+         <openweek country="USA">$302,393</openweek>
+         <openweek country="UK">£14,480</openweek>
+      </business>
+      <didyouknow>
+         <trivia>Ernest Borgnine, Edward G. Robinson, Orson Welles, Danny Thomas, Richard Conte, Anthony Quinn, and George C. Scott were considered by Paramount Pictures for the role of Vito Corleone. Burt Lancaster wanted the role but was never considered. When Paramount considered casting Italian producer Carlo Ponti, director Francis Ford Coppola objected as Vito had lived in America since childhood and thus wouldn't speak with Ponti's Italian accent. When asked his opinion by the Paramount brass, Coppola said he wanted to cast either Laurence Olivier or Marlon Brando as the Don. In a September/October 2003 "Cigar Aficionado" magazine cover story, Coppola said, "I wanted either an Italian-American or an actor who's so great that he can portray an Italian-American. So, they said, 'Who do you suggest?' I said, 'Lookit, I don't know, but who are the two greatest actors in the world? Laurence Olivier and Marlon Brando. Well, Laurence Olivier is English. He looked just like Vito Genovese. His face is great.' I said, 'I could see Olivier playing the guy, and putting it on.' And Brando is my hero of heroes. I'd do anything to just meet him. But he's 47, he's a young, good-looking guy. So, we first inquired about Olivier and they said, 'Olivier is not taking any jobs. He's very sick. He's gonna die soon and he's not interested.' So, I said, 'Why don't we reach out for Brando?'" Frank Sinatra, despite his reported distaste for the novel and opposition to the film, had discussions with Coppola about playing the role himself and at one point actually offered his services. Coppola, however, was adamant in his conviction that Brando take the role instead. This would be the third time Brando performed in a part sought by Sinatra, after playing Terry Malloy in On the Waterfront and Sky Masterson in Guys and Dolls. Brando's previous film, Queimada, had been a terrible flop and he could not get work in American pictures, being considered by many producers as "washed up". Paramount executives initially would offer Marlon Brando only union scale for the role of Don Corleone. Finally, the studio relented and paid Brando $300,000, according to Coppola's account. In his autobiography The Kid Stays in the Picture, former Paramount production chief Robert Evans claims that Brando was paid $50,000, plus points, and sold back his points to Paramount before the release of the picture for an additional $100,000 because he had female-related money troubles. Realizing the film was going to be a huge hit, Paramount was happy to oblige. This financial fleecing of Brando, according to Evans, is the reason he refused to do publicity for the picture or appear in The Godfather: Part II.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          At Connie's wedding, Sonny is seen in close quarters with Lucy Mancini (Jeannie Linero) Connie's maid of honour at the event (wearing a pink dress). According to the novel, Sonny takes Lucy as his mistress (she is "that young girl" Don Corleone mentions to Sonny; she is also seen before Sonny visits Connie). The novel and film trilogy differ on her fate, though: in the novel she eventually moves on, settling down with a Las Vegas doctor; she is briefly seen in The Godfather: Part III, with her son Vincent playing a major role.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          A promotional board game titled "The Godfather Game" was released in 1971.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to an August 1971 article by Nicholas Pileggi in The New York Times, a supporting cast member became so committed to his role that he accompanied a group of Mafia enforcers on a trip to beat up strike breakers during a labor dispute. But the enforcers had the wrong address and were unable to find the strike breakers. The actor's name was not revealed.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Mafia crime boss Joe Colombo and his organization The Italian-American Civil Rights League started a campaign to stop the film from being made. According to Robert Evans in his autobiography, Colombo called his home and threatened him and his family. Paramount received many letters during pre-production from Italian-Americans - including politicians - decrying the film as anti-Italian. They threatened to protest and disrupt filming. Producer Albert S. Ruddy met with Colombo who demanded that the terms "Mafia" and "Cosa Nostra" not be used in the film. Ruddy gave them the right to review the script and make changes. He also agreed to hire League members (read: mobsters) as extras and advisers. The angry letters ceased after this agreement was made. Paramount owner Charlie Bluhdorn read about the agreement in The New York Times and was so outraged that he fired Ruddy and shut down production. But Evans convinced Bluhdorn that the agreement was beneficial for the film and Ruddy was rehired.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The early buzz on the film was so positive that a sequel was planned before the film was finished filming.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Gianni Russo used his organized crime connections to secure the role of Carlo Rizzi, going so far as to get a camera crew to film his own audition and send it to the producers. However, Marlon Brando was initially against having Russo, who had never acted before, in the film; this made Russo furious and he went to threaten Brando. However, this reckless act proved to be a blessing in disguise: Brando thought Russo was acting and was convinced he would be good for the role.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Voted #7 in TV Guide Magazine's list "50 Greatest Movies on TV and Video" (August 8-14, 1998 issue). The sequel The Godfather: Part II took top honors, ranking #1.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Voted #2 on AFI's 100 Greatest Movies 10th Anniversary Edition.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Voted #3 on AFI's 100 Greatest Movies.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The movie's line "I'll make him an offer he can't refuse." was voted as the #10 of "The 100 Greatest Movie Lines" by Premiere in 2007.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Paramount senior management, dissatisfied with the early rushes, considered replacing Francis Ford Coppola with Elia Kazan with the hope that Kazan would be able to work with the notoriously difficult Marlon Brando. Brando announced that he would quit the film if Coppola was fired and the studio backed down. Paramount brass apparently did not know of Brando's dismay with Kazan over his testimony before the House Un-American Activities Committee in the 1950s. (See also On the Waterfront.)        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Sergio Leone was approached to direct the film, but turned it down since he felt the story, which glorified the Mafia, was not interesting enough. He later regretted refusing the offer, but would go on to direct his own critically acclaimed gangster film, Once Upon a Time in America.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Screenwriter Robert Towne wrote the scene on the patio between Don Corleone and his son Michael.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Marlon Brando wanted to make Don Corleone "look "like a bulldog," so he stuffed his cheeks with cotton wool for the audition. For actual filming, he wore a mouthpiece made by a dentist; this appliance is on display in the American Museum of the Moving Image in Queens, New York.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          During rehearsals, a false horse's head was used for the bedroom scene. For the actual shot, a real horse's head was used, acquired from a dog-food factory. According to John Marley, his scream of horror was real as he was not informed that a real head was going to be used.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The cat held by Marlon Brando in the opening scene was a stray the actor found while on the lot at Paramount, and was not originally called for in the script. So content was the cat that its purring muffled some of Brando's dialogue, and, as a result, most of his lines had to be looped.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          During an early shot of the scene where Vito Corleone returns home and his people carry him up the stairs, Marlon Brando put weights under his body on the bed as a prank, to make it harder to lift him.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Marlon Brando did not memorize most of his lines and read from cue cards during most of the film.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          As Vito Corleone picks oranges prior to the assassination attempt, there's a poster in the store window advertising a boxing match involving Jake LaMotta. Robert De Niro plays the young Vito in The Godfather: Part II and also went on to play LaMotta in Raging Bull        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Frank Sivero appears as an extra in the scene where Sonny beats up Carlo Rizzi. He would later appear in The Godfather: Part II as Genco Abbandando.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          While Sonny is driving alone in his car, he's listening to the 3 October 1951 radio broadcast of Russ Hodges calling the Dodgers-Giants playoff - a half-inning before Bobby Thomson's "Shot Heard 'Round the World."        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Al Pacino wore a foam latex facial appliance that covered his entire left cheek and was made up with colors to match his skin tone and give the effect of bruising, to simulate the effect of having his jaw broken by Captain McCluskey.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The name of the traditional Sicilian hat (worn, for instance, by Michael's bodyguards) is "coppola".        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Apart from as required by his Marine Corps uniform, Michael Corleone does not wear a hat until he becomes involved in the family business.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Director Francis Ford Coppola worked with relatives in this film, (making it a family film in many contexts). In chronological order of appearance:his sister Talia Shire portrayed Connie Corleone throughout the trilogyhis mother Italia Coppola serves as an extra in the restaurant meetinghis father Carmine Coppola is the piano player in the Mattress sequencehis sons Gian-Carlo Coppola and Roman Coppola can be seen as extras in the scene where Sonny beats up Carlo, and at the funeraland his daughter Sofia Coppola is the baby Michael Rizzi in the baptism (she was three weeks old at the time of shooting).        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The 45th Academy Award winner as Best Picture, it was the first winner to be even partially set in Los Angeles, the first to depict the film industry, and the first in which an Oscar statuette is visible.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          There are approximately 61 scenes in the film that feature people eating/drinking, or just food.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The meeting between the heads of the Mafioso was filmed in the boardroom of the Penn-Central Railroad. This explains the train mural seen behind Don Barzini (Richard Conte).        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Nino Rota was originally nominated for an Oscar for his score (and would probably have won) but the nomination was withdrawn when it was realized that he had substantially re-worked parts of his earlier score for Fortunella.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Don Vito Corleone's distinctive voice was based on real-life mobster Frank Costello. Marlon Brando had seen him on TV during the Estes Kefauver hearings in 1951 and imitated his husky whisper in the film.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          In the scene where Sonny beats up Carlo, a truck in the background and a wooden box on the sidewalk are strategically placed to hide anachronistic objects in the background.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The film makes use of a variety of Italian words:Paulie says "sfortunato", which in Italian means "What a unlucky guy!" (ironic), referring to Carlo (wedding scene).Michael explains that Tom is a "consigliere," or a counselor;Vito calls Johnny Fontane a "finocchio," an offensive term for a homosexualSonny refers to Paulie as a "stronzo," a term equivalent to "asshole"Carlo and Connie both say "vaffanculo" during their fight, which means "fuck you"Don Zaluchi calls the sale of drugs to children as an "infamita," or an infamyand both the Dons Corleone use the word "pezzonovante," which means ".95 caliber," or more accurately meaning "big shot".        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The mansion of Jack Woltz was also used as the mansion of Alan Stanwyk in Fletch.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The three-year-old child actor Anthony Gounaris responded best when his real name was used while shooting the film. That's why Michael's son's name is Anthony.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          This was voted the "Greatest Film of All Time" by Entertainment Weekly.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          In 2007, the American Film Institute ranked this as the #2 Greatest Movie of All Time.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Ranked #1 on the American Film Institute's list of the 10 greatest films in the genre "Gangster" in June 2008.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The line "I'm gonna make him an offer he can't refuse" was selected by the American Film Institute on it's list as one of the top 100 movie quotes, it was at #2 right behind "Frankly my dear, I don't give a damn" from Gone with the Wind.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Al Pacino, those were real tears in Marlon Brando's eyes when Michael pledges himself to his father in the hospital scene.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          George Lucas used photos from real crime scenes in the Mattress Sequence. One of the most prominent photos shows two cops kneeling beside what looks like a man sleeping on the ground with his head propped up against a fence. That man is "The Enforcer" Frank Nitti, Al Capone's right-hand man who had, in fact, committed suicide with a gunshot to the head.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          A young Sylvester Stallone auditioned for the role of Paulie Gatto and Carlo Rizzi, but didn't get the role. Stallone instead decided to try writing and did the screenplay for the modestly successful The Lord's of Flatbush. He would later get his break in Rocky, coincidentally alongside Talia Shire (Connie Corleone).        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Francis Ford Coppola turned in an initial director's cut running 126 minutes. Paramount production chief Robert Evans rejected this version and demanded a longer cut with more scenes about the family. The final release version was nearly 50 minutes longer than Coppola's initial cut.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Frankie Avalon and Vic Damone, both established and experienced singers, auditioned for the role of Johnny Fontane. Francis Ford Coppola was most impressed with Damone and gave the role to him, but Al Martino was cast by the producers, and used his organized crime connections to ensure he kept the part. Ironically, Fontane sings "I Have But One Heart," which was Damone's first hit song.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Francis Ford Coppola was hired by Robert Evans to direct the movie after Peter Bogdanovich, among others, turned it down.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The actor playing Luca Brasi, Lenny Montana, was so nervous about working with Marlon Brando that, in the first take of their scene together, he flubbed some lines. Francis Ford Coppola liked the genuine nervousness and used it in the final cut. The scenes of Brasi practicing his speech were added later.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Francis Ford Coppola, the term "Don Corleone" is actually incorrect Italian parlance. In Italian, addressing someone as "Don" would be like addressing them as "Uncle" in English, so the correct parlance would be "Don Michael" or "Don Vito". Coppola says that Mario Puzo, who couldn't speak Italian, simply made up the idea of using "Don" with a person's last name, and it has now become a pop culture staple.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The character Moe Greene was modeled after Jewish mobster Bugsy Siegel.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          At the meeting in the restaurant, Sollozzo speaks to Michael in Sicilian so rapid subtitles could not be used. He begins with: "I am sorry. What happened to your father was business. I have much respect for your father. But your father, his thinking is old-fashioned. You must understand why I had to do that. Now let's work through where we go from here." When Michael returns from the bathroom, he continues in Sicilian with: "Everything all right? I respect myself, understand, and cannot allow another man to hold me back. What happened was unavoidable. I had the unspoken support of the other Family dons. If your father were in better health, without his eldest son running things, no disrespect intended, we wouldn't have this nonsense. We will stop fighting until your father is well and can resume bargaining. No vengeance will be taken. We will have peace. But your Family should interfere no longer."        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          When Michael and Kay are having dinner together, the song on the radio is Irving Berlin's "All of My Life".        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The scenes in which Enzo comes to visit Vito Corleone in the hospital were shot in reverse with the outside scene shot first. Gabriele Torrei, the actor who plays Enzo, had never acted in front of a camera before and his nervous shaking after the car drives away was real.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The hospital scenes were filmed in two different locations: the exterior scenes were filmed at a side entrance to the Bellevue Hospital; and the interior shots were filmed at the New York Eye and Ear Infirmary in Manhattan, New York City.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Mario Puzo gave Vito's eldest son the nickname of "Sonny" after the nickname given to the son of 'Al Capone (I)'. The similarities end there. Sonny Capone did not enter his father's business.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The film was set and shot in New York, at over 100 locations. Originally the entire film was to be shot in the Hollywood back lots in order to save production costs; however production designer Dean Tavoularis threatened to add two stories to each back lot building in order to replicate the look of New York City, the studio relented and allowed for shooting in New York.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Because Corleone, Sicily, was too developed even in the early 1970s, the Sicilian town of Savoca, outside Taormina, was used for shooting the scenes where Michael is in exile in Italy.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          This was Joe Spinell's first film.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Production began on March 29, 1971, but Marlon Brando worked on the film for 35 days between April 12 and May 28 so he could honor his commitment to the film Ultimo tango a Parigi.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          In the novel, Don Cuneo's first name is Ottileo, but in the film he was known as Carmine Cuneo as homage to Carmine Coppola.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Frank Puglia was originally cast as Bonasera but had to back out due to illness.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Paramount executive Peter Bart bought the film rights to Mario Puzo's "The Godfather" before it was even finished. It was still only a 20-page outline.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Along with Mario Puzo's source novel, Francis Ford Coppola based many of the characters on members of his own family.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Mario Puzo modeled the character of Don Vito Corleone on New York mob bosses Joe Profaci and Vito Genovese. Many of the events of his novel are based on actual incidents that occurred in the lives of Profaci, Genovese and their families. Puzo based Don Vito's personality on his own mother's.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Paramount's original idea was to make this a low-budget gangster film set in the present rather than a period piece set in the 1940s and 1950s. Francis Ford Coppola rejected Mario Puzo's original script based on this idea.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Mario Puzo, the character of Johnny Fontane was NOT based on Frank Sinatra. However, everyone assumed that it was, and Sinatra was furious; when he met Puzo at a restaurant he screamed vulgar terms and threats at Puzo. Sinatra was also vehemently opposed to the film. Due to this backlash, Fontane's role in the film was scaled down to a couple of scenes.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Francis Ford Coppola insisted on the film being called "Mario Puzo's The Godfather" rather than just The Godfather, because his original draft of the screenplay was so faithful to Puzo's novel he thought Puzo deserved the credit for it.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          At one point during filming, Paramount production chief Robert Evans felt the film had too little action and considered hiring an action director to finish the job. To satisfy Evans, Francis Ford Coppola and his son Gian-Carlo Coppola developed the scene in which Connie and Carlo have their long fight. As a result, Evans was pleased enough to let Coppola finish the film.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Diane Keaton based much of her portrayal of Kay Adams on Francis Ford Coppola's wife, Eleanor Coppola.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The scene where Sonny beats up Carlo (Connie's husband) took four days to shoot and featured more than 700 extras.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Al Pacino's maternal grandparents emigrated to America from Corleone, Sicily, just as Vito Corleone had.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Francis Ford Coppola in his "Cigar Aficionado" magazine interview, he had a meeting at his home in 1969 with producers Albert S. Ruddy and Gray Frederickson to discuss The Conversation. He had sent the script to Marlon Brando who called him during the meeting to politely turn it down. Right before the meeting, Coppola took note of a newspaper advertisement for an upcoming novel titled "The Godfather" by Mario Puzo. Just a few months later, all five people would meet to discuss a film version of the novel.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          For the scene where Clemenza is cooking, Francis Ford Coppola originally wrote in the script, "Clemenza browns some sausage". Upon seeing this, Mario Puzo crossed out "browns" and replaced it with "fries", writing in the margin, "Gangsters don't brown."        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Franco Corsaro filmed a scene as the dying consigliere Genco Abbandando but it was deleted. In the scene, which takes place after the wedding, Vito Corleone and his sons go to the hospital to pay their respects to Genco who is dying of cancer. They attempt to console him and Genco begs Vito to stay with him as he is dying. The scene does appear in some TV airings of the film (in place of edited versions of the murder scenes) and is in The Godfather: A Novel for Television.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The ribbons on Michael Corleone's Marine Corps uniform are the Silver Star, the Navy and Marine Corps Medal, and the Purple Heart on the top row, and the Asiatic/Pacific Campaign Medal with a service star and an arrowhead, the European/African/Middle Eastern Campaign Medal with a service star, and the World War II Victory Medal on the bottom row. In The Godfather: Part II, however, Michael tells a congressional committee that he was awarded the Navy Cross during the war.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Francis Ford Coppola, the film took 62 days to shoot.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Originally Francis Ford Coppola was against directing the film, as he felt it glorified the Mafia and violence and would reflect poorly on his Italian-Sicilian heritage. However, he eagerly took the job once he thought of making it an allegory of American capitalism.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The character of Hollywood mogul Jack Woltz's was patterned after Warner Bros. chief Jack L. Warner. His personality was based on MGM head Louis B. Mayer, who was a great racing aficionado and owned a racing stable. Mayer abandoned the sport, reportedly after his son-in-law William Goetz, who was his partner in the stable, got involved with the Mafia and fixed a race Mayer's horse was the favorite to win.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Olivia Hussey was considered by casting director Fred Roos for the role of Apollonia. Francis Ford Coppola originally wanted Stefania Sandrelli, but she turned it down.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          August 1971: According to an article by Nicholas Pileggi in The New York Times, Paramount planned to release a line of spaghetti sauce bearing The Godfather logo to promote the film. It also planned Godfather restaurant franchises that would sell pizza, hero sandwiches, Italian ices and Italian breads and pastries. A spin-off television series was also planned but none of these ideas came to fruition.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          1990: This film was selected for the National Film Registry, Library of Congress.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Francis Ford Coppola wanted to cast actor Timothy Carey but Carey turned the part down so he could film a television pilot.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          After Robert Evans insisted that James Caan be cast as Michael, Carmine Caridi was cast in the role of Sonny. According to Evans, he told Francis Ford Coppola that he could cast Al Pacino as Michael as long as he cast Caan as Sonny. Although Caan had been Coppola's first choice, he decided that Caridi was better for the role and did not want to recast Caan. Evans insisted on Caan because he wanted at least one "name" actor to play one of the brothers and because the 6'4" Caridi would tower over Pacino on screen. Caridi was later given a small part in The Godfather: Part II. There is a rumor that Burt Reynolds was originally cast as Sonny Corleone but Marlon Brando wouldn't act with him, considering him more a TV star.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          During filming, James Caan and Gianni Russo did not get along and were frequently at loggerheads. During filming Sonny's beating on Carlo, Caan nearly hit Russo with the stick he threw at him, and actually broke two of Russo's ribs and chipped his elbow.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Jewish actors James Caan and Abe Vigoda portray Italian characters (Santino Corleone, Salvatore Tessio), while Italian Alex Rocco, portrays a Jewish character (Moe Greene).        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Although the dark photography of Gordon Willis was eventually copied by many other films, when the developed film came back from the lab, Paramount executives thought the look was a mistake. They ordered a different look but Willis and director Francis Ford Coppola refused.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          James Caan credits the stage persona of "insult comic" Don Rickles for inspiring his characterization of Santino Corleone.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Martin Sheen and Dean Stockwell auditioned for the role of Michael Corleone. Oscar-winner Rod Steiger campaigned hard for the role of Michael, even though he was too old for the part. Warren Beatty, Jack Nicholson, and Dustin Hoffman were all offered the part of Michael Corleone, but all refused. (Beatty was also offered directing and producing duties.) Suggestions of Alain Delon and Burt Reynolds were rejected by Francis Ford Coppola. Paramount production chief Robert Evans wanted Robert Redford to be cast in the part, but Coppola demurred as he was too WASPy. Evans explained that Redford could fit the role as he could be perceived as "northern Italian". Evans eventually lost the struggle over the actor he derided as "The Midget". The Irish-American Ryan O'Neal then became the front-runner for the part, though it eventually devolved onto James Caan. Before being cast as Michael, Al Pacino was committed to starring in The Gang That Couldn't Shoot Straight. Coppola, in a 2003 "Cigar Aficionado" interview, said that Paramount pulled some strings and managed to get Pacino released. The Paramount brass, particularly Evans, were adamantly opposed to casting Pacino, who did poorly in screen tests, until they saw his excellent performance in The Panic in Needle Park. Caan went back to his original role of Sonny when Pacino came on board. Robert De Niro tested for both Michael and Sonny and was almost cast as Carlo before being cast as Paulie. Then, De Niro was offered Pacino's former role in "Gang". With Coppola's blessing, De Niro backed out to take the part. This, in turn, enabled De Niro to star as a young Vito in the sequel, which won him an Oscar and made his career.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          James Caan originally heard the phrase "bada-bing!" from his acquaintance, the real-life mobster Carmine Persico, and improvised its use in the film.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          George Lucas put together the "Mattress Sequence" (the montage of crime scene photos and headlines about the war between the five families) as a favor to Francis Ford Coppola for helping him fund American Graffiti. He asked not to be credited.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Francis Ford Coppola in the DVD commentary, in the scene where Captain MacCluskey confronts Michael in front of the hospital, the officer who balks at arresting Michael ("He's clean, Captain. He's a war hero.") is NYPD Detective Sonny Grosso, one of the detectives made famous by his involvement in breaking the "French Connection" case.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Al Pacino's first Oscar nomination marks his first of 4 consecutive nominations, a feat he shares with Jennifer Jones (1943-46), Thelma Ritter (1950-53), Marlon Brando (1951-54) and Elizabeth Taylor (1957-60).        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Ardell Sheridan, who plays Mrs. Clemenza, was Richard S. Castellano's wife in real life.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          In the scene where Carlo is beaten by Sonny, a poster bearing the name "Thomas Dewey" can be seen on a wall. Thomas E. Dewey was New York City prosecutor who pursued gangsters in the 1930's. He later became state governor, and narrowly lost the election for President in 1948.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The film's opening scene, a three-minute zoom-out of Amerigo Bonasera and Don Corleone, was achieved with a computer-controlled zoom lens which had earlier been used in Silent Running.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The only comment Robert Duvall will make about his performance is that he wished "they would have made a better hairpiece" for his character.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          In reality, all the actors who played Marlon Brando's sons (Robert Duvall, John Cazale, James Caan, and Al Pacino) were only between six and 16 years younger than he was.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The director's mother Italia Coppola had a scene as a Genco Olive Oil Company switchboard operator, but it ended up on the cutting room floor.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Voted #1 On Empire's 500 Greatest Movies Of All Time (September 2008)        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          When Marlon Brando won the Best Actor Oscar for this movie, he sent Sacheen Littlefeather to represent him at the awards ceremonies. The presenters of the award were Roger Moore and Liv Ullmann. When Moore offered the statuette to Littlefeather, she snubbed him and proceeded with her speech about the film industry's mistreatment of American Indians.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Of the main cast, four pairs of actors share a birthday: Al Pacino and Talia Shire (April 25), Diane Keaton and Robert Duvall (January 5), James Caan and Sterling Hayden (March 26), and Abe Vigoda and Al Lettieri (February 24).        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Albert S. Ruddy's assistant, Bettye McCartt, Ruddy was warned by police that the Mafia was following his car. Ruddy would switch cars with McCartt in an effort to lose them. One night, McCartt found her car with the windows shot out and a note that read "Shut down the movie or else."        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          During pre-production, Francis Ford Coppola shot his own unofficial screen tests with Al Pacino, James Caan, Robert Duvall, and Diane Keaton at his home in San Francisco. Robert Evans was unimpressed by them and insisted that official screen tests be held. The studio spent $420,000 on the screen tests but in the end, the actors Coppola originally wanted were hired.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Jerry Van Dyke, Bruce Dern, Steve McQueen, Paul Newman and James Caan auditioned for the role of Tom Hagen.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Marlon Brando based some of his performance on Al Lettieri who plays Sollozzo. While preparing for On the Waterfront, Brando became friendly with Lettieri, whose relative was a real-life Mafioso. Brando and Lettieri would later co-star in The Night of the Following Day. Lettieri also helped Brando prepare for his Godfather role by bringing him to his relative's house for a family dinner.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Aram Avakian was originally hired as the film's editor but was fired after disagreements with Coppola.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Gary Fredrickson, Lenny Montana (Luca Brasi) had worked as a Mafia bodyguard, and had also bragged to Frederickson about working for the Mafia as an arsonist.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Richard S. Castellano ad-libbed the line "Take the cannoli".        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          John Martino ad-libbed the words "Madon'" (Madonna) and "sfortunato" (unfortunate) when Paulie talks about stealing the wedding purse.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The smack that Vito gives Johnny Fontane was not in the script. Marlon Brando improvised the smack and Al Martino's confused reaction was real. According to James Caan, "Martino didn't know whether to laugh or cry."        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          James Caan improvised the part where he throws the FBI photographer to the ground. The extra's frightened reaction is genuine.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Francis Ford Coppola was reluctant to let his sister Talia Shire audition for the role of Connie. He felt she was too pretty for the part and did not want to be accused of nepotism. Only at Mario Puzo's request did Shire get a chance to audition.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Radio personality Howard Stern has said that he would gladly have any cast member of this film as his guest and they can show up at his studio unannounced. Though over the years cast members such as Robert Duvall and James Caan were pre-scheduled guests, his "just show up" policy was never taken up until Gianni Russo arrived one day. Stern immediately had him escorted into his studio, even though he was in the midst of other guests at the time and interviewed him.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Orson Welles lobbied to get the part of Don Vito Corrleone in The Godfather. Francis Ford Coppola, a fan of his, had to turn him down because he already had Marlon Brando in mind for the role and felt Welles wouldn't be right for it.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          According to Ardell Sheridan, Mafia captain (and future boss) Paul Castellano visited the set and spoke with Richard S. Castellano. It was not until after Paul was killed in 1985 did Richard reveal to her that Paul was his uncle.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The Don's wife, Carmella Corleone, is seen singing at the wedding. Morgana King, who plays Carmella, is a gifted opera singer.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Francis Ford Coppola initially offered the part of Don Vito Corleone to retired Maltese actor Joseph Calleia but the offer was turned down by Calleia due to health reasons.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Although there are many claims of real Mafiosi as cast members Francis Ford Coppola stated in a May 2009 interview with Howard Stern that no organized crime members were cast or used as consultants. Coppola went on to explain there are expectations of reciprocity once one is provided a "favor" by an organized crime member or otherwise involved in a business action with the same. He specifically denied the connection of Gianni Russo to organized crime. The closest Coppola claims to have come to a real gangster during production, at least to his knowledge, was an interaction with Lenny Montana, who played Luca Brasi. Coppola said when he asked if Montana knew how to spin the cylinder of the revolver Montana replied "You kiddin'?".        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Final Amercican studio film of Richard Conte.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The British Daily Telegraph newspaper recently described The Godfather as "a vision of the hollowness of American capitalism and its effect on the family - like Death of a Salesman with spaghetti and a criminal empire."        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The baptism was filmed in two churches: the interior shots were filmed at St. Patrick's Old Cathedral in New York; and the exterior shots were filmed at the Mount Loretto Church in Pleasant Plains, Staten Island.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The casting of Richard Conte was an idea by the mother of Martin Scorsese, who asked Francis Ford Coppola if he could be in the movie.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Robert Evans apparently screened the films about gangsters that Paramount had released before he arrived at the studio, including The Brotherhood. He noticed that most of the films were unsuccessful and also that they had not been written or directed by Italian-Americans, and said that he hired Francis Ford Coppola in part because he wanted to "smell the spaghetti".        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          In 1974, The Godfather premiered on NBC over 2 nights - Saturday November 16th, and Monday November 18th, from 9-11pm. Both nights, at 11pm, New York City's Municipal Water Authorities had some overflow problems from all the toilets flushing around the same time.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          James Caan and Al Pacino were only ten years younger than Morgana King who plays their mother. John Cazale was only five years younger.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Francis Ford Coppola had a background in theater, and used it to prepare to script. He wear take pages out of the book and paste them into a notebook, which gave him room enough to make detailed notes on the scenes he wanted to use, what he had to do to make them work, and what pitfalls to avoid. (One example: "Italians who-a talk-a like-a dis.")        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Though Coppola wanted to portray Italians authentically, he cast many actors in the Corleone family who were not Italian: Marlon Brando is of Dutch ancestry, James Caan is German and Jewish, and Abe Vigoda is Russian-Jewish. Nevertheless, he wanted someone with Sicilian looks to play Michael, which is why he fought for Al Pacino, despite a strong desire on Paramount's part to cast a "name" like Ryan O'Neal or Robert Redford - and Coppola's own concession that many Italians are blonde-haired and blue eyes, like Redford and O'Neal.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          One of the reasons why Francis Ford Coppola finally agreed to direct the film was because he was in debt to Warner Brothers following $400,000 budget overruns on George Lucas's THX 1138. Lucas urged him to take the job.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          There was intense friction between Francis Ford Coppola and Paramount who frequently tried to have him replaced, citing his inability to stay on schedule, unnecessary expenses and production and casting errors. (Coppola actually completed the film ahead of schedule and budget.)        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Paramount was in severe financial trouble in the early 1970s and really needed a big hit. They specifically asked Francis Ford Coppola to make the film more explicitly violent.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Anthony Perkins auditioned for the role of Sonny Corleone.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Mia Farrow auditioned for the part of Kay.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          William Devane was in the running for the part of Moe Greene.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Al Pacino, James Caan and Diane Keaton were all paid $35,000 for their work on the film.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Robert Duvall received $36,000 for eight weeks work.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Stanley Kubrick rated The Godfather as one of the greatest movies ever made.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Marlon Brando would go on to mock his characterization of Don Vito Corleone in The Freshman.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Cinematographer Gordon Willis earned himself the nickname '"The Prince of Darkness" because his sets were so underlit. Paramount executives initially thought that the footage was too dark, until persuaded otherwise by Willis and Francis Ford Coppola that it was to emphasize the shadiness of the Corleone family's dealings.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Gordon Willis insisted that every shot represent a point of view, usually setting his camera about four feet off the ground, keeping the angle flat and even. Francis Ford Coppola managed to get him to do one aerial shot in the scene when Don Vito Corleone is gunned down, telling Willis that the overhead shot represented God's point of view.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The opening wedding celebrations were filmed over a period of a week and employed over 750 extras.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          William Reynolds edited the first half of the film, Peter Zinner the second.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The scenes of Michael and Kay at the wedding at the beginning were actually shot at night. Due to the rushed schedule, Francis Ford Coppola had to get their scenes in the bag. Cinematographer Gordon Willis was furious at having to rig up so many lights.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Robert Evans hated Nino Rota's original stab at the score. Francis Ford Coppola threatened to quit over this, until Evans backed down.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Bill Butler did some uncredited cinematography for the film, namely in the scenes shot in LA as the main director of photography Gordon Willis was busy filming in the main locations in New York.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The very first scene to be shot was the one where Michael and Kay go Christmas shopping.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Note the attention to detail: most of the cars have wooden bumpers, as they did just after the war as car manufacturers handed over the chrome that was supposed to be used on bumpers for the war effort.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          James Caan actually hung out with various disreputable characters in order to better understand the underworld lifestyle.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Marlon Brando was Francis Ford Coppola's only choice for the role of Don Vito Corleone.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          The only scene that Marlon Brando shared with Diane Keaton was the family photo taken at Connie's wedding.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          Cinematographer Gordon Willis was forced to use overhead lighting for Marlon Brando's scenes because of his makeup. He decided to extend it throughout, which is one reason the movie is so dark. Source: Visions of Light.        Share this  Hide&amp;nbsp;options      Facebook     |     Twitter     |  Permalink:          </trivia>
+      </didyouknow>
+      <indexes>
+         <index encoded="1970-79" originalName="Year" type="Year">1970-79</index>
+         <index encoded="Rating" originalName="Rating" type="Rating">Rating</index>
+         <index encoded="Test" originalName="Library" type="Library">Test</index>
+         <index encoded="Movies" originalName="Movies" type="Movies">Movies</index>
+         <index encoded="Top250" originalName="Top250" type="Top250">Top250</index>
+         <index encoded="Unwatched" originalName="Unwatched" type="Unwatched">Unwatched</index>
+         <index encoded="Drama" originalName="Genres" type="Genres">Drama</index>
+         <index encoded="R" originalName="Certification" type="Certification">R</index>
+         <index encoded="Sets" originalName="Sets" type="Sets">Sets</index>
+         <index encoded="All" originalName="All" type="All">All</index>
+         <index encoded="Classics" originalName="Set" type="Set">Classics</index>
+         <index encoded="G" originalName="Title" type="Title">G</index>
+      </indexes>
+      <files>
+         <file firstPart="1" lastPart="1" season="-1" size="5849918" subtitlesExchange="NO"
+               title="UNKNOWN"
+               vod=""
+               watched="false">
+            <fileLocation>D:\YAMJ\YAMJ_Test\Videos\The Godfather (1972).avi</fileLocation>
+            <fileURL>file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/The%20Godfather%20%281972%29.avi</fileURL>
+            <fileTitle part="1">UNKNOWN</fileTitle>
+         </file>
+      </files>
+   </movie>
+</details>

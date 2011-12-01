@@ -1,0 +1,174 @@
+General
+Count                            : 278
+Count of stream of this kind     : 1
+Kind of stream                   : General
+Kind of stream                   : General
+Stream identifier                : 0
+Count of video streams           : 1
+Count of audio streams           : 1
+Video_Format_List                : MPEG Video
+Video_Format_WithHint_List       : MPEG Video
+Codecs Video                     : MPEG-1 Video
+Audio_Format_List                : MPEG Audio
+Audio_Format_WithHint_List       : MPEG Audio
+Audio codecs                     : MPEG-1 Audio layer 2
+Complete name                    : MPG_MPEG-1_2.0.mpg
+File name                        : MPG_MPEG-1_2.0.mpg
+File extension                   : mpg
+Format                           : MPEG-PS
+Format                           : MPEG-PS
+Format/Extensions usually used   : mpeg mpg m2p vob pss
+Commercial name                  : MPEG-PS
+Internet media type              : video/mpeg
+Codec                            : MPEG-PS
+Codec                            : MPEG-PS
+Codec/Extensions usually used    : mpeg mpg m2p vob pss
+File size                        : 2165968
+File size                        : 2.07 MiB
+File size                        : 2 MiB
+File size                        : 2.1 MiB
+File size                        : 2.07 MiB
+File size                        : 2.066 MiB
+Duration                         : 12387
+Duration                         : 12s 387ms
+Duration                         : 12s 387ms
+Duration                         : 12s 387ms
+Duration                         : 00:00:12.387
+Overall bit rate                 : 1398865
+Overall bit rate                 : 1 399 Kbps
+Stream size                      : 44699
+Stream size                      : 43.7 KiB (2%)
+Stream size                      : 44 KiB
+Stream size                      : 44 KiB
+Stream size                      : 43.7 KiB
+Stream size                      : 43.65 KiB
+Stream size                      : 43.7 KiB (2%)
+Proportion of this stream        : 0.02064
+File creation date               : UTC 2011-11-28 08:45:32.824
+File creation date (local)       : 2011-11-28 08:45:32.824
+File last modification date      : UTC 2010-09-02 07:37:32.000
+File last modification date (loc : 2010-09-02 07:37:32.000
+
+Video
+Count                            : 200
+Count of stream of this kind     : 1
+Kind of stream                   : Video
+Kind of stream                   : Video
+Stream identifier                : 0
+ID                               : 224
+ID                               : 224 (0xE0)
+Format                           : MPEG Video
+Commercial name                  : MPEG-1 Video
+Format version                   : Version 1
+Format settings, BVOP            : No
+Format settings, BVOP            : No
+Format settings, Matrix          : Default
+Format settings, Matrix          : Default
+Internet media type              : video/MPV
+Codec                            : MPEG-1V
+Codec                            : MPEG-1 Video
+Codec/Family                     : MPEG-V
+Codec settings, Matrix           : Default
+Duration                         : 12387
+Duration                         : 12s 387ms
+Duration                         : 12s 387ms
+Duration                         : 12s 387ms
+Duration                         : 00:00:12.387
+Bit rate                         : 1147028
+Bit rate                         : 1 147 Kbps
+Maximum bit rate                 : 1150000
+Maximum bit rate                 : 1 150 Kbps
+Width                            : 352
+Width                            : 352 pixels
+Height                           : 240
+Height                           : 240 pixels
+Pixel aspect ratio               : 1.185
+Display aspect ratio             : 1.738
+Display aspect ratio             : 16:9
+Frame rate                       : 23.976
+Frame rate                       : 23.976 fps
+Frame count                      : 297
+Standard                         : NTSC
+Resolution                       : 8
+Resolution                       : 8 bits
+Color space                      : YUV
+Bit depth                        : 8
+Bit depth                        : 8 bits
+Scan type                        : Progressive
+Scan type                        : Progressive
+Interlacement                    : PPF
+Interlacement                    : Progressive
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Bits/(Pixel*Frame)               : 0.566
+Delay                            : 440.000
+Delay                            : 440ms
+Delay                            : 440ms
+Delay                            : 440ms
+Delay                            : 00:00:00.440
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay_Original                   : 0
+Delay_Original                   : 00:00:00.000
+Delay_Original_Settings          : drop_frame_flag=0 / closed_gop=0 / broken_link=0
+Delay_Original_Source            : Stream
+Stream size                      : 1776029
+Stream size                      : 1.69 MiB (82%)
+Stream size                      : 2 MiB
+Stream size                      : 1.7 MiB
+Stream size                      : 1.69 MiB
+Stream size                      : 1.694 MiB
+Stream size                      : 1.69 MiB (82%)
+Proportion of this stream        : 0.81997
+Buffer size                      : 40960
+
+Audio
+Count                            : 169
+Count of stream of this kind     : 1
+Kind of stream                   : Audio
+Kind of stream                   : Audio
+Stream identifier                : 0
+ID                               : 192
+ID                               : 192 (0xC0)
+Format                           : MPEG Audio
+Commercial name                  : MPEG Audio
+Format version                   : Version 1
+Format profile                   : Layer 2
+Internet media type              : audio/mpeg
+Codec                            : MPA1L2
+Codec                            : MPEG-1 Audio layer 2
+Duration                         : 12330
+Duration                         : 12s 330ms
+Duration                         : 12s 330ms
+Duration                         : 12s 330ms
+Duration                         : 00:00:12.330
+Bit rate mode                    : CBR
+Bit rate mode                    : Constant
+Bit rate                         : 224000
+Bit rate                         : 224 Kbps
+Channel(s)                       : 2
+Channel(s)                       : 2 channels
+Sampling rate                    : 44100
+Sampling rate                    : 44.1 KHz
+Samples count                    : 543744
+Frame count                      : 472
+Compression mode                 : Lossy
+Compression mode                 : Lossy
+Delay                            : 440.000
+Delay                            : 440ms
+Delay                            : 440ms
+Delay                            : 440ms
+Delay                            : 00:00:00.440
+Delay, origin                    : Container
+Delay, origin                    : Container
+Delay relative to video          : 0
+Video0 delay                     : 0
+Stream size                      : 345240
+Stream size                      : 337 KiB (16%)
+Stream size                      : 337 KiB
+Stream size                      : 337 KiB
+Stream size                      : 337 KiB
+Stream size                      : 337.1 KiB
+Stream size                      : 337 KiB (16%)
+Proportion of this stream        : 0.15939
+
