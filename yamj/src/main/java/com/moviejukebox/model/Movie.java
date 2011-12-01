@@ -166,7 +166,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String posterFilename = UNKNOWN; // The poster filename
     private String detailPosterFilename = UNKNOWN; // The resized poster for skins
     private String thumbnailFilename = UNKNOWN; // The thumbnail version of the poster for skins
-    private String footerFilename = UNKNOWN; // The footer image for skins
+    private ArrayList<String> footerFilename = new ArrayList<String>(); // The footer image for skins
     private String fanartURL = UNKNOWN; // The fanart URL
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
@@ -2168,15 +2168,22 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // ***** Footer
     @XmlElement(name = "footer")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getFooterFilename() {
+    public ArrayList<String> getFooterFilename() {
         return this.footerFilename;
     }
 
-    public void setFooterFilename(String footerFilename) {
+    public void setFooterFilename(String footerFilename, Integer inx) {
         if (StringUtils.isBlank(footerFilename)) {
             footerFilename = UNKNOWN;
         }
-        this.footerFilename = footerFilename;
+        if (this.footerFilename.size() <= inx) {
+            while (this.footerFilename.size() < inx) {
+                this.footerFilename.add(UNKNOWN);
+            }
+            this.footerFilename.add(footerFilename);
+        } else {
+            this.footerFilename.set(inx, footerFilename);
+        }
     }
 
     // ***** Fanart

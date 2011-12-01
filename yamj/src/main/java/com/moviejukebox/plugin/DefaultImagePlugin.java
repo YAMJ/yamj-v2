@@ -148,8 +148,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public DefaultImagePlugin() {
         // Generic properties
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.xmlOverlay.skinroot", "false");
         overlayRoot = PropertiesUtil.getProperty("mjb.xmlOverlay.dir", Movie.UNKNOWN);
-        overlayResources = PropertiesUtil.getProperty("mjb.xmlOverlay.resources", getResourcesPath());
+        overlayRoot = (skinRoot?(skinHome + File.separator):"") + (StringTools.isValidString(overlayRoot)?(overlayRoot + File.separator):"");
+        overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.xmlOverlay.resources", "resources") + File.separator;
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
     }
 
@@ -157,7 +159,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String gImageType, String perspectiveDirection) {
         imageType = gImageType.toLowerCase();
 
-        if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE + FOOTER).indexOf(imageType) < 0) {
+        boolean isFooter = false;
+        if (imageType.indexOf(FOOTER) == 0) {
+            isFooter = true;
+            imageType = imageType.replaceFirst(FOOTER, "");
+        } else if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE).indexOf(imageType) < 0 ) {
             // This is an error with the calling function
             logger.error("YAMJ Error with calling function in DefaultImagePlugin.java");
             return imageGraphic;
@@ -345,16 +351,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             }
 
-            bi = drawLogos(movie, bi, imageType, true);
+            bi = drawLogos(movie, bi, isFooter?FOOTER:imageType, true);
 
             if (addOverlay) {
                 bi = drawOverlay(movie, bi, overlayOffsetX, overlayOffsetY);
             }
             
-            bi = drawLogos(movie, bi, imageType, false);
+            bi = drawLogos(movie, bi, isFooter?FOOTER:imageType, false);
 
             if (addReflectionEffect) {
-                bi = GraphicTools.createReflectedPicture(bi, imageType);
+                bi = GraphicTools.createReflectedPicture(bi, isFooter?FOOTER:imageType);
             }
 
             if (addPerspective) {
@@ -362,7 +368,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     perspectiveDirection = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
                 }
 
-                bi = GraphicTools.create3DPicture(bi, imageType, perspectiveDirection);
+                bi = GraphicTools.create3DPicture(bi, isFooter?FOOTER:imageType, perspectiveDirection);
             }
         }
 
@@ -639,7 +645,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     if (!accept) {
                                         continue;
                                     }
-                                    File imageFile = new File(overlayResources + File.separator + img.filename);
+                                    File imageFile = new File(overlayResources + img.filename);
                                     if (imageFile.exists()) {
                                         if (StringTools.isNotValidString(filename)) {
                                             filename = img.filename;
@@ -711,7 +717,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     }
 
                     try {
-                        BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + File.separator + filename);
+                        BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filename);
 
                         Graphics2D g2d = bi.createGraphics();
                         g2d.drawImage(biSet, getOverlayX(bi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(bi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches("\\d+")?Integer.parseInt(state.width):biSet.getWidth(), state.height.matches("\\d+")?Integer.parseInt(state.height):biSet.getHeight(), null);
@@ -1035,7 +1041,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             String[] filenames = files.split(" / ");
             try {
                 Graphics2D g2d = bi.createGraphics();
-                BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + File.separator + filenames[0]);
+                BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filenames[0]);
                 List<String> uniqueFiles = new ArrayList<String>();
                 uniqueFiles.add(filenames[0]);
                 int width = Width.matches("\\d+")?Integer.parseInt(Width):biSet.getWidth();
@@ -1090,7 +1096,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 }
                             }
                         }
-                        biSet = GraphicTools.loadJPEGImage(overlayResources + File.separator + filenames[i]);
+                        biSet = GraphicTools.loadJPEGImage(overlayResources + filenames[i]);
                         if (block.size || Width.equalsIgnoreCase("equal") || Width.matches("\\d+")) {
                             offsetX = (left>0?1:-1)*col*(width + block.hmargin);
                         } else if (Width.equalsIgnoreCase("auto")) {
@@ -1350,7 +1356,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (!xmlOverlayFilename.toUpperCase().endsWith("XML")) {
             return;
         }
-        File xmlOverlayFile = new File((StringTools.isValidString(overlayRoot)?(overlayRoot + File.separator):"") + xmlOverlayFilename);
+        File xmlOverlayFile = new File(overlayRoot + xmlOverlayFilename);
         if (xmlOverlayFile.exists() && xmlOverlayFile.isFile()) {
             try {
                 XMLConfiguration c = new XMLConfiguration(xmlOverlayFile);
