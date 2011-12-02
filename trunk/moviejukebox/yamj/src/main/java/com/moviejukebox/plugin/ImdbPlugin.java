@@ -1057,9 +1057,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String xml = webBrowser.request(site + "title/" + imdbId + "/trivia");
         if (isValidString(xml)) {
             int i = 0;
-            for (String tmp : HTMLTools.extractTags(xml, "<div class=\"list\">", "<div class=\"list\">", "<div class=\"sodatext\"", "<br /></div>")) {
+            for (String tmp : HTMLTools.extractTags(xml, "<div class=\"list\">", "<div class=\"list\">", "<div class=\"sodatext\"", "</div>")) {
                 if (i < triviaMax || triviaMax == -1) {
                     tmp = HTMLTools.removeHtmlTags(tmp);
+                    tmp = tmp.trim();
                     movie.addDidYouKnow(tmp);
                     i++;
                 } else {
