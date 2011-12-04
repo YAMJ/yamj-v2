@@ -348,14 +348,24 @@
          <index encoded="G" originalName="Title" type="Title">G</index>
       </indexes>
       <files>
-         <file firstPart="1" lastPart="1" season="-1" size="5849918" subtitlesExchange="NO"
-               title="UNKNOWN"
+	   <file firstPart="1" lastPart="1" season="-1" size="5849918" subtitlesExchange="NO"
+               title="Full Title"
                vod=""
-               watched="false">
+               watched="true">
             <fileLocation>D:\YAMJ\YAMJ_Test\Videos\The Godfather (1972).avi</fileLocation>
             <fileURL>file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/The%20Godfather%20%281972%29.avi</fileURL>
-            <fileTitle part="1">UNKNOWN</fileTitle>
+            <fileTitle part="1">Part Title</fileTitle>
+            <airsInfo afterSeason="99" beforeEpisode="99" beforeSeason="99" part="1">1</airsInfo>
+            <firstAired part="1">UNKNOWN</firstAired>
+            <filePlot part="1">This is the file plot</filePlot>
+            <fileImageURL part="1">http%3A%2F%2Fthetvdb.com%2Fbanners%2Fepisodes%2F80348%2F332179.jpg</fileImageURL>
+            <fileImageFile part="1">Godfather.videoimage.jpg</fileImageFile>
+            <watchedDate>2000-01-01 12:00:00</watchedDate>
          </file>
       </files>
+      <extras>
+         <extra title="BONUS-Making of" vod="">file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/The%20Godfather%20%281972%29.%5BBONUS-Making%20of%5D.avi</extra>
+         <extra title="TRAILER-Theatrical Trailer" vod="">file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/The%20Godfather%20%281972%29.%5BTRAILER-Theatrical%20Trailer%5D.avi</extra>
+      </extras>
    </movie>
 </details>
