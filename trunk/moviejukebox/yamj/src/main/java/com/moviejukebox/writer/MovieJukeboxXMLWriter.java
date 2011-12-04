@@ -78,7 +78,6 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
-import javax.swing.text.html.parser.TagElement;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -202,468 +201,449 @@ public class MovieJukeboxXMLWriter {
     /**
      * Parse a single movie detail XML file
      */
-    @SuppressWarnings("unchecked")
     public boolean parseMovieXML(File xmlFile, Movie movie) {
 
         boolean forceDirtyFlag = false; // force dirty flag for example when extras has been deleted
 
+        Document xmlDoc;
+
         try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
-                String tag = e.toString();
+            xmlDoc = DOMHelper.getEventDocFromUrl(xmlFile);
+        } catch (MalformedURLException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return false;
+        } catch (IOException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return false;
+        } catch (ParserConfigurationException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return false;
+        } catch (SAXException error) {
+            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            final Writer eResult = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(eResult);
+            error.printStackTrace(printWriter);
+            logger.error(eResult.toString());
+            return false;
+        }
 
-                if (tag.toLowerCase().startsWith("<id ")) {
-                    String movieDatabase = ImdbPlugin.IMDB_PLUGIN_ID;
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+        NodeList nlMovies;  // Main list of movies, there should only be 1
+        Node nMovie;        // Node for the movie
 
-                        if (ns.equalsIgnoreCase("moviedb")) {
-                            movieDatabase = attr.getValue();
-                            continue;
+        NodeList nlElements;    // Reusable NodeList for the other elements
+        Node nElement;         // Reusable Node for the other elements
+
+        nlMovies = xmlDoc.getElementsByTagName("movie");
+        for (int loopMovie = 0; loopMovie < nlMovies.getLength(); loopMovie++) {
+            nMovie = nlMovies.item(loopMovie);
+            if (nMovie.getNodeType() == Node.ELEMENT_NODE) {
+                Element eMovie = (Element) nMovie;
+
+                // Get all the IDs associated with the movie
+                nlElements = eMovie.getElementsByTagName("id");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElement = nlElements.item(looper);
+                    if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eId = (Element) nElement;
+
+                        String movieDb = eId.getAttribute("moviedb");
+                        if (StringTools.isNotValidString(movieDb)) {
+                            movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
+                        }
+                        movie.setId(movieDb, eId.getTextContent());
+                    }
+                }   // End of ID
+
+                // Get the Version the XML was written with
+                movie.setMjbVersion(DOMHelper.getValueFromElement(eMovie, "mjbVersion"));
+
+                // Get the Revision the XML was written with
+                movie.setMjbRevision(DOMHelper.getValueFromElement(eMovie, "mjbRevision"));
+
+                // Get the date/time the XML was written
+                movie.setMjbGenerationDateString(DOMHelper.getValueFromElement(eMovie, "xmlGenerationDate"));
+
+                if (StringTools.isNotValidString(movie.getBaseFilename())) {
+                    movie.setBaseFilename(DOMHelper.getValueFromElement(eMovie, "baseFilenameBase"));
+                }
+
+                if (StringTools.isNotValidString(movie.getBaseName())) {
+                    movie.setBaseFilename(DOMHelper.getValueFromElement(eMovie, "baseFilename"));
+                }
+
+                // Get the title fields
+                movie.setTitle(DOMHelper.getValueFromElement(eMovie, "title"));
+                movie.setTitleSort(DOMHelper.getValueFromElement(eMovie, "titleSort"));
+                movie.setOriginalTitle(DOMHelper.getValueFromElement(eMovie, "originalTitle"));
+
+                // Get the year. We don't care about the attribute as that is the index
+                movie.setYear(DOMHelper.getValueFromElement(eMovie, "year"));
+
+                // Get the release date
+                movie.setReleaseDate(DOMHelper.getValueFromElement(eMovie, "releaseDate"));
+
+                // get the show status
+                movie.setShowStatus(DOMHelper.getValueFromElement(eMovie, "showStatus"));
+
+                // Get the ratings. We don't care about the "rating" as this is a calulated value.
+                // So just get the childnodes of the "ratings" node
+                nlElements = eMovie.getElementsByTagName("ratings");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eRating = (Element) nElement;
+
+                            String movieDb = eRating.getAttribute("moviedb");
+                            if (StringTools.isNotValidString(movieDb)) {
+                                movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
+                            }
+                            movie.addRating(movieDb, Integer.parseInt(eRating.getTextContent()));
                         }
                     }
-                    movie.setId(movieDatabase, parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<mjbVersion>")) {
-                    movie.setMjbVersion(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<mjbRevision>")) {
-                    movie.setMjbRevision(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<xmlGenerationDate>")) {
-                    movie.setMjbGenerationDateString(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<baseFilenameBase>") && (movie.getBaseFilename() == null || movie.getBaseFilename().equalsIgnoreCase(Movie.UNKNOWN))) {
-                    movie.setBaseFilename(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<baseFilename>") && (movie.getBaseName() == null || movie.getBaseName().equalsIgnoreCase(Movie.UNKNOWN))) {
-                    movie.setBaseName(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<title>")) {
-                    movie.setTitle(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<titleSort>")) {
-                    movie.setTitleSort(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<originalTitle>")) {
-                    movie.setOriginalTitle(parseCData(r));
-                }
-                if (tag.toLowerCase().startsWith("<year ") || tag.equalsIgnoreCase("<year>")) {
-                    movie.setYear(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<releaseDate>")) {
-                    movie.setReleaseDate(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<showStatus>")) {
-                    movie.setShowStatus(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<rating>")) {
-                    // We don't care about the main rating as this is derived
-                    // movie.setRating(Integer.parseInt(parseCData(r)));
-                }
-                if (tag.toLowerCase().startsWith("<rating ")) {
-                    String moviedb = "";
+                }   // End of Ratings
 
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                // get the IMDB top250 rating
+                movie.setTop250(Integer.parseInt(DOMHelper.getValueFromElement(eMovie, "top250")));
 
-                        if (ns.equalsIgnoreCase("moviedb")) {
-                            moviedb = attr.getValue();
-                            continue;
+                // Get the watched flags
+                movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watched")));
+                movie.setWatchedNFO(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedNFO")));
+
+                // Get artwork URLS
+                movie.setPosterURL(DOMHelper.getValueFromElement(eMovie, "posterURL"));
+                movie.setFanartURL(DOMHelper.getValueFromElement(eMovie, "fanartURL"));
+                movie.setBannerURL(DOMHelper.getValueFromElement(eMovie, "bannerURL"));
+
+                // Get artwork files
+                movie.setPosterFilename(DOMHelper.getValueFromElement(eMovie, "posterFile"));
+                movie.setDetailPosterFilename(DOMHelper.getValueFromElement(eMovie, "detailPosterFile"));
+                movie.setThumbnailFilename(DOMHelper.getValueFromElement(eMovie, "thumbnail"));
+                movie.setFanartFilename(DOMHelper.getValueFromElement(eMovie, "fanartFile"));
+                movie.setBannerFilename(DOMHelper.getValueFromElement(eMovie, "bannerFile"));
+
+                // Get the plot and outline
+                movie.setPlot(DOMHelper.getValueFromElement(eMovie, "plot"));
+                movie.setOutline(DOMHelper.getValueFromElement(eMovie, "outline"));
+
+                // Get the quote
+                movie.setQuote(DOMHelper.getValueFromElement(eMovie, "quote"));
+
+                // Get the tagline
+                movie.setTagline(DOMHelper.getValueFromElement(eMovie, "tagline"));
+
+                // Get the company name
+                movie.setCompany(DOMHelper.getValueFromElement(eMovie, "company"));
+
+                // get the runtime
+                movie.setRuntime(DOMHelper.getValueFromElement(eMovie, "runtime"));
+
+                // Get the directors
+                nlElements = eMovie.getElementsByTagName("directors");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElement;
+                            movie.addDirector(ePerson.getTextContent());
                         }
                     }
-                    movie.addRating(moviedb, Integer.parseInt(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<top250>")) {
-                    movie.setTop250(Integer.parseInt(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<watched>")) {
-                    movie.setWatchedFile(Boolean.parseBoolean(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<watchedNFO>")) {
-                    movie.setWatchedNFO(Boolean.parseBoolean(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<posterURL>")) {
-                    movie.setPosterURL(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<fanartURL>")) {
-                    movie.setFanartURL(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<bannerURL>")) {
-                    movie.setBannerURL(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<bannerFile>")) {
-                    movie.setBannerFilename(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<posterFile>")) {
-                    movie.setPosterFilename(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<detailPosterFile>")) {
-                    movie.setDetailPosterFilename(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<thumbnail>")) {
-                    movie.setThumbnailFilename(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<fanartFile>")) {
-                    movie.setFanartFilename(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<plot>")) {
-                    movie.setPlot(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<outline>")) {
-                    movie.setOutline(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<quote>")) {
-                    movie.setQuote(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<tagline>")) {
-                    movie.setTagline(parseCData(r));
-                }
-                if (tag.toLowerCase().startsWith("<director ") || tag.equalsIgnoreCase("<director>")) {
-                    movie.addDirector(parseCData(r));
-                }
-                if (tag.toLowerCase().startsWith("<country ") || tag.equalsIgnoreCase("<country>")) {
-                    movie.setCountry(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<company>")) {
-                    movie.setCompany(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<runtime>")) {
-                    movie.setRuntime(parseCData(r));
-                }
-                if (tag.toLowerCase().startsWith("<genre ") || tag.equalsIgnoreCase("<genre>")) {
-                    movie.addGenre(parseCData(r));
-                }
-                if (tag.toLowerCase().startsWith("<set ") || tag.equalsIgnoreCase("<set>")) {
-                    // String set = null;
-                    Integer order = null;
+                }   // End of directors
 
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
-
-                        if (ns.equalsIgnoreCase("order")) {
-                            order = Integer.parseInt(attr.getValue());
-                            continue;
+                // Get the writers
+                nlElements = eMovie.getElementsByTagName("writers");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElement;
+                            movie.addWriter(ePerson.getTextContent());
                         }
                     }
-                    movie.addSet(parseCData(r), order);
-                }
-                if (tag.toLowerCase().startsWith("<actor ") || tag.equalsIgnoreCase("<actor>")) {
-                    String actor = parseCData(r);
-                    movie.addActor(actor);
-                }
-                if (tag.equalsIgnoreCase("<writer>")) {
-                    String writer = parseCData(r);
-                    movie.addWriter(writer);
-                }
-                if (tag.equalsIgnoreCase("<certification>")) {
-                    movie.setCertification(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<language>")) {
-                    movie.setLanguage(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<subtitles>")) {
-                    movie.setSubtitles(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<trailerExchange>")) {
-                    movie.setTrailerExchange(parseCData(r).equalsIgnoreCase("YES"));
-                }
-                if (tag.equalsIgnoreCase("<trailerLastScan>")) {
-                    movie.setTrailerLastScan(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<container>")) {
-                    movie.setContainer(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<videoCodec>")) {
-                    movie.setVideoCodec(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<audioCodec>")) {
-                    movie.setAudioCodec(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<audioChannels>")) {
-                    movie.setAudioChannels(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<resolution>")) {
-                    movie.setResolution(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<videoSource>")) {
-                    movie.setVideoSource(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<videoOutput>")) {
-                    movie.setVideoOutput(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<aspect>")) {
-                    movie.setAspectRatio(aspectTools.cleanAspectRatio(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<fps>")) {
-                    movie.setFps(Float.parseFloat(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<first>")) {
-                    movie.setFirst(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<previous>")) {
-                    movie.setPrevious(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<next>")) {
-                    movie.setNext(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<last>")) {
-                    movie.setLast(HTMLTools.decodeUrl(parseCData(r)));
-                }
-                if (tag.equalsIgnoreCase("<libraryDescription>")) {
-                    movie.setLibraryDescription(parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<prebuf>")) {
-                    String prebuf = parseCData(r);
-                    if (prebuf != null) {
-                        try {
-                            movie.setPrebuf(Long.parseLong(prebuf));
-                        } catch (Exception ignore) {
-                            // If we can't convert the prebuf value, leave it as blank
+                }   // End of writers
+
+                // Get the country
+                movie.setCountry(DOMHelper.getValueFromElement(eMovie, "country"));
+
+                // Get the genres
+                nlElements = eMovie.getElementsByTagName("genres");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eGenre = (Element) nElement;
+                            movie.addGenre(eGenre.getTextContent());
                         }
                     }
-                }
+                }   // End of genres
+
+                // Get the cast (actors)
+                nlElements = eMovie.getElementsByTagName("cast");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElement;
+                            movie.addActor(ePerson.getTextContent());
+                        }
+                    }
+                }   // End of cast
+
+                // Process the sets
+                nlElements = eMovie.getElementsByTagName("sets");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eSet = (Element) nElement;
+                            String order = eSet.getAttribute("order");
+                            if (StringTools.isValidString(order)) {
+                                movie.addSet(eSet.getTextContent(), Integer.parseInt(order));
+                            } else {
+                                movie.addSet(eSet.getTextContent());
+                            }
+                        }
+                    }
+                }   // End of sets
+
+                // Get certification
+                movie.setCertification(DOMHelper.getValueFromElement(eMovie, "certification"));
+
+                // Get language
+                movie.setLanguage(DOMHelper.getValueFromElement(eMovie, "language"));
+
+                // Get subtitles
+                movie.setSubtitles(DOMHelper.getValueFromElement(eMovie, "subtitles"));
+
+                // Get the TrailerExchange
+                movie.setTrailerExchange(DOMHelper.getValueFromElement(eMovie, "trailerExchange").equalsIgnoreCase("YES"));
+
+                // Get trailerLastScan date/time
+                movie.setTrailerLastScan(DOMHelper.getValueFromElement(eMovie, "trailerLastScan"));
+
+                // Get file container
+                movie.setContainer(DOMHelper.getValueFromElement(eMovie, "container"));
+
+                // Get the video codec
+                movie.setVideoCodec(DOMHelper.getValueFromElement(eMovie, "videoCodec"));
+
+                // get the audio codec
+                movie.setAudioCodec(DOMHelper.getValueFromElement(eMovie, "audioCodec"));
+
+                nlElements = eMovie.getElementsByTagName("codecs");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eCodec = (Element) nElement;
+                            Codec codec;
+                            if (Codec.CodecType.VIDEO.toString().equalsIgnoreCase(eCodec.getNodeName())) {
+                                codec = new Codec(Codec.CodecType.VIDEO);
+                            } else {
+                                codec = new Codec(Codec.CodecType.AUDIO);
+                            }
+                            codec.setCodecId(eCodec.getAttribute("codecId"));
+                            codec.setCodecIdHint(eCodec.getAttribute("codecIdHint"));
+                            codec.setCodecFormat(eCodec.getAttribute("format"));
+                            codec.setCodecFormatProfile(eCodec.getAttribute("formatProfile"));
+                            codec.setCodecFormatVersion(eCodec.getAttribute("formatVersion"));
+                            codec.setCodecLanguage(eCodec.getAttribute("language"));
+                            codec.setCodec(eCodec.getTextContent());
+
+                            movie.addCodec(codec);
+                        }
+                    }
+                }   // END of codecs
+
+                // get the audio channels
+                movie.setAudioChannels(DOMHelper.getValueFromElement(eMovie, "audioChannels"));
+
+                // get the resolution
+                movie.setResolution(DOMHelper.getValueFromElement(eMovie, "resolution"));
+
+                // get the video source
+                movie.setVideoSource(DOMHelper.getValueFromElement(eMovie, "videoSource"));
+
+                // get the video output
+                movie.setVideoOutput(DOMHelper.getValueFromElement(eMovie, "videoOutput"));
+
+                // get aspect ratio
+                movie.setAspectRatio(aspectTools.cleanAspectRatio(DOMHelper.getValueFromElement(eMovie, "aspect")));
+
+                // get frames per second
+                movie.setFps(Float.parseFloat(DOMHelper.getValueFromElement(eMovie, "fps")));
+
+                // Get navigation info
+                movie.setFirst(DOMHelper.getValueFromElement(eMovie, "first"));
+                movie.setPrevious(DOMHelper.getValueFromElement(eMovie, "previous"));
+                movie.setNext(DOMHelper.getValueFromElement(eMovie, "next"));
+                movie.setLast(DOMHelper.getValueFromElement(eMovie, "last"));
+
+                // Get the library description
+                movie.setLibraryDescription(DOMHelper.getValueFromElement(eMovie, "libraryDescription"));
+
+                // Get prebuf
+                movie.setPrebuf(Long.parseLong(DOMHelper.getValueFromElement(eMovie, "prebuf")));
 
                 // Issue 1901: Awards
-                if (tag.toLowerCase().startsWith("<event ")) {
-                    AwardEvent event = new AwardEvent();
+                nlElements = eMovie.getElementsByTagName("awards");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eAwardEvent = (Element) nElement;
+                            AwardEvent awardEvent = new AwardEvent();
+                            awardEvent.setName(eAwardEvent.getAttribute("name"));
 
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                            Node nAward;
+                            for (int loopAwards = 0; loopAwards < eAwardEvent.getChildNodes().getLength(); loopAwards++) {
+                                nAward = eAwardEvent.getChildNodes().item(loopAwards);
+                                if (nAward.getNodeType() == Node.ELEMENT_NODE) {
+                                    Element eAward = (Element) nAward;
+                                    Award award = new Award();
 
-                        if (ns.equalsIgnoreCase("name")) {
-                            event.setName(attr.getValue());
-                            continue;
+                                    award.setName(eAward.getTextContent());
+                                    award.setNominated(Integer.parseInt(eAward.getAttribute("nominated")));
+                                    award.setWon(Integer.parseInt(eAward.getAttribute("won")));
+                                    award.setYear(Integer.parseInt(eAward.getAttribute("year")));
+                                    award.setWons(Arrays.asList(eAward.getAttribute("wons").split(" / ")));
+                                    award.setNominations(Arrays.asList(eAward.getAttribute("nominations").split(" / ")));
+
+                                    awardEvent.addAward(award);
+                                }
+                            }   // End of Awards
+
+                            movie.addAward(awardEvent);
                         }
                     }
-
-                    while (!r.peek().toString().equalsIgnoreCase("</event>")) {
-                        e = r.nextEvent();
-                        tag = e.toString();
-                        if (tag.toLowerCase().startsWith("<award ")) {
-                            Award award = new Award();
-                            StartElement element = e.asStartElement();
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
-
-                                if (ns.equalsIgnoreCase("year")) {
-                                    award.setYear(Integer.parseInt(attr.getValue()));
-                                    continue;
-                                }
-
-                                if (ns.equalsIgnoreCase("won")) {
-                                    award.setWon(Integer.parseInt(attr.getValue()));
-                                    continue;
-                                }
-
-                                if (ns.equalsIgnoreCase("nominated")) {
-                                    award.setNominated(Integer.parseInt(attr.getValue()));
-                                    continue;
-                                }
-
-                                if (ns.equalsIgnoreCase("wons")) {
-                                    award.setWons(Arrays.asList(attr.getValue().split(" / ")));
-                                    continue;
-                                }
-
-                                if (ns.equalsIgnoreCase("nominations")) {
-                                    award.setNominations(Arrays.asList(attr.getValue().split(" / ")));
-                                    continue;
-                                }
-
-                            }
-                            award.setName(parseCData(r));
-                            event.addAward(award);
-                        }
-                    }
-                    movie.addAward(event);
-                }
+                }   // End of AwardEvents
 
                 // Issue 1897: Cast enhancement
-                if (tag.toLowerCase().startsWith("<person ")) {
-                    Filmography person = new Person();
+                nlElements = eMovie.getElementsByTagName("people");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
 
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElement;
+                            Filmography person = new Filmography();
 
-                        if (ns.equalsIgnoreCase("name")) {
-                            person.setName(attr.getValue());
-                            continue;
+                            person.setCastId(ePerson.getAttribute("cast_id"));
+                            person.setCharacter(ePerson.getAttribute("character"));
+                            person.setDepartment(ePerson.getAttribute("department"));
+                            person.setDoublage(ePerson.getAttribute("doublage"));
+                            person.setId(ePerson.getAttribute("id"));
+                            person.setJob(ePerson.getAttribute("job"));
+                            person.setName(ePerson.getAttribute("name"));
+                            person.setOrder(ePerson.getAttribute("order"));
+                            person.setTitle(ePerson.getAttribute("title"));
+                            person.setUrl(ePerson.getAttribute("url"));
+
+                            // Get any "id_???" values
+                            for (int loopAttr = 0; loopAttr < ePerson.getAttributes().getLength(); loopAttr++) {
+                                Node nPersonAttr = ePerson.getAttributes().item(loopAttr);
+                                if (nPersonAttr.getNodeName().startsWith("id_")) {
+                                    String name = nPersonAttr.getNodeName().replace("id_", "");
+                                    person.setId(name, nPersonAttr.getNodeValue());
+                                }
+                            }
                         }
-
-                        if (ns.equalsIgnoreCase("year")) {
-                            person.setYear(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("doublage")) {
-                            person.setDoublage(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("title")) {
-                            person.setTitle(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("character")) {
-                            person.setCharacter(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("job")) {
-                            person.setJob(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("id")) {
-                            person.setId(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.toLowerCase().contains("id_")) {
-                            person.setId(ns.substring(3), attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("department")) {
-                            person.setDepartment(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("url")) {
-                            person.setUrl(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("order")) {
-                            person.setOrder(attr.getValue());
-                            continue;
-                        }
-
-                        if (ns.equalsIgnoreCase("cast_id")) {
-                            person.setCastId(attr.getValue());
-                            continue;
-                        }
-
                     }
-
-                    person.setFilename(parseCData(r));
-                    movie.addPerson(person);
-                }
+                }   // End of Cast
 
                 // Issue 2012: Financial information about movie
-                if (tag.toLowerCase().startsWith("<business ")) {
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                nlElements = eMovie.getElementsByTagName("business");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElement = nlElements.item(looper);
+                    if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eBusiness = (Element) nElement;
+                        movie.setBudget(eBusiness.getAttribute("budget"));
 
-                        if (ns.equalsIgnoreCase("budget")) {
-                            movie.setBudget(attr.getValue());
-                            continue;
-                        }
+                        Node nCountry;
+                        for (int loopBus = 0; loopBus < eBusiness.getChildNodes().getLength(); loopBus++) {
+                            nCountry = eBusiness.getChildNodes().item(loopBus);
+                            if (nCountry.getNodeType() == Node.ELEMENT_NODE) {
+                                Element eCountry = (Element) nCountry;
+                                if (eCountry.getNodeName().equalsIgnoreCase("gross")) {
+                                    movie.setGross(eCountry.getAttribute("country"), eCountry.getTextContent());
+                                } else if (eCountry.getNodeName().equalsIgnoreCase("openweek")) {
+                                    movie.setOpenWeek(eCountry.getAttribute("country"), eCountry.getTextContent());
+                                }
+                            }
+                        }   // End of budget info
                     }
-                }
-                if (tag.toLowerCase().startsWith("<gross ")) {
-                    StartElement start = e.asStartElement();
-                    String country = Movie.UNKNOWN;
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                }   // End of business info
 
-                        if (ns.equalsIgnoreCase("country")) {
-                            country = attr.getValue();
-                            continue;
-                        }
-                    }
-                    movie.setGross(country, parseCData(r));
-                }
-                if (tag.toLowerCase().startsWith("<openweek ")) {
-                    StartElement start = e.asStartElement();
-                    String country = Movie.UNKNOWN;
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                // Get the file list
+                nlElements = eMovie.getElementsByTagName("files");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eFile = (Element) nElement;
+                            MovieFile movieFile = new MovieFile();
+                            movieFile.setNewFile(false);
 
-                        if (ns.equalsIgnoreCase("country")) {
-                            country = attr.getValue();
-                            continue;
-                        }
-                    }
-                    movie.setOpenWeek(country, parseCData(r));
-                }
-                
-                if (tag.toLowerCase().startsWith("<file ")) {
-                    MovieFile mf = new MovieFile();
-                    mf.setNewFile(false);
+                            String attr;
 
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                            attr = eFile.getAttribute("title");
+                            if (StringTools.isValidString(attr)) {
+                                movieFile.setTitle(attr);
+                            }
 
-                        if (ns.equalsIgnoreCase("title")) {
-                            mf.setTitle(attr.getValue());
-                            continue;
-                        }
+                            attr = eFile.getAttribute("season");
+                            if (StringUtils.isNumeric(attr)) {
+                                movieFile.setSeason(Integer.parseInt(attr));
+                            }
 
-                        if (ns.equalsIgnoreCase("season")) {
-                            mf.setSeason(Integer.parseInt(attr.getValue()));
-                        }
+                            attr = eFile.getAttribute("firstPart");
+                            if (StringUtils.isNumeric(attr)) {
+                                movieFile.setFirstPart(Integer.parseInt(attr));
+                            }
 
-                        if (ns.equalsIgnoreCase("firstPart")) {
-                            mf.setFirstPart(Integer.parseInt(attr.getValue()));
-                            continue;
-                        }
+                            attr = eFile.getAttribute("lastPart");
+                            if (StringUtils.isNumeric(attr)) {
+                                movieFile.setLastPart(Integer.parseInt(attr));
+                            }
 
-                        if (ns.equalsIgnoreCase("lastPart")) {
-                            mf.setLastPart(Integer.parseInt(attr.getValue()));
-                            continue;
-                        }
+                            attr = eFile.getAttribute("subtitlesExchange");
+                            if (StringTools.isValidString(attr)) {
+                                movieFile.setSubtitlesExchange(attr.equalsIgnoreCase("YES"));
+                            }
 
-                        if (ns.equalsIgnoreCase("subtitlesExchange")) {
-                            mf.setSubtitlesExchange(attr.getValue().equalsIgnoreCase("YES"));
-                            continue;
-                        }
+                            attr = eFile.getAttribute("watched");
+                            if (StringTools.isValidString(attr));
+                            movieFile.setWatched(Boolean.parseBoolean(attr));
 
-                        if (ns.equalsIgnoreCase("watched")) {
-                            mf.setWatched(Boolean.parseBoolean(attr.getValue()));
-                            continue;
-                        }
-                    }
-
-                    // Check to see if we got the season from the file, if not populate it from the movie.
-                    // FIXME: This can be removed once all XML files have been overwritten
-                    if (movie.isTVShow() && mf.getSeason() == -1) {
-                        mf.setSeason(movie.getSeason());
-                        mf.setNewFile(true); // Mark the moviefile as new to force it to be written out
-                    }
-
-                    while (!r.peek().toString().equalsIgnoreCase("</file>")) {
-                        e = r.nextEvent();
-                        tag = e.toString();
-                        if (tag.equalsIgnoreCase("<fileLocation>")) {
                             try {
-                                File mfFile = new File(parseCData(r));
+                                File mfFile = new File(DOMHelper.getValueFromElement(eFile, "fileLocation"));
 
                                 // Check to see if the file exists, or we are preserving the jukebox
                                 if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
                                     // Save the file to the MovieFile
-                                    mf.setFile(mfFile);
+                                    movieFile.setFile(mfFile);
                                 } else {
                                     // We can't find this file anymore, so skip it.
                                     logger.debug("Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
@@ -674,163 +654,128 @@ public class MovieJukeboxXMLWriter {
                                 logger.debug("XMLWriter: Failed parsing file " + xmlFile.getName());
                                 continue;
                             }
-                        } else if (tag.equalsIgnoreCase("<fileURL>")) {
-                            mf.setFilename(parseCData(r));
-                        } else if (tag.equalsIgnoreCase("<watchedDate>")) {
-                            mf.setWatchedDateString(parseCData(r));
-                        } else if (tag.toLowerCase().startsWith("<filetitle")) {
-                            StartElement element = e.asStartElement();
-                            int part = 1;
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
 
-                                if (ns.equalsIgnoreCase("part")) {
-                                    part = Integer.parseInt(attr.getValue());
+                            movieFile.setFilename(DOMHelper.getValueFromElement(eFile, "fileURL"));
+
+                            // We need to get the part from the fileTitle
+                            Element eFileInfo = DOMHelper.getElementByName(eFile, "fileTitle");
+                            if (eFileInfo != null) {
+                                String part = eFileInfo.getAttribute("part");
+                                if (StringUtils.isNumeric(part)) {
+                                    movieFile.setTitle(Integer.parseInt(part), eFileInfo.getTextContent());
+                                } else {
+                                    movieFile.setTitle(eFileInfo.getTextContent());
                                 }
                             }
-                            mf.setTitle(part, parseCData(r));
-                        } else if (tag.toLowerCase().startsWith("<fileplot")) {
-                            StartElement element = e.asStartElement();
-                            int part = 1;
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
 
-                                if (ns.equalsIgnoreCase("part")) {
-                                    part = Integer.parseInt(attr.getValue());
+                            // get the file Plot
+                            eFileInfo = DOMHelper.getElementByName(eFile, "filePlot");
+                            if (eFileInfo != null) {
+                                String part = eFileInfo.getAttribute("part");
+                                if (StringUtils.isNumeric(part)) {
+                                    movieFile.setPlot(Integer.parseInt(part), eFileInfo.getTextContent());
                                 }
                             }
-                            mf.setPlot(part, parseCData(r));
-                        } else if (tag.toLowerCase().startsWith("<filerating")) {
-                            StartElement element = e.asStartElement();
-                            int part = 1;
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
 
-                                if (ns.equalsIgnoreCase("part")) {
-                                    part = Integer.parseInt(attr.getValue());
+                            // Get the airs info
+                            eFileInfo = DOMHelper.getElementByName(eFile, "airsInfo");
+                            if (eFileInfo != null) {
+                                int part = 1;
+                                String afterSeason = eFileInfo.getAttribute("afterSeason");
+                                String beforeEpisode = eFileInfo.getAttribute("beforeEpisode");
+                                String beforeSeason = eFileInfo.getAttribute("beforeSeason");
+
+                                attr = eFileInfo.getAttribute("part");
+                                if (StringUtils.isNumeric(attr)) {
+                                    part = Integer.parseInt(attr);
+                                }
+
+                                movieFile.setAirsAfterSeason(part, afterSeason);
+                                movieFile.setAirsBeforeSeason(part, beforeSeason);
+                                movieFile.setAirsBeforeEpisode(part, beforeEpisode);
+                            }
+
+                            eFileInfo = DOMHelper.getElementByName(eFile, "firstAired");
+                            if (eFileInfo != null) {
+                                int part = 0;
+                                attr = eFileInfo.getAttribute("part");
+                                if (StringUtils.isNumeric(attr)) {
+                                    part = Integer.parseInt(attr);
+                                }
+
+                                movieFile.setFirstAired(part, eFileInfo.getTextContent());
+                            }
+
+                            // get the file rating
+                            eFileInfo = DOMHelper.getElementByName(eFile, "fileRating");
+                            if (eFileInfo != null) {
+                                String part = eFileInfo.getAttribute("part");
+                                if (StringUtils.isNumeric(part)) {
+                                    movieFile.setRating(Integer.parseInt(part), eFileInfo.getTextContent());
                                 }
                             }
-                            mf.setRating(part, parseCData(r));
-                        } else if (tag.toLowerCase().startsWith("<fileimageurl")) {
-                            StartElement element = e.asStartElement();
-                            int part = 1;
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
 
-                                if (ns.equalsIgnoreCase("part")) {
-                                    part = Integer.parseInt(attr.getValue());
+                            // get the file image url
+                            eFileInfo = DOMHelper.getElementByName(eFile, "fileImageURL");
+                            if (eFileInfo != null) {
+                                String part = eFileInfo.getAttribute("part");
+                                if (StringUtils.isNumeric(part)) {
+                                    movieFile.setVideoImageURL(Integer.parseInt(part), eFileInfo.getTextContent());
                                 }
                             }
-                            mf.setVideoImageURL(part, HTMLTools.decodeUrl(parseCData(r)));
-                        } else if (tag.toLowerCase().startsWith("<fileimagefile")) {
-                            StartElement element = e.asStartElement();
-                            int part = 1;
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
 
-                                if (ns.equalsIgnoreCase("part")) {
-                                    part = Integer.parseInt(attr.getValue());
+                            // get the file image filename
+                            eFileInfo = DOMHelper.getElementByName(eFile, "fileImageFile");
+                            if (eFileInfo != null) {
+                                String part = eFileInfo.getAttribute("part");
+                                if (StringUtils.isNumeric(part)) {
+                                    movieFile.setVideoImageFilename(Integer.parseInt(part), eFileInfo.getTextContent());
                                 }
                             }
-                            mf.setVideoImageFilename(part, HTMLTools.decodeUrl(parseCData(r)));
-                        } else if (tag.toLowerCase().startsWith("<airsinfo ")) {
-                            StartElement element = e.asStartElement();
-                            int part = 1;
-                            String afterSeason = "0";
-                            String beforeSeason = "0";
-                            String beforeEpisode = "0";
 
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
+                            movieFile.setWatchedDateString(DOMHelper.getValueFromElement(eFile, "watchedDate"));
 
-                                if (ns.equalsIgnoreCase("part")) {
-                                    part = Integer.parseInt(attr.getValue());
-                                }
-
-                                if (ns.equalsIgnoreCase("afterSeason")) {
-                                    afterSeason = attr.getValue();
-                                }
-
-                                if (ns.equalsIgnoreCase("beforeSeason")) {
-                                    beforeSeason = attr.getValue();
-                                }
-
-                                if (ns.equalsIgnoreCase("beforeEpisode")) {
-                                    beforeEpisode = attr.getValue();
-                                }
-                            }
-                            // There is also the part number in the value, but we already have that
-                            mf.setAirsAfterSeason(part, afterSeason);
-                            mf.setAirsBeforeSeason(part, beforeSeason);
-                            mf.setAirsBeforeEpisode(part, beforeEpisode);
-                        } else if (tag.toLowerCase().startsWith("<firstaired ")) {
-                            StartElement element = e.asStartElement();
-                            int part = 1;
-                            for (Iterator<Attribute> i = element.getAttributes(); i.hasNext();) {
-                                Attribute attr = i.next();
-                                String ns = attr.getName().toString();
-
-                                if (ns.equalsIgnoreCase("part")) {
-                                    part = Integer.parseInt(attr.getValue());
-                                }
-                            }
-                            mf.setFirstAired(part, HTMLTools.decodeUrl(parseCData(r)));
+                            // Add the movie file to the movie
+                            movie.addMovieFile(movieFile);
                         }
                     }
-                    // add or replace MovieFile based on XML data
-                    movie.addMovieFile(mf);
-                }
+                }   // END of files
 
-                if (tag.toLowerCase().startsWith("<extra ")) {
-                    String extraTitle = "";
-                    String extraFilename = "";
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
+                // Get the extra list
+                nlElements = eMovie.getElementsByTagName("extras");
+                if (nlElements.getLength() > 0) {
+                    nlElements = nlElements.item(0).getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElement = nlElements.item(looper);
+                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eExtra = (Element) nElement;
 
-                        if (ns.equalsIgnoreCase("title")) {
-                            extraTitle = attr.getValue();
-                            continue;
-                        }
-                    }
+                            String extraTitle = eExtra.getAttribute("title");
+                            String extraFilename = eExtra.getTextContent();
 
-                    // get the filename
-                    extraFilename = parseCData(r);
+                            if (!extraTitle.isEmpty() && !extraFilename.isEmpty()) {
+                                boolean exist = false;
+                                for (ExtraFile ef : movie.getExtraFiles()) {
+                                    // Check if the movie has already the extra file
+                                    if (ef.getFilename().equals(extraFilename)) {
+                                        exist = true;
+                                        // the extra file is old
+                                        ef.setNewFile(false);
+                                        break;
+                                    }
+                                }
 
-                    // Create a new ExtraFile and add to the movie if the file exists
-                    if (!extraTitle.isEmpty() && !extraFilename.isEmpty()) {
-                        boolean exist = false;
-                        for (ExtraFile ef : movie.getExtraFiles()) {
-                            // Check if the movie has already the extra file
-                            if (ef.getFilename().equals(extraFilename)) {
-                                exist = true;
-                                // the extra file is old
-                                ef.setNewFile(false);
-                                break;
+                                if (!exist) {
+                                    // the extra file has been deleted so force the dirty flag
+                                    forceDirtyFlag = true;
+                                }
                             }
                         }
-                        if (!exist) {
-                            // the extra file has been delete so force the dirty flag
-                            forceDirtyFlag = true;
-                        }
                     }
-                }
-            }
-        } catch (Exception error) {
-            logger.error("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
-            return false;
-        }
+                }   // END of extras
+
+            }   // End of ELEMENT_NODE
+        }   // End of Movie Loop
 
         movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
 
@@ -1871,30 +1816,30 @@ public class MovieJukeboxXMLWriter {
 
         // Write codec information
         Element eCodecs = doc.createElement("codecs");
-        
-            Element eCodecAudio = doc.createElement("audio");
-            Element eCodecVideo = doc.createElement("video");
 
-            HashMap<String, String> codecAttribs = new HashMap<String, String>();
+        Element eCodecAudio = doc.createElement("audio");
+        Element eCodecVideo = doc.createElement("video");
 
-            for (Codec codec : movie.getCodecs()) {
-                codecAttribs.clear();
+        HashMap<String, String> codecAttribs = new HashMap<String, String>();
 
-                codecAttribs.put("format", codec.getCodecFormat());
-                codecAttribs.put("formatProfile", codec.getCodecFormatProfile());
-                codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
-                codecAttribs.put("codecId", codec.getCodecId());
-                codecAttribs.put("codecIdHint", codec.getCodecIdHint());
-                codecAttribs.put("language", codec.getCodecLanguage());
+        for (Codec codec : movie.getCodecs()) {
+            codecAttribs.clear();
 
-                if (codec.getCodecType() == Codec.CodecType.AUDIO) {
-                    DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
-                } else {
-                    DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
-                }
+            codecAttribs.put("format", codec.getCodecFormat());
+            codecAttribs.put("formatProfile", codec.getCodecFormatProfile());
+            codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
+            codecAttribs.put("codecId", codec.getCodecId());
+            codecAttribs.put("codecIdHint", codec.getCodecIdHint());
+            codecAttribs.put("language", codec.getCodecLanguage());
+
+            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+                DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
+            } else {
+                DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
             }
-            eCodecs.appendChild(eCodecAudio);
-            eCodecs.appendChild(eCodecVideo);
+        }
+        eCodecs.appendChild(eCodecAudio);
+        eCodecs.appendChild(eCodecVideo);
 
         eMovie.appendChild(eCodecs);
 

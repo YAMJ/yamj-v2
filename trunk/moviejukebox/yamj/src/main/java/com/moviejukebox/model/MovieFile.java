@@ -72,12 +72,13 @@ public class MovieFile implements Comparable<MovieFile> {
     private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
-
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
+
         {
             String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
 
             HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
+
                 {
                     put("ZCD", "ISO,IMG,VOB,MDF,NRG,BIN");
                     put("VOD", "");
@@ -95,7 +96,7 @@ public class MovieFile implements Comparable<MovieFile> {
                 StringBuilder patt = new StringBuilder(s);
                 if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
                     for (String t : mappedScannerTypes.split(",")) {
-                        patt.append("|" + t);
+                        patt.append("|").append(t);
                     }
                 }
                 put(s, MovieFilenameScanner.iwpatt(patt.toString()));
@@ -160,8 +161,8 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public String getVideoImageFilename(int part) {
-        String file = videoImageFilename.get(part);
-        return file != null ? file : Movie.UNKNOWN;
+        String viFile = videoImageFilename.get(part);
+        return viFile != null ? viFile : Movie.UNKNOWN;
     }
 
     public void setVideoImageURL(int part, String videoImageURL) {
@@ -214,38 +215,38 @@ public class MovieFile implements Comparable<MovieFile> {
         if (titles.size() == 0) {
             return Movie.UNKNOWN;
         }
-        
+
         if (firstPart == lastPart) {
             return (titles.get(firstPart) == null ? Movie.UNKNOWN : titles.get(firstPart));
         }
-        
+
         boolean first = true;
         StringBuilder title = new StringBuilder();
-        
+
         for (int loop = firstPart; loop <= lastPart; loop++) {
             if (first) {
                 title.append(getTitle(loop));
                 first = false;
             } else {
-                title.append(" / " + getTitle(loop));
+                title.append(" / ").append(getTitle(loop));
             }
         }
         return title.toString();
     }
-    
+
     public boolean hasTitle() {
         return !Movie.UNKNOWN.equals(getTitle());
     }
-    
+
     @XmlAttribute
     public boolean isNewFile() {
         return newFile;
     }
-    
+
     public void setNewFile(boolean newFile) {
         this.newFile = newFile;
     }
-    
+
     @XmlAttribute
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
     public Boolean isSubtitlesExchange() {
@@ -255,7 +256,7 @@ public class MovieFile implements Comparable<MovieFile> {
     public void setSubtitlesExchange(Boolean subtitlesExchange) {
         this.subtitlesExchange = subtitlesExchange;
     }
-    
+
     //the trick here is, files are ALWAYS FileEx instances and values are cached!
     @XmlAttribute
     public long getSize() {
@@ -292,27 +293,27 @@ public class MovieFile implements Comparable<MovieFile> {
     public int compareTo(MovieFile anotherMovieFile) {
         return this.getFirstPart() - anotherMovieFile.getFirstPart();
     }
-    
+
     @XmlTransient
     public File getFile() {
         return file;
     }
-    
+
     public void setFile(File file) {
         this.file = file;
     }
-    
+
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
 
         info = dto;
-        
+
         // Set the part title, keeping each episode title
         if (dto.isExtra()) {
             setTitle(dto.getPartTitle());
         } else if (dto.getSeason() >= 0) {
             // Set the season for the movie file
             setSeason(dto.getSeason());
-            
+
             // Set the episode title for each of the episodes in the file
             for (int episodeNumber : dto.getEpisodes()) {
                 setTitle(episodeNumber, dto.getEpisodeTitle());
@@ -346,12 +347,12 @@ public class MovieFile implements Comparable<MovieFile> {
             setTitle(dto.getPartTitle());
         }
     }
-    
+
     @XmlElement
     public MovieFileNameDTO getInfo() {
         return info;
     }
-    
+
     public void setInfo(MovieFileNameDTO info) {
         this.info = info;
     }
@@ -359,15 +360,15 @@ public class MovieFile implements Comparable<MovieFile> {
     //this is expensive too
     public synchronized Map<String, String> getPlayLink() {
         if (playLink == null) {
-          playLink = calculatePlayLink();
+            playLink = calculatePlayLink();
         }
         return playLink;
     }
-    
+
     public void addPlayLink(String key, String value) {
         playLink.put(key, value);
     }
-    
+
     @SuppressWarnings("unused")
     private void setPlayLink(Map<String, String> playLink) {
         if (playLink == null || playLink.containsValue("")) {
@@ -376,62 +377,63 @@ public class MovieFile implements Comparable<MovieFile> {
             this.playLink = playLink;
         }
     }
-    
+
     public static class PartDataDTO {
+
         @XmlAttribute
         public int part;
         @XmlValue
         public String value;
     }
-    
+
     @XmlElement(name = "filePlot")
     public List<PartDataDTO> getFilePlots() {
         if (!includeEpisodePlots) {
             return null;
         }
-        
+
         return toPartDataList(plots);
     }
-    
+
     public void setFilePlots(List<PartDataDTO> list) {
         fromPartDataList(plots, list);
     }
-    
+
     @XmlElement(name = "fileRating")
     public List<PartDataDTO> getFileRating() {
         if (!includeEpisodeRating) {
             return null;
         }
-        
+
         return toPartDataList(ratings);
     }
-    
+
     public void setFileRating(List<PartDataDTO> list) {
         fromPartDataList(ratings, list);
     }
-        
+
     @XmlElement(name = "fileImageURL")
     public List<PartDataDTO> getFileImageUrls() {
         if (!includeVideoImages) {
             return null;
         }
-        
+
         return toPartDataList(videoImageURL);
     }
-    
+
     public void setFileImageUrls(List<PartDataDTO> list) {
         fromPartDataList(videoImageURL, list);
     }
-    
+
     @XmlElement(name = "fileImageFile")
     public List<PartDataDTO> getFileImageFiles() {
         if (!includeVideoImages) {
             return null;
         }
-        
+
         return toPartDataList(videoImageFilename);
     }
-    
+
     public void setFileImageFiles(List<PartDataDTO> list) {
         fromPartDataList(videoImageFilename, list);
     }
@@ -446,35 +448,35 @@ public class MovieFile implements Comparable<MovieFile> {
         }
         return list;
     }
-    
+
     private static void fromPartDataList(LinkedHashMap<Integer, String> map, List<PartDataDTO> list) {
         map.clear();
         for (PartDataDTO p : list) {
             map.put(p.part, p.value);
         }
     }
-    
+
     /**
      * Calculate the playlink additional information for the file
      */
     private Map<String, String> calculatePlayLink() {
         Map<String, String> playLinkMap = new HashMap<String, String>();
-        File file = this.getFile();
+        File filePlayLink = this.getFile();
 
         // Check that the file isn't null before continuing
-        if (file == null) {
+        if (filePlayLink == null) {
             return playLinkMap;
         }
-        
+
         try {
-            if (playFullBluRayDisk && file.getAbsolutePath().toUpperCase().contains("BDMV")) {
+            if (playFullBluRayDisk && filePlayLink.getAbsolutePath().toUpperCase().contains("BDMV")) {
                 //logger.finest(filename + " matched to BLURAY");
                 playLinkMap.put("zcd", playLinkZCD);
                 // We can return at this point because there won't be additional playlinks
                 return playLinkMap;
             }
 
-            if (file.isDirectory() && (new File(file.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
+            if (filePlayLink.isDirectory() && (new File(filePlayLink.getAbsolutePath() + File.separator + "VIDEO_TS").exists())) {
                 //logger.finest(filename + " matched to VIDEO_TS");
                 playLinkMap.put("zcd", playLinkZCD);
                 // We can return at this point because there won't be additional playlinks
@@ -482,7 +484,7 @@ public class MovieFile implements Comparable<MovieFile> {
             }
 
             for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
-                Matcher matcher = e.getValue().matcher(getExtension(file));
+                Matcher matcher = e.getValue().matcher(getExtension(filePlayLink));
                 if (matcher.find()) {
                     //logger.finest(filename + " matched to " + e.getKey());
                     playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey().toUpperCase(), ""));
@@ -492,11 +494,11 @@ public class MovieFile implements Comparable<MovieFile> {
             final Writer eResult = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(eResult);
             error.printStackTrace(printWriter);
-            logger.error("Error calculating playlink for file " + file.getName());
+            logger.error("Error calculating playlink for file " + filePlayLink.getName());
             logger.error(eResult.toString());
         } finally {
             // Default to VOD if there's no other type found
-            if (playLinkMap.size() == 0) {
+            if (playLinkMap.isEmpty()) {
                 //logger.finest(filename + " not matched, defaulted to VOD");
                 playLinkMap.put("vod", playLinkVOD);
             }
@@ -504,7 +506,7 @@ public class MovieFile implements Comparable<MovieFile> {
 
         return playLinkMap;
     }
-    
+
     /**
      * Return the extension of the file, this will be blank for directories
      * 
@@ -512,17 +514,17 @@ public class MovieFile implements Comparable<MovieFile> {
      * @return
      */
     private String getExtension(File file) {
-        String filename = file.getName();
+        String extFilename = file.getName();
 
         if (file.isFile()) {
-            int i = filename.lastIndexOf(".");
+            int i = extFilename.lastIndexOf(".");
             if (i > 0) {
-                return new String(filename.substring(i + 1));
+                return new String(extFilename.substring(i + 1));
             }
         }
         return "";
     }
- 
+
     // Read the watched flag
     public boolean isWatched() {
         return watched;
@@ -561,19 +563,17 @@ public class MovieFile implements Comparable<MovieFile> {
         return this.watchedDate;
     }
 
-    
     public int getSeason() {
         return season;
     }
-    
 
     public void setSeason(int season) {
         this.season = season;
     }
 
     public String getAirsAfterSeason(int part) {
-        String season = airsAfterSeason.get(part);
-        return StringUtils.isNotBlank(season) ? season : Movie.UNKNOWN;
+        String aaSeason = airsAfterSeason.get(part);
+        return StringUtils.isNotBlank(aaSeason) ? aaSeason : Movie.UNKNOWN;
     }
 
     public void setAirsAfterSeason(int part, String season) {
@@ -587,14 +587,14 @@ public class MovieFile implements Comparable<MovieFile> {
     public List<PartDataDTO> getAirsAfterSeasons() {
         return toPartDataList(airsAfterSeason);
     }
-    
+
     public void setAirsAfterSeasons(List<PartDataDTO> list) {
         fromPartDataList(airsAfterSeason, list);
     }
-    
+
     public String getAirsBeforeSeason(int part) {
-        String season = airsBeforeSeason.get(part);
-        return StringUtils.isNotBlank(season) ? season : Movie.UNKNOWN;
+        String abSeason = airsBeforeSeason.get(part);
+        return StringUtils.isNotBlank(abSeason) ? abSeason : Movie.UNKNOWN;
     }
 
     public void setAirsBeforeSeason(int part, String season) {
@@ -608,14 +608,14 @@ public class MovieFile implements Comparable<MovieFile> {
     public List<PartDataDTO> getAirsBeforeSeasons() {
         return toPartDataList(airsBeforeSeason);
     }
-    
+
     public void setAirsBeforeSeasons(List<PartDataDTO> list) {
         fromPartDataList(airsBeforeSeason, list);
     }
-    
+
     public String getAirsBeforeEpisode(int part) {
-        String season = airsBeforeEpisode.get(part);
-        return StringUtils.isNotBlank(season) ? season : Movie.UNKNOWN;
+        String abEpisode = airsBeforeEpisode.get(part);
+        return StringUtils.isNotBlank(abEpisode) ? abEpisode : Movie.UNKNOWN;
     }
 
     public void setAirsBeforeEpisode(int part, String episode) {
@@ -629,11 +629,11 @@ public class MovieFile implements Comparable<MovieFile> {
     public List<PartDataDTO> getAirsBeforeEpisodes() {
         return toPartDataList(airsBeforeEpisode);
     }
-    
+
     public void setAirsBeforeEpisodes(List<PartDataDTO> list) {
         fromPartDataList(airsBeforeEpisode, list);
     }
-    
+
     public String getFirstAired(int part) {
         String airDate = firstAired.get(part);
         return StringUtils.isNotBlank(airDate) ? airDate : Movie.UNKNOWN;
@@ -650,9 +650,41 @@ public class MovieFile implements Comparable<MovieFile> {
     public List<PartDataDTO> getFirstAired() {
         return toPartDataList(firstAired);
     }
-    
+
     public void setFirstAired(List<PartDataDTO> list) {
         fromPartDataList(firstAired, list);
     }
-    
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[MovieFile ");
+        sb.append("[filename=").append(filename);
+        sb.append("][season=").append(season);
+        sb.append("][firstPart=").append(firstPart);
+        sb.append("][lastPart=").append(lastPart);
+        sb.append("][newFile=").append(newFile);
+        sb.append("][subtitlesExchange=").append(subtitlesExchange);
+        sb.append("][playLink=").append(playLink);
+        sb.append("][titles=").append(titles);
+        sb.append("][plots=").append(plots);
+        sb.append("][videoImageURL=").append(videoImageURL);
+        sb.append("][videoImageFilename=").append(videoImageFilename);
+        sb.append("][airsAfterSeason=").append(airsAfterSeason);
+        sb.append("][airsBeforeSeason=").append(airsBeforeSeason);
+        sb.append("][airsBeforeEpisode=").append(airsBeforeEpisode);
+        sb.append("][firstAired=").append(firstAired);
+        sb.append("][ratings=").append(ratings);
+        sb.append("][file=").append(file);
+        sb.append("][info=").append(info);
+        sb.append("][watched=").append(watched);
+        sb.append("][watchedDate=").append(watchedDate);
+        sb.append("][playFullBluRayDisk=").append(playFullBluRayDisk);
+        sb.append("][includeEpisodePlots=").append(includeEpisodePlots);
+        sb.append("][includeVideoImages=").append(includeVideoImages);
+        sb.append("][includeEpisodeRating=").append(includeEpisodeRating);
+        sb.append("][playLinkVOD=").append(playLinkVOD);
+        sb.append("][playLinkZCD=").append(playLinkZCD);
+        sb.append("]]");
+        return sb.toString();
+    }
 }

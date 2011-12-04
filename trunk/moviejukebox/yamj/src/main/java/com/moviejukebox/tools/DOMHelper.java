@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
  *
  */
 public class DOMHelper {
+
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     /**
@@ -70,18 +71,18 @@ public class DOMHelper {
         Element child = doc.createElement(elementName);
         Text text = doc.createTextNode(elementValue);
         child.appendChild(text);
-        
+
         if (childAttributes != null && !childAttributes.isEmpty()) {
             for (String attrib : childAttributes.keySet()) {
                 child.setAttribute(attrib, childAttributes.get(attrib));
             }
         }
-        
+
         parentElement.appendChild(child);
 
         return;
     }
-    
+
     /**
      * Append a child element to a parent element with a single attribute/value pair
      * @param doc
@@ -119,9 +120,9 @@ public class DOMHelper {
         StreamResult result = new StreamResult(sw);
         DOMSource source = new DOMSource(doc);
         trans.transform(source, result);
-        return sw.toString();    
+        return sw.toString();
     }
-    
+
     /**
      * Create a blank Document
      * @return a Document
@@ -133,7 +134,7 @@ public class DOMHelper {
         Document doc = docBuilder.newDocument();
         return doc;
     }
-    
+
     /**
      * Get a DOM document from the supplied file
      * @param file
@@ -173,19 +174,35 @@ public class DOMHelper {
      */
     public static String getValueFromElement(Element element, String tagName) {
         String returnValue = "";
-        
+
         try {
-            NodeList elementNodeList = element.getElementsByTagName(tagName);
-            Element tagElement = (Element) elementNodeList.item(0);
+            NodeList nlElement = element.getElementsByTagName(tagName);
+            Element tagElement = (Element) nlElement.item(0);
             NodeList tagNodeList = tagElement.getChildNodes();
             returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
         } catch (Exception ignore) {
             return returnValue;
         }
-        
+
         return returnValue;
     }
-    
+
+    /**
+     * Get an element from a parent element node
+     * @param eParent
+     * @param elementName
+     * @return 
+     */
+    public static Element getElementByName(Element eParent, String elementName) {
+        NodeList nlParent = eParent.getElementsByTagName(elementName);
+        for (int looper = 0; looper < nlParent.getLength(); looper++) {
+            if (nlParent.item(looper).getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) nlParent.item(looper);
+            }
+        }
+        return null;
+    }
+
     /**
      * Write the Document out to a file using nice formatting
      * @param doc   The document to save
@@ -195,7 +212,7 @@ public class DOMHelper {
     public static boolean writeDocumentToFile(Document doc, String localFilename) {
         return writeDocumentToFile(doc, new File(localFilename));
     }
-    
+
     /**
      * Write the Document out to a file using nice formatting
      * @param doc   The document to save
@@ -212,7 +229,7 @@ public class DOMHelper {
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
             trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             doc.setXmlStandalone(true);
-            
+
             trans.transform(new DOMSource(doc), new StreamResult(localFile));
             return true;
         } catch (Exception error) {
