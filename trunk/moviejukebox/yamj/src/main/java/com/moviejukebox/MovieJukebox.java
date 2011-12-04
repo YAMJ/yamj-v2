@@ -292,14 +292,14 @@ public class MovieJukebox {
         logger.info("");
 
         // Load the moviejukebox-default.properties file
-        if (!setPropertiesStreamName("./properties/moviejukebox-default.properties")) {
+        if (!setPropertiesStreamName("./properties/moviejukebox-default.properties", true)) {
             return;
         }
 
         // Load the user properties file "moviejukebox.properties"
         // No need to abort if we don't find this file
         // Must be read before the skin, because this may contain an override skin
-        setPropertiesStreamName(userPropertiesName);
+        setPropertiesStreamName(userPropertiesName, false);
 
         // Grab the skin from the command-line properties
         if (cmdLineProps.containsKey("mjb.skin.dir")) {
@@ -307,18 +307,18 @@ public class MovieJukebox {
         }
 
         // Load the skin.properties file
-        if (!setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties")) {
+        if (!setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties", true)) {
             return;
         }
 
         // Load the skin-user.properties file (ignore the error)
-        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin-user.properties");
+        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin-user.properties", false);
 
         // Load the overlay.properties file (ignore the error)
-        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/overlay.properties");
+        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/overlay.properties", false);
 
         // Load the apikeys.properties file
-        if (!setPropertiesStreamName("./properties/apikeys.properties")) {
+        if (!setPropertiesStreamName("./properties/apikeys.properties", true)) {
             return;
         } else {
             // This is needed to update the static reference for the API Keys in the pattern formatter 

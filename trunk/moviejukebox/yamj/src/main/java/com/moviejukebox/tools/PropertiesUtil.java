@@ -50,6 +50,10 @@ public class PropertiesUtil {
     private static String propertiesFilename = "preferences.xsl";
 
     public static boolean setPropertiesStreamName(String streamName) {
+        return setPropertiesStreamName(streamName, true);
+    }
+    
+    public static boolean setPropertiesStreamName(String streamName, boolean warnFatal) {
         logger.info("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
         Reader reader = null;
@@ -62,14 +66,11 @@ public class PropertiesUtil {
             reader = new InputStreamReader(propertiesStream, PROPERTIES_CHARSET);
             props.load(reader);
         } catch (IOException error) {
-            // Output a warning if moviejukebox.properties isn't found. Otherwise it's an error
-            if (streamName.contains("moviejukebox.properties")) {
-                logger.warn("Warning (non-fatal): User properties file '" + streamName + "', not found.");
-            } else if (streamName.contains("skin-user.properties")) {
-                // We don't want this warning printed on the screen every time
-                logger.debug("Warning (non-fatal): User properties file: '" + streamName + "', not found.");
-            } else {
+            // Output a warning if required.
+            if (warnFatal) {
                 logger.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
+            } else {
+                logger.warn("Warning (non-fatal): User properties file '" + streamName + "', not found.");
             }
             return false;
         } finally {
