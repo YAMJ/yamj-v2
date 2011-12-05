@@ -87,8 +87,8 @@ import com.moviejukebox.tools.ThreadExecutor;
  */
 public class MovieJukeboxXMLWriter {
 
-    private boolean forceXMLOverwrite;
-    private boolean forceIndexOverwrite;
+    private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
+    private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
     private int nbMoviesPerPage;
     private int nbMoviesPerLine;
     private int nbTvShowsPerPage;
@@ -103,8 +103,8 @@ public class MovieJukeboxXMLWriter {
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private boolean includeEpisodeRating;
-    private static boolean isPlayOnHD;
-    private static String defaultSource;
+    private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", "false");
+    private static String defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", "false");
     private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", "true");
@@ -144,8 +144,6 @@ public class MovieJukeboxXMLWriter {
     }
 
     public MovieJukeboxXMLWriter() {
-        forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
-        forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
         nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
         nbMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerLine", "5");
         nbTvShowsPerPage = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerPage", "0"); // If 0 then use the Movies setting
@@ -160,8 +158,6 @@ public class MovieJukeboxXMLWriter {
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
         includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
-        isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", "false");
-        defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
         setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", "false");
 
@@ -632,8 +628,9 @@ public class MovieJukeboxXMLWriter {
                             }
 
                             attr = eFile.getAttribute("watched");
-                            if (StringTools.isValidString(attr));
-                            movieFile.setWatched(Boolean.parseBoolean(attr));
+                            if (StringTools.isValidString(attr)) {
+                                movieFile.setWatched(Boolean.parseBoolean(attr));
+                            }
 
                             try {
                                 File mfFile = new File(DOMHelper.getValueFromElement(eFile, "fileLocation"));
@@ -1552,10 +1549,8 @@ public class MovieJukeboxXMLWriter {
             return null;
         }
 
-        int categoryMinCount = calcMinCategoryCount(categoryName);
-
         // FIXME This is horrible! Issue 735 will get rid of it.
-        if (indexSize < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+        if (indexSize < calcMinCategoryCount(categoryName) && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
             return null;
         }
 

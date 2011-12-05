@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -57,11 +57,11 @@ public class ImdbInfo {
         matchesDataPerSite.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", "ISO-8859-1", "Diretor|Dirigido por", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o",
                         "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
                         "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines"));
-        
+
         // Use this as a workaround for English speakers abroad who get localised versions of imdb.com
         matchesDataPerSite.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", "ISO-8859-1", "Director|Directors|Directed by", "Cast", "Release Date", "Runtime", "Country",
                         "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines"));
-        
+
         // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
         matchesDataPerSite.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", "ISO-8859-1", "Director|Directors|Directed by", "Cast", "Release Date", "Runtime", "Country",
                         "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines"));
@@ -102,25 +102,39 @@ public class ImdbInfo {
         }
     }
 
+    /**
+     * Get the IMDb ID for a person.
+     * Note: The job is not used in this search.
+     * @param movieName
+     * @param job
+     * @return
+     */
     public String getImdbPersonId(String movieName, String job) {
+        return getImdbPersonId(movieName);
+    }
+
+    /**
+     * Get the IMDb ID for a person
+     * @param movieName
+     * @return
+     */
+    public String getImdbPersonId(String movieName) {
         objectType = "person";
-//        if (!job.equalsIgnoreCase("Actor") && !job.equalsIgnoreCase("Actress")) {
-            job = Movie.UNKNOWN;
-//        }
+
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
-            return getImdbIdFromGoogle(movieName, job);
+            return getImdbIdFromGoogle(movieName, Movie.UNKNOWN);
         } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
-            return getImdbIdFromYahoo(movieName, job);
+            return getImdbIdFromYahoo(movieName, Movie.UNKNOWN);
         } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
             return Movie.UNKNOWN;
         } else {
-            return getImdbIdFromImdb(movieName.toLowerCase(), job);
+            return getImdbIdFromImdb(movieName.toLowerCase(), Movie.UNKNOWN);
         }
     }
 
     /**
      * Retrieve the IMDb Id matching the specified movie name and year. This routine is base on a yahoo request.
-     * 
+     *
      * @param movieName
      *            The name of the Movie to search for
      * @param year
@@ -158,7 +172,7 @@ public class ImdbInfo {
 
     /**
      * Retrieve the IMDb matching the specified movie name and year. This routine is base on a Google request.
-     * 
+     *
      * @param movieName
      *            The name of the Movie to search for
      * @param year
@@ -179,10 +193,10 @@ public class ImdbInfo {
             sb.append("+site%3Awww.imdb.com&meta=");
 
             logger.debug("ImdbInfo Google search: " + sb.toString());
-            
+
             String xml = webBrowser.request(sb.toString());
             String imdbId = Movie.UNKNOWN;
-            
+
             int beginIndex = xml.indexOf(objectType.equals("movie")?"/title/tt":"/name/nm");
             if (beginIndex > -1) {
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
@@ -211,11 +225,11 @@ public class ImdbInfo {
          * IMDb matches seem to come in several "flavours". Firstly, if there is one exact match it returns the matching IMDb page. If that fails to produce an
          * unique hit then a list of possible matches are returned categorised as: Popular Titles (Displaying ? Results) Titles (Exact Matches) (Displaying ?
          * Results) Titles (Partial Matches) (Displaying ? Results)
-         * 
+         *
          * We should check the Exact match section first, then the poplar titles and finally the partial matches. Note: That even with exact matches there can
          * be more than 1 hit, for example "Star Trek"
          */
-        
+
         //logger.fine("Movie Name: " + movieName + " - " + year);
 
         try {
@@ -239,7 +253,7 @@ public class ImdbInfo {
                logger.debug("ImdbInfo: IMDb returned one match " + titlematch.group(1));
                return titlematch.group(1);
             }
-            
+
             String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>" , "</b>").toLowerCase();
             String formattedMovieName;
             if (StringTools.isValidString(otherMovieName)) {
@@ -257,7 +271,7 @@ public class ImdbInfo {
                 otherMovieName = sb.toString();
                 formattedMovieName = otherMovieName;
             }
-            
+
             //logger.debug("ImdbInfo title search : " + formattedMovieName);
             for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-"+(objectType.equals("movie")?"title":"name")+"-", "</td>", false)) {
                 //logger.debug("ImdbInfo title check : " + searchResult);
@@ -273,7 +287,7 @@ public class ImdbInfo {
                     }
                 }
             }
-            
+
             // If we don't have an ID try google
             logger.debug("Failed to find an exact match on IMDb, trying Google");
             return getImdbIdFromGoogle(movieName, year);
@@ -320,7 +334,7 @@ public class ImdbInfo {
     public ImdbSiteDataDefinition getSiteDef() {
         return siteDef;
     }
-    
+
     /**
      * Get a specific site definition from the list
      * @param requiredSiteDef
@@ -337,5 +351,5 @@ public class ImdbInfo {
     public String getImdbSite() {
         return imdbSite;
     }
-    
+
 }

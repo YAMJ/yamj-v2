@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
+ *      http://code.google.com/p/moviejukebox/people/list
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
  *
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 package com.moviejukebox.model;
@@ -34,21 +34,22 @@ public class Filmography {
     private static final String UNKNOWN = Movie.UNKNOWN;
 
     // Define the list of jobs
-    public static final String JOB_ACTOR    = "actor";
-    public static final String JOB_ACTRESS  = "actress";
-    public static final String JOB_PRODUCER = "producer";
-    public static final String JOB_CASTING  = "casting";
-    public static final String JOB_DESIGN   = "design";
-    public static final String JOB_DIRECTOR = "director";
-    public static final String JOB_AUTHOR   = "author";
-    public static final String JOB_WRITER   = "writer";
-    public static final String JOB_EDITOR   = "editor";
-    public static final String JOB_MUSIC    = "music";
-    public static final String JOB_COMPOSER = "composer";
-    public static final String JOB_PHOTO    = "photo";
-    public static final String JOB_CAMERA   = "camera";
-    public static final String JOB_OPERATOR = "operator";
-    
+    public static final String JOB_ACTOR      = "actor";
+    public static final String JOB_ACTRESS    = "actress";
+    public static final String JOB_PRODUCER   = "producer";
+    public static final String JOB_CASTING    = "casting";
+    public static final String JOB_DESIGN     = "design";
+    public static final String JOB_DIRECTOR   = "director";
+    public static final String JOB_AUTHOR     = "author";
+    public static final String JOB_WRITER     = "writer";
+    public static final String JOB_EDITOR     = "editor";
+    public static final String JOB_MUSIC      = "music";
+    public static final String JOB_COMPOSER   = "composer";
+    public static final String JOB_PHOTO      = "photo";
+    public static final String JOB_CAMERA     = "camera";
+    public static final String JOB_OPERATOR   = "operator";
+    public static final String JOB_THEMSELVES = "themselves";   // Also Himself or Herself
+
     // Define the list of departments
     public static final String DEPT_ACTORS     = "Actors";
     public static final String DEPT_PRODUCTION = "Production";
@@ -146,15 +147,15 @@ public class Filmography {
     public void setName(String name) {
         if (isValidString(name) && !this.name.equalsIgnoreCase(name.trim())) {
             this.name = name.trim();
-            
+
             if (isNotValidString(title)) {
                 title = this.name;
             }
-            
+
             if (isNotValidString(originalTitle)) {
                 originalTitle = this.name;
             }
-            
+
             setDirty();
         }
     }
@@ -337,5 +338,5 @@ public class Filmography {
                 setDepartment(DEPT_CAMERA);
             }
         }
-    }   
+    }
 }
