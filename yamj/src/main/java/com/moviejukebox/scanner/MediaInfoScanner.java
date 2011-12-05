@@ -65,6 +65,8 @@ public class MediaInfoScanner {
     private static boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
+    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", " / ");;
+    private static String subtitleDelimiter= PropertiesUtil.getProperty("mjb.subtitle.delimiter", " / ");;
 
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
@@ -574,7 +576,7 @@ public class MediaInfoScanner {
             int index = 0;
             for (String language : foundLanguages) {
                 if (index++ > 0) {
-                    movie.setLanguage(movie.getLanguage() + " / " + language);
+                    movie.setLanguage(movie.getLanguage() + languageDelimiter + language);
                 } else {
                     movie.setLanguage(language);
                 }
@@ -598,7 +600,7 @@ public class MediaInfoScanner {
                 if (infoValue.contains("/")) {
                     infoValue = new String(infoValue.substring(0, infoValue.indexOf("/"))).trim(); // In this case, languages are "doubled", just take the first one.
                 }
-                infoLanguage = infoValue;
+                infoLanguage = MovieFilenameScanner.determineLanguage(infoValue);
             }
 
             String infoFormat = "";
@@ -634,7 +636,7 @@ public class MediaInfoScanner {
                         // Check to see if the language already exists in the list
                         if (!oldInfo.contains(infoLanguage)) {
                             // Don't overwrite what is there currently
-                            movie.setSubtitles(oldInfo + " / " + infoLanguage);
+                            movie.setSubtitles(oldInfo + subtitleDelimiter + infoLanguage);
                         }
                     }
                 } else {
