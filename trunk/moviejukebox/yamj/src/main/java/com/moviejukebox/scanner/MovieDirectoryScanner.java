@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
@@ -38,7 +38,7 @@ import com.moviejukebox.tools.StringTools;
 
 /**
  * DirectoryScanner
- * 
+ *
  * @author jjulien
  * @author gaelead
  * @author jriihi
@@ -76,23 +76,23 @@ public class MovieDirectoryScanner {
         thumbnailToken = PropertiesUtil.getProperty("mjb.scanner.thumbnailToken", "_small");
         posterToken = PropertiesUtil.getProperty("mjb.scanner.posterToken", "_large");
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
-        excludeFilesWithoutExternalSubtitles = PropertiesUtil.getBooleanProperty("mjb.subtitles.ExcludeFilesWithoutExternal", "false");
-        excludeMultiPartBluRay = PropertiesUtil.getBooleanProperty("mjb.excludeMultiPartBluRay", "false");
+        excludeFilesWithoutExternalSubtitles = PropertiesUtil.getBooleanProperty("mjb.subtitles.ExcludeFilesWithoutExternal", Boolean.FALSE.toString());
+        excludeMultiPartBluRay = PropertiesUtil.getBooleanProperty("mjb.excludeMultiPartBluRay", Boolean.FALSE.toString());
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
         hashpathdepth = PropertiesUtil.getIntProperty("mjb.scanner.hashpathdepth", "0");
-        playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", "false");
+        playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.FALSE.toString());
         localBDRipScanner = new BDRipScanner();
         List<ArchiveScanner> archiveScannerList = new ArrayList<ArchiveScanner>();
-        if (PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE.toString())) {
             RARArchiveScanner rarArchiveScanner=new RARArchiveScanner();
-            rarArchiveScanner.setUseRARLastModified(PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar.userarlastmodified","false"));
+            rarArchiveScanner.setUseRARLastModified(PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar.userarlastmodified",Boolean.FALSE.toString()));
             archiveScannerList.add(rarArchiveScanner);
         }
         archiveScanners = archiveScannerList.toArray(new ArchiveScanner[archiveScannerList.size()]);
     }
 
     /**
-     * Scan the specified directory for movies files.
+     * Scan the specified directory for video files.
      * @param srcPath
      * @param library
      * @return a new library
@@ -114,6 +114,12 @@ public class MovieDirectoryScanner {
         return library;
     }
 
+    /**
+     * Recursively scan the directory for video files
+     * @param srcPath
+     * @param directory
+     * @param collection
+     */
     protected void scanDirectory(MediaLibraryPath srcPath, File directory, Library collection) {
         FileTools.fileCache.fileAdd(directory);
         if (directory.isFile()) {
@@ -124,7 +130,7 @@ public class MovieDirectoryScanner {
             if (files != null) {
                 fileCount += files.length;
             }
-            
+
             System.out.print("\r    Scanning directory #" + dirCount++ + ", " + fileCount + " files scanned");
 
             if (files != null && files.length > 0) {
@@ -162,7 +168,7 @@ public class MovieDirectoryScanner {
 
     /**
      * Checks the file or directory passed to determine if it should be excluded from the scan
-     * 
+     *
      * @param srcPath
      * @param file
      * @return boolean flag, true if the file should be excluded, false otherwise
@@ -173,7 +179,7 @@ public class MovieDirectoryScanner {
 
         // Skip these parts if the file is a directory
         if (!isDirectory) {
-            int index = filename.lastIndexOf(".");
+            int index = filename.lastIndexOf('.');
             if (index < 0) {
                 return true;
             }
@@ -209,7 +215,7 @@ public class MovieDirectoryScanner {
                 } catch (Exception error) {
                     logger.info("MovieDirectoryScanner: Error processing exclusion pattern: " + excluded);
                 }
-                
+
                 excluded = excluded.replace("/", File.separator);
                 excluded = excluded.replace("\\", File.separator);
                 if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
@@ -225,12 +231,23 @@ public class MovieDirectoryScanner {
         return false;
     }
 
+    /**
+     * Check to see if the file has subtitles or not
+     * @param fileToScan
+     * @return
+     */
     protected static boolean hasSubtitles(File fileToScan) {
 
         File found = FileTools.findSubtitles(fileToScan);
         return found.exists();
     }
 
+    /**
+     * Scan the file for the information to be added to the object
+     * @param srcPath
+     * @param file
+     * @param library
+     */
     private void scanFile(MediaLibraryPath srcPath, File file, Library library) {
         File contentFiles[];
         int bdDuration = 0;
@@ -238,14 +255,14 @@ public class MovieDirectoryScanner {
 
         contentFiles = new File[1];
         contentFiles[0] = file;
-        
+
         if (file.isDirectory()) {
             // Scan BD Playlist files
             BDFilePropertiesMovie bdPropertiesMovie = localBDRipScanner.executeGetBDInfo(file);
 
             if (bdPropertiesMovie != null) {
                 isBluRay = true;
-                
+
                 // Exclude multi part BluRay that include more than one file
                 if (excludeMultiPartBluRay && bdPropertiesMovie.fileList.length > 1) {
                     logger.info("File " + file.getName() + " excluded. (multi part BluRay)");
@@ -253,7 +270,7 @@ public class MovieDirectoryScanner {
                 }
 
                 bdDuration = bdPropertiesMovie.duration;
-                
+
                 contentFiles = bdPropertiesMovie.fileList;
             }
         }
@@ -261,7 +278,7 @@ public class MovieDirectoryScanner {
         String hashstr = "";
         for (int i = 0; i < contentFiles.length; i++) {
             Movie movie = new Movie();
-            
+
             // Hopefully this is a fix for issue #670 -- I can't duplicate it, since I don't have an BD rips
             if (contentFiles[i] == null) {
                 continue;
@@ -274,7 +291,7 @@ public class MovieDirectoryScanner {
                 baseFileName = new String(baseFileName.substring(0, file.getName().lastIndexOf(".")));
                 movie.setFormatType(Movie.TYPE_FILE);
             }
-            
+
             // Compute the relative filename
             String relativeFilename = new String(contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex));
 
@@ -297,12 +314,12 @@ public class MovieDirectoryScanner {
                     movie.setFormatType(Movie.TYPE_FILE);
                 }
             }
-            
+
             if (isBluRay) {
                 // This is to overwrite the TYPE_FILE check above if the disk is bluray but not playFullBluRayDisk
                 movie.setFormatType(Movie.TYPE_BLURAY);
             }
-            
+
             // FIXME: part and file info are to be taken from filename scanner
             movieFile.setPart(i + 1);
             movieFile.setFile(contentFiles[i]);
@@ -333,14 +350,14 @@ public class MovieDirectoryScanner {
             movie.setSubtitles(hasSubtitles(movie.getFile())==true?"YES":"NO");
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());
-            
+
             movie.addFileDate(new Date(file.lastModified()));
-            
+
             // Issue 1241 - Take care of directory for size.
             movie.setFileSize(this.calculateFileSize(file));
-            
+
             MovieFileNameDTO dto = MovieFilenameScanner.scan(file);
-            
+
             movie.mergeFileNameDTO(dto);
 
             if (bdDuration == 0 || dto.getPart() > 0) {
@@ -356,9 +373,9 @@ public class MovieDirectoryScanner {
                 if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                     movie.setRuntime(StringTools.formatDuration(bdDuration));
                 }
-                
+
                 // Pretend that HDDVD is also BluRay
-                if (!movie.getVideoSource().equalsIgnoreCase("HDDVD")) {                
+                if (!movie.getVideoSource().equalsIgnoreCase("HDDVD")) {
                     movie.setContainer("BluRay");
                     movie.setVideoSource("BluRay");
                     movie.setFormatType(Movie.TYPE_BLURAY);
@@ -373,7 +390,7 @@ public class MovieDirectoryScanner {
             }
 
             library.addMovie(movie);
-            
+
             // Stop after first file part if full BluRay Disk
             if (isBluRay && playFullBluRayDisk) {
                 break;

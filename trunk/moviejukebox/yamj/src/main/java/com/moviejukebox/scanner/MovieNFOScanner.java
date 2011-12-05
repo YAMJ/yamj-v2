@@ -81,7 +81,9 @@ public class MovieNFOScanner {
     private static String NFO_PLUGIN_ID = "NFO";
     private static boolean archiveScanRar;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
-
+    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", " / ");;
+    private static String subtitleDelimiter= PropertiesUtil.getProperty("mjb.subtitle.delimiter", " / ");;
+    
     static {
         skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
         skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", "false");
@@ -828,10 +830,14 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                tmpLanguage = MovieFilenameScanner.determineLanguage(val);
-                                                if (isNotValidString(tmpCodec)) {
-                                                    tmpCodec = "(" + val + ")";
-                                                } else {
+                                                tmpLanguage = val;
+                                                //if (isNotValidString(tmpTVCodec)) {
+                                                //    tmpTVCodec = "(" + val + ")";
+                                                //}  
+                                                // reasons for inactivation above: 
+                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!     
+                                                // 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
+                                                if (isValidString(tmpCodec) && !val.contains("/")) {
                                                     tmpCodec += " (" + val + ")";
                                                 }
                                                 // movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
@@ -863,12 +869,16 @@ public class MovieNFOScanner {
 
                                     if (isValidString(tmpLanguage)) {
                                         // First one.
-                                        if (isNotValidString(finalLanguage)) {
-                                            finalLanguage = tmpLanguage;
-                                        } else {
-                                            finalLanguage = finalLanguage + " / " + tmpLanguage;
+                                        // in case language has format like "ENG / GER / ESP" process it now
+                                        String[] tmpLanguages = tmpLanguage.split("/");
+                                        for (int i = 0; i < tmpLanguages.length; i++) {
+                                            String subLanguage = tmpLanguages[i].trim();                                         
+                                            if (isNotValidString(finalLanguage)) {
+                                                finalLanguage = MovieFilenameScanner.determineLanguage(subLanguage);
+                                            } else {
+                                                finalLanguage = finalLanguage + languageDelimiter + MovieFilenameScanner.determineLanguage(subLanguage);
+                                            }
                                         }
-
                                     }
 
                                     if (isValidString(tmpChannels)) {
@@ -887,11 +897,17 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                if (isNotValidString(tmpSubtitleLanguage)) {
-                                                    tmpSubtitleLanguage = val;
-                                                } else {
-                                                    tmpSubtitleLanguage = tmpSubtitleLanguage + " / " + val;
-                                                }
+                                                // in case subtitle has format like "ENG / GER / ESP" process it now
+                                                String[] tmpSubtitleLanguages = val.split("/");
+                                                for (int i = 0; i < tmpSubtitleLanguages.length; i++) {
+                                                    String subval = tmpSubtitleLanguages[i].trim();                                         
+                                                    if (isNotValidString(tmpSubtitleLanguage)) {
+                                                        tmpSubtitleLanguage = MovieFilenameScanner.determineLanguage(subval);
+                                                        }
+                                                    else {
+                                                        tmpSubtitleLanguage = tmpSubtitleLanguage + subtitleDelimiter + MovieFilenameScanner.determineLanguage(subval);
+                                                        }
+                                                 }
                                             }
                                             // Unused
                                         }
@@ -1299,7 +1315,7 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                tmpTVLanguage = MovieFilenameScanner.determineLanguage(val);
+                                                tmpTVLanguage = val;
                                                 //if (isNotValidString(tmpTVCodec)) {
                                                 //    tmpTVCodec = "(" + val + ")";
                                                 //}  
@@ -1338,12 +1354,16 @@ public class MovieNFOScanner {
 
                                     if (isValidString(tmpTVLanguage)) {
                                         // First one.
-                                        if (isNotValidString(finalTVLanguage)) {
-                                            finalTVLanguage = tmpTVLanguage;
-                                        } else {
-                                            finalTVLanguage = finalTVLanguage + " / " + tmpTVLanguage;
+                                        // in case language has format like "ENG / GER / ESP" process it now 
+                                        String[] tmpTVLanguages = tmpTVLanguage.split("/");
+                                        for (int i = 0; i < tmpTVLanguages.length; i++) {
+                                            String subTVLanguage = tmpTVLanguages[i].trim();                                         
+                                            if (isNotValidString(finalTVLanguage)) {
+                                                finalTVLanguage = MovieFilenameScanner.determineLanguage(subTVLanguage);
+                                            } else {
+                                                finalTVLanguage = finalTVLanguage + languageDelimiter + MovieFilenameScanner.determineLanguage(subTVLanguage);
+                                            }
                                         }
-
                                     }
 
                                     if (isValidString(tmpTVChannels)) {
@@ -1363,11 +1383,17 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                if (isNotValidString(tmpSubtitleLanguage)) {
-                                                    tmpSubtitleLanguage = val;
-                                                } else {
-                                                    tmpSubtitleLanguage = tmpSubtitleLanguage + " / " + val;
-                                                }
+                                                // in case subtitle has format like "ENG / GER / ESP" process it now
+                                                String[] tmpSubtitleLanguages = val.split("/");
+                                                for (int i = 0; i < tmpSubtitleLanguages.length; i++) {
+                                                    String subval = tmpSubtitleLanguages[i].trim();                                         
+                                                    if (isNotValidString(tmpSubtitleLanguage)) {
+                                                        tmpSubtitleLanguage = MovieFilenameScanner.determineLanguage(subval);
+                                                        }
+                                                    else {
+                                                        tmpSubtitleLanguage = tmpSubtitleLanguage + subtitleDelimiter + MovieFilenameScanner.determineLanguage(subval);
+                                                        }
+                                                 }
                                             }
 
                                         }
