@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.writer;
 
@@ -81,7 +81,7 @@ import com.moviejukebox.tools.ThreadExecutor;
 
 /**
  * Parse/Write XML files for movie details and library indexes
- * 
+ *
  * @author Julien
  * @author Stuart.Boston
  */
@@ -606,9 +606,7 @@ public class MovieJukeboxXMLWriter {
                             MovieFile movieFile = new MovieFile();
                             movieFile.setNewFile(false);
 
-                            String attr;
-
-                            attr = eFile.getAttribute("title");
+                            String attr = eFile.getAttribute("title");
                             if (StringTools.isValidString(attr)) {
                                 movieFile.setTitle(attr);
                             }
@@ -639,7 +637,6 @@ public class MovieJukeboxXMLWriter {
 
                             try {
                                 File mfFile = new File(DOMHelper.getValueFromElement(eFile, "fileLocation"));
-
                                 // Check to see if the file exists, or we are preserving the jukebox
                                 if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
                                     // Save the file to the MovieFile
@@ -1219,7 +1216,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Write the set of index XML files for the library
-     * 
+     *
      * @throws Throwable
      */
     public void writeIndexXML(final Jukebox jukebox, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
@@ -1399,7 +1396,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Write out the index pages
-     * 
+     *
      * @param library
      * @param movies
      * @param rootPath
@@ -1590,7 +1587,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Return an Element with the movie details
-     * 
+     *
      * @param doc
      * @param movie
      * @return
@@ -1623,7 +1620,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Create an element based on a collection of items
-     * 
+     *
      * @param doc
      * @param set
      * @param element
@@ -1648,7 +1645,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Write the element with the indexed attribute. If there is a non-null value in the indexValue, this will be appended to the element.
-     * 
+     *
      * @param doc
      * @param parentElement
      * @param attributeName
@@ -1665,7 +1662,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Create the index filename for a category & value. Will return "null" if no index found
-     * 
+     *
      * @param library
      * @param categoryName
      * @param value
@@ -1689,7 +1686,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Calculate the minimum count for a category based on it's property value.
-     * 
+     *
      * @param categoryName
      * @return
      */
@@ -2255,7 +2252,7 @@ public class MovieJukeboxXMLWriter {
 
     /**
      * Write a NFO file for the movie using the data gathered
-     * 
+     *
      * @param jukebox
      * @param movie
      */

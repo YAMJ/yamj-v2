@@ -4,6 +4,7 @@
  */
 package com.moviejukebox.writer;
 
+import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
@@ -30,6 +31,17 @@ public class MovieJukeboxXMLWriterTest {
     public void testParseMovieXML() {
         File xmlFile = getTestFile("ExampleMovieXML.xml");
         Movie movie = new Movie();
+
+        // Set up the extra files
+        ExtraFile ef1 = new ExtraFile();
+        ef1.setFilename("file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/The%20Godfather%20%281972%29.%5BBONUS-Making%20of%5D.avi");
+
+        ExtraFile ef2 = new ExtraFile();
+        ef2.setFilename("file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/The%20Godfather%20%281972%29.%5BTRAILER-Theatrical%20Trailer%5D.avi");
+        movie.addExtraFile(ef1);
+        movie.addExtraFile(ef2);
+        // END of extra files
+
         MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
         boolean result = xmlWriter.parseMovieXML(xmlFile, movie);
 
@@ -37,21 +49,23 @@ public class MovieJukeboxXMLWriterTest {
         assertTrue(result);
 
 //        System.out.println(movie.toString().replace("][", "\n").replace("[Movie [", "").replace("]]", ""));
+//        System.out.println(mf.toString().replace("][", "\n").replace("[MovieFile [", "").replace("]]", ""));
+
         assertEquals("The Godfather", movie.getTitle());
         assertEquals("tt0068646", movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         assertNotNull(movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID));
         assertTrue(movie.getDirectors().size() > 0);
         assertTrue(movie.getCast().size() > 0);
-        assertEquals(1, movie.getFiles().size());
-
         assertTrue(movie.getCodecs().size() == 2);
-        
-        MovieFile mf = movie.getFiles().iterator().next();
-        assertEquals("99", mf.getAirsAfterSeason(1));
-        assertEquals("Part Title", mf.getTitle(1));
 
-//        System.out.println(mf.toString().replace("][", "\n").replace("[MovieFile [", "").replace("]]", "")); // XXX DEBUG
-
+        // Check the movie files
+        assertEquals(1, movie.getFiles().size());
+        for (MovieFile mf : movie.getFiles() ) {
+            assertEquals("99", mf.getAirsAfterSeason(1));
+            assertEquals("Part Title", mf.getTitle(1));
+        }
+        // Check the extra files
+        assertEquals(2, movie.getExtraFiles().size());
     }
 
     /**

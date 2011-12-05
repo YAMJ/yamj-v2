@@ -139,13 +139,13 @@ public class Codec {
     public String toString() {
         StringBuilder sb = new StringBuilder("[Codec=");
         sb.append("[codecType=").append(codecType.toString());
-        sb.append("], [codec=").append(codec);
-        sb.append("], [codecFormat=").append(codecFormat);
-        sb.append("], [codecId=").append(codecId);
-        sb.append("], [codecIdHint=").append(codecIdHint);
-        sb.append("], [codecFormatVersion=").append(codecFormatVersion);
-        sb.append("], [codecFormatProfile=").append(codecFormatProfile);
-        sb.append("], [codecLanguage=").append(codecLanguage);
+        sb.append("][codec=").append(codec);
+        sb.append("][codecFormat=").append(codecFormat);
+        sb.append("][codecId=").append(codecId);
+        sb.append("][codecIdHint=").append(codecIdHint);
+        sb.append("][codecFormatVersion=").append(codecFormatVersion);
+        sb.append("][codecFormatProfile=").append(codecFormatProfile);
+        sb.append("][codecLanguage=").append(codecLanguage);
         sb.append("]]");
         return sb.toString();
     }
