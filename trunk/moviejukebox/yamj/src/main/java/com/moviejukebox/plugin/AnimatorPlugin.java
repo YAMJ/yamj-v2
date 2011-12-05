@@ -12,10 +12,10 @@
  */
 
 /*
- Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
- Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
+Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
+Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
 
- animator.sites: [all, animator, allmults] - where find movie data
+animator.sites: [all, animator, allmults] - where find movie data
  */
 package com.moviejukebox.plugin;
 
@@ -52,7 +52,6 @@ public class AnimatorPlugin extends ImdbPlugin {
 //  Define plot length
     int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
-
     String[] listSites = preferredSites.split(",");
     boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
     boolean multsDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "allmults") != -1);
@@ -117,9 +116,9 @@ public class AnimatorPlugin extends ImdbPlugin {
         return result;
     }
 
-/**
- * Retrieve Animator matching the specified movie name and year. This routine is base on a Google request.
- */
+    /**
+     * Retrieve Animator matching the specified movie name and year. This routine is base on a Google request.
+     */
     private String getAnimatorId(String movieName, String year, int season) {
         try {
             String animatorId = Movie.UNKNOWN;
@@ -129,8 +128,8 @@ public class AnimatorPlugin extends ImdbPlugin {
 // Unaccenting letters
             sb = Normalizer.normalize(sb, Normalizer.Form.NFD);
 // Return simple letters 'й' & 'Й'
-            sb = sb.replaceAll("И" + (char)774, "Й");
-            sb = sb.replaceAll("и" + (char)774, "й");
+            sb = sb.replaceAll("И" + (char) 774, "Й");
+            sb = sb.replaceAll("и" + (char) 774, "й");
             sb = sb.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
             sb = "text=" + URLEncoder.encode(sb, "Cp1251").replace(" ", "+");
@@ -157,9 +156,9 @@ public class AnimatorPlugin extends ImdbPlugin {
                                     if (Year.equals(year)) {
                                         beginIndex = tmp.indexOf("http://www.animator.ru/db/?p=show_film&fid=", beginIndex);
                                         if (beginIndex >= 0) {
-                                           StringTokenizer st = new StringTokenizer(new String(tmp.substring(beginIndex + 43)), " ");
-                                           animatorId = st.nextToken();
-                                           break;
+                                            StringTokenizer st = new StringTokenizer(new String(tmp.substring(beginIndex + 43)), " ");
+                                            animatorId = st.nextToken();
+                                            break;
                                         }
                                     }
                                 }
@@ -182,21 +181,35 @@ public class AnimatorPlugin extends ImdbPlugin {
                 URL url = new URL("http://allmults.org/search.php");
                 URLConnection conn = url.openConnection();
                 conn.setDoOutput(true);
-                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-                wr.write(sb);
-                wr.flush();
 
-                BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "cp1251"));
-                xml = "";
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    xml = xml + line;
+                OutputStreamWriter osWriter = null;
+                BufferedReader bReader = null;
+                StringBuilder xmlLines = new StringBuilder();
+
+                try {
+                    osWriter = new OutputStreamWriter(conn.getOutputStream());
+                    osWriter.write(sb);
+                    osWriter.flush();
+
+                    bReader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "cp1251"));
+
+                    String line;
+
+                    while ((line = bReader.readLine()) != null) {
+                        xmlLines.append(line);
+                    }
+                } finally {
+                    if (osWriter != null) {
+                        osWriter.close();
+                    }
+
+                    if (bReader != null) {
+                        bReader.close();
+                    }
                 }
-                wr.close();
-                rd.close();
 
-                if (xml.indexOf("<div class=\"post\"") != -1) {
-                    for (String tmp : HTMLTools.extractTags(xml, "По Вашему запросу найдено ", "<ul><li>", "<div class=\"entry\"", "</div>")) {
+                if (xmlLines.indexOf("<div class=\"post\"") != -1) {
+                    for (String tmp : HTMLTools.extractTags(xmlLines.toString(), "По Вашему запросу найдено ", "<ul><li>", "<div class=\"entry\"", "</div>")) {
                         int pos = tmp.indexOf("<img ");
                         if (pos != -1) {
                             int temp = tmp.indexOf(" alt=\"");
@@ -213,8 +226,9 @@ public class AnimatorPlugin extends ImdbPlugin {
                             }
                         }
                     }
+
                     if (!allmultsId.equals("") && !allmultsId.equals(Movie.UNKNOWN)) {
-// Check if ID is integer
+                        // Check if ID is integer
                         try {
                             Integer.parseInt(allmultsId);
                         } catch (Exception ignore) {
@@ -224,7 +238,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 }
             }
 
-            return (animatorId.equals(Movie.UNKNOWN) && allmultsId.equals(Movie.UNKNOWN))?Movie.UNKNOWN:animatorId + ":" + allmultsId;
+            return (animatorId.equals(Movie.UNKNOWN) && allmultsId.equals(Movie.UNKNOWN)) ? Movie.UNKNOWN : animatorId + ":" + allmultsId;
         } catch (Exception error) {
             logger.error("Failed retreiving Animator Id for movie : " + movieName);
             logger.error("Error : " + error.getMessage());
@@ -232,9 +246,9 @@ public class AnimatorPlugin extends ImdbPlugin {
         }
     }
 
-/**
- * Scan Animator html page for the specified movie
- */
+    /**
+     * Scan Animator html page for the specified movie
+     */
     private boolean updateAnimatorMediaInfo(Movie movie, String animatorId) throws IOException {
         try {
             String originalTitle = movie.getTitle();
@@ -256,10 +270,10 @@ public class AnimatorPlugin extends ImdbPlugin {
             }
 
 // Work-around for issue #649
-            xml = xml.replace((CharSequence)"&#133;", (CharSequence)"&hellip;");
-            xml = xml.replace((CharSequence)"&#151;", (CharSequence)"&mdash;");
-            xml2 = xml2.replace((CharSequence)"&#133;", (CharSequence)"&hellip;");
-            xml2 = xml2.replace((CharSequence)"&#151;", (CharSequence)"&mdash;");
+            xml = xml.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
+            xml = xml.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
+            xml2 = xml2.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
+            xml2 = xml2.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
 
             if (!animatorId.equals(Movie.UNKNOWN)) {
 // Title (animator.ru)
@@ -281,7 +295,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", "</td>")) {
                     if (!subPlot.isEmpty()) {
                         if (plot.length() > 0) {
-                           plot.append(" ");
+                            plot.append(" ");
                         }
                         plot.append(subPlot);
                     }
@@ -423,7 +437,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             String Year = Movie.UNKNOWN;
 // Year + Country (animator.ru)
             for (String year : HTMLTools.extractTags(xml, "p=films&year=", " г.</span>")) {
-                Country = (Integer.parseInt(year) > 1990)?"Россия":"СССР";
+                Country = (Integer.parseInt(year) > 1990) ? "Россия" : "СССР";
                 Year = year;
                 break;
             }

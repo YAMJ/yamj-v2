@@ -1,13 +1,13 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
+ *      http://code.google.com/p/moviejukebox/people/list
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
  *
- *      For any reuse or distribution, you must make clear to others the 
+ *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
 
@@ -16,11 +16,11 @@
  Written by Yury Sidorov.
 
  First the movie data is searched in IMDB and TheTvDB.
- After that the movie is searched in kinopoisk and movie data 
+ After that the movie is searched in kinopoisk and movie data
  is updated.
 
- It is possible to specify URL of the movie page on kinopoisk in 
- the .nfo file. In this case movie data will be retrieved from this page only.  
+ It is possible to specify URL of the movie page on kinopoisk in
+ the .nfo file. In this case movie data will be retrieved from this page only.
  */
 package com.moviejukebox.plugin;
 
@@ -86,7 +86,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     boolean scrapeAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false");
     boolean scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
     boolean scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
-    
+
     // Set priority fanart & poster by kinopoisk.ru
     boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", "false");
     boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", "false");
@@ -637,7 +637,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Top250
-            // Clear previous rating : if KinoPoisk is selected as search engine - 
+            // Clear previous rating : if KinoPoisk is selected as search engine -
             // it means user wants KinoPoisk's rating, not global.
             if (!NFOtop250) {
                 movie.setTop250(-1);
@@ -1100,13 +1100,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     person.setKnownMovies(Integer.parseInt(km));
                 }
 
-                String bio = "";
+                StringBuilder bio = new StringBuilder();
                 for (String item : HTMLTools.extractTags(xml, "<ul class=\"trivia\"", "</ul>", "<li class=\"trivia\"", "</li>")) {
-                    bio += HTMLTools.removeHtmlTags(item).replaceAll("\u0097", "-") + " ";
+                    bio.append(HTMLTools.removeHtmlTags(item).replaceAll("\u0097", "-")).append(" ");
                 }
-                if (StringTools.isValidString(bio)) {
-                    bio = StringTools.trimToLength(bio, biographyLength, true, plotEnding);
-                    person.setBiography(bio);
+
+                if (StringTools.isValidString(bio.toString())) {
+                    person.setBiography(StringTools.trimToLength(bio.toString(), biographyLength, true, plotEnding));
                 }
 
                 if (xml.indexOf("http://st.kinopoisk.ru/images/actor/" + kinopoiskId + ".jpg") > -1 && StringTools.isNotValidString(person.getPhotoURL())) {
@@ -1117,29 +1117,29 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (!preferredRating.equals("imdb")) {
                 xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/sort/rating/");
                 if (StringTools.isValidString(xml)) {
-                    TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
+                    TreeMap<Float, Filmography> newFilmography = new TreeMap<Float, Filmography>();
                     for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</div>        </td></tr>")) {
                         String job = HTMLTools.extractTag(block, "<div style=\"padding-left: 9px\" id=\"", "\">");
-                        if (job.equals("producer")) {
-                            job = "Producer";
-                        } else if (job.equals("director")) {
-                            job = "Director";
-                        } else if (job.equals("writer")) {
-                            job = "Writer";
-                        } else if (job.equals("actor")) {
-                            job = "Actor";
-                        } else if (job.equals("editor")) {
-                            job = "Editor";
-                        } else if (job.equals("himself")) {
-                            job = "Himself";
-                        } else if (job.equals("design")) {
-                            job = "Design";
-                        } else if (job.equals("operator")) {
-                            job = "Operator";
-                        } else if (job.equals("composer")) {
-                            job = "Music";
+                        if (job.equals(Filmography.JOB_PRODUCER)) {
+                            StringUtils.capitalize(Filmography.JOB_PRODUCER);
+                        } else if (job.equals(Filmography.JOB_DIRECTOR)) {
+                            StringUtils.capitalize(Filmography.JOB_DIRECTOR);
+                        } else if (job.equals(Filmography.JOB_WRITER)) {
+                            StringUtils.capitalize(Filmography.JOB_WRITER);
+                        } else if (job.equals(Filmography.JOB_ACTOR)) {
+                            StringUtils.capitalize(Filmography.JOB_ACTOR);
+                        } else if (job.equals(Filmography.JOB_EDITOR)) {
+                            StringUtils.capitalize(Filmography.JOB_EDITOR);
+                        } else if (job.equals("himself") || job.equals("herself")) {
+                            StringUtils.capitalize(Filmography.JOB_THEMSELVES);
+                        } else if (job.equals(Filmography.JOB_DESIGN)) {
+                            StringUtils.capitalize(Filmography.JOB_DESIGN);
+                        } else if (job.equals(Filmography.JOB_OPERATOR)) {
+                            StringUtils.capitalize(Filmography.JOB_OPERATOR);
+                        } else if (job.equals(Filmography.JOB_COMPOSER)) {
+                            StringUtils.capitalize(Filmography.JOB_MUSIC);
                         } else if (job.contains("_titr_")) {
-                            job = "Actor";
+                            StringUtils.capitalize(Filmography.JOB_ACTOR);
                         }
                         if (!jobsInclude.contains(job)) {
                             continue;
@@ -1185,7 +1185,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                             float key = 101 - (rating + Float.valueOf("0." + id).floatValue());
 
-                            if (filmography.get(key) == null) {
+                            if (newFilmography.get(key) == null) {
                                 Filmography film = new Filmography();
                                 film.setId(KINOPOISK_PLUGIN_ID, id);
                                 film.setName(title);
@@ -1197,12 +1197,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 film.setDepartment();
                                 film.setRating(Integer.toString(rating));
                                 film.setUrl(URL);
-                                filmography.put(key, film);
+                                newFilmography.put(key, film);
                             }
                         }
                     }
 
-                    if (filmography.size() > 0) {
+                    if (newFilmography.size() > 0) {
                         if ((person.getFilmography().size() > 0) && (preferredRating.equals("combine") || preferredRating.equals("average"))) {
                             for (Filmography film : person.getFilmography()) {
                                 String name = film.getName().replace("ё", "е").replace("Ё", "Е").trim();
@@ -1212,9 +1212,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 if (StringTools.isValidString(year)) {
                                     year = year.substring(0, 4);
                                 }
-                                @SuppressWarnings("unused")
-                                boolean found = false;
-                                for (Filmography f : filmography.values()) {
+
+                                for (Filmography f : newFilmography.values()) {
                                     String Name = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
                                     String Title = f.getTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
                                     String OriginalTitle = f.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
@@ -1222,8 +1221,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                     if (StringTools.isValidString(Year)) {
                                         Year = Year.substring(0, 4);
                                     }
-                                    if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Name.equalsIgnoreCase(originalTitle) || 
-                                            Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title) || Title.equalsIgnoreCase(originalTitle) || 
+                                    if (Name.equalsIgnoreCase(name) || Name.equalsIgnoreCase(title) || Name.equalsIgnoreCase(originalTitle) ||
+                                            Title.equalsIgnoreCase(name) || Title.equalsIgnoreCase(title) || Title.equalsIgnoreCase(originalTitle) ||
                                             OriginalTitle.equalsIgnoreCase(name) || OriginalTitle.equalsIgnoreCase(title) || OriginalTitle.equalsIgnoreCase(originalTitle)) {
                                         String id = f.getId(KINOPOISK_PLUGIN_ID);
                                         film.setId(KINOPOISK_PLUGIN_ID, id);
@@ -1236,12 +1235,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                         film.setDepartment();
                                         film.setRating(Integer.toString((int)(preferredRating.equals("combine")?(Float.valueOf(f.getRating()).floatValue() * 1000 + Float.valueOf(film.getRating()).floatValue()):((Float.valueOf(film.getRating()).floatValue() + Float.valueOf(f.getRating()).floatValue())/2))));
                                         film.setUrl(f.getUrl());
-                                        found = true;
                                     }
                                 }
                             }
                         } else if (preferredRating.equals("kinopoisk") || (person.getFilmography().isEmpty())) {
-                            person.setFilmography(new ArrayList<Filmography>(filmography.values()));
+                            person.setFilmography(new ArrayList<Filmography>(newFilmography.values()));
                         }
                     }
                 }
