@@ -352,7 +352,8 @@
                title="Full Title"
                vod=""
                watched="true">
-            <fileLocation>D:\YAMJ\YAMJ_Test\Videos\The Godfather (1972).avi</fileLocation>
+            <!-- This is a fake location to pass the tests -->
+            <fileLocation>.\src\test\java\TestFiles\ExampleMovieXML.xml</fileLocation>
             <fileURL>file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/The%20Godfather%20%281972%29.avi</fileURL>
             <fileTitle part="1">Part Title</fileTitle>
             <airsInfo afterSeason="99" beforeEpisode="99" beforeSeason="99" part="1">1</airsInfo>
