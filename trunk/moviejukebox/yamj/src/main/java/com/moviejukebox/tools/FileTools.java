@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -32,9 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +47,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Jukebox;
@@ -57,34 +54,37 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 
 // import com.moviejukebox.tools.HTMLTools;
-
 @SuppressWarnings("unused")
 public class FileTools {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
-    final static int BUFF_SIZE = 16*1024;
+    final static int BUFF_SIZE = 16 * 1024;
     private static Collection<String> subtitleExtensions = new ArrayList<String>();
-    
+
     static {
         // Populate the subtitle extensions
         for (String ext : PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")) {
             subtitleExtensions.add(ext);
         }
     }
-
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
      */
     private final static ThreadLocal<byte[]> threadBuffer = new ThreadLocal<byte[]>() {
+
         protected byte[] initialValue() {
             return new byte[BUFF_SIZE];
-        };
+        }
+    ;
+
     };
 
     private static class ReplaceEntry {
+
         private String oldText, newText;
         private int oldLength;
-        public ReplaceEntry(String oldtext, String newtext){
+
+        public ReplaceEntry(String oldtext, String newtext) {
             this.oldText = oldtext;
             this.newText = newtext;
             oldLength = oldtext.length();
@@ -93,14 +93,13 @@ public class FileTools {
         public String check(String filename) {
             String newFilename = filename;
             int pos = newFilename.indexOf(oldText, 0);
-            while(pos >= 0) {
+            while (pos >= 0) {
                 newFilename = new String(newFilename.substring(0, pos)) + newText + new String(newFilename.substring(pos + oldLength));
                 pos = newFilename.indexOf(oldText, pos + oldLength);
             }
             return newFilename;
         }
     };
-
     private static Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
@@ -133,13 +132,13 @@ public class FileTools {
         while (st.hasMoreElements()) {
             final String token = st.nextToken();
             String beforeStr = substringBefore(token, "-");
-            final String character = new String(beforeStr.length() == 1 && (beforeStr.equals("\t") || beforeStr.equals(" "))?beforeStr:trimToNull(beforeStr));
+            final String character = new String(beforeStr.length() == 1 && (beforeStr.equals("\t") || beforeStr.equals(" ")) ? beforeStr : trimToNull(beforeStr));
             if (character == null) {
                 // TODO Error message?
                 continue;
             }
             String afterStr = substringAfter(token, "-");
-            final String translation = new String(afterStr.length() == 1 && (afterStr.equals("\t") || afterStr.equals(" "))?afterStr:trimToNull(afterStr));
+            final String translation = new String(afterStr.length() == 1 && (afterStr.equals("\t") || afterStr.equals(" ")) ? afterStr : trimToNull(afterStr));
             if (translation == null) {
                 // TODO Error message?
                 // TODO Allow empty transliteration?
@@ -152,14 +151,13 @@ public class FileTools {
 
     public static int copy(InputStream is, OutputStream os, WebStats stats) throws IOException {
         int bytesCopied = 0;
-        byte[] buffer = threadBuffer.get(); 
+        byte[] buffer = threadBuffer.get();
         try {
             while (true) {
                 int amountRead = is.read(buffer);
                 if (amountRead == -1) {
                     break;
-                }
-                else {
+                } else {
                     bytesCopied += amountRead;
                     if (stats != null) {
                         stats.bytes(amountRead);
@@ -197,10 +195,7 @@ public class FileTools {
             srcFile = new File(src);
         } catch (Exception error) {
             logger.error("Failed copying file " + src + " to " + dst);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return;
         }
 
@@ -208,10 +203,7 @@ public class FileTools {
             dstFile = new File(dst);
         } catch (Exception error) {
             logger.error("Failed copying file " + src + " to " + dst);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return;
         }
         copyFile(srcFile, dstFile);
@@ -233,8 +225,8 @@ public class FileTools {
                 FileChannel outChannel = new FileOutputStream(dst).getChannel();
                 try {
                     long p = 0, s = inChannel.size();
-                    while(p < s) {
-                        p += inChannel.transferTo(p, 1024*1024, outChannel);
+                    while (p < s) {
+                        p += inChannel.transferTo(p, 1024 * 1024, outChannel);
                     }
                 } finally {
                     if (inChannel != null) {
@@ -249,10 +241,7 @@ public class FileTools {
 
         } catch (IOException error) {
             logger.error("Failed copying file " + src + " to " + dst);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -342,10 +331,7 @@ public class FileTools {
             }
         } catch (Exception error) {
             logger.error("FileTools: Failed to copy " + srcPathName + " to " + dstPathName);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return;
         }
     }
@@ -360,7 +346,7 @@ public class FileTools {
                     in = new BufferedReader(new FileReader(file));
                     String line = in.readLine();
                     while (line != null) {
-                        out.append(line+ " "); // Add a space to avoid unwanted concatenation
+                        out.append(line + " "); // Add a space to avoid unwanted concatenation
                         line = in.readLine();
                     }
                 } finally {
@@ -412,7 +398,7 @@ public class FileTools {
         // TODO: Update this routine to use fileCache
         // If file1 exists and file2 doesn't then return true
         if (file1.exists()) {
-            // If file2 doesn't exist then file1 is newer 
+            // If file2 doesn't exist then file1 is newer
             if (!file2.exists()) {
                 return true;
             }
@@ -436,7 +422,7 @@ public class FileTools {
     }
 
     public static String createPrefix(String category, String key) {
-        return indexFilesPrefix  + category + '_' + key + '_';
+        return indexFilesPrefix + category + '_' + key + '_';
     }
 
     public static OutputStream createFileOutputStream(File f, int size) throws FileNotFoundException {
@@ -445,7 +431,7 @@ public class FileTools {
     }
 
     public static OutputStream createFileOutputStream(File f) throws FileNotFoundException {
-        return createFileOutputStream(f, 10*1024);
+        return createFileOutputStream(f, 10 * 1024);
     }
 
     public static OutputStream createFileOutputStream(String f) throws FileNotFoundException {
@@ -458,7 +444,7 @@ public class FileTools {
 
     public static InputStream createFileInputStream(File f) throws FileNotFoundException {
         // return new FileInputStream(f);
-        return new BufferedInputStream(new FileInputStream(f), 10*1024);
+        return new BufferedInputStream(new FileInputStream(f), 10 * 1024);
     }
 
     public static InputStream createFileInputStream(String f) throws FileNotFoundException {
@@ -494,14 +480,14 @@ public class FileTools {
 
     /**
      * when concatenating paths and the source MIGHT be a root, use this function
-     * to safely add the separator 
+     * to safely add the separator
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
     }
 
     public static String getFileExtension(String filename) {
-        return new String(filename.substring(filename.lastIndexOf('.')+1));
+        return new String(filename.substring(filename.lastIndexOf('.') + 1));
     }
 
     /**
@@ -512,12 +498,12 @@ public class FileTools {
             return "";
         }
         String path = file.getParent();
-        return new String(path.substring(path.lastIndexOf(File.separator)+1));
+        return new String(path.substring(path.lastIndexOf(File.separator) + 1));
     }
 
     /***
      * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the File
-     * 
+     *
      * @param filename
      * @param fileExtensions
      * @return always a File, to be tested with exists() for valid file
@@ -535,7 +521,7 @@ public class FileTools {
             }
         }
 
-        return (localFile != null ? localFile : new File(localFile + Movie.UNKNOWN) ); //just in case
+        return (localFile != null ? localFile : new File(localFile + Movie.UNKNOWN)); //just in case
     }
 
     /**
@@ -598,9 +584,9 @@ public class FileTools {
     }
 
     /**
-     * Download the image for the specified URL into the specified file. 
+     * Download the image for the specified URL into the specified file.
      * Utilises the WebBrowser downloadImage function to allow for proxy connections.
-     * 
+     *
      * @param imageFile
      * @param imageURL
      * @throws IOException
@@ -643,14 +629,14 @@ public class FileTools {
     }
 
     /**
-     * Recursively delete a directory 
+     * Recursively delete a directory
      * @param dir
      * @return
      */
     public static boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i=0; i<children.length; i++) {
+            for (int i = 0; i < children.length; i++) {
                 boolean success = deleteDir(new File(dir, children[i]));
                 if (!success) {
                     // System.out.println("Failed");
@@ -715,12 +701,12 @@ public class FileTools {
      */
     @SuppressWarnings("serial")
     public static class FileEx extends File {
+
         private volatile Boolean _isdir = null;
         private volatile Boolean _exists = null;
         private volatile Boolean _isfile = null;
-        private volatile Long    _len = null;
-        private volatile Long    _lastModified = null;
-
+        private volatile Long _len = null;
+        private volatile Long _lastModified = null;
         private ArchiveScanner[] archiveScanners;
 
         //Standard constructors
@@ -755,7 +741,7 @@ public class FileTools {
         @Override
         public boolean isDirectory() {
             if (_isdir == null) {
-                synchronized(this) {
+                synchronized (this) {
                     if (_isdir == null) {
                         _isdir = super.isDirectory();
                     }
@@ -767,7 +753,7 @@ public class FileTools {
         @Override
         public boolean exists() {
             if (_exists == null) {
-                synchronized(this) {
+                synchronized (this) {
                     if (_exists == null) {
                         _exists = super.exists();
                     }
@@ -779,7 +765,7 @@ public class FileTools {
         @Override
         public boolean isFile() {
             if (_isfile == null) {
-                synchronized(this) {
+                synchronized (this) {
                     if (_isfile == null) {
                         _isfile = super.isFile();
                     }
@@ -791,7 +777,7 @@ public class FileTools {
         @Override
         public long length() {
             if (_len == null) {
-                synchronized(this) {
+                synchronized (this) {
                     if (_len == null) {
                         _len = super.length();
                     }
@@ -803,7 +789,7 @@ public class FileTools {
         @Override
         public long lastModified() {
             if (_lastModified == null) {
-                synchronized(this) {
+                synchronized (this) {
                     if (_lastModified == null) {
                         _lastModified = super.lastModified();
                     }
@@ -820,12 +806,11 @@ public class FileTools {
             }
             return new FileEx(p, archiveScanners);
         }
-
         private volatile File[] _listFiles;
 
         @Override
         public File[] listFiles() {
-            synchronized(this) {
+            synchronized (this) {
                 if (_listFiles != null) {
                     return _listFiles;
                 }
@@ -838,18 +823,18 @@ public class FileTools {
                 List<String> mutableNames = new ArrayList<String>(Arrays.asList(nameStrings));
                 List<File> files = new ArrayList<File>();
                 if (archiveScanners != null) {
-                    for (ArchiveScanner as: archiveScanners) {
-                        files.addAll(as.getArchiveFiles(this,mutableNames));
+                    for (ArchiveScanner as : archiveScanners) {
+                        files.addAll(as.getArchiveFiles(this, mutableNames));
                     }
                 }
 
-                for (String name: mutableNames) {
+                for (String name : mutableNames) {
                     FileEx fe = new FileEx(this, name, archiveScanners);
                     fe._exists = true;
                     files.add(fe);
                 }
 
-                _listFiles = (File[])files.toArray(new File[files.size()]);
+                _listFiles = (File[]) files.toArray(new File[files.size()]);
             }
             return _listFiles;
         }
@@ -867,14 +852,13 @@ public class FileTools {
             }
 
             List<File> l = new ArrayList<File>();
-            for (File f: src) {
+            for (File f : src) {
                 if (filter.accept(this, f.getName())) {
                     l.add(f);
                 }
             }
-            return (File[])l.toArray(new File[l.size()]);
+            return (File[]) l.toArray(new File[l.size()]);
         }
-
     }
 
     /**
@@ -882,12 +866,13 @@ public class FileTools {
      * the key is always absolute path in upper-case, so it will NOT work for case only differences
      * @author Gabriel Corneanu
      */
-    public static class ScannedFilesCache {       
+    public static class ScannedFilesCache {
         //cache for ALL files found during initial scan
+
         private Map<String, File> cachedFiles = new ConcurrentHashMap<String, File>(1000);
 
         /**
-         * Check whether the file exists 
+         * Check whether the file exists
          */
         public boolean fileExists(String absPath) {
             return cachedFiles.containsKey(absPath.toUpperCase());
@@ -898,7 +883,7 @@ public class FileTools {
         }
 
         /**
-         * Add a file instance to cache 
+         * Add a file instance to cache
          */
         public void fileAdd(File file) {
             cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
@@ -948,7 +933,7 @@ public class FileTools {
             Map<String, File> map = new HashMap<String, File>(files.length);
             for (File f : files) {
                 map.put(f.getAbsolutePath().toUpperCase(), f);
-            }            
+            }
             cachedFiles.putAll(map);
         }
 
@@ -975,7 +960,7 @@ public class FileTools {
         }
 
         public void saveFileList(String filename) throws FileNotFoundException, UnsupportedEncodingException {
-            PrintWriter p = new PrintWriter(new OutputStreamWriter( new FileOutputStream(filename, true ), "UTF-8" )); 
+            PrintWriter p = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, true), "UTF-8"));
 
             Set<String> names = cachedFiles.keySet();
             String[] sortednames = names.toArray(new String[names.size()]);
@@ -986,7 +971,6 @@ public class FileTools {
             p.close();
         }
     }
-
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
 
     /**

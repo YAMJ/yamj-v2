@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -30,7 +30,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.moviejukebox.tools.SystemTools.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Web browser with simple cookies support
@@ -48,7 +48,7 @@ public class WebBrowser {
     private static String mjbEncodedPassword;
     private static int mjbTimeoutConnect = 25000;
     private static int mjbTimeoutRead = 90000;
-    
+
     private int imageRetryCount;
 
     public WebBrowser() {
@@ -57,8 +57,8 @@ public class WebBrowser {
         String browserLanguage = PropertiesUtil.getProperty("mjb.Accept-Language", null);
         if (browserLanguage != null && browserLanguage.trim().length()>0){
             browserProperties.put("Accept-Language", browserLanguage.trim());
-        } 
-        
+        }
+
         cookies = new HashMap<String, Map<String, String>>();
 
         mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost", null);
@@ -66,7 +66,7 @@ public class WebBrowser {
         mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
         mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
 
-        try {        
+        try {
             mjbTimeoutConnect = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", "25000");
         } catch (Exception ignore) {
             // If the conversion fails use the default value
@@ -79,7 +79,7 @@ public class WebBrowser {
             // If the conversion fails use the default value
             mjbTimeoutRead = 90000;
         }
-        
+
         imageRetryCount = PropertiesUtil.getIntProperty("mjb.imageRetryCount", "3");
         if (imageRetryCount < 1) {
             imageRetryCount = 1;
@@ -87,7 +87,7 @@ public class WebBrowser {
 
         if (mjbProxyUsername != null) {
             mjbEncodedPassword = mjbProxyUsername + ":" + mjbProxyPassword;
-            mjbEncodedPassword = Base64.base64Encode(mjbEncodedPassword);
+            mjbEncodedPassword = "Basic " + new String(Base64.encodeBase64((mjbProxyUsername + ":" + mjbProxyPassword).getBytes()));
         }
 
         if (logger.isTraceEnabled()) {
@@ -115,7 +115,7 @@ public class WebBrowser {
         if (mjbProxyUsername != null) {
             cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
         }
-        
+
         cnx.setConnectTimeout(mjbTimeoutConnect);
         cnx.setReadTimeout(mjbTimeoutRead);
 
@@ -134,25 +134,25 @@ public class WebBrowser {
         ThreadExecutor.enterIO(url);
         content = new StringWriter(10*1024);
         try {
-           
+
             URLConnection cnx = null;
-            
+
             try {
                 cnx = openProxiedConnection(url);
-                
+
                 sendHeader(cnx);
                 readHeader(cnx);
 
                 if (charset == null) {
                     charset = getCharset(cnx);
                 }
-                
+
                 BufferedReader in = null;
                 try {
-                    
+
                     // If we fail to get the URL information we need to exit gracefully
                     in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
-                    
+
                     String line;
                     while ((line = in.readLine()) != null) {
                         content.write(line);
@@ -186,7 +186,7 @@ public class WebBrowser {
 
     /**
      * Download the image for the specified URL into the specified file.
-     * 
+     *
      * @throws IOException
      */
     public void downloadImage(File imageFile, String imageURL) throws IOException {
@@ -222,12 +222,12 @@ public class WebBrowser {
         } finally {
             ThreadExecutor.leaveIO();
         }
-        
+
         if (!success) {
             logger.debug("WebBrowser: Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
         }
     }
-    
+
     /**
      * Check the URL to see if it's one of the special cases that needs to be worked around
      * @param URL   The URL to check
@@ -236,7 +236,7 @@ public class WebBrowser {
     private void checkRequest(URLConnection checkCnx) {
         String checkUrl = checkCnx.getURL().getHost().toLowerCase();
 
-        // TODO: Move these workarounds into a property file so they can be overridden at runtime 
+        // TODO: Move these workarounds into a property file so they can be overridden at runtime
 
         // A workaround for the need to use a referrer for thetvdb.com
         if (checkUrl.indexOf("thetvdb") > 0) {
@@ -249,7 +249,7 @@ public class WebBrowser {
             checkCnx.setRequestProperty("Accept-Language", "ru");
             checkCnx.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6");
         }
-        
+
         return;
     }
 
@@ -257,12 +257,12 @@ public class WebBrowser {
         // send browser properties
         for (Map.Entry<String, String> browserProperty : browserProperties.entrySet()) {
             cnx.setRequestProperty(browserProperty.getKey(), browserProperty.getValue());
-            
+
             if (logger.isTraceEnabled()) {
                 logger.trace("setRequestProperty:" + browserProperty.getKey() + "='" + browserProperty.getValue() + "'");
             }
         }
-        
+
         // send cookies
         String cookieHeader = createCookieHeader(cnx);
         if (!cookieHeader.isEmpty()) {
@@ -271,7 +271,7 @@ public class WebBrowser {
                 logger.trace("Cookie:" + cookieHeader);
             }
         }
-        
+
         checkRequest(cnx);
     }
 
@@ -357,7 +357,7 @@ public class WebBrowser {
 
     /**
      * Get URL - allow to know if there is some redirect
-     * 
+     *
      * @param urlStr
      * @return
      */
@@ -365,7 +365,7 @@ public class WebBrowser {
         String response = urlStr;
         URL url = new URL(urlStr);
         ThreadExecutor.enterIO(url);
-        
+
         try {
             URLConnection cnx = openProxiedConnection(url);
             sendHeader(cnx);
@@ -374,14 +374,14 @@ public class WebBrowser {
         } finally {
             ThreadExecutor.leaveIO();
         }
-        
+
         return response;
     }
 
     public static String getMjbProxyHost() {
         return mjbProxyHost;
     }
-    
+
     public static String getMjbProxyPort() {
         return mjbProxyPort;
     }
@@ -401,7 +401,7 @@ public class WebBrowser {
     public static int getMjbTimeoutRead() {
         return mjbTimeoutRead;
     }
-    
+
     public static void showStatus() {
         if (mjbProxyHost != null) {
             logger.debug("WebBrowser: Proxy Host: " + mjbProxyHost);
@@ -409,7 +409,7 @@ public class WebBrowser {
         } else {
             logger.debug("WebBrowser: No proxy set");
         }
-        
+
         if (mjbProxyUsername != null) {
             logger.debug("WebBrowser: Proxy Host: " + mjbProxyUsername);
             if (mjbProxyPassword != null) {
@@ -418,7 +418,7 @@ public class WebBrowser {
         } else {
             logger.debug("WebBrowser: No Proxy username ");
         }
-        
+
         logger.debug("WebBrowser: Connect Timeout: " + mjbTimeoutConnect);
         logger.debug("WebBrowser: Read Timeout   : " + mjbTimeoutRead);
     }

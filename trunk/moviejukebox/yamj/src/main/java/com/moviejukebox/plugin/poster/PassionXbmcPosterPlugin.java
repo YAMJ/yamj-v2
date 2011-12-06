@@ -12,21 +12,18 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.text.ParseException;
-import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
 
@@ -49,10 +46,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
             response = allocinePlugin.getAllocineId(title, year, -1);
         } catch (ParseException error) {
             logger.error("PassionXbmcPlugin: Failed retrieving poster id movie : " + title);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return response;
     }
@@ -72,10 +66,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
                 }
             } catch (Exception error) {
                 logger.error("PassionXbmcPlugin: Failed retrieving poster for movie : " + id);
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

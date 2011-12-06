@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -19,14 +19,12 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
 
+import com.moviejukebox.tools.SystemTools;
 import org.apache.log4j.Logger;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.sql.Timestamp;
 
 /**
@@ -34,6 +32,7 @@ import java.sql.Timestamp;
  * Date: Feb 15, 2009
  */
 public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
+
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     /**
@@ -83,8 +82,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput("Sratim ID")
                 + prepOutput("Last Modified Date")
                 + prepOutput("File Size", false)
-                + prepOutput("Watched")
-                ;
+                + prepOutput("Watched");
     } // headerLine();
 
     /**
@@ -141,8 +139,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 + prepOutput(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID))
                 + prepOutput(new Timestamp(movie.getLastModifiedTimestamp()).toString()) //, false)
                 + prepOutput(movie.getFileSizeString())
-                + prepOutput(String.valueOf(movie.isWatched()))
-                ;
+                + prepOutput(String.valueOf(movie.isWatched()));
     } // toCSV()
 
     /**
@@ -253,16 +250,12 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
 
             writer.close();
         } catch (IOException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         // move to configured (default) location
         copyListingFile(csvFile, filename);
 
     } // generate()
-
 } // class MovieListingPluginCsv
 

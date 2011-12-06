@@ -1,20 +1,17 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 
@@ -24,25 +21,26 @@ import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
-    // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin 
+    // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin
     private static Logger logger = Logger.getLogger("moviejukebox");
 
     protected WebBrowser webBrowser;
 
     public CdonPosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         webBrowser = new WebBrowser();
     }
-    
+
     @Override
     public boolean isNeeded() {
         if ((searchPriorityMovie + "," + searchPriorityTv).contains(this.getName())) {
@@ -51,7 +49,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             return false;
         }
     }
-    
+
     /* Implements getName for IPosterPlugin
      * @return String posterPluginName
      * @see com.moviejukebox.plugin.poster.IPosterPlugin#getName()
@@ -60,7 +58,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
     public String getName() {
         return "cdon";
     }
-    
+
     /* Implements getIdFromMovieInfo for ITvShowPosterPlugin
      * Returns an url for the Cdon movie information page
      * @return String id
@@ -97,7 +95,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             logger.error("CdonPosterPlugin: An exception happened while retreiving CDON id for movie : " + title);
             logger.error("CdonPosterPlugin: the exception was caused by: " + error.getCause());
         }
-         
+
         //check that the result page contains some movie info
         if (xml.contains("<table class=\"product-list\"")) {
             //find the movie url in the search result page
@@ -107,11 +105,11 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         } else {
             response = Movie.UNKNOWN;
             logger.debug("CdonPosterPlugin: could not find movie: " + title);
-        } 
+        }
         return response;
     }
-    
-    /* function that takes the search result page from cdon and loops 
+
+    /* function that takes the search result page from cdon and loops
      * through the products in that page searching for a match
     */
     private String findMovieFromProductList(String xml, String title, String year) {
@@ -136,7 +134,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
                 //movieInfo[3] contains title
                 //movieInfo[6] contains year
                 String foundTitle = HTMLTools.removeHtmlTags(new String(productInfo[3].substring(15)));
-                foundTitle = foundTitle.replaceAll("\\t", ""); 
+                foundTitle = foundTitle.replaceAll("\\t", "");
                 if (foundTitle.toLowerCase().contains(title.toLowerCase())) {
                     //save first title find to fallback to if nothing else is found
                     if (firstTitleFind == 0) {
@@ -173,7 +171,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             return extractMovieDetailUrl(title, productList[1]);
         }
     }
-    
+
     //function to extract the url of a movie detail page from the td it is in
     private String extractMovieDetailUrl(String title, String response) {
         // Split string to extract the url
@@ -190,17 +188,17 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         }
         return response;
     }
-    
-    /* 
-     * Implements getIdFromMovieInfo for IMoviePosterPlugin. 
-     * Just adds an empty value for year and calls the method getIdFromMovieInfo(string, string, int); 
+
+    /*
+     * Implements getIdFromMovieInfo for IMoviePosterPlugin.
+     * Just adds an empty value for year and calls the method getIdFromMovieInfo(string, string, int);
      * @see com.moviejukebox.plugin.poster.IMoviePosterPlugin#getIdFromMovieInfo(java.lang.String, java.lang.String)
      */
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         return getIdFromMovieInfo(title, year, -1);
     }
-    
+
     /* Implements getPosterUrl for IMoviePosterPlugin
      * The url of the Cdon movie information page is passed as id
      * @return IImage posterUrl
@@ -219,10 +217,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             posterURL = extractCdonPosterUrl(xml);
         } catch (Exception error) {
             logger.error(" CdonPosterPlugin: Failed retreiving Cdon poster for movie : " + id);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
@@ -230,33 +225,33 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         logger.debug(" CdonPosterPlugin: No poster found for movie: " + id);
         return Image.UNKNOWN;
     }
-    
-    /* Implements getPosterUrl for IMoviePosterPlugin. Uses getIdFromMovieInfo 
-     * to find an id and then calls getPosterUrl(String id, String year). 
+
+    /* Implements getPosterUrl for IMoviePosterPlugin. Uses getIdFromMovieInfo
+     * to find an id and then calls getPosterUrl(String id, String year).
      * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
      */
     @Override
     public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
-    
-    /* Implements getPosterUrl for ITVShowPosterPlugin. Uses getIdFromMovieInfo 
-     * to find an id and then calls getPosterUrl(String id). 
+
+    /* Implements getPosterUrl for ITVShowPosterPlugin. Uses getIdFromMovieInfo
+     * to find an id and then calls getPosterUrl(String id).
      * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
      */
     @Override
     public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
     }
-    
-    /* Implements getPosterUrl for ITVShowPosterPlugin.   
+
+    /* Implements getPosterUrl for ITVShowPosterPlugin.
      * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
-     */    
+     */
     @Override
     public IImage getPosterUrl(String title, int season) {
         return getPosterUrl(getIdFromMovieInfo(title, null, season));
     }
-    
+
     /* Implements getPosterUrl for IPosterPlugin
      * @see com.moviejukebox.plugin.poster.IPosterPlugin#getPosterUrl(com.moviejukebox.model.Identifiable, com.moviejukebox.model.IMovieBasicInformation)
      */
@@ -285,7 +280,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         }
         return Image.UNKNOWN;
     }
-    
+
     protected String getCdonMovieDetailsPage(String movieURL) {
         String cdonMoviePage;
         try {
@@ -311,7 +306,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
 
         String cdonPosterURL = Movie.UNKNOWN;
         String[] htmlArray = cdonMoviePage.split("<");
-        
+
         // check if there is an large front cover image for this movie
         if (cdonMoviePage.contains("St&#246;rre framsida")) {
             // first look for a large cover
@@ -360,5 +355,5 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         }
         return response;
     }
-    
+
 }

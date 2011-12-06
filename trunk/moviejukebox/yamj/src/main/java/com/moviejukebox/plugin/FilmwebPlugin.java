@@ -1,21 +1,18 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
@@ -30,6 +27,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 public class FilmwebPlugin extends ImdbPlugin {
 
@@ -38,7 +36,6 @@ public class FilmwebPlugin extends ImdbPlugin {
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
-
     protected String filmwebPreferredSearchEngine;
     protected int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     protected int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
@@ -277,10 +274,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
         } catch (Exception error) {
             logger.error("Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return true;
     }
@@ -301,8 +295,6 @@ public class FilmwebPlugin extends ImdbPlugin {
         }
         return imdbId;
     }
-
-
 
     public void scanTVShowTitles(Movie movie) {
         scanTVShowTitles(movie, null);

@@ -70,7 +70,7 @@
             <groupId>org.javolution</groupId>
             <artifactId>javolution</artifactId>
         </dependency>
-		
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -135,6 +135,11 @@
             <groupId>com.j256.ormlite</groupId>
             <artifactId>ormlite-jdbc</artifactId>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.5</version>
         </dependency>
     </dependencies>
 

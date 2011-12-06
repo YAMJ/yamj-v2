@@ -1,21 +1,18 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,6 +22,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 public class FilmUpITPlugin extends ImdbPlugin {
 
@@ -39,7 +37,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
     public String getPluginID() {
         return FILMUPIT_PLUGIN_ID;
     }
-
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     /**
@@ -61,32 +58,32 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
             if (movie.getDirector().equals(Movie.UNKNOWN)) {
                 movie.addDirector(removeHtmlTags(removeHtmlTags(extractTag(xml,
-                                "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"))));
+                        "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"))));
             }
 
             if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
                 movie.setReleaseDate(removeHtmlTags(extractTag(xml,
-                                "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
+                        "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
             }
 
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                 movie.setRuntime(removeHtmlTags(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                                "</font></td></tr>")));
+                        "</font></td></tr>")));
             }
 
             if (movie.getCountry().equals(Movie.UNKNOWN)) {
                 movie.setCountry(removeHtmlTags(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                                "</font></td></tr>")));
+                        "</font></td></tr>")));
             }
 
             if (movie.getCompany().equals(Movie.UNKNOWN)) {
                 movie.setCompany(removeHtmlTags(extractTag(xml,
-                                "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
+                        "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
             }
 
             if (movie.getGenres().isEmpty()) {
                 for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                                "</font></td></tr>").split(",")) {
+                        "</font></td></tr>").split(",")) {
                     for (String genre : tmp_genre.split("/")) {
                         movie.addGenre(genre.trim());
                     }
@@ -95,13 +92,12 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
             if (!movie.isOverrideYear()) {
                 movie.setYear(removeHtmlTags(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                                "</font></td></tr>")));
+                        "</font></td></tr>")));
             }
 
             if (movie.getCast().isEmpty()) {
                 for (String actor : removeHtmlTags(
-                                extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"))
-                                .split(",")) {
+                        extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(",")) {
                     movie.addActor(actor.trim());
                 }
             }
@@ -122,10 +118,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
         } catch (IOException error) {
             logger.error("Failed retreiving FilmUP infos for movie : " + movie.getId(FILMUPIT_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return true;
     }
@@ -135,23 +128,19 @@ public class FilmUpITPlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request(baseUrl + opinionsPageID);
             float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
-            movie.addRating(FILMUPIT_PLUGIN_ID, (int)rating);
+            movie.addRating(FILMUPIT_PLUGIN_ID, (int) rating);
         } catch (IOException error) {
             logger.error("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
     /*
-     * 
-     * 
+     *
+     *
      * private int parseRating(String rating) { int index = rating.indexOf("etoile_"); try { return (int) (Float.parseFloat(rating.substring(index + 7, index +
      * 8)) / 4.0 * 100); } catch (Exception error) { return -1; } }
      */
-
     @Override
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
@@ -160,13 +149,13 @@ public class FilmUpITPlugin extends ImdbPlugin {
             if (StringTools.isNotValidString(FilmUpITId)) {
                 FilmUpITId = getFilmUpITId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile);
             }
-            
+
             // we also get imdb Id for extra infos
             if (StringTools.isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
                 logger.debug("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
-            
+
             if (StringTools.isValidString(FilmUpITId)) {
                 mediaFile.setId(FILMUPIT_PLUGIN_ID, FilmUpITId);
                 if (mediaFile.isTVShow()) {
@@ -189,7 +178,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
     /**
      * retrieve the FilmUpITId matching the specified movie name. This routine is base on a FilmUpIT search.
-     * 
+     *
      * @throws ParseException
      */
     private String getFilmUpITId(String movieName, String year, Identifiable mediaFile) throws ParseException {

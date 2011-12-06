@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -16,9 +16,6 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -31,6 +28,7 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * @author Durin
@@ -43,7 +41,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     boolean gettitle;
     private int preferredPlotLength;
     private int preferredOutlineLength;
-
     com.moviejukebox.plugin.ImdbPlugin imdbp;
 
     public OfdbPlugin() {
@@ -88,7 +85,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         URL url;
         URLConnection urlConn;
         DataOutputStream printout = null;
-        
+
         try {
             // URL of CGI-Bin script.
             url = new URL("http://www.ofdb.de/view.php?page=suchergebnis");
@@ -109,11 +106,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             printout.flush();
             printout.close();
             // Get response data.
-            StringWriter site = new StringWriter();
+            StringBuilder site = new StringBuilder();
             input = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
             String line;
             while ((line = input.readLine()) != null) {
-                site.write(line);
+                site.append(line);
             }
             input.close();
             String xml = site.toString();
@@ -137,7 +134,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             } catch (IOException e) {
                 // Ignore
             }
-            
+
             try {
                 printout.close();
             } catch (IOException e) {
@@ -177,7 +174,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Scan OFDB html page for the specified movie
-     * 
+     *
      * @param plotBeforeImdb
      */
     private boolean updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
@@ -202,49 +199,38 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 // Did we get some translated plot and didn't have previous plotFromNfo ?
                 if (!Movie.UNKNOWN.equalsIgnoreCase(plot) && !plotBeforeImdb) {
                     movie.setPlot(plot);
-                    
+
                     String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
                     movie.setOutline(outline);
                 }
             }
 
         } catch (Exception error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return false;
         }
         return true;
     }
 
     private static String request(URL url) throws IOException {
-        StringWriter content = null;
+        StringBuilder content = new StringBuilder();
 
+        BufferedReader in = null;
         try {
-            content = new StringWriter();
-
-            BufferedReader in = null;
-            try {
-                URLConnection cnx = url.openConnection();
-                cnx.setRequestProperty("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
-                in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), "UTF-8"));
-                String line;
-                while ((line = in.readLine()) != null) {
-                    content.write(line);
-                }
-
-            } finally {
-                if (in != null) {
-                    in.close();
-                }
+            URLConnection cnx = url.openConnection();
+            cnx.setRequestProperty("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
+            in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                content.append(line);
             }
-            return content.toString();
+
         } finally {
-            if (content != null) {
-                content.close();
+            if (in != null) {
+                in.close();
             }
         }
+        return content.toString();
     }
 
     protected String extractTag(String src, String findStr, int skip) {

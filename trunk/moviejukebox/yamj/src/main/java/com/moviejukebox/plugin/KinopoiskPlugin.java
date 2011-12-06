@@ -25,9 +25,6 @@
 package com.moviejukebox.plugin;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -49,6 +46,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 
 public class KinopoiskPlugin extends ImdbPlugin {
@@ -957,10 +955,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             movie.setTitle(newTitle);
         } catch (Exception error) {
             logger.error("Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return true;
     }
@@ -1248,10 +1243,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             returnStatus = true;
         } catch (Exception error) {
             logger.error("Failed retreiving KinopoiskPlugin data for person : " + kinopoiskId);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
     }

@@ -1,19 +1,17 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -44,14 +42,14 @@ public class ThreadExecutor<T> implements ThreadFactory {
     private boolean ignoreErrors = true;
     private static Logger logger = Logger.getLogger("moviejukebox");
     private Semaphore runningThreads, ioThreads;
-
     private static Map<String, String> hostgrp = new HashMap<String, String>();
     private static Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();
+
     /**
      * Handle IO slots allocation to avoid throttling / ban on source sites Find the proper semaphore for each host:
      *  - Map each unique host to a group
      * (hostgrp) - Max each group (rule) to a semaphore
-     * 
+     *
      * @author Gabriel Corneanu
      */
     static {
@@ -83,12 +81,11 @@ public class ThreadExecutor<T> implements ThreadFactory {
      * - create with thread count and io slots
      * - submit tasks (Callable)
      * - call waitFor; this logs
-     * 
+     *
      * - in addition processing threads should call pairs EnterIO, LeaveIO to switch from running to io state
-     * 
+     *
      * @author Gabriel Corneanu
      */
-
     public ThreadExecutor(int threadsRun, int threadsIo) {
         this.threadsRun = threadsRun;
         this.threadsIo = threadsIo <= 0 ? threadsRun : threadsIo;
@@ -98,15 +95,18 @@ public class ThreadExecutor<T> implements ThreadFactory {
 
     /*
      * Thread descendant class used for our execution scheduling
-     */ 
+     */
     static private class ScheduledThread extends Thread {
+
         private Semaphore sRun, sIo, sIotarget;
         private Stack<String> hosts = new Stack<String>();
+
         private ScheduledThread(Runnable r, Semaphore sRun, Semaphore sIo) {
             super(r);
             this.sRun = sRun;
             this.sIo = sIo;
         }
+
         @Override
         public void run() {
             sRun.acquireUninterruptibly();
@@ -120,16 +120,16 @@ public class ThreadExecutor<T> implements ThreadFactory {
         private void enterIO(URL url) {
             String host = url.getHost().toLowerCase();
 
-            if(!hosts.empty()){
+            if (!hosts.empty()) {
                 //going to the same host is ok
-                if(!host.equals(hosts.peek())){
-                  logger.debug("ThreadExecutor: Nested EnterIO("+host+"); previous("+hosts.peek()+"); ignored");
+                if (!host.equals(hosts.peek())) {
+                    logger.debug("ThreadExecutor: Nested EnterIO(" + host + "); previous(" + hosts.peek() + "); ignored");
                 }
                 hosts.push(host);
                 return;
             }
             String semaphoreGroup;
-            synchronized(hostgrp) {
+            synchronized (hostgrp) {
                 semaphoreGroup = hostgrp.get(host);
                 // first time not found, search for matching group
                 if (semaphoreGroup == null) {
@@ -159,19 +159,19 @@ public class ThreadExecutor<T> implements ThreadFactory {
             //ready to go...
         }
 
-        private void leaveIO(){
+        private void leaveIO() {
             if (hosts.empty()) {
-                logger.info(ThreadExecutor.getStackTrace(new Throwable("ThreadExecutor: Unbalanced LeaveIO call.")));
+                logger.info(SystemTools.getStackTrace(new Throwable("ThreadExecutor: Unbalanced LeaveIO call.")));
                 return;
             }
             String host = hosts.pop();
             if (!hosts.empty()) {
-                if(!host.equals(hosts.peek())){
-                  logger.debug("Nested LeaveIO("+host+"); previous("+hosts.peek()+"); ignored");
+                if (!host.equals(hosts.peek())) {
+                    logger.debug("Nested LeaveIO(" + host + "); previous(" + hosts.peek() + "); ignored");
                 }
                 return;
             }
-    
+
             //String dbgstr = "host="+host+"; thread="+getName();
             sIotarget.release();
             sIo.release();
@@ -182,63 +182,63 @@ public class ThreadExecutor<T> implements ThreadFactory {
         }
     }
 
-    static public void enterIO(URL url){
+    static public void enterIO(URL url) {
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
             // logger.info(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to EnterIO; ignored.")));
             // If this isn't a managed thread, then just exit.
             return;
         }
-        ((ScheduledThread)Thread.currentThread()).enterIO(url);
+        ((ScheduledThread) Thread.currentThread()).enterIO(url);
     }
 
-    static public void enterIO(String url){
+    static public void enterIO(String url) {
         URL u;
         try {
             u = new URL(url);
         } catch (MalformedURLException e) {
             try {
-                u = new URL("http://"+url);
+                u = new URL("http://" + url);
             } catch (MalformedURLException e1) {
                 logger.info("ThreadExecutor: Invalid call to EnterIO.");
-                logger.info(getStackTrace(e1));
+                logger.info(SystemTools.getStackTrace(e1));
                 return;
             }
         }
         enterIO(u);
     }
 
-    static public void leaveIO(){
+    static public void leaveIO() {
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
             //logger.info(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to LeaveIO; ignored.")));
             // If this isn't a managed thread, then just exit.
             return;
         }
-        ((ScheduledThread)Thread.currentThread()).leaveIO();
+        ((ScheduledThread) Thread.currentThread()).leaveIO();
     }
 
     @Override
     public Thread newThread(Runnable r) {
-        return new ScheduledThread(r, runningThreads, ioThreads);        
+        return new ScheduledThread(r, runningThreads, ioThreads);
     }
 
-    public void restart(){
+    public void restart() {
         values.clear();
         runningThreads = new Semaphore(threadsRun);
-        ioThreads      = new Semaphore(threadsIo);
+        ioThreads = new Semaphore(threadsIo);
 
         //refined: use a fixed queue with some extra space; in relation with submit
         //the size is just an approximation; it has no real connection to thread count
         //make it reasonable sized to avoid waiting in submit
         queue = new ArrayBlockingQueue<Runnable>(100);
 //        queue = new LinkedBlockingQueue<Runnable>();
-        //allow more threads, they are managed by semaphores 
+        //allow more threads, they are managed by semaphores
         pool = new ThreadPoolExecutor(threadsRun, 2 * threadsTotal,
-                        100, TimeUnit.MILLISECONDS,
-                        queue,
-                        this);
+                100, TimeUnit.MILLISECONDS,
+                queue,
+                this);
     }
 
-    public void submit(Callable<T> c) throws InterruptedException{
+    public void submit(Callable<T> c) throws InterruptedException {
         //never queue too many objects; wait for some space to limit resource allocations
         //in case of fixed size queues, tasks could even be rejected
         //therefore wait here a very short time
@@ -248,30 +248,20 @@ public class ThreadExecutor<T> implements ThreadFactory {
         values.add(pool.submit(c));
     }
 
-    public void submit(Runnable r) throws InterruptedException{
+    public void submit(Runnable r) throws InterruptedException {
         T result = null;
         submit(Executors.callable(r, result));
     }
 
-    public static String getStackTrace(Throwable t)
-    {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw, true);
-        t.printStackTrace(pw);
-        pw.flush();
-        sw.flush();
-        return sw.toString();
-    }
-
-    public ArrayList<T> waitForValues() throws Throwable{
+    public ArrayList<T> waitForValues() throws Throwable {
         pool.shutdown();
         ArrayList<T> v = new ArrayList<T>(values.size());
-        for(Future<T> f: values){
-            try{
+        for (Future<T> f : values) {
+            try {
                 v.add(f.get());
             } catch (ExecutionException e) {
-                if(ignoreErrors) {
-                    logger.info(getStackTrace(e.getCause()));
+                if (ignoreErrors) {
+                    logger.info(SystemTools.getStackTrace(e.getCause()));
                 } else {
                     throw e.getCause();
                 }
@@ -283,9 +273,9 @@ public class ThreadExecutor<T> implements ThreadFactory {
         return v;
     }
 
-    public void waitFor() throws Throwable{
+    public void waitFor() throws Throwable {
         waitForValues();
-        int dif = threadsIo - ioThreads.availablePermits(); 
+        int dif = threadsIo - ioThreads.availablePermits();
         if (dif != 0) {
             logger.error("ThreadExecutor: Unfinished downloading threads detected: " + dif);
         }

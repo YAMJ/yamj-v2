@@ -1,23 +1,20 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,9 +33,9 @@ import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 
 /**
- * Save a pre-defined list of attributes of the jukebox and properties 
+ * Save a pre-defined list of attributes of the jukebox and properties
  * for use in subsequent processing runs to determine if an attribute
- * has changed and force a rescan of the appropriate data 
+ * has changed and force a rescan of the appropriate data
  * @author stuart.boston
  *
  */
@@ -52,7 +49,7 @@ public class JukeboxProperties {
     private final static String GENRE = "Genre";
     private final static String CERTIFICATION = "Certification";
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
-    
+
     static {
         // Set up the properties to watch:                                          xml           thumbnail     fanart        videoimage    trailers
         //                                                                                 html          poster        banner        index
@@ -60,13 +57,13 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("mjb.skin.dir",                        false, true,  true,  true,  false, false, false, true,  false));
         propInfo.add(new PropertyInformation("fanart.movie.download",               false, false, false, false, true,  false, false, false, false));
         propInfo.add(new PropertyInformation("fanart.tv.download",                  false, false, false, false, true,  false, false, false, false));
-        
+
         propInfo.add(new PropertyInformation("mjb.includeEpisodePlots",             true,  false, false, false, false, false, false, false, false));
         propInfo.add(new PropertyInformation("mjb.includeEpisodeRating",            true,  false, false, false, false, false, false, false, false));
         propInfo.add(new PropertyInformation("mjb.includeVideoImages",              true,  false, false, false, false, false, true,  false, false));
         propInfo.add(new PropertyInformation("mjb.includeWideBanners",              false, false, false, false, false, true,  false, false, false));
         propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle",  true,  true,  false, false, false, false, false, false, false));
-        
+
         propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerPage",             false, true,  true,  false, false, false, false, true,  false));
         propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerLine",             false, true,  true,  false, false, false, false, true,  false));
         propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage",           false, true,  true,  false, false, false, false, true,  false));
@@ -91,7 +88,7 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("thumbnails.logoTV",                   false, true,  true,  false, false, false, false, false, false));
         propInfo.add(new PropertyInformation("thumbnails.logoSet",                  false, true,  true,  false, false, false, false, false, false));
         propInfo.add(new PropertyInformation("thumbnails.language",                 false, true,  true,  false, false, false, false, false, false));
-        
+
         propInfo.add(new PropertyInformation("posters.width",                       false, true,  false, true,  false, false, false, false, false));
         propInfo.add(new PropertyInformation("posters.height",                      false, true,  false, true,  false, false, false, false, false));
         propInfo.add(new PropertyInformation("posters.logoHD",                      false, true,  false, true,  false, false, false, false, false));
@@ -105,13 +102,13 @@ public class JukeboxProperties {
      * Check to see if the file needs to be processed (if it exists) or just created
      * Note: This *MIGHT* cause issues with some programs that assume all XML files in the jukebox folder are
      * videos or indexes. However, they should just deal with this themselves :-)
-     * 
+     *
      * @param jukebox
-     * @param mediaLibraryPaths 
+     * @param mediaLibraryPaths
      */
     public static void readDetailsFile(Jukebox jukebox, Collection<MediaLibraryPath> mediaLibraryPaths) {
-        boolean monitor = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false"); 
-        
+        boolean monitor = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false");
+
         // Read the mjbDetails file that stores the jukebox properties we want to watch
         File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
         FileTools.addJukeboxFile(mjbDetails.getName());
@@ -119,42 +116,42 @@ public class JukeboxProperties {
             // If we are monitoring the file and it exists, then read and check, otherwise create the file
             if (monitor && mjbDetails.exists()) {
                 PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
-                
+
                 if (pi.isBannerOverwrite()) {
                     logger.debug("Setting 'forceBannerOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceBannersOverwrite", "true");
                 }
-                
+
                 if (pi.isFanartOverwrite()) {
                     logger.debug("Setting 'forceFanartOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceFanartOverwrite", "true");
                 }
-                
+
                 if (pi.isHtmlOverwrite()) {
                     logger.debug("Setting 'forceHtmlOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceHTMLOverwrite", "true");
                 }
-                
+
                 if (pi.isPosterOverwrite()) {
                     logger.debug("Setting 'forcePosterOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forcePosterOverwrite", "true");
                 }
-                
+
                 if (pi.isThumbnailOverwrite()) {
                     logger.debug("Setting 'forceThumbnailOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceThumbnailOverwrite", "true");
                 }
-                
+
                 if (pi.isVideoimageOverwrite()) {
                     logger.debug("Setting 'forceVideoimageOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceVideoimageOverwrite", "true");
                 }
-                
+
                 if (pi.isXmlOverwrite()) {
                     logger.debug("Setting 'forceXmlOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceXMLOverwrite", "true");
                 }
-                
+
                 if (pi.isIndexOverwrite()) {
                     logger.debug("Setting 'forceIndexOverwrite = true' due to property file changes");
                     PropertiesUtil.setProperty("mjb.forceIndexOverwrite", "true");
@@ -166,11 +163,8 @@ public class JukeboxProperties {
                 }
             }
         } catch (Exception error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
             logger.error("Failed creating " + mjbDetails.getName() + " file!");
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return;
     }
@@ -186,7 +180,7 @@ public class JukeboxProperties {
 
         Document docMjbDetails;
         Element eRoot, eJukebox, eProperties;
-        
+
         try {
             logger.debug("Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
             if (mjbDetails.exists() && !mjbDetails.delete()) {
@@ -197,16 +191,16 @@ public class JukeboxProperties {
             logger.error("JukeboxProperties: Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
             return;
         }
-        
+
         try {
             // Start with a blank document
             docMjbDetails = DOMHelper.createDocument();
             docMjbDetails.appendChild(docMjbDetails.createComment("This file was created on: " + dateFormat.format(System.currentTimeMillis())));
-            
+
             //create the root element and add it to the document
             eRoot = docMjbDetails.createElement("root");
             docMjbDetails.appendChild(eRoot);
-            
+
             //create child element, add an attribute, and add to root
             eJukebox = docMjbDetails.createElement(JUKEBOX);
             eRoot.appendChild(eJukebox);
@@ -229,16 +223,16 @@ public class JukeboxProperties {
 
             // Save the run date
             DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", dateFormat.format(System.currentTimeMillis()));
-            
+
             // Save the details directory name
             DOMHelper.appendChild(docMjbDetails, eJukebox, "DetailsDirName", jukebox.getDetailsDirName());
-            
+
             // Save the jukebox location
             DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxLocation", jukebox.getJukeboxRootLocation());
-            
+
             // Save the root index filename
             DOMHelper.appendChild(docMjbDetails, eJukebox, "indexFile", getProperty("mjb.indexFile", "index.htm"));
-            
+
             // Save the library paths. This isn't very accurate, any change to this file will cause the jukebox to be rebuilt
             DOMHelper.appendChild(docMjbDetails, eJukebox, "LibraryPath", mediaLibraryPaths.toString());
 
@@ -250,45 +244,45 @@ public class JukeboxProperties {
 
             // save the Certification file details
             writeGenericXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, docMjbDetails, eJukebox);
-            
+
             if (StringTools.isValidString(SkinProperties.getSkinName())) {
                 Element eSkin = docMjbDetails.createElement(SKIN);
                 eRoot.appendChild(eSkin);
-                
+
                 DOMHelper.appendChild(docMjbDetails, eSkin, "name", SkinProperties.getSkinName());
-                
+
                 if (StringTools.isValidString(SkinProperties.getSkinVersion())) {
                     DOMHelper.appendChild(docMjbDetails, eSkin, "version", SkinProperties.getSkinVersion());
                 }
-                
+
                 if (StringTools.isValidString(SkinProperties.getSkinDate())) {
                     DOMHelper.appendChild(docMjbDetails, eSkin, "date", SkinProperties.getSkinDate());
                 }
-                
+
                 if (SkinProperties.getFileDate() > 0) {
                     DOMHelper.appendChild(docMjbDetails, eSkin, "filedate", dateFormat.format(SkinProperties.getFileDate()));
                 }
             }
-            
+
             // Create the statistics node
             eRoot.appendChild(generateStatistics(docMjbDetails, library));
-            
+
             // Create the properties node
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
-            
+
             Iterator<PropertyInformation> iterator = propInfo.iterator();
             while (iterator.hasNext()) {
                 appendProperty(docMjbDetails, eProperties, iterator.next().getPropertyName());
             }
-            
+
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
         } catch (Exception error) {
             logger.error("JukeboxProperties: Error creating " + mjbDetails.getName() + " file");
             error.printStackTrace();
         }
     }
-    
+
     /**
      * Generate some statistics for the library
      * @param doc
@@ -305,12 +299,12 @@ public class JukeboxProperties {
         if (stat > 0) {
             DOMHelper.appendChild(doc, eStats, "Movies", String.valueOf(stat));
         }
-        
+
         stat=library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_TVSHOWS);
         if (stat > 0) {
             DOMHelper.appendChild(doc, eStats, "TVShows", String.valueOf(stat));
         }
-        
+
         return eStats;
     }
 
@@ -325,11 +319,11 @@ public class JukeboxProperties {
         // Save the file name
         String tempFilename = getProperty(xmlFileProperty, Movie.UNKNOWN);
         DOMHelper.appendChild(docMjbDetails, eProperties, jukeboxPropertyCategory + "Filename", tempFilename);
-        
+
         // Save the file date
         DOMHelper.appendChild(docMjbDetails, eProperties, jukeboxPropertyCategory + "ModifiedDate", getFileDate(tempFilename));
     }
-    
+
     /**
      * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
      * @param tempFilename
@@ -347,11 +341,11 @@ public class JukeboxProperties {
             return Movie.UNKNOWN;
         }
     }
-    
+
     /**
      * Read the attributes from the file and compare and set any force overwrites needed
      * @param mjbDetails
-     * @param mediaLibraryPaths 
+     * @param mediaLibraryPaths
      * @return PropertyInformation Containing the merged overwrite values
      */
     public static PropertyInformation processFile(File mjbDetails, Collection<MediaLibraryPath> mediaLibraryPaths) {
@@ -366,39 +360,39 @@ public class JukeboxProperties {
             error.getStackTrace();
             return piReturn;
         }
-        
+
         NodeList nlElements;
         Node nDetails;
-        
+
         nlElements = docMjbDetails.getElementsByTagName(JUKEBOX);
         nDetails = nlElements.item(0);
-        
+
         if (nDetails.getNodeType() == Node.ELEMENT_NODE) {
             Element eJukebox = (Element) nDetails;
             // logger.fine("DetailsDirName : " + DOMHelper.getValueFromElement(eJukebox, "DetailsDirName"));
             // logger.fine("JukeboxLocation: " + DOMHelper.getValueFromElement(eJukebox, "JukeboxLocation"));
-            
+
             // Check the library file
             String mlp = DOMHelper.getValueFromElement(eJukebox, "LibraryPath");
             if (!mediaLibraryPaths.toString().equalsIgnoreCase(mlp)) {
                 // Overwrite the indexes only.
                 piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", false, false, false, false, false, false, false, true, false));
             }
-            
+
             // Check the Categories file
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, false, false, false, false, false, false, false, true, false));
                 logger.debug("JukeboxProperties: Categories has changed, so need to update");
             }
-            
+
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(GENRE, false, false, false, false, false, false, false, true, false));
                 logger.debug("JukeboxProperties: Genres has changed, so need to update");
             }
-            
+
             // Check the Certifications file
             if (!validXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
@@ -407,37 +401,37 @@ public class JukeboxProperties {
             }
 
         }
-        
+
         nlElements = docMjbDetails.getElementsByTagName(PROPERTIES);
         nDetails = nlElements.item(0);
-        
+
         if (nDetails == null) {
             // Just return the property info file as is.
             return piReturn;
         }
-        
+
         if (nDetails.getNodeType() == Node.ELEMENT_NODE) {
             Element eJukebox = (Element) nDetails;
             String propName, propValue, propCurrent;
-            
+
             Iterator<PropertyInformation> iterator = propInfo.iterator();
             while (iterator.hasNext()) {
                 PropertyInformation pi = iterator.next();
                 propName = pi.getPropertyName();
                 propValue = DOMHelper.getValueFromElement(eJukebox, propName);
                 propCurrent = PropertiesUtil.getProperty(propName, "");
-                
+
                 if (!propValue.equalsIgnoreCase(propCurrent)) {
                     // Update the return value with the information from this property
                     piReturn.mergePropertyInformation(pi);
                 }
             }
         }
-        
+
         logger.debug("JukeboxProperties: Returning: " + piReturn.toString());
         return piReturn;
     }
-    
+
     /**
      * Compare the current XML file details with the stored ones
      * Any errors with this check will return "true" to ensure no properties are overwritten
@@ -454,7 +448,7 @@ public class JukeboxProperties {
                 // Filenames don't match
                 return false;
             }
-            
+
             // Check to see if the file dates have changed.
             String tempFileDate = getFileDate(jukeboxFilename);
             if (!tempFileDate.equals(jukeboxDate)) {
@@ -464,7 +458,7 @@ public class JukeboxProperties {
             logger.warn("JukeboxProperties: Error validating " + jukeboxPropertyCategory);
             return true;
         }
-        
+
         // All the tests pass, so these are the same
         return true;
     }
@@ -477,7 +471,7 @@ public class JukeboxProperties {
      */
     private static void appendProperty(Document doc, Element element, String propertyName) {
         String propValue = PropertiesUtil.getProperty(propertyName);
-        
+
         // Only write valid values
         if (StringTools.isValidString(propValue)) {
             DOMHelper.appendChild(doc, element, propertyName, propValue);
@@ -486,7 +480,7 @@ public class JukeboxProperties {
 
     /**
      * Class to define the property name and the impact on each of the overwrite flags.
-     * If the 
+     * If the
      * @author stuart.boston
      *
      */
@@ -501,11 +495,11 @@ public class JukeboxProperties {
         private boolean videoimageOverwrite = false;
         private boolean indexOverwrite      = false;
         private boolean trailersOverwrite   = false;
-        
+
         public PropertyInformation(String property,
                                     boolean xml,
                                     boolean html,
-                                    boolean thumbnail, 
+                                    boolean thumbnail,
                                     boolean poster,
                                     boolean fanart,
                                     boolean banner,
@@ -595,7 +589,7 @@ public class JukeboxProperties {
         public void setVideoimagesOverwrite(boolean videoimageOverwrite) {
             this.videoimageOverwrite = videoimageOverwrite;
         }
-        
+
         /**
          * Merge two PropertyInformation objects. Sets the overwrite flags to true.
          * @param newPI
@@ -611,7 +605,7 @@ public class JukeboxProperties {
             this.indexOverwrite      = indexOverwrite      || newPI.isIndexOverwrite();
             this.trailersOverwrite   = trailersOverwrite   || newPI.isTrailersOverwrite();
         }
-        
+
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("Name: ");

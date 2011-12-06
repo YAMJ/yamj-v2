@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
- * 
+ *
  * @author altman.matthew
  */
 public class PropertiesUtil {
@@ -52,7 +50,7 @@ public class PropertiesUtil {
     public static boolean setPropertiesStreamName(String streamName) {
         return setPropertiesStreamName(streamName, true);
     }
-    
+
     public static boolean setPropertiesStreamName(String streamName, boolean warnFatal) {
         logger.info("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
@@ -151,11 +149,11 @@ public class PropertiesUtil {
      * Return the key property as a float
      * @param key
      * @param defaultValue
-     * @return 
+     * @return
      */
     public static float getFloatProperty(String key, String defaultValue) {
         String property = getProperty(key, defaultValue).trim();
-        
+
         try {
             return Float.parseFloat(property);
         } catch (NumberFormatException nfe) {
@@ -193,7 +191,7 @@ public class PropertiesUtil {
      * my.languages = EN,FR
      * my.languages.EN = English
      * my.languages.FR = French
-     * 
+     *
      * @param prefix Key for keywords list and prefix for value searching.
      * @return Ordered keyword list and map.
      */
@@ -253,17 +251,11 @@ public class PropertiesUtil {
         } catch (IOException error) {
             // Can't write to file
             logger.error("PropertiesUtil: Can't write to file");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
             // Some other error
             logger.error("PropertiesUtil: Error with file");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         } finally {
             // Free up memory
             propertiesList = null;

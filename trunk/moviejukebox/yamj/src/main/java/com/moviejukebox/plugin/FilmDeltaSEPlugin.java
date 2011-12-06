@@ -1,28 +1,25 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 /* Filmdelta.se plugin
- * 
- * Contains code for an alternate plugin for fetching information on 
+ *
+ * Contains code for an alternate plugin for fetching information on
  * movies in swedish
- * 
+ *
  */
 package com.moviejukebox.plugin;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -34,10 +31,11 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se Modified from imdb plugin and Kinopoisk plugin written by Yury Sidorov.
- * 
+ *
  * @author johan.klinge
  * @version 0.5, 30th April 2009
  */
@@ -45,7 +43,6 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     public static String FILMDELTA_PLUGIN_ID = "filmdelta";
     protected TheTvDBPlugin tvdb;
-
     // Get properties for plotlength
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     private int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
@@ -222,10 +219,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
         } catch (Exception error) {
             logger.error("Failed retreiving movie data from filmdelta.se : " + filmdeltaId);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return result;
     }
@@ -270,7 +264,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         }
     }
 
-    protected void getFilmdeltaPlot(Movie movie, String fdeltaHtml) {        
+    protected void getFilmdeltaPlot(Movie movie, String fdeltaHtml) {
         String plot = HTMLTools.extractTag(fdeltaHtml, "<div class=\"text\">", "</p>");
         //strip remaining html tags
         plot = HTMLTools.stripTags(plot);
@@ -280,8 +274,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
             plot = StringTools.trimToLength(plot, preferredOutlineLength, true, plotEnding);
             movie.setOutline(plot);
-        }
-        else {
+        } else {
             logger.info("FilmdeltaSEPlugin: error finding plot for movie: " + movie.getTitle());
         }
     }
@@ -305,13 +298,13 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private void getFilmdeltaDirector(Movie movie, String fdeltaHtml) {
         ArrayList<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
         StringBuilder newDirector = new StringBuilder();
-        
+
         if (!filmdeltaDirectors.isEmpty()) {
             for (String dir : filmdeltaDirectors) {
                 dir = new String(dir.substring(0, dir.length() - 4));
                 newDirector.append(dir).append(" / ");
             }
-            
+
             movie.addDirector(newDirector.substring(0, newDirector.length() - 3).toString());
             logger.debug("FilmdeltaSE: scraped director: " + movie.getDirector());
         }
@@ -356,7 +349,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             rating = result[result.length - 1];
             logger.debug("FildeltaSE: filmdelta rating: " + rating);
             // multiply by 20 to make comparable to IMDB-ratings
-            newRating = (int)(Float.parseFloat(rating) * 20);
+            newRating = (int) (Float.parseFloat(rating) * 20);
         } else {
             logger.warn("FilmdeltaSE: error finding filmdelta rating for movie " + movie.getTitle());
             return;
@@ -379,5 +372,4 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             }
         }
     }
-
 }

@@ -1,13 +1,13 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
+ *      http://code.google.com/p/moviejukebox/people/list
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
  *
- *      For any reuse or distribution, you must make clear to others the 
+ *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
 
@@ -16,17 +16,14 @@
  Written by Yury Sidorov.
 
  First the movie data is searched in IMDB and TheTvDB.
- After that the movie is searched in kinopoisk and movie data 
+ After that the movie is searched in kinopoisk and movie data
  is updated.
 
- It is possible to specify URL of the movie page on kinopoisk in 
- the .nfo file. In this case movie data will be retrieved from this page only.  
+ It is possible to specify URL of the movie page on kinopoisk in
+ the .nfo file. In this case movie data will be retrieved from this page only.
  */
 package com.moviejukebox.plugin.trailer;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +36,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.KinopoiskPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 public class KinopoiskTrailersPlugin extends TrailersPlugin {
 
@@ -154,10 +152,7 @@ public class KinopoiskTrailersPlugin extends TrailersPlugin {
             }
         } catch (Exception error) {
             logger.error(trailersPluginName + " Plugin: Failed retreiving trailer for movie: " + movie.getTitle());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
         return trailerUrl;

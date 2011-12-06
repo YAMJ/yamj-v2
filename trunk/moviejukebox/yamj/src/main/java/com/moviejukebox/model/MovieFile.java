@@ -1,21 +1,18 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -40,6 +37,7 @@ import com.moviejukebox.model.Movie.BooleanYesNoAdapter;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 @SuppressWarnings("serial")
 @XmlType
@@ -271,22 +269,22 @@ public class MovieFile implements Comparable<MovieFile> {
      * Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to,
      * or greater than the specified object. The implementor must ensure sgn(x.compareTo(y)) == -sgn(y.compareTo(x)) for all x and y. (This implies that
      * x.compareTo(y) must throw an exception if y.compareTo(x) throws an exception.)
-     * 
+     *
      * The implementor must also ensure that the relation is transitive: (x.compareTo(y)>0 && y.compareTo(z)>0) implies x.compareTo(z)>0.
-     * 
+     *
      * Finally, the implementor must ensure that x.compareTo(y)==0 implies that sgn(x.compareTo(z)) == sgn(y.compareTo(z)), for all z.
-     * 
+     *
      * It is strongly recommended, but not strictly required that (x.compareTo(y)==0) == (x.equals(y)). Generally speaking, any class that implements the
      * Comparable interface and violates this condition should clearly indicate this fact. The recommended language is "Note: this class has a natural ordering
      * that is inconsistent with equals."
-     * 
+     *
      * In the foregoing description, the notation sgn(expression) designates the mathematical signum function, which is defined to return one of -1, 0, or 1
      * according to whether the value of expression is negative, zero or positive.
-     * 
-     * 
+     *
+     *
      * Parameters: o - the object to be compared. Returns: a negative integer, zero, or a positive integer as this object is less than, equal to, or greater
      * than the specified object. Throws: ClassCastException - if the specified object's type prevents it from being compared to this object.
-     * 
+     *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
@@ -491,11 +489,8 @@ public class MovieFile implements Comparable<MovieFile> {
                 }
             }
         } catch (Exception error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
             logger.error("Error calculating playlink for file " + filePlayLink.getName());
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         } finally {
             // Default to VOD if there's no other type found
             if (playLinkMap.isEmpty()) {
@@ -509,7 +504,7 @@ public class MovieFile implements Comparable<MovieFile> {
 
     /**
      * Return the extension of the file, this will be blank for directories
-     * 
+     *
      * @param file
      * @return
      */

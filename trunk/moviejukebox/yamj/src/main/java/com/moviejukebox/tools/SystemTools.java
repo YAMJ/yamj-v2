@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -20,34 +20,10 @@ import org.apache.log4j.Logger;
 import static com.moviejukebox.tools.StringTools.*;
 
 public class SystemTools {
+
     private static final Logger logger = Logger.getLogger("moviejukebox");
     private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false");
     private static final long cacheOff = (long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50") * 1024 * 1024);
-
-    public static class Base64 {
-        public static String base64code = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789" + "+/";
-
-        public static int splitLinesAt = 76;
-
-        public static String base64Encode(String string) {
-            String unEncoded = string; // Copy the string so we can modify it
-            StringBuilder encoded = new StringBuilder();
-            // determine how many padding bytes to add to the output
-            int paddingCount = (3 - (unEncoded.length() % 3)) % 3;
-            // add any necessary padding to the input
-            unEncoded += "\0\0".substring(0, paddingCount);
-            // process 3 bytes at a time, churning out 4 output bytes
-            // worry about CRLF insertions later
-            for (int i = 0; i < unEncoded.length(); i += 3) {
-                int j = (unEncoded.charAt(i) << 16) + (unEncoded.charAt(i + 1) << 8) + unEncoded.charAt(i + 2);
-                encoded.append(base64code.charAt((j >> 18) & 0x3f) + base64code.charAt((j >> 12) & 0x3f) + base64code.charAt((j >> 6) & 0x3f)
-                                + base64code.charAt(j & 0x3f));
-            }
-            // replace encoded padding nulls with "="
-            // return encoded;
-            return "Basic " + encoded.toString();
-        }
-    }
 
     /**
      * Show the memory available to the program and optionally try to force a garbage collection
@@ -55,10 +31,10 @@ public class SystemTools {
     public static void showMemory(boolean showAll) {
 
         /* This will return Long.MAX_VALUE if there is no preset limit */
-        long  memoryMaximum    = Runtime.getRuntime().maxMemory();
-        long  memoryAllocated  = Runtime.getRuntime().totalMemory();
-        long  memoryFree       = Runtime.getRuntime().freeMemory();
-        float memoryPercentage = (float)(((float)memoryFree/(float)memoryMaximum)*100F);
+        long memoryMaximum = Runtime.getRuntime().maxMemory();
+        long memoryAllocated = Runtime.getRuntime().totalMemory();
+        long memoryFree = Runtime.getRuntime().freeMemory();
+        float memoryPercentage = (float) (((float) memoryFree / (float) memoryMaximum) * 100F);
 
         if (showMemory) {
             if (showAll) {
@@ -69,13 +45,13 @@ public class SystemTools {
                 logger.info("Allocated memory: " + formatFileSize(memoryAllocated));
 
                 /* Total amount of free memory available to the JVM */
-                logger.info("     Free memory: " + formatFileSize(memoryFree)  + " (" + (int)memoryPercentage + "%)");
+                logger.info("     Free memory: " + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
             } else {
                 logger.info("Memory - Maximum: " + formatFileSize(memoryMaximum) + ", Allocated: " + formatFileSize(memoryAllocated) + ", Free: "
-                                + formatFileSize(memoryFree) + " (" + (int)memoryPercentage + "%)");
+                        + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
             }
         }
-        
+
         // Check to see if we need to turn the cache off.
         if (memoryFree < cacheOff) {
             Cache.purgeCache();
@@ -85,6 +61,9 @@ public class SystemTools {
         System.gc();
     }
 
+    /**
+     * Show the memory available to the program and optionally try to force a garbage collection
+     */
     public static void showMemory() {
         showMemory(false);
     }
@@ -95,11 +74,25 @@ public class SystemTools {
      */
     public static void logException(String text) {
         logger.error("***** GENERATED EXCEPTION *****");
-        Exception error = new Exception(text);
-        final Writer eResult = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(eResult);
-        error.printStackTrace(printWriter);
-        logger.error(eResult.toString());
+        Exception tw = new Exception(text);
+        final Writer sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw, true);
+        tw.printStackTrace(pw);
+        logger.error(sw.toString());
     }
-    
+
+    /**
+     * Helper method to print the stack trace to the log file
+     * @param tw
+     * @return
+     */
+    public static String getStackTrace(Throwable tw) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw, true);
+        tw.printStackTrace(pw);
+        pw.flush();
+        sw.flush();
+        return sw.toString();
+    }
+
 }

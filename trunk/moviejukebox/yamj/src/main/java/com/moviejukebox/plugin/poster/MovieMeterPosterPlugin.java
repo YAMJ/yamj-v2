@@ -1,21 +1,20 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpcException;
 
@@ -28,8 +27,6 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
-
     private WebBrowser webBrowser;
 
     private String preferredSearchEngine;
@@ -37,22 +34,19 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
 
     public MovieMeterPosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         webBrowser = new WebBrowser();
         preferredSearchEngine = PropertiesUtil.getProperty("moviemeter.id.search", "moviemeter");
         try {
             session = new MovieMeterPluginSession();
         } catch (XmlRpcException error) {
-            //final Writer eResult = new StringWriter();
-            //final PrintWriter printWriter = new PrintWriter(eResult);
-            //error.printStackTrace(printWriter);
-            //logger.error(eResult.toString());
             logger.debug("MovieMeterPosterPlugin: Failed to create session");
+//            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -136,7 +130,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
                 logger.error("Error : " + e.getMessage());
             }
         }
-        
+
         if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         }
